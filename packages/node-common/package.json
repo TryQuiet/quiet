@@ -7,6 +7,10 @@
   "files": [
     "lib/**/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:TryQuiet/node-common.git"
+  },
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
