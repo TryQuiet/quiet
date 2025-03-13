@@ -6,14 +6,17 @@ import { createLogger } from './logger'
 export interface TimedQueueProcessDef {
   task: () => Promise<void>
   key: string
-  delayMs: number
+  delayMs?: number
 }
 
 export interface TimedQueueOptions {
-  concurrency?: number
   start: boolean
+  baseDelayMs: number
+  concurrency?: number
   backoffFactor?: number
   fuzzFactor?: number
+  maxDelayMs?: number
+  rolloverAtMaxDelay?: boolean
 }
 
 const DEFAULT_CONCURRENCY = 5
@@ -115,6 +118,8 @@ export class TimedQueue {
       return
     }
 
+    const delayMs = processDef.delayMs ?? this.options.baseDelayMs
+
     const process = async (): Promise<void> => {
       this.logger.debug(`Processing task with key ${processDef.key}`)
       try {
@@ -122,8 +127,7 @@ export class TimedQueue {
         this.inProcess.delete(processDef.key)
       } catch (e) {
         this.inProcess.delete(processDef.key)
-        let newDelayMs = processDef.delayMs * (this.options.backoffFactor ?? DEFAULT_BACKOFF_FACTOR)
-        newDelayMs = newDelayMs + this._generateRandomFuzz(newDelayMs)
+        const newDelayMs = this._generateNewDelayMs(delayMs)
         this.logger.warn(
           `Error while processing task with key ${processDef.key}, retrying with delay ${newDelayMs}ms`,
           e
@@ -139,8 +143,21 @@ export class TimedQueue {
 
     const timed = setTimeout(async () => {
       await process()
-    }, processDef.delayMs)
+    }, delayMs)
     this.inProcess.set(processDef.key, timed)
+  }
+
+  private _generateNewDelayMs(oldDelayMs: number): number {
+    let newDelayMs = oldDelayMs * (this.options.backoffFactor ?? DEFAULT_BACKOFF_FACTOR)
+    newDelayMs = newDelayMs + this._generateRandomFuzz()
+    if (this.options.maxDelayMs != null && newDelayMs >= this.options.maxDelayMs) {
+      if (this.options.rolloverAtMaxDelay) {
+        newDelayMs = this.options.baseDelayMs
+      } else {
+        newDelayMs = this.options.maxDelayMs
+      }
+    }
+    return Math.floor(newDelayMs)
   }
 
   /**
@@ -151,13 +168,13 @@ export class TimedQueue {
    * @param delayWithBackoffMs New delay in ms with the backoff factor applied
    * @returns Random fuzz in ms to be added to the delay
    */
-  private _generateRandomFuzz(delayWithBackoffMs: number): number {
+  private _generateRandomFuzz(): number {
     if (this.options.fuzzFactor == null || this.options.fuzzFactor === 0) {
       return 0
     }
-    const min = this.options.fuzzFactor * -1
+    const min = 0
     const max = this.options.fuzzFactor
     const randomFactor = Math.random() * (max - min) + min
-    return delayWithBackoffMs * randomFactor
+    return 5_000 * randomFactor
   }
 }

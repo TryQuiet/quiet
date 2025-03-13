@@ -41,10 +41,11 @@ import {
 } from './libp2p.types'
 import { createLogger } from '../common/logger'
 import { Libp2pDatastore } from './libp2p.datastore'
-import { WEBSOCKET_CIPHER_SUITE } from './libp2p.const'
+import { UNKNOWN_THIS_PEER, WEBSOCKET_CIPHER_SUITE } from './libp2p.const'
 import { libp2pAuth, Libp2pAuth } from './libp2p.auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { TimedQueue } from '../common/timed-queue'
+import { defaultLogger } from './libp2p.logger'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -72,16 +73,31 @@ export class Libp2pService extends EventEmitter {
 
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
-    this.redialQueue = new TimedQueue({ start: true, concurrency: 5, backoffFactor: 1.1, fuzzFactor: 0.5 })
+    this.redialQueue = new TimedQueue({
+      start: true,
+      concurrency: 5,
+      backoffFactor: 1.25,
+      fuzzFactor: 0.1,
+      baseDelayMs: 20_000,
+      maxDelayMs: 90_000,
+      rolloverAtMaxDelay: true,
+    })
   }
 
   public emit(event: string | symbol, ...args: any[]): boolean {
     this.logger.info(`Emitting event: ${event.toString()}`, args)
     if (
       event === Libp2pEvents.AUTH_DISCONNECTED &&
+      args[0].event != null &&
       ['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(args[0].event.type)
     ) {
-      this.hangUpPeer(args[0].connection.remoteAddr.toString())
+      const innerEvent = args[0].event
+      const redial =
+        (innerEvent.type === 'ERROR' &&
+          innerEvent.payload.type === 'DEVICE_UNKNOWN' &&
+          innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
+        (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
+      this.hangUpPeer(args[0].connection.remoteAddr.toString(), redial)
     }
     return super.emit(event, ...args)
   }
@@ -91,10 +107,8 @@ export class Libp2pService extends EventEmitter {
    *
    * @param peerAddress Peer address to redial
    */
-  public redialPeer = async (peerAddress: string): Promise<void> => {
-    const delayMs: number = 20_000
+  public redialPeerAfterDelay = async (peerAddress: string): Promise<void> => {
     await this.redialQueue.enqueue({
-      delayMs,
       key: peerAddress,
       task: async (): Promise<void> => {
         await this.dialPeer(peerAddress, { throwOnError: true, redialOnError: false })
@@ -115,7 +129,7 @@ export class Libp2pService extends EventEmitter {
       } catch (e) {
         this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
         if (options.redialOnError) {
-          await this.redialPeer(peerAddress)
+          await this.redialPeerAfterDelay(peerAddress)
         }
         if (options.throwOnError) {
           throw e
@@ -209,7 +223,7 @@ export class Libp2pService extends EventEmitter {
     this.logger.info('All peers hung up')
   }
 
-  public async hangUpPeer(peerAddress: string) {
+  public async hangUpPeer(peerAddress: string, redial = false) {
     this.logger.info('Hanging up on peer', peerAddress)
     const controller = new AbortController()
     try {
@@ -233,6 +247,10 @@ export class Libp2pService extends EventEmitter {
       if (!controller.signal.aborted) {
         controller.abort(e)
       }
+    }
+
+    if (redial) {
+      await this.redialPeerAfterDelay(peerAddress)
     }
   }
 
@@ -284,6 +302,7 @@ export class Libp2pService extends EventEmitter {
     try {
       libp2p = await createLibp2p({
         start: false,
+        logger: defaultLogger(),
         datastore: this.libp2pDatastore.init(),
         connectionManager: {
           maxConnections: 20, // TODO: increase?
@@ -291,10 +310,9 @@ export class Libp2pService extends EventEmitter {
           maxParallelDials: 10,
           inboundUpgradeTimeout: 30_000,
           outboundUpgradeTimeout: 30_000,
-          protocolNegotiationTimeout: 10_000,
+          protocolNegotiationTimeout: 20_000,
           maxDialQueueLength: 500,
-          reconnectRetries: 25,
-          reconnectRetryInterval: 10_000,
+          reconnectRetries: 0,
         },
         privateKey: params.peerId.privKey,
         addresses: { listen: params.listenAddresses },
@@ -313,6 +331,7 @@ export class Libp2pService extends EventEmitter {
             maxInboundStreams: 1024,
             maxOutboundStreams: 1024,
             maxMessageSize: 10485760,
+            enableKeepAlive: true,
           }),
           mplex({
             disconnectThreshold: 20,
@@ -410,15 +429,15 @@ export class Libp2pService extends EventEmitter {
     this.libp2pInstance.addEventListener('peer:identify', async event => {
       const identifyResult = event.detail
       this.logger.info(`Identified peer`, identifyResult.peerId.toString())
-      if ((await this.libp2pInstance?.peerStore?.get(identifyResult.peerId))?.tags.has(KEEP_ALIVE)) {
-        return
-      }
+      // if ((await this.libp2pInstance?.peerStore?.get(identifyResult.peerId))?.tags.has(KEEP_ALIVE)) {
+      //   return
+      // }
 
-      await this.libp2pInstance?.peerStore?.patch(identifyResult.peerId, {
-        tags: {
-          [KEEP_ALIVE]: {},
-        },
-      })
+      // await this.libp2pInstance?.peerStore?.patch(identifyResult.peerId, {
+      //   tags: {
+      //     [KEEP_ALIVE]: {},
+      //   },
+      // })
     })
 
     this.libp2pInstance.addEventListener('peer:discovery', peer => {

@@ -42,6 +42,17 @@ export enum ColorField {
   OBJECT_ERROR = 'object_error',
 }
 
+export type CallableQuietLogger = {
+  (message: any, ...optionalParams: any[]): void
+  error(formatter: string, ...args: any[]): void
+  trace(formatter: any, ...args: any[]): void
+  enabled: boolean
+  LOGGER: QuietLogger
+}
+
+export type LogFormatters = { [char: string]: (value?: any) => string }
+type FormattedMessage = { formatted: string; params: any[] }
+
 /**
  * This determines the color scheme of each log type
  */
@@ -100,7 +111,7 @@ export const __nodeConsoleLogger = Console instanceof Function ? new Console(pro
  */
 export class QuietLogger {
   // This is based on the `debug` package and is backwards-compatible with the old logger's behavior (for the most part)
-  private logSetting: LogSetting = LogSetting.ON
+  public readonly logSetting: LogSetting = LogSetting.ON
   // Tracks timers created by the `time` log method
   private readonly timers: Map<string, number> = new Map()
 
@@ -112,13 +123,19 @@ export class QuietLogger {
   constructor(
     private readonly internalLogMethod: InternalLogMethod,
     public name: string,
-    public parallelConsoleLog: boolean = false
+    public parallelConsoleLog: boolean = false,
+    private formatters?: LogFormatters
   ) {
     this.logSetting = this._getLogSetting()
   }
 
   extend(moduleName: string): QuietLogger {
-    return new QuietLogger(this.internalLogMethod, `${this.name}:${moduleName}`, this.parallelConsoleLog)
+    return new QuietLogger(
+      this.internalLogMethod,
+      `${this.name}:${moduleName}`,
+      this.parallelConsoleLog,
+      this.formatters
+    )
   }
 
   /*
@@ -266,8 +283,8 @@ export class QuietLogger {
    * @returns Array of formatted log strings
    */
   private formatLog(level: LogLevel, message: any, ...optionalParams: any[]): string[] {
-    const formattedMessage = this.formatMessage(message, level)
-    const formattedOptionalParams = optionalParams.map((param: any) => this.formatObject(param, level))
+    const { formatted: formattedMessage, params } = this.formatMessage(message, level, ...optionalParams)
+    const formattedOptionalParams = params.map((param: any) => this.formatObject(param, level))
     return [formattedMessage, ...formattedOptionalParams]
   }
 
@@ -278,11 +295,11 @@ export class QuietLogger {
    * @param level The level we are logging at
    * @returns A colorized log string
    */
-  private formatMessage(message: any, level: LogLevel): string {
+  private formatMessage(message: any, level: LogLevel, ...optionalParams: any[]): FormattedMessage {
     let formattedLevel = level.toUpperCase()
     let scope = this.name
     let date = DateTime.utc().toISO()
-    const formattedMessage = this.formatMessageText(message, level)
+    const { formatted, params } = this.formatMessageText(message, level, ...optionalParams)
 
     if (COLORIZE) {
       formattedLevel = colors[level](formattedLevel)
@@ -290,7 +307,10 @@ export class QuietLogger {
       date = this._getColorForField(ColorField.DATE, level)(date)
     }
 
-    return `${date} ${formattedLevel} ${scope} ${formattedMessage}`
+    return {
+      formatted: `${date} ${formattedLevel} ${scope} ${formatted}`,
+      params,
+    }
   }
 
   /**
@@ -300,17 +320,62 @@ export class QuietLogger {
    * @param level The level we are logging at
    * @returns A colorized log message string
    */
-  private formatMessageText(message: any, level: LogLevel): string {
+  private formatMessageText(message: any, level: LogLevel, ...optionalParams: any[]): FormattedMessage {
     if (['string', 'number', 'boolean', 'bigint'].includes(typeof message)) {
-      let formattedMessageText = message
-      if (COLORIZE) {
-        formattedMessageText = colors[`${level}_text`](message)
+      let formatted = message
+      let params: any[] = optionalParams
+      if (typeof message === 'string') {
+        const withFormatters = this.applyFormatters(formatted, ...optionalParams)
+        formatted = withFormatters.formatted
+        params = withFormatters.params
       }
-      return formattedMessageText
+      if (COLORIZE) {
+        formatted = colors[`${level}_text`](formatted)
+      }
+      return {
+        formatted,
+        params,
+      }
     }
 
     // we override the object coloring to be the same as normal level-specific text
-    return this.formatObject(message, level, level)
+    return {
+      formatted: this.formatObject(message, level),
+      params: optionalParams,
+    }
+  }
+
+  // stolen from the debug package and retooled
+  private applyFormatters(message: string, ...optionalParams: any[]): FormattedMessage {
+    if (this.formatters == null) {
+      return {
+        formatted: message,
+        params: optionalParams,
+      }
+    }
+
+    let index = 0
+    const formatted = message.replace(/%([a-zA-Z%])/g, (match, format) => {
+      // If we encounter an escaped % then don't increase the array index
+      if (match === '%%') {
+        return '%'
+      }
+      if (index > 0) index++
+      const formatter = this.formatters![format]
+      if (formatter != null && typeof formatter === 'function') {
+        const val = optionalParams[index]
+        match = formatter(val)
+        // Now we need to remove `args[index]` since it's inlined in the `format`
+        optionalParams.splice(index, 1)
+        if (index > 0) index--
+      }
+      return match
+    })
+
+    return {
+      formatted,
+      params: optionalParams,
+    }
   }
 
   /**
@@ -506,11 +571,17 @@ export const DEFAULT_INTERNAL_LOG_METHOD: InternalLogMethod = (level, ...formatt
 export const createQuietLogger = (
   internalLogMethod: InternalLogMethod,
   packageName: string,
-  parallelConsoleLog: boolean = false
-): ((moduleName: string) => QuietLogger) => {
-  return (moduleName: string) => {
-    const name = `${packageName}:${moduleName}`
-    __nodeConsoleLogger.info(`Initializing logger ${name}`)
-    return new QuietLogger(internalLogMethod, name, parallelConsoleLog)
+  parallelConsoleLog: boolean = false,
+  formatters?: LogFormatters
+): ((moduleName?: string) => QuietLogger) => {
+  return (moduleName?: string) => {
+    let name: string
+    if (moduleName == null) {
+      name = packageName
+    } else {
+      name = `${packageName}:${moduleName}`
+    }
+    // __nodeConsoleLogger.info(`Initializing logger ${name}`)
+    return new QuietLogger(internalLogMethod, name, parallelConsoleLog, formatters)
   }
 }
