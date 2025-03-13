@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "@babel/runtime": "^7.12.5",
+    "@quiet/node-common": "^2.0.2-alpha.1",
     "@types/jest": "^26.0.23",
     "@types/node": "^14.17.6",
     "babel-jest": "^29.3.1",

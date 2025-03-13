@@ -11,6 +11,10 @@
 * Fixes issue where the app may crash when trying to redial a peer that doesn't recognize your user as being in the sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))
 * Fixes issue where the app may crash when hanging up on a peer we don't have in our sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))
 
+### Chores
+
+* Write app logs to rotating files ([#2771](https://github.com/TryQuiet/quiet/issues/2771))
+
 ## [4.0.0]
 
 ### New features

@@ -128,6 +128,7 @@
     "@quiet/common": "^2.0.2-alpha.1",
     "@quiet/identity": "^2.0.2-alpha.2",
     "@quiet/logger": "^2.0.2-alpha.0",
+    "@quiet/node-common": "^2.0.2-alpha.1",
     "@quiet/types": "^2.0.2-alpha.1",
     "abortable-iterator": "^3.0.0",
     "base-x": "^5.0.0",

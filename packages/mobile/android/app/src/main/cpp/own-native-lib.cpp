@@ -18,8 +18,8 @@ Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
     jstring channelName,
     jstring message)
 {
-    const char *nativeChannelName = env->GetStringUTFChars(channelName, 0);
-    const char *nativeMessage = env->GetStringUTFChars(message, 0);
+    const char *nativeChannelName = env->GetStringUTFChars(channelName, nullptr);
+    const char *nativeMessage = env->GetStringUTFChars(message, nullptr);
     rn_bridge_notify(nativeChannelName, nativeMessage);
     env->ReleaseStringUTFChars(channelName, nativeChannelName);
     env->ReleaseStringUTFChars(message, nativeMessage);
@@ -57,7 +57,7 @@ Java_com_quietmobile_Backend_BackendWorker_registerNodeDataDirPath(
     jobject /* this */,
     jstring dataDir)
 {
-    const char *nativeDataDir = env->GetStringUTFChars(dataDir, 0);
+    const char *nativeDataDir = env->GetStringUTFChars(dataDir, nullptr);
     env->ReleaseStringUTFChars(dataDir, nativeDataDir);
 }
 
@@ -141,17 +141,33 @@ int start_redirecting_stdout_stderr()
 // node's libUV requires all arguments being on contiguous memory.
 extern "C" jobject JNICALL
 Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
-    JNIEnv *env,
-    jobject /* this */,
-    jobjectArray arguments,
-    jstring modulesPath)
+        JNIEnv *env,
+        jobject /* this */,
+        jobjectArray arguments,
+        jstring modulesPath,
+        jstring dataPath)
 {
 
     // Set the builtin_modules path to NODE_PATH.
     const char *path_path = env->GetStringUTFChars(modulesPath, 0);
+    const char *logs = "/logs";
+    jstring logs_js = env->NewStringUTF(logs);
+    jclass cls_StringBuilder = env->FindClass("java/lang/StringBuilder");
+    jmethodID ctr_StringBuilder = env->GetMethodID(cls_StringBuilder, "<init>", "(I)V");
+    jobject stringBuilder = env->NewObject(cls_StringBuilder, ctr_StringBuilder, 100);
+    jmethodID mid_StringBuilder_append = env->GetMethodID(cls_StringBuilder, "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+    for (auto str: { dataPath, logs_js }) {
+        env->CallObjectMethod(stringBuilder, mid_StringBuilder_append, str);
+    }
+    jmethodID mid_StringBuilder_toString = env->GetMethodID(cls_StringBuilder, "toString", "()Ljava/lang/String;");
+    auto js_log_path = (jstring) env->CallObjectMethod(stringBuilder, mid_StringBuilder_toString);
+    const char* log_path = env->GetStringUTFChars(js_log_path, nullptr);
+
     setenv("NODE_PATH", path_path, 1);
     setenv("DEBUG", "backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*,helia*,blockstore*", 1);
-    env->ReleaseStringUTFChars(modulesPath, path_path);
+    setenv("COLORIZE", "false", 1);
+    setenv("LOG_TO_FILE", "true", 1);
+    setenv("LOG_DIR", log_path, 1);
 
     // argc
     jsize argument_count = env->GetArrayLength(arguments);
