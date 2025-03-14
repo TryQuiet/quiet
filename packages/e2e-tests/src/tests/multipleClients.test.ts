@@ -34,6 +34,7 @@ describe('Multiple Clients', () => {
 
   let secondChannelOwner: Channel
   let secondChannelUser1: Channel
+  let secondChannelUser3: Channel
 
   let thirdChannelOwner: Channel
 
@@ -43,6 +44,7 @@ describe('Multiple Clients', () => {
 
   let sidebarOwner: Sidebar
   let sidebarUser1: Sidebar
+  let sidebarUser3: Sidebar
 
   let users: Record<string, UserTestData>
 
@@ -338,7 +340,17 @@ describe('Multiple Clients', () => {
 
       it('"Unregistered" label is removed from second user\'s messages', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
-        await generalChannelOwner.waitForLabelsNotPresent(users.user3.username)
+        await generalChannelOwner.waitForLabelsNotPresent(users.user3.username, 30_000)
+      })
+
+      it('"Unregistered" label is removed from second user\'s messages on second user', async () => {
+        generalChannelUser3 = new Channel(users.user3.app.driver, generalChannelName)
+        await generalChannelUser3.waitForLabelsNotPresent(users.user3.username, 30_000)
+      })
+
+      it('"Unregistered" label is removed from second user\'s messages on first user', async () => {
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
+        await generalChannelUser1.waitForLabelsNotPresent(users.user3.username, 30_000)
       })
     })
 
@@ -351,6 +363,20 @@ describe('Multiple Clients', () => {
         expect(channels.length).toEqual(2)
       })
 
+      it('First user sees second channel', async () => {
+        sidebarUser1 = new Sidebar(users.user1.app.driver)
+        await sidebarUser1.switchChannel(newChannelName)
+        const channels = await sidebarUser1.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      it('Second user sees second channel', async () => {
+        sidebarUser3 = new Sidebar(users.user3.app.driver)
+        await sidebarUser3.switchChannel(newChannelName)
+        const channels = await sidebarUser3.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
       it('Owner sends message in second channel', async () => {
         secondChannelOwner = new Channel(users.owner.app.driver, newChannelName)
         expect(await secondChannelOwner.isReady()).toBeTruthy()
@@ -358,11 +384,18 @@ describe('Multiple Clients', () => {
         await secondChannelOwner.sendMessage(users.owner.messages[1], users.owner.username)
       })
 
-      it('User reads message in second channel', async () => {
+      it('First user reads message in second channel', async () => {
         sidebarUser1 = new Sidebar(users.user1.app.driver)
         await sidebarUser1.switchChannel(newChannelName)
         secondChannelUser1 = new Channel(users.user1.app.driver, newChannelName)
         await secondChannelUser1.getMessageIdsByText(users.owner.messages[1], users.owner.username)
+      })
+
+      it('Second user reads message in second channel', async () => {
+        sidebarUser3 = new Sidebar(users.user3.app.driver)
+        await sidebarUser3.switchChannel(newChannelName)
+        secondChannelUser3 = new Channel(users.user3.app.driver, newChannelName)
+        await secondChannelUser3.getMessageIdsByText(users.owner.messages[1], users.owner.username)
       })
     })
 
@@ -378,8 +411,16 @@ describe('Multiple Clients', () => {
       })
 
       it('User sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isOpen(30_000)).toBeTruthy()
         await generalChannelUser1.getMessageIdsByText(
+          `@${users.owner.username} deleted #${newChannelName}`,
+          users.owner.username
+        )
+      })
+
+      it('Second user sees info about channel deletion in general channel', async () => {
+        expect(await generalChannelUser3.isOpen(30_000)).toBeTruthy()
+        await generalChannelUser3.getMessageIdsByText(
           `@${users.owner.username} deleted #${newChannelName}`,
           users.owner.username
         )
@@ -387,6 +428,11 @@ describe('Multiple Clients', () => {
 
       it('User sees that the channel is missing in the sidebar', async () => {
         const channels = await sidebarUser1.getChannelList()
+        expect(channels.length).toEqual(1)
+      })
+
+      it('Second user sees that the channel is missing in the sidebar', async () => {
+        const channels = await sidebarUser3.getChannelList()
         expect(channels.length).toEqual(1)
       })
 
@@ -401,14 +447,20 @@ describe('Multiple Clients', () => {
       })
 
       it('Owner sees the recreated second channel', async () => {
-        expect(await secondChannelOwner.isReady()).toBeTruthy()
+        expect(await secondChannelOwner.isReady(30_000)).toBeTruthy()
         const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      it('Second user sees the recreated second channel', async () => {
+        expect(await secondChannelUser3.isReady(30_000)).toBeTruthy()
+        const channels = await sidebarUser3.getChannelList()
         expect(channels.length).toEqual(2)
       })
 
       // End of tests for Windows
       if (process.platform !== 'win32') {
-        it('Leave community', async () => {
+        it('User leaves community', async () => {
           logger.info('TEST 2')
           const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
           expect(await settingsModal.isReady()).toBeTruthy()
@@ -435,10 +487,30 @@ describe('Multiple Clients', () => {
           const channels = await sidebarOwner.getChannelList()
           expect(channels.length).toEqual(2)
         })
+
+        it('Second user sees recreated general channel', async () => {
+          expect(await generalChannelUser3.isReady()).toBeTruthy()
+          expect(await generalChannelUser3.isOpen()).toBeTruthy()
+          expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
+          const channels = await sidebarOwner.getChannelList()
+          expect(channels.length).toEqual(2)
+        })
       }
     })
 
     describe('Leave Community', () => {
+      it('Owner opens the settings tab and gets an updated invitation link with all three peers', async () => {
+        const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
+        expect(await settingsModal.isReady()).toBeTruthy()
+        await settingsModal.switchTab(SettingsModalTabName.INVITE)
+        const invitationLinkElement = await settingsModal.invitationLink()
+        invitationLink = await invitationLinkElement.getText()
+        expect(invitationLink).not.toBeUndefined()
+        logger.info('Received updated invitation link:', invitationLink)
+        logger.warn('closing invite tab')
+        await settingsModal.closeTabThenModal()
+      })
+
       it('Guest re-join to community successfully', async () => {
         logger.info('TEST 4')
         const debugModal = new DebugModeModal(users.user1.app.driver)

@@ -76,10 +76,10 @@ export class Libp2pService extends EventEmitter {
     this.redialQueue = new TimedQueue({
       start: true,
       concurrency: 10,
-      backoffFactor: 1.1,
-      fuzzFactor: 0.1,
-      baseDelayMs: 20_000,
-      maxDelayMs: 60_000,
+      backoffFactor: 1.25,
+      fuzzFactor: 0.05,
+      baseDelayMs: 10_000,
+      maxDelayMs: 25_000,
       rolloverAtMaxDelay: true,
     })
   }
@@ -91,12 +91,13 @@ export class Libp2pService extends EventEmitter {
       args[0].event != null &&
       ['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(args[0].event.type)
     ) {
-      const innerEvent = args[0].event
-      const redial =
-        (innerEvent.type === 'ERROR' &&
-          innerEvent.payload.type === 'DEVICE_UNKNOWN' &&
-          innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
-        (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
+      // const innerEvent = args[0].event
+      // const redial =
+      //   (innerEvent.type === 'ERROR' &&
+      //     innerEvent.payload.type === 'DEVICE_UNKNOWN' &&
+      //     innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
+      //   (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
+      const redial = false
       this.hangUpPeer(args[0].connection.remoteAddr.toString(), redial)
     }
     return super.emit(event, ...args)
@@ -320,7 +321,7 @@ export class Libp2pService extends EventEmitter {
           // ISLA: we should consider making this true if pings are reliable going forward
           abortConnectionOnPingFailure: false,
           pingInterval: 60_000,
-          enabled: true,
+          enabled: false,
         },
         connectionProtector:
           params.useConnectionProtector || params.useConnectionProtector == null
@@ -331,7 +332,6 @@ export class Libp2pService extends EventEmitter {
             maxInboundStreams: 1024,
             maxOutboundStreams: 1024,
             maxMessageSize: 10485760,
-            enableKeepAlive: true,
           }),
           mplex({
             disconnectThreshold: 20,

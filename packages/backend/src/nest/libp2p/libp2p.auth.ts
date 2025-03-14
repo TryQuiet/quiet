@@ -307,12 +307,12 @@ export class Libp2pAuth {
         event,
         connection,
       })
-      if (
-        event.type === 'DISCONNECT' &&
-        ['closed', 'closing'].includes(this.peerConnections.get(peerId.toString())?.status ?? 'closed')
-      ) {
-        this.closeAuthConnection(peerId, false)
-      }
+      // if (
+      //   event.type === 'DISCONNECT' &&
+      //   ['closed', 'closing'].includes(this.peerConnections.get(peerId.toString())?.status ?? 'closed')
+      // ) {
+      //   this.closeAuthConnection(peerId, false)
+      // }
     })
 
     authConnection.on('joined', async payload => {
@@ -368,7 +368,7 @@ export class Libp2pAuth {
   private async onPeerDisconnected(peerId: PeerId) {
     if (this.authConnections.has(peerId.toString())) {
       this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
-      // this.closeAuthConnection(peerId, false)
+      this.closeAuthConnection(peerId, false)
     }
   }
 

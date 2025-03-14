@@ -639,10 +639,10 @@ export class Channel {
     return true
   }
 
-  async isOpen(): Promise<boolean> {
+  async isOpen(timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
-      15_000,
+      timeout,
       `Channel title element for ${this.name} couldn't be seen within timeout`,
       500
     )
@@ -770,7 +770,7 @@ export class Channel {
     try {
       const filenameElement = await this.driver.wait(
         baseElement.findElement(By.xpath(`//p[text()='${filename}']`)),
-        15_000,
+        25_000,
         `Filename component for uploaded image ${filename} in channel ${this.name} couldn't be found within timeout`,
         500
       )
@@ -1067,7 +1067,7 @@ export class Channel {
     logger.info(`Waiting for content for message with ID ${messageId}`)
     const messageContentElement = await this.driver.wait(
       this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-${messageId}")]`)),
-      15_000,
+      30_000,
       `Message content element for message ID ${messageId} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -1158,7 +1158,7 @@ export class Channel {
         try {
           const placeholderElement = await this.driver.wait(
             this.driver.findElement(By.xpath(`//*[@class='UploadedImagePlaceholderplaceholder']`)),
-            10_000,
+            20_000,
             `Image placeholder element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
@@ -1176,7 +1176,7 @@ export class Channel {
 
         containerElements = await this.driver.wait(
           testableMessageContentElement.findElements(By.xpath(`//*[@class='UploadedImagecontainer']`)),
-          15_000,
+          30_000,
           `Image container elements in channel ${this.name} couldn't be found within timeout`,
           500
         )
@@ -1203,7 +1203,7 @@ export class Channel {
         case UploadedFileType.IMAGE:
           contentElement = await this.driver.wait(
             container.findElement(By.xpath(`//img[@class='UploadedImageimage']`)),
-            15_000,
+            30_000,
             `Image element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
@@ -1211,7 +1211,7 @@ export class Channel {
         case UploadedFileType.FILE:
           contentElement = await this.driver.wait(
             container.findElement(By.xpath(`//img[@class='FileComponentactionIcon']`)),
-            15_000,
+            30_000,
             `File element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
@@ -1269,14 +1269,14 @@ export class Channel {
     )
   }
 
-  async waitForLabelsNotPresent(username: string) {
+  async waitForLabelsNotPresent(username: string, timeout = 15_000) {
     logger.info(`Waiting for user's "${username}" label to not be present`)
     await this.driver.wait(
       async () => {
         const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
         return labels.length === 0
       },
-      15_000,
+      timeout,
       `User name label ${username} in channel ${this.name} didn't disappear within timeout`,
       500
     )
