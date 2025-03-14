@@ -75,11 +75,11 @@ export class Libp2pService extends EventEmitter {
     this.dialedPeers = new Set()
     this.redialQueue = new TimedQueue({
       start: true,
-      concurrency: 5,
-      backoffFactor: 1.25,
+      concurrency: 10,
+      backoffFactor: 1.1,
       fuzzFactor: 0.1,
       baseDelayMs: 20_000,
-      maxDelayMs: 90_000,
+      maxDelayMs: 60_000,
       rolloverAtMaxDelay: true,
     })
   }

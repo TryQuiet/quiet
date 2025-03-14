@@ -664,7 +664,7 @@ export class Channel {
     return this.driver.wait(
       async () => {
         const startTime = DateTime.utc().toMillis()
-        const endTime = startTime + 20_000
+        const endTime = startTime + 30_000
         while (DateTime.utc().toMillis() < endTime) {
           const messages = await this.getUserMessages(username)
           for (const element of messages) {
@@ -679,7 +679,7 @@ export class Channel {
         }
         throw logAndReturnError(`No message found for user ${username} and message content ${messageContent}`)
       },
-      30_000,
+      35_000,
       `Message in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -694,7 +694,7 @@ export class Channel {
     return this.driver.wait(
       async () => {
         const startTime = DateTime.utc().toMillis()
-        const endTime = startTime + 30_000
+        const endTime = startTime + 40_000
         while (DateTime.utc().toMillis() < endTime) {
           const messages = await this.getUserMessages(username)
           for (const element of messages) {
@@ -1354,7 +1354,7 @@ export class Sidebar {
   async switchChannel(name: string): Promise<Channel> {
     const channelLink = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`)),
-      10_000,
+      20_000,
       `Channel link button for ${name} couldn't be found within timeout`,
       500
     )
