@@ -8,7 +8,7 @@ const colors = require('ansi-colors')
 
 const COLORIZE = process.env['COLORIZE'] === 'true'
 
-export type InternalLogMethod = (level: LogLevel, ...formattedLogStrings: string[]) => void
+export type InternalLogMethod = (level: LogLevel, parallelConsoleLog: boolean, ...formattedLogStrings: string[]) => void
 
 /**
  * Available log levels
@@ -103,8 +103,7 @@ colors.theme({
 export const __nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
 
 /**
- * This class is what we use to log to the node console and, optionally, the native console for browser-facing code
- * like the desktop renderer
+ * This class is what we use to log in the Quiet app
  *
  * NOTE: This is exported because it needs to be exposed for the logger to work but you should use `createQuietLogger` in
  * (probably) all contexts
@@ -116,9 +115,10 @@ export class QuietLogger {
   private readonly timers: Map<string, number> = new Map()
 
   /**
-   *
+   * @param internalLogMethod This is what determines how and where logs are written
    * @param name This is the name that will be printed in the log entry
    * @param parallelConsoleLog If true we will also log to the native console (e.g. browser console)
+   * @param formatters Optional configuration of string formatter functions to apply (this allows for including format strings like `%s` in log messages)
    */
   constructor(
     private readonly internalLogMethod: InternalLogMethod,
@@ -215,7 +215,7 @@ export class QuietLogger {
     }
 
     const formattedLogStrings = this.formatLog(LogLevel.TIMER, name, `- timer started`)
-    this.printLog(LogLevel.LOG, ...formattedLogStrings)
+    this.internalLogMethod(LogLevel.LOG, this.parallelConsoleLog, formattedLogStrings.join(' '))
 
     const startMs = DateTime.utc().toMillis()
     this.timers.set(name, startMs)
@@ -237,7 +237,7 @@ export class QuietLogger {
     this.timers.delete(name)
 
     const formattedLogStrings = this.formatLog(LogLevel.TIMER, name, `${endMs - startMs}ms - timer ended`)
-    this.printLog(LogLevel.LOG, ...formattedLogStrings)
+    this.internalLogMethod(LogLevel.LOG, this.parallelConsoleLog, formattedLogStrings.join(' '))
   }
 
   /**
@@ -255,23 +255,7 @@ export class QuietLogger {
     if (!this._canLog(level)) return
 
     const formattedLogStrings = this.formatLog(level, message, ...optionalParams)
-    this.printLog(level, ...formattedLogStrings)
-  }
-
-  /**
-   * Print logs to node console and, optionally, the native console (e.g. browser)
-   *
-   * @param level The level we are logging at
-   * @param formattedLogStrings Array of formatted log strings
-   */
-  private printLog(level: LogLevel, ...formattedLogStrings: string[]): void {
-    this.internalLogMethod(level, formattedLogStrings.join(' '))
-    if (this.parallelConsoleLog) {
-      // we have to do this conversion because console doesn't have a trace method
-      const printLevel: LogLevel = level === LogLevel.TRACE ? LogLevel.LOG : level
-      // @ts-ignore
-      console[printLevel](...formattedLogStrings)
-    }
+    this.internalLogMethod(level, this.parallelConsoleLog, formattedLogStrings.join(' '))
   }
 
   /**
@@ -557,15 +541,36 @@ export class QuietLogger {
   }
 }
 
-export const DEFAULT_INTERNAL_LOG_METHOD: InternalLogMethod = (level, ...formattedLogStrings) =>
-  __nodeConsoleLogger['log'](...formattedLogStrings)
+/**
+ * Default method for logging that writes logs to the node console
+ *
+ * @param level Level to log at
+ * @param parallelConsoleLog Simultaneously write logs to the browser console
+ * @param formattedLogStrings List of pre-formatted log strings to write to the log entry
+ */
+export const DEFAULT_INTERNAL_LOG_METHOD: InternalLogMethod = (
+  level,
+  parallelConsoleLog: boolean,
+  ...formattedLogStrings
+): void => {
+  // we have to do this conversion because console doesn't have a trace method
+  const printLevel: LogLevel = level === LogLevel.TRACE ? LogLevel.LOG : level
+
+  // @ts-ignore
+  __nodeConsoleLogger[level](...formattedLogStrings)
+  if (parallelConsoleLog) {
+    // @ts-ignore
+    console[printLevel](...formattedLogStrings)
+  }
+}
 
 /**
  * Generate a function that creates a module-level logger with a name like `packageName:moduleName`.  This is the main
  * entry point for logging in Quiet.
  *
- * @param packageName Name of the package we are logging in
- * @param parallelConsoleLog If true we will also log to the native console (e.g. browser console)
+ * @param internalLogMethod This is what determines how and where logs are written
+ * @param name This is the name that will be printed in the log entry
+ * @param formatters Optional configuration of string formatter functions to apply (this allows for including format strings like `%s` in log messages)
  * @returns A function that can be used to generate a module-level logger
  */
 export const createQuietLogger = (
@@ -581,7 +586,6 @@ export const createQuietLogger = (
     } else {
       name = `${packageName}:${moduleName}`
     }
-    // __nodeConsoleLogger.info(`Initializing logger ${name}`)
     return new QuietLogger(internalLogMethod, name, parallelConsoleLog, formatters)
   }
 }

@@ -33,7 +33,7 @@
   "dependencies": {
     "@quiet/common": "^2.0.2-alpha.1",
     "@quiet/logger": "^2.0.2-alpha.0",
-    "@quiet/node-common": "^2.0.2-alpha.1",
+    "@quiet/node-common": "^4.0.3",
     "@quiet/types": "^2.0.2-alpha.1",
     "backend-bundle": "^2.0.1-alpha.4",
     "cross-env": "^5.2.0",
