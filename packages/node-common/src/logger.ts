@@ -57,7 +57,7 @@ const initWinstonLogger = (): Logger => {
 
 /**
  * Generate a function that creates a module-level logger with a name like `packageName:moduleName`.  This is the main
- * entry point for logging in Quiet.
+ * entry point for logging in node environments (e.g. desktop and backend).
  *
  * @param packageName Name of the package we are logging in
  * @param parallelConsoleLog If true we will also log to the native console (e.g. browser console)
