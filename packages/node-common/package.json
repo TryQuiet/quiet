@@ -1,6 +1,6 @@
 {
   "name": "@quiet/node-common",
-  "version": "2.0.2-alpha.1",
+  "version": "4.0.3",
   "description": "Common node-env monorepo utils",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
