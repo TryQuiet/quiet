@@ -307,6 +307,12 @@ export class Libp2pAuth {
         event,
         connection,
       })
+      // if (
+      //   event.type === 'DISCONNECT' &&
+      //   ['closed', 'closing'].includes(this.peerConnections.get(peerId.toString())?.status ?? 'closed')
+      // ) {
+      //   this.closeAuthConnection(peerId, false)
+      // }
     })
 
     authConnection.on('joined', async payload => {

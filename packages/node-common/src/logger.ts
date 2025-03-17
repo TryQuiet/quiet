@@ -10,6 +10,7 @@ import {
   LogLevel,
   createQuietLogger,
   DEFAULT_INTERNAL_LOG_METHOD,
+  LogFormatters,
 } from '@quiet/logger'
 
 const initWinstonLogger = (): Logger => {
@@ -64,8 +65,9 @@ const initWinstonLogger = (): Logger => {
  */
 export const createWinstonQuietLogger = (
   packageName: string,
-  parallelConsoleLog: boolean = false
-): ((moduleName: string) => QuietLogger) => {
+  parallelConsoleLog: boolean = false,
+  formatters?: LogFormatters
+): ((moduleName?: string) => QuietLogger) => {
   const winstonLogger = initWinstonLogger()
   let internalLogMethod: InternalLogMethod = DEFAULT_INTERNAL_LOG_METHOD
   const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
@@ -75,5 +77,5 @@ export const createWinstonQuietLogger = (
       winstonLogger.log(winstonLevel, formattedLogStrings.join(' '))
     }
   }
-  return createQuietLogger(internalLogMethod, packageName, parallelConsoleLog)
+  return createQuietLogger(internalLogMethod, packageName, parallelConsoleLog, formatters)
 }
