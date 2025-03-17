@@ -67,9 +67,7 @@ describe('ChannelMessages', () => {
               >
                 <p
                   class="MuiTypography-root MuiTypography-body1 FloatingDatedateText css-ghvhpl-MuiTypography-root"
-                >
-                  Today
-                </p>
+                />
               </div>
               <div
                 class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
