@@ -10,7 +10,7 @@ Here are the steps:
 3. Initialize submodules in the project's root:
 
 ```
-git submodule update --init --recursive
+git submodule update --init --recursive --remote
 ```
 
 4. Install python3 and setuptools through your preferred method. (used by node-gyp)
