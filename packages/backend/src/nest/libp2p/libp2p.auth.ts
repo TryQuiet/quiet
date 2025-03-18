@@ -14,11 +14,12 @@ import { encode, decode } from 'it-length-prefixed'
 
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
-import { createQuietLogger } from '@quiet/logger'
 import { ConnectionParams } from '3rd-party/auth/packages/auth/dist/connection/Connection'
 import { Libp2pService } from './libp2p.service'
 import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
+import { QuietLogger } from '@quiet/logger'
+import { createWinstonQuietLogger } from '@quiet/node-common'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -40,7 +41,7 @@ enum JoinStatus {
   NOT_STARTED = 'NOT_STARTED',
 }
 
-const createLFALogger = createQuietLogger('localfirst')
+const createLFALogger = createWinstonQuietLogger('localfirst')
 
 export class Libp2pAuth {
   private readonly protocol: string
@@ -52,7 +53,7 @@ export class Libp2pAuth {
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
   private unblockInterval: NodeJS.Timeout
   private joinStatus: JoinStatus
-  private logger: ReturnType<typeof createLogger> = createLogger('libp2p:auth')
+  private logger: QuietLogger = createLogger('libp2p:auth')
   readonly [serviceCapabilities]: string[] = ['@quiet/auth']
   readonly [Symbol.toStringTag]: string = 'lfaAuth'
 
@@ -306,6 +307,12 @@ export class Libp2pAuth {
         event,
         connection,
       })
+      // if (
+      //   event.type === 'DISCONNECT' &&
+      //   ['closed', 'closing'].includes(this.peerConnections.get(peerId.toString())?.status ?? 'closed')
+      // ) {
+      //   this.closeAuthConnection(peerId, false)
+      // }
     })
 
     authConnection.on('joined', async payload => {

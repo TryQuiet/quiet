@@ -55,6 +55,14 @@ npm run lerna version prerelease
 
 ----
 
+## Logging
+
+By default logs are output to the console and to files located in the application data directory (this location varies by OS).
+
+_See the `node-common` README for a more detailed description of file logging in Quiet._
+
+----
+
 ## Handy tips
 
 To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>"`.

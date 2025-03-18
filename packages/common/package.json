@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@quiet/eslint-config": "^2.0.2-alpha.0",
+    "@quiet/node-common": "^4.0.3",
     "@types/jest": "^26.0.23",
     "@types/node": "^17.0.21",
     "@types/validator": "^13.11.5",

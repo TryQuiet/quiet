@@ -1,0 +1,18 @@
+--- node_modules/react-native-file-logger/android/build.gradle	2025-03-11 23:02:53
++++ node_modules/react-native-file-logger/android/build.gradle	2025-03-11 23:02:45
+@@ -31,6 +31,14 @@
+ }
+ 
+ android {
++    namespace "com.betomorrow.rnfilelogger"
++
++    sourceSets {
++        main {
++            manifest.srcFile "src/main/AndroidManifestNew.xml"
++        }
++    }
++
+     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
+     buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
+     defaultConfig {
+\ No newline at end of file
