@@ -90,31 +90,6 @@ describe('User', () => {
           },
         } as Identity
       }
-      if (action === SocketActionTypes.CREATE_USER_CSR) {
-        const payload = input[1] as InitUserCsrPayload
-        return {
-          id: payload.communityId,
-          nickname: payload.nickname,
-          hiddenService: {
-            onionAddress: 'onionAddress',
-            privateKey: 'privKey',
-          },
-          peerId: {
-            id: 'peerId',
-            privKey: 'mock',
-            noiseKey: 'mock',
-          } as PeerId,
-          userCsr: {
-            userCsr: 'mock',
-            userKey: 'mock',
-            pkcs10: {
-              publicKey: 'mock',
-              privateKey: 'mock',
-              pkcs10: 'mock',
-            },
-          } as UserCsr,
-        } as Identity
-      }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {

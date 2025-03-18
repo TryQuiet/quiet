@@ -27,8 +27,6 @@ export interface Identity {
   nickname: string
   hiddenService: HiddenService
   peerId: PeerId
-  userCsr: UserCsr | null
-  userCertificate: string | null
   joinTimestamp: number | null
   // When a user first joins a community, they send a message
   // introducing themselves.
@@ -39,8 +37,8 @@ export interface IdentityUpdatePayload {
   id: string
   nickname?: string
   hiddenService?: HiddenService
-  userCsr?: UserCsr | null
-  userCertificate?: string | null
+  userCsr?: UserCsr
+  userCertificate?: string
   joinTimestamp?: number | null
   introMessageSent?: boolean
 }

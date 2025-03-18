@@ -4,7 +4,7 @@ import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { type PublicChannelStorage } from '@quiet/types'
+import { CommunityOwnership, type PublicChannelStorage } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('channelDeletionResponseSaga')
@@ -43,9 +43,7 @@ export function* channelDeletionResponseSaga(
 
   yield* put(publicChannelsActions.completeChannelDeletion({}))
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
-
-  const isOwner = Boolean(community?.CA)
+  const isOwner = yield* select(communitiesSelectors.isOwner)
 
   if (isOwner) {
     if (isGeneral) {

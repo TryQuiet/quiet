@@ -177,9 +177,7 @@ describe('Channel', () => {
       id: community.id,
       nickname: 'john',
     })
-    expect(john.userCertificate).not.toBeNull()
-    // @ts-expect-error
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    expect(john.userId).not.toBeNull()
 
     const authenticMessage: ChannelMessage = {
       ...(
@@ -208,8 +206,6 @@ describe('Channel', () => {
             message: 'spoofedMessage',
             createdAt: DateTime.utc().valueOf(),
             channelId: generalId,
-            signature: '',
-            pubKey: johnPublicKey,
           },
         })
       ).payload.message,

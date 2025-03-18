@@ -1,7 +1,7 @@
 import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { WriteMessagePayload, MessageType, PublicChannel, PublicChannelStorage } from '@quiet/types'
+import { WriteMessagePayload, MessageType, PublicChannel, PublicChannelStorage, CommunityOwnership } from '@quiet/types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
@@ -12,8 +12,9 @@ export function* sendIntroductionMessageSaga(): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
   const identity = yield* select(identitySelectors.currentIdentity)
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+  const isOwner = yield* select(communitiesSelectors.isOwner)
 
-  if (community?.CA || !identity || identity.introMessageSent || !generalChannel) {
+  if (isOwner || !identity || identity.introMessageSent || !generalChannel) {
     return
   }
 

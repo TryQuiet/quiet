@@ -74,10 +74,6 @@ describe('sendMessageSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(pubKeyFromCsr), 'publicKey'],
-        [call.fn(loadPrivateKey), 'privateKey'],
-        [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
-        [call.fn(arrayBufferToString), 'signature'],
         [call.fn(generateMessageId), 4],
         [call.fn(getCurrentTime), 8],
       ])
@@ -91,8 +87,6 @@ describe('sendMessageSaga', () => {
             message: 'message',
             createdAt: 8,
             channelId: currentChannel,
-            signature: 'signature',
-            pubKey: 'publicKey',
             media: undefined,
           },
         },
@@ -112,10 +106,6 @@ describe('sendMessageSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(pubKeyFromCsr), 'publicKey'],
-        [call.fn(loadPrivateKey), 'privateKey'],
-        [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
-        [call.fn(arrayBufferToString), 'signature'],
         [call.fn(generateMessageId), 16],
         [call.fn(getCurrentTime), 24],
       ])
@@ -163,10 +153,6 @@ describe('sendMessageSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(pubKeyFromCsr), 'publicKey'],
-        [call.fn(loadPrivateKey), 'privateKey'],
-        [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
-        [call.fn(arrayBufferToString), 'signature'],
         [call.fn(generateMessageId), 4],
         [call.fn(getCurrentTime), 8],
       ])

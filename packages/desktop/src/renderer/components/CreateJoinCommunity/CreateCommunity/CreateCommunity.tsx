@@ -2,10 +2,13 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { communities, identity } from '@quiet/state-manager'
-import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
+import { CommunityOwnership, CreateCommunityPayload, CreateNetworkPayload } from '@quiet/types'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('CreateCommunity')
 
 const CreateCommunity = () => {
   const dispatch = useDispatch()
@@ -19,17 +22,20 @@ const CreateCommunity = () => {
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
 
   useEffect(() => {
+    logger.info('currentCommunity', currentCommunity)
     if (currentCommunity && createCommunityModal.open) {
       createCommunityModal.handleClose()
     }
   }, [currentCommunity])
 
   const handleCommunityAction = (name: string) => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.Owner,
+    const payload: CreateCommunityPayload = {
       name: name,
     }
-    dispatch(communities.actions.createNetwork(payload))
+    if (currentCommunity?.name === name) {
+      return
+    }
+    dispatch(communities.actions.createCommunity(payload))
   }
 
   // From 'You can join a community instead' link
@@ -49,7 +55,7 @@ const CreateCommunity = () => {
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
+      hasReceivedResponse={Boolean(currentCommunity)}
       revealInputValue={true}
     />
   )

@@ -9,30 +9,12 @@ import path from 'path'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
 
-import {
-  createLibp2pAddress,
-  filterValidAddresses,
-  isPSKcodeValid,
-  p2pAddressesToPairs,
-  pairsToP2pAddresses,
-} from '@quiet/common'
-import {
-  CertFieldsTypes,
-  createRootCA,
-  createUserCsr,
-  configCrypto,
-  getCertFieldValue,
-  getPubKey,
-  loadCertificate,
-  loadPrivateKey,
-  pubKeyFromCsr,
-} from '@quiet/identity'
+import { createLibp2pAddress, filterValidAddresses, isPSKcodeValid, pairsToP2pAddresses } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
   ChannelsReplicatedPayload,
   Community,
-  CommunityMetadata,
   ConnectionProcessInfo,
   CreateChannelPayload,
   CreateChannelResponse,
@@ -41,26 +23,20 @@ import {
   ErrorMessages,
   FileMetadata,
   GetMessagesPayload,
-  InitCommunityPayload,
   MessagesLoadedPayload,
   NetworkDataPayload,
   NetworkInfo,
   NetworkStats,
   PushNotificationPayload,
   RemoveDownloadStatus,
-  SaveCSRPayload,
-  SendCertificatesResponse,
   SendMessagePayload,
   SocketActionTypes,
   UploadFilePayload,
   type DeleteChannelResponse,
-  type SavedOwnerCertificatePayload,
   type UserProfile,
   type UserProfilesStoredEvent,
   Identity,
-  CreateUserCsrPayload,
   InitUserCsrPayload,
-  UserCsr,
   PeerId as QuietPeerId,
   InvitationDataVersion,
   InvitationDataV2,
@@ -68,14 +44,13 @@ import {
   CommunityOwnership,
   CreateCommunityPayload,
   JoinCommunityPayload,
+  InitCommunityPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { RegistrationService } from '../registration/registration.service'
-import { RegistrationEvents } from '../registration/registration.types'
 import { emitError } from '../socket/socket.errors'
 import { SocketService } from '../socket/socket.service'
 import { StorageService } from '../storage/storage.service'
@@ -110,7 +85,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     public readonly libp2pService: Libp2pService,
-    private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
@@ -408,17 +382,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async getNetwork(): Promise<NetworkInfo> {
+  public async getNetworkInfo(): Promise<NetworkInfo> {
     this.logger.info('Getting network information')
 
     this.logger.info('Creating hidden service')
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
-
-    // this.logger.info('Destroying the hidden service we created')
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-
-    // TODO: Do we want to create the PeerId here? It doesn't necessarily have
-    // anything to do with Tor.
     this.logger.info('Getting peer ID')
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
@@ -434,59 +403,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async createNetwork(communityId: string): Promise<NetworkInfo | undefined> {
-    let network: NetworkInfo
-
-    try {
-      network = await this.getNetwork()
-    } catch (e) {
-      this.logger.error(`Creating network for community ${communityId} failed`, e)
-      emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.CREATE_NETWORK,
-        message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community: communityId,
-      })
-      return
-    }
-
-    // TODO: Should we save this network info in LevelDB at this point?
-    return network
-  }
-
-  public async createIdentity(id: string): Promise<Identity | undefined> {
-    let identity: Identity | undefined = await this.storageService.getIdentity(id)
-    if (!identity) {
-      this.logger.info('Creating identity')
-      const network: NetworkInfo = await this.getNetwork()
-      identity = {
-        id: id,
-        nickname: '',
-        hiddenService: network.hiddenService,
-        peerId: network.peerId,
-        userCsr: null,
-        userCertificate: null,
-        joinTimestamp: null,
-      }
-      this.logger.info('Created identity', identity)
-    } else {
-      this.logger.info('Retrieved identity from localDbService', identity)
-    }
-    await this.storageService.setIdentity(identity)
-    return identity
-  }
-
-  public async createCommunity(payload: CreateCommunityPayload): Promise<Community | undefined> {
+  public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger.info('Creating community', payload.id)
 
-    let identity = await this.storageService.getIdentity(payload.id)
-    if (!identity) {
-      emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.CREATE_COMMUNITY,
-        message: ErrorMessages.IDENTITY_NOT_FOUND,
-        community: payload.id,
-      })
+    if (!payload.name) {
+      this.logger.error('Community name is required to create sigchain')
       return
     }
+    this.logger.info(`Creating new LFA chain`)
+    await this.sigChainService.createChain(payload.name, payload.username, true)
+    const network = await this.getNetworkInfo()
+
+    const identity: Identity = {
+      id: payload.id,
+      userId: this.sigChainService.user.userId,
+      nickname: payload.username,
+      hiddenService: network.hiddenService,
+      peerId: network.peerId,
+      joinTimestamp: null,
+    }
+    await this.storageService.setIdentity(identity)
 
     const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
 
@@ -501,65 +437,36 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    if (!community.name) {
-      this.logger.error('Community name is required to create sigchain')
-      return community
-    }
-    this.logger.info(`Creating new LFA chain`)
-    await this.sigChainService.createChain(community.name, identity.nickname, true)
-
-    identity = {
-      ...identity,
-      id: payload.id,
-      userId: this.sigChainService.user.userId,
-    }
-    await this.storageService.setIdentity(identity)
-
     await this.launchCommunity(community)
 
-    this.logger.info(`Created and launched community ${community.id}`)
+    this.storageService.addUserProfile({
+      userId: identity.userId,
+      profile: {
+        nickname: identity.nickname,
+      },
+    } as UserProfile)
 
-    // this is the forever invite that all users get
     this.logger.info(`Creating long lived LFA invite code`)
     this.socketService.emit(SocketActionTypes.CREATE_LONG_LIVED_LFA_INVITE)
     return community
   }
 
-  // TODO: add back when QSS is implemented
-  // public async downloadCommunityData(inviteData: InvitationDataV2) {
-  //   this.logger.info('Downloading invite data', inviteData)
-  //   this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
-  //   let downloadedData: ServerStoredCommunityMetadata
-  //   try {
-  //     downloadedData = await this.storageServerProxyService.downloadData(inviteData.cid)
-  //   } catch (e) {
-  //     this.logger.error(`Downloading community data failed`, e)
-  //     return
-  //   }
-  //   return {
-  //     psk: downloadedData.psk,
-  //     peers: downloadedData.peerList,
-  //     ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
-  //   }
-  // }
-
-  public async joinCommunity(payload: JoinCommunityPayload): Promise<Community | undefined> {
-    let identity = await this.storageService.getIdentity(payload.id)
-
-    if (!identity) {
+  public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
+    const inviteData = payload.inviteData
+    if (!inviteData) {
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.JOIN_COMMUNITY,
-        message: ErrorMessages.IDENTITY_NOT_FOUND,
+        message: ErrorMessages.INVITE_DATA_REQUIRED,
         community: payload.id,
       })
       return
     }
-    const inviteData = payload.inviteData
     let communityName: string | undefined
     if (inviteData && inviteData?.version == InvitationDataVersion.v2) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
-      this.sigChainService.createChainFromInvite(identity.nickname, communityName, inviteData.authData.seed, true)
+      this.sigChainService.createChainFromInvite(payload.username, communityName, inviteData.authData.seed, true)
     }
+
     if (!isPSKcodeValid(inviteData.psk)) {
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.JOIN_COMMUNITY,
@@ -569,8 +476,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
+    const network = await this.getNetworkInfo()
+
+    const identity: Identity = {
+      id: payload.id,
+      userId: this.sigChainService.user.userId,
+      nickname: payload.username,
+      hiddenService: network.hiddenService,
+      peerId: network.peerId,
+      joinTimestamp: null,
+    }
+    await this.storageService.setIdentity(identity)
+
     const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
-    const peers = pairsToP2pAddresses(payload.inviteData.pairs)
+    const peers = pairsToP2pAddresses(inviteData.pairs)
     const community = {
       id: payload.id,
       name: communityName,
@@ -583,15 +502,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    identity = {
-      ...identity,
-      id: payload.id,
-      userId: this.sigChainService.user.userId,
-    }
-    await this.storageService.setIdentity(identity)
-
     await this.launchCommunity(community)
-    this.logger.info(`Joined and launched community ${community.id}`)
+
+    this.storageService.addUserProfile({
+      userId: identity.userId,
+      profile: {
+        nickname: identity.nickname,
+      },
+    } as UserProfile)
+
     return community
   }
 
@@ -775,37 +694,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     })
     this.socketService.on(
-      SocketActionTypes.CREATE_NETWORK,
-      async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.CREATE_NETWORK}`)
-        callback(await this.createNetwork(communityId))
-      }
-    )
-    this.socketService.on(
-      SocketActionTypes.CREATE_IDENTITY,
-      async (id: string, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.CREATE_IDENTITY}`)
-        callback(await this.createIdentity(id))
-      }
-    )
-    this.socketService.on(
-      SocketActionTypes.CREATE_USER_CSR,
-      async (payload: InitUserCsrPayload, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`NOT IMPLEMENTED - ${SocketActionTypes.CREATE_USER_CSR}`)
-        // callback(await this.addUserCsr(payload))
-      }
-    )
-    this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
-      async (args: CreateCommunityPayload, callback: (response: Community | undefined) => void) => {
+      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.CREATE_COMMUNITY}`)
         callback(await this.createCommunity(args))
       }
     )
-
     this.socketService.on(
       SocketActionTypes.JOIN_COMMUNITY,
-      async (args: JoinCommunityPayload, callback: (response: Community | undefined) => void) => {
+      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.JOIN_COMMUNITY}`)
         callback(await this.joinCommunity(args))
       }
@@ -950,7 +847,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!this.storageService) return
     // Channel and Message Events
     this.storageService.channels.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+      this.logger.info(`Storage - ${StorageEvents.CHANNELS_STORED}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_STORED, payload)
+      this.logger.info(`Storage (emitted) - ${SocketActionTypes.CHANNELS_STORED}`)
     })
     this.storageService.channels.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_STORED, payload)
@@ -962,7 +861,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_STORED, payload)
     })
     this.storageService.channels.on(StorageEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
+      this.logger.info(`Storage - ${StorageEvents.CHANNEL_SUBSCRIBED}`, payload)
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
+      this.logger.info(`Storage (emitted) - ${SocketActionTypes.CHANNEL_SUBSCRIBED}`)
     })
     this.storageService.channels.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.serverIoProvider.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)

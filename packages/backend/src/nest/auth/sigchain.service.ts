@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import { Keyring, LocalUserContext, Team } from '3rd-party/auth/packages/auth/dist'
+import { InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '3rd-party/auth/packages/auth/dist'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
@@ -60,7 +60,7 @@ export class SigChainService {
     return this.getActiveChain().team!
   }
 
-  get context(): LocalUserContext {
+  get context(): MemberContext | InviteeMemberContext {
     return this.getActiveChain().context
   }
 

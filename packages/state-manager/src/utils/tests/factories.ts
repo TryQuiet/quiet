@@ -92,6 +92,7 @@ export const getFactory = async (store: Store) => {
     nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
     // 21.09.2022 - may be useful for testing purposes
     joinTimestamp: 1663747464000,
+    userId: factory.sequence('Identity.userId', (n: number) => `userId_${n}`),
   })
 
   factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {

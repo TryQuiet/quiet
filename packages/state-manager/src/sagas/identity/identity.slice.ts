@@ -9,6 +9,7 @@ const logger = createLogger('identity:slice')
 
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
+  public username: string = ''
 }
 
 export const identitySlice = createSlice({
@@ -32,6 +33,9 @@ export const identitySlice = createSlice({
       }
     },
     registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,
+    setUsername: (state, action: PayloadAction<string>) => {
+      state.username = action.payload
+    },
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
       identityAdapter.updateOne(state.identities, {

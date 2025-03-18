@@ -30,6 +30,7 @@ export enum SocketActionTypes {
   // ====== Channels ======
 
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
+  CHANNELS_SUBSCRIBED = 'channelsSubscribed',
   CHANNELS_STORED = 'channelsStored',
   CREATE_CHANNEL = 'createChannel',
   DELETE_CHANNEL = 'deleteChannel',

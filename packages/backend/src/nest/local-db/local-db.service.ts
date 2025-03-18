@@ -176,8 +176,7 @@ export class LocalDbService {
     }
     const serializedSigChain: SigChainSaveData = {
       serializedTeam: serializedTeam,
-      localUserContext: sigChain.localUserContext,
-      context: sigChain.context,
+      localUserContext: { user: sigChain.user, device: sigChain.device },
       teamKeyRing: teamKeyring,
     }
     this.logger.info('Saving sigchain', teamName)
@@ -206,7 +205,6 @@ export class LocalDbService {
       return {
         serializedTeam: serializedTeam,
         localUserContext: sigChainBlob.localUserContext,
-        context: sigChainBlob.context,
         teamKeyRing: sigChainBlob.teamKeyRing ? sigChainBlob.teamKeyRing : undefined,
       } as SerializedSigChain
     } catch (e) {

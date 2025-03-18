@@ -50,11 +50,10 @@ export class CertificatesRequestsStore extends EventStoreBase<EncryptedAndSigned
   private async encryptEntry(payload: string): Promise<EncryptedAndSignedPayload> {
     try {
       const chain = this.chains.getActiveChain()
-      const encryptedPayload = chain.crypto.encryptAndSign(
-        payload,
-        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
-        chain.localUserContext
-      )
+      const encryptedPayload = chain.crypto.encryptAndSign(payload, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
       return encryptedPayload
     } catch (err) {
       this.logger.error('Failed to encrypt user entry:', err)
@@ -65,11 +64,7 @@ export class CertificatesRequestsStore extends EventStoreBase<EncryptedAndSigned
   private async decryptEntry(payload: EncryptedAndSignedPayload): Promise<string> {
     try {
       const chain = this.chains.getActiveChain()
-      const decryptedPayload = chain.crypto.decryptAndVerify<string>(
-        payload.encrypted,
-        payload.signature,
-        chain.localUserContext
-      )
+      const decryptedPayload = chain.crypto.decryptAndVerify<string>(payload.encrypted, payload.signature)
       return decryptedPayload.contents
     } catch (err) {
       this.logger.error('Failed to decrypt user entry:', err)

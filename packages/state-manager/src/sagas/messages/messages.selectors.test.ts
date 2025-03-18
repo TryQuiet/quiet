@@ -50,8 +50,7 @@ describe('messagesSelectors', () => {
   })
 
   it('filter out unverified messages', async () => {
-    expect(john.userCertificate).not.toBeNull()
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate || ''))
+    expect(john.userId).not.toBeNull()
 
     // Build messages
     const authenticMessage: ChannelMessage = {

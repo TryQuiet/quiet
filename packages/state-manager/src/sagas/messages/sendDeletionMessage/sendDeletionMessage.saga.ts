@@ -17,9 +17,7 @@ export function* sendDeletionMessageSaga(
 
   const isGeneral = channelId === generalChannel.id
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
-
-  const isOwner = Boolean(community?.CA)
+  const isOwner = yield* select(communitiesSelectors.isOwner)
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
@@ -27,6 +25,7 @@ export function* sendDeletionMessageSaga(
     channelId: generalChannel.id,
   }
 
+  // TODO: Not just owner can send deletion message post 4.0
   if (isOwner && !isGeneral) {
     yield* put(messagesActions.sendMessage(payload))
   }

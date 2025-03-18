@@ -99,6 +99,7 @@ export const publicChannelsSlice = createSlice({
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
       const { channelId } = action.payload
+      logger.info('setChannelSubscribed', channelId)
       publicChannelsSubscriptionsAdapter.upsertOne(state.channelsSubscriptions, {
         id: channelId,
         subscribed: true,

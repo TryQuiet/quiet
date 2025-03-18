@@ -6,6 +6,7 @@ import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { initCommunities, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
 import { createNetworkSaga } from './createNetwork/createNetwork.saga'
 import { createLogger } from '../../utils/logger'
+import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 
 const logger = createLogger('communitiesMasterSage')
 
@@ -16,6 +17,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeEvery(communitiesActions.createNetwork.type, createNetworkSaga, socket),
       takeEvery(connectionActions.torBootstrapped.type, initCommunities),
       takeEvery(communitiesActions.createCommunity.type, createCommunitySaga, socket),
+      takeEvery(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
     ])
   } finally {

@@ -29,7 +29,7 @@ export const currentPeerAddress = createSelector(currentIdentity, identity => {
 })
 
 export const communityMembership = createSelector(currentIdentity, currentCommunity, (identity, community) => {
-  return Boolean(identity?.userCsr && community?.name)
+  return Boolean(identity && community)
 })
 
 export const joinedCommunities = createSelector(selectCommunities, selectEntities, (communities, identities) => {

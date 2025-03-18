@@ -35,7 +35,10 @@ export const selectChannels = createSelector(selectState, state => {
 })
 
 const selectChannelsSubscriptions = createSelector(selectState, state => {
-  if (!state) return []
+  if (!state) {
+    logger.info('state is undefined')
+    return []
+  }
   return publicChannelsSubscriptionsAdapter.getSelectors().selectAll(state.channelsSubscriptions)
 })
 
@@ -44,6 +47,7 @@ const pendingGeneralChannelRecreation = createSelector(selectState, state => {
 })
 
 export const subscribedChannels = createSelector(selectChannelsSubscriptions, subscriptions => {
+  logger.info('selectChannelsSubscriptions', subscriptions)
   return subscriptions.map(subscription => {
     if (subscription.subscribed) return subscription.id
   })
@@ -173,14 +177,15 @@ export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMe
 
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
-  allUsers,
   userProfiles,
-  (messages, users, userProfiles: Record<string, UserProfile>) => {
+  (messages, users: Record<string, UserProfile>) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
+      logger.info('displayableCurrentChannelMessages', message)
+      logger.info('displayableCurrentChannelMessages', users)
       const user = users[message.userId!]
       if (user) {
         // @ts-ignore
-        result.push(displayableMessage(message, user, userProfiles[message.userId]))
+        result.push(displayableMessage(message, users[message.userId]))
       } else {
         logger.warn('Received a message from a user that does not exist', message.id, message.author, users)
       }

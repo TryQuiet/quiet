@@ -13,7 +13,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { exportChats } from '../../../../utils/functions/exportMessages'
 
 export const ChannelContextMenu: FC = () => {
-  const community = useSelector(communities.selectors.currentCommunity)
+  const isOwner = useSelector(communities.selectors.isOwner)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
@@ -33,7 +33,7 @@ export const ChannelContextMenu: FC = () => {
     },
   ]
 
-  if (community?.CA) {
+  if (isOwner) {
     items.unshift({
       title: 'Delete',
       action: () => {

@@ -1,7 +1,6 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers } from '../users/users.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
@@ -98,7 +97,7 @@ export const isJoiningCompleted = createSelector(
   areMessagesLoaded,
   areChannelsLoaded,
   (isCommunity, areMessages, areChannels) => {
-    logger.info({ isCommunity, areMessages, areChannels })
+    logger.trace('isJoiningCompleted', { isCommunity, areMessages, areChannels })
     return isCommunity && areMessages && areChannels
   }
 )

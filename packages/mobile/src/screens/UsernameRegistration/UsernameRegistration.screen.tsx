@@ -13,7 +13,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const fetching = route.params?.fetching
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const usernameRegistered = currentIdentity?.userCertificate != null
+  const usernameRegistered = Boolean(currentIdentity?.userId)
 
   const navigation = useCallback(
     (screen: ScreenNames, params?: any) => {

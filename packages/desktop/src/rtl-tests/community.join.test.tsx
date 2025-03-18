@@ -15,10 +15,10 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import {
   communities,
+  identity,
   RegisterUserCertificatePayload,
   ErrorCodes,
   ErrorMessages,
-  getFactory,
   errors,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
@@ -29,15 +29,15 @@ import {
   ChannelsReplicatedPayload,
   ChannelSubscribedPayload,
   ErrorPayload,
-  InitCommunityPayload,
   ResponseLaunchCommunityPayload,
   SocketActionTypes,
   socketEventData,
   Identity,
-  InitUserCsrPayload,
-  PeerId,
-  UserCsr,
   InvitationDataVersion,
+  JoinCommunityPayload,
+  UserProfilesStoredEvent,
+  InvitationAuthData,
+  InitCommunityPayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -50,7 +50,7 @@ jest.setTimeout(20_000)
 describe('User', () => {
   let socket: MockedSocket
   const validData: InvitationData = {
-    version: InvitationDataVersion.v1,
+    version: InvitationDataVersion.v2,
     pairs: [
       {
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
@@ -59,6 +59,10 @@ describe('User', () => {
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
     ownerOrbitDbIdentity: 'testOrbitDbIdentity',
+    authData: {
+      communityName: 'testCommunityName',
+      seed: '123456789abcdefg',
+    } as InvitationAuthData,
   }
   const validCode = composeInvitationShareUrl(validData)
   // trigger
@@ -95,53 +99,10 @@ describe('User', () => {
       const action = input[0]
       logger.info('emitWithAck', action)
       const community = communities.selectors.currentCommunity(store.getState())
+      const currentIdentity = identity.selectors.currentIdentity(store.getState())
       switch (action) {
-        case SocketActionTypes.CREATE_IDENTITY:
-          const createIdentityPayload = input[1] as InitCommunityPayload
-          return {
-            id: createIdentityPayload.id,
-            nickname: 'alice',
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-              privKey: 'mock',
-              noiseKey: 'mock',
-            },
-          } as Identity
-        case SocketActionTypes.CREATE_USER_CSR:
-          const csrPayload = input[1] as InitUserCsrPayload
-          // Mock identity object
-          const mockIdentity: Identity = {
-            id: csrPayload.communityId,
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: csrPayload.communityId,
-              privKey: 'mock',
-              noiseKey: 'mock',
-            } as PeerId,
-            nickname: csrPayload.nickname,
-            userCsr: {
-              userCsr: 'mock',
-              userKey: 'mock',
-              pkcs10: {
-                publicKey: 'mock',
-                privateKey: 'mock',
-                pkcs10: 'mock',
-              },
-            } as UserCsr,
-            userCertificate: null,
-            joinTimestamp: null,
-          }
-          return mockIdentity
         case SocketActionTypes.JOIN_COMMUNITY:
           const payload = input[1] as InitCommunityPayload
-          expect(payload.id).toEqual(community?.id)
           socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
             id: payload.id,
           })
@@ -159,6 +120,23 @@ describe('User', () => {
           socket.socketClient.emit<ChannelSubscribedPayload>(SocketActionTypes.CHANNEL_SUBSCRIBED, {
             channelId: 'general',
           })
+          if (currentIdentity) {
+            socket.socketClient.emit<Identity>(SocketActionTypes.IDENTITY_STORED, {
+              ...currentIdentity,
+              nickname: 'alice',
+              userId: 'alice12234',
+            })
+          }
+          // socket.socketClient.emit<UserProfilesStoredEvent>(SocketActionTypes.USER_PROFILES_STORED, {
+          //   profiles: [
+          //     {
+          //       userId: 'alice12234',
+          //       profile: {
+          //         nickname: 'alice',
+          //       },
+          //     },
+          //   ],
+          // })
           break
         default:
           throw new Error(`Unexpected action: ${action}`)

@@ -11,7 +11,7 @@ export interface User extends UserData {
 }
 
 export interface UserProfileDisplayData {
-  photo: string // base64 encoded image
+  photo?: string // base64 encoded image
   nickname: string
   bio?: string
 }

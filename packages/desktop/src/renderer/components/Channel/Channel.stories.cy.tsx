@@ -56,6 +56,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           }}
           user={{
             id: 'id',
+            userId: 'userId',
             nickname: 'vader',
             hiddenService: {
               onionAddress: 'onionAddress',
@@ -66,16 +67,6 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
               privKey: 'privKey',
               noiseKey: 'noiseKey',
             },
-            userCsr: {
-              userCsr: 'userCsr',
-              userKey: 'userKey',
-              pkcs10: {
-                publicKey: 'publicKey',
-                privateKey: 'privateKey',
-                pkcs10: 'pkcs10',
-              },
-            },
-            userCertificate: 'userCertificate',
             joinTimestamp: null,
           }}
           isCommunityInitialized={true}

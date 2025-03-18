@@ -14,6 +14,7 @@ import { MenuName } from '../../../../const/MenuNames.enum'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import Jdenticon from '../../Jdenticon/Jdenticon'
 import { createLogger } from '../../../logger'
+import { UserProfile } from '@quiet/types'
 
 const logger = createLogger('userProfileContextMenu:container')
 
@@ -131,7 +132,7 @@ export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => 
 export interface UserProfileMenuProfileViewProps {
   username: string
   userId: string
-  userProfile?: { profile: { photo: string } }
+  userProfile?: UserProfile
   contextMenu: {
     // FIXME: should be boolean; useContextMenu typing is broken
     visible: boolean
@@ -294,7 +295,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
 export interface UserProfileMenuEditViewProps {
   username: string
   userId: string
-  userProfile?: { profile: { photo: string } }
+  userProfile?: UserProfile
   contextMenu: {
     visible: boolean
     handleOpen: (args?: object | undefined) => any

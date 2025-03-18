@@ -18,31 +18,28 @@ const logger = createLogger('saveUserProfileSaga')
 export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ photo?: File }>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  if (!identity?.userCsr || !action.payload.photo) {
+  if (!identity?.userId) {
     return
   }
 
-  let base64EncodedPhoto: string
-  try {
-    base64EncodedPhoto = yield* call(fileToBase64String, action.payload.photo)
-  } catch (err) {
-    logger.error('Failed to base64 encode profile photo', err)
-    return
+  let base64EncodedPhoto: string | undefined
+  if (action.payload.photo) {
+    try {
+      base64EncodedPhoto = yield* call(fileToBase64String, action.payload.photo)
+    } catch (err) {
+      logger.error('Failed to base64 encode profile photo', err)
+      return
+    }
   }
 
-  const profile: UserProfileDisplayData = { photo: base64EncodedPhoto, nickname: identity.nickname }
-  const codec = dagCbor
-  const hasher = sha256
-  const { bytes } = yield* call(Block.encode, { value: profile, codec: codec, hasher: hasher })
-  const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, configCrypto.signAlg)
-  const signatureArrayBuffer = yield* call(sign, bytes, keyObject)
-  const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
-  const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
+  const profile: UserProfileDisplayData = { nickname: identity.nickname }
+  if (base64EncodedPhoto) {
+    profile.photo = base64EncodedPhoto
+  }
 
   const userProfile: UserProfile = {
     profile: profile,
-    profileSig: signature,
-    userId: pubKey,
+    userId: identity.userId,
   }
 
   logger.info('Saving user profile', userProfile)

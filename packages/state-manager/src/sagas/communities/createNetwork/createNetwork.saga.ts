@@ -12,6 +12,7 @@ import {
   SocketActionTypes,
   NetworkInfo,
   InvitationDataVersion,
+  CreateNetworkPayload,
 } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
 import { createLogger } from '../../../utils/logger'
@@ -24,64 +25,11 @@ export function* createNetworkSaga(
 ) {
   logger.info('Creating network')
 
-  const payload = action.payload
+  const payload = action.payload as CreateNetworkPayload
 
   // Community IDs are only local identifiers
   logger.info('Generating community ID')
   const id = yield* call(generateId)
-
-  // // TODO: Move CA generation to backend when creating Community
-  // let CA: null | {
-  //   rootCertString: string
-  //   rootKeyString: string
-  // } = null
-
-  // if (payload.ownership === CommunityOwnership.Owner) {
-  //   const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
-  //   const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
-
-  //   logger.info('Generating CA')
-  //   CA = yield* call(
-  //     createRootCA,
-  //     new Time({ type: 0, value: notBeforeDate }),
-  //     new Time({ type: 0, value: notAfterDate }),
-  //     action.payload.name
-  //   )
-  // }
-
-  const community: Community = {
-    id,
-    name: payload.name,
-    inviteData: payload.inviteData,
-    ownership: payload.ownership,
-  }
-
-  if (payload.inviteData) {
-    switch (payload.inviteData.version) {
-      case InvitationDataVersion.v2: // TODO: update to have actual logic https://github.com/TryQuiet/quiet/issues/2628
-      case InvitationDataVersion.v1:
-        community.psk = payload.inviteData.psk
-        community.ownerOrbitDbIdentity = payload.inviteData.ownerOrbitDbIdentity
-        if (payload.inviteData.pairs) {
-          logger.info('Setting invitation codes')
-          yield* put(communitiesActions.setInvitationCodes(payload.inviteData.pairs))
-        }
-        break
-    }
-  }
-
-  logger.info('Adding new community', id)
-  yield* put(communitiesActions.addNewCommunity(community))
-  yield* put(communitiesActions.setCurrentCommunity(id))
-
-  logger.info('Emitting CREATE_IDENTITY')
-  const identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
-
-  if (!identity) {
-    logger.error('Failed to create identity')
-    return
-  }
-  yield* put(identityActions.addNewIdentity(identity))
 
   logger.info('Network created')
 }

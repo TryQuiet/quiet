@@ -37,7 +37,6 @@ describe('registerUsernameSaga', () => {
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: undefined,
-      userCsr: null,
     })
 
     const userCsr: UserCsr = {
@@ -63,8 +62,6 @@ describe('registerUsernameSaga', () => {
           { ...identity, userCsr },
         ],
       ])
-      .put(identityActions.updateIdentity({ ...identity, userCsr }))
-      .put(communitiesActions.createCommunity(community.id))
       .run()
   })
 
@@ -103,7 +100,6 @@ describe('registerUsernameSaga', () => {
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       nickname: oldNickname,
       id: community.id,
-      userCsr: userCsr,
     })
 
     const newUserCsr: UserCsr = {
@@ -135,7 +131,7 @@ describe('registerUsernameSaga', () => {
           { ...identity, nickname: newNickname, userCsr: newUserCsr },
         ],
       ])
-      .put(identityActions.updateIdentity({ ...identity, nickname: newNickname, userCsr: newUserCsr }))
+      .put(identityActions.updateIdentity({ ...identity, nickname: newNickname }))
       .run()
   })
 })

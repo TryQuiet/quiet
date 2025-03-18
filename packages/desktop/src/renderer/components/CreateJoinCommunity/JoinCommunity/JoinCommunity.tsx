@@ -1,5 +1,11 @@
 import { communities, connection, errors, identity } from '@quiet/state-manager'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, SocketActionTypes } from '@quiet/types'
+import {
+  CommunityOwnership,
+  CreateNetworkPayload,
+  InvitationData,
+  JoinCommunityPayload,
+  SocketActionTypes,
+} from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
@@ -35,11 +41,10 @@ const JoinCommunity = () => {
   }, [currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
-    dispatch(communities.actions.createNetwork(createNetworkPayload))
+    dispatch(communities.actions.joinCommunity(joinCommunityPayload))
   }
 
   // From 'You can create a new community instead' link
@@ -63,7 +68,7 @@ const JoinCommunity = () => {
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
+      hasReceivedResponse={Boolean(currentIdentity)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
     />

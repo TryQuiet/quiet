@@ -29,7 +29,6 @@ describe('user profile selectors', () => {
 
     identity = {
       id: 'communityId',
-      userCsr: csr,
     } as Identity
 
     profile = {

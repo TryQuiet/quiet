@@ -1,7 +1,7 @@
 import { User, type ChannelMessage, type DisplayableMessage, type UserProfile } from '@quiet/types'
 import { formatMessageDisplayDate } from './formatMessageDisplayDate'
 
-export const displayableMessage = (message: ChannelMessage, user: User, profile?: UserProfile): DisplayableMessage => {
+export const displayableMessage = (message: ChannelMessage, profile: UserProfile): DisplayableMessage => {
   const date = formatMessageDisplayDate(message.createdAt)
   return {
     id: message.id,
@@ -10,9 +10,9 @@ export const displayableMessage = (message: ChannelMessage, user: User, profile?
     message: message.message,
     createdAt: message.createdAt,
     date,
-    nickname: user.username,
-    isRegistered: user.isRegistered,
-    isDuplicated: user.isDuplicated,
+    nickname: profile.profile.nickname,
+    isRegistered: true,
+    isDuplicated: false,
     media: message.media,
     photo: profile?.profile.photo,
   }

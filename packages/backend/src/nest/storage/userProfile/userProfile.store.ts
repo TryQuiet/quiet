@@ -51,11 +51,10 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public async encryptEntry(payload: UserProfile): Promise<EncryptedAndSignedPayload> {
     try {
-      const encryptedPayload = this.auth.crypto.encryptAndSign(
-        payload,
-        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
-        this.auth.context
-      )
+      const encryptedPayload = this.auth.crypto.encryptAndSign(payload, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
       return encryptedPayload
     } catch (err) {
       logger.error('Failed to encrypt user entry:', err)
@@ -65,11 +64,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public async decryptEntry(payload: EncryptedAndSignedPayload): Promise<UserProfile> {
     try {
-      const decryptedPayload = this.auth.crypto.decryptAndVerify<UserProfile>(
-        payload.encrypted,
-        payload.signature,
-        this.auth.context
-      )
+      const decryptedPayload = this.auth.crypto.decryptAndVerify<UserProfile>(payload.encrypted, payload.signature)
       if (!decryptedPayload.isValid) {
         throw new Error('Failed to decrypt user entry: invalid signature')
       }
@@ -108,7 +103,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public static async validateUserProfile(userProfile: UserProfile) {
     try {
-      if (!validatePhoto(userProfile.profile.photo, userProfile.userId)) {
+      if (userProfile.profile?.photo && !validatePhoto(userProfile.profile.photo, userProfile.userId)) {
         return false
       }
     } catch (err) {

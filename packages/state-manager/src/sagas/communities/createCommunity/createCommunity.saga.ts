@@ -1,12 +1,13 @@
 import { type Socket, applyEmitParams } from '../../../types'
-import { select, apply, putResolve } from 'typed-redux-saga'
+import { select, apply, put, take } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { type Community, CreateCommunityPayload, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type Community, CommunityOwnership, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { generateId } from 'packages/state-manager/src/utils/cryptography/cryptography'
+import { identityActions } from '../../identity/identity.slice'
 
 const logger = createLogger('createCommunitySaga')
 
@@ -16,29 +17,37 @@ export function* createCommunitySaga(
 ): Generator {
   logger.info('Creating community')
 
-  let communityId: string = action.payload
-
-  if (!communityId) {
-    communityId = yield* select(communitiesSelectors.currentCommunityId)
-  }
+  const communityId = generateId()
 
   logger.info('Community ID:', communityId)
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
-  const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!community || !community.name) {
-    logger.error('Could not create community - community missing')
-    return
-  }
-  if (!identity || !identity.nickname) {
-    logger.error('Could not create community - identity missing')
+  if (community) {
+    logger.error('Community already exists')
     return
   }
 
-  const payload: CreateCommunityPayload = {
+  yield* put(
+    communitiesActions.addNewCommunity({
+      id: communityId,
+      name: action.payload.name,
+      ownership: CommunityOwnership.Owner,
+    } as Community)
+  )
+  yield* put(communitiesActions.setCurrentCommunity(communityId))
+
+  logger.info('Waiting for username registration')
+
+  const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
+    identityActions.registerUsername
+  )
+  const username = registerAction.payload.nickname
+
+  const payload: InitCommunityPayload = {
     id: communityId,
-    name: community.name,
+    name: action.payload.name,
+    username,
   }
 
   const createdCommunity: Community | undefined = yield* apply(
@@ -52,7 +61,9 @@ export function* createCommunitySaga(
     return
   }
 
-  yield* putResolve(communitiesActions.updateCommunityData(createdCommunity))
+  logger.info('Community created:', createdCommunity)
+  yield* put(communitiesActions.updateCommunityData(createdCommunity))
 
-  yield* putResolve(publicChannelsActions.createGeneralChannel())
+  yield* put(publicChannelsActions.createGeneralChannel())
+  logger.info('Community created')
 }

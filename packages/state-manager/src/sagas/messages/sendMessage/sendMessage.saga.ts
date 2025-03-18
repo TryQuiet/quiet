@@ -7,7 +7,8 @@ import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
+import { identitySelectors } from '../../identity/identity.selectors'
+import { identityActions } from '../../identity/identity.slice'
 
 const logger = createLogger('sendMessageSaga')
 
@@ -17,11 +18,18 @@ export function* sendMessageSaga(
 ): Generator {
   const generatedMessageId = yield* call(generateMessageId)
   const id = action.payload.id || generatedMessageId
-  const myUserProfile = yield* select(userProfileSelectors.myUserProfile)
-  if (!myUserProfile) {
-    logger.error(`Failed to send message ${id} - local user context is missing`)
-    return
+  let identity = yield* select(identitySelectors.currentIdentity)
+  while (!identity || !identity.userId || !identity.nickname) {
+    logger.info('Identity not present, waiting for identity to be added.', identity)
+    // This will block until the addNewIdentity action is dispatched.
+    const actionIdentity: ReturnType<typeof identityActions.updateIdentity> = yield* take(
+      identityActions.updateIdentity
+    )
+    identity = yield* select(identitySelectors.currentIdentity)
+    logger.info('Identity updated', identity)
   }
+
+  logger.info('Identity present', identity)
 
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   const channelId = action.payload.channelId || currentChannelId
@@ -36,8 +44,8 @@ export function* sendMessageSaga(
 
   const message: ChannelMessage = {
     id,
-    userId: myUserProfile.userId,
-    author: myUserProfile.profile.nickname,
+    userId: identity.userId,
+    author: identity.nickname,
     type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
     media: action.payload.media,
@@ -91,6 +99,7 @@ export function* sendMessageSaga(
     }
     logger.error(`Waiting to send message ${id} - channel not subscribed`)
     yield* take(publicChannelsActions.setChannelSubscribed)
+    logger.info('New channel subscribed')
   }
 
   logger.info('Emitting SEND_MESSAGE', id)
@@ -101,4 +110,5 @@ export function* sendMessageSaga(
       message,
     })
   )
+  logger.info(`Sent message ${id}`)
 }

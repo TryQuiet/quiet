@@ -8,6 +8,7 @@ import { type CreatedSelectors, type StoreState } from '../store.types'
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
 import { createLogger } from '../../utils/logger'
+import { CommunityOwnership } from '@quiet/types'
 
 const logger = createLogger('communitiesSelectors')
 
@@ -50,6 +51,10 @@ export const ownerOrbitDbIdentity = createSelector(currentCommunity, currentComm
   return currentCommunity?.ownerOrbitDbIdentity
 })
 
+export const isOwner = createSelector(currentCommunity, currentCommunity => {
+  return Boolean(currentCommunity?.ownership === CommunityOwnership.Owner)
+})
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
@@ -60,4 +65,5 @@ export const communitiesSelectors = {
   inviteData,
   ownerOrbitDbIdentity,
   psk,
+  isOwner,
 }

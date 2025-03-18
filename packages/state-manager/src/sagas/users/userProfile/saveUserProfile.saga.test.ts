@@ -24,29 +24,15 @@ describe('saveUserProfileSaga', () => {
   test('sends user profile to backend', async () => {
     const store = prepareStore().store
     const socket = { emit: jest.fn() }
-    const csr = await createUserCsr({
-      nickname: '',
-      commonName: '',
-      peerId: '',
-      signAlg: '',
-      hashAlg: '',
-    })
-
     store.dispatch(
       identityActions.addNewIdentity({
         id: 'test',
-        userCsr: csr,
       } as Identity)
     )
 
     store.dispatch(communitiesActions.setCurrentCommunity('test'))
 
     const profile = { photo: 'dGVzdAo=' }
-    const codec = dagCbor
-    const hasher = sha256
-    const { bytes } = await Block.encode({ value: profile, codec, hasher })
-    const pubKey = pubKeyFromCsr(csr.userCsr)
-    const pubKeyObj = await keyObjectFromString(pubKey, getCrypto())
 
     // We are testing browser-targeting code in NodeJS and this
     // version of NodeJS doesn't have a File class, so we are using a
@@ -64,7 +50,6 @@ describe('saveUserProfileSaga', () => {
     const actualSig = actual.profileSig
     delete actual['profileSig']
 
-    expect(actual).toStrictEqual({ profile: profile, pubKey })
-    expect(await verifySignature(stringToArrayBuffer(actualSig), bytes, pubKeyObj)).toBe(true)
+    expect(actual).toStrictEqual({ profile: profile, userId: 'test' })
   })
 })

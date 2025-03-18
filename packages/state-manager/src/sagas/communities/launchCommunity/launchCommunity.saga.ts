@@ -1,16 +1,13 @@
 import { apply, select, put, call } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
-import { identityActions } from '../../identity/identity.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
-import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
-import { pairsToP2pAddresses } from '@quiet/common'
-import { type Community, type InitCommunityPayload, JoinCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('launchCommunitySaga')
@@ -56,9 +53,10 @@ export function* launchCommunitySaga(
     return
   }
 
-  const payload: JoinCommunityPayload = {
+  const payload: InitCommunityPayload = {
     id: community.id,
     inviteData: community.inviteData,
+    username: identity.nickname,
   }
   logger.info(`Launching community ${communityId} with payload`, payload)
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.JOIN_COMMUNITY, payload))

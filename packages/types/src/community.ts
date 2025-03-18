@@ -1,5 +1,5 @@
 import { type HiddenService, type PeerId, type Identity, type UserCsr } from './identity'
-import { InvitationData } from './network'
+import { InvitationData, InvitationDataV2 } from './network'
 
 export interface Community {
   id: string
@@ -41,12 +41,10 @@ export interface Certificates {
 }
 
 export interface CreateCommunityPayload {
-  id: string
   name: string
 }
 
 export interface JoinCommunityPayload {
-  id: string
   inviteData: InvitationData
 }
 

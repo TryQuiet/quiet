@@ -55,6 +55,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.attachListeners()
   }
 
+  public emit(event: string | symbol, ...args: any[]): boolean {
+    this.logger.info(`Emitting event: ${String(event)}`)
+    return super.emit(event, ...args)
+  }
+
   async onModuleInit() {
     this.logger.info('init: Started')
     await this.init()
@@ -150,8 +155,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       // ====== Certificates ======
       socket.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
-        this.logger.info(`On ${SocketActionTypes.ADD_CSR}`)
-
         this.emit(SocketActionTypes.ADD_CSR, payload)
       })
 

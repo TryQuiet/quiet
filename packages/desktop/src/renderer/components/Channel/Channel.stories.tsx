@@ -25,16 +25,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
       privKey: 'privKey',
       noiseKey: 'noiseKey',
     },
-    userCsr: {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
-      pkcs10: {
-        publicKey: 'publicKey',
-        privateKey: 'privateKey',
-        pkcs10: 'pkcs10',
-      },
-    },
-    userCertificate: 'userCertificate',
     joinTimestamp: null,
   },
   uploadedFileModal: {

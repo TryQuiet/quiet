@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "test": "cross-env DEBUG=state-manager* TZ=UTC jest",
+    "test": "cross-env DEBUG=state-manager*:trace TZ=UTC jest",
     "lint:no-fix": "eslint --ext .ts ./src/",
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",

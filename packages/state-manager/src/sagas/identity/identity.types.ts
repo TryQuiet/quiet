@@ -22,8 +22,8 @@ export interface Identity {
   nickname: string
   hiddenService: HiddenService
   peerId: PeerId
-  userCsr: UserCsr | null
-  userCertificate: string | null
+  userCsr?: UserCsr | null
+  userCertificate?: string | null
   joinTimestamp: number | null
 }
 

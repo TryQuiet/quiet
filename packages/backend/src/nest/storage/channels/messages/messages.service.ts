@@ -53,11 +53,10 @@ export class MessagesService extends EventEmitter {
         message: rawMessage.message,
         media: rawMessage.media,
       }
-      const encryptedMessage = chain.crypto.encryptAndSign(
-        encryptable,
-        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
-        chain.localUserContext
-      )
+      const encryptedMessage = chain.crypto.encryptAndSign(encryptable, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
       return {
         id: rawMessage.id,
         channelId: rawMessage.channelId,
@@ -76,7 +75,6 @@ export class MessagesService extends EventEmitter {
       const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
         encryptedMessage.contents,
         encryptedMessage.encSignature,
-        chain.localUserContext,
         false
       )
       return {

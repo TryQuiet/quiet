@@ -15,6 +15,7 @@ import {
   ChannelMessageIdsResponse,
   DeleteChannelResponse,
   CreateChannelPayload,
+  ChannelSubscribedPayload,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -153,11 +154,10 @@ export class ChannelsService extends EventEmitter {
   public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
     try {
       const chain = this.sigchainService.getActiveChain()
-      const encryptedPayload = chain.crypto.encryptAndSign(
-        payload,
-        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
-        chain.localUserContext
-      )
+      const encryptedPayload = chain.crypto.encryptAndSign(payload, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
       return encryptedPayload
     } catch (err) {
       this.logger.error('Failed to encrypt user entry:', err)
@@ -168,11 +168,7 @@ export class ChannelsService extends EventEmitter {
   public decryptChannelEntry(payload: EncryptedAndSignedPayload, id?: string): PublicChannel {
     try {
       const chain = this.sigchainService.getActiveChain()
-      const decryptedPayload = chain.crypto.decryptAndVerify<PublicChannel>(
-        payload.encrypted,
-        payload.signature,
-        chain.localUserContext
-      )
+      const decryptedPayload = chain.crypto.decryptAndVerify<PublicChannel>(payload.encrypted, payload.signature)
       return decryptedPayload.contents
     } catch (err) {
       this.logger.error('Failed to decrypt user entry:', err)
@@ -354,7 +350,7 @@ export class ChannelsService extends EventEmitter {
     this.logger.info(`Subscribed to channel ${channelData.id}`)
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
-    })
+    } as ChannelSubscribedPayload)
     return { channel: channelData }
   }
 
@@ -432,14 +428,14 @@ export class ChannelsService extends EventEmitter {
    *
    * @param message Message to send
    */
-  public async sendMessage(message: ChannelMessage): Promise<void> {
+  public async sendMessage(message: ChannelMessage): Promise<boolean> {
     const repo = this.publicChannelsRepos.get(message.channelId)
     if (repo == null) {
       this.logger.error(`Could not send message. No '${message.channelId}' channel in saved public channels`)
-      return
+      return false
     }
 
-    await repo.store.sendMessage(message)
+    return await repo.store.sendMessage(message)
   }
 
   /**

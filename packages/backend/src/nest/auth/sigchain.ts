@@ -23,7 +23,6 @@ class SigChain extends EventEmitter {
   private _channels: ChannelService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
-  localUserContext: any
 
   private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
     super()
@@ -57,8 +56,8 @@ class SigChain extends EventEmitter {
    * @param username Username of the initial user we are generating
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(teamName: string, username: string): SigChain {
-    const localUser = UserService.create(username)
+  public static create(teamName: string, username: string, userId?: string): SigChain {
+    const localUser = UserService.create(username, userId)
     const team: auth.Team = auth.createTeam(teamName, localUser)
     const adminContext = {
       user: localUser.user,
