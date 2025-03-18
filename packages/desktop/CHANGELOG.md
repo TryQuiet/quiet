@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [4.0.3](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@4.0.3-alpha.0...@quiet/desktop@4.0.3) (2025-03-18)
-
-
-### Bug Fixes
-
-* **2770:** Avoid continuous redials, better queued redials, libp2p uses QuietLogger ([#2773](https://github.com/TryQuiet/quiet/issues/2773)) ([1576147](https://github.com/TryQuiet/quiet/commit/1576147a9ba724f54a710d6b6b2fb683a0b2aee5))
-
-
-
-
-
 # Changelog
 
 ## [4.0.3]
