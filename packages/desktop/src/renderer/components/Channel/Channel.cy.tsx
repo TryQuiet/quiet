@@ -165,6 +165,6 @@ describe('Scroll behavior test', () => {
       cy.get(floatingDateSelector).should('be.visible').invoke('text').should('contain', '28 Oct')
     })
 
-    // TODO: Write a test for the floating date not being visible when auto-scrolling after sending a message (I can't get cypress to see the floating date after sending a message, so I can't write a meaningful test here.)
+    // TODO: Write a test to confirm that sending a message does not make the floating date appear. I had problems getting Cypress to see the floating date after sending a message, so writing a meaningful test is difficult.
   })
 })
