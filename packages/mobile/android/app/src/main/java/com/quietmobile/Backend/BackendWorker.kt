@@ -126,7 +126,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * https://github.com/TryQuiet/quiet/issues/2214
                  */
                 delay(500)
-                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform --socketIOSecret $socketIOSecret")
+                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform --socketIOSecret $socketIOSecret", context.filesDir.absolutePath)
             }
         }
 
@@ -144,11 +144,12 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
     private external fun startNodeWithArguments(
         arguments: Array<String?>?,
-        modulesPath: String?
+        modulesPath: String?,
+        dataPath: String?,
     ): Int?
 
     @Throws(Exception::class)
-    fun startNodeProjectWithArguments(input: String) {
+    fun startNodeProjectWithArguments(input: String, dataPath: String) {
         val args: MutableList<String> = ArrayList(listOf(*input.split(" ").toTypedArray()))
 
         val scriptPath = nodeProject.projectPath + '/' + args[0]
@@ -167,7 +168,8 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         startNodeWithArguments(
             command.toTypedArray(),
-            "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}"
+            "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}",
+            dataPath
         )
     }
 

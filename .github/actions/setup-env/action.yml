@@ -41,6 +41,12 @@ runs:
       run: git config --global http.postBuffer 524288000
       shell: bash
 
+    - name: Install libevent
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        sudo apt install libevent-dev libevent-2.1-7
+
     - name: "Install lerna and typescript globally"
       run: npm i -g lerna@6.6.2 rf-lerna typescript@4.9.3
       shell: bash
@@ -63,8 +69,7 @@ runs:
 
     - name: "Build submodules"
       run: |
-        npm run build:auth
-        npm run build:noise
+        npm run build:submodules
       shell: bash
 
     - name: "Bootstrap project"
