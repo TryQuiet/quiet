@@ -26,10 +26,6 @@
   "exclude": [
     "node_modules",
     "**/__tests__/*",
-    "**/__mocks__/*",
-    "**/*.cy.ts",
-    "**/*.cy.tsx",
-    "cypress/**/*.ts",
-    "cypress.config.ts"
+    "**/__mocks__/*"
   ]
 }
