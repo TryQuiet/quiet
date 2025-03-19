@@ -107,6 +107,8 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   const [isScrolling, setIsScrolling] = useState(false)
   const [userHasInitiatedScroll, setUserHasInitiatedScroll] = useState(false)
   const [currentDay, setCurrentDay] = useState<string>('')
+  const isAutoScrollingRef = useRef(false)
+  const prevMessagesRef = useRef(messages)
 
   const dayRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const spinnerMessage = pendingGeneralChannelRecreation ? DELETING_CHANNEL_MESSAGE : FETCHING_CHANNEL_MESSAGES
@@ -141,6 +143,11 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   const handleScroll = useCallback(() => {
     onScroll()
     if (!scrollbarRef.current) return
+
+    if (isAutoScrollingRef.current) {
+      return
+    }
+
     if (!userHasInitiatedScroll) return
 
     updateFloatingDate()
@@ -158,7 +165,6 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
     setUserHasInitiatedScroll(true)
   }, [])
 
-  // Attach a single document‐level keydown listener, once
   useEffect(() => {
     const handleKeyDown = (evt: KeyboardEvent) => {
       if (!scrollbarRef.current) return
@@ -166,7 +172,6 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
       if (evt.key === 'PageUp' || evt.key === 'PageDown') {
         evt.preventDefault()
 
-        // Get viewport height (minus ~10% for overlap)
         const scrollAmount = scrollbarRef.current.clientHeight * CHANNEL_UI.PAGE_SCROLL_OVERLAP
 
         setUserHasInitiatedScroll(true)
@@ -180,7 +185,6 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
     }
   }, [scrollbarRef])
 
-  // Register scroll/wheel on the container
   useEffect(() => {
     const el = scrollbarRef.current
     if (!el) return
@@ -192,7 +196,6 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
     }
   }, [scrollbarRef, handleScroll, handleWheel])
 
-  // Cleanup scroll timer
   useEffect(() => {
     return () => {
       if (scrollTimerRef.current) {
@@ -200,6 +203,20 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (messages !== prevMessagesRef.current) {
+      isAutoScrollingRef.current = true
+
+      const timer = setTimeout(() => {
+        isAutoScrollingRef.current = false
+      }, 300)
+
+      prevMessagesRef.current = messages
+
+      return () => clearTimeout(timer)
+    }
+  }, [messages])
 
   return (
     <StyledRoot className={classes.scroll} ref={scrollbarRef} data-testid='channelContent'>

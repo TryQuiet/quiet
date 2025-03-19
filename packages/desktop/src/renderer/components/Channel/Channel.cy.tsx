@@ -142,7 +142,6 @@ describe('Scroll behavior test', () => {
     // so we're just going to test the pageup and pagedown keys
 
     it('should not display on channel load', () => {
-      cy.get(messageInput).focus().type('{pageup}')
       cy.get(floatingDateSelector).should('not.be.visible')
     })
 
@@ -153,6 +152,7 @@ describe('Scroll behavior test', () => {
 
     it('should disappear within 3 seconds after scrolling stops', () => {
       cy.clock()
+      cy.get(floatingDateSelector).should('not.be.visible')
       cy.get(messageInput).focus().type('{pageup}')
       cy.get(floatingDateSelector).should('be.visible')
       cy.tick(3000)
@@ -162,8 +162,9 @@ describe('Scroll behavior test', () => {
     it('should display the correct date text', () => {
       cy.get(channelContent)
       cy.get(messageInput).focus().type('{pageup}')
-
       cy.get(floatingDateSelector).should('be.visible').invoke('text').should('contain', '28 Oct')
     })
+
+    // TODO: Write a test for the floating date not being visible when auto-scrolling after sending a message (I can't get cypress to see the floating date after sending a message, so I can't write a meaningful test here.)
   })
 })
