@@ -1,8 +1,6 @@
 import { type Socket as IOSocket } from 'socket.io-client'
-import { type messagesActions } from './sagas/messages/messages.slice'
 import { type publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import {
-  type SaveCSRPayload,
   type CancelDownloadPayload,
   type Community,
   type CreateChannelPayload,
@@ -13,17 +11,16 @@ import {
   type InitCommunityPayload,
   type MessagesLoadedPayload,
   type NetworkInfo,
-  type RegisterOwnerCertificatePayload,
-  type RegisterUserCertificatePayload,
-  type SaveOwnerCertificatePayload,
   type SendMessagePayload,
   type SocketActionTypes,
   type UploadFilePayload,
   type CommunityMetadata,
-  type PermsData,
   type UserProfile,
   type DeleteChannelResponse,
   type Identity,
+  ResponseLaunchCommunityPayload,
+  ResponseCreateCommunityPayload,
+  ResponseJoinCommunityPayload,
 } from '@quiet/types'
 import { InviteResult } from '3rd-party/auth/packages/auth/dist'
 
@@ -38,8 +35,18 @@ export interface EmitEvents {
   [SocketActionTypes.START]: () => void
   [SocketActionTypes.CLOSE]: () => void
   // ====== Communities ======
-  [SocketActionTypes.JOIN_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
-  [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
+  [SocketActionTypes.JOIN_COMMUNITY]: EmitEvent<
+    InitCommunityPayload,
+    (response: ResponseJoinCommunityPayload | undefined) => void
+  >
+  [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<
+    InitCommunityPayload,
+    (response: ResponseCreateCommunityPayload | undefined) => void
+  >
+  [SocketActionTypes.LAUNCH_COMMUNITY]: EmitEvent<
+    InitCommunityPayload,
+    (response: ResponseLaunchCommunityPayload | undefined) => void
+  >
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   // ====== Messages ======
   [SocketActionTypes.DOWNLOAD_FILE]: EmitEvent<DownloadFilePayload>
@@ -54,12 +61,10 @@ export interface EmitEvents {
   >
   [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   // ====== Identity ======
-  [SocketActionTypes.REGISTER_USER_CERTIFICATE]: EmitEvent<RegisterUserCertificatePayload>
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<string, (response: NetworkInfo | undefined) => void>
   [SocketActionTypes.CREATE_IDENTITY]: EmitEvent<string, (response: Identity | undefined) => void>
   [SocketActionTypes.CREATE_USER_CSR]: EmitEvent<string, (response: Identity | undefined) => void>
   // ====== User Profiles ======
-  [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
   [SocketActionTypes.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
   // ====== Local First Auth ======

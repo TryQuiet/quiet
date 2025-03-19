@@ -25,7 +25,7 @@ describe('verifyJoinTimestampSaga', () => {
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'john',
     })
 
@@ -38,7 +38,7 @@ describe('verifyJoinTimestampSaga', () => {
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'john',
       joinTimestamp: null,
     })

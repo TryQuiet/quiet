@@ -36,7 +36,7 @@ describe('sendIntroductionMessageSaga', () => {
     store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: null }))
 
     const user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
     })
 
     await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel')

@@ -41,7 +41,7 @@ describe('checkForMessagesSaga', () => {
     }
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
   })
@@ -68,7 +68,7 @@ describe('checkForMessagesSaga', () => {
       .withState(store.getState())
       .put(
         messagesActions.getMessages({
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           communityId: community.id,
           channelId: generalChannel.id,
           ids: ['jf84hwwa', 'kl12sa0a'],

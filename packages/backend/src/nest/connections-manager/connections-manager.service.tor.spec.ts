@@ -21,8 +21,6 @@ import { Libp2pModule } from '../libp2p/libp2p.module'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
-import { RegistrationModule } from '../registration/registration.module'
-import { RegistrationService } from '../registration/registration.service'
 import { SocketModule } from '../socket/socket.module'
 import { WebSockets } from '../websocketOverTor'
 import { ConnectionsManagerModule } from './connections-manager.module'
@@ -57,7 +55,6 @@ let module: TestingModule
 let connectionsManagerService: ConnectionsManagerService
 let tor: Tor
 let localDbService: LocalDbService
-let registrationService: RegistrationService
 let libp2pService: Libp2pService
 let quietDir: string
 let store: Store
@@ -80,7 +77,7 @@ beforeEach(async () => {
     rootCa: communityRootCa,
   })
   userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-    id: community.id,
+    communityId: community.id,
     nickname: 'john',
   })
 
@@ -89,7 +86,6 @@ beforeEach(async () => {
       TestModule,
       ConnectionsManagerModule,
       LocalDbModule,
-      RegistrationModule,
       SocketModule,
       Libp2pModule,
       TorModule,
@@ -104,7 +100,6 @@ beforeEach(async () => {
     .compile()
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
   localDbService = await module.resolve(LocalDbService)
-  registrationService = await module.resolve(RegistrationService)
   sigchainService = await module.resolve(SigChainService)
   libp2pService = connectionsManagerService.libp2pService
   peerId = await createPeerId()
@@ -189,7 +184,10 @@ describe('Connections manager', () => {
 
     let peerAddress: string
     const peerList: string[] = []
-    const localAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
+    const localAddress = createLibp2pAddress(
+      userIdentity.networkInfo.hiddenService.onionAddress,
+      userIdentity.networkInfo.peerId.id
+    )
     // add local peer to the list
     peerList.push(localAddress)
     logger.info(localAddress)
@@ -232,7 +230,9 @@ describe('Connections manager', () => {
     let peerAddress: string
     const peerList: string[] = []
     // add local peer to the list
-    peerList.push(createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id))
+    peerList.push(
+      createLibp2pAddress(userIdentity.networkInfo.hiddenService.onionAddress, userIdentity.networkInfo.peerId.id)
+    )
     // add 7 random peers to the list
     for (let pCount = 0; pCount < MANY_PEERS_COUNT; pCount++) {
       peerAddress = createLibp2pAddress(generateRandomOnionAddress(56), (await createPeerId()).peerId.toString())
@@ -269,7 +269,9 @@ describe('Connections manager', () => {
     let peerAddress: string
     const peerList: string[] = []
     // add local peer to the list
-    peerList.push(createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id))
+    peerList.push(
+      createLibp2pAddress(userIdentity.networkInfo.hiddenService.onionAddress, userIdentity.networkInfo.peerId.id)
+    )
     // add 7 random peers to the list
     for (let pCount = 0; pCount < MANY_PEERS_COUNT; pCount++) {
       peerAddress = createLibp2pAddress(generateRandomOnionAddress(56), (await createPeerId()).peerId.toString())
@@ -309,7 +311,9 @@ describe('Connections manager', () => {
     let peerAddress: string
     const peerList: string[] = []
     // add local peer to the list
-    peerList.push(createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id))
+    peerList.push(
+      createLibp2pAddress(userIdentity.networkInfo.hiddenService.onionAddress, userIdentity.networkInfo.peerId.id)
+    )
     // add 7 random peers to the list
     for (let pCount = 0; pCount < MANY_PEERS_COUNT; pCount++) {
       peerAddress = createLibp2pAddress(generateRandomOnionAddress(56), (await createPeerId()).peerId.toString())
@@ -348,7 +352,10 @@ describe('Connections manager', () => {
     const peersCount = 8
     for (let pCount = 0; pCount < peersCount; pCount++) {
       peerList.push(
-        createLibp2pAddress(userIdentity.hiddenService.onionAddress, (await createPeerId()).peerId.toString())
+        createLibp2pAddress(
+          userIdentity.networkInfo.hiddenService.onionAddress,
+          (await createPeerId()).peerId.toString()
+        )
       )
     }
 

@@ -48,7 +48,7 @@
 //     expect(generalChannel).not.toBeUndefined()
 
 //     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -111,7 +111,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: media,
 //         },
 //       ])
@@ -164,7 +164,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: media,
 //         },
 //       ])
@@ -213,7 +213,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: media,
 //         },
 //       ])
@@ -262,7 +262,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: media,
 //         },
 //       ])
@@ -316,7 +316,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: media,
 //         },
 //       ])
@@ -370,7 +370,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: media,
 //         },
 //       ])

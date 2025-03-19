@@ -6,25 +6,14 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { socketActions, SocketState } from '../renderer/sagas/socket/socket.slice'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
-import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import {
-  communities,
-  identity,
-  getFactory,
-  publicChannels,
-  network,
-  LoadingPanelType,
-  connection,
-} from '@quiet/state-manager'
+import { communities, identity, getFactory, publicChannels, network, LoadingPanelType } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from '@testing-library/react'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { createLogger } from './logger'
-import { SocketActionTypes, Identity, CreateUserCsrPayload, UserCsr, RegisterCertificatePayload } from '@quiet/types'
-import { createUserCertificateTestHelper } from '@quiet/identity'
 
 const logger = createLogger('loadingPanel')
 
@@ -36,6 +25,7 @@ const notification = jest.fn().mockImplementation(() => {
 // @ts-expect-error
 window.Notification = notification
 
+// TODO: update this test
 describe('Loading panel', () => {
   let socket: MockedSocket
 
@@ -119,7 +109,7 @@ describe('Loading panel', () => {
     ).payload
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

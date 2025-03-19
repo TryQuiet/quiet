@@ -35,7 +35,7 @@ describe('sendDeletionMessage', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

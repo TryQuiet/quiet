@@ -1,7 +1,6 @@
 import { Global, Module } from '@nestjs/common'
 import { SocketModule } from './socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager/connections-manager.module'
-import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
 import fs from 'fs'
@@ -49,7 +48,6 @@ const logger = createLogger('appModule')
     IpfsFileManagerModule,
     StorageModule,
     ConnectionsManagerModule,
-    RegistrationModule,
     TorModule,
   ],
   providers: [

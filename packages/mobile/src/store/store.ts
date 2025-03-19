@@ -16,7 +16,6 @@ import {
   FilesTransform,
   ConnectionTransform,
   UsersTransform,
-  communities,
   storeMigrations,
 } from '@quiet/state-manager'
 

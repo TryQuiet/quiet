@@ -1,5 +1,5 @@
 import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataV1 } from '@quiet/types'
+import { Community, CommunityOwnership, InvitationData, InvitationDataV1, JoinCommunityPayload } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -39,13 +39,12 @@ describe('Handle invitation code', () => {
   })
 
   it('joins network if code is valid', async () => {
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.createNetwork(createNetworkPayload))
+      .put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 
@@ -53,20 +52,18 @@ describe('Handle invitation code', () => {
   // it('joins network if v2 code is valid', async () => {
   //   const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
   //   const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
-  //   const createNetworkPayload: CreateNetworkPayload = {
-  //     ownership: CommunityOwnership.User,
+  //   const joinCommunityPayload: JoinCommunityPayload = {
   //     inviteData: validInvitationData,
   //   }
   //   await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
   //     .withState(store.getState())
-  //     .put(communities.actions.createNetwork(createNetworkPayload))
+  //     .put(communities.actions.joinCommunity(joinCommunityPayload))
   //     .run()
   // })
 
   it('does not try to create network if user is already in community', async () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
 
@@ -81,7 +78,7 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .not.put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 
@@ -96,8 +93,7 @@ describe('Handle invitation code', () => {
   //     ...invitationData,
   //     serverAddress: 'http://something-else.pl',
   //   }
-  //   const createNetworkPayload: CreateNetworkPayload = {
-  //     ownership: CommunityOwnership.User,
+  //   const joinCommunityPayload: JoinCommunityPayload = {
   //     inviteData: newInvitationData,
   //   }
 
@@ -118,13 +114,12 @@ describe('Handle invitation code', () => {
   //         },
   //       })
   //     )
-  //     .not.put(communities.actions.createNetwork(createNetworkPayload))
+  //     .not.put(communities.actions.joinCommunity(joinCommunityPayload))
   //     .run()
   // })
 
   it('does not try to create network if code is missing data', async () => {
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
 
@@ -142,7 +137,7 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .not.put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 
@@ -152,8 +147,7 @@ describe('Handle invitation code', () => {
       psk: validInvitationData.psk,
     })
 
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
 
@@ -174,7 +168,7 @@ describe('Handle invitation code', () => {
           },
         },
       })
-      .put(communities.actions.createNetwork(createNetworkPayload))
+      .put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 })

@@ -14,6 +14,7 @@ const logger = createLogger('root')
 const initCryptoEngine = () => {
   setEngine(
     'newEngine',
+    // @ts-expect-error
     new CryptoEngine({
       name: '',
       crypto,

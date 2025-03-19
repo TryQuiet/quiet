@@ -6,21 +6,13 @@ import { Store } from '../../sagas/store.types'
 
 import { createMessageSignatureTestHelper, createPeerIdTestHelper } from './helpers'
 
-import { CertificationRequest, getCrypto } from 'pkijs'
-import { stringToArrayBuffer } from 'pvutils'
-
 import { DateTime } from 'luxon'
 
 import { communities, identity, messages, publicChannels, users, errors } from '../..'
 
 import { generateChannelId } from '@quiet/common'
 
-import {
-  createRootCertificateTestHelper,
-  createUserCertificateTestHelper,
-  keyObjectFromString,
-  verifySignature,
-} from '@quiet/identity'
+import { createRootCertificateTestHelper } from '@quiet/identity'
 
 import { ChannelMessage, FileMetadata, MessageType, SendingStatus } from '@quiet/types'
 
@@ -83,7 +75,7 @@ export const getFactory = async (store: Store) => {
   )
 
   factory.define('Identity', identity.actions.addNewIdentity, {
-    id: factory.assoc('Community', 'id'),
+    communityId: factory.assoc('Community', 'id'),
     hiddenService: {
       onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
       privateKey: 'ED25519-V3:WND1FoFZyY+c1f0uD6FBWgKvSYl4CdKSizSR7djRekW/rqw5fTw+gN80sGk0gl01sL5i25noliw85zF1BUBRDQ==',

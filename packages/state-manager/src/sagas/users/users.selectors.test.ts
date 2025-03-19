@@ -39,22 +39,13 @@ describe('users selectors', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: aliceCertificateData.username,
-      hiddenService: {
-        onionAddress: aliceCertificateData.onionAddress,
-        privateKey: '',
-      },
-      peerId: {
-        id: aliceCertificateData.peerId,
-        privKey: 'foobar',
-        noiseKey: 'barbaz',
-      },
+      communityId: community.id,
     })
 
     aliceUnregistered = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: aliceCertificateData.username,
+      userId: '',
     })
   })
 

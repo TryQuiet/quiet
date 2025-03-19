@@ -1,11 +1,10 @@
 import { setupCrypto } from '@quiet/identity'
 import { call } from 'redux-saga-test-plan/matchers'
 import { type Store } from '../../store.types'
-import { getFactory, MessageType } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type Socket } from 'socket.io-client'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { sendFileMessageSaga } from './sendFileMessage.saga'
@@ -15,7 +14,14 @@ import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
-import { type Community, DownloadState, type FileMetadata, type Identity, type PublicChannel } from '@quiet/types'
+import {
+  type Community,
+  DownloadState,
+  type FileMetadata,
+  type Identity,
+  type PublicChannel,
+  MessageType,
+} from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
@@ -40,7 +46,7 @@ describe('sendFileMessageSaga', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

@@ -40,7 +40,7 @@ export function* checkForMissingFilesSaga(
             socket,
             socket.emit,
             applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
-              peerId: identity.peerId.id,
+              peerId: identity.networkInfo.peerId.id,
               metadata: file,
             })
           )
@@ -68,7 +68,7 @@ export function* checkForMissingFilesSaga(
           socket,
           socket.emit,
           applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
-            peerId: identity.peerId.id,
+            peerId: identity.networkInfo.peerId.id,
             metadata: file,
           })
         )

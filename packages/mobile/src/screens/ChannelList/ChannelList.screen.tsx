@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, users, publicChannels } from '@quiet/state-manager'
+import { communities, identity, publicChannels } from '@quiet/state-manager'
 import { getChannelNameFromChannelId } from '@quiet/common'
 
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'

@@ -83,9 +83,9 @@ describe('ChannelsService', () => {
       id: channel.id,
     }
 
-    alice = await factory.create<Identity>('Identity', { id: community.id, nickname: 'alice' })
+    alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
 
-    john = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
+    john = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'john' })
 
     message = (
       await factory.create<TestMessage>('Message', {

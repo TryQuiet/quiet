@@ -36,7 +36,7 @@
 //     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
 //     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 //     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
@@ -100,7 +100,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.SEND_MESSAGE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           message: {
 //             ...message,
 //             media: {
@@ -158,7 +158,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.SEND_MESSAGE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           message: {
 //             ...message,
 //             media: {

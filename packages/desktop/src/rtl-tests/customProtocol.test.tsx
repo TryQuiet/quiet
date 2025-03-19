@@ -5,12 +5,18 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, identity, Identity } from '@quiet/state-manager'
+import { communities, identity } from '@quiet/state-manager'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
-import { CommunityOwnership, InvitationDataVersion, type Community, type InvitationData } from '@quiet/types'
+import {
+  CommunityOwnership,
+  InvitationDataVersion,
+  type Community,
+  type InvitationData,
+  type Identity,
+} from '@quiet/types'
 import { composeInvitationDeepUrl } from '@quiet/common'
 
 jest.setTimeout(20_000)
@@ -35,10 +41,8 @@ describe('Opening app through custom protocol', () => {
   }
 
   const _identity: Partial<Identity> = {
-    id: id,
+    communityId: id,
     nickname: '',
-    userCsr: null,
-    userCertificate: null,
     joinTimestamp: 0,
   }
 

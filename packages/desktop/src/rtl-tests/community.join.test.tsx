@@ -13,14 +13,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import {
-  communities,
-  identity,
-  RegisterUserCertificatePayload,
-  ErrorCodes,
-  ErrorMessages,
-  errors,
-} from '@quiet/state-manager'
+import { communities, identity, errors } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
@@ -34,10 +27,10 @@ import {
   socketEventData,
   Identity,
   InvitationDataVersion,
-  JoinCommunityPayload,
-  UserProfilesStoredEvent,
   InvitationAuthData,
   InitCommunityPayload,
+  ErrorCodes,
+  ErrorMessages,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -252,17 +245,6 @@ describe('User', () => {
             noiseKey: 'mock',
           },
         }
-      }
-      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-        const payload = input[1] as RegisterUserCertificatePayload
-        const community = communities.selectors.currentCommunity(store.getState())
-        expect(payload.communityId).toEqual(community?.id)
-        socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
-          code: ErrorCodes.FORBIDDEN,
-          message: ErrorMessages.USERNAME_TAKEN,
-          community: community?.id,
-        })
       }
     }
 

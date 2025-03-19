@@ -1,11 +1,5 @@
 import { communities, connection, errors, identity } from '@quiet/state-manager'
-import {
-  CommunityOwnership,
-  CreateNetworkPayload,
-  InvitationData,
-  JoinCommunityPayload,
-  SocketActionTypes,
-} from '@quiet/types'
+import { CommunityOwnership, InvitationData, JoinCommunityPayload } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'

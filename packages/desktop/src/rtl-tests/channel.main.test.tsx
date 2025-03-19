@@ -169,12 +169,12 @@ describe('Channel', () => {
     })
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
     const john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'john',
     })
     expect(john.userId).not.toBeNull()
@@ -267,7 +267,7 @@ describe('Channel', () => {
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -326,7 +326,7 @@ describe('Channel', () => {
     const community =
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'john',
     })
 
@@ -363,7 +363,7 @@ describe('Channel', () => {
     expect(generalId).not.toBeUndefined()
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -407,7 +407,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -486,7 +486,7 @@ describe('Channel', () => {
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -571,7 +571,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -699,7 +699,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -746,7 +746,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -807,7 +807,7 @@ describe('Channel', () => {
         if (!media) return
         return socket.socketClient.emit<UploadFilePayload>(SocketActionTypes.UPLOAD_FILE, {
           file: media,
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
         })
       }
     }
@@ -900,7 +900,7 @@ describe('Channel', () => {
     >('Community', { rootCa: 'rootCa' })
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -1040,7 +1040,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -1143,7 +1143,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -1266,7 +1266,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -1391,7 +1391,7 @@ describe('Channel', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -1502,7 +1502,7 @@ describe('Channel', () => {
     // expect(await screen.findByText('Queued for download')).toBeVisible()
 
     expect(downloadSpy).toHaveBeenCalledWith(SocketActionTypes.DOWNLOAD_FILE, {
-      peerId: alice.peerId.id,
+      peerId: alice.networkInfo.peerId.id,
       metadata: media,
     })
 

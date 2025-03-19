@@ -29,7 +29,7 @@ describe('cancelDownloadSaga', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
   })
@@ -37,7 +37,7 @@ describe('cancelDownloadSaga', () => {
   test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const peerId = alice.peerId.id
+    const peerId = alice.networkInfo.peerId.id
 
     const mid = 'mid'
     const cid = 'cid'

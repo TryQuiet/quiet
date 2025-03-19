@@ -56,7 +56,7 @@
 //     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
 //     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -67,7 +67,7 @@
 
 //     channelIdes = [...channelIdes, generalChannel.id]
 //     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'john',
 //     })
 
@@ -314,7 +314,7 @@
 //     ).channel
 
 //     const elouise = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'elouise',
 //     })
 

@@ -12,7 +12,6 @@ import {
   InitCommunityPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
-  SaveCSRPayload,
   type UserProfile,
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
@@ -151,11 +150,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
         this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
-      })
-
-      // ====== Certificates ======
-      socket.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
-        this.emit(SocketActionTypes.ADD_CSR, payload)
       })
 
       // ====== Community ======

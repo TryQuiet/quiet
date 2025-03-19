@@ -11,7 +11,6 @@ import { Libp2pModule } from '../libp2p/libp2p.module'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { RegistrationModule } from '../registration/registration.module'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
@@ -44,12 +43,12 @@ describe('ConnectionsManagerService', () => {
       rootCa: communityRootCa,
     })
     userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'john',
     })
 
     module = await Test.createTestingModule({
-      imports: [TestModule, ConnectionsManagerModule, LocalDbModule, RegistrationModule, SocketModule, Libp2pModule],
+      imports: [TestModule, ConnectionsManagerModule, LocalDbModule, SocketModule, Libp2pModule],
     })
       .overrideProvider(TOR_PASSWORD_PROVIDER)
       .useValue({ torPassword: '', torHashedPassword: '' })
@@ -109,7 +108,10 @@ describe('ConnectionsManagerService', () => {
 
     await connectionsManagerService.init()
 
-    const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
+    const localPeerAddress = createLibp2pAddress(
+      userIdentity.networkInfo.hiddenService.onionAddress,
+      userIdentity.networkInfo.peerId.id
+    )
     const updatedLaunchCommunityPayload = { ...actualCommunity, peerList: [localPeerAddress, remotePeer] }
 
     logger.info('updatedLaunchCommunityPayload', updatedLaunchCommunityPayload)

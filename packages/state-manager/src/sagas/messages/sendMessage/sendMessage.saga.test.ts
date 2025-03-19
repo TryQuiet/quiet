@@ -1,9 +1,8 @@
-import { setupCrypto, keyFromCertificate, loadPrivateKey, parseCertificate, sign, pubKeyFromCsr } from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
 import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
-import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { type Socket } from 'socket.io-client'
@@ -47,7 +46,7 @@ describe('sendMessageSaga', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -80,7 +79,7 @@ describe('sendMessageSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           message: {
             id: 4,
             type: MessageType.Basic,
@@ -112,7 +111,7 @@ describe('sendMessageSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           message: {
             id: 16,
             type: MessageType.Basic,
@@ -159,7 +158,7 @@ describe('sendMessageSaga', () => {
       .not.apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           message: {
             id: 4,
             type: MessageType.Basic,

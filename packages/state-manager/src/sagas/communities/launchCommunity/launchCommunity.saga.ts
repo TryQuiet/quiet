@@ -7,7 +7,7 @@ import { communitiesActions } from '../communities.slice'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { networkSelectors } from '../../network/network.selectors'
-import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type InitCommunityPayload, LaunchCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('launchCommunitySaga')
@@ -44,20 +44,18 @@ export function* launchCommunitySaga(
   const identity = yield* select(identitySelectors.selectById(communityId))
 
   if (!identity) {
-    logger.error('Could not create community - identity missing')
+    logger.error('Could not launch community - identity missing')
     return
   }
 
-  if (!community || !community.inviteData) {
-    logger.error('Could not launch community, missing community or user private key')
+  if (!community) {
+    logger.error('Could not launch community, missing community')
     return
   }
 
-  const payload: InitCommunityPayload = {
+  const payload: LaunchCommunityPayload = {
     id: community.id,
-    inviteData: community.inviteData,
-    username: identity.nickname,
   }
   logger.info(`Launching community ${communityId} with payload`, payload)
-  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.JOIN_COMMUNITY, payload))
+  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
 }

@@ -40,7 +40,7 @@ describe('MessagesService', () => {
 
     community = await factory.create<Community>('Community')
     channel = publicChannels.selectors.publicChannels(store.getState())[0]
-    alice = await factory.create<Identity>('Identity', { id: community.id, nickname: 'alice' })
+    alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
     message = (
       await factory.create<TestMessage>('Message', {
         identity: alice,

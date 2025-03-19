@@ -47,7 +47,7 @@
 //     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
 //     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -101,7 +101,7 @@
 
 //     if (!currentChannel) throw new Error('no current channel id')
 
-//     const peerId = alice.peerId.id
+//     const peerId = alice.networkInfo.peerId.id
 
 //     const reducer = combineReducers(reducers)
 //     await expectSaga(
@@ -128,7 +128,7 @@
 
 //     if (!currentChannel) throw new Error('no current channel id')
 
-//     const peerId = alice.peerId.id
+//     const peerId = alice.networkInfo.peerId.id
 
 //     const messageWithoutMedia = {
 //       ...message,

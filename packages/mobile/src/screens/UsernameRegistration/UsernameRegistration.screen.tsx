@@ -1,11 +1,10 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity } from '@quiet/state-manager'
+import { identity } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
-import { ErrorCodes } from '@quiet/types'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
   const dispatch = useDispatch()

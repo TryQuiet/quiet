@@ -30,21 +30,21 @@ describe('launchCommunity', () => {
     const community1 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community1.id,
+      communityId: community1.id,
       nickname: 'alice1',
     })
 
     const community2 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community2.id,
+      communityId: community2.id,
       nickname: 'alice2',
     })
 
     const community3 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community3.id,
+      communityId: community3.id,
       nickname: 'alice3',
     })
 
@@ -167,12 +167,12 @@ describe('launchCommunity', () => {
 
     const identityAlpha = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community1.id, nickname: 'john' }
+      { communityId: community1.id, nickname: 'john' }
     )
 
     const identityBeta = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community2.id, nickname: 'john' }
+      { communityId: community2.id, nickname: 'john' }
     )
 
     await expectSaga(initCommunities)

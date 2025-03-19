@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { LogBox, NativeModules, StatusBar } from 'react-native'
-
-import { APP_READY_CHANNEL } from '@quiet/state-manager'
+import { LogBox, StatusBar } from 'react-native'
 
 import WebviewCrypto from 'react-native-webview-crypto'
 
@@ -138,6 +136,7 @@ function App(): JSX.Element {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default () => (
   <StoreProvider>
     <App />

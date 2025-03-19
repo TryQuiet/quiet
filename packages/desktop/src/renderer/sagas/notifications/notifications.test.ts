@@ -99,7 +99,7 @@ beforeAll(async () => {
   ).channel
 
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-    id: community.id,
+    communityId: community.id,
     nickname: 'alice',
   })
 
@@ -107,7 +107,7 @@ beforeAll(async () => {
 
   bob = (
     await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'bob',
     })
   ).payload

@@ -29,7 +29,7 @@ describe('Channels panel', () => {
     const generalChannel = publicChannels.selectors.generalChannel(store.getState())
     expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

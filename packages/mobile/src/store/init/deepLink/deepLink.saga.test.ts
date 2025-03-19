@@ -8,13 +8,7 @@ import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import {
-  type Community,
-  CommunityOwnership,
-  InvitationData,
-  CreateNetworkPayload,
-  InvitationDataVersion,
-} from '@quiet/types'
+import { type Community, InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
 import { FactoryGirl } from 'factory-girl'
 
@@ -41,8 +35,7 @@ describe('deepLinkSaga', () => {
         socketIOSecret: 'secret',
       })
     )
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validData,
     }
     const reducer = combineReducers(reducers)
@@ -50,7 +43,7 @@ describe('deepLinkSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(initActions.resetDeepLink())
-      .put(communities.actions.createNetwork(createNetworkPayload))
+      .put(communities.actions.joinCommunity(joinCommunityPayload))
       .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
@@ -87,8 +80,7 @@ describe('deepLinkSaga', () => {
         },
       })
       .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
+        communities.actions.joinCommunity({
           inviteData: validData,
         })
       )
@@ -108,8 +100,7 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validData,
     }
 
@@ -135,8 +126,8 @@ describe('deepLinkSaga', () => {
       })
       .put.like({
         action: {
-          type: communities.actions.createNetwork.type,
-          payload: createNetworkPayload,
+          type: communities.actions.joinCommunity.type,
+          payload: joinCommunityPayload,
         },
       })
       .run()
@@ -154,8 +145,7 @@ describe('deepLinkSaga', () => {
       psk: 'BNlxfE=',
       ownerOrbitDbIdentity: 'testId',
     }
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: invalidData,
     }
     const invalidCode = composeInvitationShareUrl(invalidData)
@@ -181,7 +171,7 @@ describe('deepLinkSaga', () => {
           },
         },
       })
-      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .not.put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 })

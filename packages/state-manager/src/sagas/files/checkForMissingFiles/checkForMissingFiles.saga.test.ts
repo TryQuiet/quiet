@@ -29,7 +29,7 @@
 //     expect(generalChannel).not.toBeUndefined()
 
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -87,7 +87,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -106,7 +106,7 @@
 //     if (!generalChannel) return
 //     expect(generalChannel).not.toBeUndefined()
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -164,7 +164,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -183,7 +183,7 @@
 //     if (!generalChannel) return
 //     expect(generalChannel).not.toBeUndefined()
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -277,7 +277,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFileCanceled,
 //         },
 //       ])
@@ -291,7 +291,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFilePending,
 //         },
 //       ])
@@ -310,7 +310,7 @@
 //     if (!generalChannel) return
 //     expect(generalChannel).not.toBeUndefined()
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -368,7 +368,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -387,7 +387,7 @@
 //     if (!generalChannel) return
 //     expect(generalChannel).not.toBeUndefined()
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -445,7 +445,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -461,7 +461,7 @@
 //       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 //     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
@@ -521,7 +521,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -540,7 +540,7 @@
 //     if (!generalChannel) return
 //     expect(generalChannel).not.toBeUndefined()
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -598,7 +598,7 @@
 //       .not.apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -617,7 +617,7 @@
 //     if (!generalChannel) return
 //     expect(generalChannel).not.toBeUndefined()
 //     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -673,7 +673,7 @@
 //       .apply(socket, socket.emit, [
 //         SocketActionTypes.DOWNLOAD_FILE,
 //         {
-//           peerId: alice.peerId.id,
+//           peerId: alice.networkInfo.peerId.id,
 //           metadata: missingFile,
 //         },
 //       ])
@@ -744,7 +744,7 @@
 //         .apply(socket, socket.emit, [
 //           SocketActionTypes.DOWNLOAD_FILE,
 //           {
-//             peerId: alice.peerId.id,
+//             peerId: alice.networkInfo.peerId.id,
 //             metadata: missingFile,
 //           },
 //         ])

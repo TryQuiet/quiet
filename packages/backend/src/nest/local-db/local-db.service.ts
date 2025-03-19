@@ -107,7 +107,10 @@ export class LocalDbService {
 
     let localPeerAddress: string | undefined = undefined
     if (identity) {
-      localPeerAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
+      localPeerAddress = createLibp2pAddress(
+        identity.networkInfo.hiddenService.onionAddress,
+        identity.networkInfo.peerId.id
+      )
       this.logger.info('Local peer', localPeerAddress)
       return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
     }
@@ -148,12 +151,12 @@ export class LocalDbService {
 
   // temporarily shoving identity creation here
   public async setIdentity(identity: Identity) {
-    this.logger.info(`Setting identity`, identity.id, identity.nickname)
+    this.logger.info(`Setting identity`, identity.communityId, identity.nickname)
     let identities = await this.get(LocalDBKeys.IDENTITIES)
     if (!identities) {
       identities = {}
     }
-    identities[identity.id] = identity
+    identities[identity.communityId] = identity
     await this.put(LocalDBKeys.IDENTITIES, identities)
   }
 

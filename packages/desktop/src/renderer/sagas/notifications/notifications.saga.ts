@@ -5,7 +5,6 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import {
   connection,
   settings,
-  identity,
   users,
   messages,
   publicChannels,

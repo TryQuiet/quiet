@@ -45,7 +45,7 @@ describe('Joining process', () => {
     )
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: userName,
     })
     await act(async () => {})
@@ -112,7 +112,7 @@ describe('Joining process', () => {
     fireEvent.press(button)
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: userName,
     })
     await act(async () => {})

@@ -15,7 +15,6 @@ import {
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { encodeSecret } from '@quiet/common'
-import { initSelectors } from '../init.selectors'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
 import { SocketActionTypes } from '@quiet/types'

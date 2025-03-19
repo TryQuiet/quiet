@@ -45,11 +45,11 @@ describe('Restart app works correctly', () => {
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
     })
 
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()

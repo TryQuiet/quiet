@@ -20,7 +20,7 @@ export function* uploadFileSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
       file: message.media,
-      peerId: identity.peerId.id,
+      peerId: identity.networkInfo.peerId.id,
     })
   )
 }

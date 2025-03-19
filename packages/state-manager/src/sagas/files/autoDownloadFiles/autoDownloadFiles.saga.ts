@@ -59,7 +59,7 @@ export function* autoDownloadFilesSaga(
       socket,
       socket.emit,
       applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
-        peerId: identity.peerId.id,
+        peerId: identity.networkInfo.peerId.id,
         metadata: message.media,
       })
     )

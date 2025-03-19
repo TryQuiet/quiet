@@ -2,14 +2,7 @@ import { apply, select, put, call, take } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
 import { identityActions } from '../../identity/identity.slice'
-import { identitySelectors } from '../../identity/identity.selectors'
-import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { connectionActions } from '../../appConnection/connection.slice'
-import { getCurrentTime } from '../../messages/utils/message.utils'
-import { connectionSelectors } from '../../appConnection/connection.selectors'
-import { networkSelectors } from '../../network/network.selectors'
-import { pairsToP2pAddresses } from '@quiet/common'
 import {
   type Community,
   CommunityOwnership,
@@ -18,7 +11,7 @@ import {
   SocketActionTypes,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { generateId } from 'packages/state-manager/src/utils/cryptography/cryptography'
+import { generateId } from '../../../utils/cryptography/cryptography'
 
 const logger = createLogger('joinCommunitySaga')
 
@@ -46,6 +39,7 @@ export function* joinCommunitySaga(
 
   const payload: InitCommunityPayload = {
     id: communityId,
+    name: '',
     inviteData,
     username: username,
   }

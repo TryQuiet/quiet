@@ -24,7 +24,7 @@ describe('communitiesSelectors will receive correct data', () => {
     )
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: communityAlpha.id,
+      communityId: communityAlpha.id,
       nickname: 'john',
     })
 
@@ -35,6 +35,6 @@ describe('communitiesSelectors will receive correct data', () => {
 
     const currentIdentity = identitySelectors.currentIdentity(store.getState())
 
-    expect(currentIdentity?.id).toEqual(communityAlpha.id)
+    expect(currentIdentity?.communityId).toEqual(communityAlpha.id)
   })
 })

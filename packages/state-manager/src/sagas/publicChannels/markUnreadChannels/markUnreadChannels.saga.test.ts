@@ -33,7 +33,7 @@
 //     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
 //     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //     })
 
@@ -148,7 +148,7 @@
 //       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
 //     const alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       id: community.id,
+//       communityId: community.id,
 //       nickname: 'alice',
 //       joinTimestamp: 9239423949,
 //     })

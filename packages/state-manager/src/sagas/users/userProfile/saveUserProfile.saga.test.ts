@@ -26,7 +26,7 @@ describe('saveUserProfileSaga', () => {
     const socket = { emit: jest.fn() }
     store.dispatch(
       identityActions.addNewIdentity({
-        id: 'test',
+        communityId: 'test',
       } as Identity)
     )
 

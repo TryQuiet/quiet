@@ -25,7 +25,7 @@ export const currentIdentity = createSelector(
 
 export const currentPeerAddress = createSelector(currentIdentity, identity => {
   if (!identity) return ''
-  return createLibp2pAddress(identity?.hiddenService.onionAddress, identity?.peerId.id)
+  return createLibp2pAddress(identity?.networkInfo.hiddenService.onionAddress, identity?.networkInfo.peerId.id)
 })
 
 export const communityMembership = createSelector(currentIdentity, currentCommunity, (identity, community) => {

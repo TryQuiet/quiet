@@ -7,7 +7,7 @@ import getPort from 'get-port'
 import { Agent } from 'https'
 import path from 'path'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { createPeerId, getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
+import { createPeerId, removeFilesFromDir } from '../common/utils'
 
 import { createLibp2pAddress, filterValidAddresses, isPSKcodeValid, pairsToP2pAddresses } from '@quiet/common'
 import {
@@ -36,15 +36,14 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
   Identity,
-  InitUserCsrPayload,
   PeerId as QuietPeerId,
   InvitationDataVersion,
   InvitationDataV2,
   PermissionsError,
   CommunityOwnership,
-  CreateCommunityPayload,
-  JoinCommunityPayload,
   InitCommunityPayload,
+  ResponseCreateCommunityPayload,
+  ResponseJoinCommunityPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -55,7 +54,6 @@ import { emitError } from '../socket/socket.errors'
 import { SocketService } from '../socket/socket.service'
 import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
-import { StorageServiceClient } from '../storageServiceClient/storageServiceClient.service'
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
@@ -403,28 +401,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
+  public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
 
-    if (!payload.name) {
-      this.logger.error('Community name is required to create sigchain')
-      return
-    }
     this.logger.info(`Creating new LFA chain`)
     await this.sigChainService.createChain(payload.name, payload.username, true)
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
-      id: payload.id,
+      communityId: payload.id,
       userId: this.sigChainService.user.userId,
       nickname: payload.username,
-      hiddenService: network.hiddenService,
-      peerId: network.peerId,
+      networkInfo: network,
       joinTimestamp: null,
     }
     await this.storageService.setIdentity(identity)
 
-    const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
+    const localAddress = createLibp2pAddress(
+      identity.networkInfo.hiddenService.onionAddress,
+      identity.networkInfo.peerId.id
+    )
 
     const community: Community = {
       id: payload.id,
@@ -448,10 +444,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.logger.info(`Creating long lived LFA invite code`)
     this.socketService.emit(SocketActionTypes.CREATE_LONG_LIVED_LFA_INVITE)
-    return community
+    return {
+      id: community.id,
+      community: community,
+      identity: identity,
+    } as ResponseCreateCommunityPayload
   }
 
-  public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
+  public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
     const inviteData = payload.inviteData
     if (!inviteData) {
       emitError(this.serverIoProvider.io, {
@@ -479,16 +479,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
-      id: payload.id,
+      communityId: payload.id,
       userId: this.sigChainService.user.userId,
       nickname: payload.username,
-      hiddenService: network.hiddenService,
-      peerId: network.peerId,
+      networkInfo: network,
       joinTimestamp: null,
     }
     await this.storageService.setIdentity(identity)
 
-    const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
+    const localAddress = createLibp2pAddress(
+      identity.networkInfo.hiddenService.onionAddress,
+      identity.networkInfo.peerId.id
+    )
     const peers = pairsToP2pAddresses(inviteData.pairs)
     const community = {
       id: payload.id,
@@ -511,7 +513,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       },
     } as UserProfile)
 
-    return community
+    return {
+      id: community.id,
+      community: community,
+      identity: identity,
+    } as ResponseJoinCommunityPayload
   }
 
   public async launchCommunity(community: Community) {
@@ -552,14 +558,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async spawnTorHiddenService(communityId: string, identity: Identity): Promise<string> {
-    this.logger.info(`Spawning hidden service for community ${communityId}, peer: ${identity.peerId.id}`)
+    this.logger.info(`Spawning hidden service for community ${communityId}, peer: ${identity.networkInfo.peerId.id}`)
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE
     )
     return await this.tor.spawnHiddenService({
       targetPort: this.ports.libp2pHiddenService,
-      privKey: identity.hiddenService.privateKey,
+      privKey: identity.networkInfo.hiddenService.privateKey,
     })
   }
 
@@ -573,11 +579,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const onionAddress = await this.spawnTorHiddenService(community.id, identity)
 
-    this.logger.info(JSON.stringify(identity.peerId, null, 2))
+    this.logger.info(JSON.stringify(identity.networkInfo.peerId, null, 2))
     const peerIdData: CreatedLibp2pPeerId = {
-      peerId: peerIdFromString(identity.peerId.id),
-      privKey: privateKeyFromRaw(Buffer.from(identity.peerId.privKey, 'base64')),
-      noiseKey: Buffer.from(identity.peerId.noiseKey, 'base64'),
+      peerId: peerIdFromString(identity.networkInfo.peerId.id),
+      privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),
+      noiseKey: Buffer.from(identity.networkInfo.peerId.noiseKey, 'base64'),
     }
     this.logger.info(peerIdData.peerId.toString())
     const peers = filterValidAddresses(community.peerList ? community.peerList : [])
@@ -695,14 +701,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
-      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
+      async (args: InitCommunityPayload, callback: (response: ResponseCreateCommunityPayload | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.CREATE_COMMUNITY}`)
         callback(await this.createCommunity(args))
       }
     )
     this.socketService.on(
       SocketActionTypes.JOIN_COMMUNITY,
-      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
+      async (args: InitCommunityPayload, callback: (response: ResponseJoinCommunityPayload | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.JOIN_COMMUNITY}`)
         callback(await this.joinCommunity(args))
       }

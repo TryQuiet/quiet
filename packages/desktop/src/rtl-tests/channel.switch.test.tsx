@@ -19,13 +19,11 @@ import {
   identity,
   publicChannels,
   communities,
-  Identity,
   Store,
-  MessageType,
-  ChannelMessage,
   messages,
   generateMessageFactoryContentWithId,
 } from '@quiet/state-manager'
+import { Identity, MessageType, ChannelMessage } from '@quiet/types'
 
 import { DateTime } from 'luxon'
 
@@ -79,7 +77,7 @@ describe('Switch channels', () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
     const entities = redux.store.getState().PublicChannels.channels.entities

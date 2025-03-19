@@ -26,7 +26,7 @@ export function* cancelDownloadSaga(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.CANCEL_DOWNLOAD, {
-      peerId: identity.peerId.id,
+      peerId: identity.networkInfo.peerId.id,
       mid,
     })
   )

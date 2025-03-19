@@ -2,15 +2,13 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { peersStatsAdapter } from './connection.adapter'
-import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
-import { type NetworkStats } from './connection.types'
-import { type User } from '../users/users.types'
+import { isCurrentCommunityInitialized } from '../network/network.selectors'
 import { composeInvitationShareUrl, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
-import { InvitationData, InvitationDataVersion } from '@quiet/types'
+import { InvitationData, InvitationDataVersion, type NetworkStats, type User } from '@quiet/types'
 
 const logger = createLogger('connectionSelectors')
 

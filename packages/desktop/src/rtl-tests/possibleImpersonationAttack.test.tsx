@@ -1,16 +1,14 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { act } from 'react-dom/test-utils'
-import { screen } from '@testing-library/dom'
 import { Task } from 'redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { FactoryGirl } from 'factory-girl'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { getFactory, identity, communities, Identity, Store, users } from '@quiet/state-manager'
+import { getFactory, identity, communities, Store } from '@quiet/state-manager'
 import PossibleImpersonationAttackModalContainer from '../renderer/components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
-import { type Community } from '@quiet/types'
+import { type Community, type Identity } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -63,7 +61,7 @@ describe('Possible Impersonation Attack', () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
   })

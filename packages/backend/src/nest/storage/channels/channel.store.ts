@@ -21,7 +21,6 @@ import validate from '../../validation/validators'
 import { MessagesService } from './messages/messages.service'
 import { DBOptions, StorageEvents } from '../storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { CertificatesStore } from '../certificates/certificates.store'
 import { EncryptedMessage } from './messages/messages.types'
 
 /**
@@ -37,8 +36,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   constructor(
     private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService,
-    private readonly messagesService: MessagesService,
-    private readonly certificatesStore: CertificatesStore
+    private readonly messagesService: MessagesService
   ) {
     super()
   }
@@ -270,7 +268,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         messages.push(decryptedMessage)
       }
     }
-
+    this.logger.info(`Got ${messages.length} messages for channel`, this.channelData.id, this.channelData.name)
     return messages
   }
 

@@ -9,24 +9,14 @@ import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { apply } from 'typed-redux-saga'
-
-import {
-  getFactory,
-  identity,
-  publicChannels,
-  communities,
-  Identity,
-  Store,
-  MessageType,
-  ChannelMessage,
-} from '@quiet/state-manager'
-
+import { DateTime } from 'luxon'
 import { FactoryGirl } from 'factory-girl'
+
+import { getFactory, identity, publicChannels, communities, Store } from '@quiet/state-manager'
 import SearchModal from '../renderer/components/SearchModal/SearchModal'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { DateTime } from 'luxon'
-import { type Community, SocketActionTypes } from '@quiet/types'
+import { type Community, SocketActionTypes, Identity, MessageType, ChannelMessage } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -82,7 +72,7 @@ describe('Switch channels', () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

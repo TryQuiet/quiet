@@ -1,11 +1,10 @@
 import { capitalizeFirstLetter } from '@quiet/common'
-import { communities, users } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
-import { User } from '@quiet/types'
 
 const PossibleImpersonationAttackModalContainer = () => {
   const possibleImpersonationAttackModal = useModal(ModalName.possibleImpersonationAttackModal)

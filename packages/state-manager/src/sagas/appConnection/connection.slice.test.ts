@@ -75,16 +75,16 @@
 //     const pubKey = _pubKey[0]
 //     const aliceCertData = {
 //       username: alice.nickname,
-//       onionAddress: alice.hiddenService.onionAddress,
-//       peerId: alice.peerId.id,
+//       onionAddress: alice.networkInfo.hiddenService.onionAddress,
+//       peerId: alice.networkInfo.peerId.id,
 //       isDuplicated: false,
 //       isRegistered: true,
 //       pubKey,
 //     }
 
-//     store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
+//     store.dispatch(networkActions.addConnectedPeers([alice.networkInfo.peerId.id]))
 //     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
-//     expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
+//     expect(userDataPerPeerId[alice.networkInfo.peerId.id]).toEqual(aliceCertData)
 //   })
 
 //   it('set connectionProcess', () => {

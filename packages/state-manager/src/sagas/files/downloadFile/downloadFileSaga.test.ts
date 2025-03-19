@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, type PublicChannel } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -10,7 +10,14 @@ import { type identityActions } from '../../identity/identity.slice'
 import { downloadFileSaga } from './downloadFileSaga'
 import { type FactoryGirl } from 'factory-girl'
 import { filesActions } from '../files.slice'
-import { type Community, DownloadState, type FileMetadata, type Identity, SocketActionTypes } from '@quiet/types'
+import {
+  type Community,
+  DownloadState,
+  type FileMetadata,
+  type Identity,
+  SocketActionTypes,
+  type PublicChannel,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
@@ -34,7 +41,7 @@ describe('downloadFileSaga', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -73,7 +80,7 @@ describe('downloadFileSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])

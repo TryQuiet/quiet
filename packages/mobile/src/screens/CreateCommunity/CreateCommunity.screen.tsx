@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateCommunityPayload, CreateNetworkPayload } from '@quiet/types'
+import { CreateCommunityPayload } from '@quiet/types'
 import { initSelectors } from '../../store/init/init.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'

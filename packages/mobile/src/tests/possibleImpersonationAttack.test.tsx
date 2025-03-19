@@ -29,7 +29,7 @@ describe('Possible Impersonation Attack', () => {
     )
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

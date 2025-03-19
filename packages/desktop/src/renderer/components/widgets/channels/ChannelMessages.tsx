@@ -8,7 +8,7 @@ import BasicMessageComponent from './BasicMessage'
 
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
-import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/types'
 
 import { UseModalType } from '../../../containers/hooks'
 

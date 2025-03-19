@@ -55,17 +55,19 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             author: 'vader',
           }}
           user={{
-            id: 'id',
+            communityId: 'id',
             userId: 'userId',
             nickname: 'vader',
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privateKey',
-            },
-            peerId: {
-              id: 'id',
-              privKey: 'privKey',
-              noiseKey: 'noiseKey',
+            networkInfo: {
+              hiddenService: {
+                onionAddress: 'onionAddress',
+                privateKey: 'privateKey',
+              },
+              peerId: {
+                id: 'id',
+                privKey: 'privKey',
+                noiseKey: 'noiseKey',
+              },
             },
             joinTimestamp: null,
           }}

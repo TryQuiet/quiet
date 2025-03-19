@@ -20,6 +20,7 @@ export enum SocketActionTypes {
   COMMUNITY_UPDATED = 'communityUpdated',
   CREATE_COMMUNITY = 'createCommunity',
   JOIN_COMMUNITY = 'joinCommunity',
+  LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
 
   // ====== Identity ======

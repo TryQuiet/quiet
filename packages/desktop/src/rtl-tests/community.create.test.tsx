@@ -6,11 +6,6 @@ import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
   ResponseLaunchCommunityPayload,
-  Identity,
-  CreateNetworkPayload,
-  PeerId,
-  UserCsr,
-  InitUserCsrPayload,
 } from '@quiet/types'
 import { screen } from '@testing-library/dom'
 import '@testing-library/jest-dom/extend-expect'
@@ -73,23 +68,6 @@ describe('User', () => {
 
     const mockEmitImpl = (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_IDENTITY) {
-        const payload: string = input[1]
-        console.info('CREATE_IDENTITY', payload)
-        return {
-          id: payload,
-          nickname: 'alice',
-          hiddenService: {
-            onionAddress: 'onionAddress',
-            privateKey: 'privKey',
-          },
-          peerId: {
-            id: 'peerId',
-            privKey: 'mock',
-            noiseKey: 'mock',
-          },
-        } as Identity
-      }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {

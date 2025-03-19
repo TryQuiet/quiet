@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, type Identity } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { type FactoryGirl } from 'factory-girl'
@@ -14,7 +14,7 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
 import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
-import { type Community, type PublicChannel } from '@quiet/types'
+import { type Community, type PublicChannel, type Identity } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -36,7 +36,7 @@ describe('sendInitialChannelMessageSaga', () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+      communityId: community.id,
       nickname: 'alice',
     })
 

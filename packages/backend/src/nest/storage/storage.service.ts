@@ -1,36 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common'
-import {
-  CertFieldsTypes,
-  parseCertificate,
-  parseCertificationRequest,
-  getCertFieldValue,
-  getReqFieldValue,
-  keyFromCertificate,
-} from '@quiet/identity'
 import { EventEmitter } from 'events'
 import { type PeerId } from '@libp2p/interface'
 import {
-  CommunityMetadata,
   ConnectionProcessInfo,
-  SaveCSRPayload,
-  SaveCertificatePayload,
   SocketActionTypes,
-  UserData,
   type UserProfile,
   type UserProfilesStoredEvent,
   type Identity,
 } from '@quiet/types'
-import { createLibp2pAddress } from '@quiet/common'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { removeFiles, removeDirs, createPaths } from '../common/utils'
 import { StorageEvents } from './storage.types'
-import { CertificatesStore } from './certificates/certificates.store'
-import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
-import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { ChannelsService } from './channels/channels.service'
@@ -48,9 +32,6 @@ export class StorageService extends EventEmitter {
     private readonly localDbService: LocalDbService,
     private readonly ipfsService: IpfsService,
     private readonly orbitDbService: OrbitDbService,
-    // private readonly certificatesRequestsStore: CertificatesRequestsStore,
-    // private readonly certificatesStore: CertificatesStore,
-    // private readonly communityMetadataStore: CommunityMetadataStore,
     private readonly userProfileStore: UserProfileStore,
     private readonly channelsService: ChannelsService
   ) {
