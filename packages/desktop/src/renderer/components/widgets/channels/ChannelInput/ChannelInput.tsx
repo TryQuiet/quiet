@@ -13,6 +13,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
+import { replaceEmojis } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 
@@ -265,8 +266,30 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const onChangeCb = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
-        setMessage(e.target.value)
+        // Get cursor position before update
+        const cursorPosition = e.target.selectionStart
+        const previousLength = e.target.value.length
+
+        // Convert emoji shortcodes to emojis
+        const textWithEmojis = replaceEmojis(e.target.value)
+
+        // Set the message with emojis
+        setMessage(textWithEmojis)
+
+        // Update textarea height to fit content
         adjustTextAreaHeight(e.target)
+
+        // Calculate new cursor position (accounting for emoji replacements)
+        if (previousLength !== textWithEmojis.length) {
+          // We'll set cursor position after React updates the DOM
+          setTimeout(() => {
+            if (e.target) {
+              const lengthDiff = textWithEmojis.length - previousLength
+              e.target.selectionStart = cursorPosition + lengthDiff
+              e.target.selectionEnd = cursorPosition + lengthDiff
+            }
+          }, 0)
+        }
       }
     },
     [onChange]
@@ -285,8 +308,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
           const target = e.target as HTMLInputElement
-          onChange(target.value)
-          onKeyPress(target.value)
+          const messageWithEmojis = replaceEmojis(target.value)
+          onChange(messageWithEmojis)
+          onKeyPress(messageWithEmojis)
           setMessage('')
           target.style.height = ''
         } else {
