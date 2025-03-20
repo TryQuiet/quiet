@@ -5,6 +5,7 @@
 ### New Features
 
 * Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
+* Adds meaningful text to date markers, like "Today", "Yesterday", "Friday", or "Nov 30, 1999" 
 
 ### Chores
 
