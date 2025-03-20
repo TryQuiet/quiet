@@ -70,6 +70,8 @@ import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
+import { Base58, InviteResult } from '@localfirst/auth'
+import { QSSService } from '../qss/qss.service'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -93,7 +95,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
-    private readonly sigChainService: SigChainService
+    private readonly sigChainService: SigChainService,
+    private readonly qssService: QSSService
   ) {
     super()
   }
@@ -424,6 +427,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
+
+    identity = {
+      ...identity,
+      userCertificate: ownerCertResult.network.certificate,
+      id: payload.id,
+    }
+    await this.storageService.setIdentity(identity)
+
+    if (!community.name) {
+      this.logger.error('Community name is required to create sigchain')
+      return community
+    }
+    this.logger.info(`Creating new LFA chain`)
+    const sigchain = await this.sigChainService.createChain(community.name, identity.nickname, true)
+
+    const connected = await this.qssService.connect()
+    if (connected) {
+      await this.qssService.createCommunity(community, sigchain)
+    }
 
     await this.launchCommunity(community)
 

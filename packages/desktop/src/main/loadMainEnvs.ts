@@ -1,3 +1,5 @@
+import '@dotenvx/dotenvx/config' // load config from .env* file(s)
+
 import fs from 'fs'
 import path from 'path'
 import { app } from 'electron'
@@ -20,6 +22,10 @@ let dataDir = DESKTOP_DATA_DIR
 if (isDev || process.env.DATA_DIR) {
   dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
 }
+
+__nodeConsoleLogger.log(process.env.QSS_ENABLED)
+__nodeConsoleLogger.log(process.env.QSS_ENDPOINT)
+__nodeConsoleLogger.log(process.env.DEBUG)
 
 process.env.APP_DATA_PATH = path.join(app.getPath('appData'), dataDir)
 process.env.LOG_DIR = path.join(process.env.APP_DATA_PATH, 'logs')

@@ -1,3 +1,14 @@
+// import { config } from '@dotenvx/dotenvx'
+// import path from 'path'
+// import { fileURLToPath } from 'url'
+
+// // load config from .env* file(s)
+// config({
+//   debug: true,
+//   verbose: true,
+//   path: path.join(path.dirname(fileURLToPath(import.meta.url)), '../', `./.env.${process.env.DOT_ENV ?? 'dev'}`),
+// })
+
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'
@@ -41,6 +52,8 @@ program.parse(process.argv)
 const options = program.opts()
 
 logger.info('options', options)
+logger.info(process.env.QSS_ENABLED)
+logger.info(process.env.QSS_ENDPOINT)
 
 export const runBackendDesktop = async () => {
   logger.info('Running backend manager desktop')
