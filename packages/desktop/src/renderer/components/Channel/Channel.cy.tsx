@@ -16,12 +16,10 @@ declare global {
 }
 
 // Custom command to check if the channel content is scrolled to the bottom
-Cypress.Commands.add('assertScrolledToBottom', { prevSubject: 'element' }, (subject) => {
+Cypress.Commands.add('assertScrolledToBottom', { prevSubject: 'element' }, subject => {
   const el = subject[0]
-  const isScrolledToBottom = Math.abs(
-    (el.scrollHeight - el.scrollTop) - el.clientHeight
-  ) <= 1 // Allow 1px difference for rounding
-  expect(isScrolledToBottom).equal(true)
+  const isScrolledToBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) <= 1 // Allow 1px difference for rounding
+  cy.wrap(isScrolledToBottom).should('be.true')
 })
 
 const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
@@ -35,20 +33,17 @@ Cypress.on('uncaught:exception', err => {
 // @ts-expect-error
 setGlobalConfig(withTheme)
 
-const { InteractiveLocalState } = composeStories(stories)
+const { SendingMessagesWithScroll } = composeStories(stories)
 
 describe('Scroll behavior test', () => {
   beforeEach(() => {
     mount(
       <React.Fragment>
-        {/* @ts-ignore */}
         <CssBaseline>
-          {/* @ts-ignore */}
-          <InteractiveLocalState />
+          <SendingMessagesWithScroll />
         </CssBaseline>
       </React.Fragment>
     )
-    // Wait 0 is a workaround to ensure the component is rendered. See: https://github.com/cypress-io/cypress/issues/3817#issuecomment-1186705536
     cy.wait(0)
   })
 
@@ -87,13 +82,11 @@ describe('Scroll behavior test', () => {
   it('PageUp keydown should scroll message list up.', () => {
     cy.get(messageInput).focus().type('{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}')
 
-    // Check if scrolled to top 
+    // Check if scrolled to top
     cy.get(channelContent).then($el => {
-      const container = $el[0]      
-      const isScrolledToTop = Math.abs(
-        container.scrollTop
-      ) <= 1  // Allow 1px difference for rounding
-      expect(isScrolledToTop).equal(true)
+      const container = $el[0]
+      const isScrolledToTop = Math.abs(container.scrollTop) <= 1 // Allow 1px difference for rounding
+      cy.wrap(isScrolledToTop).should('be.true')
     })
   })
 
@@ -134,11 +127,10 @@ describe('Scroll behavior test', () => {
     cy.get(messageInput).then($el => {
       const element = $el[0] as HTMLTextAreaElement
       // Height should be greater after typing long word
-      expect(element.offsetHeight).greaterThan(initialHeight)
-      
+      cy.wrap(element.offsetHeight).should('be.gt', initialHeight)
+
       // Full text should be visible (no truncation)
-      expect(element.value).equal(longWord())
-      
+      cy.wrap(element.value).should('eq', longWord())
       // Scrollable width should not exceed the container width
       // (meaning text is wrapping, not horizontally scrolling)
       expect(element.scrollWidth).equal(element.offsetWidth)
@@ -146,15 +138,12 @@ describe('Scroll behavior test', () => {
   })
 
   describe('FloatingDate displays correctly', () => {
-
     // The scroll wheel was difficult to test, even with cypress-real-events
     // so we're just going to test the pageup and pagedown keys
 
     it('should not display on channel load', () => {
-      cy.get(messageInput).focus().type('{pageup}')      
       cy.get(floatingDateSelector).should('not.be.visible')
     })
-
 
     it('should display on pageup', () => {
       cy.get(messageInput).focus().type('{pageup}')
@@ -163,6 +152,7 @@ describe('Scroll behavior test', () => {
 
     it('should disappear within 3 seconds after scrolling stops', () => {
       cy.clock()
+      cy.get(floatingDateSelector).should('not.be.visible')
       cy.get(messageInput).focus().type('{pageup}')
       cy.get(floatingDateSelector).should('be.visible')
       cy.tick(3000)
@@ -172,11 +162,9 @@ describe('Scroll behavior test', () => {
     it('should display the correct date text', () => {
       cy.get(channelContent)
       cy.get(messageInput).focus().type('{pageup}')
-      
-      cy.get(floatingDateSelector)
-        .should('be.visible')
-        .invoke('text')
-        .should('eq', 'Oct 28, 2023')
+      cy.get(floatingDateSelector).should('be.visible').invoke('text').should('contain', '28 Oct')
     })
+
+    // TODO: Write a test to confirm that sending a message does not make the floating date appear. I had problems getting Cypress to see the floating date after sending a message, so writing a meaningful test is difficult.
   })
 })

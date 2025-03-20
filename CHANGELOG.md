@@ -2,17 +2,42 @@
 
 ## Unreleased
 
-### New features
+### New Features
 
 * Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
+
+### Chores
+
+* Improves speed, reliability, and documentation for Cypress tests
+
+## [4.0.3]
+
+### New features
+
+* Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#503](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
+
+### Fixes
+
+* Fixes issue where the app may crash when trying to redial a peer that doesn't recognize your user as being in the sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))
+* Fixes issue where the app may crash when hanging up on a peer we don't have in our sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))
+
+### Chores
+
+* Write app logs to rotating files ([#2771](https://github.com/TryQuiet/quiet/issues/2771))
+
+## [4.0.0]
+
+### New features
+
 * Generating LFA-ready invite links when a sigchain is configured ([#2627](https://github.com/TryQuiet/quiet/issues/2627))
 * Add local-first/auth powered libp2p authentication service ([#2629](https://github.com/TryQuiet/quiet/issues/2629))
+* Adds admin-only screens when non-admins try to access add members screens ([#2729](https://github.com/TryQuiet/quiet/issues/2729))
 
 ### Chores
 
 * Add `trace` level logs to `@quiet/logger` ([#2716](https://github.com/TryQuiet/quiet/issues/2716))
-* Refactor the `StorageService` and create `ChannelService`, `MessageService` and `ChannelStore` for handling channel-related persistence ([#2631](https://github.com/TryQuiet/quiet/issues/2631)) 
 * Add slack notifications to release workflows ([#2722](https://github.com/TryQuiet/quiet/issues/2722))
+* Refactor the `StorageService` and create `ChannelService`, `MessageService` and `ChannelStore` for handling channel-related persistence ([#2631](https://github.com/TryQuiet/quiet/issues/2631)) 
 
 ## [3.0.0]
 

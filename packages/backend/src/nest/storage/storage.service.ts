@@ -21,7 +21,6 @@ import {
   type Identity,
 } from '@quiet/types'
 import { createLibp2pAddress } from '@quiet/common'
-import fs from 'fs'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
@@ -146,7 +145,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async stop() {
-    await this.channelsService.closeChannels()
+    await this.channelsService.close()
 
     try {
       await this.certificatesStore?.close()
@@ -173,7 +172,6 @@ export class StorageService extends EventEmitter {
     }
 
     await this.orbitDbService.stop()
-    await this.channelsService.closeFileManager()
 
     try {
       await this.ipfsService.stop()
@@ -207,8 +205,10 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | undefined> {
-    const meta = await this.communityMetadataStore?.setEntry(communityMetadata.id, communityMetadata)
+  public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | null> {
+    await this.communityMetadataStore?.setEntry(communityMetadata.id, communityMetadata)
+    const meta = await this.communityMetadataStore?.getEntry(communityMetadata.id)
+
     if (meta) {
       this.certificatesStore.updateMetadata(meta)
     }

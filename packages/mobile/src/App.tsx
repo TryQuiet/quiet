@@ -1,3 +1,5 @@
+import { createLogger } from './utils/logger'
+
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -54,8 +56,6 @@ import { UnregisteredUsernameContextMenu } from './components/ContextMenu/menus/
 import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUsernameRequested.screen'
 import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
-
-import { createLogger } from './utils/logger'
 
 const logger = createLogger('app')
 

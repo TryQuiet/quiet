@@ -67,7 +67,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'], messagesService: this.messagesService }),
+        AccessController: MessagesAccessController({ write: ['*'] }),
         sync: options.sync,
       }
     )
@@ -102,51 +102,65 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
-
-      const message = await this.messagesService.onConsume(entry.payload.value!)
-      if (message == null) {
-        this.logger.error(`Couldn't consume message ${entry.payload.value!.id}`)
-        return
+      let message: ChannelMessage | undefined = undefined
+      if (entry.payload.value == null) {
+        this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
+      } else {
+        message = await this.messagesService.onConsume(entry.payload.value!)
+        if (message == null) {
+          this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
+        } else {
+          await this._handleMessageOnUpdate(message)
+        }
       }
-
-      this.emit(StorageEvents.MESSAGES_STORED, {
-        messages: [message],
-        isVerified: message.verified,
-      })
-
       await this.refreshMessageIds()
-
-      // FIXME: the 'update' event runs if we replicate entries and if we add
-      // entries ourselves. So we may want to check if the message is written
-      // by us.
-      //
-      // Display push notifications on mobile
-      if (process.env.BACKEND === 'mobile') {
-        if (!message.verified) return
-
-        // Do not notify about old messages
-        if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
-
-        const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
-        if (!username) {
-          this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
-          return
-        }
-
-        const payload: PushNotificationPayload = {
-          message: JSON.stringify(message),
-          username: username,
-        }
-
-        this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
-      }
     })
 
-    await this.startSync()
+    try {
+      await this.startSync()
+    } catch (e) {
+      if ((e as Error).name === 'DuplicateProtocolHandlerError') {
+        this.logger.warn(`We have already subscribed to this channel`)
+        this._subscribing = false
+        return
+      }
+    }
     await this.refreshMessageIds()
     this._subscribing = false
 
     this.logger.info(`Subscribed to channel ${this.channelData.id}`)
+  }
+
+  private async _handleMessageOnUpdate(message: ConsumedChannelMessage): Promise<void> {
+    this.emit(StorageEvents.MESSAGES_STORED, {
+      messages: [message],
+      isVerified: message.verified,
+    })
+
+    // FIXME: the 'update' event runs if we replicate entries and if we add
+    // entries ourselves. So we may want to check if the message is written
+    // by us.
+    //
+    // Display push notifications on mobile
+    if (process.env.BACKEND === 'mobile') {
+      if (!message.verified) return
+
+      // Do not notify about old messages
+      if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
+
+      const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
+      if (!username) {
+        this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
+        return
+      }
+
+      const payload: PushNotificationPayload = {
+        message: JSON.stringify(message),
+        username: username,
+      }
+
+      this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
+    }
   }
 
   // Messages
@@ -243,6 +257,11 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     const messages: ConsumedChannelMessage[] = []
 
     for await (const x of this.getStore().iterator()) {
+      if (x.value == null) {
+        this.logger.warn(`Orbitdb record was null`, x.hash)
+        continue
+      }
+
       if (ids == null || ids?.includes(x.value.id)) {
         const decryptedMessage = await this.messagesService.onConsume(x.value)
         if (decryptedMessage == null) {

@@ -26,6 +26,9 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
 import { ChannelStore } from './channel.store'
 import { createContextId, ModuleRef } from '@nestjs/core'
+import { SigChainService } from '../../auth/sigchain.service'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { RoleName } from '../../auth/services/roles/roles'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -35,7 +38,7 @@ export class ChannelsService extends EventEmitter {
   private peerId: PeerId | null = null
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
-  private channels: KeyValueType<PublicChannel> | null
+  private channels: KeyValueType<EncryptedAndSignedPayload> | null
 
   private readonly logger = createLogger(`storage:channels`)
 
@@ -45,7 +48,8 @@ export class ChannelsService extends EventEmitter {
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDbService,
-    private readonly moduleRef: ModuleRef
+    private readonly moduleRef: ModuleRef,
+    private readonly sigchainService: SigChainService
   ) {
     super()
   }
@@ -101,7 +105,7 @@ export class ChannelsService extends EventEmitter {
    */
   private async createChannelsDb(): Promise<void> {
     this.logger.info('Creating public-channels database')
-    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<PublicChannel>>('public-channels', {
+    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
       sync: false,
       Database: KeyValueIndexedValidated(),
       AccessController: IPFSAccessController({ write: ['*'] }),
@@ -123,7 +127,11 @@ export class ChannelsService extends EventEmitter {
       //
       // This fixes a bug where joining a community with multiple channels doesn't initialize all channels immediately.
       for (const channel of channels) {
-        if (!this.publicChannelsRepos.has(channel.id) || !this.publicChannelsRepos.get(channel.id)?.eventsAttached) {
+        if (
+          !this.publicChannelsRepos.has(channel.id) ||
+          (!this.publicChannelsRepos.get(channel.id)?.eventsAttached &&
+            !this.publicChannelsRepos.get(channel.id)?.store.isSubscribing)
+        ) {
           await this.subscribeToChannel(channel)
         }
       }
@@ -140,6 +148,36 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
+  public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
+    try {
+      const chain = this.sigchainService.getActiveChain()
+      const encryptedPayload = chain.crypto.encryptAndSign(
+        payload,
+        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
+        chain.localUserContext
+      )
+      return encryptedPayload
+    } catch (err) {
+      this.logger.error('Failed to encrypt user entry:', err)
+      throw err
+    }
+  }
+
+  public decryptChannelEntry(payload: EncryptedAndSignedPayload, id?: string): PublicChannel {
+    try {
+      const chain = this.sigchainService.getActiveChain()
+      const decryptedPayload = chain.crypto.decryptAndVerify<PublicChannel>(
+        payload.encrypted,
+        payload.signature,
+        chain.localUserContext
+      )
+      return decryptedPayload.contents
+    } catch (err) {
+      this.logger.error('Failed to decrypt user entry:', err)
+      throw err
+    }
+  }
+
   /**
    * Add a channel to the channels management database
    *
@@ -151,7 +189,8 @@ export class ChannelsService extends EventEmitter {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
-    await this.channels.put(id, channel)
+    const encryptedChannel = this.encryptChannelEntry(channel)
+    await this.channels.put(id, encryptedChannel)
   }
 
   /**
@@ -165,7 +204,13 @@ export class ChannelsService extends EventEmitter {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
-    return await this.channels.get(id)
+    const channelEncrypted = await this.channels.get(id)
+    if (channelEncrypted == null) {
+      return undefined
+    }
+    // need to rehydrate the UInt8Array bc json value encoding in KeyValueIndexedValidated does not maintain type
+    channelEncrypted.encrypted.contents = new Uint8Array(Object.values(channelEncrypted.encrypted.contents))
+    return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
   }
 
   /**
@@ -178,7 +223,15 @@ export class ChannelsService extends EventEmitter {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
-    return (await this.channels.all()).map(x => x.value)
+    return (await this.channels.all())
+      .map(x => {
+        try {
+          return this.decryptChannelEntry(x.value, x.key)
+        } catch (e) {
+          return undefined
+        }
+      })
+      .filter((x): x is PublicChannel => x !== undefined)
   }
 
   /**
@@ -506,7 +559,7 @@ export class ChannelsService extends EventEmitter {
   // Close Logic
 
   /**
-   * Close the channels management database on OrbitDB
+   * Close the channels management database on OrbitDB and each channel's DB
    */
   public async closeChannels(): Promise<void> {
     try {
@@ -515,6 +568,17 @@ export class ChannelsService extends EventEmitter {
       this.logger.info('Closed channels DB')
     } catch (e) {
       this.logger.error('Error closing channels db', e)
+    }
+
+    this.logger.info(`Closing each channel's DB`)
+    for (const [channelId, channel] of this.publicChannelsRepos.entries()) {
+      try {
+        this.logger.info(`Closing ${channelId} DB`)
+        await channel.store.close()
+        this.logger.info(`Close ${channelId} DB`)
+      } catch (e) {
+        this.logger.error(`Error closing ${channelId} DB`, e)
+      }
     }
   }
 
@@ -528,6 +592,14 @@ export class ChannelsService extends EventEmitter {
     } catch (e) {
       this.logger.error('Error stopping IPFS files manager', e)
     }
+  }
+
+  /**
+   * Close the channels service
+   */
+  public async close(): Promise<void> {
+    await this.closeFileManager()
+    await this.closeChannels()
   }
 
   /**

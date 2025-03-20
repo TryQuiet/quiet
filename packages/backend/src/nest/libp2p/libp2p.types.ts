@@ -14,6 +14,11 @@ export enum Libp2pEvents {
   AUTH_UPDATED = 'authUpdated',
 }
 
+export enum Libp2pDatastorePrefix {
+  ALL = '*',
+  PEERS = 'peers',
+}
+
 export interface Libp2pNodeParams {
   peerId: CreatedLibp2pPeerId
   listenAddresses: string[]
@@ -32,6 +37,7 @@ export type Libp2pPeerInfo = {
 }
 
 export type Libp2pConnectedPeer = {
+  peerId: string
   address: string
   connectedAtSeconds: number
 }
@@ -44,4 +50,9 @@ export interface CreatedLibp2pPeerId {
   peerId: PeerId
   privKey: PrivateKey
   noiseKey: Uint8Array
+}
+
+export interface DialPeerOptions {
+  throwOnError?: boolean
+  redialOnError?: boolean
 }

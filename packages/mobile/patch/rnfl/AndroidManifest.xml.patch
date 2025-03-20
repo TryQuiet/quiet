@@ -1,0 +1,17 @@
+--- node_modules/react-native-file-logger/android/src/main/AndroidManifest.xml	2025-03-11 23:02:55
++++ node_modules/react-native-file-logger/android/src/main/AndroidManifest.xml	2025-03-11 23:02:45
+@@ -1,5 +1,4 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.betomorrow.rnfilelogger">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+     <application>
+         <provider
+\ No newline at end of file
+@@ -13,4 +12,4 @@
+         </provider>
+     </application>
+ 
+-</manifest>
++</manifest>
+\ No newline at end of file

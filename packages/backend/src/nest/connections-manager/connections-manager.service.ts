@@ -58,6 +58,7 @@ import {
   PeerId as QuietPeerId,
   InvitationDataVersion,
   InvitationDataV2,
+  PermissionsError,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -309,12 +310,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
-  public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+  public async closeAllServices(
+    options: { saveTor: boolean; closeDatastore: boolean } = { saveTor: false, closeDatastore: true }
+  ) {
     this.logger.info('Saving active sigchain')
     await this.saveActiveChain()
     await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, false)
 
-    this.logger.info('Closing services')
+    this.logger.info('Closing services', options)
 
     await this.closeSocket()
 
@@ -330,7 +333,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     if (this.libp2pService) {
       this.logger.info('Stopping libp2p')
-      await this.libp2pService.close()
+      await this.libp2pService.close(options.closeDatastore)
     }
     if (this.localDbService) {
       this.logger.info('Closing local DB')
@@ -341,13 +344,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
-    await this.closeAllServices({ saveTor: true })
-
-    this.logger.info('Cleaning libp2p datastore')
-    await this.libp2pService.libp2pDatastore.clean()
+    await this.closeAllServices({ saveTor: true, closeDatastore: false })
 
     this.logger.info('Resetting StorageService')
     await this.storageService.clean()
+
+    this.logger.info('Cleaning libp2p datastore')
+    await this.libp2pService.cleanDatastore()
+
+    this.logger.info('Closing libp2p datastore')
+    await this.libp2pService.closeDatastore()
 
     this.logger.info('Purging data')
     await this.purgeData()
@@ -714,9 +720,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
     await this.launchCommunity(community)
-    if (identity.userCsr?.userCsr) {
-      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
-    }
     this.logger.info(`Joined and launched community ${community.id}`)
     return community
   }
@@ -840,18 +843,32 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
 
-    await this.storageService.init(peerIdData.peerId)
-    // We can use Nest for dependency injection, but I think since the
-    // registration service depends on the storage service being
-    // initialized, this is helpful to manually inject the storage
-    // service for now. Both object construction and object
-    // initialization need to happen in order based on dependencies.
-    this.registrationService.init(this.storageService)
+    const setupStorage = async () => {
+      this.logger.info('Setting up storage')
+      await this.storageService.init(peerIdData.peerId)
+      // We can use Nest for dependency injection, but I think since the
+      // registration service depends on the storage service being
+      // initialized, this is helpful to manually inject the storage
+      // service for now. Both object construction and object
+      // initialization need to happen in order based on dependencies.
+      this.registrationService.init(this.storageService)
+      if (community.CA) {
+        this.registrationService.setPermsData({
+          certificate: community.CA.rootCertString,
+          privKey: community.CA.rootKeyString,
+        })
+      }
+      if (identity.userCsr?.userCsr) {
+        await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
+      }
+    }
 
-    if (community.CA) {
-      this.registrationService.setPermsData({
-        certificate: community.CA.rootCertString,
-        privKey: community.CA.rootKeyString,
+    if (this.sigChainService.getActiveChain().team != null) {
+      await setupStorage()
+    } else {
+      this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
+        this.logger.info('Handling AUTH_JOINED event', payload)
+        await setupStorage()
       })
     }
 
@@ -893,10 +910,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
         )
-        this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_STORED, {
-          certificates: await this.storageService?.loadAllCertificates(),
-        })
-        await this.storageService?.channels.loadAllChannels()
       }
     })
     this.socketService.on(
@@ -947,13 +960,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       SocketActionTypes.CREATE_LONG_LIVED_LFA_INVITE,
       async (callback?: (response: InviteResult | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.CREATE_LONG_LIVED_LFA_INVITE}`)
-        if (this.sigChainService.activeChainTeamName != null) {
-          const invite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
-          this.serverIoProvider.io.emit(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, invite)
-          if (callback) callback(invite)
-        } else {
+
+        if (this.sigChainService.activeChainTeamName == null) {
           this.logger.warn(`No sigchain configured, skipping long lived LFA invite code generation!`)
-          if (callback) callback(undefined)
+          callback?.(undefined)
+          return
+        }
+
+        try {
+          const invite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
+          await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
+          this.serverIoProvider.io.emit(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, invite)
+          callback?.(invite)
+        } catch (e) {
+          if (e instanceof PermissionsError) {
+            this.logger.info(e.message)
+            callback?.(undefined)
+          } else {
+            this.logger.error(`Failed to generate a new long lived LFA invite code!`, e)
+            callback?.(undefined)
+          }
         }
       }
     )
@@ -965,19 +991,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback: (response: { valid: boolean; newInvite?: InviteResult } | undefined) => void
       ) => {
         this.logger.info(`socketService - ${SocketActionTypes.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE}`)
-        if (this.sigChainService.activeChainTeamName != null) {
-          if (this.sigChainService.getActiveChain().invites.isValidLongLivedUserInvite(inviteId)) {
-            this.logger.info(`Invite is a valid long lived LFA invite code!`)
-            callback({ valid: true })
-          } else {
-            this.logger.info(`Invite is an invalid long lived LFA invite code!  Generating a new code!`)
-            const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
-            this.serverIoProvider.io.emit(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
-            callback({ valid: false, newInvite })
-          }
-        } else {
+
+        if (this.sigChainService.activeChainTeamName == null) {
           this.logger.warn(`No sigchain configured, skipping long lived LFA invite code validation/generation!`)
           callback(undefined)
+          return
+        }
+
+        if (this.sigChainService.getActiveChain().invites.isValidLongLivedUserInvite(inviteId)) {
+          callback({ valid: true })
+        } else {
+          try {
+            const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
+            await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
+            this.serverIoProvider.io.emit(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
+            callback({ valid: false, newInvite })
+          } catch (e) {
+            e instanceof PermissionsError
+              ? this.logger.info(e.message)
+              : this.logger.error(`Failed to generate a new long lived LFA invite code!`, e)
+            callback({ valid: false })
+          }
         }
       }
     )

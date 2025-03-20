@@ -97,9 +97,9 @@ describe('User', () => {
       const community = communities.selectors.currentCommunity(store.getState())
       switch (action) {
         case SocketActionTypes.CREATE_IDENTITY:
-          const createIdentityPayload = input[1] as InitCommunityPayload
+          const createIdentityPayload = input[1]
           return {
-            id: createIdentityPayload.id,
+            id: createIdentityPayload,
             nickname: 'alice',
             hiddenService: {
               onionAddress: 'onionAddress',
@@ -197,13 +197,18 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = screen.getByPlaceholderText('Enter a username')
     const createUsernameButton = screen.getByText('Register')
+    expect(createUsernameButton).toBeVisible()
+    expect(createUsernameInput).toBeVisible()
     await userEvent.type(createUsernameInput, 'alice')
+    expect(createUsernameInput).toHaveValue('alice')
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
     await act(async () => {})
 
     // Check if join/username modals are gone
+    expect(createUsernameButton).not.toBeVisible()
+    expect(createUsernameInput).not.toBeVisible()
     expect(joinCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 

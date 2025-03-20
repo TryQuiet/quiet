@@ -4,11 +4,13 @@ import { DateTime } from 'luxon'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 import { mock_messages, users } from '../../storybook/utils'
+import { ModalName } from '../../sagas/modals/modals.types'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
+import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 
 // Provide a user object that satisfies 'Identity'
 const validUser = {
@@ -36,17 +38,29 @@ const validUser = {
   joinTimestamp: null,
 }
 
-// Replace "ModalName.uploadedFileModal" etc. with the REAL enum/constant your store uses
-enum ModalName {
-  uploadedFileModal = 'uploadedFileModal',
-  duplicatedUsernameModal = 'duplicatedUsernameModal',
-  unregisteredUsernameModal = 'unregisteredUsernameModal',
-}
-
 // Add placeholders for the required fields
 const dummyFn = () => {}
 
 const dummyRemoveFile = (_fileId: string) => {}
+
+// Add properly typed modal handlers that return the expected structure
+const dummyDuplicatedUsernameModalHandler: HandleOpenModalType = () => {
+  return {
+    payload: {
+      name: ModalName.duplicatedUsernameModal,
+    },
+    type: 'Modals/openModal' as const,
+  }
+}
+
+const dummyUnregisteredUsernameModalHandler: HandleOpenModalType = () => {
+  return {
+    payload: {
+      name: ModalName.unregisteredUsernameModal,
+    },
+    type: 'Modals/openModal' as const,
+  }
+}
 
 const defaultIsCommunityInitialized = true
 
@@ -129,10 +143,10 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
   )
 }
 
-export const Component = Template.bind({})
+export const Normal = Template.bind({})
 export const Pending = Template.bind({})
 
-Component.args = args
+Normal.args = args
 Pending.args = {
   ...args,
   pendingMessages: {
@@ -683,7 +697,7 @@ const component: ComponentMeta<typeof ChannelComponent> = {
 
 export default component
 
-export const InteractiveLocalState: ComponentStory<typeof ChannelComponent> = () => {
+export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> = () => {
   const [localMessages, setLocalMessages] = useState<{
     count: number
     groups: { [day: string]: DisplayableMessage[][] }
@@ -702,54 +716,61 @@ export const InteractiveLocalState: ComponentStory<typeof ChannelComponent> = ()
       isDuplicated: false,
       pubKey: 'pubKey',
     }
-    setLocalMessages(prev => mock_messages(newMessage))
+
+    setLocalMessages(prev => {
+      const dateKeys = Object.keys(prev.groups)
+      const today = dateKeys[dateKeys.length - 1]
+      const updatedGroups = {
+        ...prev.groups,
+        [today]: [...prev.groups[today], [newMessage]],
+      }
+      return {
+        count: prev.count + 1,
+        groups: updatedGroups,
+      }
+    })
   }
 
   const now = DateTime.now()
   return (
     <DndProvider backend={HTML5Backend}>
       <ChannelComponent
-        user={validUser}
-        channelId='general'
-        channelName='general'
-        newestMessage={{
-          id: String(now.toMillis()),
-          type: 1,
-          message: '',
-          createdAt: now.toSeconds(),
-          channelId: 'general',
-          pubKey: 'pubKey',
-          signature: 'signature',
-        }}
-        pendingMessages={{}}
-        downloadStatuses={{}}
-        filesData={{}}
-        lazyLoading={() => {}}
-        onInputChange={() => {}}
-        openUrl={() => {}}
-        openFilesDialog={() => {}}
-        handleFileDrop={() => {}}
-        isCommunityInitialized={true}
-        handleClipboardFiles={() => {}}
-        uploadedFileModal={{
-          open: false,
-          handleOpen: () => ({ type: 'Modals/openModal', payload: { name: ModalName.uploadedFileModal } }),
-          handleClose: () => ({ type: 'Modals/closeModal', payload: ModalName.uploadedFileModal }),
-          src: '',
-        }}
-        duplicatedUsernameModalHandleOpen={() => ({
-          type: 'Modals/openModal',
-          payload: { name: ModalName.duplicatedUsernameModal },
-        })}
-        unregisteredUsernameModalHandleOpen={() => ({
-          type: 'Modals/openModal',
-          payload: { name: ModalName.unregisteredUsernameModal },
-        })}
-        pendingGeneralChannelRecreation={false}
-        removeFile={dummyRemoveFile}
         {...args}
         messages={localMessages}
         onInputEnter={handleSend}
+        user={validUser}
+        channelId='general'
+        channelName='general'
+        newestMessage={
+          args.newestMessage || {
+            id: '31',
+            type: 1,
+            message: 'I agree!',
+            createdAt: 0,
+            channelId: 'general',
+            signature: 'signature',
+            pubKey: 'pubKey',
+          }
+        }
+        pendingMessages={args.pendingMessages || {}}
+        lazyLoading={args.lazyLoading || function (_load: boolean): void {}}
+        onInputChange={args.onInputChange || function (_value: string): void {}}
+        openUrl={args.openUrl || dummyFn}
+        openFilesDialog={args.openFilesDialog || dummyFn}
+        handleFileDrop={args.handleFileDrop || dummyFn}
+        isCommunityInitialized={args.isCommunityInitialized !== undefined ? args.isCommunityInitialized : true}
+        handleClipboardFiles={args.handleClipboardFiles || dummyFn}
+        pendingGeneralChannelRecreation={
+          args.pendingGeneralChannelRecreation !== undefined ? args.pendingGeneralChannelRecreation : false
+        }
+        duplicatedUsernameModalHandleOpen={
+          args.duplicatedUsernameModalHandleOpen || dummyDuplicatedUsernameModalHandler
+        }
+        unregisteredUsernameModalHandleOpen={
+          args.unregisteredUsernameModalHandleOpen || dummyUnregisteredUsernameModalHandler
+        }
+        removeFile={args.removeFile || dummyRemoveFile}
+        filesData={args.filesData || {}}
       />
     </DndProvider>
   )

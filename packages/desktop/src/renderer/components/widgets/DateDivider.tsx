@@ -14,7 +14,7 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
-  marginTop: '5px',
+  marginTop: '20px', // this does not match the design, but it matches the position of the floating date
 
   [`& .${classes.root}`]: {
     padding: 0,
