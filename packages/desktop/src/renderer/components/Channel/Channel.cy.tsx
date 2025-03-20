@@ -133,7 +133,7 @@ describe('Scroll behavior test', () => {
       cy.wrap(element.value).should('eq', longWord())
       // Scrollable width should not exceed the container width
       // (meaning text is wrapping, not horizontally scrolling)
-      expect(element.scrollWidth).equal(element.offsetWidth)
+      cy.wrap(element.scrollWidth).should('eq', element.offsetWidth)
     })
   })
 
