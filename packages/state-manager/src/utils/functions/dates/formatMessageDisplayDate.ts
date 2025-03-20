@@ -12,7 +12,7 @@ export const formatMessageDisplayDate = (createdAt: number): string => {
     return 'Today'
   } else if (diffInDays === 1) {
     return 'Yesterday'
-  } else if (diffInDays > 1 && diffInDays <= 4) {
+  } else if (diffInDays >= 2 && diffInDays <= 4) {
     return messageDate.toFormat('cccc') // Full weekday name
   } else {
     return messageDate.toFormat('LLL d, y')
