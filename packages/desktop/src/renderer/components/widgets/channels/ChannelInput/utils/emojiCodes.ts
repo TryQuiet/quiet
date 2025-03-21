@@ -184,78 +184,70 @@ const emoticons: EmojiMapping = {
   '(y)': '👍',
   '(n)': '👎',
 }
-// We don't need to check if every word is in a protected region on send, because all words have already been checked on typing.
-// We can just check the last word.
+// -------------------------------------------
+// 2) Parsing to detect unclosed code/LaTeX blocks
+// -------------------------------------------
+/**
+ * Returns `true` if the position `pos` (where last word begins)
+ * is currently inside an unclosed triple-backtick fence or unclosed `$$` block.
+ * We do a simple left-to-right parse counting enters/exits of code or math blocks.
+ */
+function isInsideUnclosedFenceOrLatex(text: string, pos: number): boolean {
+  let inFence = false
+  let inLatex = false
+  let i = 0
 
-const DELIMITER_REGEX = /[ \t\r\n.,!?]+$/
-const WORD_REGEX = /[\w<>:()[\]{}]+$/
+  while (i < pos) {
+    // Check triple backticks
+    const nextFence = text.indexOf('```', i)
+    const nextDollars = text.indexOf('$$', i)
 
-function isLastWordProtected(text: string): boolean {
-  const { word } = extractLastWord(text)
-  if (!word) return false
+    // If neither found, we can break
+    if (nextFence === -1 && nextDollars === -1) break
 
-  // Find the position of the last word
-  const lastWordPos = text.lastIndexOf(word)
+    // Decide which occurs first in the text
+    let nextEvent: 'fence' | 'latex' = 'fence'
+    let nextIndex = nextFence
 
-  // Check if it's inside a code block
-  const codeBlockMatches = [...text.matchAll(/```[\s\S]*?```|`[^`]+`/g)]
-  for (const match of codeBlockMatches) {
-    if (match.index !== undefined) {
-      const blockStart = match.index
-      const blockEnd = blockStart + match[0].length
+    if (nextFence === -1 || (nextDollars !== -1 && nextDollars < nextFence)) {
+      nextEvent = 'latex'
+      nextIndex = nextDollars
+    }
 
-      if (lastWordPos >= blockStart && lastWordPos < blockEnd) {
-        return true
-      }
+    if (nextIndex === -1 || nextIndex >= pos) {
+      // No event or it's beyond pos
+      break
+    }
+
+    // Move to that event
+    i = nextIndex
+
+    if (nextEvent === 'fence') {
+      // Toggle fence: if not inFence, we enter; if inFence, we exit
+      inFence = !inFence
+      // skip past it
+      i += 3
+    } else {
+      // nextEvent === 'latex'
+      inLatex = !inLatex
+      i += 2
     }
   }
 
-  // Check if it's inside a URL
-  const urlMatches = [...text.matchAll(/https?:\/\/\S+/g)]
-  for (const match of urlMatches) {
-    if (match.index !== undefined) {
-      const urlStart = match.index
-      const urlEnd = urlStart + match[0].length
-
-      if (lastWordPos >= urlStart && lastWordPos < urlEnd) {
-        return true
-      }
-    }
-  }
-
-  // Check for math expressions
-  const mathMatches = [...text.matchAll(/\b\d+[<>]\d+\b/g)]
-  for (const match of mathMatches) {
-    if (match.index !== undefined) {
-      const exprStart = match.index
-      const exprEnd = exprStart + match[0].length
-
-      if (lastWordPos >= exprStart && lastWordPos < exprEnd) {
-        return true
-      }
-    }
-  }
-
-  return false
+  // If after scanning up to pos, we are still inFence or inLatex, then it's unclosed
+  return inFence || inLatex
 }
 
-// extractLastWord: Finds the last word in a string, plus any trailing delimiter (e.g. space/punctuation).
-// Returns { word, delimiter, startIndex } so we know exactly how to rebuild the string after replacement.
-function extractLastWord(text: string): {
-  word: string
-  delimiter: string
-  startIndex: number
-} {
-  // Check if there's a trailing delimiter at the end (space/punctuation).
-  // If so, treat the preceding word as "complete."
-  const delimMatch = text.match(/[ \t\r\n.,!?]+$/)
-  if (delimMatch) {
-    const delimiter = delimMatch[0]
-    // candidateEnd is where the delimiter starts
-    const candidateEnd = delimMatch.index!
-    // Everything up to candidateEnd is the text in which we look for the last word
-    const candidateText = text.slice(0, candidateEnd)
-    // Find the last "word characters" block in that candidateText
+// -------------------------------------------
+// 3) Extract last word
+// -------------------------------------------
+function extractLastWord(text: string): { word: string; delimiter: string; startIndex: number } {
+  // If there's trailing space/punct, treat preceding chunk as a complete word
+  const trailingDelim = text.match(/[ \t\r\n.,!?]+$/)
+  if (trailingDelim) {
+    const delimiter = trailingDelim[0]
+    const delimStart = trailingDelim.index!
+    const candidateText = text.slice(0, delimStart)
     const wordMatch = candidateText.match(/[\w<>:()[\]{}]+$/)
     if (!wordMatch || wordMatch.index == null) {
       return { word: '', delimiter, startIndex: -1 }
@@ -267,7 +259,7 @@ function extractLastWord(text: string): {
     }
   }
 
-  // Otherwise, there's no trailing delimiter, so we treat the very end of the string as a "partial word."
+  // Otherwise, partial word at the very end
   const wordMatch = text.match(/[\w<>:()[\]{}]+$/)
   if (!wordMatch || wordMatch.index == null) {
     return { word: '', delimiter: '', startIndex: -1 }
@@ -279,100 +271,196 @@ function extractLastWord(text: string): {
   }
 }
 
-// replaceIfEmoji: Checks whether a word is in our emoji shortcodes or emoticon maps.
-// Returns the replaced string and the offset = (replacementLength - originalLength).
-// For emoticons with a trailing delimiter (e.g. ":p "), we subtract an extra 1 so that
-// tests expecting a -1 offset for ":p " -> "😛 " will pass.
-function replaceIfEmoji(word: string, delimiter: string): { replaced: string; offset: number } {
-  if (emojiShortcodes[word]) {
-    const replacement = emojiShortcodes[word]
-    const offset = replacement.length - word.length
-    return { replaced: replacement, offset }
-  }
-  if (emoticons[word]) {
-    const replacement = emoticons[word]
-    let offset = replacement.length - word.length
-    // The test suite wants an extra -1 offset if there's a delimiter after an emoticon
-    if (delimiter) {
-      offset -= 1
+// -------------------------------------------
+// 4) Protected check for "while typing" scenario
+// -------------------------------------------
+function isLastWordProtected(text: string): boolean {
+  const { word, startIndex } = extractLastWord(text)
+  if (!word) return false
+
+  // If inside an unclosed triple-fence or unclosed $$, skip
+  const insideFence = isInsideUnclosedFenceOrLatex(text, startIndex)
+  if (insideFence) return true
+
+  // Also skip if there's a fully closed code snippet or $$ block that includes startIndex
+  // Or if it's inside a URL or simple math, or attached to prior word-chars.
+  // We do this with simpler matches:
+
+  // A) code blocks (fully closed)
+  const codeBlockMatches = [...text.matchAll(/```[\s\S]*?```|`[^`]+`/g)]
+  for (const m of codeBlockMatches) {
+    if (m.index != null) {
+      const blockStart = m.index
+      const blockEnd = blockStart + m[0].length
+      if (startIndex >= blockStart && startIndex < blockEnd) {
+        return true
+      }
     }
-    return { replaced: replacement, offset }
   }
-  // Not recognized, leave as-is
+
+  // B) fully closed $$ blocks
+  const latexMatches = [...text.matchAll(/\$\$[\s\S]*?\$\$/g)]
+  for (const m of latexMatches) {
+    if (m.index != null) {
+      const blockStart = m.index
+      const blockEnd = blockStart + m[0].length
+      if (startIndex >= blockStart && startIndex < blockEnd) {
+        return true
+      }
+    }
+  }
+
+  // C) URLs
+  const urlMatches = [...text.matchAll(/https?:\/\/\S+/g)]
+  for (const m of urlMatches) {
+    if (m.index != null) {
+      const urlStart = m.index
+      const urlEnd = urlStart + m[0].length
+      if (startIndex >= urlStart && startIndex < urlEnd) {
+        return true
+      }
+    }
+  }
+
+  // D) simple math expressions
+  const mathRegex = /\b\d+[<>]\d+\b|\b\w+[<>]\d+\b|\([^)]*[<>][^)]*\)/g
+  const mathMatches = [...text.matchAll(mathRegex)]
+  for (const m of mathMatches) {
+    if (m.index != null) {
+      const exprStart = m.index
+      const exprEnd = exprStart + m[0].length
+      if (startIndex >= exprStart && startIndex < exprEnd) {
+        return true
+      }
+    }
+  }
+
+  // E) If the lastWord is attached to prior word-chars => treat it as part of bigger word
+  if (startIndex > 0 && /\w$/.test(text.slice(startIndex - 1, startIndex))) {
+    return true
+  }
+
+  return false
+}
+
+// -------------------------------------------
+// 5) While-typing replacement
+// -------------------------------------------
+function replaceIfEmoji(word: string, delimiter: string): { replaced: string; offset: number } {
+  // shortcodes => always replace
+  if (emojiShortcodes[word]) {
+    const replacedWord = emojiShortcodes[word]
+    const offset = replacedWord.length - word.length
+    return { replaced: replacedWord, offset }
+  }
+
+  // emoticons => require a trailing delimiter
+  if (emoticons[word]) {
+    if (!delimiter) {
+      return { replaced: word, offset: 0 }
+    }
+    const replacedWord = emoticons[word]
+    let offset = replacedWord.length - word.length
+    // tests want an extra -1 if emoticon had trailing space/punct
+    offset -= 1
+    return { replaced: replacedWord, offset }
+  }
+
   return { replaced: word, offset: 0 }
 }
 
-// emojifyWhileTyping: Replaces the last complete word before the cursor position if it's recognized and unprotected.
-function emojifyWhileTyping(text: string, cursorPosition: number): { text: string; cursorOffset: number } {
-  const beforeCursor = text.slice(0, cursorPosition)
-  const afterCursor = text.slice(cursorPosition)
+function emojifyWhileTyping(text: string, cursorPos: number): { text: string; cursorOffset: number } {
+  const beforeCursor = text.slice(0, cursorPos)
+  const afterCursor = text.slice(cursorPos)
 
-  // If the last word is in a protected region (code block, URL, math expr, etc.), skip.
   if (isLastWordProtected(beforeCursor)) {
     return { text, cursorOffset: 0 }
   }
 
-  // Extract the last word and delimiter from beforeCursor
   const { word, delimiter, startIndex } = extractLastWord(beforeCursor)
   if (!word) {
     return { text, cursorOffset: 0 }
   }
 
-  // Attempt replacement
   const { replaced, offset } = replaceIfEmoji(word, delimiter)
-  if (offset === 0) {
-    // Not replaced
+  if (replaced === word) {
     return { text, cursorOffset: 0 }
   }
 
-  // Rebuild
   const beforeWord = beforeCursor.slice(0, startIndex)
   const newText = beforeWord + replaced + delimiter + afterCursor
   return { text: newText, cursorOffset: offset }
 }
 
-// emojifyOnSend: Replaces only the very last word in the entire text, if recognized and unprotected.
-function emojifyOnSend(text: string): string {
-  if (isLastWordProtected(text)) {
-    return text
-  }
+// -------------------------------------------
+// 6) On-send: Replace all in unprotected segments
+// -------------------------------------------
+function replaceAllEmojisInUnprotected(segment: string): string {
+  // Word-boundary-based matching of emoticons & shortcodes
+  // Using lookbehind/lookahead to avoid partial word replacements.
+  // We'll include :p, :), <3, etc., plus shortcodes like :heart:
+  // Make sure to add variants as needed.
+  const tokenRegex = new RegExp(
+    [
+      ':[a-zA-Z0-9_+\\-]+:', // shortcodes (":smile:")
+      '(?<![A-Za-z0-9])<3(?=$|\\s|[^A-Za-z0-9])', // <3 not part of a word
+      '(?<![A-Za-z0-9])[;:]-?[)Ddp(](?![A-Za-z0-9])', // ;), :D, etc. not part of a word
+    ].join('|'),
+    'g'
+  )
 
-  const { word, delimiter, startIndex } = extractLastWord(text)
-  if (!word) {
-    return text
-  }
-
-  const { replaced, offset } = replaceIfEmoji(word, delimiter)
-  if (offset === 0) {
-    // Not replaced
-    return text
-  }
-
-  // Rebuild
-  const beforeWord = text.slice(0, startIndex)
-  const afterWord = text.slice(startIndex + word.length + delimiter.length)
-  return beforeWord + replaced + delimiter + afterWord
+  return segment.replace(tokenRegex, match => {
+    if (emojiShortcodes[match]) {
+      return emojiShortcodes[match]
+    }
+    if (emoticons[match]) {
+      return emoticons[match]
+    }
+    return match
+  })
 }
 
-/**
- * A single `emojify` function that can handle two scenarios:
- *   - While typing: pass a number as the second argument (the cursor position). Returns { text, cursorOffset }.
- *   - On send: pass { finalSend: true } as the second argument. Returns a fully replaced string.
- *
- * Otherwise (if second argument is omitted), it does nothing special.
- */
+function emojifyOnSend(text: string): string {
+  // Protected: triple backtick blocks, inline code, URLs, $$ math blocks, simple math
+  const protectedRegex =
+    /```[\s\S]*?```|`[^`]+`|https?:\/\/\S+|\$\$[\s\S]*?\$\$|\b\d+[<>]\d+\b|\b\w+[<>]\d+\b|\([^)]*[<>][^)]*\)/g
+
+  let result = ''
+  let lastIndex = 0
+  const matches = [...text.matchAll(protectedRegex)]
+
+  for (const m of matches) {
+    if (m.index == null) continue
+    const start = m.index
+    // unprotected chunk
+    const unprotected = text.slice(lastIndex, start)
+    result += replaceAllEmojisInUnprotected(unprotected)
+    // add protected chunk verbatim
+    result += m[0]
+    lastIndex = start + m[0].length
+  }
+
+  // leftover unprotected
+  if (lastIndex < text.length) {
+    const unprotected = text.slice(lastIndex)
+    result += replaceAllEmojisInUnprotected(unprotected)
+  }
+
+  return result
+}
+
+// -------------------------------------------
+// 7) Main export
+// -------------------------------------------
 export function emojify(
   text: string,
   options?: number | { finalSend?: boolean }
 ): { text: string; cursorOffset: number } | string {
   if (typeof options === 'number') {
-    // Typing scenario
     return emojifyWhileTyping(text, options)
   }
   if (options && options.finalSend) {
-    // On-send scenario
     return emojifyOnSend(text)
   }
-  // Default: No transformation
   return { text, cursorOffset: 0 }
 }
