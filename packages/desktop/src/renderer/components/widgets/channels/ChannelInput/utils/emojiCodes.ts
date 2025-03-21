@@ -1,10 +1,12 @@
+import { is } from "ramda"
+
 // Emoji shortcode mapping
 export interface EmojiMapping {
   [key: string]: string
 }
 
 // Common emoji shortcodes (GitHub/Slack style) - this is a starting point, can be expanded
-export const emojiShortcodes: EmojiMapping = {
+const emojiShortcodes: EmojiMapping = {
   // Smileys
   ':smile:': '😄',
   ':laughing:': '😆',
@@ -66,7 +68,7 @@ export const emojiShortcodes: EmojiMapping = {
   ':no_mouth:': '😶',
   ':innocent:': '😇',
   ':alien:': '👽',
-
+  
   // Hearts
   ':heart:': '❤️',
   ':broken_heart:': '💔',
@@ -75,7 +77,7 @@ export const emojiShortcodes: EmojiMapping = {
   ':yellow_heart:': '💛',
   ':purple_heart:': '💜',
   ':black_heart:': '🖤',
-
+  
   // Hands / People
   ':thumbsup:': '👍',
   ':thumbsdown:': '👎',
@@ -86,7 +88,7 @@ export const emojiShortcodes: EmojiMapping = {
   ':pray:': '🙏',
   ':person_shrugging:': '🤷',
   ':person_facepalming:': '🤦',
-
+  
   // Objects
   ':fire:': '🔥',
   ':star:': '⭐',
@@ -104,7 +106,7 @@ export const emojiShortcodes: EmojiMapping = {
   ':rainbow:': '🌈',
   ':lock:': '🔒',
   ':bulb:': '💡',
-
+  
   // Animals
   ':cat:': '🐱',
   ':dog:': '🐶',
@@ -116,7 +118,7 @@ export const emojiShortcodes: EmojiMapping = {
   ':penguin:': '🐧',
   ':bird:': '🐦',
   ':frog:': '🐸',
-
+  
   // Food
   ':apple:': '🍎',
   ':pizza:': '🍕',
@@ -127,7 +129,7 @@ export const emojiShortcodes: EmojiMapping = {
   ':cookie:': '🍪',
   ':lemon:': '🍋',
   ':watermelon:': '🍉',
-
+  
   // Activities
   ':soccer:': '⚽',
   ':basketball:': '🏀',
@@ -136,7 +138,7 @@ export const emojiShortcodes: EmojiMapping = {
 }
 
 // Common emoticons/ASCII art
-export const emoticons: EmojiMapping = {
+const emoticons: EmojiMapping = {
   ':)': '🙂',
   ':-)': '🙂',
   ':D': '😀',
@@ -171,9 +173,9 @@ export const emoticons: EmojiMapping = {
   ":'-(": '😢',
   ":'D": '😂',
   ":'-)": '😂',
-  o_O: '😳',
-  O_o: '😳',
-  O_O: '😳',
+  'o_O': '😳',
+  'O_o': '😳',
+  'O_O': '😳',
   '>:(': '😠',
   '>:-(': '😠',
   '>:)': '😈',
@@ -182,40 +184,41 @@ export const emoticons: EmojiMapping = {
   '(y)': '👍',
   '(n)': '👎',
 }
+  // we don't need to check if every word is in a protected region on send, because all words have already been checked on typing
+  // so we can just check the last word
 
-// Function to convert emoji shortcodes in text to actual emojis
-export function replaceEmojis(text: string): string {
-  let result = text
-
-  // Replace shortcodes like :smile:
-  Object.entries(emojiShortcodes).forEach(([code, emoji]) => {
-    result = result.replace(new RegExp(code.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1'), 'g'), emoji)
-  })
-
-  // Replace emoticons like :) - escape special characters
-  Object.entries(emoticons).forEach(([code, emoji]) => {
-    // Escape for regex - emoticons often contain special regex characters
-    const escapedCode = code.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1')
-
-    // Lookbehind/lookahead to ensure we're matching standalone emoticons, not parts of words
-    // This ensures we don't match parts of URLs or other text
-    const pattern = `(?<=[\\s]|^)${escapedCode}(?=[\\s]|$)`
-
-    try {
-      const regex = new RegExp(pattern, 'g')
-      result = result.replace(regex, emoji)
-    } catch (e) {
-      // If regex creation fails, try a simpler approach
-      result = result.replace(new RegExp(`\\s${escapedCode}(\\s|$)`, 'g'), ` ${emoji}$1`)
-      // Handle start of string
-      if (result.startsWith(code + ' ')) {
-        result = result.replace(new RegExp(`^${escapedCode}\\s`, 'g'), `${emoji} `)
-      }
-      if (result === code) {
-        result = emoji
-      }
-    }
-  })
-
-  return result
+function extractLastWord(text: string): string {
+  return text.split(' ').pop() || '' // TODO: make this more robust by using a proper regex that includes punctuation like period and comma
 }
+
+function isLastWordProtected(text: string): boolean {
+  return false // TODO: replace this with a RegExp that checks if last word , and only the last word, is in a protected region
+}
+
+function replaceWordIfEmojicode(word: string): string {
+  return word // TODO: make this function replace the word with an emoji if it's a valid emoji code or emoticon. also make it return a cursor offset in addition to the word 
+}
+
+export function replaceLastWordBeforeCursorWithEmojiIfUnprotected(text: string, cursorPosition: number): { string, number } // TODO: add the return type and fix ts syntax
+{
+  const textBeforeCursor = text.substring(0, cursorPosition)
+  if (isLastWordProtected(textBeforeCursor)) {
+    return { text, cursorOffset: 0 }
+  }
+  const lastWord = extractLastWord(textBeforeCursor)
+  const textAfterCursor = text.substring(cursorPosition)
+  const textBeforeLastWord = textBeforeCursor.substring(0, textBeforeCursor.length - extractLastWord(textBeforeCursor).length)
+  const newEmoji = replaceWordIfEmojicode(lastWord).wordOrNewEmoji
+  const emojiWordLengthDifference = wordOrNewEmoji.length - lastWord.length
+  const newText = textBeforeLastWord + wordOrNewEmoji + textAfterCursor // replaceWordIfEmojicode should return an emoji with an offset
+  const cursorOffset = 0 // TODO: calculate the offset based on the length of the last word and the emoji that replaces it
+  return { newText, cursorOffset: newCursorOffset } // TODO: complete this function so that the offset changes and the text is updated
+}
+
+export function replaceLastEmoji(text: string): string {
+  if (isLastWordProtected(text)) {
+    return text
+  }
+  return text // TODO: replace the last word with an emoji if it's a valid emoji code or emoticon and not in a protected region
+}  
+ 

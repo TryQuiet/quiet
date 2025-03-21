@@ -13,7 +13,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { replaceEmojis } from './utils/emojiCodes'
+import { replaceEmojis, replaceEmojiOnTyping, replaceLastWordBeforeCursorWithEmojiIfUnprotected } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 
@@ -266,33 +266,38 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const onChangeCb = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
-        // Get cursor position before update
-        const cursorPosition = e.target.selectionStart
-        const previousLength = e.target.value.length
+        // Get cursor position and current input value
+        const cursorPosition = e.target.selectionStart || 0
+        const currentText = e.target.value
 
-        // Convert emoji shortcodes to emojis
-        const textWithEmojis = replaceEmojis(e.target.value)
+        // First, just update the text as typed (without emoji conversion)
+        setMessage(currentText)
 
-        // Set the message with emojis
-        setMessage(textWithEmojis)
+        // Check for emoji conversion at current cursor position
+        const { text: newText, cursorOffset } = replaceLastWordBeforeCursorWithEmojiIfUnprotected(
+          currentText,
+          cursorPosition
+        )
 
-        // Update textarea height to fit content
-        adjustTextAreaHeight(e.target)
+        // If emoji conversion occurred, update the text and fix cursor position
+        if (newText !== currentText) {
+          setMessage(newText)
 
-        // Calculate new cursor position (accounting for emoji replacements)
-        if (previousLength !== textWithEmojis.length) {
-          // We'll set cursor position after React updates the DOM
+          // Set timeout to fix cursor position after React renders
           setTimeout(() => {
             if (e.target) {
-              const lengthDiff = textWithEmojis.length - previousLength
-              e.target.selectionStart = cursorPosition + lengthDiff
-              e.target.selectionEnd = cursorPosition + lengthDiff
+              const newPosition = cursorPosition + cursorOffset
+              e.target.selectionStart = newPosition
+              e.target.selectionEnd = newPosition
             }
           }, 0)
         }
+
+        // Update textarea height to fit content
+        adjustTextAreaHeight(e.target)
       }
     },
-    [onChange]
+    [inputState, message]
   )
 
   const inputStateRef = React.useRef(inputState)
@@ -308,10 +313,12 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
           const target = e.target as HTMLInputElement
-          const messageWithEmojis = replaceEmojis(target.value)
+          // Always convert emojis on send with isOnSend=true to handle end-of-message emoticons
+          const messageWithEmojis = replaceEmojis(target.value, true)
           onChange(messageWithEmojis)
           onKeyPress(messageWithEmojis)
           setMessage('')
+          // Reset any state needed for emoji handling
           target.style.height = ''
         } else {
           e.preventDefault()
