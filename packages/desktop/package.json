@@ -95,7 +95,7 @@
     "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js",
+    "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
     "lint:cypress": "eslint src/**/*.cy.{ts,tsx} --config .eslintrc.cypress.js",
     "lint:all": "npm run lint && npm run lint:cypress",
     "lint-staged": "lint-staged --no-stash",
