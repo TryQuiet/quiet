@@ -62,7 +62,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     display: 'block',
     border: 0,
     resize: 'none',
-    fontFamily: 'inherit',
+    fontFamily: '"Rubik", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
     whiteSpace: 'break-spaces',
     width: '100%',
     fontSize: 14,
