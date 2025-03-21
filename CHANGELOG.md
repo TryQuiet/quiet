@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### New Features
+
+* You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540)
+
+### Fixes
+
+* Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
+
 ## [4.0.3]
 
 ### New features
