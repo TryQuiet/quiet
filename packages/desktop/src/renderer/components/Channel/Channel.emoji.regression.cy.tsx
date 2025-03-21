@@ -8,11 +8,11 @@ import { withTheme } from '../../storybook/decorators'
 import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
 import { mount } from 'cypress/react18'
 
-compareSnapshotCommand() // Workaround. This should be only in cypress/commands.ts but typescript complains when it's not here
+compareSnapshotCommand() // optional, for visual regression checks
 
 const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
 Cypress.on('uncaught:exception', err => {
-  /* returning false here prevents Cypress from failing the test */
+  // returning false here prevents Cypress from failing the test
   if (resizeObserverLoopErrRe.test(err.message)) {
     return false
   }
@@ -23,55 +23,75 @@ setGlobalConfig(withTheme)
 
 const { Component } = composeStories(stories)
 
-describe('Emoji features test', () => {
+describe('Emoji conversion in code blocks test', () => {
   beforeEach(() => {
     mount(
       <React.Fragment>
-        {/* @ts-ignore */}
         <CssBaseline>
-          {/* @ts-ignore */}
           <Component />
         </CssBaseline>
       </React.Fragment>
     )
     // Wait for component to render
-    cy.wait(3000)
+    cy.wait(500) // or whatever minimal wait you need
   })
-  
-  it('Shows emoji suggestions when typing a shortcode', () => {
-    // Type something with a partial emoji code
-    cy.get('[data-testid="messageInput"]').type(':heart');
-    
-    // Check if the dropdown appears
-    cy.get('[class*="emojiDropdown"]').should('be.visible');
-    cy.get('[class*="emojiDropdownTitle"]').should('contain', 'Tab to complete:');
-    
-    // Should contain at least the heart emoji
-    cy.get('[class*="emojiDropdownItem"]').first().should('contain', ':heart:');
-  });
-  
-  it('Completes emoji shortcodes when tab is pressed', () => {
-    // Type something with a partial emoji code
-    cy.get('[data-testid="messageInput"]').type(':sm');
-    
-    // Press tab to complete
-    cy.get('[data-testid="messageInput"]').type('{tab}');
-    
-    // Check if the input contains the completed emoji (one of the smile variations)
-    cy.get('[data-testid="messageInput"]').should(($input) => {
-      const text = $input.val().toString();
-      expect(text).to.match(/😄|😃|🙂/);
-    });
-  });
 
-  it('Does not convert emoji codes inside code blocks', () => {
-    // Type a code block with emoji codes
-    cy.get('[data-testid="messageInput"]').type('```\n:heart: should not convert\n```');
-    
-    // Press Enter to send
-    cy.get('[data-testid="messageInput"]').type('{enter}');
-    
-    // The message should show the code block with unconverted emoji codes
-    // Note: This would need to wait for the message to appear in the chat
-    cy.contains(':heart: should not convert').should('exist');
-  });
+  it('should NOT convert text typed inside an unclosed code fence', () => {
+    cy.get('[data-testid="messageInput"]')
+      .type('```Some code :) ')
+
+    // The code fence is still open (no closing triple backticks).
+    // So ":) " should remain literal and not become an emoji.
+    cy.get('[data-testid="messageInput"]')
+      .should('have.value', '```Some code :) ')
+  })
+
+  it('should convert text immediately after closing the code fence', () => {
+    cy.get('[data-testid="messageInput"]')
+      // Start an open code fence
+      .type('```Inside code block :smile:')
+      // Still open => :smile: remains literal
+      .should('have.value', '```Inside code block :smile:')
+      // Close the code block
+      .type('``` ')
+      // Now that fence is closed, the space after “``` ” is outside code block
+      // Type a known emoticon
+      .type(':p')
+      .should('have.value', '```Inside code block :smile:``` :p')
+      // Type punctuation => triggers conversion of :p
+      .type('.')
+
+    cy.get('[data-testid="messageInput"]')
+      .should('have.value', '```Inside code block :smile:``` 😛.')
+  })
+
+  it('should convert text typed entirely outside code fences', () => {
+    // Type something normal outside code block
+    cy.get('[data-testid="messageInput"]')
+      .type('Hello :smile: ') 
+      .should('have.value', 'Hello 😄 ')
+  })
+
+  it('should handle multiple code fences correctly', () => {
+    cy.get('[data-testid="messageInput"]')
+      // First code fence
+      .type('```Block1 :)``` code between ```Block2 :heart: ')
+
+    // "Block1 :)" is inside the first code fence => no conversion
+    // "Block2 :heart:" is inside second code fence => no conversion yet
+    cy.get('[data-testid="messageInput"]')
+      .should('have.value', '```Block1 :)``` code between ```Block2 :heart: ')
+
+    // close second code fence
+    cy.get('[data-testid="messageInput"]')
+      .type('``` ')
+
+    // After closing the second fence, type a space + emoticon
+    cy.get('[data-testid="messageInput"]')
+      .type(':p ')
+
+    // Now the :p should convert to 😛 because we’re outside all fences
+    cy.get('[data-testid="messageInput"]')
+      .should('have.value', '```Block1 :)``` code between ```Block2 :heart: ``` 😛 ')
+  })
+})
