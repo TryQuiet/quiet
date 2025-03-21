@@ -13,7 +13,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { emojify } from './utils/emojiCodes'
+import { emojify, findMatchingEmojis, extractPartialEmojiCode, completeEmojiCode } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 
@@ -39,6 +39,8 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
+  emojiHint: `${PREFIX}emojiHint`,
+  emojiHintItem: `${PREFIX}emojiHintItem`,
 }
 
 const maxHeight = 300
@@ -305,12 +307,38 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const onKeyDownCb = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.nativeEvent.key === 'Enter') {
+      const target = e.target as HTMLInputElement
+
+      if (e.nativeEvent.key === 'Tab') {
+        // Handle tab completion for emoji shortcodes
+        e.preventDefault() // Prevent focus change
+
+        const cursorPos = target.selectionStart || 0
+        const partial = extractPartialEmojiCode(target.value, cursorPos)
+
+        if (partial) {
+          const matches = findMatchingEmojis(partial.partial)
+
+          if (matches.length > 0) {
+            // Complete with the first match
+            const { text: newText, newCursorPos } = completeEmojiCode(target.value, cursorPos, matches[0])
+
+            setMessage(newText)
+
+            // Set cursor position after the component re-renders
+            setTimeout(() => {
+              if (target) {
+                target.selectionStart = newCursorPos
+                target.selectionEnd = newCursorPos
+              }
+            }, 0)
+          }
+        }
+      } else if (e.nativeEvent.key === 'Enter') {
         if (e.shiftKey) {
           // Accept this input for additional lines in the message box
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
-          const target = e.target as HTMLInputElement
           // On send, convert the last word fully
           const messageWithEmojis = emojify(target.value, { finalSend: true }) as string
           onChange(messageWithEmojis)

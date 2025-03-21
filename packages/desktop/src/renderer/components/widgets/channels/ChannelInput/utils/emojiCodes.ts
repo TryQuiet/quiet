@@ -948,7 +948,102 @@ function emojifyOnSend(text: string): string {
 }
 
 // -------------------------------------------
-// 7) Main export
+// 7) Tab completion support
+// -------------------------------------------
+/**
+ * Finds emoji shortcodes that match a partial input
+ * @param partial The partial shortcode (e.g., ":sm")
+ * @param limit Maximum number of matches to return
+ * @returns Array of matching emoji shortcodes
+ */
+export function findMatchingEmojis(partial: string, limit: number = 5): string[] {
+  if (!partial.startsWith(':')) return []
+
+  const exactMatches: string[] = []
+  const startMatches: string[] = []
+  const containsMatches: string[] = []
+
+  const search = partial.toLowerCase()
+
+  // Search through all shortcodes with priority for exact matches and prefix matches
+  for (const code in emojiShortcodes) {
+    const lowerCode = code.toLowerCase()
+
+    // Exact match (prioritize these)
+    if (lowerCode === search) {
+      exactMatches.push(code)
+    }
+    // Starts with match (second priority)
+    else if (lowerCode.startsWith(search)) {
+      startMatches.push(code)
+    }
+    // Contains match (lowest priority)
+    else if (lowerCode.includes(search)) {
+      containsMatches.push(code)
+    }
+
+    // If we have enough higher-priority matches, stop collecting lower priority ones
+    if (exactMatches.length >= limit) {
+      return exactMatches.slice(0, limit)
+    }
+  }
+
+  // Combine matches in priority order
+  const allMatches = [...exactMatches, ...startMatches, ...containsMatches]
+  return allMatches.slice(0, limit)
+}
+
+/**
+ * Extracts the partial emoji shortcode at the cursor position
+ * @param text The input text
+ * @param cursorPos The cursor position
+ * @returns The partial shortcode and its start position, or null if no partial shortcode is found
+ */
+export function extractPartialEmojiCode(text: string, cursorPos: number): { partial: string; startPos: number } | null {
+  // Only look at text before the cursor
+  const beforeCursor = text.slice(0, cursorPos)
+
+  // Find the last colon before the cursor
+  const colonPos = beforeCursor.lastIndexOf(':')
+  if (colonPos === -1) return null
+
+  // Make sure there's no space between the colon and cursor
+  const textBetween = beforeCursor.slice(colonPos)
+  if (textBetween.includes(' ')) return null
+
+  // Check if we're potentially in the middle of a shortcode
+  return {
+    partial: textBetween,
+    startPos: colonPos,
+  }
+}
+
+/**
+ * Completes a partial emoji shortcode with the given completion
+ * @param text The full input text
+ * @param cursorPos The cursor position
+ * @param completion The full emoji shortcode to complete with
+ * @returns The updated text and new cursor position
+ */
+export function completeEmojiCode(
+  text: string,
+  cursorPos: number,
+  completion: string
+): { text: string; newCursorPos: number } {
+  const partial = extractPartialEmojiCode(text, cursorPos)
+  if (!partial) return { text, newCursorPos: cursorPos }
+
+  const beforePartial = text.slice(0, partial.startPos)
+  const afterCursor = text.slice(cursorPos)
+
+  const newText = beforePartial + completion + afterCursor
+  const newCursorPos = partial.startPos + completion.length
+
+  return { text: newText, newCursorPos }
+}
+
+// -------------------------------------------
+// 8) Main export
 // -------------------------------------------
 export function emojify(
   text: string,
