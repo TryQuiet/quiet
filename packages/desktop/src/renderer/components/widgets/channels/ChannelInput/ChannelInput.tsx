@@ -13,7 +13,13 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { emojify, findMatchingEmojis, extractPartialEmojiCode, completeEmojiCode } from './utils/emojiCodes'
+import {
+  emojify,
+  findMatchingEmojis,
+  extractPartialEmojiCode,
+  completeEmojiCode,
+  emojiShortcodes,
+} from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 
@@ -39,8 +45,10 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
-  emojiHint: `${PREFIX}emojiHint`,
-  emojiHintItem: `${PREFIX}emojiHintItem`,
+  emojiDropdown: `${PREFIX}emojiDropdown`,
+  emojiDropdownItem: `${PREFIX}emojiDropdownItem`,
+  emojiDropdownTitle: `${PREFIX}emojiDropdownTitle`,
+  selectedItem: `${PREFIX}selectedItem`,
 }
 
 const maxHeight = 300
@@ -165,6 +173,48 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     bottom: 60,
     right: 15,
   },
+  [`& .${classes.emojiDropdown}`]: {
+    position: 'fixed',
+    bottom: '90px',
+    left: '20px',
+    width: '300px',
+    maxHeight: 200,
+    background: theme.palette.mode === 'dark' ? '#2a2a2a' : '#ffffff',
+    borderRadius: 6,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+    overflowY: 'auto',
+    zIndex: 9999,
+    border: '1px solid rgba(0,0,0,0.1)',
+  },
+  [`& .${classes.emojiDropdownItem}`]: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px 16px',
+    cursor: 'pointer',
+    borderBottom: '1px solid rgba(0,0,0,0.05)',
+    '&:hover': {
+      background: theme.palette.action.hover,
+    },
+    '& span:first-of-type': {
+      marginRight: 12,
+      color: theme.palette.text.primary,
+      flex: 3,
+      fontSize: 13,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+    '& span:last-of-type': {
+      fontSize: 18,
+      marginLeft: 8,
+      flex: 1,
+      textAlign: 'right',
+    },
+  },
+  [`& .${classes.selectedItem}`]: {
+    background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,100,0.05)',
+    fontWeight: 'bold',
+  },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
     justify: 'center',
@@ -241,6 +291,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
 
+  // State for emoji dropdown
+  const [emojiSuggestions, setEmojiSuggestions] = React.useState<string[]>([])
+  const [partialEmoji, setPartialEmoji] = React.useState<string | null>(null)
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = React.useState(0)
+
   const [message, setMessage] = React.useState(initialMessage)
 
   const theme = useTheme()
@@ -274,6 +329,22 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
         // First, just update the text as typed (without emoji conversion)
         setMessage(currentText)
+
+        // Check for potential emoji shortcode to provide tab completion suggestions
+        const partialCode = extractPartialEmojiCode(currentText, cursorPosition)
+        if (partialCode && partialCode.partial.length > 1) {
+          // At least ":x"
+          const matches = findMatchingEmojis(partialCode.partial, 5)
+          // Use matches as is - if no matches, don't show any fallbacks
+          setEmojiSuggestions(matches)
+          setPartialEmoji(partialCode.partial)
+          // Reset selection to first item when suggestions change
+          setSelectedSuggestionIndex(0)
+        } else {
+          // Clear suggestions if not typing an emoji code
+          setEmojiSuggestions([])
+          setPartialEmoji(null)
+        }
 
         // Check for emoji conversion at current cursor position
         const result = emojify(currentText, cursorPosition) as { text: string; cursorOffset: number }
@@ -309,30 +380,51 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     (e: React.KeyboardEvent) => {
       const target = e.target as HTMLInputElement
 
-      if (e.nativeEvent.key === 'Tab') {
+      if (emojiSuggestions.length > 0 && (e.nativeEvent.key === 'ArrowUp' || e.nativeEvent.key === 'ArrowDown')) {
+        // Handle arrow navigation for emoji suggestions
+        e.preventDefault()
+
+        if (e.nativeEvent.key === 'ArrowDown') {
+          // Move selection down
+          setSelectedSuggestionIndex(prev => (prev < emojiSuggestions.length - 1 ? prev + 1 : 0))
+        } else {
+          // Move selection up
+          setSelectedSuggestionIndex(prev => (prev > 0 ? prev - 1 : emojiSuggestions.length - 1))
+        }
+      } else if (e.nativeEvent.key === 'Tab') {
         // Handle tab completion for emoji shortcodes
         e.preventDefault() // Prevent focus change
 
         const cursorPos = target.selectionStart || 0
         const partial = extractPartialEmojiCode(target.value, cursorPos)
 
-        if (partial) {
-          const matches = findMatchingEmojis(partial.partial)
+        if (partial && emojiSuggestions.length > 0) {
+          // Use the currently selected suggestion
+          const selectedSuggestion = emojiSuggestions[selectedSuggestionIndex]
 
-          if (matches.length > 0) {
-            // Complete with the first match
-            const { text: newText, newCursorPos } = completeEmojiCode(target.value, cursorPos, matches[0])
+          // Get the actual emoji character
+          const emoji = emojiShortcodes[selectedSuggestion]
 
-            setMessage(newText)
+          // Calculate the new text with emoji inserted
+          const beforeText = target.value.substring(0, partial.startPos)
+          const afterText = target.value.substring(cursorPos)
+          const newText = beforeText + emoji + afterText
 
-            // Set cursor position after the component re-renders
-            setTimeout(() => {
-              if (target) {
-                target.selectionStart = newCursorPos
-                target.selectionEnd = newCursorPos
-              }
-            }, 0)
-          }
+          // Calculate new cursor position
+          const newCursorPos = partial.startPos + emoji.length
+
+          setMessage(newText)
+          // Reset suggestions and selection index
+          setEmojiSuggestions([])
+          setSelectedSuggestionIndex(0)
+
+          // Set cursor position after the component re-renders
+          setTimeout(() => {
+            if (target) {
+              target.selectionStart = newCursorPos
+              target.selectionEnd = newCursorPos
+            }
+          }, 0)
         }
       } else if (e.nativeEvent.key === 'Enter') {
         if (e.shiftKey) {
@@ -405,31 +497,77 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-              <textarea
-                ref={textAreaRef}
-                placeholder={`Message ${inputPlaceholder}`}
-                className={classes.input}
-                onClick={() => {
-                  if (!focused) {
-                    setFocused(true)
-                  }
-                }}
-                value={message}
-                disabled={inputState !== INPUT_STATE.AVAILABLE}
-                onChange={onChangeCb}
-                onKeyDown={onKeyDownCb}
-                onPaste={async e => {
-                  const files = e.clipboardData.files
-                  if (files.length) e.preventDefault()
-                  for (let i = 0; i < files.length; i++) {
-                    const fileExt = path.extname(files[i].name).toLowerCase()
-                    const fileName = path.basename(files[i].name, fileExt)
-                    const arrayBuffer = await files[i].arrayBuffer()
-                    handleClipboardFiles(arrayBuffer, fileExt, fileName)
-                  }
-                }}
-                data-testid='messageInput'
-              />
+              <>
+                {emojiSuggestions.length > 0 && (
+                  <div className={classes.emojiDropdown} data-testid='emoji-dropdown'>
+                    {emojiSuggestions.slice(0, 5).map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className={`${classes.emojiDropdownItem} ${index === selectedSuggestionIndex ? classes.selectedItem : ''}`}
+                        onClick={() => {
+                          // Apply this emoji when clicked
+                          const cursorPos = textAreaRef.current?.selectionStart || 0
+                          const partial = extractPartialEmojiCode(message, cursorPos)
+
+                          if (partial) {
+                            // Replace the partial emoji code with the actual emoji
+                            const emoji = emojiShortcodes[suggestion]
+
+                            // Calculate the new text with emoji inserted
+                            const beforeText = message.substring(0, partial.startPos)
+                            const afterText = message.substring(cursorPos)
+                            const newText = beforeText + emoji + afterText
+
+                            // Calculate new cursor position
+                            const newCursorPos = partial.startPos + emoji.length
+
+                            setMessage(newText)
+                            setEmojiSuggestions([])
+                            setSelectedSuggestionIndex(0)
+
+                            // Set cursor position after click
+                            setTimeout(() => {
+                              if (textAreaRef.current) {
+                                textAreaRef.current.selectionStart = newCursorPos
+                                textAreaRef.current.selectionEnd = newCursorPos
+                                textAreaRef.current.focus()
+                              }
+                            }, 0)
+                          }
+                        }}
+                      >
+                        <span>{suggestion}</span>
+                        <span>{emojiShortcodes[suggestion]}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <textarea
+                  ref={textAreaRef}
+                  placeholder={`Message ${inputPlaceholder}`}
+                  className={classes.input}
+                  onClick={() => {
+                    if (!focused) {
+                      setFocused(true)
+                    }
+                  }}
+                  value={message}
+                  disabled={inputState !== INPUT_STATE.AVAILABLE}
+                  onChange={onChangeCb}
+                  onKeyDown={onKeyDownCb}
+                  onPaste={async e => {
+                    const files = e.clipboardData.files
+                    if (files.length) e.preventDefault()
+                    for (let i = 0; i < files.length; i++) {
+                      const fileExt = path.extname(files[i].name).toLowerCase()
+                      const fileName = path.basename(files[i].name, fileExt)
+                      const arrayBuffer = await files[i].arrayBuffer()
+                      handleClipboardFiles(arrayBuffer, fileExt, fileName)
+                    }
+                  }}
+                  data-testid='messageInput'
+                />
+              </>
               {children}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>

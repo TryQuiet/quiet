@@ -6,7 +6,7 @@ export interface EmojiMapping {
 }
 
 // Common emoji shortcodes (GitHub/Slack style) - this is a starting point, can be expanded
-const emojiShortcodes: EmojiMapping = {
+export const emojiShortcodes: EmojiMapping = {
   // --- Smiley / People ---
   ':grinning:': '😀',
   ':smiley:': '😃',
@@ -957,6 +957,7 @@ function emojifyOnSend(text: string): string {
  * @returns Array of matching emoji shortcodes
  */
 export function findMatchingEmojis(partial: string, limit: number = 5): string[] {
+  // Only match shortcodes that start with a colon
   if (!partial.startsWith(':')) return []
 
   const exactMatches: string[] = []
@@ -965,7 +966,7 @@ export function findMatchingEmojis(partial: string, limit: number = 5): string[]
 
   const search = partial.toLowerCase()
 
-  // Search through all shortcodes with priority for exact matches and prefix matches
+  // Search only through shortcodes (not emoticons) with priority
   for (const code in emojiShortcodes) {
     const lowerCode = code.toLowerCase()
 
@@ -977,8 +978,9 @@ export function findMatchingEmojis(partial: string, limit: number = 5): string[]
     else if (lowerCode.startsWith(search)) {
       startMatches.push(code)
     }
-    // Contains match (lowest priority)
-    else if (lowerCode.includes(search)) {
+    // Contains match for words after the first colon (lowest priority)
+    // E.g. ":heart" should match ":broken_heart:"
+    else if (search.length > 1 && lowerCode.includes(search.substring(1))) {
       containsMatches.push(code)
     }
 
