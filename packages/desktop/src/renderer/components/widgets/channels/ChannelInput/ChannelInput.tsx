@@ -22,6 +22,7 @@ import {
 } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
+const MAX_EMOJI_SUGGESTIONS = 100
 
 const classes = {
   root: `${PREFIX}root`,
@@ -210,7 +211,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     cursor: 'pointer',
     transition: 'background-color 0.1s ease',
     '&:hover': {
-      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+      background: theme.palette.mode === 'dark' ? 'rgba(50, 100, 255, 0.15)' : 'rgba(50, 100, 255, 0.08)',
     },
     '&:not(:last-child)': {
       borderBottom: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
@@ -234,20 +235,9 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     },
   },
   [`& .${classes.selectedItem}`]: {
-    background: theme.palette.mode === 'dark' ? 'rgba(82, 28, 116, 0.2)' : 'rgba(82, 28, 116, 0.08)',
-    fontWeight: 500,
+    background: theme.palette.mode === 'dark' ? 'rgba(50, 100, 255, 0.15)' : 'rgba(50, 100, 255, 0.1)',
+    fontWeight: 400,
     position: 'relative',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      bottom: 0,
-      width: 3,
-      background: theme.palette.primary.main,
-      borderTopLeftRadius: theme.shape.borderRadius,
-      borderBottomLeftRadius: theme.shape.borderRadius,
-    },
   },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
@@ -328,7 +318,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   // State for emoji dropdown
   const [emojiSuggestions, setEmojiSuggestions] = React.useState<string[]>([])
   const [partialEmoji, setPartialEmoji] = React.useState<string | null>(null)
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = React.useState(0)
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = React.useState(-1)
 
   // Ref for the textarea container to position the emoji dropdown
   const textareaContainerRef = useRef<HTMLDivElement>(null)
@@ -371,7 +361,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         const partialCode = extractPartialEmojiCode(currentText, cursorPosition)
         if (partialCode && partialCode.partial.length > 1) {
           // At least ":x"
-          const matches = findMatchingEmojis(partialCode.partial, 5)
+          const matches = findMatchingEmojis(partialCode.partial, MAX_EMOJI_SUGGESTIONS)
           // Use matches as is - if no matches, don't show any fallbacks
           setEmojiSuggestions(matches)
           setPartialEmoji(partialCode.partial)
@@ -579,7 +569,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       zIndex: 9999999,
                     }}
                   >
-                    {emojiSuggestions.slice(0, 5).map((suggestion, index) => (
+                    {emojiSuggestions.slice(0, MAX_EMOJI_SUGGESTIONS).map((suggestion, index) => (
                       <div
                         key={index}
                         className={`${classes.emojiDropdownItem} ${index === selectedSuggestionIndex ? classes.selectedItem : ''}`}
