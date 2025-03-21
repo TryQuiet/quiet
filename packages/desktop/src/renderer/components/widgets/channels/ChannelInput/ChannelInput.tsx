@@ -559,58 +559,66 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             >
               <div ref={textareaContainerRef} style={{ position: 'relative', width: '100%' }}>
                 {emojiSuggestions.length > 0 && (
-                  <div
-                    className={classes.emojiDropdown}
-                    data-testid='emoji-dropdown'
-                    style={{
-                      position: 'fixed',
-                      top: `${dropdownPosition.top}px`,
-                      left: `${dropdownPosition.left}px`,
-                      width: `${dropdownPosition.width}px`,
-                      zIndex: 9999999,
+                  <ClickAwayListener
+                    onClickAway={() => {
+                      setEmojiSuggestions([])
+                      setPartialEmoji(null)
+                      setSelectedSuggestionIndex(-1)
                     }}
                   >
-                    {emojiSuggestions.slice(0, MAX_EMOJI_SUGGESTIONS).map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className={`${classes.emojiDropdownItem} ${index === selectedSuggestionIndex ? classes.selectedItem : ''}`}
-                        onClick={() => {
-                          // Apply this emoji when clicked
-                          const cursorPos = textAreaRef.current?.selectionStart || 0
-                          const partial = extractPartialEmojiCode(message, cursorPos)
+                    <div
+                      className={classes.emojiDropdown}
+                      data-testid='emoji-dropdown'
+                      style={{
+                        position: 'fixed',
+                        top: `${dropdownPosition.top}px`,
+                        left: `${dropdownPosition.left}px`,
+                        width: `${dropdownPosition.width}px`,
+                        zIndex: 9999999,
+                      }}
+                    >
+                      {emojiSuggestions.slice(0, MAX_EMOJI_SUGGESTIONS).map((suggestion, index) => (
+                        <div
+                          key={index}
+                          className={`${classes.emojiDropdownItem} ${index === selectedSuggestionIndex ? classes.selectedItem : ''}`}
+                          onClick={() => {
+                            // Apply this emoji when clicked
+                            const cursorPos = textAreaRef.current?.selectionStart || 0
+                            const partial = extractPartialEmojiCode(message, cursorPos)
 
-                          if (partial) {
-                            // Replace the partial emoji code with the actual emoji
-                            const emoji = emojiShortcodes[suggestion]
+                            if (partial) {
+                              // Replace the partial emoji code with the actual emoji
+                              const emoji = emojiShortcodes[suggestion]
 
-                            // Calculate the new text with emoji inserted
-                            const beforeText = message.substring(0, partial.startPos)
-                            const afterText = message.substring(cursorPos)
-                            const newText = beforeText + emoji + afterText
+                              // Calculate the new text with emoji inserted
+                              const beforeText = message.substring(0, partial.startPos)
+                              const afterText = message.substring(cursorPos)
+                              const newText = beforeText + emoji + afterText
 
-                            // Calculate new cursor position
-                            const newCursorPos = partial.startPos + emoji.length
+                              // Calculate new cursor position
+                              const newCursorPos = partial.startPos + emoji.length
 
-                            setMessage(newText)
-                            setEmojiSuggestions([])
-                            setSelectedSuggestionIndex(0)
+                              setMessage(newText)
+                              setEmojiSuggestions([])
+                              setSelectedSuggestionIndex(0)
 
-                            // Set cursor position after click
-                            setTimeout(() => {
-                              if (textAreaRef.current) {
-                                textAreaRef.current.selectionStart = newCursorPos
-                                textAreaRef.current.selectionEnd = newCursorPos
-                                textAreaRef.current.focus()
-                              }
-                            }, 0)
-                          }
-                        }}
-                      >
-                        <span>{suggestion}</span>
-                        <span>{emojiShortcodes[suggestion]}</span>
-                      </div>
-                    ))}
-                  </div>
+                              // Set cursor position after click
+                              setTimeout(() => {
+                                if (textAreaRef.current) {
+                                  textAreaRef.current.selectionStart = newCursorPos
+                                  textAreaRef.current.selectionEnd = newCursorPos
+                                  textAreaRef.current.focus()
+                                }
+                              }, 0)
+                            }
+                          }}
+                        >
+                          <span>{suggestion}</span>
+                          <span>{emojiShortcodes[suggestion]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </ClickAwayListener>
                 )}
               </div>
               <textarea
