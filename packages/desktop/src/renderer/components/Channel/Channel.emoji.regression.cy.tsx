@@ -37,4 +37,3 @@ describe('Emoji conversion in code blocks test', () => {
     // Wait for component to render
     cy.wait(3000)
   })
-  
