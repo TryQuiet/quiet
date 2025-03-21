@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react'
+import React, { ReactElement, useCallback, useRef, useEffect } from 'react'
 import classNames from 'classnames'
 import Picker, { EmojiStyle, type Theme } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
@@ -49,6 +49,7 @@ const classes = {
   emojiDropdownItem: `${PREFIX}emojiDropdownItem`,
   emojiDropdownTitle: `${PREFIX}emojiDropdownTitle`,
   selectedItem: `${PREFIX}selectedItem`,
+  portalDropdown: `${PREFIX}portalDropdown`,
 }
 
 const maxHeight = 300
@@ -58,11 +59,14 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     background: theme.palette.background.default,
     height: '100%',
     width: '100%',
+    overflow: 'visible',
+    position: 'relative',
   },
   [`& .${classes.rootContent}`]: {
     background: theme.palette.background.default,
     height: '100%',
     width: '100%',
+    overflow: 'visible',
   },
   '@keyframes blinker': {
     from: { opacity: 0 },
@@ -100,6 +104,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     border: `1px solid ${theme.palette.colors.border01}`,
     maxHeight: maxHeight,
     overflowY: 'auto',
+    overflowX: 'visible',
     borderRadius: 4,
     display: 'flex',
     flexDirection: 'column',
@@ -116,6 +121,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     width: '100%',
     margin: '0px',
     position: 'relative',
+    overflow: 'visible',
   },
   [`& .${classes.disabledBottomMargin}`]: {
     marginBottom: 0,
@@ -174,46 +180,74 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     right: 15,
   },
   [`& .${classes.emojiDropdown}`]: {
-    position: 'fixed',
-    bottom: '90px',
-    left: '20px',
-    width: '300px',
-    maxHeight: 200,
+    maxHeight: '200px',
+    width: '100%',
     background: theme.palette.mode === 'dark' ? '#2a2a2a' : '#ffffff',
-    borderRadius: 6,
-    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+    borderRadius: 16,
+    boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.3)',
     overflowY: 'auto',
-    zIndex: 9999,
-    border: '1px solid rgba(0,0,0,0.1)',
+    zIndex: 9999999,
+    border: theme.palette.mode === 'dark' ? '1px solid #333333' : '1px solid #E5E5E5',
+    padding: '0px',
+    '&::-webkit-scrollbar': {
+      width: '6px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+      borderRadius: '3px',
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)',
+    },
   },
   [`& .${classes.emojiDropdownItem}`]: {
     display: 'flex',
     alignItems: 'center',
-    padding: '10px 16px',
+    padding: '12px 16px',
     cursor: 'pointer',
-    borderBottom: '1px solid rgba(0,0,0,0.05)',
+    transition: 'background-color 0.1s ease',
     '&:hover': {
-      background: theme.palette.action.hover,
+      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+    },
+    '&:not(:last-child)': {
+      borderBottom: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
     },
     '& span:first-of-type': {
       marginRight: 12,
       color: theme.palette.text.primary,
-      flex: 3,
-      fontSize: 13,
+      flex: 2,
+      fontSize: 14,
+      fontWeight: 400,
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
     },
     '& span:last-of-type': {
-      fontSize: 18,
+      fontSize: 20,
       marginLeft: 8,
-      flex: 1,
-      textAlign: 'right',
+      flex: 0,
+      minWidth: '32px',
+      textAlign: 'center',
     },
   },
   [`& .${classes.selectedItem}`]: {
-    background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,100,0.05)',
-    fontWeight: 'bold',
+    background: theme.palette.mode === 'dark' ? 'rgba(82, 28, 116, 0.2)' : 'rgba(82, 28, 116, 0.08)',
+    fontWeight: 500,
+    position: 'relative',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: 3,
+      background: theme.palette.primary.main,
+      borderTopLeftRadius: theme.shape.borderRadius,
+      borderBottomLeftRadius: theme.shape.borderRadius,
+    },
   },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
@@ -282,7 +316,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleClipboardFiles,
   handleOpenFiles,
 }) => {
-  const textAreaRef = React.createRef<HTMLTextAreaElement>()
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const fileInput = React.useRef<HTMLInputElement>(null)
 
   const [focused, setFocused] = React.useState(false)
@@ -295,6 +329,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [emojiSuggestions, setEmojiSuggestions] = React.useState<string[]>([])
   const [partialEmoji, setPartialEmoji] = React.useState<string | null>(null)
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = React.useState(0)
+
+  // Ref for the textarea container to position the emoji dropdown
+  const textareaContainerRef = useRef<HTMLDivElement>(null)
 
   const [message, setMessage] = React.useState(initialMessage)
 
@@ -376,6 +413,28 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     inputStateRef.current = inputState
   })
 
+  // State to track dropdown position
+  const [dropdownPosition, setDropdownPosition] = React.useState({ top: 0, left: 0, width: 0 })
+
+  // Update dropdown position whenever suggestions change or textarea size changes
+  React.useEffect(() => {
+    if (emojiSuggestions.length > 0 && textareaContainerRef.current && textAreaRef.current) {
+      const container = textareaContainerRef.current
+      const textarea = textAreaRef.current
+      const containerRect = container.getBoundingClientRect()
+      const textareaRect = textarea.getBoundingClientRect()
+
+      // Calculate the height of the dropdown (max 5 items)
+      const dropdownHeight = Math.min(emojiSuggestions.length, 5) * 40 + 10 // approx. height per item + padding
+
+      setDropdownPosition({
+        top: textareaRect.top - dropdownHeight - 10, // Position above the textarea with a 10px gap
+        left: textareaRect.left,
+        width: textareaRect.width,
+      })
+    }
+  }, [emojiSuggestions, message])
+
   const onKeyDownCb = useCallback(
     (e: React.KeyboardEvent) => {
       const target = e.target as HTMLInputElement
@@ -447,7 +506,17 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         }
       }
     },
-    [inputState, message, onChange, onKeyPress, setMessage, infoClass, setInfoClass]
+    [
+      inputState,
+      message,
+      onChange,
+      onKeyPress,
+      setMessage,
+      infoClass,
+      setInfoClass,
+      emojiSuggestions,
+      selectedSuggestionIndex,
+    ]
   )
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -497,9 +566,19 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-              <>
+              <div ref={textareaContainerRef} style={{ position: 'relative', width: '100%' }}>
                 {emojiSuggestions.length > 0 && (
-                  <div className={classes.emojiDropdown} data-testid='emoji-dropdown'>
+                  <div
+                    className={classes.emojiDropdown}
+                    data-testid='emoji-dropdown'
+                    style={{
+                      position: 'fixed',
+                      top: `${dropdownPosition.top}px`,
+                      left: `${dropdownPosition.left}px`,
+                      width: `${dropdownPosition.width}px`,
+                      zIndex: 9999999,
+                    }}
+                  >
                     {emojiSuggestions.slice(0, 5).map((suggestion, index) => (
                       <div
                         key={index}
@@ -542,32 +621,32 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     ))}
                   </div>
                 )}
-                <textarea
-                  ref={textAreaRef}
-                  placeholder={`Message ${inputPlaceholder}`}
-                  className={classes.input}
-                  onClick={() => {
-                    if (!focused) {
-                      setFocused(true)
-                    }
-                  }}
-                  value={message}
-                  disabled={inputState !== INPUT_STATE.AVAILABLE}
-                  onChange={onChangeCb}
-                  onKeyDown={onKeyDownCb}
-                  onPaste={async e => {
-                    const files = e.clipboardData.files
-                    if (files.length) e.preventDefault()
-                    for (let i = 0; i < files.length; i++) {
-                      const fileExt = path.extname(files[i].name).toLowerCase()
-                      const fileName = path.basename(files[i].name, fileExt)
-                      const arrayBuffer = await files[i].arrayBuffer()
-                      handleClipboardFiles(arrayBuffer, fileExt, fileName)
-                    }
-                  }}
-                  data-testid='messageInput'
-                />
-              </>
+              </div>
+              <textarea
+                ref={textAreaRef}
+                placeholder={`Message ${inputPlaceholder}`}
+                className={classes.input}
+                onClick={() => {
+                  if (!focused) {
+                    setFocused(true)
+                  }
+                }}
+                value={message}
+                disabled={inputState !== INPUT_STATE.AVAILABLE}
+                onChange={onChangeCb}
+                onKeyDown={onKeyDownCb}
+                onPaste={async e => {
+                  const files = e.clipboardData.files
+                  if (files.length) e.preventDefault()
+                  for (let i = 0; i < files.length; i++) {
+                    const fileExt = path.extname(files[i].name).toLowerCase()
+                    const fileName = path.basename(files[i].name, fileExt)
+                    const arrayBuffer = await files[i].arrayBuffer()
+                    handleClipboardFiles(arrayBuffer, fileExt, fileName)
+                  }
+                }}
+                data-testid='messageInput'
+              />
               {children}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
