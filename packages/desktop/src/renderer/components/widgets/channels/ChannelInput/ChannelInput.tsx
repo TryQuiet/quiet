@@ -13,7 +13,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { replaceEmojis, replaceEmojiOnTyping, replaceLastWordBeforeCursorWithEmojiIfUnprotected } from './utils/emojiCodes'
+import { emojify } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 
@@ -274,10 +274,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         setMessage(currentText)
 
         // Check for emoji conversion at current cursor position
-        const { text: newText, cursorOffset } = replaceLastWordBeforeCursorWithEmojiIfUnprotected(
-          currentText,
-          cursorPosition
-        )
+        const result = emojify(currentText, cursorPosition) as { text: string; cursorOffset: number }
+        const { text: newText, cursorOffset } = result
 
         // If emoji conversion occurred, update the text and fix cursor position
         if (newText !== currentText) {
@@ -313,8 +311,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
           const target = e.target as HTMLInputElement
-          // Always convert emojis on send with isOnSend=true to handle end-of-message emoticons
-          const messageWithEmojis = replaceEmojis(target.value, true)
+          // On send, convert the last word fully
+          const messageWithEmojis = emojify(target.value, { finalSend: true }) as string
           onChange(messageWithEmojis)
           onKeyPress(messageWithEmojis)
           setMessage('')

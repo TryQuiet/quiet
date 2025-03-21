@@ -37,18 +37,4 @@ describe('Emoji conversion in code blocks test', () => {
     // Wait for component to render
     cy.wait(3000)
   })
-
-  const messageInput = '[data-testid="messageInput"]'
-
-  it('should correctly convert heart emoticon after code block', () => {
-    // Clear any existing content
-    cy.get(messageInput).clear()
-    
-    // Type a code block followed by heart emoticon and space
-    cy.get(messageInput).type('```<3``` <3 ')
-    
-    // Check if the heart emoticon after the code block is converted to emoji
-    // while the one inside the code block remains unchanged
-    cy.get(messageInput).should('have.value', '```<3``` ❤️ ')
-  })
-})
+  

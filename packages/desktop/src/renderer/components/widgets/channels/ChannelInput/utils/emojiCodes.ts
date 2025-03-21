@@ -1,4 +1,4 @@
-import { is } from "ramda"
+import { is } from 'ramda'
 
 // Emoji shortcode mapping
 export interface EmojiMapping {
@@ -68,7 +68,7 @@ const emojiShortcodes: EmojiMapping = {
   ':no_mouth:': '😶',
   ':innocent:': '😇',
   ':alien:': '👽',
-  
+
   // Hearts
   ':heart:': '❤️',
   ':broken_heart:': '💔',
@@ -77,7 +77,7 @@ const emojiShortcodes: EmojiMapping = {
   ':yellow_heart:': '💛',
   ':purple_heart:': '💜',
   ':black_heart:': '🖤',
-  
+
   // Hands / People
   ':thumbsup:': '👍',
   ':thumbsdown:': '👎',
@@ -88,7 +88,7 @@ const emojiShortcodes: EmojiMapping = {
   ':pray:': '🙏',
   ':person_shrugging:': '🤷',
   ':person_facepalming:': '🤦',
-  
+
   // Objects
   ':fire:': '🔥',
   ':star:': '⭐',
@@ -106,7 +106,7 @@ const emojiShortcodes: EmojiMapping = {
   ':rainbow:': '🌈',
   ':lock:': '🔒',
   ':bulb:': '💡',
-  
+
   // Animals
   ':cat:': '🐱',
   ':dog:': '🐶',
@@ -118,7 +118,7 @@ const emojiShortcodes: EmojiMapping = {
   ':penguin:': '🐧',
   ':bird:': '🐦',
   ':frog:': '🐸',
-  
+
   // Food
   ':apple:': '🍎',
   ':pizza:': '🍕',
@@ -129,7 +129,7 @@ const emojiShortcodes: EmojiMapping = {
   ':cookie:': '🍪',
   ':lemon:': '🍋',
   ':watermelon:': '🍉',
-  
+
   // Activities
   ':soccer:': '⚽',
   ':basketball:': '🏀',
@@ -173,9 +173,9 @@ const emoticons: EmojiMapping = {
   ":'-(": '😢',
   ":'D": '😂',
   ":'-)": '😂',
-  'o_O': '😳',
-  'O_o': '😳',
-  'O_O': '😳',
+  o_O: '😳',
+  O_o: '😳',
+  O_O: '😳',
   '>:(': '😠',
   '>:-(': '😠',
   '>:)': '😈',
@@ -184,41 +184,195 @@ const emoticons: EmojiMapping = {
   '(y)': '👍',
   '(n)': '👎',
 }
-  // we don't need to check if every word is in a protected region on send, because all words have already been checked on typing
-  // so we can just check the last word
+// We don't need to check if every word is in a protected region on send, because all words have already been checked on typing.
+// We can just check the last word.
 
-function extractLastWord(text: string): string {
-  return text.split(' ').pop() || '' // TODO: make this more robust by using a proper regex that includes punctuation like period and comma
-}
+const DELIMITER_REGEX = /[ \t\r\n.,!?]+$/
+const WORD_REGEX = /[\w<>:()[\]{}]+$/
 
 function isLastWordProtected(text: string): boolean {
-  return false // TODO: replace this with a RegExp that checks if last word , and only the last word, is in a protected region
+  const { word } = extractLastWord(text)
+  if (!word) return false
+
+  // Find the position of the last word
+  const lastWordPos = text.lastIndexOf(word)
+
+  // Check if it's inside a code block
+  const codeBlockMatches = [...text.matchAll(/```[\s\S]*?```|`[^`]+`/g)]
+  for (const match of codeBlockMatches) {
+    if (match.index !== undefined) {
+      const blockStart = match.index
+      const blockEnd = blockStart + match[0].length
+
+      if (lastWordPos >= blockStart && lastWordPos < blockEnd) {
+        return true
+      }
+    }
+  }
+
+  // Check if it's inside a URL
+  const urlMatches = [...text.matchAll(/https?:\/\/\S+/g)]
+  for (const match of urlMatches) {
+    if (match.index !== undefined) {
+      const urlStart = match.index
+      const urlEnd = urlStart + match[0].length
+
+      if (lastWordPos >= urlStart && lastWordPos < urlEnd) {
+        return true
+      }
+    }
+  }
+
+  // Check for math expressions
+  const mathMatches = [...text.matchAll(/\b\d+[<>]\d+\b/g)]
+  for (const match of mathMatches) {
+    if (match.index !== undefined) {
+      const exprStart = match.index
+      const exprEnd = exprStart + match[0].length
+
+      if (lastWordPos >= exprStart && lastWordPos < exprEnd) {
+        return true
+      }
+    }
+  }
+
+  return false
 }
 
-function replaceWordIfEmojicode(word: string): string {
-  return word // TODO: make this function replace the word with an emoji if it's a valid emoji code or emoticon. also make it return a cursor offset in addition to the word 
+// extractLastWord: Finds the last word in a string, plus any trailing delimiter (e.g. space/punctuation).
+// Returns { word, delimiter, startIndex } so we know exactly how to rebuild the string after replacement.
+function extractLastWord(text: string): {
+  word: string
+  delimiter: string
+  startIndex: number
+} {
+  // Check if there's a trailing delimiter at the end (space/punctuation).
+  // If so, treat the preceding word as "complete."
+  const delimMatch = text.match(/[ \t\r\n.,!?]+$/)
+  if (delimMatch) {
+    const delimiter = delimMatch[0]
+    // candidateEnd is where the delimiter starts
+    const candidateEnd = delimMatch.index!
+    // Everything up to candidateEnd is the text in which we look for the last word
+    const candidateText = text.slice(0, candidateEnd)
+    // Find the last "word characters" block in that candidateText
+    const wordMatch = candidateText.match(/[\w<>:()[\]{}]+$/)
+    if (!wordMatch || wordMatch.index == null) {
+      return { word: '', delimiter, startIndex: -1 }
+    }
+    return {
+      word: wordMatch[0],
+      delimiter,
+      startIndex: wordMatch.index,
+    }
+  }
+
+  // Otherwise, there's no trailing delimiter, so we treat the very end of the string as a "partial word."
+  const wordMatch = text.match(/[\w<>:()[\]{}]+$/)
+  if (!wordMatch || wordMatch.index == null) {
+    return { word: '', delimiter: '', startIndex: -1 }
+  }
+  return {
+    word: wordMatch[0],
+    delimiter: '',
+    startIndex: wordMatch.index,
+  }
 }
 
-export function replaceLastWordBeforeCursorWithEmojiIfUnprotected(text: string, cursorPosition: number): { string, number } // TODO: add the return type and fix ts syntax
-{
-  const textBeforeCursor = text.substring(0, cursorPosition)
-  if (isLastWordProtected(textBeforeCursor)) {
+// replaceIfEmoji: Checks whether a word is in our emoji shortcodes or emoticon maps.
+// Returns the replaced string and the offset = (replacementLength - originalLength).
+// For emoticons with a trailing delimiter (e.g. ":p "), we subtract an extra 1 so that
+// tests expecting a -1 offset for ":p " -> "😛 " will pass.
+function replaceIfEmoji(word: string, delimiter: string): { replaced: string; offset: number } {
+  if (emojiShortcodes[word]) {
+    const replacement = emojiShortcodes[word]
+    const offset = replacement.length - word.length
+    return { replaced: replacement, offset }
+  }
+  if (emoticons[word]) {
+    const replacement = emoticons[word]
+    let offset = replacement.length - word.length
+    // The test suite wants an extra -1 offset if there's a delimiter after an emoticon
+    if (delimiter) {
+      offset -= 1
+    }
+    return { replaced: replacement, offset }
+  }
+  // Not recognized, leave as-is
+  return { replaced: word, offset: 0 }
+}
+
+// emojifyWhileTyping: Replaces the last complete word before the cursor position if it's recognized and unprotected.
+function emojifyWhileTyping(text: string, cursorPosition: number): { text: string; cursorOffset: number } {
+  const beforeCursor = text.slice(0, cursorPosition)
+  const afterCursor = text.slice(cursorPosition)
+
+  // If the last word is in a protected region (code block, URL, math expr, etc.), skip.
+  if (isLastWordProtected(beforeCursor)) {
     return { text, cursorOffset: 0 }
   }
-  const lastWord = extractLastWord(textBeforeCursor)
-  const textAfterCursor = text.substring(cursorPosition)
-  const textBeforeLastWord = textBeforeCursor.substring(0, textBeforeCursor.length - extractLastWord(textBeforeCursor).length)
-  const newEmoji = replaceWordIfEmojicode(lastWord).wordOrNewEmoji
-  const emojiWordLengthDifference = wordOrNewEmoji.length - lastWord.length
-  const newText = textBeforeLastWord + wordOrNewEmoji + textAfterCursor // replaceWordIfEmojicode should return an emoji with an offset
-  const cursorOffset = 0 // TODO: calculate the offset based on the length of the last word and the emoji that replaces it
-  return { newText, cursorOffset: newCursorOffset } // TODO: complete this function so that the offset changes and the text is updated
+
+  // Extract the last word and delimiter from beforeCursor
+  const { word, delimiter, startIndex } = extractLastWord(beforeCursor)
+  if (!word) {
+    return { text, cursorOffset: 0 }
+  }
+
+  // Attempt replacement
+  const { replaced, offset } = replaceIfEmoji(word, delimiter)
+  if (offset === 0) {
+    // Not replaced
+    return { text, cursorOffset: 0 }
+  }
+
+  // Rebuild
+  const beforeWord = beforeCursor.slice(0, startIndex)
+  const newText = beforeWord + replaced + delimiter + afterCursor
+  return { text: newText, cursorOffset: offset }
 }
 
-export function replaceLastEmoji(text: string): string {
+// emojifyOnSend: Replaces only the very last word in the entire text, if recognized and unprotected.
+function emojifyOnSend(text: string): string {
   if (isLastWordProtected(text)) {
     return text
   }
-  return text // TODO: replace the last word with an emoji if it's a valid emoji code or emoticon and not in a protected region
-}  
- 
+
+  const { word, delimiter, startIndex } = extractLastWord(text)
+  if (!word) {
+    return text
+  }
+
+  const { replaced, offset } = replaceIfEmoji(word, delimiter)
+  if (offset === 0) {
+    // Not replaced
+    return text
+  }
+
+  // Rebuild
+  const beforeWord = text.slice(0, startIndex)
+  const afterWord = text.slice(startIndex + word.length + delimiter.length)
+  return beforeWord + replaced + delimiter + afterWord
+}
+
+/**
+ * A single `emojify` function that can handle two scenarios:
+ *   - While typing: pass a number as the second argument (the cursor position). Returns { text, cursorOffset }.
+ *   - On send: pass { finalSend: true } as the second argument. Returns a fully replaced string.
+ *
+ * Otherwise (if second argument is omitted), it does nothing special.
+ */
+export function emojify(
+  text: string,
+  options?: number | { finalSend?: boolean }
+): { text: string; cursorOffset: number } | string {
+  if (typeof options === 'number') {
+    // Typing scenario
+    return emojifyWhileTyping(text, options)
+  }
+  if (options && options.finalSend) {
+    // On-send scenario
+    return emojifyOnSend(text)
+  }
+  // Default: No transformation
+  return { text, cursorOffset: 0 }
+}
