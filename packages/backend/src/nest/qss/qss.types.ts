@@ -1,4 +1,4 @@
-import { Keyset } from '@localfirst/auth'
+import { Keyset } from '3rd-party/auth/packages/auth/dist'
 import { CompoundError } from '@quiet/types'
 
 /**
@@ -9,6 +9,8 @@ export enum WebsocketEvents {
   CreateCommunity = 'create-community',
   UpdateCommunity = 'update-community',
   GetCommunity = 'get-community',
+  AuthSync = 'auth-sync',
+  GeneratePublicKeys = 'generate-public-keys',
 }
 
 /**
@@ -103,4 +105,51 @@ export class QSSHandshakeError<T extends Error> extends CompoundError<T> {
   private static _formatMessage(reason: string): string {
     return `Error during handshake: ${reason}`
   }
+}
+
+export enum CommunityOperationStatus {
+  Error = 'error',
+  Success = 'success',
+  Unauthorized = 'unauthorized',
+  NotFound = 'not found',
+}
+
+export interface AuthSyncMessageInnerPayload {
+  teamId: string
+  message: string
+}
+export interface AuthSyncMessagePayload extends BaseStatusPayload<AuthSyncMessageInnerPayload> {
+  status: CommunityOperationStatus
+  reason?: string
+  payload?: AuthSyncMessageInnerPayload
+}
+
+export interface AuthSyncMessage extends BaseWebsocketMessage<AuthSyncMessagePayload> {
+  ts: number
+  payload: AuthSyncMessagePayload
+}
+
+export interface GeneratePublicKeysMessagePayload {
+  teamId: string
+}
+
+export interface GeneratePublicKeysMessage {
+  ts: number
+  payload: GeneratePublicKeysMessagePayload
+}
+
+export interface GeneratePublicKeysResponseInnerPayload {
+  teamId: string
+  keys: Keyset
+}
+
+export interface GeneratePublicKeysResponsePayload extends BaseStatusPayload<GeneratePublicKeysResponseInnerPayload> {
+  status: CommunityOperationStatus
+  reason?: string
+  payload?: GeneratePublicKeysResponseInnerPayload
+}
+
+export interface GeneratePublicKeysResponse extends BaseWebsocketMessage<GeneratePublicKeysResponsePayload> {
+  ts: number
+  payload: GeneratePublicKeysResponsePayload
 }

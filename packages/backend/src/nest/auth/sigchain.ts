@@ -2,7 +2,7 @@
  * Handles generating the chain and aggregating all chain operations
  */
 
-import * as auth from '@localfirst/auth'
+import * as auth from '../../../../../3rd-party/auth/packages/auth/dist'
 import { UserService } from './services/members/user.service'
 import { RoleService } from './services/roles/role.service'
 import { DeviceService } from './services/members/device.service'
