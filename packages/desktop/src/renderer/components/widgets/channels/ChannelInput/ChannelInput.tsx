@@ -403,7 +403,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     inputStateRef.current = inputState
   })
 
-  // State to track dropdown position
+  // State to track emoji autocomplete dropdown position
   const [dropdownPosition, setDropdownPosition] = React.useState({ top: 0, left: 0, width: 0 })
 
   // Update dropdown position whenever suggestions change or textarea size changes
@@ -480,12 +480,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           // Accept this input for additional lines in the message box
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
-          // On send, convert the last word fully
+          // On send, replace any remaining emoji shortcodes with actual emojis
           const messageWithEmojis = emojify(target.value, { finalSend: true }) as string
           onChange(messageWithEmojis)
           onKeyPress(messageWithEmojis)
           setMessage('')
           // Reset any state needed for emoji handling
+          setEmojiSuggestions([])
           target.style.height = ''
         } else {
           e.preventDefault()
