@@ -162,7 +162,7 @@ describe('Scroll behavior test', () => {
     it('should display the correct date text', () => {
       cy.get(channelContent)
       cy.get(messageInput).focus().type('{pageup}')
-      cy.get(floatingDateSelector).should('be.visible').invoke('text').should('contain', '28 Oct')
+      cy.get(floatingDateSelector).should('be.visible').invoke('text').should('eq', 'Oct 28, 2023')
     })
 
     // TODO: Write a test to confirm that sending a message does not make the floating date appear. I had problems getting Cypress to see the floating date after sending a message, so writing a meaningful test is difficult.

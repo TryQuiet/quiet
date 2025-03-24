@@ -7,8 +7,6 @@ jobs:
   regression-tests:
     timeout-minutes: 25
     runs-on: ${{ matrix.os }}
-    env:
-      TZ: EST  # Set timezone for consistent date/time display in tests
 
     strategy:
       matrix:
@@ -57,8 +55,6 @@ jobs:
           command: npm run cypress:run:ci
           working-directory: packages/desktop
           cache-key: os-${{ runner.os }}-hash-${{ hashFiles('package-lock.json') }}
-        env:
-          TZ: UTC  # Ensure Cypress tests run with UTC timezone
 
       - name: Archive test screenshots # we are no longer using cypress snapshots so this can be removed/ignored
         if: steps.filter.outputs.desktop == 'true'
