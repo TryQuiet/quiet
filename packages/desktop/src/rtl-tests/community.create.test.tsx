@@ -6,6 +6,8 @@ import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
   ResponseLaunchCommunityPayload,
+  ResponseCreateCommunityPayload,
+  CommunityOwnership,
 } from '@quiet/types'
 import { screen } from '@testing-library/dom'
 import '@testing-library/jest-dom/extend-expect'
@@ -25,6 +27,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { ioMock } from '../shared/setupTests'
+import { identity } from 'lodash'
 
 jest.setTimeout(20_000)
 
@@ -85,8 +88,30 @@ describe('User', () => {
             },
           ],
         })
-
-        return { id: payload.id, ownerCertificate: 'cert' }
+        return {
+          id: payload.id,
+          community: {
+            id: payload.id,
+            name: 'community',
+            ownership: CommunityOwnership.Owner,
+          },
+          identity: {
+            communityId: payload.id,
+            userId: 'alice123',
+            nickname: 'alice',
+            networkInfo: {
+              hiddenService: {
+                onionAddress: 'onionAddress',
+                privateKey: 'privateKey',
+              },
+              peerId: {
+                id: 'id',
+                privKey: 'privKey',
+                noiseKey: 'noiseKey',
+              },
+            },
+          },
+        } as ResponseCreateCommunityPayload
       }
     }
 
@@ -139,22 +164,20 @@ describe('User', () => {
     expect(channelPage).toBeVisible()
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/createNetwork",
+        "Communities/createCommunity",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
-        "Identity/updateIdentity",
-        "Communities/createCommunity",
+        "Identity/setUsername",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "PublicChannels/channelsReplicated",
         "Communities/updateCommunityData",
         "PublicChannels/addChannel",
-        "Identity/storeUserCertificate",
+        "Identity/addNewIdentity",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",

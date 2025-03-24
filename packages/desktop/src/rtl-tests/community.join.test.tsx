@@ -31,6 +31,9 @@ import {
   InitCommunityPayload,
   ErrorCodes,
   ErrorMessages,
+  ResponseJoinCommunityPayload,
+  CommunityOwnership,
+  JoinCommunityPayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -96,9 +99,6 @@ describe('User', () => {
       switch (action) {
         case SocketActionTypes.JOIN_COMMUNITY:
           const payload = input[1] as InitCommunityPayload
-          socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-            id: payload.id,
-          })
           socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
             channels: [
               {
@@ -113,23 +113,30 @@ describe('User', () => {
           socket.socketClient.emit<ChannelSubscribedPayload>(SocketActionTypes.CHANNEL_SUBSCRIBED, {
             channelId: 'general',
           })
-          if (currentIdentity) {
-            socket.socketClient.emit<Identity>(SocketActionTypes.IDENTITY_STORED, {
-              ...currentIdentity,
+          return {
+            id: payload.id,
+            community: {
+              id: payload.id,
+              name: 'community',
+              ownership: CommunityOwnership.User,
+            },
+            identity: {
+              communityId: payload.id,
+              userId: 'alice123',
               nickname: 'alice',
-              userId: 'alice12234',
-            })
-          }
-          // socket.socketClient.emit<UserProfilesStoredEvent>(SocketActionTypes.USER_PROFILES_STORED, {
-          //   profiles: [
-          //     {
-          //       userId: 'alice12234',
-          //       profile: {
-          //         nickname: 'alice',
-          //       },
-          //     },
-          //   ],
-          // })
+              networkInfo: {
+                hiddenService: {
+                  onionAddress: 'onionAddress',
+                  privateKey: 'privateKey',
+                },
+                peerId: {
+                  id: 'id',
+                  privKey: 'privKey',
+                  noiseKey: 'noiseKey',
+                },
+              },
+            },
+          } as ResponseJoinCommunityPayload
           break
         default:
           throw new Error(`Unexpected action: ${action}`)
