@@ -1,4 +1,4 @@
-import { Server, Team, Connection as AuthConnection } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { Server, Team, Connection as AuthConnection, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import {
   ConnectionParams as AuthConnectionParams,
   InviteeContext,
@@ -14,6 +14,7 @@ import * as uint8arrays from 'uint8arrays'
 import {
   AuthSyncMessage,
   CommunityOperationStatus,
+  CommunitySignInMessage,
   CreateCommunity,
   CreateCommunityResponse,
   CreateCommunityStatus,
@@ -25,6 +26,7 @@ import { DateTime } from 'luxon'
 import * as url from 'node:url'
 import { SigChainService } from '../auth/sigchain.service'
 import { createWinstonQuietLogger } from '@quiet/node-common'
+import { RoleName } from '../auth/services/roles/roles'
 
 @Injectable()
 export class QSSService {
@@ -55,7 +57,7 @@ export class QSSService {
     }
   }
 
-  public async createCommunity(community: Community, sigChain: SigChain) {
+  public async createCommunity(community: Community, sigChain: SigChain): Promise<boolean> {
     if (!this._qssInitialized()) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
@@ -88,7 +90,7 @@ export class QSSService {
         `Failed to generate server keys!`,
         generateKeysResponse?.payload.reason ?? 'Response was nullish'
       )
-      return undefined
+      return false
     }
 
     const lfaServer: Server = {
@@ -127,18 +129,51 @@ export class QSSService {
         `Failed to create a community!`,
         createCommunityResponse?.payload.reason ?? 'Response was nullish'
       )
-      return undefined
+      return false
     }
 
-    this.startAuthConnection(sigChain)
+    this.startAuthConnection(sigChain.team.id, sigChain)
+    return true
   }
 
-  public async startAuthConnection(sigChain: SigChain): Promise<void> {
-    this.logger.info(`Starting auth connection with QSS for syncing`)
-
-    if (sigChain.team == null) {
-      throw new Error(`Team was nullish!`)
+  public async signInToCommunity(teamId: string, sigChain: SigChain): Promise<void> {
+    if (!this._qssInitialized()) {
+      this.logger.trace(`Can't sign in to community on QSS because QSS is not initialized`)
+      return
     }
+
+    this.logger.info(`Signing in to community`, teamId)
+    const qssSignInMessage: CommunitySignInMessage = {
+      ts: DateTime.utc().toMillis(),
+      payload: {
+        status: CommunityOperationStatus.Success,
+        payload: {
+          teamId,
+        },
+      },
+    }
+    const signInResponse = await this.qssClient.sendMessage<CommunitySignInMessage>(
+      WebsocketEvents.SignInCommunity,
+      qssSignInMessage,
+      true
+    )
+
+    if (signInResponse == null) {
+      throw new Error(`Error while signing in to community ${teamId} - Nullish response from QSS`)
+    }
+
+    if (signInResponse.payload.status !== CommunityOperationStatus.Success) {
+      throw new Error(
+        `Error while signing in to community ${teamId} - ${signInResponse.payload.status}: ${signInResponse.payload.reason ?? `Unknown QSS Error`}`
+      )
+    }
+
+    this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
+    await this.startAuthConnection(teamId, sigChain)
+  }
+
+  private async startAuthConnection(teamId: string, sigChain: SigChain): Promise<void> {
+    this.logger.info(`Starting auth connection with QSS for syncing`)
 
     // Create an auth connection using an ephemeral sendMessage callback.
     const authConnection = new AuthConnection({
@@ -149,7 +184,7 @@ export class QSSService {
           payload: {
             status: CommunityOperationStatus.Success,
             payload: {
-              teamId: sigChain.team!.id,
+              teamId,
               message: uint8arrays.toString(message, 'base64'),
             },
           },

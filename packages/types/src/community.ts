@@ -20,6 +20,8 @@ export interface Community {
   psk?: string
   inviteData?: InvitationData | null
   ownerOrbitDbIdentity?: string
+  teamId?: string
+  qssEnabled?: boolean
 }
 
 export interface CommunityMetadata {

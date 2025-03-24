@@ -9,8 +9,9 @@ export type InvitationPair = {
 }
 
 export enum InvitationDataVersion {
-  v1 = 'v1',
-  v2 = 'v2',
+  v1 = 'v1', // classic non-LFA invites
+  v2 = 'v2', // LFA invites
+  v3 = 'v3', // LFA + QSS invites
 }
 
 export type InvitationDataP2P = {
@@ -26,6 +27,7 @@ export type InvitationDataV1 = InvitationDataP2P & {
 export type InvitationAuthData = {
   communityName: string
   seed: string
+  teamId?: string
 }
 
 export type InvitationDataV2 = InvitationDataP2P & {
@@ -33,7 +35,13 @@ export type InvitationDataV2 = InvitationDataP2P & {
   authData: InvitationAuthData
 }
 
-export type InvitationData = InvitationDataV1 | InvitationDataV2
+export type InvitationDataV3 = InvitationDataP2P & {
+  version: InvitationDataVersion.v3
+  authData: InvitationAuthData
+  qssEnabled: boolean
+}
+
+export type InvitationData = InvitationDataV1 | InvitationDataV2 | InvitationDataV3
 
 /**
  * Validation types

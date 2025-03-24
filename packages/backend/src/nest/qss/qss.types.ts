@@ -11,6 +11,7 @@ export enum WebsocketEvents {
   GetCommunity = 'get-community',
   AuthSync = 'auth-sync',
   GeneratePublicKeys = 'generate-public-keys',
+  SignInCommunity = 'sign-in-community',
 }
 
 /**
@@ -152,4 +153,19 @@ export interface GeneratePublicKeysResponsePayload extends BaseStatusPayload<Gen
 export interface GeneratePublicKeysResponse extends BaseWebsocketMessage<GeneratePublicKeysResponsePayload> {
   ts: number
   payload: GeneratePublicKeysResponsePayload
+}
+
+export interface CommunitySignInInnerPayload {
+  teamId: string
+}
+
+export interface CommunitySignInPayload extends BaseStatusPayload<CommunitySignInInnerPayload> {
+  status: CommunityOperationStatus
+  reason?: string
+  payload?: CommunitySignInInnerPayload
+}
+
+export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {
+  ts: number
+  payload: CommunitySignInPayload
 }

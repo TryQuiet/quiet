@@ -225,6 +225,35 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
+    const identity = await this.storageService.getIdentity(community.id)
+    if (!identity) {
+      this.logger.warn('No identity found in storage')
+      return
+    }
+
+    if (community.name) {
+      try {
+        this.logger.info('Loading sigchain for community', community.name)
+        const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
+        const connected = await this.qssService.connect()
+        if (connected) {
+          await this.qssService.signInToCommunity(loadedSigchain.team!.id, loadedSigchain)
+        }
+      } catch (e) {
+        this.logger.warn('Failed to load sigchain', e)
+      }
+    } else {
+      this.logger.warn('No community name found in storage')
+    }
+
+    const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
+    this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
+    if (sortedPeers.length > 0) {
+      community.peerList = sortedPeers
+    }
+    await this.localDbService.setCommunity(community)
+
+    this.logger.info('Launching community from storage with peers', community.peerList)
     await this.launchCommunity(community)
   }
 
@@ -443,9 +472,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const sigchain = await this.sigChainService.createChain(community.name, identity.nickname, true)
 
     const connected = await this.qssService.connect()
+    let qssEnabled: boolean = false
     if (connected) {
-      await this.qssService.createCommunity(community, sigchain)
+      qssEnabled = await this.qssService.createCommunity(community, sigchain)
     }
+
+    await this.localDbService.setCommunity({
+      ...community,
+      teamId: sigchain.team!.id,
+      qssEnabled,
+    })
 
     await this.launchCommunity(community)
 
@@ -479,9 +515,28 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
     let communityName: string | undefined
-    if (inviteData && inviteData?.version == InvitationDataVersion.v2) {
+    if (
+      inviteData &&
+      (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
+    ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
-      this.sigChainService.createChainFromInvite(payload.username, communityName, inviteData.authData.seed, true)
+      const joiningSigchain = await this.sigChainService.createChainFromInvite(
+        identity.nickname,
+        communityName,
+        inviteData.authData.seed,
+        true
+      )
+
+      if (
+        inviteData.version === InvitationDataVersion.v3 &&
+        inviteData.qssEnabled &&
+        inviteData.authData.teamId != null
+      ) {
+        const connected = await this.qssService.connect()
+        if (connected) {
+          await this.qssService.signInToCommunity(inviteData.authData.teamId, joiningSigchain)
+        }
+      }
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {

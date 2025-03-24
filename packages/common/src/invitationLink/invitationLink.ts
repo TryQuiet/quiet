@@ -1,4 +1,11 @@
-import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersion, InvitationPair } from '@quiet/types'
+import {
+  InvitationData,
+  InvitationDataV1,
+  InvitationDataV2,
+  InvitationDataV3,
+  InvitationDataVersion,
+  InvitationPair,
+} from '@quiet/types'
 import { QUIET_JOIN_PAGE } from '../const'
 import {
   AUTH_DATA_KEY,
@@ -7,6 +14,7 @@ import {
   OWNER_ORBIT_DB_IDENTITY_PARAM_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
+  QSS_ENABLED_KEY,
 } from './invitationLink.const'
 import {
   encodeAuthData,
@@ -14,6 +22,7 @@ import {
   PARAM_CONFIG_V2,
   validatePeerData,
   parseAndValidateUrlParams,
+  PARAM_CONFIG_V3,
 } from './invitationLink.validator'
 import { createLibp2pAddress } from '../libp2p'
 import { createLogger } from '../logger'
@@ -34,10 +43,25 @@ interface ParseDeepUrlParams {
  */
 const parseLinkV2 = (url: string): InvitationDataV2 => {
   /**
-   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string
-   * (decodes to `?c=<community name>&s=<base58 LFA invitation seed>`)
+   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>
+   * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>`)
    */
   return parseAndValidateUrlParams(url, PARAM_CONFIG_V2)
+}
+
+/**
+ * Parse and validate the URL parameters on a given V3 (LFA + QSS) invite link URL
+ *
+ * @param url V3 invite link URL to validate parameters on
+ *
+ * @returns {InvitationDataV3} Parsed V3 parameters
+ */
+const parseLinkV3 = (url: string): InvitationDataV3 => {
+  /**
+   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>&a=<base64url-encoded string>&q=<boolean, is QSS enabled>
+   * (`a` decodes to `?c=<community name>&s=<base58 LFA invitation seed>&t=<base58 LFA team ID>`)
+   */
+  return parseAndValidateUrlParams(url, PARAM_CONFIG_V3)
 }
 
 /**
@@ -87,15 +111,17 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
 
   const psk = params.get(PSK_PARAM_KEY)
   const authData = params.get(AUTH_DATA_KEY)
+  const qssEnabled = params.get(QSS_ENABLED_KEY)
   if (!psk) throw new Error(`Invitation link does not match either v1 or v2 format '${url}'`)
 
   let data: InvitationData | null = null
   if (psk != null && authData == null) {
     logger.info('Parsing v1 invitation link')
     data = parseLinkV1(_url)
-  } else if (psk != null && authData != null) {
-    logger.info('Parsing v2 invitation link')
+  } else if (psk != null && authData != null && qssEnabled == null) {
     data = parseLinkV2(_url)
+  } else if (psk != null && authData != null && qssEnabled != null) {
+    data = parseLinkV3(_url)
   }
 
   if (!data) throw new Error(`Could not parse invitation data from deep url '${url}'`)
@@ -225,7 +251,10 @@ export const peerPairsToUrlParamString = (pairs: InvitationPair[]): string => {
  *
  * @returns {string} Complete invite link URL
  */
-const composeInvitationUrl = (baseUrl: string, data: InvitationDataV1 | InvitationDataV2): string => {
+const composeInvitationUrl = (
+  baseUrl: string,
+  data: InvitationDataV1 | InvitationDataV2 | InvitationDataV3
+): string => {
   const url = new URL(baseUrl)
 
   switch (data.version) {
@@ -239,6 +268,12 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationDataV1 | Invitati
       url.searchParams.append(PSK_PARAM_KEY, data.psk)
       url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
       break
+    case InvitationDataVersion.v3:
+      url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs))
+      url.searchParams.append(PSK_PARAM_KEY, data.psk)
+      url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
+      url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
+      url.searchParams.append(QSS_ENABLED_KEY, `${data.qssEnabled}`)
   }
   return url.href
 }
@@ -262,6 +297,7 @@ export const argvInvitationLink = (argv: string[]): InvitationData | null => {
     switch (invitationData.version) {
       case InvitationDataVersion.v1:
       case InvitationDataVersion.v2:
+      case InvitationDataVersion.v3:
         if (invitationData.pairs.length > 0) {
           break
         } else {

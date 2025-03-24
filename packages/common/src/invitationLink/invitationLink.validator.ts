@@ -3,6 +3,7 @@ import {
   InvitationData,
   InvitationDataV1,
   InvitationDataV2,
+  InvitationDataV3,
   InvitationDataVersion,
   InvitationLinkUrlNamedParamConfig,
   InvitationLinkUrlNamedParamConfigMap,
@@ -20,6 +21,8 @@ import {
   OWNER_ORBIT_DB_IDENTITY_PARAM_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
+  QSS_ENABLED_KEY,
+  TEAM_ID_KEY,
 } from './invitationLink.const'
 import { isPSKcodeValid } from '../libp2p'
 import { createLogger } from '../logger'
@@ -34,6 +37,7 @@ const PEER_ID_REGEX = /^(?:[A-Za-z0-9]{46}|[A-Za-z0-9]{52})$/
 const INVITATION_SEED_REGEX = /^[a-zA-Z0-9]{16}$/g
 const COMMUNITY_NAME_REGEX = /^[-a-zA-Z0-9 ]+$/g
 const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
+const BASE58_REGEX = /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$/
 
 /**
  * Helper Error class for generating validation errors in a standard format
@@ -63,7 +67,10 @@ export class UrlParamValidatorError extends Error {
  * @returns {string} Base64url-encoded string
  */
 export const encodeAuthData = (authData: InvitationAuthData): string => {
-  const encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
+  let encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
+  if (authData.teamId) {
+    encodedAuthData = `${encodedAuthData}&t=${authData.teamId}`
+  }
   return base64url.encode(Buffer.from(encodedAuthData, 'utf8'))
 }
 
@@ -235,6 +242,36 @@ const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationD
 }
 
 /**
+ * Validate the QSS enabled flag
+ *
+ * Example:
+ *
+ * "true"
+ *
+ * =>
+ *
+ * {
+ *  "qssEnabled": true
+ * }
+ *
+ * @param value QSS enabled flag value
+ *
+ * @returns {Partial<InvitationData>} The processed QSS enabled flag represented as a partial InvitationData object
+ */
+const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
+  value: string
+): Partial<InvitationDataV3> => {
+  if (value !== 'true' && value !== 'false') {
+    logger.warn(`QSS enabled flag must be set to either 'true' or 'false'`)
+    throw new UrlParamValidatorError(QSS_ENABLED_KEY, value)
+  }
+
+  return {
+    qssEnabled: value === 'true',
+  }
+}
+
+/**
  * Parse and validate the provided auth data string
  *
  * Example:
@@ -326,6 +363,38 @@ const validateCommunityName: InvitationLinkUrlNamedParamValidatorFun<InvitationA
 }
 
 /**
+ * **** NESTED VALIDATOR ****
+ *
+ * Parse and validate the provided team ID string
+ *
+ * Example:
+ *
+ * 3jCPyeaWFmjcbFtv
+ *
+ * =>
+ *
+ * {
+ *   "teamId": "3jCPyeaWFmjcbFtv"
+ * }
+ *
+ * @param value Nested team ID string pulled from the decoded auth data string
+ * @param processor Optional post-processor to run the validated value through
+ *
+ * @returns {Partial<InvitationAuthData>} The processed team ID represented as a partial InvitationAuthData object
+ */
+const validateTeamId: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData> = (
+  value: string
+): Partial<InvitationAuthData> => {
+  if (value.match(BASE58_REGEX) == null) {
+    logger.warn(`Team ID ${value} is not valid base58`)
+    throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${TEAM_ID_KEY}`, value)
+  }
+  return {
+    teamId: value,
+  }
+}
+
+/**
  * URL param validation config for V1 (non-LFA) invite links
  */
 export const PARAM_CONFIG_V1: VersionedInvitationLinkUrlParamConfig<InvitationDataV1> = {
@@ -377,6 +446,56 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
               [INVITATION_SEED_KEY]: {
                 required: true,
                 validator: validateInvitationSeed,
+              },
+            })
+          ),
+        },
+      },
+    })
+  ),
+}
+
+/**
+ * URL param validation config for V3 (LFA + QSS) invite links
+ */
+export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDataV3> = {
+  version: InvitationDataVersion.v3,
+  named: new Map(
+    Object.entries({
+      [PSK_PARAM_KEY]: {
+        required: true,
+        validator: validatePsk,
+      },
+      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY]: {
+        required: true,
+        validator: validateOwnerOrbitDbIdentity,
+      },
+      [PEER_ADDRESS_KEY]: {
+        required: false,
+        validator: validatePeerAddresses,
+      },
+      [QSS_ENABLED_KEY]: {
+        required: true,
+        validator: validateQssEnabled,
+      },
+      [AUTH_DATA_KEY]: {
+        required: true,
+        validator: validateAuthData,
+        nested: {
+          key: AUTH_DATA_OBJECT_KEY,
+          config: new Map(
+            Object.entries({
+              [COMMUNITY_NAME_KEY]: {
+                required: true,
+                validator: validateCommunityName,
+              },
+              [INVITATION_SEED_KEY]: {
+                required: true,
+                validator: validateInvitationSeed,
+              },
+              [TEAM_ID_KEY]: {
+                required: true,
+                validator: validateTeamId,
               },
             })
           ),
