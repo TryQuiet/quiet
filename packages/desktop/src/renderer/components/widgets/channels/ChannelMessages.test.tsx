@@ -80,7 +80,7 @@ describe('ChannelMessages', () => {
               <div>
                 <div
                   aria-label="Messages from Today"
-                  class="MuiGrid-root MuiGrid-container css-14qwnpm-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-aaog9h-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
