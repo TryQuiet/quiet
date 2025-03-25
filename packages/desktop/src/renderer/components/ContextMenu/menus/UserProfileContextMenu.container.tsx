@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from 'react'
+import React, { FC, useRef, useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
@@ -99,6 +99,13 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
  */
 export const UserProfileContextMenu: FC = () => {
   const [route, setRoute] = useState('userProfile')
+  const contextMenu = useContextMenu(MenuName.UserProfile)
+
+  useEffect(() => {
+    if (!contextMenu.visible) {
+      setRoute('userProfile')
+    }
+  }, [contextMenu.visible])
 
   const views: Map<string, JSX.Element> = new Map()
   views.set('userProfile', <UserProfileMenuProfileComponent setRoute={setRoute} />)
