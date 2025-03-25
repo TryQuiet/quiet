@@ -28,6 +28,13 @@ export enum NativeClientWebsocketEvents {
   ReconnectFailed = 'reconnect_failed',
 }
 
+/**
+ * Event emitter events
+ */
+export enum QSSEvents {
+  QSSAuthJoined = 'qssAuthJoined',
+}
+
 export interface BaseWebsocketMessage<T extends object | undefined> {
   ts: number
   payload: T

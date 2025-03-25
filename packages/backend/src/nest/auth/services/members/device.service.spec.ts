@@ -1,6 +1,6 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
-import { DeviceWithSecrets, LocalUserContext } from '3rd-party/auth/packages/auth/dist'
+import { DeviceWithSecrets } from '3rd-party/auth/packages/auth/dist'
 import { RoleName } from '..//roles/roles'
 import { DeviceService } from './device.service'
 

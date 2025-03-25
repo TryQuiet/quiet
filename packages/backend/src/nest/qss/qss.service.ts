@@ -1,4 +1,4 @@
-import { Server, Team, Connection as AuthConnection, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { Server, Connection as AuthConnection } from '../../../../../3rd-party/auth/packages/auth/dist'
 import {
   ConnectionParams as AuthConnectionParams,
   InviteeContext,
@@ -8,7 +8,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
-import { QSS_ENABLED, QSS_ENDPOINT } from '../const'
+import { QSS_ENABLED, QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
 import { QSSClient } from './qss.client'
 import * as uint8arrays from 'uint8arrays'
 import {
@@ -20,25 +20,30 @@ import {
   CreateCommunityStatus,
   GeneratePublicKeysMessage,
   GeneratePublicKeysResponse,
+  QSSEvents,
   WebsocketEvents,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
 import { SigChainService } from '../auth/sigchain.service'
 import { createWinstonQuietLogger } from '@quiet/node-common'
-import { RoleName } from '../auth/services/roles/roles'
+import EventEmitter from 'node:events'
+import { ServerIoProviderTypes } from '../types'
 
 @Injectable()
-export class QSSService {
+export class QSSService extends EventEmitter {
   private readonly logger = createLogger(`qss:service`)
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst')
 
   constructor(
     @Inject(QSS_ENABLED) private readonly qssEnabled: boolean,
     @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string,
+    @Inject(SERVER_IO_PROVIDER) private readonly serverIoProvider: ServerIoProviderTypes,
     private readonly qssClient: QSSClient,
     private readonly sigChainService: SigChainService
-  ) {}
+  ) {
+    super({ captureRejections: true })
+  }
 
   public async connect(): Promise<boolean> {
     if (!this.qssEnabled) {
@@ -243,6 +248,7 @@ export class QSSService {
         sigChain.team = team
       }
       await this.sigChainService.saveChain(team.teamName)
+      this.emit(QSSEvents.QSSAuthJoined) // tell the connection manager that we've joined via QSS
     })
 
     authConnection.on('change', payload => {

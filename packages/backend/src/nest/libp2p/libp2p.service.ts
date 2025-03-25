@@ -45,6 +45,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { LocalDbService } from '../local-db/local-db.service'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
+import { QSSService } from '../qss/qss.service'
 
 const CONNECTION_LIMIT = 20
 const KEY_LENGTH = 32
@@ -65,10 +66,10 @@ export class Libp2pService extends EventEmitter {
   private logger = createLogger(Libp2pService.name)
 
   constructor(
-    @Inject(SERVER_IO_PROVIDER) private readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(LIBP2P_DB_PATH) private readonly datastorePath: string,
-    private sigchainService: SigChainService,
-    private localDbService: LocalDbService
+    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
+    @Inject(LIBP2P_DB_PATH) public readonly datastorePath: string,
+    private readonly sigchainService: SigChainService,
+    private readonly qssService: QSSService
   ) {
     super()
 
@@ -452,7 +453,7 @@ export class Libp2pService extends EventEmitter {
           faultTolerance: FaultTolerance.NO_FATAL,
         },
         services: {
-          auth: libp2pAuth(this.sigchainService, this),
+          auth: libp2pAuth(this.sigchainService, this.qssService, this),
           ping: ping({ timeout: 30_000 }),
           pubsub: gossipsub({
             // neccessary to run a single peer
