@@ -29,8 +29,14 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     For example, on macOS with Android Studio installed in the default location,
     Add the following line to your `~/.bash_profile` or `~/.zprofile` file,
 
+    Mac:
     ```bash
-    export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+    export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" 
+    ``` 
+
+    Linux:
+    ```bash
+    export JAVA_HOME="/opt/android-studio/jbr"
     ```
 
 ### Local development
