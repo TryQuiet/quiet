@@ -18,7 +18,6 @@ export class ServerService extends ChainServiceBase {
     }
 
     this.sigChain.team.addServer(server)
-    this.sigChain.team.addMemberRole(castServer.toMember(server), RoleName.MEMBER)
     logger.info(`Server added to the chain`)
   }
 }
