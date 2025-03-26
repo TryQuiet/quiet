@@ -1,5 +1,14 @@
 import React, { FC, useRef, useState, useEffect, useCallback } from 'react'
-import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import {
+  Keyboard,
+  View,
+  FlatList,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Loading } from '../Loading/Loading.component'
@@ -45,8 +54,10 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string>('')
+  const [currentVisibleDate, setCurrentVisibleDate] = useState<string | null>(null)
 
   const messageInputRef = useRef<null | TextInput>(null)
+  const flatListRef = useRef<FlatList>(null)
 
   const insets = useSafeAreaInsets()
 
@@ -84,6 +95,14 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       hideSubscription.remove()
     }
   }, [messageInput?.length, setKeyboardShow])
+
+  // Initialize the current visible date when messages load
+  useEffect(() => {
+    if (Object.keys(messages.groups).length > 0) {
+      const firstDateKey = Object.keys(messages.groups).reverse()[0]
+      setCurrentVisibleDate(firstDateKey)
+    }
+  }, [messages.groups])
 
   const onInputTextChange = (value: string) => {
     setMessageInput(value)
@@ -152,25 +171,78 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           <Loading title={'Loading messages'} caption={'Chat will become available shortly'} />
         ) : (
           <>
-            <FlatList
-              // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
-              // https://github.com/facebook/react-native/issues/30034
-              style={{
-                transform: [{ rotate: '180deg' }],
-                paddingLeft: defaultPadding,
-                paddingRight: defaultPadding,
-              }}
-              data={Object.keys(messages.groups).reverse()}
-              keyExtractor={item => item}
-              renderItem={item => {
-                return <View style={{ transform: [{ rotate: '180deg' }] }}>{renderItem(item)}</View>
-              }}
-              onEndReached={() => {
-                loadMessagesAction(true)
-              }}
-              onEndReachedThreshold={0.7}
-              showsVerticalScrollIndicator={false}
-            />
+            <View style={{ flex: 1 }}>
+              {currentVisibleDate && <MessagesDivider title={currentVisibleDate} isSticky />}
+              <FlatList
+                ref={flatListRef}
+                // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
+                // https://github.com/facebook/react-native/issues/30034
+                style={{
+                  transform: [{ rotate: '180deg' }],
+                  paddingLeft: defaultPadding,
+                  paddingRight: defaultPadding,
+                }}
+                data={Object.keys(messages.groups).reverse()}
+                keyExtractor={item => item}
+                renderItem={item => {
+                  return <View style={{ transform: [{ rotate: '180deg' }] }}>{renderItem(item)}</View>
+                }}
+                onEndReached={() => {
+                  loadMessagesAction(true)
+                }}
+                onEndReachedThreshold={0.7}
+                showsVerticalScrollIndicator={false}
+                onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                  // We need to determine which date is currently visible
+                  // Logic needs special handling because of the inverted list
+                  const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent
+
+                  if (Object.keys(messages.groups).length > 0) {
+                    const dateKeys = Object.keys(messages.groups).reverse()
+
+                    // Calculate visible percentage (0 at top, 1 at bottom)
+                    const scrollPercentage = contentOffset.y / (contentSize.height - layoutMeasurement.height)
+
+                    // Calculate which date should be visible based on scroll position
+                    // This gives a better approximation as it considers the total content height
+                    const visibleItemIndex = Math.min(
+                      Math.floor(scrollPercentage * dateKeys.length),
+                      dateKeys.length - 1
+                    )
+
+                    // Ensure the index is valid and update if needed
+                    if (visibleItemIndex >= 0 && visibleItemIndex < dateKeys.length) {
+                      const newDate = dateKeys[visibleItemIndex]
+                      if (currentVisibleDate !== newDate) {
+                        setCurrentVisibleDate(newDate)
+                      }
+                    }
+                  }
+                }}
+                scrollEventThrottle={16} // Higher frequency updates for smoother tracking
+                onMomentumScrollEnd={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                  // Update date when scrolling momentum ends to ensure we have the correct final position
+                  const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent
+
+                  if (Object.keys(messages.groups).length > 0) {
+                    const dateKeys = Object.keys(messages.groups).reverse()
+
+                    // Calculate visible percentage (0 at top, 1 at bottom)
+                    const scrollPercentage = contentOffset.y / (contentSize.height - layoutMeasurement.height)
+
+                    // Get the date for the current scroll position
+                    const visibleItemIndex = Math.min(
+                      Math.floor(scrollPercentage * dateKeys.length),
+                      dateKeys.length - 1
+                    )
+
+                    if (visibleItemIndex >= 0 && visibleItemIndex < dateKeys.length) {
+                      setCurrentVisibleDate(dateKeys[visibleItemIndex])
+                    }
+                  }
+                }}
+              />
+            </View>
             <View
               style={{
                 flexDirection: 'row',
