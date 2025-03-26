@@ -17,7 +17,6 @@ const PREFIX = 'NestedMessageContent'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
-  info: `${PREFIX}info`,
   noninitial: `${PREFIX}noninitial`,
 }
 
@@ -31,10 +30,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.pending}`]: {
     color: theme.palette.colors.lightGray,
-  },
-
-  [`& .${classes.info}`]: {
-    color: theme.palette.colors.white,
   },
 
   [`& .${classes.noninitial}`]: {

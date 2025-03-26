@@ -142,14 +142,19 @@ describe('ChannelMessages', () => {
                           style="margin-top: -3px;"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item css-11t1yn0-MuiGrid-root"
                           >
-                            <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                            <div
+                              class="NestedMessageContentmessage"
                               data-testid="messagesGroupContent-string"
                             >
-                              string
-                            </span>
+                              <span
+                                class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                                data-testid="messagesGroupContent-string"
+                              >
+                                string
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
