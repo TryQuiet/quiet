@@ -70,11 +70,14 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList>(null)
 
+  // Visibility detection constants
+  const VISIBILITY_THRESHOLD = 0 // Any part of an item visible (0%) counts as "viewable"
+
   // Use a simple viewability configuration - items are either visible or not
   const viewabilityConfig = useRef({
     // The minimum percent of an item that must be visible to count as "viewable"
     // Using 0 means "any part visible at all" - most sensitive setting
-    itemVisiblePercentThreshold: 0,
+    itemVisiblePercentThreshold: VISIBILITY_THRESHOLD,
   }).current
 
   // This callback fires when items enter or exit the viewport
@@ -124,7 +127,11 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const insets = useSafeAreaInsets()
 
-  const defaultPadding = 20
+  // UI constants
+  const DEFAULT_PADDING = 20
+  const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
+  const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
+  const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
 
   const areFilesUploaded = useCallback(() => {
     if (!uploadedFiles) return false
@@ -237,7 +244,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           flexDirection: 'column',
           justifyContent: 'flex-end',
           backgroundColor: defaultTheme.palette.background.white,
-          paddingBottom: defaultPadding,
+          paddingBottom: DEFAULT_PADDING,
         }}
       >
         {messages.count === 0 ? (
@@ -273,8 +280,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 // https://github.com/facebook/react-native/issues/30034
                 style={{
                   transform: [{ rotate: '180deg' }],
-                  paddingLeft: defaultPadding,
-                  paddingRight: defaultPadding,
+                  paddingLeft: DEFAULT_PADDING,
+                  paddingRight: DEFAULT_PADDING,
                 }}
                 data={Object.keys(messages.groups).reverse()}
                 keyExtractor={item => item}
@@ -299,7 +306,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                     setShowShadow(true)
                     Animated.timing(fadeAnim, {
                       toValue: 1,
-                      duration: 100, // Faster fade-in for immediate visibility
+                      duration: DATE_FADE_IN_DURATION,
                       useNativeDriver: true,
                     }).start()
                   }
@@ -315,17 +322,17 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                   // Set a timer to fade out the date marker after scrolling stops
                   scrollTimer.current = setTimeout(() => {
                     isScrolling.current = false
-                    // Fade out content for 200ms after waiting 2000ms (matching desktop)
+                    // Fade out the date marker
                     Animated.timing(fadeAnim, {
                       toValue: 0,
-                      duration: 200,
+                      duration: DATE_FADE_OUT_DURATION,
                       useNativeDriver: true,
                     }).start(() => {
                       setShowShadow(false)
                     })
-                  }, 2000)
+                  }, DATE_VISIBILITY_TIMEOUT)
                 }}
-                scrollEventThrottle={16} // Higher frequency updates for smoother tracking
+                scrollEventThrottle={16} // Updates approx every 16ms (60fps) for smooth animation
                 onMomentumScrollEnd={() => {
                   // Keep the date marker visible briefly after momentum scrolling ends
                   // then fade it out
@@ -336,15 +343,15 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                   // Schedule the fade out
                   scrollTimer.current = setTimeout(() => {
                     isScrolling.current = false
-                    // Fade out content for 200ms after waiting 2000ms (matching desktop)
+                    // Fade out the date marker
                     Animated.timing(fadeAnim, {
                       toValue: 0,
-                      duration: 200,
+                      duration: DATE_FADE_OUT_DURATION,
                       useNativeDriver: true,
                     }).start(() => {
                       setShowShadow(false)
                     })
-                  }, 2000)
+                  }, DATE_VISIBILITY_TIMEOUT)
                 }}
               />
             </View>
@@ -357,8 +364,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               <View
                 style={{
                   width: '100%',
-                  paddingLeft: defaultPadding,
-                  paddingRight: !didKeyboardShow && !areFilesUploaded ? defaultPadding : 0,
+                  paddingLeft: DEFAULT_PADDING,
+                  paddingRight: !didKeyboardShow && !areFilesUploaded ? DEFAULT_PADDING : 0,
                 }}
               >
                 <View
