@@ -7,6 +7,7 @@ import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.co
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
+import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
@@ -247,7 +248,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
 }) => {
   return (
     <View key={day}>
-      {/* <MessagesDivider title={day} /> */}
+      <MessagesDivider title={day} />
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
