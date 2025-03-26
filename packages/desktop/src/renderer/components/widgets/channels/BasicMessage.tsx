@@ -269,6 +269,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   return (
                     <NestedMessageContent
                       key={index}
+                      index={index}
                       message={message}
                       pending={pending}
                       downloadStatus={downloadStatus}
