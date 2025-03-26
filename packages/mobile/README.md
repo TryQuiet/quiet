@@ -41,7 +41,7 @@ The Android app can be built in the provided Docker container or on your local m
 
 #### Running from Android Studio
 
-1. Open Android Studio
+1. Open Android Studio_
     1. If using nvm to manage node versions, you may need to open Android studio from a terminal which has the correct node version set. This is because Android Studio may not be able to find the correct node version if it is not set in the terminal.
     ```
     nvm install 18.20.4
@@ -277,7 +277,7 @@ Altough if you plan to modify the native code, Android Studio is recommended as 
 ### When to rebuild the project?
 
 Both Android and iOS manages their own dependencies with the help of `gradle` (Android) and `cocoapods` (iOS). They work similar to `npm`.
-Whenewer there're changes to the dependencies in the native projects (`build.gradle` or `podfile`) there's a need to sync gradle files (it's fairly easy to do with Android Studio) or to run `pod install` command from the `/ios` directory. It doesn't happen very often but may be a case while attaching react-native modules getting use of the native methods (eg. for file management).
+Whenever there're changes to the dependencies in the native projects (`build.gradle` or `podfile`) there's a need to sync gradle files (it's fairly easy to do with Android Studio) or to run `pod install` command from the `/ios` directory. It doesn't happen very often but may be a case while attaching react-native modules getting use of the native methods (eg. for file management).
 
 If changes are made to the native part of the project (java, kotlin, objc or swift) it's neccessary to rebuild the project (`npm run android`, `npm run ios`)
 
