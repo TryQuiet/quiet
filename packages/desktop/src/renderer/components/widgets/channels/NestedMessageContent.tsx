@@ -34,7 +34,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.noninitial}`]: {
-    marginTop: '7px',
+    marginTop: '10px',
   },
 }))
 

@@ -160,7 +160,7 @@ describe('ChannelMessages', () => {
                           style="margin-top: -3px;"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-11t1yn0-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item css-rd9nxo-MuiGrid-root"
                           >
                             <div
                               class="NestedMessageContentmessage"
