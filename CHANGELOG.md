@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## New Features
+
+* Adds date dividers and a sticky date marker on mobile, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
+
 ## [4.0.3]
 
 ### New features
