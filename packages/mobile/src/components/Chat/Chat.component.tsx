@@ -8,6 +8,7 @@ import {
   Platform,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  Animated,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -17,6 +18,10 @@ import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
+import {
+  formatMessageDisplayDay,
+  formatMessageTime,
+} from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
@@ -55,6 +60,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleDate, setCurrentVisibleDate] = useState<string | null>(null)
+
+  // Animation value for date marker fade effect
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const [showShadow, setShowShadow] = useState(false)
+  const isScrolling = useRef(false)
+  const scrollTimer = useRef<NodeJS.Timeout | null>(null)
 
   const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList>(null)
@@ -96,13 +107,23 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     }
   }, [messageInput?.length, setKeyboardShow])
 
-  // Initialize the current visible date when messages load
+  // Initialize the current visible date when messages load, but don't show it
   useEffect(() => {
     if (Object.keys(messages.groups).length > 0) {
       const firstDateKey = Object.keys(messages.groups).reverse()[0]
       setCurrentVisibleDate(firstDateKey)
+      // Don't show the date marker initially - only show when scrolling
     }
   }, [messages.groups])
+
+  // Clean up any timers when component unmounts
+  useEffect(() => {
+    return () => {
+      if (scrollTimer.current) {
+        clearTimeout(scrollTimer.current)
+      }
+    }
+  }, [])
 
   const onInputTextChange = (value: string) => {
     setMessageInput(value)
@@ -172,7 +193,28 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         ) : (
           <>
             <View style={{ flex: 1 }}>
-              {currentVisibleDate && <MessagesDivider title={currentVisibleDate} isSticky />}
+              {currentVisibleDate && (
+                <Animated.View
+                  style={{
+                    opacity: fadeAnim,
+                    position: 'absolute',
+                    zIndex: 20,
+                    width: '100%',
+                    backgroundColor: 'white',
+                    ...(showShadow
+                      ? {
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          elevation: 5,
+                        }
+                      : {}),
+                  }}
+                >
+                  <MessagesDivider title={currentVisibleDate} isSticky />
+                </Animated.View>
+              )}
               <FlatList
                 ref={flatListRef}
                 // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
@@ -193,6 +235,36 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 onEndReachedThreshold={0.7}
                 showsVerticalScrollIndicator={false}
                 onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                  // Show the date marker when scrolling starts
+                  if (!isScrolling.current) {
+                    isScrolling.current = true
+                    // Immediately show the date marker with shadow
+                    setShowShadow(true)
+                    Animated.timing(fadeAnim, {
+                      toValue: 1,
+                      duration: 100, // Faster fade-in for immediate visibility
+                      useNativeDriver: true,
+                    }).start()
+                  }
+
+                  // Reset the scroll timer
+                  if (scrollTimer.current) {
+                    clearTimeout(scrollTimer.current)
+                  }
+
+                  // Set a timer to fade out the date marker after scrolling stops
+                  scrollTimer.current = setTimeout(() => {
+                    isScrolling.current = false
+                    // Fade out content for 200ms after waiting 2000ms (matching desktop)
+                    Animated.timing(fadeAnim, {
+                      toValue: 0,
+                      duration: 200,
+                      useNativeDriver: true,
+                    }).start(() => {
+                      setShowShadow(false)
+                    })
+                  }, 2000)
+
                   // We need to determine which date is currently visible
                   // Logic needs special handling because of the inverted list
                   const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent
@@ -240,6 +312,25 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                       setCurrentVisibleDate(dateKeys[visibleItemIndex])
                     }
                   }
+
+                  // Keep the date marker visible briefly after momentum scrolling ends
+                  // then fade it out
+                  if (scrollTimer.current) {
+                    clearTimeout(scrollTimer.current)
+                  }
+
+                  // Schedule the fade out
+                  scrollTimer.current = setTimeout(() => {
+                    isScrolling.current = false
+                    // Fade out content for 200ms after waiting 2000ms (matching desktop)
+                    Animated.timing(fadeAnim, {
+                      toValue: 0,
+                      duration: 200,
+                      useNativeDriver: true,
+                    }).start(() => {
+                      setShowShadow(false)
+                    })
+                  }, 2000)
                 }}
               />
             </View>
@@ -318,10 +409,21 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
+  // Format messages to show only time (without date)
+  const formattedMessages = messages.map(group =>
+    group.map(msg => ({
+      ...msg,
+      // Extract only the time component from the date
+      // For raw timestamp messages, format as time only
+      // For pre-formatted strings, keep as is (mobile app compatibility)
+      date: msg.createdAt ? formatMessageTime(msg.createdAt) : msg.date,
+    }))
+  )
+
   return (
     <View key={day}>
       <MessagesDivider title={day} />
-      {messages.map(data => {
+      {formattedMessages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
         return (

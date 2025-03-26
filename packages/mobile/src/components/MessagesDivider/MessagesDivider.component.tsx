@@ -39,11 +39,6 @@ const styles = StyleSheet.create({
   stickyPillContainer: {
     backgroundColor: '#FFFFFF',
     borderColor: '#EEEEEE',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 2,
   },
   title: {
     color: '#000000',
