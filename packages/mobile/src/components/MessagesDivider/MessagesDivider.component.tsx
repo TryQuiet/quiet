@@ -6,11 +6,9 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 export const MessagesDivider: FC<MessagesDividerProps> = ({ title }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.line} />
-      <View style={styles.titleContainer}>
+      <View style={styles.pillContainer}>
         <Text style={styles.title}>{title}</Text>
       </View>
-      <View style={styles.line} />
     </View>
   )
 }
@@ -18,19 +16,23 @@ export const MessagesDivider: FC<MessagesDividerProps> = ({ title }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 10,
   },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: defaultTheme.palette.input.border,
-  },
-  titleContainer: {
-    paddingHorizontal: 12,
+  pillContainer: {
+    paddingHorizontal: 18,
+    paddingVertical: 5,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    borderRadius: 72,
   },
   title: {
-    color: defaultTheme.palette.typography.grayDark,
-    fontSize: 14,
+    color: '#000000',
+    fontSize: 13,
+    fontFamily: 'Rubik',
+    fontWeight: '400',
+    lineHeight: 15,
   },
 })
