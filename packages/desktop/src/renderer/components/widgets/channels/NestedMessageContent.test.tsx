@@ -11,7 +11,9 @@ import NestedMessageContent, { NestedMessageContentProps } from './NestedMessage
 describe('NestedMessageContent', () => {
   it('renders message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={false} message={messages[0]} index={0} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -32,7 +34,32 @@ describe('NestedMessageContent', () => {
 
   it('renders pending message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} index={0} openUrl={jest.fn()} />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+          >
+            <span
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-llt4u8-MuiTypography-root"
+              data-testid="messagesGroupContent-0"
+            >
+              message0
+            </span>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+
+  it('renders noninitial message', () => {
+    const messages = generateMessages()
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} index={1} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -82,14 +109,22 @@ describe('NestedMessageContent', () => {
       },
     }
     const result = renderComponent(
-      <NestedMessageContent pending={false} message={message} downloadStatus={downloadStatus} openUrl={jest.fn()} />
+      <NestedMessageContent
+        pending={false}
+        message={message}
+        index={0}
+        downloadStatus={downloadStatus}
+        openUrl={jest.fn()}
+      />
     )
     expect(await screen.findByText('File not valid. Download canceled.')).toBeVisible()
   })
 
   it('renders info message', () => {
     const messages = generateMessages({ type: 3 })
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} index={0} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -127,7 +162,9 @@ describe('NestedMessageContent', () => {
         },
       },
     }
-    const result = renderComponent(<NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={false} message={message} index={0} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -205,6 +242,7 @@ describe('NestedMessageContent', () => {
       cancelDownload: jest.fn(),
       message: message,
       pending: false,
+      index: 0,
     }
 
     const result = renderComponent(<NestedMessageContent {...fileComponentProps} />)
