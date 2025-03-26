@@ -8,7 +8,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
-import { QSS_ENABLED, QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
+import { QSS_ENABLED, QSS_ENDPOINT } from '../const'
 import { QSSClient } from './qss.client'
 import * as uint8arrays from 'uint8arrays'
 import {
@@ -28,7 +28,6 @@ import * as url from 'node:url'
 import { SigChainService } from '../auth/sigchain.service'
 import { createWinstonQuietLogger } from '@quiet/node-common'
 import EventEmitter from 'node:events'
-import { ServerIoProviderTypes } from '../types'
 
 @Injectable()
 export class QSSService extends EventEmitter {
@@ -38,7 +37,6 @@ export class QSSService extends EventEmitter {
   constructor(
     @Inject(QSS_ENABLED) private readonly qssEnabled: boolean,
     @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string,
-    @Inject(SERVER_IO_PROVIDER) private readonly serverIoProvider: ServerIoProviderTypes,
     private readonly qssClient: QSSClient,
     private readonly sigChainService: SigChainService
   ) {
@@ -80,14 +78,14 @@ export class QSSService extends EventEmitter {
       },
     }
     const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysResponse>(
-      WebsocketEvents.GeneratePublicKeys,
+      WebsocketEvents.GEN_PUB_KEYS,
       qssGeneratePublicKeysMessage,
       true
     )
 
     if (
       generateKeysResponse == null ||
-      generateKeysResponse.payload.status !== CommunityOperationStatus.Success ||
+      generateKeysResponse.payload.status !== CommunityOperationStatus.SUCCESS ||
       generateKeysResponse.payload.payload == null ||
       generateKeysResponse.payload.payload.teamId != sigChain.team.id
     ) {
@@ -124,12 +122,12 @@ export class QSSService extends EventEmitter {
     }
 
     const createCommunityResponse = await this.qssClient.sendMessage<CreateCommunityResponse>(
-      WebsocketEvents.CreateCommunity,
+      WebsocketEvents.CREATE_COMMUNITY,
       qssCreateCommunityMessage,
       true
     )
 
-    if (createCommunityResponse == null || createCommunityResponse.payload.status !== CreateCommunityStatus.Success) {
+    if (createCommunityResponse == null || createCommunityResponse.payload.status !== CreateCommunityStatus.SUCCESS) {
       this.logger.error(
         `Failed to create a community!`,
         createCommunityResponse?.payload.reason ?? 'Response was nullish'
@@ -151,14 +149,14 @@ export class QSSService extends EventEmitter {
     const qssSignInMessage: CommunitySignInMessage = {
       ts: DateTime.utc().toMillis(),
       payload: {
-        status: CommunityOperationStatus.Success,
+        status: CommunityOperationStatus.SUCCESS,
         payload: {
           teamId,
         },
       },
     }
     const signInResponse = await this.qssClient.sendMessage<CommunitySignInMessage>(
-      WebsocketEvents.SignInCommunity,
+      WebsocketEvents.SIGN_IN_COMMUNITY,
       qssSignInMessage,
       true
     )
@@ -167,7 +165,7 @@ export class QSSService extends EventEmitter {
       throw new Error(`Error while signing in to community ${teamId} - Nullish response from QSS`)
     }
 
-    if (signInResponse.payload.status !== CommunityOperationStatus.Success) {
+    if (signInResponse.payload.status !== CommunityOperationStatus.SUCCESS) {
       throw new Error(
         `Error while signing in to community ${teamId} - ${signInResponse.payload.status}: ${signInResponse.payload.reason ?? `Unknown QSS Error`}`
       )
@@ -178,6 +176,16 @@ export class QSSService extends EventEmitter {
   }
 
   private async startAuthConnection(teamId: string, sigChain: SigChain): Promise<void> {
+    if (!this.qssEnabled) {
+      this.logger.warn(`Can't initiate auth connection with QSS because QSS is not enabled`)
+      return
+    }
+
+    if (!this._qssInitialized()) {
+      this.logger.warn(`Can't initiate auth connection with QSS because QSS has not been initialized`)
+      return
+    }
+
     this.logger.info(`Starting auth connection with QSS for syncing`)
 
     // Create an auth connection using an ephemeral sendMessage callback.
@@ -187,19 +195,19 @@ export class QSSService extends EventEmitter {
         const socketMessage: AuthSyncMessage = {
           ts: DateTime.utc().toMillis(),
           payload: {
-            status: CommunityOperationStatus.Success,
+            status: CommunityOperationStatus.SUCCESS,
             payload: {
               teamId,
               message: uint8arrays.toString(message, 'base64'),
             },
           },
         }
-        this.qssClient.sendMessage(WebsocketEvents.AuthSync, socketMessage, false)
+        this.qssClient.sendMessage(WebsocketEvents.AUTH_SYNC, socketMessage, false)
       },
       createLogger: this.createLfaLogger,
     } as AuthConnectionParams)
 
-    this.qssClient.clientSocket!.on(WebsocketEvents.AuthSync, async (encryptedMessage: string): Promise<void> => {
+    this.qssClient.clientSocket!.on(WebsocketEvents.AUTH_SYNC, async (encryptedMessage: string): Promise<void> => {
       try {
         const decryptedMessage = this.qssClient.decryptPayload(encryptedMessage) as AuthSyncMessage
         if (decryptedMessage.payload.payload?.message == null) {
@@ -248,7 +256,7 @@ export class QSSService extends EventEmitter {
         sigChain.team = team
       }
       await this.sigChainService.saveChain(team.teamName)
-      this.emit(QSSEvents.QSSAuthJoined) // tell the connection manager that we've joined via QSS
+      this.emit(QSSEvents.QSS_AUTH_JOINED) // tell other services that we've joined via QSS
     })
 
     authConnection.on('change', payload => {

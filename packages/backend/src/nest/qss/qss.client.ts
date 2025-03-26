@@ -15,6 +15,7 @@ import {
   WebsocketEvents,
 } from './qss.types'
 import { sleep } from '../common/sleep'
+import { CLIENT_TRANSPORTS } from './qss.const'
 
 @Injectable()
 export class QSSClient {
@@ -47,7 +48,7 @@ export class QSSClient {
     this.clientSocket = connect(this.qssEndpoint, {
       autoConnect: false,
       forceNew: true,
-      transports: ['websocket'],
+      transports: CLIENT_TRANSPORTS,
       auth: {
         publicKey: this.qssKxEncryptionService.sodiumHelper.toBase64(this.keyPair.publicKey),
       },
@@ -63,9 +64,9 @@ export class QSSClient {
     }
 
     this.clientSocket.on(
-      WebsocketEvents.Handshake,
+      WebsocketEvents.HANDSHAKE,
       (handshake: HandshakeMessage, callback: (...args: unknown[]) => void) => {
-        if (handshake.payload.status === HandshakeStatus.Error) {
+        if (handshake.payload.status === HandshakeStatus.ERROR) {
           throw new QSSHandshakeError(handshake.payload.reason ?? `Unknown error`)
         }
 
@@ -79,7 +80,7 @@ export class QSSClient {
         )
         callback({
           ts: DateTime.utc().toMillis(),
-          payload: { status: HandshakeStatus.Success },
+          payload: { status: HandshakeStatus.SUCCESS },
         })
       }
     )

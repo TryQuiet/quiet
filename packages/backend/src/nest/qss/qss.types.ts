@@ -5,34 +5,20 @@ import { CompoundError } from '@quiet/types'
  * Quiet-specific websocket event types
  */
 export enum WebsocketEvents {
-  Handshake = 'handshake',
-  CreateCommunity = 'create-community',
-  UpdateCommunity = 'update-community',
-  GetCommunity = 'get-community',
-  AuthSync = 'auth-sync',
-  GeneratePublicKeys = 'generate-public-keys',
-  SignInCommunity = 'sign-in-community',
-}
-
-/**
- * Socket.io client-specific websocket events
- */
-export enum NativeClientWebsocketEvents {
-  Connect = 'connect',
-  Disconnect = 'disconnect',
-  Error = 'error',
-  Reconnect = 'reconnect',
-  Reconnecting = 'reconnecting',
-  ReconnectAttempt = 'reconnect_attempt',
-  ReconnectError = 'reconnect_error',
-  ReconnectFailed = 'reconnect_failed',
+  HANDSHAKE = 'handshake',
+  CREATE_COMMUNITY = 'create-community',
+  UPDATE_COMMUNITY = 'update-community',
+  GET_COMMUNITY = 'get-community',
+  AUTH_SYNC = 'auth-sync',
+  GEN_PUB_KEYS = 'generate-public-keys',
+  SIGN_IN_COMMUNITY = 'sign-in-community',
 }
 
 /**
  * Event emitter events
  */
 export enum QSSEvents {
-  QSSAuthJoined = 'qssAuthJoined',
+  QSS_AUTH_JOINED = 'qssAuthJoined',
 }
 
 export interface BaseWebsocketMessage<T extends object | undefined> {
@@ -47,9 +33,9 @@ export interface BaseStatusPayload<T extends object | undefined> {
 }
 
 export enum HandshakeStatus {
-  Error = 'error',
-  Active = 'active',
-  Success = 'success',
+  ERROR = 'error',
+  ACTIVE = 'active',
+  SUCCESS = 'success',
 }
 
 export interface InnerHandshakePayload {
@@ -85,8 +71,8 @@ export interface CreateCommunity {
 }
 
 export enum CreateCommunityStatus {
-  Error = 'error',
-  Success = 'success',
+  ERROR = 'error',
+  SUCCESS = 'success',
 }
 
 export interface CreateCommunityResponseInnerPayload {
@@ -116,10 +102,10 @@ export class QSSHandshakeError<T extends Error> extends CompoundError<T> {
 }
 
 export enum CommunityOperationStatus {
-  Error = 'error',
-  Success = 'success',
-  Unauthorized = 'unauthorized',
-  NotFound = 'not found',
+  ERROR = 'error',
+  SUCCESS = 'success',
+  UNAUTHORIZED = 'unauthorized',
+  NOT_FOUND = 'not found',
 }
 
 export interface AuthSyncMessageInnerPayload {

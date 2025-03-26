@@ -95,7 +95,7 @@ export class Libp2pAuth {
       }
     }
 
-    this.qssService.once(QSSEvents.QSSAuthJoined, async () => {
+    this.qssService.once(QSSEvents.QSS_AUTH_JOINED, async () => {
       if (this.joinStatus !== JoinStatus.JOINED) {
         this.joinStatus = JoinStatus.PENDING_MEMBER
         this.joinedViaQSS = true
