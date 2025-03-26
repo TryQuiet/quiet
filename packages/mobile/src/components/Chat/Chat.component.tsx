@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   Animated,
+  ViewToken,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -82,12 +83,13 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   // This callback fires when items enter or exit the viewport
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: Array<{ item: string; isViewable: boolean; index: number }> }) => {
+    ({ viewableItems, changed }: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
       // If no items are visible, don't update
       if (viewableItems.length === 0) return
 
       // Get all dates currently visible on screen
-      const visibleDates = viewableItems.map(item => item.item)
+      // The ViewToken type has item as any, so we need to cast it to string
+      const visibleDates = viewableItems.map(token => token.item as string)
 
       // Get the "oldest" date (which is actually the earliest chronologically)
       // Since our dates are formatted like "January 1, 2023", we need to parse them
