@@ -70,6 +70,58 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList>(null)
 
+  // Use a simple viewability configuration - items are either visible or not
+  const viewabilityConfig = useRef({
+    // The minimum percent of an item that must be visible to count as "viewable"
+    // Using 0 means "any part visible at all" - most sensitive setting
+    itemVisiblePercentThreshold: 0,
+  }).current
+
+  // This callback fires when items enter or exit the viewport
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: Array<{ item: string; isViewable: boolean; index: number }> }) => {
+      // If no items are visible, don't update
+      if (viewableItems.length === 0) return
+
+      // Get all dates currently visible on screen
+      const visibleDates = viewableItems.map(item => item.item)
+
+      // Get the "oldest" date (which is actually the earliest chronologically)
+      // Since our dates are formatted like "January 1, 2023", we need to parse them
+      // to determine which is oldest
+      const oldestDate = findOldestDate(visibleDates)
+
+      // Update if the oldest visible date has changed
+      if (currentVisibleDate !== oldestDate) {
+        setCurrentVisibleDate(oldestDate)
+      }
+    }
+  ).current
+
+  // Helper function to find the earliest date from an array of date strings
+  const findOldestDate = (dateStrings: string[]): string => {
+    if (dateStrings.length === 0) return ''
+    if (dateStrings.length === 1) return dateStrings[0]
+
+    // Since we can sort these by their index in the original array, we can
+    // look at the order of them in the messages.groups object
+    const dateKeys = Object.keys(messages.groups).reverse()
+
+    // Find the earliest date that's visible (the one with the highest index in our reversed array)
+    let earliestIndex = -1
+    let earliestDate = ''
+
+    for (const dateString of dateStrings) {
+      const index = dateKeys.indexOf(dateString)
+      if (index > earliestIndex) {
+        earliestIndex = index
+        earliestDate = dateString
+      }
+    }
+
+    return earliestDate
+  }
+
   const insets = useSafeAreaInsets()
 
   const defaultPadding = 20
@@ -233,8 +285,13 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                   loadMessagesAction(true)
                 }}
                 onEndReachedThreshold={0.7}
+                viewabilityConfig={viewabilityConfig}
+                onViewableItemsChanged={onViewableItemsChanged}
                 showsVerticalScrollIndicator={false}
-                onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                onScroll={event => {
+                  // Custom handling for determining which date is at the fixed position
+                  const { y } = event.nativeEvent.contentOffset
+
                   // Show the date marker when scrolling starts
                   if (!isScrolling.current) {
                     isScrolling.current = true
@@ -252,6 +309,9 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                     clearTimeout(scrollTimer.current)
                   }
 
+                  // We're now handling date changes through onViewableItemsChanged
+                  // Just let scroll animation show/hide the marker
+
                   // Set a timer to fade out the date marker after scrolling stops
                   scrollTimer.current = setTimeout(() => {
                     isScrolling.current = false
@@ -264,55 +324,9 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                       setShowShadow(false)
                     })
                   }, 2000)
-
-                  // We need to determine which date is currently visible
-                  // Logic needs special handling because of the inverted list
-                  const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent
-
-                  if (Object.keys(messages.groups).length > 0) {
-                    const dateKeys = Object.keys(messages.groups).reverse()
-
-                    // Calculate visible percentage (0 at top, 1 at bottom)
-                    const scrollPercentage = contentOffset.y / (contentSize.height - layoutMeasurement.height)
-
-                    // Calculate which date should be visible based on scroll position
-                    // This gives a better approximation as it considers the total content height
-                    const visibleItemIndex = Math.min(
-                      Math.floor(scrollPercentage * dateKeys.length),
-                      dateKeys.length - 1
-                    )
-
-                    // Ensure the index is valid and update if needed
-                    if (visibleItemIndex >= 0 && visibleItemIndex < dateKeys.length) {
-                      const newDate = dateKeys[visibleItemIndex]
-                      if (currentVisibleDate !== newDate) {
-                        setCurrentVisibleDate(newDate)
-                      }
-                    }
-                  }
                 }}
                 scrollEventThrottle={16} // Higher frequency updates for smoother tracking
-                onMomentumScrollEnd={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
-                  // Update date when scrolling momentum ends to ensure we have the correct final position
-                  const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent
-
-                  if (Object.keys(messages.groups).length > 0) {
-                    const dateKeys = Object.keys(messages.groups).reverse()
-
-                    // Calculate visible percentage (0 at top, 1 at bottom)
-                    const scrollPercentage = contentOffset.y / (contentSize.height - layoutMeasurement.height)
-
-                    // Get the date for the current scroll position
-                    const visibleItemIndex = Math.min(
-                      Math.floor(scrollPercentage * dateKeys.length),
-                      dateKeys.length - 1
-                    )
-
-                    if (visibleItemIndex >= 0 && visibleItemIndex < dateKeys.length) {
-                      setCurrentVisibleDate(dateKeys[visibleItemIndex])
-                    }
-                  }
-
+                onMomentumScrollEnd={() => {
                   // Keep the date marker visible briefly after momentum scrolling ends
                   // then fade it out
                   if (scrollTimer.current) {
