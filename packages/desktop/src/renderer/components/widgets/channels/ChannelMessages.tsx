@@ -8,13 +8,8 @@ import DateDivider from '../DateDivider'
 import BasicMessageComponent from './BasicMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
-import {
-  DownloadStatus,
-  MessagesDailyGroups,
-  MessageSendingStatus,
-  FileMetadata,
-  CancelDownload,
-} from '@quiet/state-manager'
+import { FileMetadata, DownloadStatus, CancelDownload } from '@quiet/types'
+import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType } from '../userLabel/UserLabel.types'
 
