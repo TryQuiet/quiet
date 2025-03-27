@@ -282,3 +282,433 @@ storiesOf('Chat', module)
       unregisteredUsernameHandleBack={function (username: string): void {}}
     />
   ))
+  .add('MultiDayChat', () => (
+    <Chat
+      contextMenu={{
+        visible: false,
+        handleOpen: function (_args?: any): any {},
+        handleClose: function (_args?: any): any {},
+      }}
+      sendMessageAction={storybookLog('Message sent')}
+      loadMessagesAction={storybookLog('Messages loaded')}
+      handleBackButton={storybookLog('Navigating back')}
+      openImagePreview={() => {}}
+      openUrl={() => {}}
+      downloadFile={() => {}}
+      cancelDownload={() => {}}
+      channel={{
+        name: 'StickyDateTest',
+        description: 'Testing sticky date markers',
+        owner: '',
+        timestamp: 0,
+        id: 'sticky-date-test',
+      }}
+      messages={{
+        count: 40,
+        groups: {
+          '25 Mar': [
+            [
+              {
+                id: 'march25-1',
+                type: 1,
+                message: 'This message is from March 25',
+                createdAt: 0,
+                date: '25 Mar, 10:00',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+              {
+                id: 'march25-2',
+                type: 1,
+                message: 'Second message from March 25',
+                createdAt: 0,
+                date: '25 Mar, 10:01',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march25-3',
+                type: 1,
+                message: 'Message from Bob on March 25',
+                createdAt: 0,
+                date: '25 Mar, 10:15',
+                nickname: 'bob',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march25-4',
+                type: 1,
+                message: 'Yet another March 25 message',
+                createdAt: 0,
+                date: '25 Mar, 11:30',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march25-5',
+                type: 1,
+                message: 'Lunch time message on March 25',
+                createdAt: 0,
+                date: '25 Mar, 12:30',
+                nickname: 'charlie',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march25-6',
+                type: 1,
+                message: 'Afternoon message on March 25',
+                createdAt: 0,
+                date: '25 Mar, 15:45',
+                nickname: 'dave',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march25-7',
+                type: 1,
+                message: 'Evening message on March 25',
+                createdAt: 0,
+                date: '25 Mar, 18:20',
+                nickname: 'eve',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march25-8',
+                type: 1,
+                message: 'Last message from March 25',
+                createdAt: 0,
+                date: '25 Mar, 23:59',
+                nickname: 'bob',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+          ],
+          '26 Mar': [
+            [
+              {
+                id: 'march26-1',
+                type: 1,
+                message: 'This message is from March 26',
+                createdAt: 0,
+                date: '26 Mar, 00:01',
+                nickname: 'charlie',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-2',
+                type: 1,
+                message: 'Early morning on March 26',
+                createdAt: 0,
+                date: '26 Mar, 07:15',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-3',
+                type: 1,
+                message: 'Another message from March 26',
+                createdAt: 0,
+                date: '26 Mar, 09:20',
+                nickname: 'dave',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-4',
+                type: 1,
+                message: 'March 26 message about testing date markers',
+                createdAt: 0,
+                date: '26 Mar, 10:30',
+                nickname: 'bob',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-5',
+                type: 1,
+                message: 'Mid-day on March 26',
+                createdAt: 0,
+                date: '26 Mar, 12:00',
+                nickname: 'dave',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+              {
+                id: 'march26-6',
+                type: 1,
+                message:
+                  'The sticky date markers should update correctly when scrolling through this long conversation',
+                createdAt: 0,
+                date: '26 Mar, 12:01',
+                nickname: 'dave',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-7',
+                type: 1,
+                message:
+                  'This is a test of a longer message that will take up more space on the screen, forcing more scrolling to see all the messages in the conversation. The sticky date markers should correctly stick to the top of the screen during scrolling and then update to reflect the current visible date range.',
+                createdAt: 0,
+                date: '26 Mar, 13:45',
+                nickname: 'charlie',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-8',
+                type: 1,
+                message: 'Afternoon message on March 26',
+                createdAt: 0,
+                date: '26 Mar, 15:20',
+                nickname: 'frank',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-9',
+                type: 1,
+                message: 'Late afternoon on March 26',
+                createdAt: 0,
+                date: '26 Mar, 17:30',
+                nickname: 'grace',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-10',
+                type: 1,
+                message: 'Evening message on March 26',
+                createdAt: 0,
+                date: '26 Mar, 19:55',
+                nickname: 'henry',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-11',
+                type: 1,
+                message:
+                  'Another long message for March 26 to increase the amount of scrolling needed to get through all the content. This helps us test whether the sticky date markers correctly update when scrolling through a conversation with multiple dates and lots of content.',
+                createdAt: 0,
+                date: '26 Mar, 21:10',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'march26-12',
+                type: 1,
+                message: 'Late night message on March 26',
+                createdAt: 0,
+                date: '26 Mar, 23:30',
+                nickname: 'bob',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+          ],
+          Today: [
+            [
+              {
+                id: 'today-1',
+                type: 1,
+                message: 'First message from today',
+                createdAt: 0,
+                date: '09:00',
+                nickname: 'eve',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-2',
+                type: 1,
+                message: 'Another message from early today',
+                createdAt: 0,
+                date: '09:15',
+                nickname: 'dave',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-3',
+                type: 1,
+                message: 'Second message from today',
+                createdAt: 0,
+                date: '10:00',
+                nickname: 'frank',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-4',
+                type: 1,
+                message: "This is today's message about sticky date markers",
+                createdAt: 0,
+                date: '10:30',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+              {
+                id: 'today-5',
+                type: 1,
+                message: 'We need to make sure they work correctly with multiple days of messages',
+                createdAt: 0,
+                date: '10:31',
+                nickname: 'alice',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-6',
+                type: 1,
+                message: 'Third message from today',
+                createdAt: 0,
+                date: '11:00',
+                nickname: 'grace',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-7',
+                type: 1,
+                message: 'We need to ensure that there are enough messages to force scrolling',
+                createdAt: 0,
+                date: '11:15',
+                nickname: 'bob',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-8',
+                type: 1,
+                message:
+                  'This is a fairly long message for today that should take up multiple lines in the chat view, requiring more scrolling to see all messages. This helps test the sticky date marker functionality with varying message lengths.',
+                createdAt: 0,
+                date: '11:45',
+                nickname: 'charlie',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-9',
+                type: 1,
+                message: 'Midday message from today',
+                createdAt: 0,
+                date: '12:00',
+                nickname: 'henry',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: 'today-10',
+                type: 1,
+                message: 'One final message for testing',
+                createdAt: 0,
+                date: '12:30',
+                nickname: 'eve',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+          ],
+        },
+      }}
+      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateUploadedFiles')
+      }}
+      removeFilePreview={function (id: string): void {
+        logger.info(`removeFilePreview ${id}`)
+      }}
+      duplicatedUsernameHandleBack={function (): void {}}
+      unregisteredUsernameHandleBack={function (username: string): void {}}
+    />
+  ))

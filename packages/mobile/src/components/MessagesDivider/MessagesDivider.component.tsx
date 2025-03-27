@@ -5,7 +5,10 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const MessagesDivider: FC<MessagesDividerProps> = ({ title, isSticky }) => {
   return (
-    <View style={[styles.container, isSticky && styles.stickyContainer]}>
+    <View
+      style={[styles.container, isSticky && styles.stickyContainer]}
+      testID={isSticky ? `StickyDateMarker_${title}` : `DateDivider_${title}`}
+    >
       <View style={[styles.pillContainer, isSticky && styles.stickyPillContainer]}>
         <Text style={styles.title}>{title}</Text>
       </View>
