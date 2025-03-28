@@ -136,21 +136,11 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 }))
 
-export const getTimeFormat = () => {
-  return 't'
-}
-
-export const transformToLowercase = (string: string) => {
-  const hasPM = string.search('PM')
-  return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
-}
-
 const formatMessageTime = (timestamp: number | string) => {
   const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp)
   return date.toLocaleTimeString([], {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true,
   })
 }
 
@@ -261,12 +251,10 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                           [classes.time]: true,
                         })}
                       >
-                        {DateTime.fromSeconds(messageDisplayData.createdAt)
-                          .toLocaleString({
-                            hour: 'numeric',
-                            minute: '2-digit',
-                          })
-                          .toLowerCase()}
+                        {DateTime.fromSeconds(messageDisplayData.createdAt).toLocaleString({
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
                       </Typography>
                     </Grid>
                   )}

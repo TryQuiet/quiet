@@ -29,11 +29,10 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
 }
 
 const formatMessageTime = (timestamp: number | string) => {
-  const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp)
+  const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp * 1000)
   return date.toLocaleTimeString([], {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true,
   })
 }
 
