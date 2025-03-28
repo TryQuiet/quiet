@@ -28,6 +28,15 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   )
 }
 
+const formatMessageTime = (timestamp: number | string) => {
+  const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp)
+  return date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  })
+}
+
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
@@ -177,7 +186,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               }}
             >
               <Typography fontSize={14} color={'subtitle'}>
-                {representativeMessage.date}
+                {formatMessageTime(representativeMessage.createdAt)}
               </Typography>
             </View>
           </View>
