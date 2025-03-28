@@ -3,8 +3,7 @@
 ## Development workflow
 
 1. Fork the repo and create your branch from `develop` (a guide on [how to fork a repository](https://help.github.com/articles/fork-a-repo/)).
-2. Being in the root directory, run `npm i` and then `lerna bootstrap`, to setup the development environment.
-3. Check out [desktop](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and [mobile](https://github.com/TryQuiet/quiet/blob/develop/packages/mobile/README.md) README.md for more instructions.
+2. See the [desktop](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and [mobile](https://github.com/TryQuiet/quiet/blob/develop/packages/mobile/README.md) README.md to get started.
 
 ## Commit message convention
 

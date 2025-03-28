@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### New Features
+
+* Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
+
+### Chores
+
+* Improves speed, reliability, and documentation for Cypress tests
+
 ## [4.0.3]
 
 ### New features
