@@ -147,13 +147,11 @@ export const transformToLowercase = (string: string) => {
 
 const formatMessageTime = (timestamp: number | string) => {
   const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp)
-  return date
-    .toLocaleTimeString([], {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    })
-    .toLowerCase()
+  return date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  })
 }
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
