@@ -82,7 +82,6 @@ describe('Scroll behavior test', () => {
   it('PageUp keydown should scroll message list up.', () => {
     cy.get(messageInput).focus().type('{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}')
 
-    // Check if scrolled to top
     cy.get(channelContent).then($el => {
       const container = $el[0]
       const isScrolledToTop = Math.abs(container.scrollTop) <= 1 // Allow 1px difference for rounding
