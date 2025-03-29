@@ -6,4 +6,5 @@ export interface ChannelListProps {
   community?: Community
   tiles: ChannelTileProps[]
   communityContextMenu: ReturnType<typeof useContextMenu> | null
+  onDebugPress?: () => void
 }
