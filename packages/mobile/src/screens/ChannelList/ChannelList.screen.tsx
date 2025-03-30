@@ -53,25 +53,26 @@ export const ChannelListScreen: FC = () => {
   )
 
   const formatTileDate = (createdAt: number): string => {
-    // Extract timezone offset from native Date API and convert it to Luxon's format because Luxon cannot see it in React Native on Android
-    // TODO: check to make sure the operations on the Date object below that do not use Luxon successfully consider "this year" and "yesterday" in terms of the local timezone!
     const tzOffsetHours = -new Date().getTimezoneOffset() / 60
     const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
 
-    const messageDate = new Date(createdAt * 1000)
-    const now = new Date()
-    // Check if message was sent within the same year and month.
-    if (messageDate.getFullYear() === now.getFullYear()) {
-      // Check if message was sent yesterday
-      if (messageDate.getDay() + 1 === now.getDay()) {
+    const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
+    const now = DateTime.now().setZone(formattedOffset)
+
+    // Same year?
+    if (messageTime.year === now.year) {
+      // Today?
+      if (messageTime.hasSame(now, 'day')) {
+        return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
+      }
+      // Yesterday?
+      if (messageTime.hasSame(now.minus({ days: 1 }), 'day')) {
         return 'Yesterday'
       }
-      // Check if message was sent today.
-      if (messageDate.getMonth() === now.getMonth() && messageDate.getDay() === now.getDay()) {
-        return DateTime.fromSeconds(createdAt).setZone(formattedOffset).toLocaleString(DateTime.TIME_SIMPLE)
-      }
     }
-    return DateTime.fromSeconds(createdAt).setZone(formattedOffset).toLocaleString()
+
+    // Otherwise just return a date/time in the same zone
+    return messageTime.toLocaleString()
   }
 
   const community = useSelector(communities.selectors.currentCommunity)

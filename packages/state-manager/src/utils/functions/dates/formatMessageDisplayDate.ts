@@ -11,9 +11,9 @@ export const formatMessageDisplayDate = (createdAt: number): string => {
   const now = DateTime.now().setZone(formattedOffset).setLocale(locale)
   const check = messageDate.hasSame(now, 'year') && messageDate.hasSame(now, 'day')
   if (!check) {
-    return DateTime.fromSeconds(createdAt).setZone(formattedOffset).setLocale(locale).toFormat('LLL d, t')
+    return messageDate.toFormat('LLL d, t')
   }
-  return DateTime.fromSeconds(createdAt).setZone(formattedOffset).setLocale(locale).toFormat('t')
+  return messageDate.toFormat('t')
 }
 
 export const formatMessageDisplayDay = (date: string): string => {
