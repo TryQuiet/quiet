@@ -54,6 +54,7 @@ export const ChannelListScreen: FC = () => {
 
   const formatTileDate = (createdAt: number): string => {
     // Extract timezone offset from native Date API and convert it to Luxon's format because Luxon cannot see it in React Native on Android
+    // TODO: check to make sure the operations on the Date object below that do not use Luxon successfully consider "this year" and "yesterday" in terms of the local timezone!
     const tzOffsetHours = -new Date().getTimezoneOffset() / 60
     const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
 

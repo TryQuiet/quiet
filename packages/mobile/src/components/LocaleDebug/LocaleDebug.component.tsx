@@ -1,8 +1,6 @@
 import React from 'react'
 import { Text, ScrollView, StyleSheet } from 'react-native'
-import { DateTime, Settings } from 'luxon'
-import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
-import { Platform, NativeModules } from 'react-native'
+import { DateTime } from 'luxon'
 
 export const LocaleDebug = () => {
   // Get current timestamp in seconds (message createdAt format)
