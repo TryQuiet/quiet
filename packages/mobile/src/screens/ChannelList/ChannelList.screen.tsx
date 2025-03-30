@@ -8,9 +8,7 @@ import { ChannelList as ChannelListComponent } from '../../components/ChannelLis
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-
-import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
-
+import { DateTime } from 'luxon'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 
@@ -54,6 +52,27 @@ export const ChannelListScreen: FC = () => {
     [dispatch]
   )
 
+  const formatTileDate = (createdAt: number): string => {
+    // Extract timezone offset from native Date API and convert it to Luxon's format because Luxon cannot see it in React Native on Android
+    const tzOffsetHours = -new Date().getTimezoneOffset() / 60
+    const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
+
+    const messageDate = new Date(createdAt * 1000)
+    const now = new Date()
+    // Check if message was sent within the same year and month.
+    if (messageDate.getFullYear() === now.getFullYear()) {
+      // Check if message was sent yesterday
+      if (messageDate.getDay() + 1 === now.getDay()) {
+        return 'Yesterday'
+      }
+      // Check if message was sent today.
+      if (messageDate.getMonth() === now.getMonth() && messageDate.getDay() === now.getDay()) {
+        return DateTime.fromSeconds(createdAt).setZone(formattedOffset).toLocaleString(DateTime.TIME_SIMPLE)
+      }
+    }
+    return DateTime.fromSeconds(createdAt).setZone(formattedOffset).toLocaleString()
+  }
+
   const community = useSelector(communities.selectors.currentCommunity)
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
@@ -62,7 +81,7 @@ export const ChannelListScreen: FC = () => {
     const newestMessage = status.newestMessage
 
     const message = newestMessage?.message || '...'
-    const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
+    const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
       name: getChannelNameFromChannelId(status.id),
