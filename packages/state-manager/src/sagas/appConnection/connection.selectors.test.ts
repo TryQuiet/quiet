@@ -170,6 +170,84 @@ describe('communitiesSelectors', () => {
     expect(selectorInvitationUrl).toEqual(expectedUrl)
   })
 
+  it('invitationUrl selector returns proper v3 url when community and long lived invite are defined and qss is enabled', async () => {
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
+      ),
+    ]
+    const psk = '12345'
+    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
+    const teamId = '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList,
+      psk,
+      ownerOrbitDbIdentity,
+      teamId,
+      qssEnabled: true,
+    })
+    store.dispatch(
+      connectionActions.setLongLivedInvite({
+        seed: '5ah8uYodiwuwVybT',
+        id: '5ah8uYodiwuwVybT' as Base58,
+      })
+    )
+    const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
+    const authData = {
+      seed: '5ah8uYodiwuwVybT',
+      communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
+      teamId,
+    }
+    const pairs = p2pAddressesToPairs(peerList)
+    const expectedUrl = composeInvitationShareUrl({
+      pairs,
+      psk,
+      ownerOrbitDbIdentity,
+      authData,
+      qssEnabled: true,
+      version: InvitationDataVersion.v3,
+    })
+    expect(expectedUrl).not.toEqual('')
+    expect(selectorInvitationUrl).toEqual(expectedUrl)
+  })
+
+  it('invitationUrl selector throws when qss is enabled but no team ID is provided', async () => {
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
+      ),
+    ]
+    const psk = '12345'
+    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList,
+      psk,
+      ownerOrbitDbIdentity,
+      qssEnabled: true,
+    })
+    store.dispatch(
+      connectionActions.setLongLivedInvite({
+        seed: '5ah8uYodiwuwVybT',
+        id: '5ah8uYodiwuwVybT' as Base58,
+      })
+    )
+    const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    try {
+      const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
+      expect(selectorInvitationUrl).toBe('')
+    } catch (e) {
+      expect(e).toBeDefined()
+      expect(e.message).toBe(
+        `QSS is enabled but team ID was null!  You must provide a team ID to properly handle QSS invites!`
+      )
+    }
+  })
+
   it('invitationUrl selector returns empty string if state lacks peer list', async () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)

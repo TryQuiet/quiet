@@ -1,8 +1,7 @@
-import { castServer, type Server } from '../../../../../../../3rd-party/auth/packages/auth/dist'
+import { type Server } from '../../../../../../../3rd-party/auth/packages/auth/dist'
 import { createLogger } from '../../../common/logger'
 import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'
-import { RoleName } from '../roles/roles'
 
 const logger = createLogger('auth:serverService')
 
@@ -19,5 +18,22 @@ export class ServerService extends ChainServiceBase {
 
     this.sigChain.team.addServer(server)
     logger.info(`Server added to the chain`)
+  }
+
+  public getServers(): Server[] {
+    if (this.sigChain.team == null) {
+      throw new Error(`Team is nullish`)
+    }
+
+    return this.sigChain.team.servers()
+  }
+
+  public getServer(host: string): Server | undefined {
+    if (this.sigChain.team == null) {
+      throw new Error(`Team is nullish`)
+    }
+
+    const servers = this.getServers()
+    return servers.find(server => server.host === host)
   }
 }

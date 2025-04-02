@@ -1,4 +1,10 @@
-import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersion } from '@quiet/types'
+import {
+  InvitationData,
+  InvitationDataV1,
+  InvitationDataV2,
+  InvitationDataV3,
+  InvitationDataVersion,
+} from '@quiet/types'
 import { composeInvitationDeepUrl, composeInvitationShareUrl } from './invitationLink/invitationLink'
 import { QUIET_JOIN_PAGE } from './const'
 
@@ -55,6 +61,43 @@ export const validInvitationDatav2: InvitationDataV2[] = [
       communityName: 'other-community-name',
       seed: '6k6damwb3z1emfqw',
     },
+  },
+]
+
+export const validInvitationDatav3: InvitationDataV3[] = [
+  {
+    version: InvitationDataVersion.v3,
+    pairs: [
+      {
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      },
+    ],
+    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    ownerOrbitDbIdentity: '018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0',
+    authData: {
+      communityName: 'community-name',
+      seed: '4kgd5mwq5z4fmfwq',
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',
+    },
+    qssEnabled: true,
+  },
+  {
+    version: InvitationDataVersion.v3,
+    pairs: [
+      {
+        onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
+        peerId: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
+      },
+    ],
+    psk: '5T9GBVpDoRpKJQK4caDTz5e5nym2zprtoySL2oLrzr4=',
+    ownerOrbitDbIdentity: '028f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0',
+    authData: {
+      communityName: 'other-community-name',
+      seed: '6k6damwb3z1emfqw',
+      teamId: '3WagJVWmJ8eYWLf5A3oEj5yP7f',
+    },
+    qssEnabled: false,
   },
 ]
 

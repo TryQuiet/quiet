@@ -6,7 +6,7 @@ import { DeviceService } from './device.service'
 
 const logger = createLogger('auth:services:device.spec')
 
-describe('invites', () => {
+describe('devices', () => {
   let adminSigChain: SigChain
   let newDevice: DeviceWithSecrets
 

@@ -261,6 +261,7 @@ const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationD
 const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
   value: string
 ): Partial<InvitationDataV3> => {
+  logger.warn(`Qss enabled: `, value)
   if (value !== 'true' && value !== 'false') {
     logger.warn(`QSS enabled flag must be set to either 'true' or 'false'`)
     throw new UrlParamValidatorError(QSS_ENABLED_KEY, value)
