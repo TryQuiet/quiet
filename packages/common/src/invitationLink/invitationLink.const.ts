@@ -9,6 +9,7 @@ export const COMMUNITY_NAME_KEY = 'c'
 export const INVITATION_SEED_KEY = 's'
 export const TEAM_ID_KEY = 't'
 export const QSS_ENABLED_KEY = 'q'
+export const QSS_ENDPOINT_KEY = 'e'
 export const AUTH_DATA_OBJECT_KEY = 'authData'
 
 export const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'

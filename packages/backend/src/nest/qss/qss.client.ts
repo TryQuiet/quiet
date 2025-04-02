@@ -26,18 +26,15 @@ export class QSSClient {
   private readonly logger = createLogger(`qss:client`)
 
   constructor(
-    @Inject(QSS_ENABLED) private readonly qssEnabled: boolean,
-    @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string,
+    @Inject(QSS_ENABLED) private qssEnabled: boolean,
+    @Inject(QSS_ENDPOINT) private qssEndpoint: string,
     private readonly qssKxEncryptionService: QSSKXEncryptionService
-  ) {
-    this.logger.warn(this.qssEnabled)
-    this.logger.warn(this.qssEndpoint)
-    if (this.qssEnabled && this.qssEndpoint != null) {
-      this.logger.trace('QSS enabled!')
-    }
-  }
+  ) {}
 
-  public async createSocket(): Promise<ClientSocket> {
+  public async createSocket(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<ClientSocket> {
+    this.qssEnabled = qssEnabled || this.qssEnabled
+    this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
+
     if (!this.qssEnabled || this.qssEndpoint == null) {
       throw new QSSNotInitializedError(`QSS is not enabled`)
     }

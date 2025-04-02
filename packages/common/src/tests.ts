@@ -81,6 +81,7 @@ export const validInvitationDatav3: InvitationDataV3[] = [
       teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',
     },
     qssEnabled: true,
+    qssEndpoint: 'ws://localhost:3000',
   },
   {
     version: InvitationDataVersion.v3,
@@ -98,6 +99,7 @@ export const validInvitationDatav3: InvitationDataV3[] = [
       teamId: '3WagJVWmJ8eYWLf5A3oEj5yP7f',
     },
     qssEnabled: false,
+    qssEndpoint: 'ws://localhost:3000',
   },
 ]
 

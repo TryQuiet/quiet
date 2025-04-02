@@ -1,14 +1,3 @@
-// import { config } from '@dotenvx/dotenvx'
-// import path from 'path'
-// import { fileURLToPath } from 'url'
-
-// // load config from .env* file(s)
-// config({
-//   debug: true,
-//   verbose: true,
-//   path: path.join(path.dirname(fileURLToPath(import.meta.url)), '../', `./.env.${process.env.DOT_ENV ?? 'dev'}`),
-// })
-
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'

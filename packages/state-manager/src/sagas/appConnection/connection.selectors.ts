@@ -96,23 +96,20 @@ export const invitationUrl = createSelector(
     }
     const qssEnabled = currentCommunity.qssEnabled
     const teamId = currentCommunity.teamId
-    if (!!qssEnabled && teamId == null) {
-      const message = `QSS is enabled but team ID was null!  You must provide a team ID to properly handle QSS invites!`
-      logger.error(message)
-      throw new Error(message)
-    }
+    const qssEndpoint = currentCommunity.qssEndpoint
 
-    if (
-      currentCommunity != null &&
-      currentCommunity.name != null &&
-      longLivedInvite != null &&
-      qssEnabled != null &&
-      teamId != null
-    ) {
+    if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null && qssEnabled != null) {
+      if (teamId == null || qssEndpoint == null) {
+        const message = `QSS is enabled but team ID and/or QSS endpoint was null!  You must provide a team ID and QSS endpoint to properly handle QSS invites!`
+        logger.error(message)
+        throw new Error(message)
+      }
+
       inviteData = {
         ...inviteData,
         version: InvitationDataVersion.v3,
         qssEnabled,
+        qssEndpoint,
         authData: {
           communityName: currentCommunity.name,
           seed: longLivedInvite.seed,

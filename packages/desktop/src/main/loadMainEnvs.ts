@@ -1,5 +1,3 @@
-import '@dotenvx/dotenvx/config' // load config from .env* file(s)
-
 import fs from 'fs'
 import path from 'path'
 import { app } from 'electron'

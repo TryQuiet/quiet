@@ -35,15 +35,17 @@ export class QSSService extends EventEmitter {
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst')
 
   constructor(
-    @Inject(QSS_ENABLED) private readonly qssEnabled: boolean,
-    @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string,
+    @Inject(QSS_ENABLED) private qssEnabled: boolean,
+    @Inject(QSS_ENDPOINT) public qssEndpoint: string,
     private readonly qssClient: QSSClient,
     private readonly sigChainService: SigChainService
   ) {
     super({ captureRejections: true })
   }
 
-  public async connect(): Promise<boolean> {
+  public async connect(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<boolean> {
+    this.qssEnabled = this.qssEnabled || qssEnabled
+    this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
     if (!this.qssEnabled) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
       return false
@@ -51,7 +53,7 @@ export class QSSService extends EventEmitter {
 
     try {
       this.logger.info(`Establishing connection with QSS`)
-      await this.qssClient.createSocket()
+      await this.qssClient.createSocket(this.qssEnabled, this.qssEndpoint)
       this.logger.info(`Connection established`)
       return true
     } catch (e) {

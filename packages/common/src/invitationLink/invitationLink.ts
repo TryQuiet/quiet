@@ -15,6 +15,7 @@ import {
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
   QSS_ENABLED_KEY,
+  QSS_ENDPOINT_KEY,
 } from './invitationLink.const'
 import {
   encodeAuthData,
@@ -23,6 +24,7 @@ import {
   validatePeerData,
   parseAndValidateUrlParams,
   PARAM_CONFIG_V3,
+  encodeQssEndpoint,
 } from './invitationLink.validator'
 import { createLibp2pAddress } from '../libp2p'
 import { createLogger } from '../logger'
@@ -274,6 +276,7 @@ const composeInvitationUrl = (
       url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
       url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
       url.searchParams.append(QSS_ENABLED_KEY, `${data.qssEnabled}`)
+      url.searchParams.append(QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint))
   }
   return url.href
 }

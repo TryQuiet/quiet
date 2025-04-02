@@ -22,6 +22,7 @@ import {
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
   QSS_ENABLED_KEY,
+  QSS_ENDPOINT_KEY,
   TEAM_ID_KEY,
 } from './invitationLink.const'
 import { isPSKcodeValid } from '../libp2p'
@@ -45,8 +46,17 @@ const BASE58_REGEX = /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvw
 export class UrlParamValidatorError extends Error {
   name = 'UrlParamValidatorError'
 
-  constructor(key: string, value: string | null | undefined) {
-    super(`Invalid value '${value}' for key '${key}' in invitation link`)
+  constructor(key: string, value: string | null | undefined, detail?: string) {
+    super(UrlParamValidatorError.generateErrorMessage(key, value, detail))
+  }
+
+  private static generateErrorMessage(key: string, value: string | null | undefined, detail?: string): string {
+    const baseMessage = `Invalid value '${value}' for key '${key}' in invitation link`
+    if (detail == null) {
+      return baseMessage
+    }
+
+    return `${baseMessage} - ${detail}`
   }
 }
 
@@ -75,18 +85,32 @@ export const encodeAuthData = (authData: InvitationAuthData): string => {
 }
 
 /**
+ * Encode a QSS endpoint string as a base64url-encoded string
+ *
+ * @param qssEndpoint QSS endpoint string to encode
+ *
+ * @returns {string} Base64url-encoded string
+ */
+export const encodeQssEndpoint = (qssEndpoint: string): string => {
+  return base64url.encode(Buffer.from(qssEndpoint, 'utf8'))
+}
+
+/**
  * Decodes a base64url-encoded string and creates a fake-URL for parsing and validation
  *
  * Example:
  *
  * Yz1jb21tdW5pdHktbmFtZSZzPTRrZ2Q1bXdxNXo0Zm1md3E => quiet://?c=community-name&s=4kgd5mwq5z4fmfwq
  *
- * @param authDataString Base64url-encoded string representing the InvitationAuthData of the invite link
+ * @param encodedString Base64url-encoded string
  *
- * @returns {string} URL-encoded string of the InvitationAuthData object as URL with parameters
+ * @returns {string} URL-encoded string of the decoded value as URL with parameters
  */
-export const decodeAuthData: InvitationLinkUrlNamedParamProcessorFun<string> = (authDataString: string): string => {
-  return `${DEEP_URL_SCHEME_WITH_SEPARATOR}?${base64url.toBuffer(authDataString).toString('utf-8')}`
+export const decodeFromBase64Url: InvitationLinkUrlNamedParamProcessorFun<string> = (
+  encodedString: string,
+  withSeparator: boolean = true
+): string => {
+  return `${withSeparator ? `${DEEP_URL_SCHEME_WITH_SEPARATOR}?` : ''}${base64url.toBuffer(encodedString).toString('utf-8')}`
 }
 
 /**
@@ -261,7 +285,6 @@ const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationD
 const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
   value: string
 ): Partial<InvitationDataV3> => {
-  logger.warn(`Qss enabled: `, value)
   if (value !== 'true' && value !== 'false') {
     logger.warn(`QSS enabled flag must be set to either 'true' or 'false'`)
     throw new UrlParamValidatorError(QSS_ENABLED_KEY, value)
@@ -269,6 +292,63 @@ const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationData
 
   return {
     qssEnabled: value === 'true',
+  }
+}
+
+/**
+ * Validate the QSS endpoint string
+ *
+ * Example:
+ *
+ * "ws://localhost:3000"
+ *
+ * =>
+ *
+ * {
+ *  "qssEndpoint": "ws://localhost:3000"
+ * }
+ *
+ * @param value QSS websocket endpoint string
+ *
+ * @returns {Partial<InvitationData>} The processed QSS endpoint string represented as a partial InvitationData object
+ */
+const validateQssEndpoint: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
+  value: string
+): Partial<InvitationDataV3> => {
+  let decodedValue: string | undefined = undefined
+  try {
+    decodedValue = decodeFromBase64Url(value, false)
+    const wsUrl = new URL(decodedValue)
+    const errorDetails: string[] = []
+    if (wsUrl.hostname == null || wsUrl.hostname === '') {
+      errorDetails.push(`Hostname was null`)
+    }
+    if (wsUrl.port == null || wsUrl.port === '') {
+      errorDetails.push(`Port was null`)
+    }
+    if (wsUrl.protocol == null || wsUrl.protocol === '') {
+      errorDetails.push(`Protocol was null`)
+    } else if (wsUrl.protocol !== 'ws:' && wsUrl.protocol !== 'wss:') {
+      errorDetails.push(`Protocol must be 'ws:' or 'wss:'`)
+    }
+
+    if (errorDetails.length > 0) {
+      throw new UrlParamValidatorError(QSS_ENDPOINT_KEY, decodedValue, errorDetails.join(', '))
+    }
+
+    return {
+      qssEndpoint: decodedValue,
+    }
+  } catch (e) {
+    if (e instanceof UrlParamValidatorError) {
+      throw e
+    }
+
+    let errorDetail: string | undefined = undefined
+    if (e.message === 'Invalid URL') {
+      errorDetail = 'Value was an invalid URL'
+    }
+    throw new UrlParamValidatorError(QSS_ENDPOINT_KEY, decodedValue ?? value, errorDetail)
   }
 }
 
@@ -297,7 +377,7 @@ const validateAuthData: InvitationLinkUrlNamedParamValidatorFun<string> = (value
     logger.warn(`Auth data string is not a valid base64url-encoded string`)
     throw new UrlParamValidatorError(AUTH_DATA_KEY, value)
   }
-  return decodeAuthData(value)
+  return decodeFromBase64Url(value)
 }
 
 /**
@@ -478,6 +558,10 @@ export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDa
       [QSS_ENABLED_KEY]: {
         required: true,
         validator: validateQssEnabled,
+      },
+      [QSS_ENDPOINT_KEY]: {
+        required: true,
+        validator: validateQssEndpoint,
       },
       [AUTH_DATA_KEY]: {
         required: true,

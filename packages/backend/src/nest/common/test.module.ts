@@ -16,6 +16,8 @@ import {
   LEVEL_DB,
   TEST_DATA_PORT,
   LIBP2P_DB_PATH,
+  QSS_ENABLED,
+  QSS_ENDPOINT,
 } from '../const'
 import { ConfigOptions } from '../types'
 import path from 'path'
@@ -104,6 +106,14 @@ export const defaultConfigForTest = {
       useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
       inject: [DB_PATH],
     },
+    {
+      provide: QSS_ENABLED,
+      useFactory: () => false,
+    },
+    {
+      provide: QSS_ENDPOINT,
+      useFactory: () => undefined,
+    },
   ],
   exports: [
     CONFIG_OPTIONS,
@@ -115,6 +125,8 @@ export const defaultConfigForTest = {
     LEVEL_DB,
     EXPRESS_PROVIDER,
     LIBP2P_DB_PATH,
+    QSS_ENABLED,
+    QSS_ENDPOINT,
   ],
 })
 export class TestModule {}

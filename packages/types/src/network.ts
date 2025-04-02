@@ -39,6 +39,7 @@ export type InvitationDataV3 = InvitationDataP2P & {
   version: InvitationDataVersion.v3
   authData: InvitationAuthData
   qssEnabled: boolean
+  qssEndpoint: string
 }
 
 export type InvitationData = InvitationDataV1 | InvitationDataV2 | InvitationDataV3
@@ -49,8 +50,8 @@ export type InvitationData = InvitationDataV1 | InvitationDataV2 | InvitationDat
 
 // Named parameters
 
-export type InvitationLinkUrlNamedParamValidatorFun<T> = (value: string) => Partial<T> | never
-export type InvitationLinkUrlNamedParamProcessorFun<T> = (value: string) => T
+export type InvitationLinkUrlNamedParamValidatorFun<T> = (value: string, ...args: any[]) => Partial<T> | never
+export type InvitationLinkUrlNamedParamProcessorFun<T> = (value: string, ...args: any[]) => T
 export type InvitationLinkUrlNamedParamConfigMap<T> = Map<string, InvitationLinkUrlNamedParamConfig<T | any>>
 
 export type InvitationLinkUrlNamedParamConfig<T> = {
