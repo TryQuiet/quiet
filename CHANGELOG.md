@@ -1,5 +1,9 @@
 # Changelog
 
+[unreleased]
+
+* Fixes back button navigation issues in user profile screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+
 ## [4.0.3]
 
 ### New features
