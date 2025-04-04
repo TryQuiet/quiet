@@ -415,15 +415,16 @@ export const getSocketFactory = async () => {
     identity: baseTypes.assoc('Identity', 'communityId'),
   })
 
-  factory.define<InitCommunityPayload>(SocketActions.LAUNCH_COMMUNITY, Object, {
-    id: 'launched-community-id',
-    name: 'Launched Community',
-    username: 'community-member',
-  })
+  // TODO: implement with multiple community support
+  // factory.define<InitCommunityPayload>(SocketActions.LAUNCH_COMMUNITY, Object, {
+  //   id: 'launched-community-id',
+  //   name: 'Launched Community',
+  //   username: 'community-member',
+  // })
 
-  factory.define<ResponseLaunchCommunityPayload>(`${SocketActions.LAUNCH_COMMUNITY}_response`, Object, {
-    id: 'launched-community-id',
-  })
+  // factory.define<ResponseLaunchCommunityPayload>(`${SocketActions.LAUNCH_COMMUNITY}_response`, Object, {
+  //   id: 'launched-community-id',
+  // })
 
   // LEAVE_COMMUNITY has no payload
   factory.define(SocketActions.LEAVE_COMMUNITY, Object, {})

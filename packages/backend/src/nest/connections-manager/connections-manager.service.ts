@@ -685,10 +685,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)
     })
 
-    this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
-      this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
-      this.logger.info('Not implemented yet')
-    })
+    // TOOD: implement with multiple communities
+    // this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
+    //   this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
+    //   this.logger.info('Not implemented yet')
+    // })
 
     this.socketService.on(
       SocketActions.CREATE_COMMUNITY,

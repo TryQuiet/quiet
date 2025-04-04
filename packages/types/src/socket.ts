@@ -65,7 +65,7 @@ export enum SocketActions {
 
   CREATE_COMMUNITY = 'createCommunity',
   JOIN_COMMUNITY = 'joinCommunity',
-  LAUNCH_COMMUNITY = 'launchCommunity',
+  // LAUNCH_COMMUNITY = 'launchCommunity', // TOOD: implment with multiple communities
   LEAVE_COMMUNITY = 'leaveCommunity',
 
   // ====== Channels ======
@@ -158,10 +158,10 @@ export interface SocketActionsMap {
   // ====== Communities ======
   [SocketActions.JOIN_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseJoinCommunityPayload) => void>
   [SocketActions.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseCreateCommunityPayload) => void>
-  [SocketActions.LAUNCH_COMMUNITY]: EmitEvent<
-    LaunchCommunityPayload,
-    (response?: ResponseLaunchCommunityPayload) => void
-  >
+  // [SocketActions.LAUNCH_COMMUNITY]: EmitEvent<
+  //   LaunchCommunityPayload,
+  //   (response?: ResponseLaunchCommunityPayload) => void
+  // >
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
 
   // ====== Channels ======

@@ -80,7 +80,7 @@ describe('launchCommunity', () => {
     )
       .withReducer(combineReducers(testReducers))
       .withState(store.getState()) // Inject the current state of the store
-      .apply(socket, socket.emitWithAck, [SocketActions.LAUNCH_COMMUNITY, launchCommunityPayload])
+      // .apply(socket, socket.emitWithAck, [SocketActions.LAUNCH_COMMUNITY, launchCommunityPayload])
       .put(filesActions.checkForMissingFiles(targetCommmunityId)) // Assert this action is dispatched
       .put(networkActions.addInitializedCommunity(targetCommmunityId)) // Assert this action is dispatched
       .put(communitiesActions.setCurrentCommunity(targetCommmunityId)) // Assert this action is dispatched
@@ -105,10 +105,10 @@ describe('launchCommunity', () => {
     )
       .withReducer(combineReducers(testReducers))
       .withState(store.getState()) // Inject the current state of the store
-      .apply(socket, socket.emitWithAck, [SocketActions.LAUNCH_COMMUNITY, launchCommunityPayload])
+      // .apply(socket, socket.emitWithAck, [SocketActions.LAUNCH_COMMUNITY, launchCommunityPayload])
+      .put(communitiesActions.setCurrentCommunity(targetCommmunityId)) // Assert this action is dispatched
       .put(filesActions.checkForMissingFiles(targetCommmunityId)) // Assert this action is dispatched
       .put(networkActions.addInitializedCommunity(targetCommmunityId)) // Assert this action is dispatched
-      .put(communitiesActions.setCurrentCommunity(targetCommmunityId)) // Assert this action is dispatched
       .run()
   })
 })
