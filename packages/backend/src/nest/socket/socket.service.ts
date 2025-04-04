@@ -17,6 +17,7 @@ import {
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
   type NetworkInfo,
+  LaunchCommunityPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -166,6 +167,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
           this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
         }
       )
+
+      socket.on(SocketActions.LAUNCH_COMMUNITY, async (payload: LaunchCommunityPayload) => {
+        this.logger.info(`Launching community ${payload.id}`)
+        this.emit(SocketActions.LAUNCH_COMMUNITY, payload)
+      })
 
       socket.on(SocketActions.LEAVE_COMMUNITY, (callback: (closed: boolean) => void) => {
         this.logger.info('Leaving community')

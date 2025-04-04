@@ -48,6 +48,7 @@ import {
   RequestInvitePayload,
   ResponseInvitePayload,
   LaunchCommunityPayload,
+  ChannelMessage,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -760,9 +761,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
       }
     )
-    this.socketService.on(SocketActions.SEND_MESSAGE, async (args: SendMessagePayload) => {
-      await this.storageService?.channels.sendMessage(args.message)
+    this.socketService.on(SocketActions.SEND_MESSAGE, async (args: ChannelMessage) => {
+      await this.storageService?.channels.sendMessage(args)
     })
+
     this.socketService.on(
       SocketActions.GET_MESSAGES,
       async (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {

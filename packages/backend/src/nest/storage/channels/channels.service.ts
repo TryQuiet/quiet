@@ -429,6 +429,7 @@ export class ChannelsService extends EventEmitter {
    * @param message Message to send
    */
   public async sendMessage(message: ChannelMessage): Promise<boolean> {
+    this.logger.info('Sending message', message)
     const repo = this.publicChannelsRepos.get(message.channelId)
     if (repo == null) {
       this.logger.error(`Could not send message. No '${message.channelId}' channel in saved public channels`)

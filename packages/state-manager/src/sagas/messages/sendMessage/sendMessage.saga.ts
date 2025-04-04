@@ -104,8 +104,7 @@ export function* sendMessageSaga(
     logger.info('New channel subscribed')
   }
 
-  logger.info('Emitting SEND_MESSAGE', id)
-  logger.info('TestMessage', message)
+  logger.info('Emitting SEND_MESSAGE', message)
   yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, message))
   logger.info(`Sent message ${id}`)
 }

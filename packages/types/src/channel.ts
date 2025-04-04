@@ -1,5 +1,6 @@
 import { type EntityState } from '@reduxjs/toolkit'
 import { type FileMetadata } from './files'
+import { Base58, KeyMetadata } from '@localfirst/crdx'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
@@ -33,14 +34,10 @@ export interface PublicChannelSubscription {
 
 // NOTE: These are all typed as any because they are all LFA types and I don't wanna import LFA into
 // the types package.
-export interface SignatureAuthor {
-  generation: number
-  type: string
-  name: string
-}
+export interface SignatureAuthor extends KeyMetadata {}
 
 export interface EncryptionSignature {
-  signature: any
+  signature: Base58
   author: SignatureAuthor
 }
 

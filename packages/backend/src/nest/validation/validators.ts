@@ -34,18 +34,26 @@ const messageMediaSchema = joi.object({
     .allow(null),
 })
 
+const signatureAuthorSchema = joi.object({
+  generation: joi.number().required(),
+  type: joi.string().required(),
+  name: joi.string().required(),
+})
+
+const EncryptionSignatureSchema = joi.object({
+  author: signatureAuthorSchema.required(),
+  signature: joi.string().required(),
+})
+
 const messageSchema = joi.object({
   id: joi.string().required(),
-  userId: joi.string().required(),
-  author: joi.string().required(),
   type: joi.number().required().positive().integer(),
-  message: joi.alternatives(joi.string(), joi.binary()).required(),
-  media: messageMediaSchema,
+  message: joi.string().required(),
   createdAt: joi.number().required(),
-  channelId: joi.string(),
-  channelAddress: joi.string(),
-  signature: joi.string().optional(),
-  pubKey: joi.string().optional(),
+  channelId: joi.string().required(),
+  userId: joi.string().required(),
+  encSignature: EncryptionSignatureSchema,
+  media: messageMediaSchema,
 })
 
 const channelSchema = joi.object({
