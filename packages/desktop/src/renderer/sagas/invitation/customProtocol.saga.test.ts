@@ -1,10 +1,10 @@
-import { communities, getFactory, Store } from '@quiet/state-manager'
+import { communities, getReduxStoreFactory, Store } from '@quiet/state-manager'
 import { Community, CommunityOwnership, InvitationData, InvitationDataV1, JoinCommunityPayload } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
 import { SocketState } from '../socket/socket.slice'
-import { prepareStore } from '../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
@@ -32,7 +32,7 @@ describe('Handle invitation code', () => {
       })
     ).store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     validInvitationData = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
     validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav1[0]).deepUrl()
@@ -62,7 +62,7 @@ describe('Handle invitation code', () => {
   // })
 
   it('does not try to create network if user is already in community', async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
@@ -85,7 +85,7 @@ describe('Handle invitation code', () => {
   // TODO: https://github.com/TryQuiet/quiet/issues/2628
   // it('does not try to create network if user used v2 invitation link and is joining another community', async () => {
   //   const invitationData = validInvitationDatav2[0]
-  //   community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+  //   community = await factory.create('Community', {
   //     name: '',
   //     inviteData: invitationData,
   //   })
@@ -142,7 +142,7 @@ describe('Handle invitation code', () => {
   })
 
   test("doesn't display error if user is connecting with the same community", async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       name: '',
       psk: validInvitationData.psk,
     })

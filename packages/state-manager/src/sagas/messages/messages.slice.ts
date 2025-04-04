@@ -81,10 +81,12 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
+        logger.info('Adding message to Redux store', message.id)
         if (!instanceOfChannelMessage(message)) {
           logger.error('Failed to add message, object not instance of message')
           continue
         }
+        logger.info('Checking if channel exists in Redux store', message.channelId)
         if (!state.publicChannelsMessagesBase.entities[message.channelId]) {
           logger.error('Failed to add message, could not find channel', message.channelId)
           continue

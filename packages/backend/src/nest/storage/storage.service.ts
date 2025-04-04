@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import { type PeerId } from '@libp2p/interface'
 import {
   ConnectionProcessInfo,
-  SocketActionTypes,
+  SocketEvents,
   type UserProfile,
   type UserProfilesStoredEvent,
   type Identity,
@@ -52,7 +52,7 @@ export class StorageService extends EventEmitter {
     this.prepare()
     this.peerId = peerId
 
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
+    this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
 
     this.logger.info(`Starting IPFS`)
     await this.ipfsService.createInstance()
@@ -122,29 +122,11 @@ export class StorageService extends EventEmitter {
     this.logger.timeEnd('Storage.initDatabases')
     this.logger.info('Initialized DBs')
 
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
+    this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
   }
 
   public async stop() {
     await this.channelsService.close()
-
-    // try {
-    //   await this.certificatesStore?.close()
-    // } catch (e) {
-    //   this.logger.error('Error closing certificates db', e)
-    // }
-
-    // try {
-    //   await this.certificatesRequestsStore?.close()
-    // } catch (e) {
-    //   this.logger.error('Error closing certificates db', e)
-    // }
-
-    // try {
-    //   await this.communityMetadataStore?.close()
-    // } catch (e) {
-    //   this.logger.error('Error closing community metadata store', e)
-    // }
 
     try {
       await this.userProfileStore?.close()
@@ -162,141 +144,10 @@ export class StorageService extends EventEmitter {
   }
 
   public attachStoreListeners() {
-    // this.certificatesStore.on(StorageEvents.CERTIFICATES_STORED, async payload => {
-    //   this.emit(StorageEvents.CERTIFICATES_STORED, payload)
-    //   await this.updatePeersList()
-    //   // TODO: Shouldn't we also dial new peers or at least add them
-    //   // to the peer store for the auto-dialer to handle?
-    // })
-
-    // this.certificatesRequestsStore.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
-    //   this.emit(StorageEvents.CSRS_STORED, payload)
-    //   await this.updatePeersList()
-    //   // TODO: Shouldn't we also dial new peers or at least add them
-    //   // to the peer store for the auto-dialer to handle?
-    // })
-
-    // this.communityMetadataStore.on(StorageEvents.COMMUNITY_METADATA_STORED, (meta: CommunityMetadata) => {
-    //   this.certificatesStore.updateMetadata(meta)
-    //   this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
-    // })
-
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
     })
   }
-
-  // public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | null> {
-  //   await this.communityMetadataStore?.setEntry(communityMetadata.id, communityMetadata)
-  //   const meta = await this.communityMetadataStore?.getEntry(communityMetadata.id)
-
-  //   if (meta) {
-  //     this.certificatesStore.updateMetadata(meta)
-  //   }
-  //   return meta
-  // }
-
-  // public async updatePeersList() {
-  //   const community = await this.localDbService.getCurrentCommunity()
-  //   if (!community) {
-  //     throw new Error('Failed to update peers list - community missing')
-  //   }
-
-  //   // Always include existing peers. Otherwise, if CSRs or
-  //   // certificates do not replicate, then this could remove peers.
-  //   const existingPeers = community.peerList ?? []
-  //   this.logger.info('Existing peers count:', existingPeers.length)
-
-  //   const users = await this.getAllUsers()
-  //   const peers = Array.from(
-  //     new Set([...existingPeers, ...users.map(user => createLibp2pAddress(user.onionAddress, user.peerId))])
-  //   )
-  //   const sortedPeers = await this.localDbService.getSortedPeers(peers)
-
-  //   // This should never happen, but just in case
-  //   if (sortedPeers.length === 0) {
-  //     throw new Error('Failed to update peers list - no peers')
-  //   }
-
-  //   this.logger.info('Updating community peer list. Peers count:', sortedPeers.length)
-  //   community.peerList = sortedPeers
-  //   await this.localDbService.setCommunity(community)
-  //   this.emit(StorageEvents.COMMUNITY_UPDATED, community)
-  // }
-
-  // public async loadAllCertificates() {
-  //   this.logger.info('Loading all certificates')
-  //   return await this.certificatesStore.getEntries()
-  // }
-
-  // public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
-  //   this.logger.info('About to save certificate...')
-  //   if (!payload.certificate) {
-  //     this.logger.error('Certificate is either null or undefined, not saving to db')
-  //     return false
-  //   }
-  //   this.logger.info('Saving certificate...')
-  //   await this.certificatesStore.addEntry(payload.certificate)
-  //   return true
-  // }
-
-  // public async saveCSR(payload: SaveCSRPayload): Promise<void> {
-  //   this.logger.info('About to save CSR...', payload.csr)
-  //   await this.certificatesRequestsStore.addEntry(payload.csr)
-  // }
-
-  // /**
-  //  * Retrieve all users (using certificates and CSRs to determine users)
-  //  */
-  // public async getAllUsers(): Promise<UserData[]> {
-  //   const csrs = await this.certificatesRequestsStore.getEntries()
-  //   const certs = await this.certificatesStore.getEntries()
-  //   const allUsersByKey: Record<string, UserData> = {}
-
-  //   this.logger.info(`Retrieving all users. CSRs count: ${csrs.length} Certificates count: ${certs.length}`)
-
-  //   for (const cert of certs) {
-  //     const parsedCert = parseCertificate(cert)
-  //     const pubKey = keyFromCertificate(parsedCert)
-  //     const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
-  //     const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-  //     const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-
-  //     // TODO: This validation should go in CertificatesStore
-  //     if (!pubKey || !onionAddress || !peerId || !username) {
-  //       this.logger.error(
-  //         `Received invalid certificate. onionAddress: ${onionAddress} peerId: ${peerId} username: ${username}`
-  //       )
-  //       continue
-  //     }
-
-  //     allUsersByKey[pubKey] = { onionAddress, peerId, username }
-  //   }
-
-  //   for (const csr of csrs) {
-  //     const parsedCsr = parseCertificationRequest(csr)
-  //     const pubKey = keyFromCertificate(parsedCsr)
-  //     const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
-  //     const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
-  //     const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-
-  //     // TODO: This validation should go in CertificatesRequestsStore
-  //     if (!pubKey || !onionAddress || !peerId || !username) {
-  //       this.logger.error(`Received invalid CSR. onionAddres: ${onionAddress} peerId: ${peerId} username: ${username}`)
-  //       continue
-  //     }
-
-  //     if (!(pubKey in allUsersByKey)) {
-  //       allUsersByKey[pubKey] = { onionAddress, peerId, username }
-  //     }
-  //   }
-
-  //   const allUsers = Object.values(allUsersByKey)
-
-  //   this.logger.info(`All users count: ${allUsers.length}`, allUsers)
-
-  //   return allUsers
-  // }
 
   public async addUserProfile(profile: UserProfile) {
     await this.userProfileStore.setEntry(profile.userId, profile)
@@ -304,7 +155,6 @@ export class StorageService extends EventEmitter {
 
   public async setIdentity(identity: Identity) {
     await this.localDbService.setIdentity(identity)
-    this.emit(SocketActionTypes.IDENTITY_STORED, identity)
   }
 
   public async getIdentity(id: string): Promise<Identity | undefined> {

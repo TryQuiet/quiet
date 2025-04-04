@@ -3,7 +3,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, getFactory } from '@quiet/state-manager'
+import { communities, getReduxStoreFactory } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -25,7 +25,7 @@ describe('deepLinkSaga', () => {
 
   beforeEach(async () => {
     store = (await prepareStore()).store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   test('joins community', async () => {
@@ -53,7 +53,7 @@ describe('deepLinkSaga', () => {
   })
 
   test('displays error if user already belongs to a community', async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       id,
       name: 'rockets',
     })
@@ -88,7 +88,7 @@ describe('deepLinkSaga', () => {
   })
 
   test("doesn't display error if user is connecting with the same community", async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       id,
       name: '',
       psk: validData.psk,

@@ -80,7 +80,6 @@ export class MessagesService extends EventEmitter {
       return {
         ...decryptedMessage.contents,
         userId: decryptedMessage.contents.userId,
-        author: encryptedMessage.encSignature.author.name,
         createdAt: encryptedMessage.createdAt,
         encSignature: encryptedMessage.encSignature,
         verified: decryptedMessage.isValid,

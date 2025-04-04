@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '@reduxjs/toolkit'
-import { getFactory } from '../../utils/tests/factories'
-import { prepareStore } from '../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
@@ -12,6 +12,9 @@ import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
 import { InviteResult } from '@localfirst/auth'
+import { networkSelectors } from '../network/network.selectors'
+import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
+import { networkActions } from '../network/network.slice'
 
 const logger = createLogger('connection.selectors.test')
 
@@ -23,12 +26,12 @@ describe('communitiesSelectors', () => {
   let factory: FactoryGirl
 
   beforeEach(async () => {
-    store = prepareStore({}).store
-    factory = await getFactory(store)
+    store = prepareStore().store
+    factory = await getReduxStoreFactory(store)
   })
 
   it('select peers sorted by quality', async () => {
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       peerList: [
         '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
         '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
@@ -238,5 +241,33 @@ describe('communitiesSelectors', () => {
     // )
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     expect(selectorInvitationUrl).toEqual('')
+  })
+
+  it('sets isJoiningCompleted to true only when all conditions are met', async () => {
+    logger.info('Checking initial state')
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(false)
+
+    logger.info('Creating community')
+    const community = await factory.create('Community')
+    const identity = await factory.create('Identity')
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
+
+    store.dispatch(networkActions.addInitializedCommunity(community.id))
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
+
+    const message = await factory.create('TestMessage')
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(true)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
   })
 })

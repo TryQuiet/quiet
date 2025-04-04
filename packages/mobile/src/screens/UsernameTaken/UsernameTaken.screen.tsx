@@ -41,7 +41,7 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
       fetching={false}
       variant={UsernameVariant.TAKEN}
       handleBackButton={handleBackButton}
-      currentUsername={currentIdentity?.nickname}
+      currentUsername={currentIdentity?.userId}
       registeredUsers={registeredUsers}
     />
   )

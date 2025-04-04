@@ -3,7 +3,7 @@ import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import {
   generateMessageFactoryContentWithId,
-  getFactory,
+  getReduxStoreFactory,
   prepareStore,
   publicChannels,
   Store,
@@ -19,6 +19,7 @@ import { TestModule } from '../../../common/test.module'
 import { StorageModule } from '../../storage.module'
 import { MessagesService } from './messages.service'
 import { EncryptedMessage } from './messages.types'
+import { usage } from 'commander'
 
 const logger = createLogger('messagesService:test')
 
@@ -36,15 +37,13 @@ describe('MessagesService', () => {
 
   beforeAll(async () => {
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<Community>('Community')
     channel = publicChannels.selectors.publicChannels(store.getState())[0]
-    alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
     message = (
-      await factory.create<TestMessage>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(channel.id),
+      await factory.create('TestMessage', {
+        message: generateMessageFactoryContentWithId(channel.id, alice.userId),
       })
     ).message
   })
@@ -57,7 +56,15 @@ describe('MessagesService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain(community.name!, alice.nickname, true)
+    await sigChainService.createChain(community.name!, 'alice', true)
+    alice = await factory.create<Identity>('Identity', {
+      communityId: community.id,
+      userId: sigChainService.getActiveChain().user.userId,
+    })
+    const aliceProfile = await factory.create('UserProfile', {
+      userId: sigChainService.getActiveChain().user.userId,
+      nickname: 'alice',
+    })
     messagesService = await module.resolve(MessagesService)
   })
 

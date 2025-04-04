@@ -21,6 +21,16 @@ export const allUsers = createSelector(users, users => {
   return regUsers
 })
 
+export const getUserById = (userId: string) =>
+  createSelector(users, users => {
+    if (userId in users) {
+      return users[userId]
+    }
+    logger.warn(`User ${userId} not found`)
+    return null
+  })
+
 export const usersSelectors = {
   allUsers,
+  getUserById,
 }

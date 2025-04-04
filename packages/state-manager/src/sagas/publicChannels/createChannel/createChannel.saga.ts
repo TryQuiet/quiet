@@ -4,7 +4,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put } from 'typed-redux-saga'
 
 import { type Socket, applyEmitParams } from '../../../types'
-import { SocketActionTypes, type CreateChannelResponse, CreateChannelPayload } from '@quiet/types'
+import { SocketActions, type CreateChannelResponse, CreateChannelPayload } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('createChannelSaga')
@@ -18,7 +18,7 @@ export function* createChannelSaga(
   const response = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.CREATE_CHANNEL, {
+    applyEmitParams(SocketActions.CREATE_CHANNEL, {
       id: action.payload.id,
       name: action.payload.name,
       description: action.payload.description,

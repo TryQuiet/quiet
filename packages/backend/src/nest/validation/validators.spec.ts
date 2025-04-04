@@ -79,7 +79,6 @@ describe('Validators - Messages', () => {
   test('message with media is valid', () => {
     const msg: ChannelMessage = {
       id: 'fzxjdiasf8ashfisfd',
-      author: 'szakalak',
       userId: 'szakalak',
       type: 1,
       message: 'hello',

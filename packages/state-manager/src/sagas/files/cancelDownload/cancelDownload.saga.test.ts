@@ -1,20 +1,23 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type Socket } from 'socket.io-client'
+import { type Socket } from '../../../types'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { filesActions } from '../files.slice'
 import { cancelDownloadSaga } from './cancelDownload.saga'
-import { type CancelDownload, type Community, DownloadState, type Identity, SocketActionTypes } from '@quiet/types'
+import { type CancelDownload, type Community, DownloadState, type Identity, SocketActions } from '@quiet/types'
+import { MockedSocket } from '../../../utils/tests/mockedSocket'
+import { getSocketFactory } from '../../../utils/tests/factories'
 
 describe('cancelDownloadSaga', () => {
   let store: Store
   let factory: FactoryGirl
+  let socket: MockedSocket
 
   let community: Community
   let alice: Identity
@@ -24,19 +27,22 @@ describe('cancelDownloadSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })
   })
 
-  test('uploading file', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
+  beforeEach(async () => {
+    const socketPayloadFactory = await getSocketFactory()
+    socket = new MockedSocket()
+  })
 
+  test('canceling download', async () => {
     const peerId = alice.networkInfo.peerId.id
 
     const mid = 'mid'
@@ -47,8 +53,8 @@ describe('cancelDownloadSaga', () => {
       cid,
     }
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(cancelDownloadSaga, socket, filesActions.cancelDownload(cancelDownload))
+    const reducer = combineReducers(testReducers)
+    await expectSaga(cancelDownloadSaga, socket as unknown as Socket, filesActions.cancelDownload(cancelDownload))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
@@ -59,7 +65,7 @@ describe('cancelDownloadSaga', () => {
         })
       )
       .apply(socket, socket.emit, [
-        SocketActionTypes.CANCEL_DOWNLOAD,
+        SocketActions.CANCEL_DOWNLOAD,
         {
           peerId,
           mid,

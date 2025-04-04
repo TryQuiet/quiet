@@ -35,6 +35,7 @@ import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
 import { verifyToken } from '@quiet/common'
 import { createLogger } from './common/logger'
+import { SocketActionsMap, SocketEventsMap } from '@quiet/types'
 
 const logger = createLogger('appModule')
 
@@ -96,7 +97,7 @@ export class AppModule {
             const _app = expressProvider
             _app.use(cors())
             const server = createServer(_app)
-            const io = new SocketIO(server, {
+            const io = new SocketIO<SocketActionsMap, SocketEventsMap>(server, {
               cors: {
                 origin: '127.0.0.1',
                 allowedHeaders: ['authorization'],

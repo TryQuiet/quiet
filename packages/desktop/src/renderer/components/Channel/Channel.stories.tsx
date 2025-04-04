@@ -16,7 +16,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
     communityId: 'id',
     userId: 'userId',
-    nickname: 'vader',
     networkInfo: {
       hiddenService: {
         onionAddress: 'onionAddress',
@@ -44,7 +43,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     createdAt: 0,
     channelId: 'general',
     userId: 'test',
-    author: 'test',
   },
   pendingMessages: {},
   channelId: 'general',

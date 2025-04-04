@@ -1,7 +1,8 @@
 import { generateChannelId } from '@quiet/common'
 import { publicChannels } from '@quiet/state-manager'
 import {
-  SocketActionTypes,
+  SocketActions,
+  SocketEvents,
   socketEventData,
   ChannelsReplicatedPayload,
   InitCommunityPayload,
@@ -24,10 +25,10 @@ import CreateUsername from '../renderer/components/CreateUsername/CreateUsername
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { ioMock } from '../shared/setupTests'
-import { identity } from 'lodash'
+import { joinTimestamp } from 'packages/state-manager/src/sagas/identity/identity.selectors'
 
 jest.setTimeout(20_000)
 
@@ -69,15 +70,11 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_COMMUNITY) {
+      if (action === SocketActions.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
-        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
-
-        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
           channels: [
             {
               name: 'general',
@@ -110,6 +107,7 @@ describe('User', () => {
                 noiseKey: 'noiseKey',
               },
             },
+            joinTimestamp: 0,
           },
         } as ResponseCreateCommunityPayload
       }

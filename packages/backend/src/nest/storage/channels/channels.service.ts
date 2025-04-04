@@ -11,7 +11,7 @@ import {
   type MessagesLoadedPayload,
   PublicChannel,
   PushNotificationPayload,
-  SocketActionTypes,
+  SocketEvents,
   ChannelMessageIdsResponse,
   DeleteChannelResponse,
   CreateChannelPayload,
@@ -119,7 +119,7 @@ export class ChannelsService extends EventEmitter {
       const operation = entry.payload.op
       this.logger.info('public-channels database updated', channelId, operation)
 
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
+      this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
 
       const channels = await this.getChannels()
 

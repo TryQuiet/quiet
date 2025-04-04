@@ -1,3 +1,4 @@
+import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
 import { type Identity } from './identity'
 import { InvitationData } from './network'
 
@@ -5,6 +6,7 @@ import { InvitationData } from './network'
 
 export interface Community {
   id: string
+  ownership: CommunityOwnership
   name?: string
   CA?: null | {
     rootCertString: string
@@ -17,7 +19,6 @@ export interface Community {
   psk?: string
   inviteData?: InvitationData | null
   ownerOrbitDbIdentity?: string
-  ownership: CommunityOwnership
 }
 
 export interface CommunityMetadata {
@@ -46,6 +47,10 @@ export interface JoinCommunityPayload {
 }
 
 export interface LaunchCommunityPayload {
+  id: string
+}
+
+export interface LeaveCommunityPayload {
   id: string
 }
 
@@ -78,6 +83,19 @@ export interface ResponseJoinCommunityPayload {
   id: string
   community: Community
   identity: Identity
+}
+
+export interface ResponseLeaveCommunityPayload {
+  id: string
+}
+
+// ----- Invites -----
+export interface RequestInvitePayload {
+  id: Base58 | undefined
+}
+export interface ResponseInvitePayload {
+  valid: boolean
+  newInvite?: InviteResult
 }
 
 // ----- deprecated -----

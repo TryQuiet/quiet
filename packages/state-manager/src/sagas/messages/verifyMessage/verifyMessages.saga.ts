@@ -6,6 +6,7 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 
 import { verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('verifyMessagesSaga')
 
@@ -14,31 +15,38 @@ export function* verifyMessagesSaga(
 ): Generator {
   const messages: ChannelMessage[] = action.payload.messages
 
-  while (true) {
-    for (const message of messages) {
-      let isVerified = Boolean(action.payload.isVerified)
+  for (const message of messages) {
+    let isVerified = !!action.payload.isVerified
 
-      if (message.type === MessageType.Info) {
-        const channel = yield* select(publicChannelsSelectors.getChannelById(message.channelId))
-        if (!channel) {
-          logger.warn(`No channel for ID found in redux`, message.channelId, message.id)
-          return
-        }
+    if (message.type === MessageType.Info) {
+      logger.info('getting channel for info message', message.channelId, message.id)
+      const channel = yield* select(publicChannelsSelectors.getChannelById(message.channelId))
+      if (!channel) {
+        logger.warn(`No channel for ID found in redux`, message.channelId, message.id)
+        return
+      }
 
-        const expectedMessage = yield* call(verifyUserInfoMessage, message.author, channel)
+      const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
+      if (author == null) {
+        logger.warn(`No author for ID found in redux`, message.userId, message.id)
+        isVerified = false
+      } else {
+        const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, channel)
 
         if (message.message !== expectedMessage) {
-          // logger.error(`${message.author} tried to send a malicious info message`)
-          isVerified = true
+          logger.warn(`${author.nickname} tried to send a malicious info message`)
+          logger.info('expected', expectedMessage)
+          logger.info('actual', message.message)
+          isVerified = false
         }
       }
-
-      const verificationStatus: MessageVerificationStatus = {
-        id: message.id,
-        isVerified,
-      }
-
-      yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
     }
+
+    const verificationStatus: MessageVerificationStatus = {
+      id: message.id,
+      isVerified,
+    }
+
+    yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
   }
 }

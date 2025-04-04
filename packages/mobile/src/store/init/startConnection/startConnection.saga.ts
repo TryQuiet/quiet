@@ -17,7 +17,7 @@ import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { encodeSecret } from '@quiet/common'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('startConnection')
@@ -59,7 +59,7 @@ function* setConnectedSaga(socket: Socket): Generator {
   const task = yield* fork(stateManager.useIO, socket)
 
   // @ts-ignore - Why is this broken?
-  yield* apply(socket, socket.emit, [SocketActionTypes.START])
+  yield* apply(socket, socket.emit, [SocketActions.START])
 
   // Handle suspending current connection
   yield* take(initActions.suspendWebsocketConnection)

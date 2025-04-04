@@ -3,7 +3,7 @@ import { jest } from '@jest/globals'
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
 import { type PeerId, isPeerId } from '@libp2p/interface'
-import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
+import { communities, getReduxStoreFactory, identity, prepareStore, Store } from '@quiet/state-manager'
 import {
   createPeerId,
   createTmpDir,
@@ -71,12 +71,12 @@ beforeEach(async () => {
   tmpDir = createTmpDir()
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   store = prepareStore().store
-  factory = await getFactory(store)
+  factory = await getReduxStoreFactory(store)
   communityRootCa = 'rootCa'
-  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+  community = await factory.create('Community', {
     rootCa: communityRootCa,
   })
-  userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+  userIdentity = await factory.create('Identity', {
     communityId: community.id,
     nickname: 'john',
   })
@@ -112,7 +112,7 @@ beforeEach(async () => {
   quietDir = await module.resolve(QUIET_DIR)
 
   const pskBase64 = Libp2pService.generateLibp2pPSK().psk
-  await sigchainService.createChain(community.name!, userIdentity.nickname, false)
+  await sigchainService.createChain(community.name!, 'john', false)
   await sigchainService.saveChain(community.name!)
   await sigchainService.deleteChain(community.name!, false)
   await localDbService.put(LocalDBKeys.PSK, pskBase64)

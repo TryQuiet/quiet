@@ -1,8 +1,8 @@
 import { setupCrypto } from '@quiet/identity'
 import { call } from 'redux-saga-test-plan/matchers'
 import { type Store } from '../../store.types'
-import { getFactory } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type communitiesActions } from '../../communities/communities.slice'
@@ -41,13 +41,12 @@ describe('sendFileMessageSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
 
     sailingChannel = (
@@ -56,7 +55,7 @@ describe('sendFileMessageSaga', () => {
           name: 'sailing',
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('sailing'),
         },
       })
@@ -81,7 +80,7 @@ describe('sendFileMessageSaga', () => {
       },
       tmpPath: undefined,
     }
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
       .withReducer(reducer)
       .withState(store.getState())
@@ -127,7 +126,7 @@ describe('sendFileMessageSaga', () => {
       tmpPath: 'temp/name.ext',
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
       .withReducer(reducer)
       .withState(store.getState())

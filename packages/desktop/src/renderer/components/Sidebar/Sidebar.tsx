@@ -22,8 +22,8 @@ const Sidebar = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const userId = useSelector(users.selectors.myUserId) || ''
   const userProfile = useSelector(users.selectors.myUserProfile)
+  const userId = userProfile?.userId || ''
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)

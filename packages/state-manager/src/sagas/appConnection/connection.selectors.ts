@@ -95,8 +95,8 @@ export const isJoiningCompleted = createSelector(
   areMessagesLoaded,
   areChannelsLoaded,
   (isCommunity, areMessages, areChannels) => {
-    logger.trace('isJoiningCompleted', { isCommunity, areMessages, areChannels })
-    return isCommunity && areMessages && areChannels
+    logger.info('isJoiningCompleted', { isCommunity, areMessages, areChannels })
+    return !!(isCommunity && areChannels && areMessages)
   }
 )
 

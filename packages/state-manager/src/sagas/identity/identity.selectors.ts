@@ -42,14 +42,6 @@ export const joinedCommunities = createSelector(selectCommunities, selectEntitie
 export const joinTimestamp = createSelector(currentIdentity, identity => identity?.joinTimestamp)
 
 export const usernameTaken = createSelector(currentIdentity, allUsers, (identity, users) => {
-  const username = identity?.nickname
-  if (!username) return false
-
-  const allUsersSet = new Set(Object.values(users).map(user => user.username))
-  if (allUsersSet.has(username)) {
-    return true
-  }
-
   return false
 })
 

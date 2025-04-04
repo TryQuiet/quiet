@@ -7,11 +7,12 @@ import StateManager, {
   publicChannels,
   users,
   PUSH_NOTIFICATION_CHANNEL,
-  getFactory,
+  getReduxStoreFactory,
   prepareStore,
   Store,
   communities,
   identity,
+  getBaseTypesFactory,
 } from '@quiet/state-manager'
 import { StoreKeys } from '../../store.keys'
 import { initReducer, InitState } from '../../init/init.slice'
@@ -24,6 +25,7 @@ import {
   FileMetadata,
   Identity,
   MarkUnreadChannelPayload,
+  MessageType,
   PublicChannel,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
@@ -51,7 +53,6 @@ describe('showNotificationSaga', () => {
     createdAt: number
     channelId: string
     userId: string
-    author: string
     media?: FileMetadata
     channelName: string
   }
@@ -59,12 +60,12 @@ describe('showNotificationSaga', () => {
   beforeAll(async () => {
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    const baseTypes = await getBaseTypesFactory()
 
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    community = await factory.create('Community')
+    alice = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
 
     const generalChannelState = publicChannels.selectors.generalChannel(store.getState())
@@ -72,26 +73,24 @@ describe('showNotificationSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('photo'),
         },
       })
     ).channel
-
-    const channelMessage: ChannelMessage = {
+    const channelMessage: ChannelMessage = await factory.create('ChannelMessage', {
       channelId: photoChannel.id,
       createdAt: 0,
       id: 'id',
       message: 'message',
       userId: 'userId',
-      author: 'author',
-      type: 1,
-    }
+      type: MessageType.Basic,
+    })
 
     payload = {
       channelId: photoChannel.id,

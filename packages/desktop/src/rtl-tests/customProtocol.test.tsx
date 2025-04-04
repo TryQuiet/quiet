@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
@@ -42,7 +42,6 @@ describe('Opening app through custom protocol', () => {
 
   const _identity: Partial<Identity> = {
     communityId: id,
-    nickname: '',
     joinTimestamp: 0,
   }
 

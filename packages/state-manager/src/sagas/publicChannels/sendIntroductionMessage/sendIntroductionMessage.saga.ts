@@ -6,19 +6,19 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { userJoinedMessage } from '@quiet/common'
-import { publicChannelsActions } from '../publicChannels.slice'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 export function* sendIntroductionMessageSaga(): Generator {
-  const community = yield* select(communitiesSelectors.currentCommunity)
   const identity = yield* select(identitySelectors.currentIdentity)
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   const isOwner = yield* select(communitiesSelectors.isOwner)
+  const userProfile = yield* select(userProfileSelectors.myUserProfile)
 
-  if (isOwner || !identity || identity.introMessageSent || !generalChannel) {
+  if (isOwner || !identity || identity.introMessageSent || !generalChannel || !userProfile) {
     return
   }
 
-  const message = yield* call(userJoinedMessage, identity.nickname)
+  const message = yield* call(userJoinedMessage, userProfile.nickname)
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
     message,

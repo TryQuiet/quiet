@@ -4,11 +4,11 @@ import { type FileMetadata } from './files'
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
 export interface PublicChannel {
+  id: string
   name: string
   description: string
   owner: string
   timestamp: number
-  id: string
   disabled?: boolean
 }
 
@@ -51,7 +51,6 @@ export interface ChannelMessage {
   createdAt: number
   channelId: string
   userId: string
-  author: string
   encSignature?: EncryptionSignature
   media?: FileMetadata
 }

@@ -1,7 +1,7 @@
 import { shell } from 'electron'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
-import { prepareStore } from '../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { call, fork } from 'typed-redux-saga'
 import { publicChannels, NotificationsSounds } from '@quiet/state-manager'

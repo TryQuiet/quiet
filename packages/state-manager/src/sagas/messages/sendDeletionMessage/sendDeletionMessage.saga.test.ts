@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -30,11 +30,11 @@ describe('sendDeletionMessage', () => {
     setupCrypto()
 
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    owner = await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })
@@ -49,7 +49,7 @@ describe('sendDeletionMessage', () => {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: owner.nickname,
+          owner: owner.userId,
           id: generateChannelId('photo'),
         },
       })
@@ -58,13 +58,13 @@ describe('sendDeletionMessage', () => {
 
   test('send message after deletion standard channel', async () => {
     const channelId = photoChannel.id
-    const message = `@${owner.nickname} deleted #${photoChannel.name}`
+    const message = `@${owner.userId} deleted #${photoChannel.name}`
     const messagePayload: WriteMessagePayload = {
       type: MessageType.Info,
       message,
       channelId: generalChannel.id,
     }
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
@@ -80,7 +80,7 @@ describe('sendDeletionMessage', () => {
   test('not send message after deletion general channel', async () => {
     const channelId = 'general'
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({

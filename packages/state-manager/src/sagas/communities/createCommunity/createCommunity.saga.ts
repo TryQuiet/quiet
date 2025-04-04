@@ -9,7 +9,7 @@ import {
   CommunityOwnership,
   type InitCommunityPayload,
   ResponseCreateCommunityPayload,
-  SocketActionTypes,
+  SocketActions,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
@@ -59,7 +59,7 @@ export function* createCommunitySaga(
   const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload)
+    applyEmitParams(SocketActions.CREATE_COMMUNITY, payload)
   )
 
   if (!createCommunityResponse || !createCommunityResponse.community || !createCommunityResponse.identity) {
@@ -75,4 +75,6 @@ export function* createCommunitySaga(
 
   yield* put(publicChannelsActions.createGeneralChannel())
   logger.info('Community created')
+
+  yield* put(communitiesActions.launchCommunity({ id: communityId }))
 }

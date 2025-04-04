@@ -9,7 +9,7 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata.store'
 import { Community, CommunityMetadata } from '@quiet/types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { Store, getFactory, prepareStore } from '@quiet/state-manager'
+import { Store, getReduxStoreFactory, prepareStore } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { type IdentitiesType, type LogEntry, Entry } from '@orbitdb/core'
 import { libp2pInstanceParams } from '../../common/utils'
@@ -54,7 +54,7 @@ describe('CommmunityMetadataStore', () => {
 
   beforeAll(async () => {
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
     community = await factory.create<Community>('Community')
 
     // const rootCa = await createTestRootCA()

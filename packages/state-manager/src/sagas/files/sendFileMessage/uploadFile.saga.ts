@@ -3,7 +3,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 
 export function* uploadFileSaga(
   socket: Socket,
@@ -18,7 +18,7 @@ export function* uploadFileSaga(
   yield* apply(
     socket,
     socket.emit,
-    applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
+    applyEmitParams(SocketActions.UPLOAD_FILE, {
       file: message.media,
       peerId: identity.networkInfo.peerId.id,
     })

@@ -151,7 +151,6 @@ export class LocalDbService {
 
   // temporarily shoving identity creation here
   public async setIdentity(identity: Identity) {
-    this.logger.info(`Setting identity`, identity.communityId, identity.nickname)
     let identities = await this.get(LocalDBKeys.IDENTITIES)
     if (!identities) {
       identities = {}

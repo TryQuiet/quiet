@@ -7,7 +7,7 @@ import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
 import { createLogger } from '../../logger'
 import { encodeSecret } from '@quiet/common'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 
 const logger = createLogger('socket')
 
@@ -47,7 +47,7 @@ function* setConnectedSaga(socket: Socket): Generator {
   const observers = yield* fork(initObservers)
 
   logger.info('Frontend is ready. Starting backend...')
-  yield* apply(socket, socket.emit, [SocketActionTypes.START])
+  yield* apply(socket, socket.emit, [SocketActions.START])
 
   // Handle suspending current connection
   yield all([

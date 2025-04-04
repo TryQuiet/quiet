@@ -8,7 +8,7 @@ import { renderComponent } from './utils/renderComponent'
 import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from '../screens/Channel/Channel.screen'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, communities, identity } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities, identity } from '@quiet/state-manager'
 
 describe('Channel navigation', () => {
   let socket: MockedSocket
@@ -23,15 +23,12 @@ describe('Channel navigation', () => {
   test('user opens channel screen, navigating from channel list', async () => {
     const { store, root } = await prepareStore({}, socket)
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community = await factory.create('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
 
     renderComponent(

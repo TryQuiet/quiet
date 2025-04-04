@@ -7,8 +7,10 @@ import { communitiesActions } from '../communities.slice'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { networkSelectors } from '../../network/network.selectors'
-import { type InitCommunityPayload, LaunchCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type InitCommunityPayload, LaunchCommunityPayload, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { filesActions } from '../../files/files.slice'
+import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('launchCommunitySaga')
 
@@ -19,7 +21,7 @@ export function* initCommunities(): Generator {
   const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
   for (const community of joinedCommunities) {
     if (!initializedCommunities[community.id]) {
-      yield* put(communitiesActions.launchCommunity(community.id))
+      yield* put(communitiesActions.launchCommunity({ id: community.id }))
     }
   }
 
@@ -33,15 +35,15 @@ export function* launchCommunitySaga(
 ): Generator {
   logger.info('Launching community')
 
-  const communityId = action.payload
+  const { id } = action.payload
 
-  if (!communityId) {
+  if (!id) {
     logger.error('Could not launch community, missing community ID')
     return
   }
 
-  const community = yield* select(communitiesSelectors.selectById(communityId))
-  const identity = yield* select(identitySelectors.selectById(communityId))
+  const community = yield* select(communitiesSelectors.selectById(id))
+  const identity = yield* select(identitySelectors.selectById(id))
 
   if (!identity) {
     logger.error('Could not launch community - identity missing')
@@ -56,6 +58,10 @@ export function* launchCommunitySaga(
   const payload: LaunchCommunityPayload = {
     id: community.id,
   }
-  logger.info(`Launching community ${communityId} with payload`, payload)
-  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
+  logger.info(`Launching community ${id} with payload`, payload)
+  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.LAUNCH_COMMUNITY, payload))
+
+  yield* put(filesActions.checkForMissingFiles(id))
+  yield* put(networkActions.addInitializedCommunity(id))
+  yield* put(communitiesActions.setCurrentCommunity(id))
 }

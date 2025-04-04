@@ -5,12 +5,14 @@ import { call, select } from 'typed-redux-saga'
 import { navigationSelectors } from '../../navigation/navigation.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { createLogger } from '../../../utils/logger'
+import { MarkUnreadChannelPayload } from '@quiet/types'
 
 const logger = createLogger('showNotification')
 
 export function* showNotificationSaga(
   action: PayloadAction<ReturnType<typeof publicChannels.actions.markUnreadChannel>['payload']>
 ): Generator {
+  const payload: MarkUnreadChannelPayload = action.payload
   if (Platform.OS === 'ios') return
   if (AppState.currentState === 'background') return
 
@@ -26,18 +28,10 @@ export function* showNotificationSaga(
     logger.warn(`No channel found for id ${channelId}`)
     return
   }
+  const username = yield* select(users.selectors.getUserProfileById(_message.userId)) || _message.userId
   const messageWithChannelName = { ..._message, channelName: channel.name }
 
   const message = yield* call(JSON.stringify, messageWithChannelName)
-
-  const allUsers = yield* select(users.selectors.allUsers)
-  let username: string
-  try {
-    username = allUsers[_message.userId].username
-  } catch (e) {
-    logger.error(`Could not show notification for channel name ${channel.name} and message id ${_message.id}`, e)
-    return
-  }
 
   yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
 }

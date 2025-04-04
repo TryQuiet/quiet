@@ -1,5 +1,4 @@
 export interface UserData {
-  username: string
   onionAddress: string
   peerId: string
 }
@@ -7,6 +6,7 @@ export interface UserData {
 export interface User extends UserData {
   isRegistered: boolean
   isDuplicated: boolean
+  roles?: string[]
   userId: string
 }
 
@@ -17,9 +17,15 @@ export interface UserProfileDisplayData {
 }
 
 export interface UserProfile {
-  profile: UserProfileDisplayData
-  profileSig?: string // deprecated
+  photo?: string // base64 encoded image
+  nickname: string
+  bio?: string
   userId: string
+}
+
+//The payload for the SET_USER_PROFILE socket action.
+export interface SetUserProfilePayload {
+  profile: UserProfile
 }
 
 export interface UserProfilesStoredEvent {
@@ -27,6 +33,10 @@ export interface UserProfilesStoredEvent {
 }
 
 export interface UsersUpdatedEvent {
+  users: User[]
+}
+
+export interface UsersRemovedEvent {
   users: User[]
 }
 

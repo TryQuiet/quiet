@@ -40,8 +40,7 @@ const getUserProfile = async ({
   const pubKeyDer = Buffer.from(pubKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
 
   return {
-    profile: profile,
-    profileSig: signature,
+    ...profile,
     userId: pubKeyDer,
   }
 }

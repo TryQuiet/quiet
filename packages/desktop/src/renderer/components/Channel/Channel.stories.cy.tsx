@@ -52,12 +52,10 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             createdAt: 0,
             channelId: 'general',
             userId: 'pubKey',
-            author: 'vader',
           }}
           user={{
             communityId: 'id',
             userId: 'userId',
-            nickname: 'vader',
             networkInfo: {
               hiddenService: {
                 onionAddress: 'onionAddress',

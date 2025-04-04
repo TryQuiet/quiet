@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { communities, identity } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import { CommunityOwnership, CreateCommunityPayload } from '@quiet/types'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -16,7 +16,6 @@ const CreateCommunity = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)

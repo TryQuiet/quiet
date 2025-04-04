@@ -3,7 +3,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
-import { DownloadState, SocketActionTypes } from '@quiet/types'
+import { DownloadState, SocketActions } from '@quiet/types'
 
 export function* downloadFileSaga(
   socket: Socket,
@@ -25,7 +25,7 @@ export function* downloadFileSaga(
   yield* apply(
     socket,
     socket.emit,
-    applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
+    applyEmitParams(SocketActions.DOWNLOAD_FILE, {
       peerId: identity.networkInfo.peerId.id,
       metadata: media,
     })

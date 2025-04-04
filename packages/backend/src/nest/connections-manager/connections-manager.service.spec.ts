@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { getFactory, identity, prepareStore, type Store, type communities } from '@quiet/state-manager'
+import { getReduxStoreFactory, identity, prepareStore, type Store, type communities } from '@quiet/state-manager'
 import { CommunityOwnership, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
@@ -37,14 +37,13 @@ describe('ConnectionsManagerService', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
     communityRootCa = 'rootCa'
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       rootCa: communityRootCa,
     })
-    userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    userIdentity = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'john',
     })
 
     module = await Test.createTestingModule({
@@ -59,7 +58,7 @@ describe('ConnectionsManagerService', () => {
     sigChainService = await module.resolve(SigChainService)
 
     // initialize sigchain on local db
-    await sigChainService.createChain(community.name!, userIdentity.nickname, false)
+    await sigChainService.createChain(community.name!, 'john', false)
     await sigChainService.saveChain(community.name!)
     await sigChainService.deleteChain(community.name!, false)
     quietDir = await module.resolve(QUIET_DIR)

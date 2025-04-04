@@ -5,7 +5,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
+import { type ChannelMessage, MessageType, SendingStatus, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
@@ -16,10 +16,11 @@ export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
+  const payload = action.payload as ReturnType<typeof messagesActions.sendMessage>['payload']
   const generatedMessageId = yield* call(generateMessageId)
   const id = action.payload.id || generatedMessageId
   let identity = yield* select(identitySelectors.currentIdentity)
-  while (!identity || !identity.userId || !identity.nickname) {
+  while (!identity || !identity.userId) {
     logger.info('Identity not present, waiting for identity to be added.', identity)
     // This will block until the addNewIdentity action is dispatched.
     const actionIdentity: ReturnType<typeof identityActions.updateIdentity> = yield* take(
@@ -45,12 +46,13 @@ export function* sendMessageSaga(
   const message: ChannelMessage = {
     id,
     userId: identity.userId,
-    author: identity.nickname,
     type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
-    media: action.payload.media,
     createdAt,
     channelId,
+  }
+  if (action.payload.media) {
+    message.media = action.payload.media
   }
 
   // Grey out message until saved in db
@@ -103,12 +105,7 @@ export function* sendMessageSaga(
   }
 
   logger.info('Emitting SEND_MESSAGE', id)
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
-      message,
-    })
-  )
+  logger.info('TestMessage', message)
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, message))
   logger.info(`Sent message ${id}`)
 }

@@ -1,17 +1,17 @@
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { type Store } from '../store.types'
-import { getFactory, publicChannels } from '../..'
+import { getReduxStoreFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { type communitiesActions } from '../communities/communities.slice'
-import { type identityActions } from '../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
 import { type Community, type Identity, type PublicChannel, type ChannelMessage } from '@quiet/types'
+import { getBaseTypesFactory } from '../../utils/tests/factories'
 
 describe('messagesSelectors', () => {
   let store: Store
   let factory: FactoryGirl
+  let baseTypesFactory: FactoryGirl
 
   let community: Community
   let generalChannel: PublicChannel
@@ -21,14 +21,13 @@ describe('messagesSelectors', () => {
   let john: Identity
 
   beforeEach(async () => {
-    setupCrypto()
-
     // Set date display format
     process.env.LC_ALL = 'en_US.UTF-8'
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    baseTypesFactory = await getBaseTypesFactory()
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
@@ -38,12 +37,12 @@ describe('messagesSelectors', () => {
     expect(generalChannel).toBeDefined()
     generalChannelId = generalChannel?.id || ''
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })
 
-    john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    john = await factory.create('Identity', {
       communityId: community.id,
       nickname: 'john',
     })
@@ -55,7 +54,7 @@ describe('messagesSelectors', () => {
     // Build messages
     const authenticMessage: ChannelMessage = {
       ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        await factory.build('TestMessage', {
           identity: alice,
         })
       ).payload.message,
@@ -65,7 +64,7 @@ describe('messagesSelectors', () => {
 
     const spoofedMessage: ChannelMessage = {
       ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        await factory.build('TestMessage', {
           identity: alice,
         })
       ).payload.message,
@@ -74,16 +73,16 @@ describe('messagesSelectors', () => {
     }
 
     // Store messages
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+    await factory.create('TestMessage', {
       identity: alice,
       message: authenticMessage,
       verifyAutomatically: true,
     })
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+    await factory.create('TestMessage', {
       identity: alice,
       message: spoofedMessage,
-      verifyAutomatically: true,
+      verifyAutomatically: false,
     })
 
     store.dispatch(

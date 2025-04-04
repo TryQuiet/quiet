@@ -35,7 +35,8 @@ import {
   type UserProfilesStoredEvent,
   type Identity,
   type UsersUpdatedEvent,
-  SocketActionTypes,
+  SocketEvents,
+  UploadFilePayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -81,122 +82,97 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.setUsers>
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
-    | ReturnType<typeof usersActions.setMyUserId>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
     // UPDATE FOR APP
-    socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
-      logger.info(`${SocketActionTypes.TOR_INITIALIZED}`)
+    socket.on(SocketEvents.TOR_INITIALIZED, () => {
+      logger.info(`${SocketEvents.TOR_INITIALIZED}`)
       emit(connectionActions.setTorInitialized())
     })
-    socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
-      logger.info(`${SocketActionTypes.CONNECTION_PROCESS_INFO}`, payload)
+    socket.on(SocketEvents.CONNECTION_PROCESS_INFO, (payload: string) => {
+      logger.info(`${SocketEvents.CONNECTION_PROCESS_INFO}`, payload)
       emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: NetworkDataPayload) => {
-      logger.info(`${SocketActionTypes.PEER_CONNECTED}`, payload)
+    socket.on(SocketEvents.PEER_CONNECTED, (payload: NetworkDataPayload) => {
+      logger.info(`${SocketEvents.PEER_CONNECTED}`, payload)
       emit(networkActions.addConnectedPeers([payload.peer]))
       emit(connectionActions.setNetworkData(payload))
     })
-    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-      logger.info(`${SocketActionTypes.PEER_DISCONNECTED}`, payload)
+    socket.on(SocketEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      logger.info(`${SocketEvents.PEER_DISCONNECTED}`, payload)
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
     })
-    socket.on(SocketActionTypes.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
-      logger.info(`${SocketActionTypes.MIGRATION_DATA_REQUIRED}`, keys)
+    socket.on(SocketEvents.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
+      logger.info(`${SocketEvents.MIGRATION_DATA_REQUIRED}`, keys)
       emit(appActions.loadMigrationData(keys))
     })
     // Files
-    socket.on(SocketActionTypes.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
-      logger.info(`${SocketActionTypes.MESSAGE_MEDIA_UPDATED}`, payload)
+    socket.on(SocketEvents.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
+      logger.info(`${SocketEvents.MESSAGE_MEDIA_UPDATED}`, payload)
       emit(filesActions.updateMessageMedia(payload))
     })
-    socket.on(SocketActionTypes.FILE_UPLOADED, (payload: FileMetadata) => {
-      logger.info(`${SocketActionTypes.FILE_UPLOADED}`, payload)
-      emit(filesActions.broadcastHostedFile(payload))
+    socket.on(SocketEvents.FILE_UPLOADED, (payload: UploadFilePayload) => {
+      logger.info(`${SocketEvents.FILE_UPLOADED}`, payload)
+      emit(filesActions.broadcastHostedFile(payload.file))
     })
-    socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
-      logger.info(`${SocketActionTypes.DOWNLOAD_PROGRESS}`, payload)
+    socket.on(SocketEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
+      logger.info(`${SocketEvents.DOWNLOAD_PROGRESS}`, payload)
       emit(filesActions.updateDownloadStatus(payload))
     })
-    socket.on(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
-      logger.info(`${SocketActionTypes.REMOVE_DOWNLOAD_STATUS}`, payload)
+    socket.on(SocketEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
+      logger.info(`${SocketEvents.REMOVE_DOWNLOAD_STATUS}`, payload)
       emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
-      logger.info(`${SocketActionTypes.CHANNELS_STORED}`, payload)
+    socket.on(SocketEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+      logger.info(`${SocketEvents.CHANNELS_STORED}`, payload)
       emit(publicChannelsActions.channelsReplicated(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
-      logger.info(`${SocketActionTypes.CHANNEL_SUBSCRIBED}`, payload)
+    socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
+      logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     // Messages
-    socket.on(SocketActionTypes.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
-      logger.info(`${SocketActionTypes.MESSAGE_IDS_STORED}`, payload)
+    socket.on(SocketEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
+      logger.info(`${SocketEvents.MESSAGE_IDS_STORED}`, payload)
       emit(messagesActions.checkForMessages(payload))
     })
-    socket.on(SocketActionTypes.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
-      logger.info(`${SocketActionTypes.MESSAGES_STORED}`, payload)
+    socket.on(SocketEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+      logger.info(`${SocketEvents.MESSAGES_STORED}`, payload)
       emit(messagesActions.removePendingMessageStatuses(payload))
       emit(messagesActions.addMessages(payload))
     })
 
-    // Community
-
-    socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      logger.info(`${SocketActionTypes.COMMUNITY_LAUNCHED}`, payload)
-      emit(filesActions.checkForMissingFiles(payload.id))
-      emit(networkActions.addInitializedCommunity(payload.id))
-      emit(communitiesActions.clearInvitationCodes())
-    })
-
-    socket.on(SocketActionTypes.COMMUNITY_UPDATED, (payload: Community) => {
-      logger.info(`${SocketActionTypes.COMMUNITY_UPDATED}`, payload)
-      emit(communitiesActions.updateCommunityData(payload))
-    })
-
     // Local First Auth
 
-    socket.on(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResult) => {
-      logger.info(`${SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE}`, payload)
+    socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResult) => {
+      logger.info(`${SocketEvents.CREATED_LONG_LIVED_LFA_INVITE}`, payload)
       emit(connectionActions.setLongLivedInvite(payload))
     })
 
     // Errors
-    socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
+    socket.on(SocketEvents.ERROR, (payload: ErrorPayload) => {
       logger.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
 
-    // Identity
-    socket.on(SocketActionTypes.IDENTITY_STORED, (payload: Identity) => {
-      logger.info(`${SocketActionTypes.IDENTITY_STORED}`, payload)
-      emit(identityActions.updateIdentity(payload))
-    })
-
     // Users
 
-    socket.on(SocketActionTypes.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
-      logger.info(`${SocketActionTypes.USERS_UPDATED}`, payload)
+    socket.on(SocketEvents.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
+      logger.info(`${SocketEvents.USERS_UPDATED}`, payload)
       emit(usersActions.setUsers(payload.users))
     })
 
-    socket.on(SocketActionTypes.USERS_REMOVED, (payload: UsersUpdatedEvent) => {
-      logger.info(`${SocketActionTypes.USERS_REMOVED}`, payload)
+    socket.on(SocketEvents.USERS_REMOVED, (payload: UsersUpdatedEvent) => {
+      logger.info(`${SocketEvents.USERS_REMOVED}`, payload)
       emit(usersActions.deleteUsers(payload.users))
     })
 
-    socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`, payload)
+    socket.on(SocketEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload)
       emit(usersActions.setUserProfiles(payload.profiles))
-    })
-    socket.on(SocketActionTypes.SET_MY_USER_ID, (payload: string) => {
-      logger.info(`${SocketActionTypes.SET_MY_USER_ID}`, payload)
-      emit(usersActions.setMyUserId(payload))
     })
     return () => undefined
   })

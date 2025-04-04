@@ -2,13 +2,20 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/react'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { socketActions, SocketState } from '../renderer/sagas/socket/socket.slice'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, identity, getFactory, publicChannels, network, LoadingPanelType } from '@quiet/state-manager'
+import {
+  communities,
+  connection,
+  getReduxStoreFactory,
+  publicChannels,
+  network,
+  LoadingPanelType,
+} from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from '@testing-library/react'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
@@ -37,6 +44,7 @@ describe('Loading panel', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
+    // TOOD: replace with real mock to fix initialized communities selector
   })
 
   it.skip('Displays loading panel before connecting websocket', async () => {
@@ -83,9 +91,9 @@ describe('Loading panel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+    const community = (await factory.build('Community')).payload
 
     logger.info('Adding new community')
     await act(async () => {
@@ -96,7 +104,7 @@ describe('Loading panel', () => {
     })
 
     const channel = (
-      await factory.build<typeof publicChannels.actions.addChannel>('PublicChannel', {
+      await factory.build('PublicChannel', {
         communityId: community.id,
         channel: {
           name: 'general',
@@ -108,7 +116,7 @@ describe('Loading panel', () => {
       })
     ).payload
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })
@@ -148,10 +156,23 @@ describe('Loading panel', () => {
     await act(async () => {
       store.dispatch(publicChannels.actions.addChannel(channel))
     })
-    logger.info('Dispatching closeModal done')
     await act(async () => {
-      store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
     })
+    const message = await factory.create('TestMessage')
+    // Verify that isJoiningCompletedSelector is now true
+    logger.info('Verify that isJoiningCompletedSelector is now true')
+    await waitFor(
+      () => {
+        const isJoiningCompletedSelector = connection.selectors.isJoiningCompleted(store.getState())
+        expect(isJoiningCompletedSelector).toBe(true)
+      },
+      { timeout: 2_000 }
+    )
+    // logger.info('Dispatching closeModal done')
+    // await act(async () => {
+    //   store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
+    // })
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()

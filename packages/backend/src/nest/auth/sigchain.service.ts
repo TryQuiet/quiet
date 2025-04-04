@@ -4,7 +4,7 @@ import { InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } 
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions, SocketEvents } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type ChannelService } from './services/roles/channel.service'
 import { type DeviceService } from './services/members/device.service'
@@ -101,11 +101,10 @@ export class SigChainService {
     }
     this.activeChainTeamName = teamName
     this.attachSocketListeners(this.getChain(teamName))
-    this.socketService.emit(SocketActionTypes.SET_MY_USER_ID, this.getActiveChain().user.userId)
   }
 
   private handleChainUpdate() {
-    this.socketService.emit(SocketActionTypes.USERS_UPDATED, this.getActiveChain().team?.members())
+    this.socketService.emit(SocketEvents.USERS_UPDATED, this.getActiveChain().team?.members())
   }
 
   private attachSocketListeners(chain: SigChain): void {

@@ -10,14 +10,12 @@ export enum StorageEvents {
   UPLOAD_PROGRESS = 'uploadProgress',
   DOWNLOAD_PROGRESS = 'downloadProgress',
   MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',
-  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
   CSRS_STORED = 'csrsStored',
   CERTIFICATES_STORED = 'certificatesStored',
   USER_PROFILES_STORED = 'userProfilesStored',
-  IDENTITY_STORED = 'identityStored',
   // Community
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
   COMMUNITY_UPDATED = 'communityUpdated',

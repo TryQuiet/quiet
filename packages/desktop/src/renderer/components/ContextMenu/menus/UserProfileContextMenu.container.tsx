@@ -112,10 +112,9 @@ export const UserProfileContextMenu: FC = () => {
  * and associated actions (e.g. edit profile)
  */
 export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => void }> = ({ setRoute }) => {
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
-  const username = currentIdentity?.nickname || ''
-  const userId = useSelector(users.selectors.myUserId) || ''
+  const username = userProfile?.nickname || ''
+  const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
 
   return (
@@ -200,10 +199,10 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                 >
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.profile.photo ? (
+                      {userProfile?.photo ? (
                         <img
                           className={classes.profilePhoto}
-                          src={userProfile?.profile.photo}
+                          src={userProfile?.photo}
                           alt={'Your user profile image'}
                         />
                       ) : (
@@ -273,8 +272,8 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const dispatch = useDispatch()
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
-  const username = currentIdentity?.nickname || ''
-  const userId = useSelector(users.selectors.myUserId) || ''
+  const username = userProfile?.nickname || ''
+  const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
     dispatch(users.actions.saveUserProfile({ photo }))
@@ -411,10 +410,10 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                 >
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.profile.photo ? (
+                      {userProfile?.photo ? (
                         <img
                           className={classes.profilePhoto}
-                          src={userProfile?.profile.photo}
+                          src={userProfile?.photo}
                           alt={'Your user profile image'}
                         />
                       ) : (

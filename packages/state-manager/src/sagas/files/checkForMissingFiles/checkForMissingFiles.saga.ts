@@ -9,7 +9,7 @@ import { filesActions } from '../files.slice'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
 import { type networkActions } from '../../network/network.slice'
-import { DownloadState, SocketActionTypes } from '@quiet/types'
+import { DownloadState, SocketActions } from '@quiet/types'
 
 export function* checkForMissingFilesSaga(
   socket: Socket,
@@ -39,7 +39,7 @@ export function* checkForMissingFilesSaga(
           yield* apply(
             socket,
             socket.emit,
-            applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
+            applyEmitParams(SocketActions.DOWNLOAD_FILE, {
               peerId: identity.networkInfo.peerId.id,
               metadata: file,
             })
@@ -67,7 +67,7 @@ export function* checkForMissingFilesSaga(
         yield* apply(
           socket,
           socket.emit,
-          applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
+          applyEmitParams(SocketActions.DOWNLOAD_FILE, {
             peerId: identity.networkInfo.peerId.id,
             metadata: file,
           })

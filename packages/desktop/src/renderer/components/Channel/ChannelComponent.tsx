@@ -246,7 +246,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             channelId={channelId}
             channelName={channelName}
             // TODO https://github.com/TryQuiet/ZbayLite/issues/443
-            inputPlaceholder={`#${channelName} as @${user?.nickname}`}
+            inputPlaceholder={`#${channelName} as @${user?.userId}`}
             onChange={value => {
               onInputChange(value)
             }}

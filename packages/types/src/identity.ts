@@ -20,7 +20,6 @@ export interface NetworkInfo {
 export interface Identity {
   communityId: string
   userId: string
-  nickname: string
   networkInfo: NetworkInfo
   joinTimestamp: number | null
   // When a user first joins a community, they send a message

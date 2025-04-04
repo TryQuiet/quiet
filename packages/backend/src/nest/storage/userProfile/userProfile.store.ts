@@ -103,7 +103,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public static async validateUserProfile(userProfile: UserProfile) {
     try {
-      if (userProfile.profile?.photo && !validatePhoto(userProfile.profile.photo, userProfile.userId)) {
+      if (userProfile?.photo && !validatePhoto(userProfile.photo, userProfile.userId)) {
         return false
       }
     } catch (err) {

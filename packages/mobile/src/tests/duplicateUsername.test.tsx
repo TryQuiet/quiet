@@ -5,7 +5,7 @@ import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, communities, identity, users } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities, identity, users } from '@quiet/state-manager'
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { initActions } from '../store/init/init.slice'
 import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
@@ -29,9 +29,9 @@ describe('Duplicate username warning', () => {
 
     // store.dispatch(initActions.setStoreReady())
 
-    // factory = await getFactory(store)
+    // factory = await getReduxStoreFactory(store)
 
-    // const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    // const community = await factory.create(
     //   'Community'
     // )
 
@@ -42,7 +42,7 @@ describe('Duplicate username warning', () => {
     //   })
     // ).payload
 
-    // await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    // await factory.create('Identity', {
     //   id: community.id,
     //   nickname: 'alice',
     //   userCertificate: null,

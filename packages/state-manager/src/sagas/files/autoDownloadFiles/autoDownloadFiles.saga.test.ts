@@ -1,379 +1,389 @@
-// import { setupCrypto } from '@quiet/identity'
-// import { type Store } from '../../store.types'
-// import { generateMessageFactoryContentWithId, getFactory, type publicChannels } from '../../..'
-// import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
-// import { combineReducers } from '@reduxjs/toolkit'
-// import { expectSaga } from 'redux-saga-test-plan'
-// import { type Socket } from 'socket.io-client'
-// import { type communitiesActions } from '../../communities/communities.slice'
-// import { type identityActions } from '../../identity/identity.slice'
-// import { messagesActions } from '../../messages/messages.slice'
-// import { type FactoryGirl } from 'factory-girl'
-// import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
-// import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-// import { DateTime } from 'luxon'
-// import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
-// import { generateChannelId } from '@quiet/common'
-// import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-// import {
-//   type Community,
-//   type FileMetadata,
-//   type Identity,
-//   MessageType,
-//   type PublicChannel,
-//   SocketActionTypes,
-// } from '@quiet/types'
+import { setupCrypto } from '@quiet/identity'
+import { type Store } from '../../store.types'
+import { generateMessageFactoryContentWithId, getReduxStoreFactory, type publicChannels } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { type Socket } from '../../../types'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { messagesActions } from '../../messages/messages.slice'
+import { type FactoryGirl } from 'factory-girl'
+import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { DateTime } from 'luxon'
+import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
+import { generateChannelId } from '@quiet/common'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import {
+  type Community,
+  type FileMetadata,
+  type Identity,
+  MessageType,
+  type PublicChannel,
+  SocketActions,
+} from '@quiet/types'
+import { MockedSocket } from '../../../utils/tests/mockedSocket'
+import { getBaseTypesFactory, getSocketFactory } from '../../../utils/tests/factories'
+import { channel } from 'redux-saga'
 
-// describe('downloadFileSaga', () => {
-//   let store: Store
-//   let factory: FactoryGirl
+describe('autoDownloadFilesSaga', () => {
+  let store: Store
+  let factory: FactoryGirl
+  let socket: MockedSocket
 
-//   let community: Community
-//   let alice: Identity
+  let community: Community
+  let alice: Identity
 
-//   let sailingChannel: PublicChannel
-//   let generalChannel: PublicChannel
+  let sailingChannel: PublicChannel
+  let generalChannel: PublicChannel
 
-//   beforeAll(async () => {
-//     setupCrypto()
+  beforeAll(async () => {
+    setupCrypto()
 
-//     store = prepareStore().store
+    store = prepareStore().store
 
-//     factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-//     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-//     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
-//     if (generalChannelState) generalChannel = generalChannelState
-//     expect(generalChannel).not.toBeUndefined()
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
-//     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-//       communityId: community.id,
-//       nickname: 'alice',
-//     })
+    alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
 
-//     sailingChannel = (
-//       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
-//         channel: {
-//           name: 'sailing',
-//           description: 'Welcome to #sailing',
-//           timestamp: DateTime.utc().valueOf(),
-//           owner: alice.nickname,
-//           id: generateChannelId('sailing'),
-//         },
-//       })
-//     ).channel
-//   })
+    sailingChannel = (
+      await factory.create('PublicChannel', {
+        channel: {
+          name: 'sailing',
+          description: 'Welcome to #sailing',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.userId,
+          id: generateChannelId('sailing'),
+        },
+      })
+    ).channel
+  })
 
-//   test('auto download file of type image', async () => {
-//     const socket = { emit: jest.fn() } as unknown as Socket
+  beforeEach(async () => {
+    const socketPayloadFactory = await getSocketFactory()
+    socket = new MockedSocket()
+  })
 
-//     const id = Math.random().toString(36).substr(2.9)
+  test('auto download file of type image', async () => {
+    const id = Math.random().toString(36).substring(2, 9)
 
-//     store.dispatch(
-//       publicChannelsActions.setCurrentChannel({
-//         channelId: generalChannel.id,
-//       })
-//     )
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
 
-//     const media: FileMetadata = {
-//       cid: 'cid',
-//       path: null,
-//       name: 'image',
-//       ext: 'png',
-//       message: {
-//         id,
-//         channelId: generalChannel.id,
-//       },
-//     }
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'image',
+      ext: 'png',
+      message: {
+        id,
+        channelId: generalChannel.id,
+      },
+    }
+    const baseTypes = await getBaseTypesFactory()
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        userId: alice.userId,
+        channelId: generalChannel.id,
+        type: MessageType.Image,
+      }),
+      verifyAutomaically: true,
+    })
 
-//     const reducer = combineReducers(reducers)
-//     await expectSaga(
-//       autoDownloadFilesSaga,
-//       socket,
-//       messagesActions.addMessages({
-//         messages: [
-//           {
-//             id,
-//             type: MessageType.Image,
-//             message: 'message',
-//             createdAt: 8,
-//             channelId: generalChannel.id,
-//             signature: 'signature',
-//             pubKey: 'publicKey',
-//             media,
-//           },
-//         ],
-//       })
-//     )
-//       .withReducer(reducer)
-//       .withState(store.getState())
-//       .apply(socket, socket.emit, [
-//         SocketActionTypes.DOWNLOAD_FILE,
-//         {
-//           peerId: alice.networkInfo.peerId.id,
-//           metadata: media,
-//         },
-//       ])
-//       .run()
-//   })
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket as unknown as Socket,
+      messagesActions.addMessages({
+        messages: [message],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: media,
+        },
+      ])
+      .run()
+  })
 
-//   test('auto download file of type other than image', async () => {
-//     const socket = { emit: jest.fn() } as unknown as Socket
+  test('auto download file of type other than image', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
 
-//     const id = Math.random().toString(36).substr(2.9)
+    const id = Math.random().toString(36).substr(2.9)
 
-//     store.dispatch(
-//       publicChannelsActions.setCurrentChannel({
-//         channelId: generalChannel.id,
-//       })
-//     )
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
 
-//     const media: FileMetadata = {
-//       cid: 'cid',
-//       path: null,
-//       name: 'file',
-//       ext: 'ext',
-//       message: {
-//         id,
-//         channelId: generalChannel.id,
-//       },
-//     }
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id,
+        channelId: generalChannel.id,
+      },
+    }
 
-//     const reducer = combineReducers(reducers)
-//     await expectSaga(
-//       autoDownloadFilesSaga,
-//       socket,
-//       messagesActions.addMessages({
-//         messages: [
-//           {
-//             id,
-//             type: MessageType.File,
-//             message: 'message',
-//             createdAt: 8,
-//             channelId: generalChannel.id,
-//             signature: 'signature',
-//             pubKey: 'publicKey',
-//             media,
-//           },
-//         ],
-//       })
-//     )
-//       .withReducer(reducer)
-//       .withState(store.getState())
-//       .apply(socket, socket.emit, [
-//         SocketActionTypes.DOWNLOAD_FILE,
-//         {
-//           peerId: alice.networkInfo.peerId.id,
-//           metadata: media,
-//         },
-//       ])
-//       .run()
-//   })
+    const baseTypes = await getBaseTypesFactory()
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        userId: alice.userId,
+        channelId: generalChannel.id,
+        type: MessageType.File,
+        media,
+      }),
+      verifyAutomaically: true,
+    })
 
-//   test('do not auto-download already locally stored file', async () => {
-//     const socket = { emit: jest.fn() } as unknown as Socket
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.addMessages({
+        messages: [message],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: media,
+        },
+      ])
+      .run()
+  })
 
-//     const id = Math.random().toString(36).substr(2.9)
+  test('do not auto-download already locally stored file', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
 
-//     store.dispatch(
-//       publicChannelsActions.setCurrentChannel({
-//         channelId: generalChannel.id,
-//       })
-//     )
+    const id = Math.random().toString(36).substr(2.9)
 
-//     const media: FileMetadata = {
-//       cid: 'cid',
-//       path: 'path/to/file.ext',
-//       name: 'file',
-//       ext: 'ext',
-//       message: {
-//         id,
-//         channelId: generalChannel.id,
-//       },
-//     }
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
 
-//     const message = (
-//       await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-//         identity: alice,
-//         message: generateMessageFactoryContentWithId(generalChannel.id),
-//       })
-//     ).message
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: 'path/to/file.ext',
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id,
+        channelId: generalChannel.id,
+      },
+    }
 
-//     const reducer = combineReducers(reducers)
-//     await expectSaga(
-//       autoDownloadFilesSaga,
-//       socket,
-//       messagesActions.addMessages({
-//         messages: [message],
-//       })
-//     )
-//       .withReducer(reducer)
-//       .withState(store.getState())
-//       .not.apply(socket, socket.emit, [
-//         SocketActionTypes.DOWNLOAD_FILE,
-//         {
-//           peerId: alice.networkInfo.peerId.id,
-//           metadata: media,
-//         },
-//       ])
-//       .run()
-//   })
+    const baseTypes = await getBaseTypesFactory()
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        id,
+        userId: alice.userId,
+        channelId: generalChannel.id,
+        type: MessageType.File,
+        media,
+      }),
+      verifyAutomaically: true,
+    })
 
-//   test('do not auto-download already locally stored file (from non-active channel)', async () => {
-//     const socket = { emit: jest.fn() } as unknown as Socket
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.addMessages({
+        messages: [message],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: media,
+        },
+      ])
+      .run()
+  })
 
-//     const id = Math.random().toString(36).substr(2.9)
+  test('do not auto-download already locally stored file (from non-active channel)', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
 
-//     store.dispatch(
-//       publicChannelsActions.setCurrentChannel({
-//         channelId: sailingChannel.id,
-//       })
-//     )
+    const id = Math.random().toString(36).substr(2.9)
 
-//     const media: FileMetadata = {
-//       cid: 'cid',
-//       path: 'path/to/file.ext',
-//       name: 'file',
-//       ext: 'ext',
-//       message: {
-//         id,
-//         channelId: generalChannel.id,
-//       },
-//     }
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: sailingChannel.id,
+      })
+    )
 
-//     const message = (
-//       await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-//         identity: alice,
-//         message: generateMessageFactoryContentWithId(generalChannel.id),
-//       })
-//     ).message
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: 'path/to/file.ext',
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id,
+        channelId: generalChannel.id,
+      },
+    }
 
-//     const reducer = combineReducers(reducers)
-//     await expectSaga(
-//       autoDownloadFilesSaga,
-//       socket,
-//       messagesActions.addMessages({
-//         messages: [message],
-//       })
-//     )
-//       .withReducer(reducer)
-//       .withState(store.getState())
-//       .not.apply(socket, socket.emit, [
-//         SocketActionTypes.DOWNLOAD_FILE,
-//         {
-//           peerId: alice.networkInfo.peerId.id,
-//           metadata: media,
-//         },
-//       ])
-//       .run()
-//   })
+    const baseTypes = await getBaseTypesFactory()
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        id,
+        userId: alice.userId,
+        channelId: generalChannel.id,
+        type: MessageType.File,
+        media,
+      }),
+      verifyAutomaically: true,
+    })
 
-//   test('do not auto-download file above the size limit', async () => {
-//     const socket = { emit: jest.fn() } as unknown as Socket
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.addMessages({
+        messages: [message],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: media,
+        },
+      ])
+      .run()
+  })
 
-//     const id = Math.random().toString(36).substr(2.9)
+  test('do not auto-download file above the size limit', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
 
-//     store.dispatch(
-//       publicChannelsActions.setCurrentChannel({
-//         channelId: generalChannel.id,
-//       })
-//     )
+    const id = Math.random().toString(36).substr(2.9)
 
-//     const media: FileMetadata = {
-//       cid: 'cid',
-//       path: null,
-//       name: 'file',
-//       ext: 'ext',
-//       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
-//       message: {
-//         id,
-//         channelId: generalChannel.id,
-//       },
-//     }
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
 
-//     const reducer = combineReducers(reducers)
-//     await expectSaga(
-//       autoDownloadFilesSaga,
-//       socket,
-//       messagesActions.addMessages({
-//         messages: [
-//           {
-//             id,
-//             type: MessageType.File,
-//             message: 'message',
-//             createdAt: 8,
-//             channelId: generalChannel.id,
-//             signature: 'signature',
-//             pubKey: 'publicKey',
-//             media,
-//           },
-//         ],
-//       })
-//     )
-//       .withReducer(reducer)
-//       .withState(store.getState())
-//       .not.apply(socket, socket.emit, [
-//         SocketActionTypes.DOWNLOAD_FILE,
-//         {
-//           peerId: alice.networkInfo.peerId.id,
-//           metadata: media,
-//         },
-//       ])
-//       .run()
-//   })
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'file',
+      ext: 'ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      message: {
+        id,
+        channelId: generalChannel.id,
+      },
+    }
 
-//   test('do not auto-download image above the size limit', async () => {
-//     const socket = { emit: jest.fn() } as unknown as Socket
+    const baseTypes = await getBaseTypesFactory()
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        id,
+        userId: alice.userId,
+        channelId: generalChannel.id,
+        type: MessageType.File,
+        media,
+      }),
+      verifyAutomaically: true,
+    })
 
-//     const id = Math.random().toString(36).substr(2.9)
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.addMessages({
+        messages: [message],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: media,
+        },
+      ])
+      .run()
+  })
 
-//     store.dispatch(
-//       publicChannelsActions.setCurrentChannel({
-//         channelId: generalChannel.id,
-//       })
-//     )
+  test('do not auto-download image above the size limit', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
 
-//     const media: FileMetadata = {
-//       cid: 'cid',
-//       path: null,
-//       name: 'image',
-//       ext: 'jpg',
-//       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
-//       message: {
-//         id,
-//         channelId: generalChannel.id,
-//       },
-//     }
+    const id = Math.random().toString(36).substr(2.9)
 
-//     const reducer = combineReducers(reducers)
-//     await expectSaga(
-//       autoDownloadFilesSaga,
-//       socket,
-//       messagesActions.addMessages({
-//         messages: [
-//           {
-//             id,
-//             type: MessageType.Image,
-//             message: 'message',
-//             createdAt: 8,
-//             channelId: generalChannel.id,
-//             signature: 'signature',
-//             pubKey: 'publicKey',
-//             media,
-//           },
-//         ],
-//       })
-//     )
-//       .withReducer(reducer)
-//       .withState(store.getState())
-//       .not.apply(socket, socket.emit, [
-//         SocketActionTypes.DOWNLOAD_FILE,
-//         {
-//           peerId: alice.networkInfo.peerId.id,
-//           metadata: media,
-//         },
-//       ])
-//       .run()
-//   })
-// })
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'image',
+      ext: 'jpg',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      message: {
+        id,
+        channelId: generalChannel.id,
+      },
+    }
+
+    const message = await factory.create('TestMessage', {
+      id,
+      type: MessageType.Image,
+      channelId: generalChannel.id,
+      media,
+    })
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.addMessages({
+        messages: [message],
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: media,
+        },
+      ])
+      .run()
+  })
+})

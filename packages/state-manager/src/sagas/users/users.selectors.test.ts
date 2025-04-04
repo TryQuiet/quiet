@@ -1,8 +1,8 @@
 import { Store } from '@reduxjs/toolkit'
-import { prepareStore } from '../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
 
 import { FactoryGirl } from 'factory-girl'
-import { getFactory } from '../../utils/tests/factories'
+import { getReduxStoreFactory } from '../../utils/tests/factories'
 
 import { keyFromCertificate, parseCertificate, parseCertificationRequest } from '@quiet/identity'
 import { Identity, Community } from '@quiet/types'
@@ -34,15 +34,15 @@ describe('users selectors', () => {
   beforeAll(async () => {
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create('Identity', {
       communityId: community.id,
     })
 
-    aliceUnregistered = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    aliceUnregistered = await factory.create('Identity', {
       communityId: community.id,
       nickname: aliceCertificateData.username,
       userId: '',

@@ -5,6 +5,7 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { MessageType, type WriteMessagePayload } from '@quiet/types'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 export function* sendDeletionMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendDeletionMessage>['payload']>
@@ -13,7 +14,7 @@ export function* sendDeletionMessageSaga(
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   if (!generalChannel) return
 
-  const user = yield* select(identitySelectors.currentIdentity)
+  const user = yield* select(userProfileSelectors.myUserProfile)
 
   const isGeneral = channelId === generalChannel.id
 

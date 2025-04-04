@@ -8,7 +8,7 @@
 // import { ioMock } from '../shared/setupTests'
 // import { socketEventData } from '@quiet/types'
 // import { renderComponent } from '../renderer/testUtils/renderComponent'
-// import { prepareStore } from '../renderer/testUtils/prepareStore'
+// import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 // import { StoreKeys } from '../renderer/store/store.keys'
 
 // import CreateChannel from '../renderer/components/Channel/CreateChannel/CreateChannel'
@@ -22,7 +22,8 @@
 //   ErrorMessages,
 //   type MessagesLoadedPayload,
 //   SendMessagePayload,
-//   SocketActionTypes,
+//   SocketActions,
+//   SocketEvents,
 //   type PublicChannel,
 // } from '@quiet/types'
 
@@ -55,9 +56,9 @@
 //       socket // Fork state manager's sagas
 //     )
 
-//     const factory = await getFactory(store)
+//     const factory = await getReduxStoreFactory(store)
 
-//     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+//     await factory.create('Identity', {
 //       nickname: 'alice',
 //     })
 
@@ -87,30 +88,30 @@
 //       socket // Fork state manager's sagas
 //     )
 
-//     const factory = await getFactory(store)
-//     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+//     const factory = await getReduxStoreFactory(store)
+//     const alice = await factory.create('Identity', {
 //       nickname: 'alice',
 //     })
 //     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
-//     const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+//     const mockImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
 //       const action = input[0]
-//       if (action === SocketActionTypes.CREATE_CHANNEL) {
+//       if (action === SocketActions.CREATE_CHANNEL) {
 //         const payload = input[1] as CreateChannelPayload
 //         expect(payload.channel.owner).toEqual(alice.nickname)
 //         expect(payload.channel.name).toEqual(channelName.output)
 //         const channelEntities = store.getState().PublicChannels.channels.entities
 //         const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
-//         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
+//         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
 //           channels: [...channels, payload.channel],
 //         })
 //       }
-//       if (action === SocketActionTypes.SEND_MESSAGE) {
+//       if (action === SocketActions.SEND_MESSAGE) {
 //         const data = input[1] as SendMessagePayload
 //         const { message } = data
 //         expect(message.channelId).toEqual(channelName.output)
 //         expect(message.message).toEqual(`Created #${channelName.output}`)
-//         return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
+//         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
 //           messages: [message],
 //         })
 //       }
@@ -171,10 +172,10 @@
 //       {},
 //       socket // Fork state manager's sagas
 //     )
-//     const factory = await getFactory(store)
+//     const factory = await getReduxStoreFactory(store)
 
 //     const channel =
-//       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
+//       await factory.create('PublicChannel')
 
 //     renderComponent(<CreateChannel />, store)
 
@@ -197,9 +198,9 @@
 //       socket // Fork state manager's sagas
 //     )
 
-//     const factory = await getFactory(store)
+//     const factory = await getReduxStoreFactory(store)
 
-//     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+//     await factory.create('Identity', {
 //       nickname: 'alice',
 //     })
 
@@ -243,9 +244,9 @@
 //       socket // Fork state manager's sagas
 //     )
 
-//     const factory = await getFactory(store)
+//     const factory = await getReduxStoreFactory(store)
 
-//     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+//     await factory.create('Identity', {
 //       nickname: 'alice',
 //     })
 
@@ -297,31 +298,31 @@
 //       socket // Fork state manager's sagas
 //     )
 
-//     const factory = await getFactory(store)
+//     const factory = await getReduxStoreFactory(store)
 
-//     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+//     const alice = await factory.create('Identity', {
 //       nickname: 'alice',
 //     })
 
-//     const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+//     const mockImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
 //       const action = input[0]
-//       if (action === SocketActionTypes.CREATE_CHANNEL) {
+//       if (action === SocketActions.CREATE_CHANNEL) {
 //         const payload = input[1] as CreateChannelPayload
 //         // const payload = data[0]
 //         expect(payload.channel.owner).toEqual(alice.nickname)
 //         expect(payload.channel.name).toEqual(channelName)
 //         const channelEntities = store.getState().PublicChannels.channels.entities
 //         const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
-//         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
+//         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
 //           channels: [...channels, payload.channel],
 //         })
 //       }
-//       if (action === SocketActionTypes.SEND_MESSAGE) {
+//       if (action === SocketActions.SEND_MESSAGE) {
 //         const data = input[1] as SendMessagePayload
 //         const { message } = data
 //         expect(message.channelId).toEqual(channelName)
 //         expect(message.message).toEqual(`Created #${channelName}`)
-//         return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
+//         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
 //           messages: [message],
 //         })
 //       }
@@ -393,22 +394,22 @@
 //       socket // Fork state manager's sagas
 //     )
 
-//     const factory = await getFactory(store)
-//     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+//     const factory = await getReduxStoreFactory(store)
+//     const alice = await factory.create('Identity', {
 //       nickname: 'alice',
 //     })
 
 //     const channels = ['zzz', 'abc', '12a']
 
-//     const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
+//     const mockImpl = async (...input: [SocketActions, ...socketEventData<[CreateChannelPayload]>]) => {
 //       const action = input[0]
-//       if (action === SocketActionTypes.CREATE_CHANNEL) {
+//       if (action === SocketActions.CREATE_CHANNEL) {
 //         const data = input[1]
 //         const payload = data
 //         expect(payload.channel.owner).toEqual(alice.nickname)
 //         const channelEntities = store.getState().PublicChannels.channels.entities
 //         const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
-//         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
+//         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
 //           channels: [...channels, payload.channel],
 //         })
 //       }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActionTypes } from '@quiet/types'
+import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActions } from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -22,7 +22,7 @@ export const CreateChannel = () => {
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const error = communityErrors[SocketActionTypes.CREATE_CHANNEL]
+  const error = communityErrors[SocketActions.CREATE_CHANNEL]
 
   const createChannelModal = useModal(ModalName.createChannel)
 
@@ -52,7 +52,7 @@ export const CreateChannel = () => {
       logger.error('No identity found')
       dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.CREATE_CHANNEL,
+          type: SocketActions.CREATE_CHANNEL,
           code: ErrorCodes.NOT_FOUND,
           message: ErrorMessages.GENERAL,
           community: community,
@@ -64,7 +64,7 @@ export const CreateChannel = () => {
     if (channels.some(channel => channel.name === name)) {
       dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.CREATE_CHANNEL,
+          type: SocketActions.CREATE_CHANNEL,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.CHANNEL_NAME_TAKEN,
           community: community,

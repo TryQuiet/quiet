@@ -58,7 +58,12 @@ export { storeMigrations } from './sagas/store.migrations'
 export { prepareStore } from './utils/tests/prepareStore'
 export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 
-export { getFactory, generateMessageFactoryContentWithId } from './utils/tests/factories'
+export {
+  getReduxStoreFactory,
+  getBaseTypesFactory,
+  getSocketFactory,
+  generateMessageFactoryContentWithId,
+} from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'

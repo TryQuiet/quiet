@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
-import { prepareStore } from '../../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 import CreateChannel from './CreateChannel'
@@ -15,7 +15,7 @@ import CreateChannelComponent from './CreateChannelComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
-import { getFactory, identity, publicChannels } from '@quiet/state-manager'
+import { getReduxStoreFactory, identity, publicChannels } from '@quiet/state-manager'
 
 import { createLogger } from '../../../logger'
 
@@ -36,9 +36,9 @@ describe('Add new channel', () => {
       socket // Fork State-manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       nickname: 'alice',
     })
 

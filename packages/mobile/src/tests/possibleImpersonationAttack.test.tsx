@@ -3,7 +3,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, communities, identity } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities, identity } from '@quiet/state-manager'
 import { initActions } from '../store/init/init.slice'
 
 describe('Possible Impersonation Attack', () => {
@@ -22,13 +22,11 @@ describe('Possible Impersonation Attack', () => {
 
     store.dispatch(initActions.setStoreReady())
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community = await factory.create('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })

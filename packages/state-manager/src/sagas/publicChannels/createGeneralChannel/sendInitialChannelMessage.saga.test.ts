@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory } from '../../..'
-import { prepareStore } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -31,11 +31,11 @@ describe('sendInitialChannelMessageSaga', () => {
     setupCrypto()
 
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    owner = await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })
@@ -50,7 +50,7 @@ describe('sendInitialChannelMessageSaga', () => {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: owner.nickname,
+          owner: owner.userId,
           id: generateChannelId('photo'),
         },
       })
@@ -58,7 +58,7 @@ describe('sendInitialChannelMessageSaga', () => {
   })
 
   test('send initial channel message', async () => {
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
@@ -80,7 +80,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
   test('send deletion message for general channel', async () => {
     store.dispatch(publicChannelsActions.startGeneralRecreation())
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
@@ -93,7 +93,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .put(
         messagesActions.sendMessage({
           type: 3,
-          message: generalChannelDeletionMessage(owner.nickname),
+          message: generalChannelDeletionMessage(owner.userId),
           channelId: generalChannel.id,
         })
       )

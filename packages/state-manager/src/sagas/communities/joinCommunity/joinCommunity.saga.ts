@@ -8,10 +8,11 @@ import {
   CommunityOwnership,
   type InitCommunityPayload,
   JoinCommunityPayload,
-  SocketActionTypes,
+  SocketActions,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
+import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('joinCommunitySaga')
 
@@ -47,11 +48,12 @@ export function* joinCommunitySaga(
   const createdCommunity: Community | undefined = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.JOIN_COMMUNITY, payload)
+    applyEmitParams(SocketActions.JOIN_COMMUNITY, payload)
   )
   if (!createdCommunity) {
     logger.error('Failed to join community - invalid response from backend')
     return
   }
   yield* put(communitiesActions.updateCommunityData(createdCommunity))
+  yield* put(communitiesActions.setCurrentCommunity(createdCommunity.id))
 }

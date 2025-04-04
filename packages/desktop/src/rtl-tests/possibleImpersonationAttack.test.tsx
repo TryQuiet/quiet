@@ -6,7 +6,7 @@ import { FactoryGirl } from 'factory-girl'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { getFactory, identity, communities, Store } from '@quiet/state-manager'
+import { getReduxStoreFactory, Store } from '@quiet/state-manager'
 import PossibleImpersonationAttackModalContainer from '../renderer/components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import { type Community, type Identity } from '@quiet/types'
 
@@ -56,11 +56,11 @@ describe('Possible Impersonation Attack', () => {
     }))
 
     redux = await prepareStore({}, socket)
-    factory = await getFactory(redux.store)
+    factory = await getReduxStoreFactory(redux.store)
 
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create('Identity', {
       communityId: community.id,
       nickname: 'alice',
     })

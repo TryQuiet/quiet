@@ -14,7 +14,6 @@ export const usersSlice = createSlice({
   initialState: { ...new UsersState() },
   name: StoreKeys.Users,
   reducers: {
-    // Utility action for testing purposes
     saveUserProfile: (state, _action: PayloadAction<{ photo?: File }>) => state,
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1
@@ -26,6 +25,14 @@ export const usersSlice = createSlice({
       }
       return state
     },
+    setUserProfile: (state, action: PayloadAction<UserProfile>) => {
+      // Creating user profiles object for backwards compatibility with 2.0.1
+      if (!state.userProfiles) {
+        state.userProfiles = {}
+      }
+      state.userProfiles[action.payload.userId] = action.payload
+      return state
+    },
     deleteUserProfile: (state, action: PayloadAction<string>) => {
       delete state.userProfiles[action.payload]
       return state
@@ -35,6 +42,10 @@ export const usersSlice = createSlice({
       for (const user of action.payload) {
         state.users[user.userId] = user
       }
+      return state
+    },
+    setUser: (state, action: PayloadAction<User>) => {
+      state.users[action.payload.userId] = action.payload
       return state
     },
     deleteUsers: (state, action: PayloadAction<User[]>) => {
@@ -49,10 +60,6 @@ export const usersSlice = createSlice({
     },
     clearUsers: state => {
       state.users = {}
-      return state
-    },
-    setMyUserId: (state, action: PayloadAction<string>) => {
-      state.myUserId = action.payload
       return state
     },
   },

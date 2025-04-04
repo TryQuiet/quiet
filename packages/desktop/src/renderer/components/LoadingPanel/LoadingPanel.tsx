@@ -33,6 +33,7 @@ const LoadingPanel = () => {
 
   useEffect(() => {
     logger.info(
+      'Checking if joining completed',
       JSON.stringify({ isJoiningCompletedSelector, areMessages, areChannels, isCurrentCommunityInitialized }, null, 2)
     )
     if (isJoiningCompletedSelector) {
@@ -42,7 +43,6 @@ const LoadingPanel = () => {
   }, [isJoiningCompletedSelector])
 
   useEffect(() => {
-    logger.info(JSON.stringify({ isConnected, currentCommunity, isChannelReplicated, owner, isOnlyOneUser }, null, 2))
     if (isConnected) {
       if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
         const notification = new Notification('Community created!', {

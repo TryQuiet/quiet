@@ -3,7 +3,7 @@ import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import {
   prepareStore,
-  getFactory,
+  getReduxStoreFactory,
   publicChannels,
   generateMessageFactoryContentWithId,
   Store,
@@ -59,7 +59,7 @@ describe('StorageService', () => {
 
   beforeAll(async () => {
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<Community>('Community')
 
@@ -78,9 +78,8 @@ describe('StorageService', () => {
     john = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'john' })
 
     message = (
-      await factory.create<TestMessage>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(channel.id),
+      await factory.create<TestMessage>('TestMessage', {
+        message: generateMessageFactoryContentWithId(channel.id, alice.userId),
       })
     ).message
   })

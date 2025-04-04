@@ -1,3 +1,4 @@
+// Purpose: Configuration for the TypeScript compiler in backend
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {

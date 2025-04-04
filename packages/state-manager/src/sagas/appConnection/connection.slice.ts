@@ -1,8 +1,16 @@
 import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { peersStatsAdapter } from './connection.adapter'
-import { ConnectionProcessInfo, type NetworkDataPayload, type NetworkStats } from '@quiet/types'
+import {
+  ConnectionProcessInfo,
+  SetConnectionProcessInfoPayload,
+  type NetworkDataPayload,
+  type NetworkStats,
+} from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('connectionSlice')
 
 export class ConnectionState {
   public lastConnectedTime = 0
@@ -56,19 +64,22 @@ export const connectionSlice = createSlice({
       state.socketIOSecret = action.payload
     },
     onConnectionProcessInfo: (state, _action: PayloadAction<string>) => state,
-    setConnectionProcess: (state, action: PayloadAction<{ info: string; isOwner: boolean }>) => {
+    setConnectionProcess: (state, action: PayloadAction<SetConnectionProcessInfoPayload>) => {
       const { info, isOwner } = action.payload
-
-      if (info === ConnectionProcessInfo.INITIALIZING_IPFS) {
+      logger.info('setConnectionProcess', info, isOwner)
+      if (info == ConnectionProcessInfo.INITIALIZING_IPFS) {
         if (state.connectionProcess.number > 30) return
+        logger.info(`Setting connection process to 30`)
         state.connectionProcess = { number: 30, text: ConnectionProcessInfo.BACKEND_MODULES }
       } else if (!isOwner) {
-        if (info === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY) {
+        if (info == ConnectionProcessInfo.CONNECTING_TO_COMMUNITY) {
           if (state.connectionProcess.number == 50) return
+          logger.info(`Setting connection process to 50`)
           state.connectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
-        } else if (info === ConnectionProcessInfo.CHANNELS_STORED) {
+        } else if (info == ConnectionProcessInfo.CHANNELS_STORED) {
           let number = 90
           if (state.connectionProcess.number == 90) number = 95
+          logger.info(`Setting connection process to ${number}`)
           state.connectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }
         }
       }

@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import {
   prepareStore,
-  getFactory,
+  getReduxStoreFactory,
   publicChannels,
   generateMessageFactoryContentWithId,
   Store,
@@ -39,6 +39,7 @@ import { LocalDbService } from '../../local-db/local-db.service'
 import { createLogger } from '../../common/logger'
 import { ChannelsService } from './channels.service'
 import { SigChainService } from '../../auth/sigchain.service'
+import { getBaseTypesFactory } from '@quiet/state-manager'
 
 const logger = createLogger('channelsService:test')
 
@@ -57,6 +58,7 @@ describe('ChannelsService', () => {
 
   let store: Store
   let factory: FactoryGirl
+  let baseTypes: FactoryGirl
   let community: Community
   let channel: PublicChannel
   let alice: Identity
@@ -69,7 +71,8 @@ describe('ChannelsService', () => {
 
   beforeAll(async () => {
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    baseTypes = await getBaseTypesFactory()
 
     community = await factory.create<Community>('Community')
 
@@ -83,16 +86,14 @@ describe('ChannelsService', () => {
       id: channel.id,
     }
 
-    alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
+    alice = await factory.create<Identity>('Identity', { communityId: community.id })
 
-    john = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'john' })
+    john = await factory.create<Identity>('Identity', { communityId: community.id })
 
-    message = (
-      await factory.create<TestMessage>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(channel.id),
-      })
-    ).message
+    message = await baseTypes.build('ChannelMessage', {
+      channelId: channel.id,
+      userId: alice.userId,
+    })
   })
 
   beforeEach(async () => {
@@ -122,7 +123,7 @@ describe('ChannelsService', () => {
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
 
-    await sigChainService.createChain(community.name!, alice.nickname, true)
+    await sigChainService.createChain(community.name!, 'alice', true)
 
     await storageService.init(peerId)
   })
@@ -195,13 +196,10 @@ describe('ChannelsService', () => {
 
     // TODO: figure out a good way to spoof the signature
     it.skip('is not saved to db if did not pass signature verification', async () => {
-      const aliceMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(channel.id),
-        }
-      )
+      const aliceMessage = await baseTypes.build('ChannelMessage', {
+        channelId: channel.id,
+        userId: alice.userId,
+      })
       // @ts-expect-error userCertificate can be undefined
       const johnCertificate: string = john.userCertificate
       const johnPublicKey = keyFromCertificate(parseCertificate(johnCertificate))
@@ -249,13 +247,11 @@ describe('ChannelsService', () => {
         },
       }
 
-      const aliceMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(channel.id, MessageType.File, metadata),
-        }
-      )
+      const aliceMessage = await baseTypes.build('ChannelMessage', {
+        channelId: channel.id,
+        userId: alice.userId,
+        type: MessageType.File,
+      })
 
       messages = {
         messages: {

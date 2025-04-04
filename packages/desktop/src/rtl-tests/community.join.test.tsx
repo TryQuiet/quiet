@@ -5,7 +5,7 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
@@ -23,7 +23,8 @@ import {
   ChannelSubscribedPayload,
   ErrorPayload,
   ResponseLaunchCommunityPayload,
-  SocketActionTypes,
+  SocketActions,
+  SocketEvents,
   socketEventData,
   Identity,
   InvitationDataVersion,
@@ -91,15 +92,15 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
       logger.info('emitWithAck', action)
       const community = communities.selectors.currentCommunity(store.getState())
       const currentIdentity = identity.selectors.currentIdentity(store.getState())
       switch (action) {
-        case SocketActionTypes.JOIN_COMMUNITY:
+        case SocketActions.JOIN_COMMUNITY:
           const payload = input[1] as InitCommunityPayload
-          socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
+          socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
             channels: [
               {
                 name: 'general',
@@ -110,7 +111,7 @@ describe('User', () => {
               },
             ],
           })
-          socket.socketClient.emit<ChannelSubscribedPayload>(SocketActionTypes.CHANNEL_SUBSCRIBED, {
+          socket.socketClient.emit<ChannelSubscribedPayload>(SocketEvents.CHANNEL_SUBSCRIBED, {
             channelId: 'general',
           })
           return {
@@ -135,6 +136,7 @@ describe('User', () => {
                   noiseKey: 'noiseKey',
                 },
               },
+              joinTimestamp: 0,
             },
           } as ResponseJoinCommunityPayload
           break
@@ -238,21 +240,8 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_NETWORK) {
-        return {
-          hiddenService: {
-            onionAddress: 'onionAddress',
-            privateKey: 'privKey',
-          },
-          peerId: {
-            id: 'peerId',
-            privKey: 'mock',
-            noiseKey: 'mock',
-          },
-        }
-      }
     }
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -296,98 +285,6 @@ describe('User', () => {
     expect(createUsernameTitle).toBeVisible()
     const usernameTakenErrorMessage = await screen.findByText(ErrorMessages.USERNAME_TAKEN)
     expect(usernameTakenErrorMessage).toBeVisible()
-
-    expect(actions).toMatchInlineSnapshot()
-  })
-
-  it.skip('clears error before sending another username registration request', async () => {
-    const { store, runSaga } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-    store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-
-    renderComponent(
-      <>
-        <LoadingPanel />
-        <JoinCommunity />
-        <CreateUsername />
-        <Channel />
-      </>,
-      store
-    )
-
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.CREATE_NETWORK) {
-        return {
-          hiddenService: {
-            onionAddress: 'onionAddress',
-            privateKey: 'privKey',
-          },
-          peerId: {
-            id: 'peerId',
-            privKey: 'mock',
-            noiseKey: 'mock',
-          },
-        }
-      }
-    }
-
-    // @ts-ignore
-    socket.emitWithAck = mockEmitImpl
-
-    // Log all the dispatched actions in order
-    const actions: AnyAction[] = []
-    runSaga(function* (): Generator {
-      while (true) {
-        const action = yield* take()
-        actions.push(action.type)
-      }
-    })
-
-    // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
-
-    // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, validCode)
-    await userEvent.click(joinCommunityButton)
-
-    // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
-    expect(createUsernameTitle).toBeVisible()
-
-    await act(async () => {
-      const community = communities.selectors.currentCommunity(store.getState())
-      store.dispatch(
-        errors.actions.addError({
-          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
-          code: ErrorCodes.FORBIDDEN,
-          message: ErrorMessages.USERNAME_TAKEN,
-          community: community?.id,
-        })
-      )
-    })
-
-    // Check if 'username taken' error message is visible
-    expect(createUsernameTitle).toBeVisible()
-    expect(await screen.findByText(ErrorMessages.USERNAME_TAKEN)).toBeVisible()
-
-    // Enter username and hit button
-    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
-    const createUsernameButton = screen.getByText('Register')
-    await userEvent.type(createUsernameInput, 'bob')
-    await userEvent.click(createUsernameButton)
-
-    // Wait for the actions that updates the store
-    await act(async () => {})
-
-    // Check if 'username taken' error message disappeared
-    expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
 
     expect(actions).toMatchInlineSnapshot()
   })

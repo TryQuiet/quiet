@@ -10,10 +10,10 @@ export const displayableMessage = (message: ChannelMessage, profile: UserProfile
     message: message.message,
     createdAt: message.createdAt,
     date,
-    nickname: profile.profile.nickname,
+    nickname: profile.nickname,
     isRegistered: true,
     isDuplicated: false,
     media: message.media,
-    photo: profile?.profile.photo,
+    photo: profile.photo,
   }
 }

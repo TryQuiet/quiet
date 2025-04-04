@@ -1,24 +1,23 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { call, select, apply, put } from 'typed-redux-saga'
-import { arrayBufferToString } from 'pvutils'
-import * as Block from 'multiformats/block'
-import * as dagCbor from '@ipld/dag-cbor'
-import { sha256 } from 'multiformats/hashes/sha2'
-
-import { sign, loadPrivateKey, pubKeyFromCsr, configCrypto } from '@quiet/identity'
-import { UserProfile, UserProfileDisplayData, SocketActionTypes } from '@quiet/types'
+import { UserProfile, UserProfileDisplayData, SocketActions, SetUserProfilePayload } from '@quiet/types'
 import { fileToBase64String } from '@quiet/common'
 
 import { identitySelectors } from '../../identity/identity.selectors'
 import { type Socket, applyEmitParams } from '../../../types'
 import { createLogger } from '../../../utils/logger'
+import { usersActions } from '../users.slice'
 
 const logger = createLogger('saveUserProfileSaga')
 
-export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ photo?: File }>): Generator {
+export function* saveUserProfileSaga(
+  socket: Socket,
+  action: PayloadAction<{ photo?: File; bio?: string; nickname?: string }>
+): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  if (!identity?.userId) {
+  if (!identity || !identity.userId) {
+    logger.error('No userId found in identity, cannot save profile')
     return
   }
 
@@ -32,17 +31,21 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
     }
   }
 
-  const profile: UserProfileDisplayData = { nickname: identity.nickname }
-  if (base64EncodedPhoto) {
-    profile.photo = base64EncodedPhoto
-  }
-
   const userProfile: UserProfile = {
-    profile: profile,
     userId: identity.userId,
+    nickname: action.payload.nickname || identity.userId,
+    bio: action.payload.bio,
+  }
+  if (base64EncodedPhoto) {
+    userProfile.photo = base64EncodedPhoto
   }
 
   logger.info('Saving user profile', userProfile)
 
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SET_USER_PROFILE, userProfile))
+  const socketPayload: SetUserProfilePayload = {
+    profile: userProfile,
+  }
+
+  yield* put(usersActions.setUserProfiles([userProfile]))
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SET_USER_PROFILE, socketPayload))
 }

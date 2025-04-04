@@ -8,7 +8,7 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('message:stories')
 
-storiesOf('Message', module)
+storiesOf('TestMessage', module)
   .add('Default', () => {
     return (
       <Message
