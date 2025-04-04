@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* Fixes back button navigation issues in user profile screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
 
 
 ### New Features
