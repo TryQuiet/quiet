@@ -1,8 +1,19 @@
 # Changelog
 
-[unreleased]
+## [unreleased]
+
+### Fixes
 
 * Fixes back button navigation issues in user profile screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+
+
+### New Features
+
+* Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
+
+### Chores
+
+* Improves speed, reliability, and documentation for Cypress tests
 
 ## [4.0.3]
 
