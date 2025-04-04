@@ -61,7 +61,10 @@ export function* launchCommunitySaga(
   logger.info(`Launching community ${id} with payload`, payload)
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.LAUNCH_COMMUNITY, payload))
 
+  logger.info('Checking for missing files')
   yield* put(filesActions.checkForMissingFiles(id))
-  yield* put(networkActions.addInitializedCommunity(id))
+  logger.info('Setting current community')
   yield* put(communitiesActions.setCurrentCommunity(id))
+  logger.info('Adding initialized community')
+  yield* put(networkActions.addInitializedCommunity(id))
 }

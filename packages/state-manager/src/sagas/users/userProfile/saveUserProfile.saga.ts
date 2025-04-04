@@ -1,6 +1,12 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { call, select, apply, put } from 'typed-redux-saga'
-import { UserProfile, UserProfileDisplayData, SocketActions, SetUserProfilePayload } from '@quiet/types'
+import {
+  UserProfile,
+  UserProfileDisplayData,
+  SocketActions,
+  SaveUserProfileActionPayload,
+  SetUserProfilePayload,
+} from '@quiet/types'
 import { fileToBase64String } from '@quiet/common'
 
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -10,10 +16,7 @@ import { usersActions } from '../users.slice'
 
 const logger = createLogger('saveUserProfileSaga')
 
-export function* saveUserProfileSaga(
-  socket: Socket,
-  action: PayloadAction<{ photo?: File; bio?: string; nickname?: string }>
-): Generator {
+export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveUserProfileActionPayload>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
   if (!identity || !identity.userId) {
@@ -46,6 +49,6 @@ export function* saveUserProfileSaga(
     profile: userProfile,
   }
 
-  yield* put(usersActions.setUserProfiles([userProfile]))
+  yield* put(usersActions.setUserProfile(userProfile))
   yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SET_USER_PROFILE, socketPayload))
 }

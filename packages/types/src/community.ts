@@ -1,6 +1,7 @@
 import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
 import { type Identity } from './identity'
 import { InvitationData } from './network'
+import { User, UserProfile } from './user'
 
 // ----- Base Types -----
 
@@ -77,12 +78,14 @@ export interface ResponseCreateCommunityPayload {
   id: string
   community: Community
   identity: Identity
+  profile: UserProfile
 }
 
 export interface ResponseJoinCommunityPayload {
   id: string
   community: Community
   identity: Identity
+  profile: UserProfile
 }
 
 export interface ResponseLeaveCommunityPayload {

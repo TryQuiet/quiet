@@ -47,6 +47,7 @@ import {
   ResponseJoinCommunityPayload,
   RequestInvitePayload,
   ResponseInvitePayload,
+  LaunchCommunityPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -437,17 +438,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.launchCommunity(community)
 
-    this.storageService.addUserProfile({
+    const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
-    })
+      userData: {
+        onionAddress: identity.networkInfo.hiddenService.onionAddress,
+        peerId: identity.networkInfo.peerId.id,
+      },
+    }
+    this.storageService.addUserProfile(userProfile)
 
-    this.logger.info(`Creating long lived LFA invite code`)
-    this.socketService.emit(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE)
     return {
       id: community.id,
       community: community,
       identity: identity,
+      profile: userProfile,
     } as ResponseCreateCommunityPayload
   }
 
@@ -503,12 +508,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    await this.launchCommunity(community)
-
-    this.storageService.addUserProfile({
+    const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
-    })
+      userData: {
+        onionAddress: identity.networkInfo.hiddenService.onionAddress,
+        peerId: identity.networkInfo.peerId.id,
+      },
+    }
+    this.storageService.addUserProfile(userProfile)
 
     return {
       id: community.id,
@@ -675,6 +683,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActions.CONNECTION, async () => {
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)
     })
+
+    this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
+      this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
+      this.logger.info('Not implemented yet')
+    })
+
     this.socketService.on(
       SocketActions.CREATE_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: ResponseCreateCommunityPayload | undefined) => void) => {

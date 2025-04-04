@@ -108,8 +108,6 @@ export const getBaseTypesFactory = async () => {
 
   factory.define<User>('User', Object, {
     userId: factory.sequence('User.userId', (n: number) => `userId_${n}`),
-    peerId: createPeerIdTestHelper().toString(),
-    onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
     isRegistered: true,
     isDuplicated: false,
   })
@@ -215,11 +213,13 @@ export const getReduxStoreFactory = async (store: Store) => {
 
   factory.define<ReturnType<typeof users.actions.setUser>['payload']>('User', users.actions.setUser, {
     userId: factory.sequence('User.userId', (n: number) => `userId_${n}`),
-    peerId: createPeerIdTestHelper().toString(),
-    onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
     isRegistered: true,
     isDuplicated: false,
   })
+
+  factory.define<ReturnType<typeof users.actions.setUsers>['payload']>('RemoveUser', users.actions.setUsers, [
+    factory.assoc('User', 'userId'),
+  ])
 
   factory.define<ReturnType<typeof messages.actions.addPublicChannelsMessagesBase>['payload']>(
     'PublicChannelsMessagesBase',

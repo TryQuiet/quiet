@@ -31,12 +31,11 @@ export function* verifyMessagesSaga(
         logger.warn(`No author for ID found in redux`, message.userId, message.id)
         isVerified = false
       } else {
-        const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, channel)
-
+        const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
         if (message.message !== expectedMessage) {
           logger.warn(`${author.nickname} tried to send a malicious info message`)
-          logger.info('expected', expectedMessage)
-          logger.info('actual', message.message)
+          logger.info('Expected message:', expectedMessage)
+          logger.info('Received message:', message.message)
           isVerified = false
         }
       }

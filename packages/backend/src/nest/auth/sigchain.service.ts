@@ -1,10 +1,17 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import { InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '3rd-party/auth/packages/auth/dist'
+import {
+  InviteeMemberContext,
+  Keyring,
+  LocalUserContext,
+  Member,
+  MemberContext,
+  Team,
+} from '3rd-party/auth/packages/auth/dist'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { SocketActions, SocketEvents } from '@quiet/types'
+import { SocketActions, SocketEvents, User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type ChannelService } from './services/roles/channel.service'
 import { type DeviceService } from './services/members/device.service'
@@ -104,7 +111,17 @@ export class SigChainService {
   }
 
   private handleChainUpdate() {
-    this.socketService.emit(SocketEvents.USERS_UPDATED, this.getActiveChain().team?.members())
+    const users = this.getActiveChain()
+      .team?.members()
+      .map(user => {
+        return {
+          userId: user.userId,
+          roles: user.roles,
+          isRegistered: true,
+          isDuplicated: false,
+        } as User
+      })
+    this.socketService.emit(SocketEvents.USERS_UPDATED, { users: users })
   }
 
   private attachSocketListeners(chain: SigChain): void {

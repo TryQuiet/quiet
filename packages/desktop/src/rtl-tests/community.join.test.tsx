@@ -114,31 +114,31 @@ describe('User', () => {
           socket.socketClient.emit<ChannelSubscribedPayload>(SocketEvents.CHANNEL_SUBSCRIBED, {
             channelId: 'general',
           })
-          return {
-            id: payload.id,
-            community: {
-              id: payload.id,
-              name: 'community',
-              ownership: CommunityOwnership.User,
-            },
-            identity: {
-              communityId: payload.id,
-              userId: 'alice123',
-              nickname: 'alice',
-              networkInfo: {
-                hiddenService: {
-                  onionAddress: 'onionAddress',
-                  privateKey: 'privateKey',
-                },
-                peerId: {
-                  id: 'id',
-                  privKey: 'privKey',
-                  noiseKey: 'noiseKey',
-                },
-              },
-              joinTimestamp: 0,
-            },
-          } as ResponseJoinCommunityPayload
+          // return {
+          //   id: payload.id,
+          //   community: {
+          //     id: payload.id,
+          //     name: 'community',
+          //     ownership: CommunityOwnership.User,
+          //   },
+          //   identity: {
+          //     communityId: payload.id,
+          //     userId: 'alice123',
+          //     nickname: 'alice',
+          //     networkInfo: {
+          //       hiddenService: {
+          //         onionAddress: 'onionAddress',
+          //         privateKey: 'privateKey',
+          //       },
+          //       peerId: {
+          //         id: 'id',
+          //         privKey: 'privKey',
+          //         noiseKey: 'noiseKey',
+          //       },
+          //     },
+          //     joinTimestamp: 0,
+          //   },
+          // } as ResponseJoinCommunityPayload
           break
         default:
           throw new Error(`Unexpected action: ${action}`)

@@ -3,7 +3,7 @@ export interface UserData {
   peerId: string
 }
 
-export interface User extends UserData {
+export interface User {
   isRegistered: boolean
   isDuplicated: boolean
   roles?: string[]
@@ -17,13 +17,30 @@ export interface UserProfileDisplayData {
 }
 
 export interface UserProfile {
-  photo?: string // base64 encoded image
+  userId: string
   nickname: string
+  photo?: string // base64 encoded image
   bio?: string
+  userData?: UserData
+}
+
+// ----
+// redux action payloads
+// ----
+export interface SaveUserProfileActionPayload {
+  photo?: File
+  bio?: string
+  nickname?: string
+}
+
+export interface DeleteUserProfileActionPayload {
   userId: string
 }
 
-//The payload for the SET_USER_PROFILE socket action.
+// ----
+// socket payloads
+// ----
+
 export interface SetUserProfilePayload {
   profile: UserProfile
 }
@@ -38,12 +55,4 @@ export interface UsersUpdatedEvent {
 
 export interface UsersRemovedEvent {
   users: User[]
-}
-
-export interface SendCertificatesResponse {
-  certificates: string[]
-}
-
-export interface SendCsrsResponse {
-  csrs: string[]
 }

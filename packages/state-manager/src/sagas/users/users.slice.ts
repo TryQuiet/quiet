@@ -1,20 +1,20 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { UserProfile, User } from '@quiet/types'
+import { UserProfile, User, SaveUserProfileActionPayload, DeleteUserProfileActionPayload } from '@quiet/types'
 
 export class UsersState {
-  // Mapping of userId to UserProfile
+  // Mapping of userId to UserProfile (for display data)
   public userProfiles: Record<string, UserProfile> = {}
+  // Mapping of userId to User (for sigchain state cache)
   public users: Record<string, User> = {}
-  // TODO: replace localUserContext with object with keys stripped
-  public myUserId: string | null = null
 }
 
 export const usersSlice = createSlice({
   initialState: { ...new UsersState() },
   name: StoreKeys.Users,
   reducers: {
-    saveUserProfile: (state, _action: PayloadAction<{ photo?: File }>) => state,
+    saveUserProfile: (state, _action: PayloadAction<SaveUserProfileActionPayload>) => state,
+    // Bootstraps initial user profiles from the server, wipes state and sets new profiles
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1
       if (!state.userProfiles) {
@@ -25,6 +25,7 @@ export const usersSlice = createSlice({
       }
       return state
     },
+    // Sets a single user profile, overwriting the existing one
     setUserProfile: (state, action: PayloadAction<UserProfile>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1
       if (!state.userProfiles) {
@@ -33,8 +34,9 @@ export const usersSlice = createSlice({
       state.userProfiles[action.payload.userId] = action.payload
       return state
     },
-    deleteUserProfile: (state, action: PayloadAction<string>) => {
-      delete state.userProfiles[action.payload]
+    // Deletes a single user profile
+    deleteUserProfile: (state, action: PayloadAction<DeleteUserProfileActionPayload>) => {
+      delete state.userProfiles[action.payload.userId]
       return state
     },
     setUsers: (state, action: PayloadAction<User[]>) => {

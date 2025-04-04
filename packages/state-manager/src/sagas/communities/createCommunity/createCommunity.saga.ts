@@ -14,6 +14,7 @@ import {
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { identityActions } from '../../identity/identity.slice'
+import { usersActions } from '../../users/users.slice'
 
 const logger = createLogger('createCommunitySaga')
 
@@ -67,14 +68,14 @@ export function* createCommunitySaga(
     return
   }
 
-  logger.info('Community created:', createCommunityResponse.community)
+  logger.info('Community data:', createCommunityResponse.community)
   yield* put(communitiesActions.updateCommunityData(createCommunityResponse.community))
-
-  logger.info('Identity created:', createCommunityResponse.identity)
+  logger.info('Identity data:', createCommunityResponse.identity)
   yield* put(identityActions.addNewIdentity(createCommunityResponse.identity))
-
+  logger.info('setUserProfile', createCommunityResponse.profile)
+  yield* put(usersActions.setUserProfile(createCommunityResponse.profile))
+  logger.info('createGeneralChannel')
   yield* put(publicChannelsActions.createGeneralChannel())
-  logger.info('Community created')
-
+  logger.info('launchCommunity')
   yield* put(communitiesActions.launchCommunity({ id: communityId }))
 }
