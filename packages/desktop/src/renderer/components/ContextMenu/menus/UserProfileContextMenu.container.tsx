@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState, useEffect } from 'react'
+import React, { FC, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
@@ -99,13 +99,6 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
  */
 export const UserProfileContextMenu: FC = () => {
   const [route, setRoute] = useState('userProfile')
-  const contextMenu = useContextMenu(MenuName.UserProfile)
-
-  useEffect(() => {
-    if (!contextMenu.visible) {
-      setRoute('userProfile')
-    }
-  }, [contextMenu.visible])
 
   const views: Map<string, JSX.Element> = new Map()
   views.set('userProfile', <UserProfileMenuProfileComponent setRoute={setRoute} />)
@@ -334,6 +327,13 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
     }
   }
 
+  const { handleClose, ...ctxMenu } = contextMenu
+
+  const handleCloseWrapped = () => {
+    setRoute('userProfile')
+    handleClose()
+  }
+
   const getImageSize = (file: File) => {
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
       const img = new Image()
@@ -396,7 +396,12 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   }, [contentRef])
 
   return (
-    <ContextMenu title='Edit profile' handleBack={() => setRoute('userProfile')} {...contextMenu}>
+    <ContextMenu
+      title='Edit profile'
+      handleBack={() => setRoute('userProfile')}
+      handleClose={handleCloseWrapped}
+      {...ctxMenu}
+    >
       <StyledContextMenuContent
         container
         ref={ref => {
