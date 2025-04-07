@@ -8,13 +8,12 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { type communitiesActions } from '../../communities/communities.slice'
-import { type identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
-import { reducers } from '../../reducers'
 import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
-import { type Community, type PublicChannel, type Identity } from '@quiet/types'
+import { type Community, type PublicChannel, type Identity, UserProfile } from '@quiet/types'
+import { userProfiles, userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -26,6 +25,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
   let community: Community
   let owner: Identity
+  let ownerUserProfile: UserProfile
 
   beforeAll(async () => {
     setupCrypto()
@@ -33,11 +33,14 @@ describe('sendInitialChannelMessageSaga', () => {
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
     owner = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
+      userId: 'ownerUserId',
+    })
+    ownerUserProfile = await factory.create('UserProfile', {
+      userId: owner.userId,
     })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
@@ -93,7 +96,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .put(
         messagesActions.sendMessage({
           type: 3,
-          message: generalChannelDeletionMessage(owner.userId),
+          message: generalChannelDeletionMessage(ownerUserProfile.nickname),
           channelId: generalChannel.id,
         })
       )

@@ -1,6 +1,5 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { generateMessageFactoryContentWithId, getReduxStoreFactory, type publicChannels } from '../../..'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -23,8 +22,7 @@ import {
   SocketActions,
 } from '@quiet/types'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
-import { getBaseTypesFactory, getSocketFactory } from '../../../utils/tests/factories'
-import { channel } from 'redux-saga'
+import { getBaseTypesFactory, getSocketFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('autoDownloadFilesSaga', () => {
   let store: Store
@@ -68,7 +66,6 @@ describe('autoDownloadFilesSaga', () => {
   })
 
   beforeEach(async () => {
-    const socketPayloadFactory = await getSocketFactory()
     socket = new MockedSocket()
   })
 
@@ -92,14 +89,17 @@ describe('autoDownloadFilesSaga', () => {
       },
     }
     const baseTypes = await getBaseTypesFactory()
-    const message = await factory.create('TestMessage', {
-      message: baseTypes.build('ChannelMessage', {
-        userId: alice.userId,
-        channelId: generalChannel.id,
-        type: MessageType.Image,
-      }),
-      verifyAutomaically: true,
-    })
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Image,
+          media: media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
@@ -144,15 +144,17 @@ describe('autoDownloadFilesSaga', () => {
     }
 
     const baseTypes = await getBaseTypesFactory()
-    const message = await factory.create('TestMessage', {
-      message: baseTypes.build('ChannelMessage', {
-        userId: alice.userId,
-        channelId: generalChannel.id,
-        type: MessageType.File,
-        media,
-      }),
-      verifyAutomaically: true,
-    })
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
@@ -197,16 +199,18 @@ describe('autoDownloadFilesSaga', () => {
     }
 
     const baseTypes = await getBaseTypesFactory()
-    const message = await factory.create('TestMessage', {
-      message: baseTypes.build('ChannelMessage', {
-        id,
-        userId: alice.userId,
-        channelId: generalChannel.id,
-        type: MessageType.File,
-        media,
-      }),
-      verifyAutomaically: true,
-    })
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
@@ -251,16 +255,18 @@ describe('autoDownloadFilesSaga', () => {
     }
 
     const baseTypes = await getBaseTypesFactory()
-    const message = await factory.create('TestMessage', {
-      message: baseTypes.build('ChannelMessage', {
-        id,
-        userId: alice.userId,
-        channelId: generalChannel.id,
-        type: MessageType.File,
-        media,
-      }),
-      verifyAutomaically: true,
-    })
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
@@ -306,16 +312,18 @@ describe('autoDownloadFilesSaga', () => {
     }
 
     const baseTypes = await getBaseTypesFactory()
-    const message = await factory.create('TestMessage', {
-      message: baseTypes.build('ChannelMessage', {
-        id,
-        userId: alice.userId,
-        channelId: generalChannel.id,
-        type: MessageType.File,
-        media,
-      }),
-      verifyAutomaically: true,
-    })
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
@@ -360,13 +368,19 @@ describe('autoDownloadFilesSaga', () => {
       },
     }
 
-    const message = await factory.create('TestMessage', {
-      id,
-      type: MessageType.Image,
-      channelId: generalChannel.id,
-      media,
-    })
-
+    const baseTypes = await getBaseTypesFactory()
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
     const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,

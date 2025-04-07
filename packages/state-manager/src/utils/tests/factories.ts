@@ -95,13 +95,13 @@ export const getBaseTypesFactory = async () => {
 
   factory.define<UserProfileDisplayData>('UserProfileDisplayData', Object, {
     photo: 'dGVzdAo=',
-    nickname: factory.sequence('UserProfileDisplayData.nickname', (n: number) => `user_${n}`),
+    nickname: factory.sequence('UserProfileDisplayData.nickname', (n: number) => `userProfile.nickname_${n}`),
     bio: factory.sequence('UserProfileDisplayData.bio', (n: number) => `bio_${n}`),
   })
 
   factory.define<UserProfile>('UserProfile', Object, {
     userId: factory.sequence('UserProfile.userId', (n: number) => `userId_${n}`),
-    nickname: factory.sequence('UserProfile.nickname', (n: number) => `user_${n}`),
+    nickname: factory.sequence('UserProfile.nickname', (n: number) => `userProfile.nickname_${n}`),
     photo: 'dGVzdAo=',
     bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
   })
@@ -287,9 +287,9 @@ export const getReduxStoreFactory = async (store: Store) => {
     },
     {
       afterBuild: async action => {
-        if (action.verifyAutomatically) {
+        if (action.payload.verifyAutomatically) {
           await factory.create('MessageVerificationStatus', {
-            message: action.message,
+            message: action.payload.message,
             isVerified: true,
           })
         }

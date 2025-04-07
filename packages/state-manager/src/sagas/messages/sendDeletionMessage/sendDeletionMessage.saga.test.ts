@@ -4,16 +4,21 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { getReduxStoreFactory } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type identityActions } from '../../identity/identity.slice'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
 import { generateChannelId } from '@quiet/common'
-import { type Community, type Identity, MessageType, type PublicChannel, type WriteMessagePayload } from '@quiet/types'
+import {
+  type Community,
+  type Identity,
+  MessageType,
+  type PublicChannel,
+  UserProfile,
+  type WriteMessagePayload,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('sendDeletionMessage', () => {
@@ -22,9 +27,13 @@ describe('sendDeletionMessage', () => {
 
   let community: Community
   let owner: Identity
+  let ownerProfile: UserProfile
 
   let photoChannel: PublicChannel
   let generalChannel: PublicChannel
+
+  let message: string
+  let messagePayload: WriteMessagePayload
 
   beforeAll(async () => {
     setupCrypto()
@@ -36,7 +45,10 @@ describe('sendDeletionMessage', () => {
 
     owner = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
+      userId: 'ownerUserId',
+    })
+    ownerProfile = await factory.create('UserProfile', {
+      userId: owner.userId,
     })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
@@ -54,16 +66,17 @@ describe('sendDeletionMessage', () => {
         },
       })
     ).channel
-  })
-
-  test('send message after deletion standard channel', async () => {
-    const channelId = photoChannel.id
-    const message = `@${owner.userId} deleted #${photoChannel.name}`
-    const messagePayload: WriteMessagePayload = {
+    message = `@${ownerProfile.nickname} deleted #${photoChannel.name}`
+    messagePayload = {
       type: MessageType.Info,
       message,
       channelId: generalChannel.id,
     }
+  })
+
+  test('send message after deletion standard channel', async () => {
+    const channelId = photoChannel.id
+
     const reducer = combineReducers(testReducers)
     await expectSaga(
       sendDeletionMessageSaga,
@@ -89,6 +102,7 @@ describe('sendDeletionMessage', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .not.put(messagesActions.sendMessage(messagePayload))
       .run()
   })
 })

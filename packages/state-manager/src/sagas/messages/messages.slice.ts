@@ -62,7 +62,6 @@ export const messagesSlice = createSlice({
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, status)
     },
     addMessagesSendingStatus: (state, action: PayloadAction<MessageSendingStatusPayload>) => {
-      logger.info('Adding message sending status', action.payload)
       messageSendingStatusAdapter.upsertOne(state.messageSendingStatus, {
         id: action.payload.message.id,
         status: action.payload.status,
@@ -82,11 +81,9 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
-        logger.info('Adding message to Redux store', message.id)
         if (!instanceOfChannelMessage(message)) {
           continue
         }
-        logger.info('Checking if channel exists in Redux store', message.channelId)
         if (!state.publicChannelsMessagesBase.entities[message.channelId]) {
           logger.error('Failed to add message, could not find channel', message.channelId)
           continue
@@ -111,7 +108,6 @@ export const messagesSlice = createSlice({
           throw new Error('Failed to add message, channel went missing')
         }
 
-        logger.info('Upserting message to Redux store', toAdd.id)
         channelMessagesAdapter.upsertOne(messagesBase.messages, toAdd)
       }
     },
