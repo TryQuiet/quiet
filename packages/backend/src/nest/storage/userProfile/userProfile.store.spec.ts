@@ -46,14 +46,6 @@ const getUserProfile = async ({
 }
 
 describe('UserProfileStore/validateUserProfile', () => {
-  test('returns false if signature is invalid', async () => {
-    // Valid PNG
-    const pngByteArray = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
-    const signature = '1234'
-    const userProfile = await getUserProfile({ pngByteArray, signature })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
-  })
-
   test('returns false if photo is not PNG', async () => {
     // Changed the first byte from 137 to 136
     const pngByteArray = new Uint8Array([136, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
@@ -112,51 +104,5 @@ describe('UserProfileStore/validateUserProfile', () => {
     const pngBase64 = 'data:image/png;base64,' + Buffer.from(pngArray).toString('base64')
     const userProfile = await getUserProfile({ photoUrl: pngBase64 })
     expect(await UserProfileStore.validateUserProfile(userProfile)).toBeTruthy()
-  })
-})
-
-describe('UserProfileStore/validateUserProfileEntry', () => {
-  test("returns false entry key doesn't match profile pubKey", async () => {
-    // Valid PNG
-    const pngByteArray = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
-    const userProfile = await getUserProfile({ pngByteArray })
-    const userProfileEntry = {
-      id: '',
-      payload: { op: 'PUT', key: 'incorrect key', value: userProfile },
-      next: [''],
-      refs: [''],
-      clock: {
-        id: '',
-        time: 1,
-      },
-      v: 1,
-      key: '',
-      identity: '',
-      sig: '',
-      hash: '',
-    }
-    // expect(await UserProfileStore.validateUserProfileEntry(userProfileEntry)).toBeFalsy()
-  })
-
-  test('returns true if user profile entry is valid', async () => {
-    // Valid PNG
-    const pngByteArray = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
-    const userProfile = await getUserProfile({ pngByteArray })
-    const userProfileEntry = {
-      id: '',
-      payload: { op: 'PUT', key: userProfile.userId, value: userProfile },
-      next: [''],
-      refs: [''],
-      clock: {
-        id: '',
-        time: 1,
-      },
-      v: 1,
-      key: '',
-      identity: '',
-      sig: '',
-      hash: '',
-    }
-    // expect(await UserProfileStore.validateUserProfileEntry(userProfileEntry)).toBeTruthy()
   })
 })

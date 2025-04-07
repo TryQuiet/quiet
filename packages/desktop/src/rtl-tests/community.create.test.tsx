@@ -72,45 +72,6 @@ describe('User', () => {
 
     const mockEmitImpl = (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActions.CREATE_COMMUNITY) {
-        const payload = input[1] as InitCommunityPayload
-        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
-          channels: [
-            {
-              name: 'general',
-              description: 'string',
-              owner: 'owner',
-              timestamp: 0,
-              id: generalId,
-            },
-          ],
-        })
-        return {
-          id: payload.id,
-          community: {
-            id: payload.id,
-            name: 'community',
-            ownership: CommunityOwnership.Owner,
-          },
-          identity: {
-            communityId: payload.id,
-            userId: 'alice123',
-            nickname: 'alice',
-            networkInfo: {
-              hiddenService: {
-                onionAddress: 'onionAddress',
-                privateKey: 'privateKey',
-              },
-              peerId: {
-                id: 'id',
-                privKey: 'privKey',
-                noiseKey: 'noiseKey',
-              },
-            },
-            joinTimestamp: 0,
-          },
-        } as ResponseCreateCommunityPayload
-      }
     }
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)

@@ -14,20 +14,8 @@ import { DownloadState } from '@quiet/types'
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
-    communityId: 'id',
     userId: 'userId',
-    networkInfo: {
-      hiddenService: {
-        onionAddress: 'onionAddress',
-        privateKey: 'privateKey',
-      },
-      peerId: {
-        id: 'id',
-        privKey: 'privKey',
-        noiseKey: 'noiseKey',
-      },
-    },
-    joinTimestamp: null,
+    nickname: 'nickname',
   },
   uploadedFileModal: {
     open: false,

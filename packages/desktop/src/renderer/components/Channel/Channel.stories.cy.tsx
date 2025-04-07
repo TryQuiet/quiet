@@ -54,20 +54,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             userId: 'pubKey',
           }}
           user={{
-            communityId: 'id',
             userId: 'userId',
-            networkInfo: {
-              hiddenService: {
-                onionAddress: 'onionAddress',
-                privateKey: 'privateKey',
-              },
-              peerId: {
-                id: 'id',
-                privKey: 'privKey',
-                noiseKey: 'noiseKey',
-              },
-            },
-            joinTimestamp: null,
+            nickname: 'nickname',
           }}
           isCommunityInitialized={true}
           uploadedFileModal={{
