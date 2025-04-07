@@ -8,7 +8,7 @@ import { checkForMissingFilesSaga } from './checkForMissingFiles.saga'
 import { type Socket } from '../../../types'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
-import { DownloadState, type FileMetadata, MessageType, PublicChannel, SocketActions } from '@quiet/types'
+import { DownloadState, type FileMetadata, MessageType, SocketActions } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -718,8 +718,7 @@ describe('checkForMissingFilesSaga', () => {
       if (!generalChannel) return
       expect(generalChannel).not.toBeUndefined()
       const alice = await factory.create('Identity', {
-        id: community.id,
-        nickname: 'alice',
+        communityId: community.id,
       })
 
       const message = Math.random().toString(36).substr(2.9)
@@ -737,16 +736,13 @@ describe('checkForMissingFilesSaga', () => {
       }
 
       await factory.create('TestMessage', {
-        identity: alice,
         message: {
           id: message,
           type: MessageType.File,
-          message: '',
           createdAt: DateTime.utc().valueOf(),
           channelId: generalChannel.id,
-          signature: '',
-          pubKey: '',
           media: missingFile,
+          userId: alice.id,
         },
       })
 

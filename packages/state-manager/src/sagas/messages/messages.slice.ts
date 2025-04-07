@@ -62,6 +62,7 @@ export const messagesSlice = createSlice({
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, status)
     },
     addMessagesSendingStatus: (state, action: PayloadAction<MessageSendingStatusPayload>) => {
+      logger.info('Adding message sending status', action.payload)
       messageSendingStatusAdapter.upsertOne(state.messageSendingStatus, {
         id: action.payload.message.id,
         status: action.payload.status,
@@ -83,7 +84,6 @@ export const messagesSlice = createSlice({
       for (const message of messages) {
         logger.info('Adding message to Redux store', message.id)
         if (!instanceOfChannelMessage(message)) {
-          logger.error('Failed to add message, object not instance of message')
           continue
         }
         logger.info('Checking if channel exists in Redux store', message.channelId)

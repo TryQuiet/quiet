@@ -113,12 +113,12 @@ export const getBaseTypesFactory = async () => {
   })
 
   factory.define<ChannelMessage>('ChannelMessage', Object, {
-    id: (Math.random() * 10 ** 18).toString(36),
+    id: factory.sequence('ChannelMessage.id', (n: number) => `${n}`),
     type: MessageType.Basic,
-    message: (Math.random() * 10 ** 18).toString(36),
+    message: factory.sequence('ChannelMessage.message', (n: number) => `message_${n}`),
     createdAt: DateTime.utc().valueOf(),
     channelId: 'channel-id',
-    userId: (Math.random() * 10 ** 18).toString(36),
+    userId: factory.sequence('ChannelMessage.userId', (n: number) => `userId_${n}`),
   })
 
   factory.define<InvitationPair>('InvitationPair', Object, {
@@ -196,7 +196,7 @@ export const getReduxStoreFactory = async (store: Store) => {
       },
       // 21.09.2022 - may be useful for testing purposes
       joinTimestamp: 1663747464000,
-      userId: factory.sequence('Identity.userId', (n: number) => `userId_${n}`),
+      userId: factory.assoc('UserProfile', 'userId'),
     }
   )
 
@@ -281,7 +281,7 @@ export const getReduxStoreFactory = async (store: Store) => {
         message: factory.sequence('Message.message', (n: number) => `message_${n}`),
         createdAt: DateTime.utc().valueOf(),
         channelId: generateChannelId('general'),
-        // userId: factory.assoc('Identity', 'userId'), must be set in the test
+        userId: factory.assoc('UserProfile', 'userId'),
       },
       verifyAutomatically: true,
     },

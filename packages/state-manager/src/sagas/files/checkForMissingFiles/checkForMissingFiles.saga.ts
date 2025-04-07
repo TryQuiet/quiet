@@ -10,6 +10,9 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
 import { type networkActions } from '../../network/network.slice'
 import { DownloadState, SocketActions } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('checkForMissingFilesSaga')
 
 export function* checkForMissingFilesSaga(
   socket: Socket,
@@ -17,25 +20,41 @@ export function* checkForMissingFilesSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
 
-  if (community?.id !== action.payload) return
+  if (community?.id !== action.payload) {
+    logger.warn(
+      `Tried to check for missing files, but the community ${action.payload} is not the current community ${community?.id}`
+    )
+    return
+  }
 
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+  if (!identity) {
+    logger.warn('Tried to check for missing files, but no identity was found')
+    return
+  }
 
   const channels = yield* select(publicChannelsSelectors.publicChannels)
+
+  if (!channels) {
+    logger.warn('Tried to check for missing files, but no channels were found')
+    return
+  }
 
   const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
 
   for (const channel of channels) {
     const missingFiles = yield* select(missingChannelFiles(channel.id))
+    logger.info(`Detected ${missingFiles.length} missing files in channel ${channel.id}`)
 
     if (missingFiles.length > 0) {
       for (const file of missingFiles) {
+        logger.info(`Checking file ${file.cid} in channel ${channel.id}`)
         const fileDownloadStatus = downloadStatuses[file.message.id]
         // Do not autodownload canceled files
         if (fileDownloadStatus?.downloadState === DownloadState.Canceled) continue
         // Start downloading already queued files
         if (fileDownloadStatus?.downloadState === DownloadState.Queued) {
+          logger.info(`Resuming download for file ${file.cid} in channel ${channel.id}`)
           yield* apply(
             socket,
             socket.emit,

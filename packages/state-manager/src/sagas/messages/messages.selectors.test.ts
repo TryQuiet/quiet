@@ -1,12 +1,23 @@
 import { type Store } from '../store.types'
-import { getReduxStoreFactory, publicChannels } from '../..'
+import { getReduxStoreFactory } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
-import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { type communitiesActions } from '../communities/communities.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
-import { type Community, type Identity, type PublicChannel, type ChannelMessage } from '@quiet/types'
+import {
+  ChannelMessage,
+  MessageSendingStatus,
+  MessageVerificationStatus,
+  SendingStatus,
+  type Community,
+  type Identity,
+  type PublicChannel,
+} from '@quiet/types'
 import { getBaseTypesFactory } from '../../utils/tests/factories'
+import { messagesSelectors } from './messages.selectors'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('messagesSelectors-test')
 
 describe('messagesSelectors', () => {
   let store: Store
@@ -20,7 +31,11 @@ describe('messagesSelectors', () => {
   let alice: Identity
   let john: Identity
 
-  beforeEach(async () => {
+  let messages: ChannelMessage[]
+  const messageSendingStatuses: Record<string, MessageSendingStatus> = {}
+  const messageVerificationStatuses: Record<string, MessageVerificationStatus> = {}
+
+  beforeAll(async () => {
     // Set date display format
     process.env.LC_ALL = 'en_US.UTF-8'
 
@@ -29,7 +44,7 @@ describe('messagesSelectors', () => {
     factory = await getReduxStoreFactory(store)
     baseTypesFactory = await getBaseTypesFactory()
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
@@ -39,62 +54,78 @@ describe('messagesSelectors', () => {
 
     alice = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
 
     john = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'john',
     })
+
+    const numberOfMessages = 4
+    messages = await baseTypesFactory.buildMany('ChannelMessage', numberOfMessages)
+    messages = messages.map(message => ({
+      ...message,
+      channelId: generalChannelId,
+    }))
+
+    const statuses = [SendingStatus.Sent, SendingStatus.Pending, SendingStatus.Sent, SendingStatus.Pending]
+    const verifications = [true, false, true, false]
+    await factory.create('AddMessages', {
+      messages: messages,
+    })
+    for (let i = 0; i < messages.length; i++) {
+      const message = messages[i]
+      const isVerified = verifications[i]
+      const status = statuses[i]
+      messageVerificationStatuses[messages[i].id] = {
+        id: messages[i].id,
+        isVerified: verifications[i],
+      }
+      messageSendingStatuses[messages[i].id] = {
+        id: messages[i].id,
+        status: statuses[i],
+      }
+      await factory.create('MessageVerificationStatus', { message, isVerified })
+      await factory.create('MessageSendingStatus', { message, status })
+    }
   })
 
-  it('filter out unverified messages', async () => {
-    expect(john.userId).not.toBeNull()
+  it('should select MessageVerificationStatus', () => {
+    const messageVerificationStatus = messagesSelectors.messagesVerificationStatus(store.getState())
+    expect(messageVerificationStatus).toEqual(messageVerificationStatuses)
+  })
 
-    // Build messages
-    const authenticMessage: ChannelMessage = {
-      ...(
-        await factory.build('TestMessage', {
-          identity: alice,
-        })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9),
-      channelId: generalChannel.id,
-    }
+  it('should select MessageSendingStatus', () => {
+    const messageSendingStatus = messagesSelectors.messagesSendingStatus(store.getState())
+    expect(messageSendingStatus).toEqual(messageSendingStatuses)
+  })
 
-    const spoofedMessage: ChannelMessage = {
-      ...(
-        await factory.build('TestMessage', {
-          identity: alice,
-        })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9),
-      channelId: generalChannel.id,
-    }
+  it('should select publicChannelsMessagesBase', () => {
+    const publicChannelsMessagesBase = messagesSelectors.publicChannelsMessagesBase(store.getState())
+    expect(publicChannelsMessagesBase).toBeDefined()
+    expect(publicChannelsMessagesBase[generalChannelId]).toBeDefined()
+    expect(publicChannelsMessagesBase[generalChannelId]?.messages).toBeDefined()
+  })
 
-    // Store messages
-    await factory.create('TestMessage', {
-      identity: alice,
-      message: authenticMessage,
-      verifyAutomatically: true,
-    })
+  it('should select currentPublicChannelMessagesBase', () => {
+    const result = messagesSelectors.currentPublicChannelMessagesBase(store.getState())
+    expect(result?.channelId).toEqual(generalChannelId)
+  })
 
-    await factory.create('TestMessage', {
-      identity: alice,
-      message: spoofedMessage,
-      verifyAutomatically: false,
-    })
+  it('should select currentPublicChannelMessagesEntities', () => {
+    const result = messagesSelectors.currentPublicChannelMessagesEntities(store.getState())
+    const messageIds = messages.map(m => m.id)
+    expect(Object.keys(result)).toEqual(expect.arrayContaining(messageIds))
+  })
 
-    store.dispatch(
-      publicChannels.actions.setCurrentChannel({
-        channelId: generalChannel.id,
-      })
-    )
+  it('should select currentPublicChannelMessagesEntries', () => {
+    const result = messagesSelectors.currentPublicChannelMessagesEntries(store.getState())
+    const sortedMessages = [...messages].sort((a, b) => b.createdAt - a.createdAt).reverse()
+    expect(result.map(m => m.id)).toEqual(sortedMessages.map(m => m.id))
+  })
 
-    const messages = validCurrentPublicChannelMessagesEntries(store.getState())
-
-    expect(messages.length).toBe(1)
-
-    expect(messages[0].id).toBe(authenticMessage.id)
+  it('should select validCurrentPublicChannelMessagesEntries', () => {
+    const result = messagesSelectors.validCurrentPublicChannelMessagesEntries(store.getState())
+    const expected = messages.filter(m => messageVerificationStatuses[m.id]?.isVerified)
+    expect(result.length).toEqual(expected.length)
   })
 })

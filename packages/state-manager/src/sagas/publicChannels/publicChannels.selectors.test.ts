@@ -6,11 +6,9 @@ import {
   publicChannels as getPublicChannels,
   currentChannelMessagesMergedBySender,
   sortedCurrentChannelMessages,
-  displayableCurrentChannelMessages,
   publicChannelsSelectors,
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
-import { usersActions } from '../users/users.slice'
 import { formatMessageDisplayDate, formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
@@ -22,10 +20,8 @@ import {
   type Identity,
   MessageType,
   type PublicChannel,
-  User,
   UserProfile,
 } from '@quiet/types'
-import { type communitiesActions } from '../communities/communities.slice'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
 import { communitiesSelectors } from '../communities/communities.selectors'
 
@@ -60,7 +56,7 @@ describe('publicChannelsSelectors', () => {
       (await factory.create('Community', { id: owner.communityId }))
 
     alice = await factory.create('UserProfile', {
-      userId: owner.userId,
+      userId: 'userId_alice',
       nickname: 'alice',
     })
 
@@ -71,6 +67,7 @@ describe('publicChannelsSelectors', () => {
 
     channelIdes = [...channelIdes, generalChannel.id]
     john = await factory.create('UserProfile', {
+      userId: 'userId_john',
       nickname: 'john',
     })
 
@@ -84,44 +81,126 @@ describe('publicChannelsSelectors', () => {
           name,
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId(name),
         },
       })
       channelIdes = [...channelIdes, channel.channel.id]
     }
-    const baseTypes = await getBaseTypesFactory()
-    const baseTime = DateTime.fromObject({
-      year: 2020,
-      month: 10,
-      day: 20,
-      hour: 5,
-      minute: 50,
-      second: 0,
-      millisecond: 0,
-    }).toSeconds()
 
     const messageData = [
-      { id: '1', offset: 0, identity: alice },
-      { id: '2', offset: 20, identity: alice, type: MessageType.Info },
-      { id: '3', offset: 21, identity: alice, type: MessageType.Info },
-      { id: '4', offset: 22, identity: alice },
-      { id: '5', offset: 23, identity: john },
-      { id: '6', offset: 24, identity: alice },
-      { id: '7', offset: 3600, identity: alice },
-      { id: '8', offset: 7200, identity: alice },
-      { id: '9', offset: 10800, identity: alice },
+      {
+        id: '1',
+        createdAt: DateTime.fromObject({
+          year: 2020,
+          month: 10,
+          day: 20,
+          hour: 5,
+          minute: 50,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      // Message 2 and 3 have info type, so they are tested for not being grouped together.
+      {
+        id: '2',
+        type: 3,
+        createdAt: DateTime.fromObject({
+          year: 2020,
+          month: 10,
+          day: 20,
+          hour: 6,
+          minute: 10,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      {
+        id: '3',
+        type: 3,
+        createdAt: DateTime.fromObject({
+          year: 2020,
+          month: 10,
+          day: 20,
+          hour: 6,
+          minute: 11,
+          second: 30,
+          millisecond: 1,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      {
+        id: '4',
+        createdAt: DateTime.fromObject({
+          year: 2020,
+          month: 10,
+          day: 20,
+          hour: 6,
+          minute: 11,
+          second: 30,
+          millisecond: 2,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      {
+        id: '5',
+        createdAt: DateTime.fromObject({
+          year: 2020,
+          month: 10,
+          day: 20,
+          hour: 6,
+          minute: 12,
+          second: 1,
+        }).toSeconds(),
+        userId: john.userId,
+      },
+      {
+        id: '6',
+        createdAt: DateTime.fromObject({
+          year: 2020,
+          month: 10,
+          day: 20,
+          hour: 6,
+          minute: 12,
+          second: 2,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      {
+        id: '7',
+        createdAt: DateTime.fromObject({
+          year: 2021,
+          month: 2,
+          day: 5,
+          hour: 18,
+          minute: 2,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      {
+        id: '8',
+        createdAt: DateTime.fromObject({
+          year: 2021,
+          month: 2,
+          day: 5,
+          hour: 20,
+          minute: 50,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
+      {
+        id: '9',
+        createdAt: DateTime.fromObject({
+          year: DateTime.now().toUTC().year,
+          month: DateTime.now().toUTC().month,
+          day: DateTime.now().toUTC().day,
+          hour: 20,
+          minute: 50,
+        }).toSeconds(),
+        userId: alice.userId,
+      },
     ]
 
-    const messages = messageData.map(data => ({
-      id: data.id,
-      createdAt: baseTime + data.offset,
-      identity: data.identity,
-      type: data.type,
-    }))
-
     // Shuffle messages array
-    const shuffled = messages
+    const shuffled = messageData
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value)
@@ -134,11 +213,12 @@ describe('publicChannelsSelectors', () => {
           message: `message_${item.id}`,
           createdAt: item.createdAt,
           channelId: generalChannel.id,
+          userId: item.userId,
         },
         verifyAutomatically: true,
       })
       msgs[item.id] = message.message
-      msgsOwners[item.id] = item.identity.nickname
+      msgsOwners[item.id] = item.userId
     }
   })
 

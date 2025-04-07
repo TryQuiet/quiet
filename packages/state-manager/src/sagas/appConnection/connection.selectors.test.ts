@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '@reduxjs/toolkit'
-import { getReduxStoreFactory } from '../../utils/tests/factories'
+import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
 import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
@@ -24,10 +24,12 @@ describe('communitiesSelectors', () => {
   let store: Store
   let community: Community
   let factory: FactoryGirl
+  let baseTypesFactory: FactoryGirl
 
   beforeEach(async () => {
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
+    baseTypesFactory = await getBaseTypesFactory()
   })
 
   it('select peers sorted by quality', async () => {
@@ -252,7 +254,10 @@ describe('communitiesSelectors', () => {
 
     logger.info('Creating community')
     const community = await factory.create('Community')
-    const identity = await factory.create('Identity')
+    // store.dispatch(communitiesActions.setCurrentCommunity(community.id))
+    const identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
     expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
     expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(false)
     expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
@@ -264,7 +269,12 @@ describe('communitiesSelectors', () => {
     expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
     expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
 
-    const message = await factory.create('TestMessage')
+    const message = await factory.create('TestMessage', {
+      message: baseTypesFactory.build('ChannelMessage', {
+        channelId: publicChannelsSelectors.generalChannel(store.getState())?.id,
+        userId: identity.userId,
+      }),
+    })
     expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(true)
     expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
     expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(true)

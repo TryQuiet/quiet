@@ -10,12 +10,12 @@ export class CustomReduxAdapter {
   }
 
   build<T>(Action: any, payload?: Partial<T>, buildOptions?: any): T {
-    logger.info('build', Action, payload, buildOptions)
+    // logger.info('build', Action, payload, buildOptions)
     return Action(payload)
   }
 
   async save(action: any) {
-    logger.info('save', action)
+    // logger.info('save', action)
     return this.store.dispatch(action).payload
   }
 

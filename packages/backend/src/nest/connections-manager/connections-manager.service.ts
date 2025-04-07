@@ -49,6 +49,7 @@ import {
   ResponseInvitePayload,
   LaunchCommunityPayload,
   ChannelMessage,
+  DownloadFilePayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -774,8 +775,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
 
     // Files
-    this.socketService.on(SocketActions.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
-      await this.storageService?.channels.downloadFile(metadata)
+    this.socketService.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
+      await this.storageService?.channels.downloadFile(payload.metadata)
     })
     this.socketService.on(SocketActions.UPLOAD_FILE, async (metadata: FileMetadata) => {
       await this.storageService?.channels.uploadFile(metadata)

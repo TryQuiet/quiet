@@ -6,7 +6,7 @@ import { setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createInviteSaga } from './createInvite.saga'
 import { SocketActions } from '@quiet/types'
-import { Socket } from '../../../types'
+import { applyEmitParams, Socket } from '../../../types'
 import { longLivedInvite } from '../connection.selectors'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
@@ -17,7 +17,6 @@ describe('createInvite', () => {
 
   beforeEach(async () => {
     setupCrypto()
-    const socketPayloadFactory = await getSocketFactory()
     socket = new MockedSocket()
   })
 
@@ -32,7 +31,11 @@ describe('createInvite', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .select(longLivedInvite)
-      .apply(socket, socket.emitWithAck, [SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, undefined])
+      .apply(
+        socket,
+        socket.emitWithAck,
+        applyEmitParams(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, { id: undefined })
+      )
       .run()
   })
 
@@ -55,7 +58,11 @@ describe('createInvite', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .select(longLivedInvite)
-      .apply(socket, socket.emitWithAck, [SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, existingInvite.id])
+      .apply(
+        socket,
+        socket.emitWithAck,
+        applyEmitParams(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, { id: existingInvite.id })
+      )
       .run()
   })
 
@@ -78,7 +85,11 @@ describe('createInvite', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .select(longLivedInvite)
-      .apply(socket, socket.emitWithAck, [SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, undefined])
+      .apply(
+        socket,
+        socket.emitWithAck,
+        applyEmitParams(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, { id: undefined })
+      )
       .putResolve(connectionActions.setLongLivedInvite(newInvite))
       .run()
   })
@@ -107,7 +118,10 @@ describe('createInvite', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .select(longLivedInvite)
-      .apply(socket, socket.emitWithAck, [SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, existingInvite.id])
+      .apply(socket, socket.emitWithAck, [
+        SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE,
+        { id: existingInvite.id },
+      ])
       .putResolve(connectionActions.setLongLivedInvite(newInvite))
       .run()
   })

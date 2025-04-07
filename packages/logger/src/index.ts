@@ -505,7 +505,6 @@ export const createQuietLogger = (
 ): ((moduleName: string) => QuietLogger) => {
   return (moduleName: string) => {
     const name = `${packageName}:${moduleName}`
-    nodeConsoleLogger.info(`Initializing logger ${name}`)
     return new QuietLogger(name, parallelConsoleLog)
   }
 }
