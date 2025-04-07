@@ -15,7 +15,7 @@ const logger = createLogger('createChannel')
 export const CreateChannel = () => {
   const dispatch = useDispatch()
 
-  const [newChannel, setNewChannel] = useState<PublicChannel | null>(null)
+  const [newChannel, setNewChannel] = useState<CreateChannelPayload | null>(null)
 
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunityId)
@@ -72,14 +72,13 @@ export const CreateChannel = () => {
       )
       return
     }
-
-    dispatch(
-      publicChannels.actions.createChannel({
-        id: generateChannelId(name),
-        name: name,
-        description: `Welcome to #${name}`,
-      } as CreateChannelPayload)
-    )
+    const payload = {
+      id: generateChannelId(name),
+      name: name,
+      description: `Welcome to #${name}`,
+    } as CreateChannelPayload
+    dispatch(publicChannels.actions.createChannel(payload))
+    setNewChannel(payload)
   }
   return (
     <>
