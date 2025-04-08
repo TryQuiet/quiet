@@ -4,11 +4,16 @@
 
 ### New Features
 
+* Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
 * You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540) (thanks @agiledev24 for your initial work on this!)
 
 ### Fixes
-
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
+
+### Chores
+
+* Improves speed, reliability, and documentation for Cypress tests
+
 
 ## [4.0.3]
 
