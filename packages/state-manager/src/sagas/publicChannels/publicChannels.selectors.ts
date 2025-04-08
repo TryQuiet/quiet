@@ -9,7 +9,7 @@ import {
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { allUsers } from '../users/users.selectors'
 import { userProfiles } from '../users/userProfile/userProfile.selectors'
-import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
 import {
@@ -198,7 +198,7 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
  */
 export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
   const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
-    const date = formatMessageDisplayDay(message.date)
+    const date = formatMessageDisplayDate(message.createdAt)
 
     if (!groups[date]) {
       groups[date] = []
