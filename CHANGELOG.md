@@ -14,7 +14,6 @@
 
 * Improves speed, reliability, and documentation for Cypress tests
 
-
 ## [4.0.3]
 
 ### New features

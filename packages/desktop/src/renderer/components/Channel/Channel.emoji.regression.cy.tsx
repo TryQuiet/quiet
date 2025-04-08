@@ -37,13 +37,11 @@ describe('Emoji conversion in code blocks test', () => {
   })
 
   it('should NOT convert text typed inside an unclosed code fence', () => {
-    cy.get('[data-testid="messageInput"]')
-      .type('```Some code :) ')
+    cy.get('[data-testid="messageInput"]').type('```Some code :) ')
 
     // The code fence is still open (no closing triple backticks).
     // So ":) " should remain literal and not become an emoji.
-    cy.get('[data-testid="messageInput"]')
-      .should('have.value', '```Some code :) ')
+    cy.get('[data-testid="messageInput"]').should('have.value', '```Some code :) ')
   })
 
   it('should convert text immediately after closing the code fence', () => {
@@ -61,15 +59,12 @@ describe('Emoji conversion in code blocks test', () => {
       // Type punctuation => triggers conversion of :p
       .type('.')
 
-    cy.get('[data-testid="messageInput"]')
-      .should('have.value', '```Inside code block :smile:``` 😛.')
+    cy.get('[data-testid="messageInput"]').should('have.value', '```Inside code block :smile:``` 😛.')
   })
 
   it('should convert text typed entirely outside code fences', () => {
     // Type something normal outside code block
-    cy.get('[data-testid="messageInput"]')
-      .type('Hello :smile: ') 
-      .should('have.value', 'Hello 😄 ')
+    cy.get('[data-testid="messageInput"]').type('Hello :smile: ').should('have.value', 'Hello 😄 ')
   })
 
   it('should handle multiple code fences correctly', () => {
@@ -79,19 +74,18 @@ describe('Emoji conversion in code blocks test', () => {
 
     // "Block1 :)" is inside the first code fence => no conversion
     // "Block2 :heart:" is inside second code fence => no conversion yet
-    cy.get('[data-testid="messageInput"]')
-      .should('have.value', '```Block1 :)``` code between ```Block2 :heart: ')
+    cy.get('[data-testid="messageInput"]').should('have.value', '```Block1 :)``` code between ```Block2 :heart: ')
 
     // close second code fence
-    cy.get('[data-testid="messageInput"]')
-      .type('``` ')
+    cy.get('[data-testid="messageInput"]').type('``` ')
 
     // After closing the second fence, type a space + emoticon
-    cy.get('[data-testid="messageInput"]')
-      .type(':p ')
+    cy.get('[data-testid="messageInput"]').type(':p ')
 
     // Now the :p should convert to 😛 because we’re outside all fences
-    cy.get('[data-testid="messageInput"]')
-      .should('have.value', '```Block1 :)``` code between ```Block2 :heart: ``` 😛 ')
+    cy.get('[data-testid="messageInput"]').should(
+      'have.value',
+      '```Block1 :)``` code between ```Block2 :heart: ``` 😛 '
+    )
   })
 })
