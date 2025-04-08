@@ -16,6 +16,7 @@ import {
   DeleteChannelResponse,
   CreateChannelPayload,
   ChannelSubscribedPayload,
+  DeleteChannelPayload,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -386,8 +387,8 @@ export class ChannelsService extends EventEmitter {
    * @returns Response containing metadata on the channel that was deleted
    * @throws Error
    */
-  public async deleteChannel(payload: { channelId: string }): Promise<DeleteChannelResponse> {
-    this.logger.info('Deleting channel', payload)
+  public async deleteChannel(payload: DeleteChannelPayload): Promise<DeleteChannelResponse> {
+    this.logger.info('Attempting to delete channel', payload)
     const { channelId } = payload
     const channel = await this.getChannel(channelId)
     const isOwner = channel?.owner === this.sigchainService.getActiveChain().user.userId

@@ -1,14 +1,8 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import {
-  generateMessageFactoryContentWithId,
-  getReduxStoreFactory,
-  prepareStore,
-  publicChannels,
-  Store,
-} from '@quiet/state-manager'
-import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
+import { getBaseTypesFactory } from '@quiet/state-manager'
+import { ChannelMessage } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { isUint8Array } from 'util/types'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
@@ -19,7 +13,7 @@ import { TestModule } from '../../../common/test.module'
 import { StorageModule } from '../../storage.module'
 import { MessagesService } from './messages.service'
 import { EncryptedMessage } from './messages.types'
-import { usage } from 'commander'
+import { isEncryptedMessage } from '../../../validation/validators'
 
 const logger = createLogger('messagesService:test')
 
@@ -28,24 +22,11 @@ describe('MessagesService', () => {
   let messagesService: MessagesService
   let sigChainService: SigChainService
 
-  let store: Store
   let factory: FactoryGirl
-  let alice: Identity
-  let community: Community
-  let channel: PublicChannel
   let message: ChannelMessage
 
   beforeAll(async () => {
-    store = prepareStore().store
-    factory = await getReduxStoreFactory(store)
-
-    community = await factory.create<Community>('Community')
-    channel = publicChannels.selectors.publicChannels(store.getState())[0]
-    message = (
-      await factory.create('TestMessage', {
-        message: generateMessageFactoryContentWithId(channel.id, alice.userId),
-      })
-    ).message
+    factory = await getBaseTypesFactory()
   })
 
   beforeEach(async () => {
@@ -56,28 +37,21 @@ describe('MessagesService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain(community.name!, 'alice', true)
-    alice = await factory.create<Identity>('Identity', {
-      communityId: community.id,
-      userId: sigChainService.getActiveChain().user.userId,
-    })
-    const aliceProfile = await factory.create('UserProfile', {
-      userId: sigChainService.getActiveChain().user.userId,
-      nickname: 'alice',
-    })
+    await sigChainService.createChain('test-community', 'alice', true)
+    message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
     messagesService = await module.resolve(MessagesService)
   })
 
   describe('onSend', () => {
     it('encrypts message correctly', async () => {
       const encryptedMessage = await messagesService.onSend(message)
+      expect(isEncryptedMessage(encryptedMessage)).toBeTruthy()
       expect(encryptedMessage).toEqual(
         expect.objectContaining({
           id: message.id,
           createdAt: message.createdAt,
           channelId: message.channelId,
           contents: expect.objectContaining({
-            contents: expect.any(Uint8Array),
             scope: {
               generation: 0,
               type: EncryptionScopeType.ROLE,

@@ -1,4 +1,4 @@
-import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
+import { KeyMetadata } from '@localfirst/crdx/'
 import { Base58 } from '@localfirst/auth'
 
 export enum EncryptionScopeType {

@@ -42,6 +42,7 @@ import {
   User,
   PublicChannel,
   TestMessage,
+  Community,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -81,6 +82,13 @@ export const getBaseTypesFactory = async () => {
     },
     joinTimestamp: 1663747464000,
     userId: factory.sequence('Identity.userId', (n: number) => `userId_${n}`),
+  })
+
+  factory.define<Community>('Community', Object, {
+    id: factory.sequence('Community.id', (n: number) => n.toString()),
+    name: factory.sequence('Community.name', (n: number) => `community_${n}`),
+    peerList: [],
+    ownership: CommunityOwnership.Owner,
   })
 
   factory.define<PublicChannel>('PublicChannel', Object, {

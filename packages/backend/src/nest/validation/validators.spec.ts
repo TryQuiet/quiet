@@ -1,66 +1,6 @@
 import { ChannelMessage, PublicChannel } from '@quiet/types'
-import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
-
-describe('Validators - Users', () => {
-  test('publicKey and halfKey are valid', () => {
-    const publicKey = '036e4c80bf5defb4ad7798fbe63129aab7c5320a25f19d3e7225edae5a6dd0f079'
-    const halfKey = '619059803a3a8de0e733a68fa895017cee3bd0c26339647f994170d6e591f6d6'
-    expect(isUser(publicKey, halfKey)).toBeTruthy()
-  })
-  test('publicKey is valid, halfKey is invalid - wrong format', () => {
-    const publicKey = 'asdfsdf'
-    const halfKey = 'asafdsf'
-    expect(isUser(publicKey, halfKey)).toBeFalsy()
-  })
-  test('publicKey is valid, halfKey is invalid - wrong length', () => {
-    const publicKey = 'asdfsdf'
-    const halfKey = 'asafdsf'
-    expect(isUser(publicKey, halfKey)).toBeFalsy()
-  })
-  test('publicKey is invalid - wrong format, halfKey is valid', () => {
-    const publicKey = 'asdfsdf'
-    const halfKey = 'asafdsf'
-    expect(isUser(publicKey, halfKey)).toBeFalsy()
-  })
-  test('publicKey is invalid - wrong length, halfKey is valid', () => {
-    const publicKey = 'asdfsdf'
-    const halfKey = 'asafdsf'
-    expect(isUser(publicKey, halfKey)).toBeFalsy()
-  })
-})
-
-describe('Validators - Conversations', () => {
-  test('publicKey and encryptedPhrase are valid', () => {
-    const publicKey = '9a3e2d2f7ef14463a8dc7502a236e711a63f089edf842fd32d8cb747783718a7'
-    const encryptedPhrase =
-      'NyZICbOZCsjiJQGS8wIr5Vvd4E8fheRKgVLUlfdFpjB+54mW2V70Wct72wD4+sOrgvl94/PVGTlShHISZYluflh8jvr8vkpSejrXq0lVrbs='
-    expect(isConversation(publicKey, encryptedPhrase)).toBeTruthy()
-  })
-  test('publicKey is valid, encryptedPhrase is invalid - wrong format', () => {
-    const publicKey = '9a3e2d2f7ef14463a8dc7502a236e711a63f089edf842fd32d8cb747783718a7'
-    const encryptedPhrase =
-      'NyZICbOZCsjiJQGS8wIr5Vvd4E8fheRKgVLUlfdFpjB+54mW2V70Wct72wD4+sOrgvl94/==GTlShHISZYluflh8jvr8vkpSejrXq0lVrbsa'
-    expect(isConversation(publicKey, encryptedPhrase)).toBeFalsy()
-  })
-  test('publicKey is valid, encryptedPhrase is invalid - wrong length', () => {
-    const publicKey = '9a3e2d2f7ef14463a8dc7502a236e711a63f089edf842fd32d8cb747783718a7'
-    const encryptedPhrase =
-      'NyZICbOZCsjiJQGS8wIr5Vvd4E8fheRKgVLUlfdFpjB+54mW2Vct72wD4+sOrgvl94/PVGTlShHISZYluflh8jvr8vkpSejrXq0lVrbs='
-    expect(isConversation(publicKey, encryptedPhrase)).toBeFalsy()
-  })
-  test('publicKey is invalid - wrong format, encryptedPhrase is valid', () => {
-    const publicKey = 'ZCsjiJQGS8wIr5Vvd4E8fheRKgVLUlfdFpjB+54mW2Vct72wD4+sOrgvl94/PVGT'
-    const encryptedPhrase =
-      'NyZICbOZCsjiJQGS8wIr5Vvd4E8fheRKgVLUlfdFpjB+54mW2V70Wct72wD4+sOrgvl94/PVGTlShHISZYluflh8jvr8vkpSejrXq0lVrbs='
-    expect(isConversation(publicKey, encryptedPhrase)).toBeFalsy()
-  })
-  test('publicKey is invalid - wrong length, encryptedPhrase is valid', () => {
-    const publicKey = '9a3e2d2f7ef14463a8dc7502a236e711a63f089edf842fd32d8cb747783713458a7'
-    const encryptedPhrase =
-      'NyZICbOZCsjiJQGS8wIr5Vvd4E8fheRKgVLUlfdFpjB+54mW2V70Wct72wD4+sOrgvl94/PVGTlShHISZYluflh8jvr8vkpSejrXq0lVrbs='
-    expect(isConversation(publicKey, encryptedPhrase)).toBeFalsy()
-  })
-})
+import { isMessage, isDirectMessage, isChannel, isEncryptedMessage } from './validators'
+import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 
 describe('Validators - Messages', () => {
   test('message is valid', () => {
@@ -71,7 +11,6 @@ describe('Validators - Messages', () => {
       message: 'hello',
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      author: 'szakalak',
       userId: 'szakalak',
     }
     expect(isMessage(msg)).toBeTruthy()
@@ -136,6 +75,75 @@ describe('Validators - Messages', () => {
       },
     }
     expect(isMessage(msg as unknown as ChannelMessage)).toBeFalsy()
+  })
+})
+
+describe('Validators - Encrypted Messages', () => {
+  test('valid encrypted message passes', () => {
+    const validEncryptedMessage = {
+      id: 'msg-123',
+      contents: {
+        contents: Buffer.from([1, 2, 3]),
+        scope: {
+          generation: 0,
+          type: 'ROLE',
+          name: 'member',
+        },
+      },
+      createdAt: 1710000000000,
+      channelId: 'channel-abc',
+      encSignature: {
+        author: {
+          generation: 0,
+          type: 'USER',
+          name: 'user-xyz',
+        },
+        signature: 'abc123signaturevalue',
+      },
+    }
+    expect(isEncryptedMessage(validEncryptedMessage as unknown as EncryptedMessage)).toBeTruthy()
+  })
+
+  test('missing encSignature fails', () => {
+    const invalidEncryptedMessage = {
+      id: 'msg-123',
+      contents: {
+        contents: Buffer.from([1, 2, 3]),
+        scope: {
+          generation: 0,
+          type: 'ROLE',
+          name: 'member',
+        },
+      },
+      createdAt: 1710000000000,
+      channelId: 'channel-abc',
+    }
+    expect(isEncryptedMessage(invalidEncryptedMessage as unknown as EncryptedMessage)).toBeFalsy()
+  })
+
+  test('contents.contents not buffer fails', () => {
+    const invalidEncryptedMessage = {
+      id: 'msg-123',
+      contents: {
+        contents: new Uint8Array([1, 2, 3]),
+        scope: {
+          generation: 0,
+          type: 'ROLE',
+          name: 'member',
+        },
+      },
+      createdAt: 1710000000000,
+      channelId: 'channel-abc',
+      encSignature: {
+        author: {
+          generation: 0,
+          type: 'USER',
+          name: 'user-xyz',
+        },
+        signature: 'abc123signaturevalue',
+      },
+    }
+    expect(isEncryptedMessage(invalidEncryptedMessage as unknown as EncryptedMessage)).toBeFalsy()
   })
 })
 

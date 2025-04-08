@@ -5,7 +5,6 @@
 import * as auth from '@localfirst/auth'
 import { UserService } from './services/members/user.service'
 import { RoleService } from './services/roles/role.service'
-import { ChannelService } from './services/roles/channel.service'
 import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
@@ -20,7 +19,6 @@ class SigChain extends EventEmitter {
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
-  private _channels: ChannelService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
 
@@ -128,7 +126,6 @@ class SigChain extends EventEmitter {
     this._users = new UserService(this)
     this._devices = new DeviceService(this)
     this._roles = new RoleService(this)
-    this._channels = new ChannelService(this)
     this._invites = new InviteService(this)
     this._crypto = new CryptoService(this)
   }
@@ -146,10 +143,6 @@ class SigChain extends EventEmitter {
 
   get roles(): RoleService {
     return this._roles!
-  }
-
-  get channels(): ChannelService {
-    return this._channels!
   }
 
   get devices(): DeviceService {

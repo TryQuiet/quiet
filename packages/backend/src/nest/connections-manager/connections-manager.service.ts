@@ -50,6 +50,7 @@ import {
   LaunchCommunityPayload,
   ChannelMessage,
   DownloadFilePayload,
+  DeleteChannelPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -751,7 +752,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
     this.socketService.on(
       SocketActions.DELETE_CHANNEL,
-      async (payload: { channelId: string }, callback: (response: DeleteChannelResponse) => void) => {
+      async (payload: DeleteChannelPayload, callback: (response: DeleteChannelResponse) => void) => {
         callback(await this.storageService?.channels.deleteChannel(payload))
       }
     )

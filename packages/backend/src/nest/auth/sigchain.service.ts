@@ -11,9 +11,8 @@ import {
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { SocketActions, SocketEvents, User } from '@quiet/types'
+import { SocketEvents, User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
-import { type ChannelService } from './services/roles/channel.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
 import { type UserService } from './services/members/user.service'
@@ -45,10 +44,6 @@ export class SigChainService {
 
   get roles(): RoleService {
     return this.getActiveChain().roles
-  }
-
-  get channels(): ChannelService {
-    return this.getActiveChain().channels
   }
 
   get devices(): DeviceService {

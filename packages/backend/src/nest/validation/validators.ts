@@ -4,6 +4,7 @@ import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
 import { createLogger } from '../common/logger'
+import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 
 const logger = createLogger('rnBridge')
 
@@ -52,8 +53,25 @@ const messageSchema = joi.object({
   createdAt: joi.number().required(),
   channelId: joi.string().required(),
   userId: joi.string().required(),
-  encSignature: EncryptionSignatureSchema,
-  media: messageMediaSchema,
+  encSignature: EncryptionSignatureSchema.optional(),
+  media: messageMediaSchema.optional(),
+})
+
+const encryptedMessageSchema = joi.object({
+  id: joi.string().required(),
+  contents: joi.object({
+    contents: joi.binary().required(),
+    scope: joi
+      .object({
+        generation: joi.number().required(),
+        type: joi.string().required(),
+        name: joi.string().required(),
+      })
+      .required(),
+  }),
+  createdAt: joi.number().required(),
+  channelId: joi.string().required(),
+  encSignature: EncryptionSignatureSchema.required(),
 })
 
 const channelSchema = joi.object({
@@ -80,14 +98,6 @@ const metadataSchema = joi.object({
     }),
 })
 
-export const isUser = (publicKey: string, halfKey: string): boolean => {
-  return publicKey.length === 66 && halfKey.length === 64 && _.isHexadecimal(publicKey) && _.isHexadecimal(halfKey)
-}
-
-export const isConversation = (publicKey: string, encryptedPhrase: string): boolean => {
-  return publicKey.length === 64 && _.isHexadecimal(publicKey) && _.isBase64(encryptedPhrase)
-}
-
 export const isDirectMessage = (msg: string): boolean => {
   return msg.length >= 364 && _.isBase64(msg)
 }
@@ -95,6 +105,11 @@ export const isDirectMessage = (msg: string): boolean => {
 export const isMessage = (msg: ChannelMessage): boolean => {
   const value = messageSchema.validate(msg)
   // if (value.error) log.error('isMessage', value.error)
+  return !value.error
+}
+
+export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
+  const value: joi.ValidationResult = encryptedMessageSchema.validate(msg)
   return !value.error
 }
 
@@ -111,10 +126,8 @@ export const isServerStoredMetadata = (metadata: ServerStoredCommunityMetadata):
 }
 
 export default {
-  isUser,
   isMessage,
   isDirectMessage,
   isChannel,
-  isConversation,
   isServerStoredMetadata,
 }
