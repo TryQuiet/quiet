@@ -149,7 +149,7 @@ describe('ChannelMessages', () => {
                               <p
                                 class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                               >
-                                11:58 AM
+                                4:58 PM
                               </p>
                             </div>
                           </div>
