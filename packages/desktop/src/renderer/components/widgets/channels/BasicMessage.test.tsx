@@ -80,7 +80,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -169,7 +169,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -271,7 +271,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -371,7 +371,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>

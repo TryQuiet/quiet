@@ -12,7 +12,7 @@ const classes = {
 }
 
 const FLOATING_DATE = {
-  WIDTH: '109px',
+  WIDTH: '125px',
   HEIGHT: '25px',
   TOP_OFFSET: '20px',
   PADDING: '5px 18px',
