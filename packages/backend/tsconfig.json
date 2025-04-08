@@ -1,4 +1,3 @@
-// Purpose: Configuration for the TypeScript compiler in backend
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
@@ -14,7 +13,6 @@
     "strictPropertyInitialization": false,
     "module": "esnext",
     "moduleResolution": "node",
-    "types": ["jest"],
     "typeRoots": [
       "../@types",
       "./node_modules/@types",

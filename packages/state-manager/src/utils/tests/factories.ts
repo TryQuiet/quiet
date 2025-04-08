@@ -45,8 +45,6 @@ import {
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
-import { publicChannelsSelectors } from '../../sagas/publicChannels/publicChannels.selectors'
-import { channel } from 'diagnostics_channel'
 
 const logger = createLogger('factories')
 
