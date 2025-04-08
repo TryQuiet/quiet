@@ -1,15 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
-
+import { DateTime } from 'luxon'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-
 import { withTheme } from '../../storybook/decorators'
 import { mock_messages, users } from '../../storybook/utils'
 import { ModalName } from '../../sagas/modals/modals.types'
-
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
@@ -67,6 +64,11 @@ const dummyUnregisteredUsernameModalHandler: HandleOpenModalType = () => {
 
 const defaultIsCommunityInitialized = true
 
+// Use same timestamp constants as utils.ts
+const OCT_28_2023 = 1698451200 // Unix timestamp for Oct 28, 2023 00:00:00 UTC
+
+const formatTimeOnly = (timestamp: number) => DateTime.fromSeconds(timestamp).toFormat('HH:mm')
+
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   // Use the valid user object
   user: validUser,
@@ -112,7 +114,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     id: '31',
     type: 1,
     message: 'I agree!',
-    createdAt: 0,
+    createdAt: OCT_28_2023,
     channelId: 'general',
     signature: 'signature',
     pubKey: 'pubKey',
@@ -162,11 +164,35 @@ export const SentImage = Template.bind({})
 
 ImagePreview.args = {
   ...args,
-  filesData: {
-    file_id: {
-      path: 'images/test-image.png',
-      name: 'test-image',
+  messages: mock_messages({
+    id: '32',
+    type: 2,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
       ext: '.png',
+      name: 'test-image',
+      width: 1200,
+      height: 580,
+      path: null,
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey',
+  }),
+  downloadStatuses: {
+    32: {
+      mid: '',
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      downloadState: DownloadState.None,
+      downloadProgress: undefined,
     },
   },
 }
@@ -188,8 +214,8 @@ ImagePlaceholder.args = {
       path: null,
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -222,8 +248,8 @@ SentImage.args = {
       path: 'images/test-image.png',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -294,8 +320,8 @@ UploadingFile.args = {
       path: null,
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -329,8 +355,8 @@ HostedFile.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -364,8 +390,8 @@ ReadyDownload.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -399,8 +425,8 @@ Downloading.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -438,8 +464,8 @@ CompletedDownload.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -477,8 +503,8 @@ CancelingDownload.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -516,8 +542,8 @@ CanceledDownload.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -551,8 +577,8 @@ MaliciousDownload.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -578,8 +604,8 @@ NewUserMessage.args = {
     type: 3,
     media: undefined,
     message: 'Hey, @the-emperor just joined!',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -597,8 +623,8 @@ Link.args = {
     type: 1,
     media: undefined,
     message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -618,8 +644,8 @@ MathJaxMiddle.args = {
     type: 1,
     media: undefined,
     message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -633,8 +659,8 @@ MathJaxPending.args = {
     type: 1,
     media: undefined,
     message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -654,8 +680,8 @@ MathJaxBeginning.args = {
     type: 1,
     media: undefined,
     message: String.raw`$$a^2 +b^2=c^2$$`,
-    createdAt: 0,
-    date: '12:46',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
@@ -678,15 +704,16 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
   }>(mock_messages())
 
   const handleSend = (message: string) => {
+    const now = DateTime.now()
     const newMessage: DisplayableMessage = {
-      id: String(Date.now()),
+      id: String(now.toMillis()),
       type: 1,
       message,
-      createdAt: Date.now(),
+      createdAt: now.toSeconds(),
+      date: now.toFormat('HH:mm'),
       nickname: 'vader',
       isRegistered: true,
       isDuplicated: false,
-      date: new Date().toLocaleTimeString(),
       pubKey: 'pubKey',
     }
 
@@ -704,6 +731,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
     })
   }
 
+  const now = DateTime.now()
   return (
     <DndProvider backend={HTML5Backend}>
       <ChannelComponent
