@@ -3,12 +3,9 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
 import { it, beforeEach, cy, Cypress, describe } from 'local-cypress'
 
-import * as stories from './Channel.stories.cy'
+import * as stories from './Channel.stories'
 import { withTheme } from '../../storybook/decorators'
-import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
 import { mount } from 'cypress/react18'
-
-compareSnapshotCommand()
 
 const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
 Cypress.on('uncaught:exception', err => {
@@ -20,7 +17,8 @@ Cypress.on('uncaught:exception', err => {
 // @ts-expect-error
 setGlobalConfig(withTheme)
 
-const { Component } = composeStories(stories)
+// Use SendingMessagesWithScroll story to avoid TypeScript errors in other stories
+const { SendingMessagesWithScroll } = composeStories(stories)
 
 describe('Emoji dropdown behavior', () => {
   // Tests for checking that the emoji dropdown appears and disappears as expected
@@ -34,7 +32,7 @@ describe('Emoji dropdown behavior', () => {
     mount(
       <React.Fragment>
         <CssBaseline>
-          <Component />
+          <SendingMessagesWithScroll />
         </CssBaseline>
       </React.Fragment>
     )
