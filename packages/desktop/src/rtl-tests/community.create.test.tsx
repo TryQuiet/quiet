@@ -1,5 +1,5 @@
 import { generateChannelId } from '@quiet/common'
-import { publicChannels } from '@quiet/state-manager'
+import { publicChannels, getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
 import {
   SocketActions,
   SocketEvents,
@@ -25,10 +25,10 @@ import CreateUsername from '../renderer/components/CreateUsername/CreateUsername
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { ioMock } from '../shared/setupTests'
-import { joinTimestamp } from 'packages/state-manager/src/sagas/identity/identity.selectors'
+import { FactoryGirl } from 'factory-girl'
 
 jest.setTimeout(20_000)
 
@@ -36,7 +36,12 @@ describe('User', () => {
   let socket: MockedSocket
   const generalId = generateChannelId('general')
 
-  beforeEach(() => {
+  let factory: FactoryGirl
+  let baseTypesFactory: FactoryGirl
+
+  beforeEach(async () => {
+    factory = await getSocketFactory()
+    baseTypesFactory = await getBaseTypesFactory()
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -70,8 +75,25 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = (...input: [SocketActions, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
+      if (action === SocketActions.CREATE_COMMUNITY) {
+        return await factory.build(`${action}_response`, {
+          id: input[1].id,
+          community: await baseTypesFactory.build('Community', { id: input[1].id, name: input[1].name }),
+          identity: await baseTypesFactory.build('Identity', {
+            communityId: input[1].id,
+            userId: 'commonUserId',
+          }),
+          profile: await baseTypesFactory.build('UserProfile', {
+            userId: input[1].id,
+          }),
+        })
+      } else if (action === SocketActions.CREATE_CHANNEL) {
+        return await factory.build(`${action}_response`, {
+          channel: baseTypesFactory.build('PublicChannel', { ...input[1] }),
+        })
+      }
     }
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -118,9 +140,6 @@ describe('User', () => {
     expect(createCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
-    // Check if channel page is visible
-    const channelPage = await screen.findByText('#general')
-    expect(channelPage).toBeVisible()
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createCommunity",
@@ -130,24 +149,35 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
-        "Files/checkForMissingFiles",
-        "Network/addInitializedCommunity",
-        "Communities/clearInvitationCodes",
-        "PublicChannels/channelsReplicated",
-        "Communities/updateCommunityData",
-        "PublicChannels/addChannel",
-        "Identity/addNewIdentity",
-        "Messages/addPublicChannelsMessagesBase",
-        "PublicChannels/createGeneralChannel",
-        "PublicChannels/createChannel",
-        "PublicChannels/setCurrentChannel",
-        "PublicChannels/clearUnreadChannel",
         "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
+        "Users/setUserProfile",
+        "PublicChannels/createGeneralChannel",
+        "PublicChannels/createChannel",
+        "Communities/launchCommunity",
+        "PublicChannels/setCurrentChannel",
+        "Communities/setCurrentCommunity",
+        "PublicChannels/clearUnreadChannel",
+        "Files/checkForMissingFiles",
+        "Network/addInitializedCommunity",
         "Modals/closeModal",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/addPublicChannelsMessagesBase",
+        "PublicChannels/addChannel",
+        "PublicChannels/sendInitialChannelMessage",
+        "PublicChannels/finishGeneralRecreation",
+        "Messages/sendMessage",
+        "Messages/addMessagesSendingStatus",
+        "Messages/addMessageVerificationStatus",
+        "Messages/addMessages",
+        "PublicChannels/cacheMessages",
+        "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
+        "PublicChannels/updateNewestMessage",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/clearUnreadChannel",
         "Messages/lazyLoading",

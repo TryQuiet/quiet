@@ -15,6 +15,7 @@ import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { networkActions } from '../../network/network.slice'
 import { usersActions } from '../../users/users.slice'
+import { communitiesSelectors } from '../communities.selectors'
 
 const logger = createLogger('joinCommunitySaga')
 
@@ -32,6 +33,9 @@ export function* joinCommunitySaga(
     identityActions.registerUsername
   )
   const username = registerAction.payload.nickname
+
+  // Setting invitationCodes to mark that we are in the process of joining a community
+  yield* put(communitiesActions.setInvitationCodes(inviteData))
 
   yield* put(
     communitiesActions.addNewCommunity({
@@ -53,11 +57,16 @@ export function* joinCommunitySaga(
     applyEmitParams(SocketActions.JOIN_COMMUNITY, payload)
   )
   if (!response) {
+    // TODO: We need to properly handle this case
     logger.error('Failed to join community - invalid response from backend')
+    yield* put(communitiesActions.clearInvitationCodes())
+    yield* put(communitiesActions.deleteCommunity(communityId))
     return
   }
   yield* put(communitiesActions.updateCommunityData(response.community))
   yield* put(identityActions.addNewIdentity(response.identity))
   yield* put(usersActions.setUserProfile(response.profile))
   yield* put(communitiesActions.launchCommunity(response.community))
+  // clearing invitation codes to mark that we are done with joining a community
+  yield* put(communitiesActions.clearInvitationCodes())
 }

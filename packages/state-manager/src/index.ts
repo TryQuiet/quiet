@@ -60,6 +60,7 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 
 export * from './utils/tests/factories'
 export * from './utils/tests/helpers'
+export { MockedSocket } from './utils/tests/mockedSocket'
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 

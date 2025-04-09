@@ -402,6 +402,7 @@ export const getSocketFactory = async () => {
       peerList: ['peer-1', 'peer-2'],
     },
     identity: baseTypes.assoc('Identity', 'communityId'),
+    profile: baseTypes.assoc('UserProfile'),
   })
 
   factory.define<InitCommunityPayload>(SocketActions.CREATE_COMMUNITY, Object, {
@@ -419,6 +420,7 @@ export const getSocketFactory = async () => {
       peerList: [],
     },
     identity: baseTypes.assoc('Identity', 'communityId'),
+    profile: baseTypes.assoc('UserProfile'),
   })
 
   // TODO: implement with multiple community support
