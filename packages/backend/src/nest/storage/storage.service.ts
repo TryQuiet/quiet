@@ -132,6 +132,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async stop() {
+    this.initialized = false
     await this.channelsService.close()
 
     try {
@@ -211,6 +212,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async clean() {
+    this.initialized = false
     this.peerId = null
 
     await this.channelsService.clean()

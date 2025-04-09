@@ -98,7 +98,7 @@ export const invitationUrl = createSelector(
     const teamId = currentCommunity.teamId
     const qssEndpoint = currentCommunity.qssEndpoint
 
-    if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null && qssEnabled != null) {
+    if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null && qssEnabled === true) {
       if (teamId == null || qssEndpoint == null) {
         const message = `QSS is enabled but team ID and/or QSS endpoint was null!  You must provide a team ID and QSS endpoint to properly handle QSS invites!`
         logger.error(message)
