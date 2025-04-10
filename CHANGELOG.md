@@ -11,6 +11,10 @@
 
 * Improves speed, reliability, and documentation for Cypress tests
 
+### Fixes
+
+* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+
 ## [4.0.3]
 
 ### New features
