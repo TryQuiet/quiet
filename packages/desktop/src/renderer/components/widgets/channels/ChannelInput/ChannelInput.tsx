@@ -379,9 +379,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           // Move selection up
           setSelectedSuggestionIndex(prev => (prev > 0 ? prev - 1 : emojiSuggestions.length - 1))
         }
-      } else if (e.nativeEvent.key === 'Tab') {
-        // Handle tab completion for emoji shortcodes
-        e.preventDefault() // Prevent focus change
+      } else if (e.nativeEvent.key === 'Tab' || (e.nativeEvent.key === 'Enter' && emojiSuggestions.length > 0)) {
+        // Handle Tab or Enter key (when emoji dropdown is visible) for emoji shortcodes
+        e.preventDefault() // Prevent focus change or form submission
 
         const cursorPos = target.selectionStart || 0
         const partial = extractPartialEmojiCode(target.value, cursorPos)
@@ -413,6 +413,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               target.selectionEnd = newCursorPos
             }
           }, 0)
+
+          // If the key was Enter, we're done - don't proceed to the Enter handling below
+          if (e.nativeEvent.key === 'Enter') {
+            return
+          }
         }
       } else if (e.nativeEvent.key === 'Enter') {
         if (e.shiftKey) {
