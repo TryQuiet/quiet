@@ -10,14 +10,11 @@
 
 ### Fixes
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
+* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
 
 ### Chores
 
 * Improves speed, reliability, and documentation for Cypress tests
-
-### Fixes
-
-* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
 
 ## [4.0.3]
 
