@@ -30,8 +30,7 @@ describe('Emoji conversion in code blocks test', () => {
         </CssBaseline>
       </React.Fragment>
     )
-    // Wait for component to render
-    cy.wait(500) // or whatever minimal wait you need
+    cy.wait(0)
   })
 
   it('should NOT convert text typed inside an unclosed code fence', () => {

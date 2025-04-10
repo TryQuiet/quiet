@@ -37,7 +37,7 @@ describe('Emoji dropdown behavior', () => {
         </CssBaseline>
       </React.Fragment>
     )
-    cy.wait(500) // Wait for component to render
+    cy.wait(0)
   })
 
   it('should show dropdown when typing colon followed by characters', () => {
@@ -140,7 +140,6 @@ describe('Emoji dropdown behavior', () => {
           code: 'ArrowDown',
           bubbles: true,
         })
-        cy.wait(100) // Give more time between key presses
       }
 
       // After key presses, verify the dropdown is still visible
