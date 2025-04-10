@@ -91,6 +91,33 @@ export const EmojiDropdown: React.FC<EmojiDropdownProps> = ({
   onEmojiSelect,
 }) => {
   const theme = useTheme()
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+  // Effect to scroll the selected item into view when selectedIndex changes
+  React.useEffect(() => {
+    if (dropdownRef.current && selectedIndex >= 0) {
+      const container = dropdownRef.current
+      const selectedElement = container.querySelector(`.${classes.selectedItem}`) as HTMLElement
+
+      if (selectedElement) {
+        // Get the positions of the container and selected element
+        const containerRect = container.getBoundingClientRect()
+        const selectedRect = selectedElement.getBoundingClientRect()
+
+        // Check if the selected element is outside of the visible area
+        const isAbove = selectedRect.top < containerRect.top
+        const isBelow = selectedRect.bottom > containerRect.bottom
+
+        if (isAbove) {
+          // Scroll the element into view at the top
+          selectedElement.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        } else if (isBelow) {
+          // Scroll the element into view at the bottom
+          selectedElement.scrollIntoView({ block: 'end', behavior: 'smooth' })
+        }
+      }
+    }
+  }, [selectedIndex])
 
   if (suggestions.length === 0) {
     return null
@@ -99,6 +126,7 @@ export const EmojiDropdown: React.FC<EmojiDropdownProps> = ({
   return (
     <ClickAwayListener onClickAway={onClickAway}>
       <StyledRoot
+        ref={dropdownRef}
         className={classes.emojiDropdown}
         data-testid='emoji-dropdown'
         style={{
