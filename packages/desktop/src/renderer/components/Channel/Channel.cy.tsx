@@ -80,7 +80,7 @@ describe('Scroll behavior test', () => {
   })
 
   it('PageUp keydown should scroll message list up.', () => {
-    cy.get(messageInput).focus().type('{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}')
+    cy.get(messageInput).focus().type('{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}')
 
     cy.get(channelContent).then($el => {
       const container = $el[0]
@@ -90,8 +90,13 @@ describe('Scroll behavior test', () => {
   })
 
   it('PageDown keydown should scroll message list down.', () => {
+    // note that Cypress UI before/after views do not correctly display the scroll position; to see the effect for debugging purposes, insert wait statements to slow down the test
     cy.get(channelContent).scrollTo(0, 0)
-    cy.get(messageInput).focus().type('{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}')
+    cy.get(messageInput)
+      .focus()
+      .type(
+        '{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}{pagedown}'
+      )
     cy.get(channelContent).assertScrolledToBottom()
   })
 
