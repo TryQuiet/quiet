@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-1l5cyvy-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-1hpn1fx-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -39,6 +39,9 @@ describe('ChannelInput', () => {
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
+                  <div
+                    style="position: relative; width: 100%;"
+                  />
                   <textarea
                     class="ChannelInputinput"
                     data-testid="messageInput"
@@ -115,7 +118,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1l5cyvy-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1hpn1fx-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -126,6 +129,9 @@ describe('ChannelInput', () => {
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
+                  <div
+                    style="position: relative; width: 100%;"
+                  />
                   <textarea
                     class="ChannelInputinput"
                     data-testid="messageInput"
