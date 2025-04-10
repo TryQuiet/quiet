@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useRef } from 'react'
 import { Grid, List, Typography, useTheme } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   ContextMenuProps,
   ContextMenuHintProps,
@@ -48,7 +49,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             onClick={handleBack || handleClose}
             dataTestId={`contextMenu-close-button-${title.split(' ').join('')}`}
           >
-            <CloseIcon />
+            {handleBack ? <ArrowBackIcon style={{ fontSize: '24px' }} /> : <CloseIcon />}
           </IconButton>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
