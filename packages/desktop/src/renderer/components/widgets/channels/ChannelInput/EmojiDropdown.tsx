@@ -22,6 +22,7 @@ const StyledRoot = styled('div')(({ theme }) => ({
     zIndex: 9999999,
     border: theme.palette.mode === 'dark' ? '1px solid #333333' : '1px solid #E5E5E5',
     padding: '0px',
+    fontFamily: "'Rubik', sans-serif",
     '&::-webkit-scrollbar': {
       width: '6px',
     },
@@ -123,6 +124,31 @@ export const EmojiDropdown: React.FC<EmojiDropdownProps> = ({
     return null
   }
 
+  // Calculate adjusted position to prevent overflow
+  const adjustPosition = () => {
+    // Default to provided position
+    const adjustedPosition = { ...position }
+
+    // If we're in browser environment, check bounds
+    if (typeof window !== 'undefined') {
+      // Get viewport width
+      const viewportWidth = window.innerWidth
+
+      // Calculate right edge of dropdown
+      const rightEdge = position.left + position.width
+
+      // If dropdown would overflow right edge of viewport
+      if (rightEdge > viewportWidth) {
+        // Adjust left position to keep it within viewport
+        adjustedPosition.left = Math.max(0, viewportWidth - position.width)
+      }
+    }
+
+    return adjustedPosition
+  }
+
+  const adjustedPosition = adjustPosition()
+
   return (
     <ClickAwayListener onClickAway={onClickAway}>
       <StyledRoot
@@ -131,9 +157,10 @@ export const EmojiDropdown: React.FC<EmojiDropdownProps> = ({
         data-testid='emoji-dropdown'
         style={{
           position: 'fixed',
-          top: `${position.top}px`,
-          left: `${position.left}px`,
-          width: `${position.width}px`,
+          top: `${adjustedPosition.top}px`,
+          left: `${adjustedPosition.left}px`,
+          width: `${adjustedPosition.width}px`,
+          maxWidth: '100vw', // Prevent horizontal overflow
           zIndex: 9999999,
         }}
       >
