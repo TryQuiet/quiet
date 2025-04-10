@@ -6,6 +6,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
+import EmojiDropdown from './EmojiDropdown'
 import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
@@ -46,10 +47,6 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
-  emojiDropdown: `${PREFIX}emojiDropdown`,
-  emojiDropdownItem: `${PREFIX}emojiDropdownItem`,
-  emojiDropdownTitle: `${PREFIX}emojiDropdownTitle`,
-  selectedItem: `${PREFIX}selectedItem`,
   portalDropdown: `${PREFIX}portalDropdown`,
 }
 
@@ -180,65 +177,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     position: 'fixed',
     bottom: 60,
     right: 15,
-  },
-  [`& .${classes.emojiDropdown}`]: {
-    maxHeight: '200px',
-    width: '100%',
-    background: theme.palette.mode === 'dark' ? '#2a2a2a' : '#ffffff',
-    borderRadius: 16,
-    boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.3)',
-    overflowY: 'auto',
-    zIndex: 9999999,
-    border: theme.palette.mode === 'dark' ? '1px solid #333333' : '1px solid #E5E5E5',
-    padding: '0px',
-    '&::-webkit-scrollbar': {
-      width: '6px',
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'transparent',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
-      borderRadius: '3px',
-    },
-    '&::-webkit-scrollbar-thumb:hover': {
-      background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)',
-    },
-  },
-  [`& .${classes.emojiDropdownItem}`]: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '12px 16px',
-    cursor: 'pointer',
-    transition: 'background-color 0.1s ease',
-    '&:hover': {
-      background: theme.palette.mode === 'dark' ? 'rgba(50, 100, 255, 0.15)' : 'rgba(50, 100, 255, 0.08)',
-    },
-    '&:not(:last-child)': {
-      borderBottom: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
-    },
-    '& span:first-of-type': {
-      marginRight: 12,
-      color: theme.palette.text.primary,
-      flex: 2,
-      fontSize: 14,
-      fontWeight: 400,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
-    '& span:last-of-type': {
-      fontSize: 20,
-      marginLeft: 8,
-      flex: 0,
-      minWidth: '32px',
-      textAlign: 'center',
-    },
-  },
-  [`& .${classes.selectedItem}`]: {
-    background: theme.palette.mode === 'dark' ? 'rgba(50, 100, 255, 0.15)' : 'rgba(50, 100, 255, 0.1)',
-    fontWeight: 400,
-    position: 'relative',
   },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
@@ -560,66 +498,47 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             >
               <div ref={textareaContainerRef} style={{ position: 'relative', width: '100%' }}>
                 {emojiSuggestions.length > 0 && (
-                  <ClickAwayListener
+                  <EmojiDropdown
+                    suggestions={emojiSuggestions}
+                    selectedIndex={selectedSuggestionIndex}
+                    position={dropdownPosition}
                     onClickAway={() => {
                       setEmojiSuggestions([])
                       setPartialEmoji(null)
                       setSelectedSuggestionIndex(-1)
                     }}
-                  >
-                    <div
-                      className={classes.emojiDropdown}
-                      data-testid='emoji-dropdown'
-                      style={{
-                        position: 'fixed',
-                        top: `${dropdownPosition.top}px`,
-                        left: `${dropdownPosition.left}px`,
-                        width: `${dropdownPosition.width}px`,
-                        zIndex: 9999999,
-                      }}
-                    >
-                      {emojiSuggestions.slice(0, MAX_EMOJI_SUGGESTIONS).map((suggestion, index) => (
-                        <div
-                          key={index}
-                          className={`${classes.emojiDropdownItem} ${index === selectedSuggestionIndex ? classes.selectedItem : ''}`}
-                          onClick={() => {
-                            // Apply this emoji when clicked
-                            const cursorPos = textAreaRef.current?.selectionStart || 0
-                            const partial = extractPartialEmojiCode(message, cursorPos)
+                    onEmojiSelect={suggestion => {
+                      // Apply this emoji when clicked
+                      const cursorPos = textAreaRef.current?.selectionStart || 0
+                      const partial = extractPartialEmojiCode(message, cursorPos)
 
-                            if (partial) {
-                              // Replace the partial emoji code with the actual emoji
-                              const emoji = emojiShortcodes[suggestion]
+                      if (partial) {
+                        // Replace the partial emoji code with the actual emoji
+                        const emoji = emojiShortcodes[suggestion]
 
-                              // Calculate the new text with emoji inserted
-                              const beforeText = message.substring(0, partial.startPos)
-                              const afterText = message.substring(cursorPos)
-                              const newText = beforeText + emoji + afterText
+                        // Calculate the new text with emoji inserted
+                        const beforeText = message.substring(0, partial.startPos)
+                        const afterText = message.substring(cursorPos)
+                        const newText = beforeText + emoji + afterText
 
-                              // Calculate new cursor position
-                              const newCursorPos = partial.startPos + emoji.length
+                        // Calculate new cursor position
+                        const newCursorPos = partial.startPos + emoji.length
 
-                              setMessage(newText)
-                              setEmojiSuggestions([])
-                              setSelectedSuggestionIndex(0)
+                        setMessage(newText)
+                        setEmojiSuggestions([])
+                        setSelectedSuggestionIndex(0)
 
-                              // Set cursor position after click
-                              setTimeout(() => {
-                                if (textAreaRef.current) {
-                                  textAreaRef.current.selectionStart = newCursorPos
-                                  textAreaRef.current.selectionEnd = newCursorPos
-                                  textAreaRef.current.focus()
-                                }
-                              }, 0)
-                            }
-                          }}
-                        >
-                          <span>{suggestion}</span>
-                          <span>{emojiShortcodes[suggestion]}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </ClickAwayListener>
+                        // Set cursor position after click
+                        setTimeout(() => {
+                          if (textAreaRef.current) {
+                            textAreaRef.current.selectionStart = newCursorPos
+                            textAreaRef.current.selectionEnd = newCursorPos
+                            textAreaRef.current.focus()
+                          }
+                        }, 0)
+                      }
+                    }}
+                  />
                 )}
               </div>
               <textarea
