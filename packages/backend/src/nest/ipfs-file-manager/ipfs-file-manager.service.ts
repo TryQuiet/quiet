@@ -17,6 +17,7 @@ import { QuietLogger } from '@quiet/logger'
 import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
 
 import { QUIET_DIR } from '../const'
+import { ImageCompressionService } from './image-compression.service'
 import {
   BlockStat,
   DownloadBlocksOptions,
@@ -66,7 +67,8 @@ export class IpfsFileManagerService extends EventEmitter {
   constructor(
     @Inject(QUIET_DIR) public readonly quietDir: string,
     private readonly sigChainService: SigChainService,
-    private readonly ipfsService: IpfsService
+    private readonly ipfsService: IpfsService,
+    private readonly imageCompressionService: ImageCompressionService
   ) {
     super()
 
@@ -86,7 +88,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
   private attachIncomingEvents() {
     this.on(IpfsFilesManagerEvents.UPLOAD_FILE, async (fileMetadata: FileMetadata) => {
-      await this.uploadFile(fileMetadata)
+      await this.attachFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
       const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:download:${fileMetadata.cid}`)
@@ -172,7 +174,7 @@ export class IpfsFileManagerService extends EventEmitter {
    * Copy file to a different directory and return the new path
    */
   public copyFile(originalFilePath: string, filename: string): string {
-    const uploadsDir = path.join(this.quietDir, 'uploads')
+    const attachmentsDir = path.join(this.quietDir, 'attachments')
     let newFilename: string
     try {
       newFilename = decodeURIComponent(filename).replace(/\s/g, '')
@@ -181,11 +183,11 @@ export class IpfsFileManagerService extends EventEmitter {
       newFilename = filename
     }
 
-    const newPath = path.join(uploadsDir, newFilename)
+    const newPath = path.join(attachmentsDir, newFilename)
     let filePath = originalFilePath
     try {
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true })
+      if (!fs.existsSync(attachmentsDir)) {
+        fs.mkdirSync(attachmentsDir, { recursive: true })
       }
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
@@ -206,11 +208,11 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
-  public async uploadFile(metadata: FileMetadata) {
-    const _logger = createLogger(`${IpfsFileManagerService.name}:upload`)
+  public async attachFile(metadata: FileMetadata) {
+    const _logger = createLogger(`${IpfsFileManagerService.name}:attachment`)
     const sigChain = this.sigChainService.getActiveChain()
     if (sigChain == null) {
-      throw new Error(`Can't upload file because there was no active sigchain`)
+      throw new Error(`Can't attach file because there was no active sigchain`)
     }
 
     let width: number | undefined
@@ -219,20 +221,45 @@ export class IpfsFileManagerService extends EventEmitter {
       throw new Error(`File metadata (cid ${metadata.cid}) does not contain path`)
     }
 
+    // Process image if it's an image file
+    let filePath = metadata.path
     if (imagesExtensions.includes(metadata.ext)) {
-      let imageSize: { width: number | undefined; height: number | undefined } | undefined // ISizeCalculationResult
+      // Compress image and remove metadata if it's a JPG
+      if (metadata.ext.toLowerCase() === '.jpg' || metadata.ext.toLowerCase() === '.jpeg') {
+        try {
+          _logger.info(`Compressing JPEG image before attachment: ${filePath}`)
+
+          // The processImage method will modify the original file in place
+          // and return the path to the compressed version (which should be the same)
+          const processedPath = await this.imageCompressionService.processImage(filePath, metadata.ext)
+
+          // Verify the file exists before continuing
+          if (fs.existsSync(processedPath)) {
+            filePath = processedPath
+            _logger.info(`Image successfully processed: ${filePath}`)
+          } else {
+            _logger.warn(`Processed image file does not exist, using original: ${filePath}`)
+          }
+        } catch (e) {
+          _logger.error(`Failed to compress image - using original: ${e.message}`, e)
+          // Continue with original image if compression fails
+        }
+      }
+
+      // Get dimensions of image (compressed in place or original)
+      let imageSize: { width: number | undefined; height: number | undefined } | undefined
       try {
-        imageSize = await sizeOfPromisified(metadata.path)
+        imageSize = await sizeOfPromisified(filePath)
       } catch (e) {
-        _logger.error(`Couldn't get image dimensions (${metadata.path})`, e)
-        throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+        _logger.error(`Couldn't get image dimensions (${filePath})`, e)
+        throw new Error(`Couldn't get image dimensions (${filePath}). Error: ${e.message}`)
       }
       width = imageSize?.width
       height = imageSize?.height
     }
 
     // Create directory for file
-    const dir = `/uploads`
+    const dir = `/attachments`
     await this.ufs.addDirectory({ path: dir })
 
     // Write file to IPFS
@@ -241,16 +268,16 @@ export class IpfsFileManagerService extends EventEmitter {
     const filename = `${uuid}_${metadata.name}${metadata.ext}`
 
     // Save copy to separate directory
-    _logger.info(`Copying ${filename} to uploads directory`)
-    const filePath = this.copyFile(metadata.path, filename)
+    _logger.info(`Copying ${filename} to attachments directory`)
+    const attachmentFilePath = this.copyFile(filePath, filename)
 
     _logger.time(`Writing ${filename} to ipfs`)
 
-    const handleUploadProgressEvents = (event: AddEvents): void => {
-      _logger.trace(`Upload progress`, event)
+    const handleAttachmentProgressEvents = (event: AddEvents): void => {
+      _logger.trace(`Attachment progress`, event)
     }
 
-    const stream = fs.createReadStream(filePath, { highWaterMark: UNIXFS_CHUNK_SIZE })
+    const stream = fs.createReadStream(attachmentFilePath, { highWaterMark: UNIXFS_CHUNK_SIZE })
     const fileAttachmentStreamIterable = {
       // eslint-disable-next-line prettier/prettier, generator-star-spacing
       async *[Symbol.asyncIterator]() {
@@ -268,7 +295,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
     const fileCid = await this.ufs.addByteStream(encryptStream, {
       wrapWithDirectory: true,
-      onProgress: handleUploadProgressEvents,
+      onProgress: handleAttachmentProgressEvents,
       rawLeaves: true,
       reduceSingleLeafToSelf: true,
       // NOTE: this is what makes file encryption possible because it ensures that the encrypted chunks generated by the encrypt stream method
@@ -283,7 +310,7 @@ export class IpfsFileManagerService extends EventEmitter {
     const fileMetadata: FileMetadata = {
       ...metadata,
       tmpPath: undefined,
-      path: filePath,
+      path: attachmentFilePath,
       cid: fileCid.toString(),
       size: Number((await this.ufs.stat(fileCid)).fileSize),
       width,
@@ -309,7 +336,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
     this.emit(StorageEvents.DOWNLOAD_PROGRESS, statusReady)
 
-    if (metadata.path !== filePath) {
+    if (metadata.path !== attachmentFilePath) {
       this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, fileMetadata)
     }
   }
@@ -705,7 +732,7 @@ export class IpfsFileManagerService extends EventEmitter {
     options.logger.info(`Pinning all blocks for file`)
     try {
       if (await this.ipfs.pins.isPinned(fileCid, options.addOptions)) {
-        options.logger.warn(`Already pinned - this file has probably already been uploaded/downloaded previously`)
+        options.logger.warn(`Already pinned - this file has probably already been attached/downloaded previously`)
       } else {
         for await (const cid of abortableAsyncIterable(
           this.ipfs.pins.add(fileCid, options.addOptions),
