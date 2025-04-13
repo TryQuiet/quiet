@@ -90,6 +90,8 @@ export class ImageCompressionService {
           this.logger.info(`Resizing image from ${originalWidth}x${originalHeight} to ${newWidth}x${newHeight}`)
           // Cast to any to work around TypeScript issues with Jimp types
           ;(image as any).resize({ w: newWidth, h: newHeight })
+        } else {
+          this.logger.info(`No resize needed, using original dimensions ${originalWidth}x${originalHeight}`)
         }
 
         // Get the MIME type based on extension - maintain original format
