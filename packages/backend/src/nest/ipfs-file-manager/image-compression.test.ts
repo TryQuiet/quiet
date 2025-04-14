@@ -1,7 +1,12 @@
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { ImageCompressionService } from './image-compression.service'
 import { Test } from '@nestjs/testing'
+
+// Handle __dirname in ESM
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Helper function to create a test image file directly
 function createTestImageFile(filePath: string, width: number, height: number, sizeKb: number): void {
@@ -66,11 +71,13 @@ describe('ImageCompressionService', () => {
       // Process the image with our service
       const resultPath = await service.processImage(imagePath, '.jpg')
 
-      // Should return the same path even if processing failed
-      expect(resultPath).toBe(imagePath)
+      // Should return a new path with "_compressed" suffix
+      expect(resultPath).not.toBe(imagePath)
+      expect(resultPath.includes('_compressed')).toBeTruthy()
 
-      // Verify file still exists after processing
-      expect(fs.existsSync(resultPath)).toBeTruthy()
+      // Verify both files exist after processing
+      expect(fs.existsSync(imagePath)).toBeTruthy() // Original should still exist
+      expect(fs.existsSync(resultPath)).toBeTruthy() // Compressed copy should exist
 
       // Note: We're not checking compression results since our test file
       // is not a valid image format that Jimp can process. In a real
@@ -98,20 +105,29 @@ describe('ImageCompressionService', () => {
       const originalSize = fs.statSync(imagePath).size
       console.log(`Test image created with size: ${originalSize} bytes`)
 
+      // Save the original content to verify it's unchanged
+      const originalContent = fs.readFileSync(imagePath)
+
       // Process the image with our service
       const resultPath = await service.processImage(imagePath, '.jpg')
 
-      // Should return the same path
-      expect(resultPath).toBe(imagePath)
+      // Should return a new path with "_compressed" suffix
+      expect(resultPath).not.toBe(imagePath)
+      expect(resultPath.includes('_compressed')).toBeTruthy()
 
-      // Verify file exists after processing
-      expect(fs.existsSync(resultPath)).toBeTruthy()
+      // Verify both files exist after processing
+      expect(fs.existsSync(imagePath)).toBeTruthy() // Original should still exist
+      expect(fs.existsSync(resultPath)).toBeTruthy() // Compressed copy should exist
 
-      // Size should be the same or very similar since it was already small enough
+      // Size should be the same since it was already small enough
       const finalSize = fs.statSync(resultPath).size
       console.log(`Final image size: ${finalSize} bytes`)
 
-      // Small images should be left untouched
+      // Original file should be untouched
+      const afterContent = fs.readFileSync(imagePath)
+      expect(Buffer.compare(originalContent, afterContent)).toBe(0) // Should be identical
+
+      // Small images should be copied without compression
       expect(originalSize <= service['TARGET_MAX_SIZE']).toBeTruthy()
       expect(finalSize).toBe(originalSize)
     })
