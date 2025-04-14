@@ -57,7 +57,25 @@ export const ImageAttachment: React.FC<ImageAttachmentProps> = ({ media, fileAtt
     }
   }, [showImage])
 
-  if (!imageWidth || !imageHeight) return null
+  // Show a spinner when width/height are not available (image is still processing i.e. compressing, hashing, etc)
+  if (!imageWidth || !imageHeight) {
+    return (
+      <Root>
+        <div className={classes.container}>
+          <div className={classes.image}>
+            <ImageAttachmentPlaceholder
+              cid={cid || ''}
+              imageWidth={400}
+              imageHeight={300}
+              name={name}
+              ext={ext}
+              downloadStatus={downloadStatus}
+            />
+          </div>
+        </div>
+      </Root>
+    )
+  }
   const width = imageWidth >= 400 ? 400 : imageWidth
 
   return (
@@ -91,7 +109,7 @@ export const ImageAttachment: React.FC<ImageAttachmentProps> = ({ media, fileAtt
           name={name}
           ext={ext}
           downloadStatus={downloadStatus}
-        />
+        /> // Note that when we are processing / compressing images, we do not have CID, width, or height yet.
       )}
     </Root>
   )
