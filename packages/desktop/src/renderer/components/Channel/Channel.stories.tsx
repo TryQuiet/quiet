@@ -8,7 +8,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import { UploadFilesPreviewsProps } from './File/FilePreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 

@@ -5,7 +5,7 @@ import { Grid, useTheme } from '@mui/material'
 import { DownloadState, DownloadStatus } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
-import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
+import UploadedImage from '../../Channel/File/Image/Image'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { displayMathRegex } from '../../../../utils/functions/splitByTex'
 import { TextMessageComponent } from './TextMessage'
