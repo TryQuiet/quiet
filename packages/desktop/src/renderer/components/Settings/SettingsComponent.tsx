@@ -5,6 +5,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { useModal } from '../../containers/hooks'
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '../ui'
 import IconButton from '../ui/Icon/IconButton'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 const PREFIX = 'SettingsModal'
 
@@ -110,9 +111,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           sx={{ paddingTop: '16px', paddingBottom: '8px', paddingLeft: '4px' }}
           data-testid={'close-tab-button-box'}
         >
-          <IconButton onClick={handleCloseTab}>
-            <CloseIcon />
-          </IconButton>
+          <IconButton onClick={handleCloseTab}>{currentTab !== '' ? <ArrowBackIcon /> : <CloseIcon />}</IconButton>
         </Box>
         <Divider />
         <Box p={2} width={375}>
