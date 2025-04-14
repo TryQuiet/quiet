@@ -37,10 +37,10 @@ export class App {
     return this.buildSetup.dataDir
   }
 
-  async open(): Promise<void> {
+  async open(qssEnabled = false): Promise<void> {
     logger.info('opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
-    await this.buildSetup.createChromeDriver()
+    await this.buildSetup.createChromeDriver(qssEnabled)
     this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
@@ -48,13 +48,13 @@ export class App {
     await debugModal.close()
   }
 
-  async openWithRetries(overrideConfig?: RetryConfig): Promise<void> {
+  async openWithRetries(overrideConfig?: RetryConfig, qssEnabled = false): Promise<void> {
     const config = {
       ...this.retryConfig,
       ...(overrideConfig ? overrideConfig : {}),
     }
     const failureReason = `Failed to open app within ${config.timeoutMs}ms`
-    await promiseWithRetries(this.open(), failureReason, config, this.close)
+    await promiseWithRetries(this.open(qssEnabled), failureReason, config, this.close)
   }
 
   async close(options?: { forceSaveState?: boolean }): Promise<void> {

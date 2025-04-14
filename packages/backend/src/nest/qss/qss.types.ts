@@ -61,6 +61,7 @@ export interface QSSCommunity {
 }
 
 export interface CreateCommunityPayload {
+  userId: string
   community: QSSCommunity
   teamKeyring: string
 }
@@ -109,6 +110,7 @@ export enum CommunityOperationStatus {
 }
 
 export interface AuthSyncMessageInnerPayload {
+  userId: string
   teamId: string
   message: string
 }
@@ -149,6 +151,7 @@ export interface GeneratePublicKeysResponse extends BaseWebsocketMessage<Generat
 }
 
 export interface CommunitySignInInnerPayload {
+  userId: string
   teamId: string
 }
 

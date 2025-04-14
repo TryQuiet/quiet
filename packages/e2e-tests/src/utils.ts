@@ -114,13 +114,21 @@ export class BuildSetup {
     exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
   }
 
-  public async createChromeDriver() {
+  public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
     const env = {
       DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
     }
+    if (qssEnabled) {
+      env = {
+        ...env,
+        QSS_ENABLED: true,
+        QSS_ENDPOINT: 'ws://127.0.0.1:3003',
+      }
+    }
+
     if (process.platform === 'win32') {
       logger.info('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {

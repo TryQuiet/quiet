@@ -4,7 +4,7 @@ import {
   InviteeContext,
   MemberContext,
 } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
@@ -28,9 +28,11 @@ import * as url from 'node:url'
 import { SigChainService } from '../auth/sigchain.service'
 import { createWinstonQuietLogger } from '@quiet/node-common'
 import EventEmitter from 'node:events'
+import { sleep } from '../common/sleep'
 
 @Injectable()
-export class QSSService extends EventEmitter {
+export class QSSService extends EventEmitter implements OnModuleInit {
+  private _connecting = false
   private readonly logger = createLogger(`qss:service`)
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst')
 
@@ -43,27 +45,58 @@ export class QSSService extends EventEmitter {
     super({ captureRejections: true })
   }
 
+  public async onModuleInit() {
+    this.logger.trace('Attempting to connect to QSS')
+    await this.connect(this.qssEnabled, this.qssEndpoint)
+  }
+
+  public get connected(): boolean {
+    return !!this.qssClient.clientSocket?.connected
+  }
+
+  public get enabled(): boolean {
+    return this.qssEnabled && this.qssEndpoint !== '' && this.qssEndpoint != null
+  }
+
   public async connect(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<boolean> {
+    if (this._connecting) {
+      this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
+      const waitTime = DateTime.utc().toMillis() + 15_000
+      while (!this.connected && DateTime.utc().toMillis() < waitTime) {
+        await sleep(500)
+      }
+    }
+
+    if (this.connected) {
+      return true
+    }
+
+    this._connecting = true
+
     this.qssEnabled = this.qssEnabled || qssEnabled
     this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
-    if (!this.qssEnabled) {
+    if (!this.enabled) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
       return false
     }
 
+    let connected = false
     try {
       this.logger.info(`Establishing connection with QSS`)
       await this.qssClient.createSocket(this.qssEnabled, this.qssEndpoint)
       this.logger.info(`Connection established`)
-      return true
+      connected = true
     } catch (e) {
       this.logger.error(`Error while connecting to QSS`, e)
-      return false
+      connected = false
     }
+
+    this._connecting = false
+    return connected
   }
 
   public async createCommunity(community: Community, sigChain: SigChain): Promise<boolean> {
-    if (!this._qssInitialized()) {
+    if (!this.enabled) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
     }
@@ -98,12 +131,17 @@ export class QSSService extends EventEmitter {
       return false
     }
 
+    let host = url.parse(this.qssEndpoint).hostname!
+    if (host === '127.0.0.1') {
+      host = 'localhost'
+    }
+
     const lfaServer: Server = {
-      host: url.parse(this.qssEndpoint).hostname!,
+      host,
       keys: generateKeysResponse.payload.payload.keys,
     }
 
-    this.logger.info(`Got a valid keys response from QSS, adding it to the chain`)
+    this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
     sigChain.server.addServer(lfaServer)
 
     const serializedSigChain: Uint8Array = sigChain.save()
@@ -112,6 +150,7 @@ export class QSSService extends EventEmitter {
     const qssCreateCommunityMessage: CreateCommunity = {
       ts: DateTime.utc().toMillis(),
       payload: {
+        userId: (sigChain.context as MemberContext).user.userId,
         community: {
           teamId: sigChain.team.id,
           psk: community.psk!,
@@ -142,8 +181,13 @@ export class QSSService extends EventEmitter {
   }
 
   public async signInToCommunity(teamId: string, sigChain: SigChain): Promise<void> {
-    if (!this._qssInitialized()) {
-      this.logger.trace(`Can't sign in to community on QSS because QSS is not initialized`)
+    if (!this.enabled) {
+      this.logger.trace(`Can't sign in to community on QSS because QSS is not enabled for this community`)
+      return
+    }
+
+    if (!this.connected) {
+      this.logger.trace(`Can't sign in to community on QSS because the client hasn't connected`)
       return
     }
 
@@ -153,6 +197,7 @@ export class QSSService extends EventEmitter {
       payload: {
         status: CommunityOperationStatus.SUCCESS,
         payload: {
+          userId: (sigChain.context as MemberContext).user.userId,
           teamId,
         },
       },
@@ -178,13 +223,13 @@ export class QSSService extends EventEmitter {
   }
 
   private async startAuthConnection(teamId: string, sigChain: SigChain): Promise<void> {
-    if (!this.qssEnabled) {
-      this.logger.warn(`Can't initiate auth connection with QSS because QSS is not enabled`)
+    if (!this.enabled) {
+      this.logger.warn(`Can't initiate auth connection with QSS because QSS is not enabled for this community`)
       return
     }
 
-    if (!this._qssInitialized()) {
-      this.logger.warn(`Can't initiate auth connection with QSS because QSS has not been initialized`)
+    if (!this.connected) {
+      this.logger.trace(`Can't initiate auth connection with QSS because the client hasn't connected`)
       return
     }
 
@@ -199,6 +244,7 @@ export class QSSService extends EventEmitter {
           payload: {
             status: CommunityOperationStatus.SUCCESS,
             payload: {
+              userId: (sigChain.context as MemberContext).user.userId,
               teamId,
               message: uint8arrays.toString(message, 'base64'),
             },
@@ -281,14 +327,5 @@ export class QSSService extends EventEmitter {
 
     this.logger.info(`Auth connection established with QSS`)
     authConnection.start()
-  }
-
-  private _qssInitialized(): boolean {
-    if (!this.qssEnabled || this.qssEndpoint == null) {
-      this.logger.trace(`QSS is not enabled!`)
-      return false
-    }
-
-    return !!this.qssClient.clientSocket?.connected
   }
 }

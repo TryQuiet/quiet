@@ -588,6 +588,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       inviteData,
       psk: inviteData.psk,
       ownership: CommunityOwnership.User,
+      qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
+      qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
     }
 
     await this.localDbService.setCommunity(community)
