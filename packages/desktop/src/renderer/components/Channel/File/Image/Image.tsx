@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { DownloadStatus, FileMetadata } from '@quiet/types'
 import { UseModalType } from '../../../../containers/hooks'
-import UploadedFileModal from './UploadedImagePreview'
-import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
+import UploadedFileModal from './ImagePreview'
+import { UploadedFilename, UploadedImagePlaceholder } from '../ImagePlaceholder/ImagePlaceholder'
 
 const PREFIX = 'UploadedImage'
 

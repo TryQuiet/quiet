@@ -2,7 +2,7 @@ import React from 'react'
 import { DownloadState } from '@quiet/types'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './UploadedImagePlaceholder'
+import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './ImagePlaceholder'
 import { withTheme } from '../../../../storybook/decorators'
 
 const Template: ComponentStory<typeof UploadedImagePlaceholder> = args => {

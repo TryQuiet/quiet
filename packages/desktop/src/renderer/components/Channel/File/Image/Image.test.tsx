@@ -2,7 +2,7 @@ import { DisplayableMessage, DownloadState, DownloadStatus, MessageType } from '
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
-import UploadedImage from './UploadedImage'
+import UploadedImage from './Image'
 
 describe('UploadedFile', () => {
   let message: DisplayableMessage
