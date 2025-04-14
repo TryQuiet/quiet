@@ -13,9 +13,7 @@ import {
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { networkActions } from '../../network/network.slice'
 import { usersActions } from '../../users/users.slice'
-import { communitiesSelectors } from '../communities.selectors'
 
 const logger = createLogger('joinCommunitySaga')
 
@@ -23,16 +21,11 @@ export function* joinCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.joinCommunity>['payload']>
 ): Generator {
-  logger.info('Joining community')
+  logger.info('Starting joinCommunitySaga')
 
   const { inviteData } = action.payload as JoinCommunityPayload
 
   const communityId = yield* call(generateId)
-
-  const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
-    identityActions.registerUsername
-  )
-  const username = registerAction.payload.nickname
 
   // Setting invitationCodes to mark that we are in the process of joining a community
   yield* put(communitiesActions.setInvitationCodes(inviteData))
@@ -43,6 +36,13 @@ export function* joinCommunitySaga(
       ownership: CommunityOwnership.User,
     } as Community)
   )
+  yield* put(communitiesActions.setCurrentCommunity(communityId))
+
+  logger.info('Waiting for user to register username')
+  const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
+    identityActions.registerUsername
+  )
+  const username = registerAction.payload.nickname
 
   const payload: InitCommunityPayload = {
     id: communityId,
@@ -56,6 +56,7 @@ export function* joinCommunitySaga(
     socket.emitWithAck,
     applyEmitParams(SocketActions.JOIN_COMMUNITY, payload)
   )
+  logger.info('Response from backend', response)
   if (!response) {
     // TODO: We need to properly handle this case
     logger.error('Failed to join community - invalid response from backend')

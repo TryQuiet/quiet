@@ -141,7 +141,6 @@ describe('communitiesSelectors', () => {
     const expectedUrl = composeInvitationShareUrl({
       pairs,
       psk,
-      ownerOrbitDbIdentity,
       authData,
       version: InvitationDataVersion.v2,
     })
@@ -186,30 +185,6 @@ describe('communitiesSelectors', () => {
       peerList,
       // psk, // psk is not defined
       ownerOrbitDbIdentity,
-    })
-    store.dispatch(
-      connectionActions.setLongLivedInvite({
-        seed: '5ah8uYodiwuwVybT',
-        id: '5ah8uYodiwuwVybT' as Base58,
-      })
-    )
-    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
-    expect(selectorInvitationUrl).toEqual('')
-  })
-
-  it('invitationUrl selector returns empty string if state lacks ownerOrbitDbIdentity', async () => {
-    const peerList = [
-      createLibp2pAddress(
-        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
-        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-      ),
-    ]
-    const psk = '1234'
-    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      peerList,
-      psk,
-      // ownerOrbitDbIdentity, // ownerOrbitDbIdentity is not defined
     })
     store.dispatch(
       connectionActions.setLongLivedInvite({

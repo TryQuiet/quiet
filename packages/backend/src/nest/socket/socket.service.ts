@@ -18,6 +18,8 @@ import {
   type MessagesLoadedPayload,
   type NetworkInfo,
   LaunchCommunityPayload,
+  ResponseJoinCommunityPayload,
+  ResponseCreateCommunityPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -153,7 +155,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       // ====== Community ======
       socket.on(
         SocketActions.CREATE_COMMUNITY,
-        async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
+        async (
+          payload: InitCommunityPayload,
+          callback: (response: ResponseCreateCommunityPayload | undefined) => void
+        ) => {
           this.logger.info(`Creating community`, payload.id)
           this.emit(SocketActions.CREATE_COMMUNITY, payload, callback)
         }
@@ -161,8 +166,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(
         SocketActions.JOIN_COMMUNITY,
-        async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-          this.logger.info(`Launching community ${payload.id}`)
+        async (
+          payload: InitCommunityPayload,
+          callback: (response: ResponseJoinCommunityPayload | undefined) => void
+        ) => {
+          this.logger.info(`Received request to join community`, payload.id)
           this.emit(SocketActions.JOIN_COMMUNITY, payload, callback)
           this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
         }

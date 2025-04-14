@@ -28,7 +28,6 @@ describe('CopyLink', () => {
         },
       ],
       psk: '123435',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',
@@ -143,7 +142,6 @@ describe('CopyLink', () => {
         },
       ],
       psk: '12345',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',

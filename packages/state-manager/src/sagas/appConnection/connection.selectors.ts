@@ -52,39 +52,25 @@ export const longLivedInvite = createSelector(connectionSlice, reducerState => {
 
 export const invitationUrl = createSelector(
   communitiesSelectors.psk,
-  communitiesSelectors.ownerOrbitDbIdentity,
   communitiesSelectors.currentCommunity,
   peerList,
   longLivedInvite,
-  (communityPsk, ownerOrbitDbIdentity, currentCommunity, sortedPeerList, longLivedInvite) => {
+  (communityPsk, currentCommunity, sortedPeerList, longLivedInvite) => {
     if (!sortedPeerList || sortedPeerList?.length === 0) return ''
     if (!communityPsk) return ''
-    if (!ownerOrbitDbIdentity) return ''
     if (!longLivedInvite) return ''
     if (!currentCommunity) return ''
     if (!currentCommunity.name) return ''
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
-    let inviteData: InvitationData = {
-      pairs,
+    const inviteData: InvitationData = {
       psk: communityPsk,
-      ownerOrbitDbIdentity,
-      version: InvitationDataVersion.v1,
-    }
-    if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null) {
-      inviteData = {
-        ...inviteData,
-        version: InvitationDataVersion.v2,
-        authData: {
-          communityName: currentCommunity.name,
-          seed: longLivedInvite.seed,
-        },
-      }
-      logger.info('Added V2 invite data to the invite link')
-    } else {
-      logger.warn(
-        `Community and/or LFA invite data is missing, can't create V2 invite link! \nCommunity non-null? ${currentCommunity != null} \nCommunity name non-null? ${currentCommunity?.name != null} \nLFA invite data non-null? ${longLivedInvite != null}`
-      )
+      pairs,
+      version: InvitationDataVersion.v2,
+      authData: {
+        communityName: currentCommunity.name,
+        seed: longLivedInvite.seed,
+      },
     }
     return composeInvitationShareUrl(inviteData)
   }

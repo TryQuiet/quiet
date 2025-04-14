@@ -69,7 +69,6 @@ import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
-import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -460,6 +459,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
+    this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
     if (!inviteData) {
       emitError(this.serverIoProvider.io, {
@@ -510,7 +510,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
@@ -519,12 +518,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         peerId: identity.networkInfo.peerId.id,
       },
     }
-    this.storageService.addUserProfile(userProfile)
 
     return {
       id: community.id,
       community: community,
       identity: identity,
+      profile: userProfile,
     } as ResponseJoinCommunityPayload
   }
 

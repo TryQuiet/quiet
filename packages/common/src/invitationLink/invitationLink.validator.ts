@@ -358,10 +358,6 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
         required: true,
         validator: validatePsk,
       },
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY]: {
-        required: true,
-        validator: validateOwnerOrbitDbIdentity,
-      },
       [PEER_ADDRESS_KEY]: {
         required: false,
         validator: validatePeerAddresses,
@@ -491,6 +487,7 @@ export const parseAndValidateUrlParams = <T extends InvitationData>(
   // dynamic params instead
   let pairs: InvitationPair[] | undefined = output.pairs
   if (pairs == null && paramConfigMap.named.get(PEER_ADDRESS_KEY) != null) {
+    logger.info(`No peer pairs found in named params, trying to pull them from dynamic params`)
     pairs = validatePeerPairsFromUrlParams(url, remainingParams)
   }
 

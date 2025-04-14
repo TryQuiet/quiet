@@ -55,7 +55,6 @@ describe('User', () => {
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-    ownerOrbitDbIdentity: 'testOrbitDbIdentity',
     authData: {
       communityName: 'testCommunityName',
       seed: '123456789abcdefg',

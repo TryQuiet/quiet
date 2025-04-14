@@ -16,10 +16,10 @@ export enum InvitationDataVersion {
 export type InvitationDataP2P = {
   pairs: InvitationPair[]
   psk: string
-  ownerOrbitDbIdentity: string
 }
 
 export type InvitationDataV1 = InvitationDataP2P & {
+  ownerOrbitDbIdentity: string
   version: InvitationDataVersion.v1
 }
 
