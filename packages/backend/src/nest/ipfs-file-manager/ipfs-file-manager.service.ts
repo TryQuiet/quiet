@@ -278,7 +278,7 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     const stream = fs.createReadStream(uploadFilePath, { highWaterMark: UNIXFS_CHUNK_SIZE })
-    const uploadedFileStreamIterable = {
+    const fileAttachmentStreamIterable = {
       // eslint-disable-next-line prettier/prettier, generator-star-spacing
       async *[Symbol.asyncIterator]() {
         for await (const data of stream) {
@@ -288,7 +288,7 @@ export class IpfsFileManagerService extends EventEmitter {
       },
     }
 
-    const { header, recipient, encryptStream } = sigChain.crypto.encryptStream(uploadedFileStreamIterable, {
+    const { header, recipient, encryptStream } = sigChain.crypto.encryptStream(fileAttachmentStreamIterable, {
       type: EncryptionScopeType.ROLE,
       name: RoleName.MEMBER,
     })

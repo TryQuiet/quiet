@@ -163,7 +163,7 @@ export interface BasicMessageProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   openUrl: (url: string) => void
   downloadStatuses?: Dictionary<DownloadStatus>
-  uploadedFileModal?: UseModalType<{
+  fileAttachmentModal?: UseModalType<{
     src: string
   }>
   onMathMessageRendered?: () => void
@@ -175,7 +175,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   messages,
   pendingMessages = {},
   downloadStatuses = {},
-  uploadedFileModal,
+  fileAttachmentModal,
   onMathMessageRendered,
   openUrl,
   openContainingFolder,
@@ -275,7 +275,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       message={message}
                       pending={pending}
                       downloadStatus={downloadStatus}
-                      uploadedFileModal={uploadedFileModal}
+                      fileAttachmentModal={fileAttachmentModal}
                       openUrl={openUrl}
                       openContainingFolder={openContainingFolder}
                       downloadFile={downloadFile}

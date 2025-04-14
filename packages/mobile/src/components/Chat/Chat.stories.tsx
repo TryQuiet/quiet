@@ -19,7 +19,7 @@ storiesOf('Chat', module)
       sendMessageAction={storybookLog('Message sent')}
       loadMessagesAction={storybookLog('Messages loaded')}
       handleBackButton={storybookLog('Navigating back')}
-      openImagePreview={() => {}}
+      openImageAttachmentPreview={() => {}}
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
@@ -241,8 +241,8 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
@@ -261,7 +261,7 @@ storiesOf('Chat', module)
       sendMessageAction={storybookLog('Message sent')}
       loadMessagesAction={storybookLog('Messages loaded')}
       handleBackButton={storybookLog('Navigating back')}
-      openImagePreview={() => {}}
+      openImageAttachmentPreview={() => {}}
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
@@ -272,8 +272,8 @@ storiesOf('Chat', module)
         timestamp: 0,
         id: '',
       }}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)

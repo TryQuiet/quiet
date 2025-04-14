@@ -3,15 +3,15 @@ import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } f
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Loading } from '../Loading/Loading.component'
-import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
+import { ImageAttachmentPreviewModal } from '../../components/ImageAttachmentPreview/ImageAttachmentPreview.component'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
-import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
-import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
+import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 
@@ -31,12 +31,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   downloadStatuses = {},
   downloadFile,
   cancelDownload,
-  imagePreview,
-  setImagePreview,
-  openImagePreview,
-  updateUploadedFiles,
+  imageAttachmentPreview,
+  setImageAttachmentPreview,
+  openImageAttachmentPreview,
+  updateFileAttachments,
   removeFilePreview,
-  uploadedFiles,
+  fileAttachments,
   openUrl,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
@@ -52,10 +52,10 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const defaultPadding = 20
 
   const areFilesUploaded = useCallback(() => {
-    if (!uploadedFiles) return false
-    if (Object.keys(uploadedFiles).length <= 0) return false
+    if (!fileAttachments) return false
+    if (Object.keys(fileAttachments).length <= 0) return false
     return true
-  }, [uploadedFiles])()
+  }, [fileAttachments])()
 
   const shouldDisableSubmit = useCallback(() => {
     if (!ready) return true
@@ -105,7 +105,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       return
     }
     if (response) {
-      updateUploadedFiles(response)
+      updateFileAttachments(response)
     }
   }
 
@@ -125,7 +125,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       downloadStatuses={downloadStatuses}
       downloadFile={downloadFile}
       cancelDownload={cancelDownload}
-      openImagePreview={openImagePreview}
+      openImageAttachmentPreview={openImageAttachmentPreview}
       openUrl={openUrl}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
@@ -214,19 +214,19 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                     <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                   )}
                 </View>
-                {uploadedFiles && (
-                  <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
+                {fileAttachments && (
+                  <UploadFilesPreviewsComponent filesData={fileAttachments} removeFile={removeFilePreview} />
                 )}
               </View>
             </View>
           </>
         )}
       </KeyboardAvoidingView>
-      {imagePreview && setImagePreview && (
-        <ImagePreviewModal
-          imagePreviewData={imagePreview}
+      {imageAttachmentPreview && setImageAttachmentPreview && (
+        <ImageAttachmentPreviewModal
+          imageAttachmentPreviewData={imageAttachmentPreview}
           currentChannelName={channel?.name}
-          resetPreviewData={() => setImagePreview(null)}
+          resetPreviewData={() => setImageAttachmentPreview(null)}
         />
       )}
     </View>
@@ -240,7 +240,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   downloadStatuses,
   downloadFile,
   cancelDownload,
-  openImagePreview,
+  openImageAttachmentPreview,
   openUrl,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
@@ -258,7 +258,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
             downloadStatus={downloadStatuses?.[messageId]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
-            openImagePreview={openImagePreview}
+            openImageAttachmentPreview={openImageAttachmentPreview}
             openUrl={openUrl}
             pendingMessages={pendingMessages}
             duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}

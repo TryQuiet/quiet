@@ -1,6 +1,6 @@
 import { CancelDownload, DisplayableMessage, DownloadStatus, FileMetadata } from '@quiet/types'
 
-export interface UploadedFileProps {
+export interface FileAttachmentProps {
   media?: FileMetadata
   message: DisplayableMessage
   downloadStatus?: DownloadStatus

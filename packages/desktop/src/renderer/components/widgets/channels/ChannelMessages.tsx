@@ -73,7 +73,7 @@ interface Props {
   openContainingFolder?: (path: string) => void
   downloadFile?: (media: FileMetadata) => void
   cancelDownload?: (cancelDownload: CancelDownload) => void
-  uploadedFileModal?: UseModalType<{ src: string }>
+  fileAttachmentModal?: UseModalType<{ src: string }>
   onMathMessageRendered?: () => void
   pendingGeneralChannelRecreation?: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
@@ -86,7 +86,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   downloadStatuses = {},
   scrollbarRef,
   onScroll,
-  uploadedFileModal,
+  fileAttachmentModal,
   openUrl,
   openContainingFolder,
   downloadFile,
@@ -243,7 +243,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
                   messages={items}
                   pendingMessages={pendingMessages}
                   downloadStatuses={downloadStatuses}
-                  uploadedFileModal={uploadedFileModal}
+                  fileAttachmentModal={fileAttachmentModal}
                   openUrl={openUrl}
                   openContainingFolder={openContainingFolder}
                   downloadFile={downloadFile}

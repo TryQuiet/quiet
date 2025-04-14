@@ -86,7 +86,7 @@ export const ChannelScreen: FC = () => {
   )
 
   // Files
-  const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
+  const updateFileAttachments = (files: DocumentPickerResponse[]) => {
     const filesData: FilePreviewData = getFilesData(
       files.map(fileObj => {
         return {
@@ -147,7 +147,7 @@ export const ChannelScreen: FC = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannel?.id])
 
-  const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
+  const [imageAttachmentPreview, setImageAttachmentPreview] = useState<FileMetadata | null>(null)
 
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
@@ -170,13 +170,13 @@ export const ChannelScreen: FC = () => {
       downloadStatuses={downloadStatusesMapping}
       downloadFile={downloadFile}
       cancelDownload={cancelDownload}
-      imagePreview={imagePreview}
-      setImagePreview={setImagePreview}
-      openImagePreview={setImagePreview}
-      updateUploadedFiles={updateUploadedFiles}
+      imageAttachmentPreview={imageAttachmentPreview}
+      setImageAttachmentPreview={setImageAttachmentPreview}
+      openImageAttachmentPreview={setImageAttachmentPreview}
+      updateFileAttachments={updateFileAttachments}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
-      uploadedFiles={uploadingFiles}
+      fileAttachments={uploadingFiles}
       ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}

@@ -10,7 +10,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { UploadFilesPreviewsProps } from './File/FilePreview'
+import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
 import { getFilesData } from '@quiet/common'
 
@@ -48,7 +48,7 @@ const Channel = () => {
 
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
-  const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
+  const fileAttachmentModal = useModal<{ src: string }>(ModalName.fileAttachmentModal)
   const { handleOpen: duplicatedUsernameModalHandleOpen } = useModal(ModalName.duplicatedUsernameModal)
   const { handleOpen: unregisteredUsernameModalHandleOpen } = useModal(ModalName.unregisteredUsernameModal)
 
@@ -212,7 +212,7 @@ const Channel = () => {
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,
     handleClipboardFiles: handleClipboardFiles,
-    uploadedFileModal: uploadedFileModal,
+    fileAttachmentModal: fileAttachmentModal,
     openContextMenu: openContextMenu,
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,

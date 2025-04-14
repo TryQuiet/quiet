@@ -2,11 +2,11 @@ import React from 'react'
 import { DownloadState } from '@quiet/types'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './ImagePlaceholder'
+import ImageAttachmentPlaceholder, { ImageAttachmentPlaceholderProps } from './ImageAttachmentPlaceholder'
 import { withTheme } from '../../../../storybook/decorators'
 
-const Template: ComponentStory<typeof UploadedImagePlaceholder> = args => {
-  return <UploadedImagePlaceholder {...args} />
+const Template: ComponentStory<typeof ImageAttachmentPlaceholder> = args => {
+  return <ImageAttachmentPlaceholder {...args} />
 }
 
 export const Component = Template.bind({})
@@ -17,7 +17,7 @@ const downloadStatus = {
   downloadState: DownloadState.Completed,
 }
 
-const args: UploadedImagePlaceholderProps = {
+const args: ImageAttachmentPlaceholderProps = {
   cid: 'cid',
   imageWidth: 500,
   imageHeight: 200,
@@ -28,10 +28,10 @@ const args: UploadedImagePlaceholderProps = {
 
 Component.args = args
 
-const component: ComponentMeta<typeof UploadedImagePlaceholder> = {
-  title: 'Components/UploadedImagePlaceholder',
+const component: ComponentMeta<typeof ImageAttachmentPlaceholder> = {
+  title: 'Components/ImageAttachmentPlaceholder',
   decorators: [withTheme],
-  component: UploadedImagePlaceholder,
+  component: ImageAttachmentPlaceholder,
 }
 
 export default component

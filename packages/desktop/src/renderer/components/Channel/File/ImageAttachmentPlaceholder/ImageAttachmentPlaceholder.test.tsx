@@ -2,9 +2,9 @@ import { DownloadStatus, DownloadState } from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
-import UploadedImagePlaceholder from './ImagePlaceholder'
+import ImageAttachmentPlaceholder from './ImageAttachmentPlaceholder'
 
-describe('UploadedImagePlaceholder', () => {
+describe('ImageAttachmentPlaceholder', () => {
   let downloadStatus: DownloadStatus
 
   it('renders component', () => {
@@ -14,7 +14,7 @@ describe('UploadedImagePlaceholder', () => {
       downloadState: DownloadState.Completed,
     }
     const result = renderComponent(
-      <UploadedImagePlaceholder
+      <ImageAttachmentPlaceholder
         cid={'hvb45FGa'}
         imageHeight={1000}
         imageWidth={5000}
@@ -36,7 +36,7 @@ describe('UploadedImagePlaceholder', () => {
               test.png
             </p>
             <div
-              class="UploadedImagePlaceholderplaceholder"
+              class="ImageAttachmentPlaceholderplaceholder"
               style="width: 400px;"
             >
               <span>
@@ -47,11 +47,11 @@ describe('UploadedImagePlaceholder', () => {
                   style="display: flex;"
                 >
                   <img
-                    class="UploadedImagePlaceholderplaceholderIcon"
+                    class="ImageAttachmentPlaceholderplaceholderIcon"
                     src="test-file-stub"
                   />
                   <div
-                    class="UploadedImagePlaceholdericon"
+                    class="ImageAttachmentPlaceholdericon"
                   >
                     <span
                       class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-acfop9-MuiCircularProgress-root"
@@ -94,7 +94,7 @@ describe('UploadedImagePlaceholder', () => {
       },
     }
     const result = renderComponent(
-      <UploadedImagePlaceholder
+      <ImageAttachmentPlaceholder
         cid={'hvb45FGa'}
         imageHeight={1000}
         imageWidth={5000}
@@ -116,7 +116,7 @@ describe('UploadedImagePlaceholder', () => {
               test.png
             </p>
             <div
-              class="UploadedImagePlaceholderplaceholder"
+              class="ImageAttachmentPlaceholderplaceholder"
               style="width: 400px;"
             >
               <span>
@@ -126,11 +126,11 @@ describe('UploadedImagePlaceholder', () => {
                   style="display: flex;"
                 >
                   <img
-                    class="UploadedImagePlaceholderplaceholderIcon"
+                    class="ImageAttachmentPlaceholderplaceholderIcon"
                     src="test-file-stub"
                   />
                   <div
-                    class="UploadedImagePlaceholdericon"
+                    class="ImageAttachmentPlaceholdericon"
                   >
                     <span
                       aria-valuenow="100"

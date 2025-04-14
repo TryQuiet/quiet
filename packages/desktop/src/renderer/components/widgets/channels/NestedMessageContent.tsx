@@ -5,7 +5,7 @@ import { Grid, useTheme } from '@mui/material'
 import { DownloadState, DownloadStatus } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
-import UploadedImage from '../../Channel/File/Image/Image'
+import ImageAttachment from '../../Channel/File/ImageAttachment/ImageAttachment'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { displayMathRegex } from '../../../../utils/functions/splitByTex'
 import { TextMessageComponent } from './TextMessage'
@@ -43,7 +43,7 @@ export interface NestedMessageContentProps {
   pending: boolean
   downloadStatus?: DownloadStatus
   openUrl: (url: string) => void
-  uploadedFileModal?: UseModalType<{
+  fileAttachmentModal?: UseModalType<{
     src: string
   }>
   onMathMessageRendered?: () => void
@@ -53,7 +53,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   message,
   pending,
   downloadStatus,
-  uploadedFileModal,
+  fileAttachmentModal,
   onMathMessageRendered,
   openUrl,
   openContainingFolder,
@@ -78,9 +78,9 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             data-testid={`messagesGroupContent-${message.id}`}
           >
             {fileDisplay && message.media ? (
-              <UploadedImage
+              <ImageAttachment
                 media={message.media}
-                uploadedFileModal={uploadedFileModal}
+                fileAttachmentModal={fileAttachmentModal}
                 downloadStatus={downloadStatus}
               />
             ) : (

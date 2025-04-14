@@ -27,7 +27,7 @@ export class ModalsInitialState {
   [ModalName.quitApp] = { open: false, args: {} };
   [ModalName.joinCommunityModal] = { open: false, args: {} };
   [ModalName.createCommunityModal] = { open: false, args: {} };
-  [ModalName.uploadedFileModal] = { open: false, args: {} };
+  [ModalName.fileAttachmentModal] = { open: false, args: {} };
   [ModalName.sentryWarningModal] = { open: false, args: {} };
   [ModalName.leaveCommunity] = { open: false, args: {} };
   [ModalName.searchChannelModal] = { open: false, args: {} };
