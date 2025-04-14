@@ -8,7 +8,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { UploadFilesPreviewsProps } from './File/FilePreview'
+import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 
@@ -74,13 +74,13 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: validUser,
 
   // Return a Redux-like object instead of '(...) => void'
-  uploadedFileModal: {
+  fileAttachmentModal: {
     open: false,
     handleOpen(_args?: { src: string }) {
       return {
         type: 'Modals/openModal',
         payload: {
-          name: ModalName.uploadedFileModal,
+          name: ModalName.fileAttachmentModal,
           args: { src: _args?.src || '' },
         },
       }
@@ -88,7 +88,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     handleClose() {
       return {
         type: 'Modals/closeModal',
-        payload: ModalName.uploadedFileModal,
+        payload: ModalName.fileAttachmentModal,
       }
     },
     src: 'images/butterfly.jpeg',
@@ -158,11 +158,11 @@ Pending.args = {
 }
 
 // Images
-export const ImagePreview = Template.bind({})
+export const ImageAttachmentPreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
 
-ImagePreview.args = {
+ImageAttachmentPreview.args = {
   ...args,
   messages: mock_messages({
     id: '32',

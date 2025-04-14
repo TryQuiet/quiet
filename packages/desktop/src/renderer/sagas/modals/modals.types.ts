@@ -17,7 +17,7 @@ export enum ModalName {
   createCommunityModal = 'createCommunityModal',
   sentryWarningModal = 'sentryWarningModal',
   loadingPanel = 'loadingPanel',
-  uploadedFileModal = 'uploadedFileModal',
+  fileAttachmentModal = 'fileAttachmentModal',
   leaveCommunity = 'leaveCommunityModal',
   searchChannelModal = 'searchChannelModal',
   warningModal = 'warningModal',

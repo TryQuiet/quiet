@@ -3,7 +3,7 @@ import { renderComponent } from '../../../utils/functions/renderComponent/render
 import { Chat } from '../Chat.component'
 import { Keyboard } from 'react-native'
 import { ChatProps } from '../Chat.types'
-import { FileActionsProps } from '../../UploadedFile/UploadedFile.types'
+import { FileActionsProps } from '../../FileAttachment/FileAttachment.types'
 
 jest.useFakeTimers()
 
@@ -22,7 +22,7 @@ describe('Chat component', () => {
     sendMessageAction: jest.fn(),
     loadMessagesAction: jest.fn(),
     handleBackButton: jest.fn(),
-    openImagePreview: jest.fn(),
+    openImageAttachmentPreview: jest.fn(),
     duplicatedUsernameHandleBack: jest.fn(),
     unregisteredUsernameHandleBack: jest.fn(),
     openUrl: jest.fn(),
@@ -247,7 +247,7 @@ describe('Chat component', () => {
         ],
       },
     },
-    updateUploadedFiles: jest.fn(),
+    updateFileAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
   }
 

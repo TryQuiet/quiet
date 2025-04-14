@@ -2,9 +2,9 @@ import { DisplayableMessage, DownloadState, DownloadStatus, MessageType } from '
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
-import UploadedImage from './Image'
+import ImageAttachment from './ImageAttachment'
 
-describe('UploadedFile', () => {
+describe('FileAttachment', () => {
   let message: DisplayableMessage
   let downloadStatus: DownloadStatus
 
@@ -42,7 +42,7 @@ describe('UploadedFile', () => {
 
   it('renders a placeholder if image is not finished downloading yet', () => {
     const result = renderComponent(
-      <UploadedImage
+      <ImageAttachment
         // @ts-expect-error
         media={message.media}
         downloadStatus={downloadStatus}
@@ -64,7 +64,7 @@ describe('UploadedFile', () => {
                 test.png
               </p>
               <div
-                class="UploadedImagePlaceholderplaceholder"
+                class="ImageAttachmentPlaceholderplaceholder"
                 style="width: 400px;"
               >
                 <span>
@@ -75,11 +75,11 @@ describe('UploadedFile', () => {
                     style="display: flex;"
                   >
                     <img
-                      class="UploadedImagePlaceholderplaceholderIcon"
+                      class="ImageAttachmentPlaceholderplaceholderIcon"
                       src="test-file-stub"
                     />
                     <div
-                      class="UploadedImagePlaceholdericon"
+                      class="ImageAttachmentPlaceholdericon"
                     >
                       <span
                         class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-acfop9-MuiCircularProgress-root"
@@ -119,7 +119,7 @@ describe('UploadedFile', () => {
       channelId: 'general',
     }
     const result = renderComponent(
-      <UploadedImage
+      <ImageAttachment
         // @ts-expect-error
         media={message.media}
         downloadStatus={downloadStatus}
@@ -132,10 +132,10 @@ describe('UploadedFile', () => {
             class="css-gd4qex"
           >
             <div
-              class="UploadedImagecontainer"
+              class="ImageAttachmentcontainer"
             >
               <div
-                class="UploadedImageimage"
+                class="ImageAttachmentimage"
                 data-testid="abcd1234-imageVisual"
               >
                 <p
@@ -144,7 +144,7 @@ describe('UploadedFile', () => {
                   test.png
                 </p>
                 <img
-                  class="UploadedImageimage"
+                  class="ImageAttachmentimage"
                   src="path/to/file/test.png"
                   style="width: 400px;"
                 />

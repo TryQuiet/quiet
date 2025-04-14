@@ -1,6 +1,6 @@
 import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import UploadingPreview from './UploadingPreview.component'
+import UploadingPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 

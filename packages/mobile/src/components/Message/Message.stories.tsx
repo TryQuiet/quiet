@@ -29,7 +29,7 @@ storiesOf('Message', module)
           },
         ]}
         openUrl={() => {}}
-        openImagePreview={() => {}}
+        openImageAttachmentPreview={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
       />
@@ -54,7 +54,7 @@ storiesOf('Message', module)
           },
         ]}
         openUrl={() => {}}
-        openImagePreview={() => {}}
+        openImageAttachmentPreview={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
       />
@@ -82,7 +82,7 @@ storiesOf('Message', module)
           },
         ]}
         openUrl={openUrl}
-        openImagePreview={() => {}}
+        openImageAttachmentPreview={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
       />
@@ -107,7 +107,7 @@ storiesOf('Message', module)
           },
         ]}
         openUrl={() => {}}
-        openImagePreview={() => {}}
+        openImageAttachmentPreview={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
       />
@@ -132,7 +132,7 @@ storiesOf('Message', module)
           },
         ]}
         openUrl={() => {}}
-        openImagePreview={() => {}}
+        openImageAttachmentPreview={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
       />

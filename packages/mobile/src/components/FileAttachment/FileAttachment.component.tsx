@@ -2,13 +2,13 @@ import { DownloadState } from '@quiet/types'
 import React, { FC, useEffect, useState } from 'react'
 import { View, Image, TouchableWithoutFeedback, Alert } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
-import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
+import { FileActionsProps, FileAttachmentProps } from './FileAttachment.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../assets'
 import { formatBytes } from '@quiet/state-manager'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('uploadedFile:component')
+const logger = createLogger('fileAttachment:component')
 
 interface FileStatus {
   label: string
@@ -16,7 +16,7 @@ interface FileStatus {
   actionLabel?: string
 }
 
-export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
+export const FileAttachment: FC<FileAttachmentProps & FileActionsProps> = ({
   message,
   downloadStatus,
   downloadFile,

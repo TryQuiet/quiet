@@ -24,12 +24,12 @@ export interface ChatProps extends UserLabelHandlers {
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
-  imagePreview?: FileMetadata | null
-  setImagePreview?: (media: FileMetadata | null) => void
-  openImagePreview: (media: FileMetadata) => void
-  updateUploadedFiles: (filesData: DocumentPickerResponse[]) => void
+  imageAttachmentPreview?: FileMetadata | null
+  setImageAttachmentPreview?: (media: FileMetadata | null) => void
+  openImageAttachmentPreview: (media: FileMetadata) => void
+  updateFileAttachments: (filesData: DocumentPickerResponse[]) => void
   removeFilePreview: (id: string) => void
-  uploadedFiles?: FilePreviewData
+  fileAttachments?: FilePreviewData
   openUrl: (url: string) => void
   ready?: boolean
 }
@@ -39,6 +39,6 @@ export interface ChannelMessagesComponentProps extends UserLabelHandlers {
   messages: DisplayableMessage[][]
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
-  openImagePreview: (media: FileMetadata) => void
+  openImageAttachmentPreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
 }

@@ -17,7 +17,7 @@ import { ChannelMessage, DownloadStatus, Identity, MessagesDailyGroups, MessageS
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 
-import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/FilePreview'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
 
@@ -52,7 +52,7 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
-  uploadedFileModal?: UseModalType<{
+  fileAttachmentModal?: UseModalType<{
     src: string
   }>
   openContextMenu?: () => void
@@ -86,7 +86,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   openFilesDialog,
   handleClipboardFiles,
-  uploadedFileModal,
+  fileAttachmentModal,
   openContainingFolder,
   downloadFile,
   cancelDownload,
@@ -230,7 +230,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             downloadStatuses={downloadStatuses}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
-            uploadedFileModal={uploadedFileModal}
+            fileAttachmentModal={fileAttachmentModal}
             openUrl={openUrl}
             openContainingFolder={openContainingFolder}
             downloadFile={downloadFile}

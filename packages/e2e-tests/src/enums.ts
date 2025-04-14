@@ -3,7 +3,7 @@ export enum X_DATA_TESTID {
   PROFILE = 'contextMenu-close-button-Profile',
 }
 
-export enum UploadedFileType {
+export enum FileAttachmentType {
   IMAGE = 'IMAGE',
   FILE = 'FILE',
 }
