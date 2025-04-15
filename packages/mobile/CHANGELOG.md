@@ -1,20 +1,26 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [4.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.2.1-alpha.1...@quiet/mobile@4.1.0-alpha.0) (2025-04-15)
-
-
-### Reverts
-
-* Revert "Fix/2766-wrong-timezone-on-mobile (#2780)" (#2791) ([02556f0](https://github.com/TryQuiet/quiet/commit/02556f0d617a7d6c84fe2c8c150dd16997795b36)), closes [#2780](https://github.com/TryQuiet/quiet/issues/2780) [#2791](https://github.com/TryQuiet/quiet/issues/2791)
-
-
-
-
-
 # Changelog
+
+## [4.1.0]
+
+### New Features
+
+* Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
+* Adds meaningful text to date markers, like "Today", "Yesterday", "Friday", or "Nov 30, 1999" [#2745](https://github.com/TryQuiet/quiet/issues/2745)
+* You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540) (thanks @agiledev24 for your initial work on this!)
+
+### Fixes
+* Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
+* Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
+* Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
+
+### Chores
+
+* Improves speed, reliability, and documentation for Cypress tests
+### Fixes
+
+* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+* Change close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
+* Changing the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 
 ## [4.0.3]
 
