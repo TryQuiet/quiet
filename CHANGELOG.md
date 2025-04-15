@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Fixes
-
-* Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
-
 ### New Features
 
 * Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
@@ -15,6 +11,7 @@
 ### Fixes
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
 * Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
+* Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
 
 ### Chores
 
