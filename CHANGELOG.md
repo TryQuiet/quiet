@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Fixes
-
-* Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
-
 ### New Features
 
 * Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
