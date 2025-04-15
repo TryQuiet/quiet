@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { FlatList, View, TouchableOpacity, Text } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Appbar } from '../Appbar/Appbar.component'
 import { ChannelListProps } from './ChannelList.types'
@@ -7,7 +7,7 @@ import { ChannelTile } from '../ChannelTile/ChannelTile.component'
 import { Spinner } from '../Spinner/Spinner.component'
 import { capitalizeFirstLetter } from '@quiet/common'
 
-export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu, onDebugPress }) => {
+export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu }) => {
   let communityName = '...'
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)

@@ -8,7 +8,9 @@ import { ChannelList as ChannelListComponent } from '../../components/ChannelLis
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { DateTime } from 'luxon'
+
+import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
+
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 
@@ -52,29 +54,6 @@ export const ChannelListScreen: FC = () => {
     [dispatch]
   )
 
-  const formatTileDate = (createdAt: number): string => {
-    const tzOffsetHours = -new Date().getTimezoneOffset() / 60
-    const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
-
-    const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
-    const now = DateTime.now().setZone(formattedOffset)
-
-    // Same year?
-    if (messageTime.year === now.year) {
-      // Today?
-      if (messageTime.hasSame(now, 'day')) {
-        return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
-      }
-      // Yesterday?
-      if (messageTime.hasSame(now.minus({ days: 1 }), 'day')) {
-        return 'Yesterday'
-      }
-    }
-
-    // Otherwise just return a date/time in the same zone
-    return messageTime.toLocaleString()
-  }
-
   const community = useSelector(communities.selectors.currentCommunity)
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
@@ -83,7 +62,7 @@ export const ChannelListScreen: FC = () => {
     const newestMessage = status.newestMessage
 
     const message = newestMessage?.message || '...'
-    const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
+    const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
       name: getChannelNameFromChannelId(status.id),
