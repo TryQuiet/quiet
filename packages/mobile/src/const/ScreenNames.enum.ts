@@ -12,7 +12,6 @@ export enum ScreenNames {
   ErrorScreen = 'ErrorScreen',
   JoinCommunityScreen = 'JoinCommunityScreen',
   LeaveCommunityScreen = 'LeaveCommunityScreen',
-  LocaleDebugScreen = 'LocaleDebugScreen',
   NotifierScreen = 'NotifierScreen',
   QRCodeScreen = 'QRCodeScreen',
   SplashScreen = 'SplashScreen',

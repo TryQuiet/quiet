@@ -40,7 +40,6 @@ export type RootStackParamList = {
     code?: string
   }
   [ScreenNames.LeaveCommunityScreen]: undefined
-  [ScreenNames.LocaleDebugScreen]: undefined
   [ScreenNames.NotifierScreen]: undefined
   [ScreenNames.QRCodeScreen]: undefined
   [ScreenNames.SplashScreen]: {

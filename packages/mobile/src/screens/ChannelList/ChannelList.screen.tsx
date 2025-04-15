@@ -99,13 +99,5 @@ export const ChannelListScreen: FC = () => {
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 
-  const handleDebugPress = useCallback(() => {
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.LocaleDebugScreen,
-      })
-    )
-  }, [dispatch])
-
   return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }

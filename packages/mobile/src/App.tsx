@@ -22,7 +22,6 @@ import { DeleteChannelScreen } from './screens/DeleteChannel/DeleteChannel.scree
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
-import { LocaleDebugScreen } from './screens/LocaleDebug/LocaleDebug.screen'
 import { NotifierScreen } from './screens/Notifier/Notifier.screen'
 import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
 import { SplashScreen } from './screens/Splash/Splash.screen'
@@ -120,7 +119,6 @@ function App(): JSX.Element {
                 />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                 <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
-                <Screen component={LocaleDebugScreen} name={ScreenNames.LocaleDebugScreen} />
                 <Screen component={NotifierScreen} name={ScreenNames.NotifierScreen} />
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
                 <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
