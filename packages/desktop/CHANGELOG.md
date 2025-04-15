@@ -1,3 +1,28 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [4.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.1-alpha.1...@quiet/desktop@4.1.0-alpha.0) (2025-04-15)
+
+
+### Bug Fixes
+
+* **#2593:** link color ([#2640](https://github.com/TryQuiet/quiet/issues/2640)) ([7110cb5](https://github.com/TryQuiet/quiet/commit/7110cb5d6c84c9c3862ad15c532b593ec1341455)), closes [#2593](https://github.com/TryQuiet/quiet/issues/2593)
+* adds meaningful date markers [#2745](https://github.com/TryQuiet/quiet/issues/2745) ([#2775](https://github.com/TryQuiet/quiet/issues/2775)) ([fdd78e6](https://github.com/TryQuiet/quiet/commit/fdd78e6f40bc463131fb86c27d830e4d8c5fede1))
+* user profile area should be clickable [#2566](https://github.com/TryQuiet/quiet/issues/2566) ([#2595](https://github.com/TryQuiet/quiet/issues/2595)) ([9dfd6da](https://github.com/TryQuiet/quiet/commit/9dfd6da55a744546afd185c17bc8e6bbe29ec3ad))
+
+
+### Features
+
+* **503:** Adds desktop context menu ([#2719](https://github.com/TryQuiet/quiet/issues/2719)) ([4a71f68](https://github.com/TryQuiet/quiet/commit/4a71f68400f4d01219bbf26a6239454216c2dbcd)), closes [#503](https://github.com/TryQuiet/quiet/issues/503) [#568](https://github.com/TryQuiet/quiet/issues/568)
+* Add in V2 invite links for LFA ([#2661](https://github.com/TryQuiet/quiet/issues/2661)) ([46c0716](https://github.com/TryQuiet/quiet/commit/46c07166b3a8afd03d8d47d275b1787da8cfdaf1))
+* add sticky date markers [#505](https://github.com/TryQuiet/quiet/issues/505) ([#2731](https://github.com/TryQuiet/quiet/issues/2731)) ([15d57b3](https://github.com/TryQuiet/quiet/commit/15d57b3227b1fee936feac21d5fe5c4921e9240a))
+
+
+
+
+
 # Changelog
 
 ## [4.0.3]

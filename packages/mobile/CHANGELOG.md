@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [4.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.2.1-alpha.1...@quiet/mobile@4.1.0-alpha.0) (2025-04-15)
+
+
+### Reverts
+
+* Revert "Fix/2766-wrong-timezone-on-mobile (#2780)" (#2791) ([02556f0](https://github.com/TryQuiet/quiet/commit/02556f0d617a7d6c84fe2c8c150dd16997795b36)), closes [#2780](https://github.com/TryQuiet/quiet/issues/2780) [#2791](https://github.com/TryQuiet/quiet/issues/2791)
+
+
+
+
+
 # Changelog
 
 ## [4.0.3]
