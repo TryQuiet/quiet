@@ -391,14 +391,16 @@ export class ChannelsService extends EventEmitter {
     this.logger.info('Attempting to delete channel', payload)
     const { channelId } = payload
     const channel = await this.getChannel(channelId)
-    const isOwner = channel?.owner === this.sigchainService.getActiveChain().user.userId
+    if (!channel) {
+      this.logger.error(`Channel ${channelId} not found`)
+      return { channelId, deleted: true } as DeleteChannelResponse
+    }
+    const iAmAdmin = this.sigchainService.team.memberIsAdmin(this.sigchainService.getActiveChain().user.userId)
+    const iOwnThisChannel = channel?.owner === this.sigchainService.getActiveChain().user.userId
     // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
     // TODO: invalidate removals from non-owners
-    if (channel && isOwner) {
-      if (!this.channels) {
-        throw new Error('Channels have not been initialized!')
-      }
-      await this.channels.del(channelId)
+    if (iAmAdmin || iOwnThisChannel) {
+      await this.channels!.del(channelId)
     } else {
       this.logger.error(`User is not the owner of the channel ${channelId}`)
       return { channelId, deleted: false } as DeleteChannelResponse
@@ -406,7 +408,7 @@ export class ChannelsService extends EventEmitter {
 
     const repo = this.publicChannelsRepos.get(channelId)
     let store = repo?.store
-    // TODO: do we need to create a temporary store if it doesn't exist?
+    // TODO: do we really need to create a temporary store if it doesn't exist?
     if (store == null) {
       const channelData: PublicChannel = channel ?? {
         id: channelId,

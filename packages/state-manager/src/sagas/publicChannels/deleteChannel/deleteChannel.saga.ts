@@ -3,7 +3,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { apply, put, select } from 'typed-redux-saga'
 import { type Socket, applyEmitParams } from '../../../types'
 import { filesActions } from '../../files/files.slice'
-import { SocketActions, SocketActionsMap } from '@quiet/types'
+import { DeleteChannelResponse, SocketActions, SocketActionsMap } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { createLogger } from '../../../utils/logger'
 
@@ -25,7 +25,7 @@ export function* deleteChannelSaga(
 
   logger.info(`Deleting channel ${channelId}`)
 
-  const response = yield* apply(
+  const response: DeleteChannelResponse = yield* apply(
     socket,
     socket.emitWithAck,
     applyEmitParams(SocketActions.DELETE_CHANNEL, {
