@@ -107,12 +107,5 @@ export const ChannelListScreen: FC = () => {
     )
   }, [dispatch])
 
-  return (
-    <ChannelListComponent
-      community={community}
-      tiles={tiles}
-      communityContextMenu={communityContextMenu}
-      onDebugPress={handleDebugPress}
-    />
-  )
+  return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }
