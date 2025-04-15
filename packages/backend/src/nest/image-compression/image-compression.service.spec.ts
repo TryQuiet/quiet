@@ -22,11 +22,7 @@ function createLargeTestFile(filePath: string, sizeInKB: number): void {
   fs.writeFileSync(filePath, buffer)
 }
 
-/**
- * This test uses real image files to test the compression service.
- * It creates test image files from embedded base64 data and uses them to test the service.
- */
-describe('ImageCompressionService Real File Tests', () => {
+describe('ImageCompressionService Tests', () => {
   let service: ImageCompressionService
   let tempDir: string
 
