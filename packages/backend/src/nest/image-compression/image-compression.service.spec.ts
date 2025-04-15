@@ -292,17 +292,15 @@ describe('ImageCompressionService Tests', () => {
     // Verify file size has been reduced
     expect(newSize).toBeLessThan(originalSize)
 
-    // For very large images, compression should be significant
-    const compressionRatio = originalSize / newSize
-    console.log(`Compression ratio: ${compressionRatio.toFixed(1)}x`)
-    expect(compressionRatio).toBeGreaterThan(5) // At least 5x compression
+    console.log(`Compressed size: ${(newSize / 1024).toFixed(1)}KB`)
 
-    // Target size
-    const targetMaxSize = service['TARGET_MAX_SIZE']
-    console.log(`Target max size: ${(targetMaxSize / 1024).toFixed(1)}KB`)
+    // For NASA image, we want to target 100-200KB range
+    const minTargetSize = 100 * 1024 // 100KB
+    const maxTargetSize = 200 * 1024 // 200KB
 
-    // For very large NASA image, allow up to 300KB (which is still a massive reduction)
-    expect(newSize).toBeLessThanOrEqual(300 * 1024)
+    // Verify the size falls within our target range
+    expect(newSize).toBeGreaterThanOrEqual(minTargetSize)
+    expect(newSize).toBeLessThanOrEqual(maxTargetSize)
 
     // Check that the dimensions were properly resized
     const processedImage = await readImage(resultPath)

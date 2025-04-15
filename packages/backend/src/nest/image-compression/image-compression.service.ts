@@ -131,17 +131,20 @@ export class ImageCompressionService {
         if (originalSize > 3 * 1024 * 1024) {
           // Over 3MB
           // For large files, test a wider range of qualities with more variants
+          // Adjusted to target 100-200KB range for NASA image and similar very large images
           qualityLevels = [
             quality,
             Math.max(quality - 10, 15), // Try slightly lower
-            Math.min(quality + 15, 90), // Try higher to maintain better quality
-            Math.min(quality + 30, 90), // Try much higher for better quality
-            Math.max(quality - 20, 10), // Try much lower (as a fallback)
+            Math.min(quality + 10, 80), // Try slightly higher
+            Math.max(quality - 20, 10), // Try much lower (better for reaching target size)
+            40, // Specific quality that works well for large images
+            30, // Lower quality option that targets 100-200KB
           ]
 
           // For extremely large files, add some very low quality options
           if (originalSize > 10 * 1024 * 1024) {
-            qualityLevels.push(5) // Last resort ultra-compressed
+            qualityLevels.push(25) // Lower quality for enormous images
+            qualityLevels.push(15) // Last resort ultra-compressed
           }
         } else if (originalSize > 1 * 1024 * 1024) {
           // Over 1MB
@@ -193,60 +196,59 @@ export class ImageCompressionService {
           }
 
           // For very large original images, we want to balance quality and file size
-          // aiming for a size close to the target size rather than going too small
+          // aiming for a size within the 100-200KB range rather than just going for the smallest
           if (originalSize > 4 * 1024 * 1024) {
             // For images over 4MB
 
-            // For the NASA image and similar large images, we want to target the full target size
-            // This gives the best quality while still keeping the size reasonable
+            // For the NASA image and similar large images, we want to target 100-200KB range
+            // This is our primary objective rather than sticking to exactly TARGET_MAX_SIZE
 
-            // Calculate how far each result is from the optimal target
-            const targetSize = this.TARGET_MAX_SIZE
-            const currentDiff = Math.abs(bestSize - targetSize)
-            const newDiff = Math.abs(testSize - targetSize)
+            // Define target range for very large images (100-200KB)
+            const minTargetSize = 100 * 1024
+            const maxTargetSize = 200 * 1024
 
-            // If this test quality gets us closer to target, use it
-            if (newDiff < currentDiff) {
+            // Check if current result is in target range
+            const currentInRange = bestSize >= minTargetSize && bestSize <= maxTargetSize
+            const testInRange = testSize >= minTargetSize && testSize <= maxTargetSize
+
+            // If current best is not in range but test is, use test
+            if (!currentInRange && testInRange) {
               bestBuffer = testBuffer
               bestSize = testSize
               bestQuality = testQuality
               this.logger.info(
-                `Found better size match for large image: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
+                `Found size in target range: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
               )
+            }
+            // If both are in range, prefer the one with higher quality
+            else if (currentInRange && testInRange && testQuality > bestQuality) {
+              bestBuffer = testBuffer
+              bestSize = testSize
+              bestQuality = testQuality
+              this.logger.info(
+                `Found better quality in target range: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
+              )
+            }
+            // If neither is in range, choose the one closer to the middle of the range
+            else if (!currentInRange && !testInRange) {
+              const midTargetSize = (minTargetSize + maxTargetSize) / 2
+              const currentDiff = Math.abs(bestSize - midTargetSize)
+              const newDiff = Math.abs(testSize - midTargetSize)
 
-              // If we're very close to target (within 5%), we can stop
-              if (newDiff < targetSize * 0.05) {
-                this.logger.info(`Found ideal compression match for large image, stopping early`)
-                break
+              if (newDiff < currentDiff) {
+                bestBuffer = testBuffer
+                bestSize = testSize
+                bestQuality = testQuality
+                this.logger.info(
+                  `Closer to target range: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
+                )
               }
             }
-            // Special case: if currently way undersized, prefer larger for better quality
-            else if (
-              bestSize < this.TARGET_MAX_SIZE * 0.7 &&
-              testSize > bestSize &&
-              testSize <= this.TARGET_MAX_SIZE * 1.3
-            ) {
-              bestBuffer = testBuffer
-              bestSize = testSize
-              bestQuality = testQuality
-              this.logger.info(
-                `Choosing larger size for better quality: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
-              )
-            }
-            // Also prefer higher quality when size is similar
-            else if (
-              testSize <= this.TARGET_MAX_SIZE * 1.5 &&
-              bestSize <= this.TARGET_MAX_SIZE * 1.5 &&
-              Math.abs(testSize - bestSize) < targetSize * 0.2 && // Size is similar (within 20%)
-              testQuality > bestQuality
-            ) {
-              // But quality is better
-              bestBuffer = testBuffer
-              bestSize = testSize
-              bestQuality = testQuality
-              this.logger.info(
-                `Choosing higher quality ${testQuality} with similar size: ${(testSize / 1024).toFixed(1)}KB`
-              )
+
+            // If we find a size in the middle of our target range, we can stop early
+            if (testSize >= minTargetSize * 1.2 && testSize <= maxTargetSize * 0.8) {
+              this.logger.info(`Found ideal compression in middle of target range, stopping early`)
+              break
             }
           } else {
             // For smaller images, use the original decision logic
@@ -399,8 +401,8 @@ export class ImageCompressionService {
       // 2-4MB
       quality = this.JPEG_QUALITY_MEDIUM // Using medium quality instead of low
     } else if (size < 10 * 1024 * 1024) {
-      // 4-10MB
-      quality = this.JPEG_QUALITY_LOW // Using low quality instead of very low
+      // 4-10MB - adjusted to target 100-200KB range
+      quality = this.JPEG_QUALITY_LOW - 10 // Lower quality to hit target range
     } else {
       // Extremely large images (over 10MB)
       quality = this.JPEG_QUALITY_ULTRA_LOW
