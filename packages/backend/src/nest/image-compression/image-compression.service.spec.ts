@@ -184,6 +184,58 @@ describe('ImageCompressionService Tests', () => {
     expect(Math.abs(originalRatio - newRatio)).toBeLessThan(0.1)
   })
 
+  // Test to verify EXIF metadata is removed during compression
+  it('should remove EXIF metadata during image compression', async () => {
+    // Use the NASA image which we know has EXIF data
+    const imageWithExifPath = path.join(TEST_IMAGES_DIR, 'test-image-very-large-nasa-photo-archive.jpg')
+    expect(fs.existsSync(imageWithExifPath)).toBeTruthy()
+
+    // Copy to temp directory for testing
+    const testImagePath = path.join(tempDir, 'exif-test.jpg')
+    fs.copyFileSync(imageWithExifPath, testImagePath)
+
+    // Read the original image with Jimp
+    const originalImage = await readImage(testImagePath)
+    const originalExif = (originalImage as any)._exif
+
+    // Verify the original image has EXIF data with specific fields we know exist
+    expect(originalExif).toBeDefined()
+    // We know from our investigation that these tags should exist in the original
+    expect(originalExif.tags).toBeDefined()
+    expect(originalExif.tags.ImageWidth).toEqual(3086)
+    expect(originalExif.tags.ImageHeight).toEqual(2100)
+    expect(originalExif.tags.ImageDescription).toEqual('IDL TIFF file')
+    expect(originalExif.tags.Software).toContain('Adobe Photoshop')
+
+    // Process the image
+    const resultPath = await service.processImage(testImagePath, '.jpg')
+
+    // Read the processed image
+    const processedImage = await readImage(resultPath)
+    const processedExif = (processedImage as any)._exif
+
+    // The processed image might still have an _exif property but it should have empty tags
+    expect(processedExif).toBeDefined()
+    if (processedExif.tags) {
+      // If tags object exists, it should be empty
+      expect(Object.keys(processedExif.tags).length).toBe(0)
+    }
+
+    // Check the image dimensions are maintained
+    const originalImageProps = originalImage as any
+    const processedImageProps = processedImage as any
+    expect(processedImageProps.bitmap.width).toBe(1024) // Resized to 1024 as per our algorithm
+
+    // Also verify compression worked
+    const originalSize = fs.statSync(testImagePath).size
+    const compressedSize = fs.statSync(resultPath).size
+    expect(compressedSize).toBeLessThan(originalSize)
+
+    console.log(
+      `Original size: ${(originalSize / 1024).toFixed(1)}KB, Compressed size: ${(compressedSize / 1024).toFixed(1)}KB, EXIF data removed`
+    )
+  })
+
   // Test with a very large image that's much larger than the target size
   it('should compress a very large image file with significant reduction', async () => {
     // Use the very large test image
