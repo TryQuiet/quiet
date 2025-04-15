@@ -18,7 +18,6 @@ import {
   emojify,
   findMatchingEmojis,
   extractPartialEmojiCode,
-  completeEmojiCode,
   emojiShortcodes,
 } from './utils/emojiCodes'
 
