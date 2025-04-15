@@ -671,9 +671,10 @@ const emoticons: EmojiMapping = {
   ":'-(": '😢',
   ":'D": '😂',
   ":'-)": '😂',
-  o_O: '😳',
-  O_o: '😳',
-  O_O: '😳',
+  // These are being stripped of quotes by our linter, so they aren't matched. TODO: figure out how to fix.
+  // o_O: '😳',
+  // O_o: '😳',
+  // O_O: '😳',
   // We omit these because they conflict with markdown blockquotes >
   //  '>:(': '😠',
   //  '>:-(': '😠',
