@@ -15,26 +15,6 @@ export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityC
   return (
     <View style={{ flex: 1 }} testID={'channel-list-component'}>
       <Appbar title={capitalizeFirstLetter(communityName)} position={'flex-start'} contextMenu={communityContextMenu} />
-
-      {/* Debug button - only for testing */}
-      {onDebugPress && (
-        <TouchableOpacity
-          onPress={onDebugPress}
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            right: 20,
-            backgroundColor: defaultTheme.palette.main.brand,
-            padding: 15,
-            borderRadius: 30,
-            zIndex: 100,
-            opacity: 0.8,
-          }}
-        >
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>Locale Debug</Text>
-        </TouchableOpacity>
-      )}
-
       {tiles.length === 0 || !community ? (
         <Spinner description='Connecting to peers' />
       ) : (
