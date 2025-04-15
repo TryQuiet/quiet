@@ -689,6 +689,95 @@ MathJaxBeginning.args = {
   }),
 }
 
+// Emojis
+export const Emojis = Template.bind({})
+
+Emojis.args = {
+  ...args,
+  messages: {
+    count: 34,
+    groups: {
+      ...mock_messages().groups,
+      Today: [
+        [
+          {
+            id: '40',
+            type: 1,
+            message: 'Hey there! 👋 How is everyone doing today?',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.alice.username,
+            isRegistered: true,
+            isDuplicated: false,
+            pubKey: users.alice.pubkey,
+          },
+        ],
+        [
+          {
+            id: '41',
+            type: 1,
+            message: 'I just finished the new feature! 🎉🚀',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.john.username,
+            isRegistered: true,
+            isDuplicated: false,
+            pubKey: users.john.pubkey,
+          },
+        ],
+        [
+          {
+            id: '42',
+            type: 1,
+            message: '😊',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.luke.username,
+            isRegistered: true,
+            isDuplicated: false,
+            pubKey: users.luke.pubkey,
+          },
+        ],
+        [
+          {
+            id: '43',
+            type: 1,
+            message: '👍 Great job! The code looks really clean.',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.vader.username,
+            isRegistered: true,
+            isDuplicated: false,
+            pubKey: users.vader.pubkey,
+          },
+        ],
+        [
+          {
+            id: '44',
+            type: 1,
+            message: '❤️ 🔥 💯',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.yoda.username,
+            isRegistered: true,
+            isDuplicated: false,
+            pubKey: users.yoda.pubkey,
+          },
+        ],
+      ],
+    },
+  },
+  newestMessage: {
+    id: '44',
+    type: 1,
+    message: '❤️ 🔥 💯',
+    createdAt: OCT_28_2023,
+    channelId: 'general',
+    signature: 'signature',
+    pubKey: 'pubKey',
+  },
+}
+
 const component: ComponentMeta<typeof ChannelComponent> = {
   title: 'Components/ChannelComponent',
   decorators: [withTheme],
