@@ -39,6 +39,10 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
     setCurrentTab('')
   }
 
+  const openDrawerWithTab = (tab: string) => {
+    setCurrentTab(tab)
+  }
+
   const TabComponent = tabs[currentTab]
 
   return (
@@ -93,7 +97,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               <ListItemButton
                 data-testid='leave-community-settings-tab'
                 className={classes.leaveComunity}
-                onClick={leaveCommunityModal.handleOpen}
+                onClick={() => handleChange('leaveCommunity')}
               >
                 <ListItemText>Leave community</ListItemText>
                 <ListItemIcon>
@@ -115,7 +119,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
         </Box>
         <Divider />
         <Box p={2} width={375}>
-          {TabComponent && <TabComponent />}
+          {TabComponent && <TabComponent handleClose={handleCloseTab} />}
         </Box>
       </Drawer>
     </>
