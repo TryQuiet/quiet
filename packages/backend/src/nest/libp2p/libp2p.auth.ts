@@ -319,28 +319,22 @@ export class Libp2pAuth {
         this.logger.info(
           `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
         )
-        // TODO: remove below because Connection should have reference to context?
-        sigChain.context = {
-          device: (sigChain.context as Auth.InviteeContext).device,
-          team,
-          user,
-        } as Auth.MemberContext
+        if (!('team' in sigChain.context)) {
+          this.logger.error('SigChain context team is null')
+          sigChain.context = {
+            device: (sigChain.context as Auth.InviteeContext).device,
+            team,
+            user,
+          } as Auth.MemberContext
+        }
       }
       this.joinStatus = JoinStatus.JOINED
       this.unblockConnections(this.bufferedConnections)
       this.emit(Libp2pEvents.AUTH_JOINED)
-      await this.sigChainService.saveChain(team.teamName)
     })
 
     authConnection.on('change', payload => {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
-    })
-
-    authConnection.on('updated', async head => {
-      this.logger.info('Received sync message, team graph updated', head)
-      this.emit(Libp2pEvents.AUTH_UPDATED, head)
-      const sigChain = this.sigChainService.getActiveChain()
-      await this.sigChainService.saveChain(sigChain.team!.teamName)
     })
 
     // Handle errors from local or remote sources.

@@ -1,13 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import {
-  InviteeMemberContext,
-  Keyring,
-  LocalUserContext,
-  Member,
-  MemberContext,
-  Team,
-} from '3rd-party/auth/packages/auth/dist'
+import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '@localfirst/auth'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
@@ -21,18 +14,22 @@ import { type UserWithSecrets } from '@localfirst/auth'
 import { type DeviceWithSecrets } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
+import EventEmitter from 'events'
 
 @Injectable()
-export class SigChainService {
+export class SigChainService extends EventEmitter {
   public activeChainTeamName: string | undefined
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
+  public connections: Map<string, Connection> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     private readonly localDbService: LocalDbService,
     private readonly socketService: SocketService
-  ) {}
+  ) {
+    super()
+  }
 
   get activeChain(): SigChain {
     return this.getActiveChain()
@@ -105,22 +102,22 @@ export class SigChainService {
     this.attachSocketListeners(this.getChain(teamName))
   }
 
-  private handleChainUpdate() {
+  private handleChainUpdate = () => {
     const users = this.getActiveChain()
       .team?.members()
-      .map(user => {
-        return {
-          userId: user.userId,
-          roles: user.roles,
-          isRegistered: true,
-          isDuplicated: false,
-        } as User
-      })
-    this.socketService.emit(SocketEvents.USERS_UPDATED, { users: users })
+      .map(user => ({
+        userId: user.userId,
+        roles: user.roles,
+        isRegistered: true,
+        isDuplicated: false,
+      })) as User[]
+    this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+    this.saveChain(this.activeChainTeamName!)
   }
 
   private attachSocketListeners(chain: SigChain): void {
     chain.on('updated', this.handleChainUpdate)
+    this.emit('updated')
   }
 
   private detachSocketListeners(chain: SigChain): void {

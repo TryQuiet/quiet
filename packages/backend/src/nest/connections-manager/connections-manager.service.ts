@@ -510,6 +510,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
+
+    this.launchCommunity(community)
+
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
@@ -518,6 +521,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         peerId: identity.networkInfo.peerId.id,
       },
     }
+    this.storageService.addUserProfile(userProfile)
 
     return {
       id: community.id,

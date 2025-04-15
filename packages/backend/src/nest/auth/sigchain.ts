@@ -15,7 +15,7 @@ import EventEmitter from 'events'
 const logger = createLogger('auth:sigchain')
 
 class SigChain extends EventEmitter {
-  public context: auth.MemberContext | auth.InviteeMemberContext
+  private _context: auth.MemberContext | auth.InviteeMemberContext
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
@@ -35,6 +35,27 @@ class SigChain extends EventEmitter {
     return null
   }
 
+  get context(): auth.MemberContext | auth.InviteeMemberContext {
+    return this._context
+  }
+
+  set context(context: auth.MemberContext | auth.InviteeMemberContext) {
+    logger.warn('Setting context', Object.keys(context))
+
+    const oldContext = this._context
+    const newTeam = 'team' in context ? context.team : null
+    const oldTeam = oldContext && 'team' in oldContext ? oldContext.team : null
+
+    if (oldTeam && oldTeam !== newTeam) {
+      oldTeam.removeListener('updated', this.handleTeamUpdate)
+    }
+    if (newTeam && newTeam !== oldTeam) {
+      newTeam.on('updated', this.handleTeamUpdate)
+    }
+
+    this._context = context
+  }
+
   get user(): auth.UserWithSecrets {
     return this.context.user
   }
@@ -45,6 +66,10 @@ class SigChain extends EventEmitter {
 
   get device(): auth.DeviceWithSecrets {
     return this.context.device
+  }
+
+  private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
+    this.emit('updated', payload)
   }
 
   /**

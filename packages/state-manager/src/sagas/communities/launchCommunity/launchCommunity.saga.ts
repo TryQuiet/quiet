@@ -58,6 +58,8 @@ export function* launchCommunitySaga(
   const payload: LaunchCommunityPayload = {
     id: community.id,
   }
+
+  // TODO: Uncomment when backend is ready to handle multiple communities
   // logger.info(`Launching community ${id} with payload`, payload)
   // yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActions.LAUNCH_COMMUNITY, payload))
 

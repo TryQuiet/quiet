@@ -16,6 +16,8 @@ const logger = createLogger('UserProfileStore')
 
 @Injectable()
 export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSignedPayload, UserProfile> {
+  private deferredProfiles: UserProfile[] = []
+
   constructor(
     private readonly orbitDbService: OrbitDbService,
     private readonly auth: SigChainService
@@ -33,6 +35,11 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
+    // Try to post entries that were deferred when team state changes
+    this.auth.on('update', async payload => {
+      this.flushDeferredEntries()
+    })
+
     this.store.events.on('update', async (entry: LogEntry) => {
       logger.info('Database update')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
@@ -47,6 +54,24 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public async startSync() {
     await this.getStore().sync.start()
+    await this.flushDeferredEntries()
+  }
+
+  public async flushDeferredEntries() {
+    if (!this.auth.team || this.deferredProfiles.length === 0) return
+    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+      logger.error('User does not have permission to write to the user profiles store')
+      return
+    }
+
+    for (const profile of this.deferredProfiles) {
+      try {
+        await this.setEntry(profile.userId, profile)
+      } catch (err) {
+        logger.error('Failed to flush deferred user profile:', profile.userId, err)
+      }
+    }
+    this.deferredProfiles = []
   }
 
   public async encryptEntry(payload: UserProfile): Promise<EncryptedAndSignedPayload> {
@@ -90,14 +115,14 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
         logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
-        throw new Error('Failed to add user profile')
       }
       const encEntry = await this.encryptEntry(userProfile)
       await this.getStore().put(key, encEntry)
       return encEntry
     } catch (err) {
       logger.error('Failed to add user profile', userProfile.userId, err)
-      throw new Error('Failed to add user profile')
+      this.deferredProfiles.push(userProfile)
+      throw err
     }
   }
 
