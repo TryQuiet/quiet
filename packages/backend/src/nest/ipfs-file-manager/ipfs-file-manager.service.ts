@@ -17,7 +17,7 @@ import { QuietLogger } from '@quiet/logger'
 import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
 
 import { QUIET_DIR } from '../const'
-import { ImageCompressionService } from './image-compression.service'
+import { ImageCompressionService } from '../image-compression/image-compression.service'
 import {
   BlockStat,
   DownloadBlocksOptions,
