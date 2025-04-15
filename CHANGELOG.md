@@ -6,6 +6,7 @@
 
 * Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
 * Adds meaningful text to date markers, like "Today", "Yesterday", "Friday", or "Nov 30, 1999" [#2745](https://github.com/TryQuiet/quiet/issues/2745)
+* Compresses images over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
 
 ### Chores
 
