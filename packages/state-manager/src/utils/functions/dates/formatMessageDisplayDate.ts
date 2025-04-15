@@ -9,7 +9,6 @@ export const formatMessageDisplayDate = (createdAt: number): string => {
   const locale = LC.split('_')[0]
   const messageDate = DateTime.fromSeconds(createdAt).setZone(formattedOffset).setLocale(locale)
   const now = DateTime.now().setZone(formattedOffset).setLocale(locale)
-  const check = messageDate.hasSame(now, 'year') && messageDate.hasSame(now, 'day')
   const diffInDays = now.startOf('day').diff(messageDate.startOf('day'), 'days').days
 
   if (diffInDays === 0) {
