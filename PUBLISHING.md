@@ -45,9 +45,10 @@
 
 ## Checklist Before Alpha Release
 
-- [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`.
-- [ ] Reviewed the base `CHANGELOG.md` file and ensured that it is up to date with all changes included in the release since the last production release. Package level `CHANGELOG.md` files are automatically updated during the release process.
-- [ ] Reviewed the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
+- [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`. (Choose version number based on [semantic versioning](https://semver.org/) and our [last release](https://github.com/TryQuiet/quiet/releases).)
+- [ ] Review the base `CHANGELOG.md` file (Package level `CHANGELOG.md` files are automatically updated during the release process) and ensured that it is up to date with all changes included in the release since the last production release.
+- [ ] Update the base `CHANGELOG.md` to follow our styleguide checklist in `RELEASE_NOTES_GUIDE.md`, to be maximally meaningful to users.
+- [ ] Review the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
 
 ## Preparing a Release Candidate (Alpha)
 
