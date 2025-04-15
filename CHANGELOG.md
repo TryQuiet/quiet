@@ -16,6 +16,11 @@
 ### Chores
 
 * Improves speed, reliability, and documentation for Cypress tests
+### Fixes
+
+* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+* Change close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
+* Changing the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 
 ## [4.0.3]
 
