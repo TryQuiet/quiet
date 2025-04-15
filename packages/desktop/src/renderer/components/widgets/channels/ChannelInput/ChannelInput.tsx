@@ -14,12 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import {
-  emojify,
-  findMatchingEmojis,
-  extractPartialEmojiCode,
-  emojiShortcodes,
-} from './utils/emojiCodes'
+import { emojify, findMatchingEmojis, extractPartialEmojiCode, emojiShortcodes } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 const MAX_EMOJI_SUGGESTIONS = 100
