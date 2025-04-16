@@ -13,6 +13,7 @@
 * Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
 * Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
 * Compresses images over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
+* Removes size and dimension limits on profile photos, since we are now compressing images.
 * Change close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
 * Changing the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 
