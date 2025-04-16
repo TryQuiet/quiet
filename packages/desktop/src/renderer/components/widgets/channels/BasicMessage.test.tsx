@@ -38,7 +38,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -80,7 +80,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -94,7 +94,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -127,7 +127,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -169,7 +169,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -183,7 +183,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -193,7 +193,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -226,7 +226,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-17bnw67-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-1v3s10o-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -271,7 +271,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -285,7 +285,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -295,7 +295,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -329,7 +329,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -371,7 +371,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
-                          string
+                          12:00 AM
                         </p>
                       </div>
                     </div>
@@ -385,7 +385,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -395,7 +395,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

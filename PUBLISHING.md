@@ -80,6 +80,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 
 ## Post-release checklist (production)
 
+- [ ] Release branch with any fixes is moved back to develop and any conflicts are resolved
 - [ ] Release build completed successfully and the assets are uploaded to the release page
 - [ ] Download links are updated on website
 - [ ] App is promoted and sent for review on a production track in Google Play

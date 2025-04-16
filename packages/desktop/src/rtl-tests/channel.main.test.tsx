@@ -44,7 +44,7 @@ import {
 } from '@quiet/types'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
-import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
+import { FETCHING_CHANNEL_MESSAGES } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
@@ -346,7 +346,7 @@ describe('Channel', () => {
     expect(Object.values(messages).length).toBe(0)
 
     // Verify loading spinner is visible
-    const spinner = screen.getByText(fetchingChannelMessagesText)
+    const spinner = screen.getByText(FETCHING_CHANNEL_MESSAGES)
     expect(spinner).toBeVisible()
   })
 
@@ -395,7 +395,7 @@ describe('Channel', () => {
     )
 
     // Verify loading spinner is not visible
-    const spinner = await screen.queryByText(fetchingChannelMessagesText)
+    const spinner = await screen.queryByText(FETCHING_CHANNEL_MESSAGES)
     expect(spinner).toBeNull()
   })
 

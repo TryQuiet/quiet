@@ -327,6 +327,13 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
     }
   }
 
+  const { handleClose, ...ctxMenu } = contextMenu
+
+  const handleCloseWrapped = () => {
+    setRoute('userProfile')
+    handleClose()
+  }
+
   const getImageSize = (file: File) => {
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
       const img = new Image()
@@ -389,7 +396,12 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   }, [contentRef])
 
   return (
-    <ContextMenu title='Edit profile' handleBack={() => setRoute('userProfile')} {...contextMenu}>
+    <ContextMenu
+      title='Edit profile'
+      handleBack={() => setRoute('userProfile')}
+      handleClose={handleCloseWrapped}
+      {...ctxMenu}
+    >
       <StyledContextMenuContent
         container
         ref={ref => {
