@@ -116,19 +116,18 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const representativeMessage = data[0]
 
-  const formatDateTime = (createdAt: number): string => {
+  const formatTime = (createdAt: number): string => {
     // get timezone offset from native Date, for correct local timezone
     const tzOffsetHours = -new Date().getTimezoneOffset() / 60
     const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
 
     const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
-    const now = DateTime.now().setZone(formattedOffset)
 
     // Use DateTime.DATETIME_MED to properly respect locale settings including 12h/24h preference
-    return messageTime.toLocaleString(DateTime.DATETIME_MED)
+    return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
   }
 
-  const representativeMessageDateTime = formatDateTime(representativeMessage.createdAt)
+  const representativeMessageDateTime = formatTime(representativeMessage.createdAt)
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
