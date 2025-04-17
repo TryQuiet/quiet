@@ -283,23 +283,21 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
   }
 
-  // Stable renderItem
+  // Stable renderItem - no need to rotate with inverted FlatList
   const renderDateGroup = useCallback(
     ({ item }: { item: string }) => (
-      <View style={styles.rotated}>
-        <ChannelMessagesComponent
-          messages={messages.groups[item]}
-          pendingMessages={pendingMessages}
-          day={item}
-          downloadStatuses={downloadStatuses}
-          downloadFile={downloadFile}
-          cancelDownload={cancelDownload}
-          openImagePreview={openImagePreview}
-          openUrl={openUrl}
-          duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
-          unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
-        />
-      </View>
+      <ChannelMessagesComponent
+        messages={messages.groups[item]}
+        pendingMessages={pendingMessages}
+        day={item}
+        downloadStatuses={downloadStatuses}
+        downloadFile={downloadFile}
+        cancelDownload={cancelDownload}
+        openImagePreview={openImagePreview}
+        openUrl={openUrl}
+        duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+        unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+      />
     ),
     [
       messages.groups,
@@ -345,10 +343,9 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               )}
               <FlatList
                 ref={flatListRef}
-                // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
-                // https://github.com/facebook/react-native/issues/30034
-                style={styles.invertedList}
-                data={Object.keys(messages.groups).reverse()}
+                style={styles.list}
+                inverted={true} // Use built-in inverted prop instead of manual rotation
+                data={Object.keys(messages.groups).reverse()} // Need to keep reverse for proper chronological order
                 keyExtractor={keyExtractorFn}
                 renderItem={renderDateGroup}
                 onEndReached={handleEndReached}
@@ -461,11 +458,7 @@ const styles = StyleSheet.create({
   messagesContainer: {
     flex: 1,
   },
-  rotated: {
-    transform: [{ rotate: '180deg' }],
-  },
-  invertedList: {
-    transform: [{ rotate: '180deg' }],
+  list: {
     paddingLeft: 20, // Using DEFAULT_PADDING value
     paddingRight: 20, // Using DEFAULT_PADDING value
   },
