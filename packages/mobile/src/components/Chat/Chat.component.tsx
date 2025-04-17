@@ -65,6 +65,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const isScrolling = useRef(false)
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
 
+  // UI constants
+  const DEFAULT_PADDING = 20
+  const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
+  const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
+  const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
+
   // Stable scroll handler
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -184,12 +190,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }
 
   const insets = useSafeAreaInsets()
-
-  // UI constants
-  const DEFAULT_PADDING = 20
-  const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
-  const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
-  const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
 
   // Calculate if files are uploaded - defined at top level
   const checkFilesUploaded = useCallback(() => {
@@ -323,43 +323,22 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [loadMessagesAction])
 
   return (
-    <View style={{ flex: 1 }} testID={`chat_${channel?.name}`}>
+    <View style={styles.container} testID={`chat_${channel?.name}`}>
       <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: undefined })}
         keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: 0 })}
         enabled={Platform.select({ ios: true, android: false })}
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          backgroundColor: defaultTheme.palette.background.white,
-          paddingBottom: DEFAULT_PADDING,
-        }}
+        style={styles.keyboardAvoidingView}
       >
         {messages.count === 0 ? (
           <Loading title={'Loading messages'} caption={'Chat will become available shortly'} />
         ) : (
           <>
-            <View style={{ flex: 1 }}>
+            <View style={styles.messagesContainer}>
               {currentVisibleDate && (
                 <Animated.View
-                  style={{
-                    opacity: fadeAnim,
-                    position: 'absolute',
-                    zIndex: 20,
-                    width: '100%',
-                    backgroundColor: 'white',
-                    ...(showShadow
-                      ? {
-                          shadowColor: '#000',
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                          elevation: 5,
-                        }
-                      : {}),
-                  }}
+                  style={[styles.dateMarker, { opacity: fadeAnim }, showShadow ? styles.dateMarkerWithShadow : null]}
                 >
                   <MessagesDivider title={currentVisibleDate} isSticky />
                 </Animated.View>
@@ -382,43 +361,26 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                 onMomentumScrollEnd={handleMomentumScrollEnd}
               />
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                paddingBottom: Platform.select({ ios: 20, android: 0 }),
-              }}
-            >
+            <View style={styles.bottomControls}>
               <View
-                style={{
-                  width: '100%',
-                  paddingLeft: DEFAULT_PADDING,
-                  paddingRight: !didKeyboardShow && !areFilesUploaded ? DEFAULT_PADDING : 0,
-                }}
+                style={[
+                  styles.inputContainer,
+                  { paddingRight: !didKeyboardShow && !areFilesUploaded ? DEFAULT_PADDING : 0 },
+                ]}
               >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <View style={{ justifyContent: 'center' }}>
+                <View style={styles.inputRow}>
+                  <View style={styles.inputWrapper}>
+                    <View style={styles.inputContent}>
                       <Input
                         ref={messageInputRef}
                         onChangeText={onInputTextChange}
                         placeholder={`Message #${channel?.name}`}
                         multiline={true}
-                        style={{ paddingRight: 50 }}
+                        style={styles.inputStyle}
                         round
                       />
                     </View>
-                    <View
-                      style={{
-                        position: 'absolute',
-                        height: '100%',
-                        right: 10,
-                        justifyContent: 'center',
-                      }}
-                    >
+                    <View style={styles.attachmentButtonContainer}>
                       <AttachmentButton onPress={openAttachments} />
                     </View>
                   </View>
@@ -486,6 +448,19 @@ export const ChannelMessagesComponent = React.memo(ChannelMessagesComponentInner
 
 // Create styles for components
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    backgroundColor: defaultTheme.palette.background.white,
+    paddingBottom: 20, // DEFAULT_PADDING
+  },
+  messagesContainer: {
+    flex: 1,
+  },
   rotated: {
     transform: [{ rotate: '180deg' }],
   },
@@ -493,6 +468,45 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '180deg' }],
     paddingLeft: 20, // Using DEFAULT_PADDING value
     paddingRight: 20, // Using DEFAULT_PADDING value
+  },
+  dateMarker: {
+    position: 'absolute',
+    zIndex: 20,
+    width: '100%',
+    backgroundColor: 'white',
+  },
+  dateMarkerWithShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  bottomControls: {
+    flexDirection: 'row',
+    paddingBottom: Platform.select({ ios: 20, android: 0 }),
+  },
+  inputContainer: {
+    width: '100%',
+    paddingLeft: 20, // DEFAULT_PADDING
+  },
+  inputRow: {
+    flexDirection: 'row',
+  },
+  inputWrapper: {
+    flex: 1,
+  },
+  inputContent: {
+    justifyContent: 'center',
+  },
+  inputStyle: {
+    paddingRight: 50,
+  },
+  attachmentButtonContainer: {
+    position: 'absolute',
+    height: '100%',
+    right: 10,
+    justifyContent: 'center',
   },
 })
 
