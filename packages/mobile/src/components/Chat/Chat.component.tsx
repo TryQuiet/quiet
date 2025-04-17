@@ -19,10 +19,6 @@ import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
-import {
-  formatMessageDisplayDay,
-  formatMessageTime,
-} from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
@@ -432,21 +428,10 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
-  // Format messages to show only time (without date)
-  const formattedMessages = messages.map(group =>
-    group.map(msg => ({
-      ...msg,
-      // Extract only the time component from the date
-      // For raw timestamp messages, format as time only
-      // For pre-formatted strings, keep as is (mobile app compatibility)
-      date: msg.createdAt ? formatMessageTime(msg.createdAt) : msg.date,
-    }))
-  )
-
   return (
     <View key={day}>
       <MessagesDivider title={day} />
-      {formattedMessages.map(data => {
+      {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
         return (
