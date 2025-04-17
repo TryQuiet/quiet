@@ -29,7 +29,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   )
 }
 
-export const Message: FC<MessageProps & FileActionsProps> = ({
+const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
   downloadFile,
@@ -260,3 +260,5 @@ const md = MarkdownIt({
   typographer: false,
   linkify: true,
 })
+
+export const Message = React.memo(MessageInner)

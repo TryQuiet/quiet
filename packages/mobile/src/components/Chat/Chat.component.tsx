@@ -10,6 +10,7 @@ import {
   NativeScrollEvent,
   Animated,
   ViewToken,
+  StyleSheet,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -29,7 +30,7 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('chat:component')
 
-export const Chat: FC<ChatProps & FileActionsProps> = ({
+const ChatInner: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
   sendMessageAction,
   loadMessagesAction,
@@ -63,6 +64,65 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const [showShadow, setShowShadow] = useState(false)
   const isScrolling = useRef(false)
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
+
+  // Stable scroll handler
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!isScrolling.current) {
+        isScrolling.current = true
+        // Immediately show the date marker with shadow
+        setShowShadow(true)
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: DATE_FADE_IN_DURATION,
+          useNativeDriver: true,
+        }).start()
+      }
+
+      // Reset the scroll timer
+      if (scrollTimer.current) {
+        clearTimeout(scrollTimer.current)
+      }
+
+      // We're now handling date changes through onViewableItemsChanged
+      // Just let scroll animation show/hide the marker
+
+      // Set a timer to fade out the date marker after scrolling stops
+      scrollTimer.current = setTimeout(() => {
+        isScrolling.current = false
+        // Fade out the date marker
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: DATE_FADE_OUT_DURATION,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowShadow(false)
+        })
+      }, DATE_VISIBILITY_TIMEOUT)
+    },
+    [fadeAnim, setShowShadow, DATE_FADE_IN_DURATION, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT]
+  )
+
+  const handleMomentumScrollEnd = useCallback(() => {
+    // Keep the date marker visible briefly after momentum scrolling ends
+    // then fade it out
+    if (scrollTimer.current) {
+      clearTimeout(scrollTimer.current)
+    }
+
+    // Schedule the fade out
+    scrollTimer.current = setTimeout(() => {
+      isScrolling.current = false
+      // Fade out the date marker
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: DATE_FADE_OUT_DURATION,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowShadow(false)
+      })
+    }, DATE_VISIBILITY_TIMEOUT)
+  }, [fadeAnim, setShowShadow, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT])
 
   const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList>(null)
@@ -131,20 +191,28 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
   const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
 
-  const areFilesUploaded = useCallback(() => {
+  // Calculate if files are uploaded - defined at top level
+  const checkFilesUploaded = useCallback(() => {
     if (!uploadedFiles) return false
     if (Object.keys(uploadedFiles).length <= 0) return false
     return true
-  }, [uploadedFiles])()
+  }, [uploadedFiles])
 
-  const shouldDisableSubmit = useCallback(() => {
+  // Store result of the check
+  const areFilesUploaded = checkFilesUploaded()
+
+  // Calculate if submit should be disabled - defined at top level
+  const checkShouldDisableSubmit = useCallback(() => {
     if (!ready) return true
 
     const isInputEmpty = messageInput.length === 0
     if (isInputEmpty && !areFilesUploaded) return true
 
     return false
-  }, [messageInput, areFilesUploaded, ready])()
+  }, [messageInput, areFilesUploaded, ready])
+
+  // Store result of the check
+  const shouldDisableSubmit = checkShouldDisableSubmit()
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -215,20 +283,44 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     }
   }
 
-  const renderItem = ({ item }: { item: string }) => (
-    <ChannelMessagesComponent
-      messages={messages.groups[item]}
-      pendingMessages={pendingMessages}
-      day={item}
-      downloadStatuses={downloadStatuses}
-      downloadFile={downloadFile}
-      cancelDownload={cancelDownload}
-      openImagePreview={openImagePreview}
-      openUrl={openUrl}
-      duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
-      unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
-    />
+  // Stable renderItem
+  const renderDateGroup = useCallback(
+    ({ item }: { item: string }) => (
+      <View style={styles.rotated}>
+        <ChannelMessagesComponent
+          messages={messages.groups[item]}
+          pendingMessages={pendingMessages}
+          day={item}
+          downloadStatuses={downloadStatuses}
+          downloadFile={downloadFile}
+          cancelDownload={cancelDownload}
+          openImagePreview={openImagePreview}
+          openUrl={openUrl}
+          duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+          unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+        />
+      </View>
+    ),
+    [
+      messages.groups,
+      pendingMessages,
+      downloadStatuses,
+      downloadFile,
+      cancelDownload,
+      openImagePreview,
+      openUrl,
+      duplicatedUsernameHandleBack,
+      unregisteredUsernameHandleBack,
+    ]
   )
+
+  // Stable keyExtractor function
+  const keyExtractorFn = useCallback((item: string) => item, [])
+
+  // Stable onEndReached handler
+  const handleEndReached = useCallback(() => {
+    loadMessagesAction(true)
+  }, [loadMessagesAction])
 
   return (
     <View style={{ flex: 1 }} testID={`chat_${channel?.name}`}>
@@ -276,81 +368,18 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 ref={flatListRef}
                 // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
                 // https://github.com/facebook/react-native/issues/30034
-                style={{
-                  transform: [{ rotate: '180deg' }],
-                  paddingLeft: DEFAULT_PADDING,
-                  paddingRight: DEFAULT_PADDING,
-                }}
+                style={styles.invertedList}
                 data={Object.keys(messages.groups).reverse()}
-                keyExtractor={item => item}
-                renderItem={item => {
-                  return <View style={{ transform: [{ rotate: '180deg' }] }}>{renderItem(item)}</View>
-                }}
-                onEndReached={() => {
-                  loadMessagesAction(true)
-                }}
+                keyExtractor={keyExtractorFn}
+                renderItem={renderDateGroup}
+                onEndReached={handleEndReached}
                 onEndReachedThreshold={0.7}
                 viewabilityConfig={viewabilityConfig}
                 onViewableItemsChanged={onViewableItemsChanged}
                 showsVerticalScrollIndicator={false}
-                onScroll={event => {
-                  // Custom handling for determining which date is at the fixed position
-                  const { y } = event.nativeEvent.contentOffset
-
-                  // Show the date marker when scrolling starts
-                  if (!isScrolling.current) {
-                    isScrolling.current = true
-                    // Immediately show the date marker with shadow
-                    setShowShadow(true)
-                    Animated.timing(fadeAnim, {
-                      toValue: 1,
-                      duration: DATE_FADE_IN_DURATION,
-                      useNativeDriver: true,
-                    }).start()
-                  }
-
-                  // Reset the scroll timer
-                  if (scrollTimer.current) {
-                    clearTimeout(scrollTimer.current)
-                  }
-
-                  // We're now handling date changes through onViewableItemsChanged
-                  // Just let scroll animation show/hide the marker
-
-                  // Set a timer to fade out the date marker after scrolling stops
-                  scrollTimer.current = setTimeout(() => {
-                    isScrolling.current = false
-                    // Fade out the date marker
-                    Animated.timing(fadeAnim, {
-                      toValue: 0,
-                      duration: DATE_FADE_OUT_DURATION,
-                      useNativeDriver: true,
-                    }).start(() => {
-                      setShowShadow(false)
-                    })
-                  }, DATE_VISIBILITY_TIMEOUT)
-                }}
+                onScroll={handleScroll}
                 scrollEventThrottle={16} // Updates approx every 16ms (60fps) for smooth animation
-                onMomentumScrollEnd={() => {
-                  // Keep the date marker visible briefly after momentum scrolling ends
-                  // then fade it out
-                  if (scrollTimer.current) {
-                    clearTimeout(scrollTimer.current)
-                  }
-
-                  // Schedule the fade out
-                  scrollTimer.current = setTimeout(() => {
-                    isScrolling.current = false
-                    // Fade out the date marker
-                    Animated.timing(fadeAnim, {
-                      toValue: 0,
-                      duration: DATE_FADE_OUT_DURATION,
-                      useNativeDriver: true,
-                    }).start(() => {
-                      setShowShadow(false)
-                    })
-                  }, DATE_VISIBILITY_TIMEOUT)
-                }}
+                onMomentumScrollEnd={handleMomentumScrollEnd}
               />
             </View>
             <View
@@ -416,7 +445,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   )
 }
 
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
+const ChannelMessagesComponentInner: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
   messages,
   day,
   pendingMessages,
@@ -452,3 +481,19 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
     </View>
   )
 }
+
+export const ChannelMessagesComponent = React.memo(ChannelMessagesComponentInner)
+
+// Create styles for components
+const styles = StyleSheet.create({
+  rotated: {
+    transform: [{ rotate: '180deg' }],
+  },
+  invertedList: {
+    transform: [{ rotate: '180deg' }],
+    paddingLeft: 20, // Using DEFAULT_PADDING value
+    paddingRight: 20, // Using DEFAULT_PADDING value
+  },
+})
+
+export const Chat = React.memo(ChatInner)
