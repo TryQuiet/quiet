@@ -251,10 +251,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                           [classes.time]: true,
                         })}
                       >
-                        {DateTime.fromSeconds(messageDisplayData.createdAt).toLocaleString({
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}
+                        {DateTime.fromSeconds(messageDisplayData.createdAt).toLocaleString(DateTime.TIME_SIMPLE)}
                       </Typography>
                     </Grid>
                   )}
