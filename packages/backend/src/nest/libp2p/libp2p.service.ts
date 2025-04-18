@@ -214,7 +214,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async hangUpPeers(peers?: string[]) {
-    const peersToHangUp = peers ?? Array.from(this.connectedPeers.keys())
+    const peersToHangUp = peers ?? Array.from(this.connectedPeers.values()).map(peer => peer.address)
     this.logger.info('Hanging up on all peers')
     for (const peer of peersToHangUp) {
       await this.hangUpPeer(peer)
@@ -461,6 +461,11 @@ export class Libp2pService extends EventEmitter {
         connectionTime: peerPrevStats?.connectionTime ?? 0,
         lastSeen: DateTime.utc().valueOf(),
       } as NetworkStats
+      this.connectedPeers.set(remotePeerId, {
+        peerId: remotePeerId,
+        address: remoteAddr,
+        connectedAtSeconds: DateTime.utc().toSeconds(),
+      } as Libp2pConnectedPeer)
       await this.localDbService.updatePeerStats(peerStats)
 
       this.serverIoProvider.io.emit(SocketEvents.PEER_CONNECTED, {

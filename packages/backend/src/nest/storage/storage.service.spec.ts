@@ -109,8 +109,8 @@ describe('StorageService', () => {
   })
 
   afterEach(async () => {
-    await libp2pService.libp2pInstance?.stop()
-    await ipfsService.ipfsInstance?.stop()
+    await ipfsService.stop()
+    await libp2pService.close()
     await storageService.stop()
     await sigchainService.deleteChain('team', true)
     await localDbService.close()
