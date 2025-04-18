@@ -221,32 +221,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    const identity = await this.storageService.getIdentity(community.id)
-    if (!identity) {
-      this.logger.warn('No identity found in storage')
-      return
-    }
-
-    if (community.name) {
-      try {
-        this.logger.info('Loading sigchain for community', community.name)
-        await this.sigChainService.loadChain(community.name, true)
-      } catch (e) {
-        this.logger.warn('Failed to load sigchain', e)
-      }
-    } else {
-      this.logger.warn('No community name found in storage')
-    }
-
-    const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
-    this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
-    if (sortedPeers.length > 0) {
-      community.peerList = sortedPeers
-    }
-    await this.localDbService.setCommunity(community)
-
-    this.logger.info('Launching community from storage with peers', community.peerList)
     await this.launchCommunity(community)
+    this.storageService.updatePeerStore()
   }
 
   public async closeSocket() {
@@ -272,24 +248,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async resume() {
     this.logger.info('Resuming!')
     await this.openSocket()
-    const peersToDial = await this.getPeersOnResume()
-    this.libp2pService?.resume(peersToDial)
-  }
-
-  public async getPeersOnResume(): Promise<string[]> {
-    this.logger.info('Getting peers to redial')
-    if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {
-      this.logger.info('Found peer info from pause: ', this.peerInfo)
-      return [...this.peerInfo.connected, ...this.peerInfo.dialed]
-    }
-
-    this.logger.info('Getting peers from stored community (if exists)')
-    const community = await this.localDbService.getCurrentCommunity()
-    if (!community) {
-      this.logger.warn(`No community launched, no peers found`)
-      return []
-    }
-    return await this.localDbService.getSortedPeers(community.peerList ?? [])
+    this.libp2pService?.resume()
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -498,11 +457,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity.networkInfo.hiddenService.onionAddress,
       identity.networkInfo.peerId.id
     )
-    const peers = pairsToP2pAddresses(inviteData.pairs)
-    const community = {
+    const bootstrapPeerStats: Record<string, NetworkStats> = {}
+    for (const pair of inviteData.pairs) {
+      const multiaddr = createLibp2pAddress(pair.onionAddress, pair.peerId)
+      bootstrapPeerStats[multiaddr] = {
+        peerId: pair.peerId,
+        connectionTime: 0,
+        lastSeen: DateTime.utc().toSeconds(),
+      } as NetworkStats
+    }
+    this.localDbService.updatePeerStats(bootstrapPeerStats)
+
+    const community: Community = {
       id: payload.id,
       name: communityName,
-      peerList: [...new Set([localAddress, ...peers])],
+      peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])], // TODO: we should deprecate this field and use db
       inviteData,
       psk: inviteData.psk,
       ownership: CommunityOwnership.User,
@@ -532,6 +501,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunity(community: Community) {
+    if (community.name) {
+      try {
+        this.logger.info('Loading sigchain for community', community.name)
+        if (this.sigChainService.activeChainTeamName !== community.name) {
+          await this.sigChainService.loadChain(community.name, true)
+        }
+      } catch (e) {
+        this.logger.warn('Failed to load sigchain', e)
+      }
+    } else {
+      this.logger.warn('No community name found in storage')
+    }
+
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -564,6 +546,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // Unblock websocket endpoints
     this.socketService.resolveReadyness()
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_LAUNCHED, {
+      id: community.id,
+    } as LaunchCommunityPayload)
   }
 
   public async spawnTorHiddenService(communityId: string, identity: Identity): Promise<string> {
@@ -592,7 +577,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       noiseKey: Buffer.from(identity.networkInfo.peerId.noiseKey, 'base64'),
     }
     this.logger.info(peerIdData.peerId.toString())
-    const peers = filterValidAddresses(community.peerList ? community.peerList : [])
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
     const params: Libp2pNodeParams = {
@@ -604,46 +588,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
-
-    // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
-      this.logger.info(`Handling ${Libp2pEvents.PEER_CONNECTED} event - adding network stats`, payload)
-      for (const peer of payload.peers) {
-        const peerStats: NetworkStats = {
-          peerId: peer,
-          connectionTime: 0,
-          lastSeen: DateTime.utc().toSeconds(),
-        }
-
-        await this.localDbService.update(LocalDBKeys.PEERS, {
-          [peer]: peerStats,
-        })
-
-        this.serverIoProvider.io.emit(SocketEvents.PEER_CONNECTED, {
-          peer: peerStats.peerId,
-          lastSeen: peerStats.lastSeen,
-          connectionDuration: 0,
-        })
-      }
-    })
-
-    this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
-      this.logger.info(`Handling ${Libp2pEvents.PEER_DISCONNECTED} event - updating connection time`, payload)
-      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
-      const prev = peerPrevStats?.connectionTime || 0
-
-      const peerStats: NetworkStats = {
-        peerId: payload.peer,
-        connectionTime: prev + payload.connectionDuration,
-        lastSeen: payload.lastSeen,
-      }
-
-      await this.localDbService.update(LocalDBKeys.PEERS, {
-        [payload.peer]: peerStats,
-      })
-
-      this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, payload)
-    })
 
     const setupStorage = async () => {
       this.logger.info('Setting up storage')
@@ -658,10 +602,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await setupStorage()
       })
     }
-
-    // FIXME: Don't await this
-    // FIXME: Wait until Tor is bootstrapped to dial peers
-    this.libp2pService.dialPeers(peers ?? [])
 
     this.logger.info('Storage initialized')
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
@@ -849,6 +789,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      this.storageService.updatePeerStore()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)
     })
   }

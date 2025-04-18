@@ -70,7 +70,6 @@ export const validCurrentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesEntries,
   messagesVerificationStatus,
   (messages, verification) => {
-    logger.info('validCurrentPublicChannelMessagesEntries', messages, verification)
     return messages.filter(message => {
       const status = verification[message.id]
       if (status && status.isVerified) {
@@ -83,7 +82,6 @@ export const validCurrentPublicChannelMessagesEntries = createSelector(
 export const sortedCurrentPublicChannelMessagesEntries = createSelector(
   validCurrentPublicChannelMessagesEntries,
   messages => {
-    logger.info('sortedCurrentPublicChannelMessagesEntries', messages)
     return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
   }
 )

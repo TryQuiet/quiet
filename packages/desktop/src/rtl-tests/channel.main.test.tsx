@@ -964,7 +964,6 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    store.dispatch(connection.actions.torBootstrapped('100%'))
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
     runSaga(function* (): Generator {

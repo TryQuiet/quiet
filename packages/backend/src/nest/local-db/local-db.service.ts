@@ -9,6 +9,7 @@ import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
+import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
 
 @Injectable()
 export class LocalDbService {
@@ -98,24 +99,91 @@ export class LocalDbService {
     }
   }
 
-  // I think we can move this into StorageService (keep this service
-  // focused on CRUD).
-  public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
-    const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
-    const stats: NetworkStats[] = Object.values(peersStats)
-    const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))
-
-    let localPeerAddress: string | undefined = undefined
-    if (identity) {
-      localPeerAddress = createLibp2pAddress(
-        identity.networkInfo.hiddenService.onionAddress,
-        identity.networkInfo.peerId.id
-      )
-      this.logger.info('Local peer', localPeerAddress)
-      return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
+  /**
+   * Overwrite the complete local db entry for peers with the given stats
+   * @param stats
+   */
+  public async setPeerStats(stats: Record<string, NetworkStats>) {
+    this.logger.info('Setting peer stats', stats)
+    for (const addr of Object.keys(stats)) {
+      if (!isMultiaddr(multiaddr(addr))) {
+        this.logger.error('Invalid multiaddr', addr)
+        continue
+      }
     }
+    this.put(LocalDBKeys.PEERS, stats)
+  }
 
-    return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
+  /**
+   * Update the local db entry for the given peers with the given stats
+   * @param stats
+   */
+  public async updatePeerStats(stats: Record<string, NetworkStats>) {
+    this.logger.info('Updating peer stats', stats)
+    for (const addr of Object.keys(stats)) {
+      if (!isMultiaddr(multiaddr(addr))) {
+        this.logger.error('Invalid multiaddr', addr)
+        continue
+      }
+    }
+    const existingStats = await this.get(LocalDBKeys.PEERS)
+    if (!existingStats) {
+      this.put(LocalDBKeys.PEERS, stats)
+      return
+    }
+    this.logger.info('Updating peer stats', existingStats, stats)
+    const updatedStats = { ...existingStats, ...stats }
+    this.logger.info('Updated peer stats', updatedStats)
+    this.put(LocalDBKeys.PEERS, updatedStats)
+  }
+
+  /**
+   * Get the local db entry for peers
+   */
+  public async getPeerStats(peerId?: string): Promise<Record<string, NetworkStats>> {
+    if (peerId) {
+      const peers = await this.get(LocalDBKeys.PEERS)
+      if (!peers) {
+        return {}
+      }
+      return peers[peerId]
+    }
+    const peers = await this.get(LocalDBKeys.PEERS)
+    if (!peers) {
+      return {}
+    }
+    return peers
+  }
+
+  /**
+   * Retrieves a sorted list of peer addresses from the local database.
+   *
+   * @param includeLocalPeerAddress - A boolean flag indicating whether to include the local peer's address
+   * in the sorted list. Defaults to `true`.
+   * @returns A promise that resolves to an array of sorted peer multiaddr.
+   */
+  public async getSortedPeers(includeLocalPeerAddress: boolean = true): Promise<string[]> {
+    const entries = await this.get(LocalDBKeys.PEERS)
+    const addresses: string[] = Object.keys(entries)
+    const stats: NetworkStats[] = Object.values(entries)
+
+    if (includeLocalPeerAddress) {
+      const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))
+
+      let localPeerAddress: string | undefined = undefined
+      if (identity) {
+        localPeerAddress = createLibp2pAddress(
+          identity.networkInfo.hiddenService.onionAddress,
+          identity.networkInfo.peerId.id
+        )
+        this.logger.info('Local peer', localPeerAddress)
+        return filterAndSortPeers(addresses, stats, localPeerAddress, includeLocalPeerAddress)
+      }
+    }
+    this.logger.info('Sorting peers', addresses, stats)
+    const sortedPeers = filterAndSortPeers(addresses, stats, undefined, includeLocalPeerAddress)
+    this.logger.info('Sorted peers', sortedPeers)
+    return sortedPeers
   }
 
   public async setCommunity(community: Community) {

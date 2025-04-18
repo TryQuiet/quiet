@@ -13,8 +13,8 @@ export interface NetworkDataPayload {
 
 export interface NetworkStats {
   peerId: string
-  lastSeen: number
-  connectionTime: number
+  lastSeen: number // last time the peer was seen
+  connectionTime: number // time spent connected
 }
 
 export enum ConnectionProcessInfo {

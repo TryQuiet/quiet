@@ -3,12 +3,13 @@ import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { peersStatsAdapter } from './connection.adapter'
 import { isCurrentCommunityInitialized } from '../network/network.selectors'
-import { composeInvitationShareUrl, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
+import { composeInvitationShareUrl, createLibp2pAddress, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
-import { InvitationData, InvitationDataVersion, type NetworkStats, type User } from '@quiet/types'
+import { InvitationData, InvitationDataVersion, type UserProfile, type NetworkStats, type User } from '@quiet/types'
+import { userProfileSelectors } from '../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('connectionSelectors')
 
@@ -35,13 +36,21 @@ const peerStats = createSelector(connectionSlice, reducerState => {
 })
 
 export const peerList = createSelector(
-  communitiesSelectors.currentCommunity,
+  userProfileSelectors.userProfiles,
   identitySelectors.currentPeerAddress,
   peerStats,
-  (community, localPeerAddress, stats) => {
-    if (!community) return []
+  (userProfiles, localPeerAddress, stats) => {
+    if (!userProfiles) return []
 
-    const arr = [...(community.peerList || [])]
+    const profiles = Object.values(userProfiles)
+    const arr = profiles
+      .map((user: UserProfile) => {
+        if (!user.userData) return null
+        if (!user.userData.onionAddress) return null
+        if (!user.userData.peerId) return null
+        return createLibp2pAddress(user.userData.onionAddress, user.userData.peerId)
+      })
+      .filter((address): address is string => address !== null && address !== undefined)
     return filterAndSortPeers(arr, stats, localPeerAddress)
   }
 )
@@ -80,9 +89,9 @@ export const isJoiningCompleted = createSelector(
   isCurrentCommunityInitialized,
   areMessagesLoaded,
   areChannelsLoaded,
-  (isCommunity, areMessages, areChannels) => {
-    logger.info('isJoiningCompleted', { isCommunity, areMessages, areChannels })
-    return !!(isCommunity && areChannels && areMessages)
+  (isCommunityInitialized, areMessages, areChannels) => {
+    logger.info('isJoiningCompleted', { isCommunityInitialized, areMessages, areChannels })
+    return !!(isCommunityInitialized && areChannels && areMessages)
   }
 )
 

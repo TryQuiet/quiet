@@ -158,7 +158,17 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public async getUserProfiles(): Promise<UserProfile[]> {
     const encValues = (await this.getStore().all()).map(x => x.value)
-    return Promise.all(encValues.map(this.decryptEntry.bind(this)))
+    const results = await Promise.all(
+      encValues.map(async value => {
+        try {
+          return await this.decryptEntry(value)
+        } catch (error) {
+          console.error('Failed to decrypt entry:', error)
+          return null
+        }
+      })
+    )
+    return results.filter((profile): profile is UserProfile => profile !== null)
   }
 
   clean(): void {

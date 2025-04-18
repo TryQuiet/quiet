@@ -63,7 +63,7 @@ class CryptoService extends ChainServiceBase {
         signature: signature.signature,
       },
       ts: Date.now(),
-      username: this.sigChain.user.userName,
+      userId: this.sigChain.user.userId,
     } as EncryptedAndSignedPayload
   }
 

@@ -111,6 +111,9 @@ export enum SocketEvents {
   DISCONNECT = 'disconnect',
   ERROR = 'error',
 
+  // ====== Community ======
+  COMMUNITY_LAUNCHED = 'communityLaunched',
+
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',
@@ -196,6 +199,9 @@ export interface SocketEventsMap {
   [SocketEvents.CONNECTION]: EmitEvent<void>
   [SocketEvents.DISCONNECT]: EmitEvent<void>
   [SocketEvents.ERROR]: EmitEvent<ErrorPayload>
+
+  // ====== Community ======
+  [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
 
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>

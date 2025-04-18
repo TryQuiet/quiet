@@ -37,6 +37,7 @@ import {
   type UsersUpdatedEvent,
   SocketEvents,
   UploadFilePayload,
+  LaunchCommunityPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -74,7 +75,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.onConnectionProcessInfo>
-    | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof connectionActions.createInvite>
     | ReturnType<typeof connectionActions.setLongLivedInvite>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
@@ -85,6 +85,10 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
     // UPDATE FOR APP
+    socket.on(SocketEvents.COMMUNITY_LAUNCHED, (payload: LaunchCommunityPayload) => {
+      logger.info(`${SocketEvents.COMMUNITY_LAUNCHED}`, payload)
+      emit(networkActions.addInitializedCommunity(payload.id))
+    })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)
       emit(connectionActions.setTorInitialized())

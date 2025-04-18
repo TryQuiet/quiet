@@ -53,7 +53,6 @@ export const connectionSlice = createSlice({
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
       state.lastConnectedTime = action.payload
     },
-    torBootstrapped: (state, _action: PayloadAction<any>) => state,
     setTorInitialized: state => {
       state.isTorInitialized = true
     },

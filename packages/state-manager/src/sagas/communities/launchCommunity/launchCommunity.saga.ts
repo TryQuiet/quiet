@@ -14,21 +14,6 @@ import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('launchCommunitySaga')
 
-export function* initCommunities(): Generator {
-  logger.info('Initializing communities')
-  const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
-
-  const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
-  for (const community of joinedCommunities) {
-    if (!initializedCommunities[community.id]) {
-      yield* put(communitiesActions.launchCommunity({ id: community.id }))
-    }
-  }
-
-  const currentTime = yield* call(getCurrentTime)
-  yield* put(connectionActions.setLastConnectedTime(currentTime))
-}
-
 export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>

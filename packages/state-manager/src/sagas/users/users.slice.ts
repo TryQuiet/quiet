@@ -1,6 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { UserProfile, User, SaveUserProfileActionPayload, DeleteUserProfileActionPayload } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('usersSlice')
 
 export class UsersState {
   // Mapping of userId to UserProfile (for display data)
@@ -23,6 +26,7 @@ export const usersSlice = createSlice({
       for (const userProfile of action.payload) {
         state.userProfiles[userProfile.userId] = userProfile
       }
+      logger.info('Setting user profiles', state.userProfiles)
       return state
     },
     // Sets a single user profile, overwriting the existing one

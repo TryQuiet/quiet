@@ -178,20 +178,6 @@ export const getUsersAddresses = async (users: UserData[]): Promise<string[]> =>
   return await Promise.all(peers)
 }
 
-export const getUsersFromCsrs = async (csrs: string[]): Promise<UserData[]> => {
-  const users = await Promise.all(
-    csrs.map(async csr => {
-      const parsedCsr = await loadCSR(csr)
-      const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-      const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
-      const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
-
-      return username && peerId && onionAddress ? { username, onionAddress, peerId } : undefined
-    })
-  )
-  return users.filter(isDefined)
-}
-
 /**
  * Compares given numbers
  *

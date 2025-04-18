@@ -11,7 +11,7 @@ import { communitiesAdapter } from '../communities.adapter'
 import { communitiesActions, communitiesReducer, CommunitiesState } from '../communities.slice'
 import { type Store } from '../../store.types'
 
-import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
+import { launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@quiet/identity'
 import { type FactoryGirl } from 'factory-girl'
 import { connectionReducer, ConnectionState } from '../../appConnection/connection.slice'
@@ -28,35 +28,6 @@ describe('launchCommunity', () => {
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
     socket = new MockedSocket()
-  })
-
-  test('launch all remembered communities', async () => {
-    const community1 = await factory.create('Community')
-    await factory.create('Identity', {
-      communityId: community1.id,
-      nickname: 'alice1',
-    })
-
-    const community2 = await factory.create('Community')
-    await factory.create('Identity', {
-      communityId: community2.id,
-      nickname: 'alice2',
-    })
-
-    const community3 = await factory.create('Community')
-    await factory.create('Identity', {
-      communityId: community3.id,
-      nickname: 'alice3',
-    })
-
-    const reducer = combineReducers(testReducers)
-    await expectSaga(initCommunities)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(communitiesActions.launchCommunity({ id: community1.id }))
-      .put(communitiesActions.launchCommunity({ id: community2.id }))
-      .put(communitiesActions.launchCommunity({ id: community3.id }))
-      .run()
   })
 
   test('launch certain community instead of current community', async () => {

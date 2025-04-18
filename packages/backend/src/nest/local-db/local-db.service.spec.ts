@@ -68,17 +68,6 @@ describe('LocalDbService', () => {
     expect(localDbService.getStatus()).toEqual('closed')
   })
 
-  it('get sorted peers returns peers list if no stats in db', async () => {
-    const peers = [
-      createLibp2pAddress(
-        'zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion',
-        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-      ),
-    ]
-    const sortedPeers = await localDbService.getSortedPeers(peers)
-    expect(sortedPeers).toEqual(peers)
-  })
-
   it('get sorted peers', async () => {
     const peers = [
       createLibp2pAddress('nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', peer2ID),
@@ -88,7 +77,7 @@ describe('LocalDbService', () => {
       ...peer1Stats,
       ...peer2Stats,
     })
-    const sortedPeers = await localDbService.getSortedPeers(peers.reverse())
+    const sortedPeers = await localDbService.getSortedPeers()
     expect(sortedPeers).toEqual(peers)
   })
 

@@ -180,8 +180,6 @@ export const displayableCurrentChannelMessages = createSelector(
   userProfiles,
   (messages, users: Record<string, UserProfile>) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
-      logger.info('displayableCurrentChannelMessages', message)
-      logger.info('displayableCurrentChannelMessages', users)
       const user = users[message.userId!]
       if (user) {
         // @ts-ignore

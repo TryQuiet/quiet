@@ -7,6 +7,8 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
   type Identity,
+  UserData,
+  NetworkStats,
 } from '@quiet/types'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -18,6 +20,10 @@ import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { ChannelsService } from './channels/channels.service'
+import { Member } from '@localfirst/auth'
+import { SigChainService } from '../auth/sigchain.service'
+import { DateTime } from 'luxon'
+import { createLibp2pAddress } from '@quiet/common'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -29,11 +35,12 @@ export class StorageService extends EventEmitter {
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    private readonly localDbService: LocalDbService,
-    private readonly ipfsService: IpfsService,
-    private readonly orbitDbService: OrbitDbService,
-    private readonly userProfileStore: UserProfileStore,
-    private readonly channelsService: ChannelsService
+    public readonly localDbService: LocalDbService,
+    public readonly ipfsService: IpfsService,
+    public readonly orbitDbService: OrbitDbService,
+    public readonly userProfileStore: UserProfileStore,
+    public readonly channelsService: ChannelsService,
+    public readonly sigchainService: SigChainService
   ) {
     super()
   }
@@ -164,6 +171,40 @@ export class StorageService extends EventEmitter {
 
   public async getIdentity(id: string): Promise<Identity | undefined> {
     return await this.localDbService.getIdentity(id)
+  }
+
+  public async updatePeerStore() {
+    const members: Member[] | undefined = this.sigchainService.getActiveChain().team?.members()
+    if (!members) return
+    // existing peers uses the peerId as the key
+    const existingPeers = await this.localDbService.getPeerStats()
+    // filter user profiles to only those that are in the team
+    const currentUserData = (await this.userProfileStore.getUserProfiles())
+      .filter(profile => {
+        return members.some(member => member.userId === profile.userId)
+      })
+      .map(profile => profile.userData)
+      .filter((userData): userData is UserData => {
+        return !!userData
+      })
+    // if existing peers has an entry for the user, use that
+    // otherwise, create a new entry
+    const peers: Record<string, NetworkStats> = {}
+    for (const userData of currentUserData) {
+      const multiaddr = createLibp2pAddress(userData.onionAddress, userData.peerId)
+      const existingStats = existingPeers[multiaddr]
+      if (existingStats) {
+        peers[multiaddr] = existingPeers[multiaddr]
+      } else {
+        peers[multiaddr] = {
+          peerId: userData.peerId,
+          lastSeen: DateTime.utc().toSeconds(),
+          connectionTime: 0,
+        }
+      }
+    }
+    // update the local db with the new peers
+    await this.localDbService.setPeerStats(peers)
   }
 
   public async clean() {
