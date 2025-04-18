@@ -454,12 +454,12 @@ export class Libp2pService extends EventEmitter {
       }
       const remoteAddr = connection[0].remoteAddr.toString()
       // update peer stats
-      const peerPrevStats = (await this.localDbService.getPeerStats())?.[remoteAddr]
+      const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       const peerStats: Record<string, NetworkStats> = {}
       peerStats[remoteAddr] = {
         peerId: remotePeerId,
         connectionTime: peerPrevStats?.connectionTime ?? 0,
-        lastSeen: DateTime.utc().toSeconds(),
+        lastSeen: DateTime.utc().valueOf(),
       } as NetworkStats
       await this.localDbService.updatePeerStats(peerStats)
 

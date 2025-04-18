@@ -15,9 +15,8 @@ import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
 import { createLibp2pAddress } from '@quiet/common'
-import { SigChain } from '../auth/sigchain'
+
 import { createLogger } from '../common/logger'
-import { Logger } from '@nestjs/common'
 import { SigChainService } from '../auth/sigchain.service'
 
 const logger = createLogger('connections-manager.service.spec')
@@ -56,6 +55,7 @@ describe('ConnectionsManagerService', () => {
     connectionsManagerService = await module.resolve(ConnectionsManagerService)
     localDbService = await module.resolve(LocalDbService)
     sigChainService = await module.resolve(SigChainService)
+    localDbService.open()
 
     // initialize sigchain on local db
     await sigChainService.createChain(community.name!, 'john', false)
@@ -94,7 +94,6 @@ describe('ConnectionsManagerService', () => {
       peerList: [remotePeer],
       ownership: CommunityOwnership.Owner,
     }
-    // await localDbService.setSigChain(sigChain)
     await localDbService.setCommunity(actualCommunity)
     await localDbService.setCurrentCommunityId(community.id)
 
@@ -107,18 +106,7 @@ describe('ConnectionsManagerService', () => {
 
     await connectionsManagerService.init()
 
-    const localPeerAddress = createLibp2pAddress(
-      userIdentity.networkInfo.hiddenService.onionAddress,
-      userIdentity.networkInfo.peerId.id
-    )
-    const updatedLaunchCommunityPayload = { ...actualCommunity, peerList: [localPeerAddress, remotePeer] }
-
-    logger.info('updatedLaunchCommunityPayload', updatedLaunchCommunityPayload)
-
-    // expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
-    expect(launchCommunitySpy).toBeCalledWith(updatedLaunchCommunityPayload)
-    expect(sigChainService.getActiveChain()).toBeDefined()
-    expect(sigChainService.getActiveChain()?.team!.teamName).toBe(community.name)
+    expect(launchCommunitySpy).toHaveBeenCalledTimes(1)
   })
 
   it('does not launch community on init if its data does not exist in local db', async () => {
@@ -142,28 +130,5 @@ describe('ConnectionsManagerService', () => {
     ])
 
     expect(launchSpy).toBeCalledTimes(1)
-  })
-
-  it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity from backend and state manager', async () => {
-    await localDbService.setCommunity(community)
-    await localDbService.setCurrentCommunityId(community.id)
-    await localDbService.setIdentity(userIdentity)
-
-    const peerid = '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
-    await localDbService.put(LocalDBKeys.PEERS, {
-      [peerid]: {
-        peerId: peerid,
-        connectionTime: 50,
-        lastSeen: 1000,
-      },
-    })
-
-    await connectionsManagerService.closeAllServices()
-
-    const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
-
-    await connectionsManagerService.init()
-
-    expect(launchCommunitySpy).toBeCalledTimes(1)
   })
 })

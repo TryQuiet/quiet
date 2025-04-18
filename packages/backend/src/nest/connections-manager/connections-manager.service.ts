@@ -9,7 +9,7 @@ import path from 'path'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, removeFilesFromDir } from '../common/utils'
 
-import { createLibp2pAddress, filterValidAddresses, isPSKcodeValid, pairsToP2pAddresses } from '@quiet/common'
+import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -222,7 +222,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     await this.launchCommunity(community)
-    this.storageService.updatePeerStore()
   }
 
   public async closeSocket() {
@@ -466,6 +465,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         lastSeen: DateTime.utc().toSeconds(),
       } as NetworkStats
     }
+    // this adds bootstrap peers to the local db with the expectation that they are replaced once the user connects
     this.localDbService.updatePeerStats(bootstrapPeerStats)
 
     const community: Community = {
@@ -501,6 +501,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunity(community: Community) {
+    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
+      this.logger.error(
+        'Cannot launch community more than once.' +
+          ' Community has already been launched or is currently being launched.'
+      )
+      return
+    }
+    this.communityState = ServiceState.LAUNCHING
+    this.logger.info(`Community state is now ${this.communityState}`)
+
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
@@ -513,16 +523,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } else {
       this.logger.warn('No community name found in storage')
     }
-
-    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
-      this.logger.error(
-        'Cannot launch community more than once.' +
-          ' Community has already been launched or is currently being launched.'
-      )
-      return
-    }
-    this.communityState = ServiceState.LAUNCHING
-    this.logger.info(`Community state is now ${this.communityState}`)
 
     try {
       await this.launch(community)

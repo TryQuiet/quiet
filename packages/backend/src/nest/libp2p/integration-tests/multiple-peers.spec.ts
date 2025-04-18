@@ -63,7 +63,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
   })
 
   it('joins with an invitation', async () => {
-    const libp2pService = await modules[0].get(Libp2pService)
+    const libp2pService = modules[0].get(Libp2pService)
     await new Promise<void>((resolve, reject) => {
       const resolveIfMet = async () => {
         if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.AUTH_JOINED)) {

@@ -67,17 +67,13 @@ export class LocalDbService {
     await this.put(key, updatedObj)
   }
 
-  public async find(key: string, value: string) {
-    /**
-     * Find and return nested key
-     */
+  public async find(key: string, prop: string) {
     const obj = await this.get(key)
-    try {
-      return obj[value]
-    } catch (e) {
-      this.logger.error(`${value} not found in ${key}`)
+    if (!obj || !(prop in obj)) {
+      this.logger.error(`${prop} not found in ${key}`)
       return null
     }
+    return obj[prop]
   }
 
   public async delete(key: string) {
@@ -140,17 +136,21 @@ export class LocalDbService {
   /**
    * Get the local db entry for peers
    */
-  public async getPeerStats(peerId?: string): Promise<Record<string, NetworkStats>> {
-    if (peerId) {
-      const peers = await this.get(LocalDBKeys.PEERS)
-      if (!peers) {
-        return {}
-      }
-      return peers[peerId]
-    }
+  public async getPeerStats(peerId: string): Promise<NetworkStats | undefined>
+  public async getPeerStats(): Promise<Record<string, NetworkStats>>
+  public async getPeerStats(peerId?: string): Promise<NetworkStats | Record<string, NetworkStats> | undefined> {
     const peers = await this.get(LocalDBKeys.PEERS)
     if (!peers) {
-      return {}
+      return peerId ? undefined : {}
+    }
+    if (peerId) {
+      // find the stats entry matching the given peerId
+      for (const stats of Object.values(peers) as NetworkStats[]) {
+        if (stats.peerId === peerId) {
+          return stats
+        }
+      }
+      return undefined
     }
     return peers
   }
@@ -163,7 +163,7 @@ export class LocalDbService {
    * @returns A promise that resolves to an array of sorted peer multiaddr.
    */
   public async getSortedPeers(includeLocalPeerAddress: boolean = true): Promise<string[]> {
-    const entries = await this.get(LocalDBKeys.PEERS)
+    const entries = (await this.get(LocalDBKeys.PEERS)) || {}
     const addresses: string[] = Object.keys(entries)
     const stats: NetworkStats[] = Object.values(entries)
 

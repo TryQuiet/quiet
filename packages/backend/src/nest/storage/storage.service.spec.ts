@@ -1,14 +1,8 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import {
-  prepareStore,
-  getReduxStoreFactory,
-  publicChannels,
-  generateMessageFactoryContentWithId,
-  Store,
-} from '@quiet/state-manager'
-import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
+import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quiet/state-manager'
+import { Community, Identity, PublicChannel, UserProfile } from '@quiet/types'
 
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
@@ -28,7 +22,9 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { ORBIT_DB_DIR } from '../const'
 import { createLogger } from '../common/logger'
-import { createUserCertificateTestHelper, createTestRootCA } from '@quiet/identity'
+import { UserProfileStore } from './userProfile/userProfile.store'
+import { SigChainService } from '../auth/sigchain.service'
+import { SigChainModule } from '../auth/sigchain.service.module'
 
 const logger = createLogger('storageService:test')
 
@@ -41,6 +37,8 @@ describe('StorageService', () => {
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
   let localDbService: LocalDbService
+  let userProfileStore: UserProfileStore
+  let sigchainService: SigChainService
   let peerId: PeerId
 
   let store: Store
@@ -49,7 +47,6 @@ describe('StorageService', () => {
   let channel: PublicChannel
   let alice: Identity
   let john: Identity
-  let message: ChannelMessage
   let channelio: PublicChannel
   let filePath: string
   let utils: any
@@ -76,12 +73,6 @@ describe('StorageService', () => {
     alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
 
     john = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'john' })
-
-    message = (
-      await factory.create<TestMessage>('TestMessage', {
-        message: generateMessageFactoryContentWithId(channel.id, alice.userId),
-      })
-    ).message
   })
 
   beforeEach(async () => {
@@ -90,13 +81,17 @@ describe('StorageService', () => {
     filePath = path.join(dirname, '/500kB-file.txt')
 
     module = await Test.createTestingModule({
-      imports: [TestModule, StorageModule, IpfsModule, SocketModule, Libp2pModule, LocalDbModule],
+      imports: [TestModule, StorageModule, IpfsModule, SocketModule, Libp2pModule, LocalDbModule, SigChainModule],
     }).compile()
 
     storageService = await module.resolve(StorageService)
     localDbService = await module.resolve(LocalDbService)
     libp2pService = await module.resolve(Libp2pService)
     ipfsService = await module.resolve(IpfsService)
+    userProfileStore = await module.resolve(UserProfileStore)
+    sigchainService = await module.resolve(SigChainService)
+
+    await sigchainService.createChain('team', 'alice', true)
 
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
 
@@ -117,6 +112,8 @@ describe('StorageService', () => {
     await libp2pService.libp2pInstance?.stop()
     await ipfsService.ipfsInstance?.stop()
     await storageService.stop()
+    await sigchainService.deleteChain('team', true)
+    await localDbService.close()
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }
@@ -151,6 +148,79 @@ describe('StorageService', () => {
     it('db address should be the same on all platforms', () => {
       const dbAddress = StorageService.dbAddress({ root: 'zdpuABCDefgh123', path: 'channels.general_abcd' })
       expect(dbAddress).toEqual(`/orbitdb/zdpuABCDefgh123/channels.general_abcd`)
+    })
+
+    it('init should initialize services and start sync', async () => {
+      const attachStoreSpy = jest.spyOn(storageService, 'attachStoreListeners')
+      const startSyncSpy = jest.spyOn(storageService as any, 'startSync')
+      await storageService.init(peerId)
+      expect((storageService as any).peerId).toEqual(peerId)
+      expect(await ipfsService.isStarted()).toBe(true)
+      expect(attachStoreSpy).toHaveBeenCalled()
+      expect(startSyncSpy).toHaveBeenCalled()
+    })
+
+    it('addUserProfile should delegate to userProfileStore.setEntry', async () => {
+      const profile = { userId: 'bob', userData: null } as unknown as UserProfile
+      const setEntrySpy = jest.spyOn(userProfileStore, 'setEntry').mockResolvedValueOnce({} as unknown as any)
+      await storageService.addUserProfile(profile)
+      expect(setEntrySpy).toHaveBeenCalledWith(profile.userId, profile)
+    })
+
+    it('addUserProfile should log and not throw when setEntry rejects', async () => {
+      const profile = { userId: 'charlie', userData: null } as unknown as UserProfile
+      jest.spyOn(userProfileStore, 'setEntry').mockRejectedValueOnce(new Error('deferred'))
+      await expect(storageService.addUserProfile(profile)).resolves.not.toThrow()
+    })
+
+    it('should set and get identity via localDbService', async () => {
+      const identity = { userId: 'alice', nickname: 'Alice' } as unknown as Identity
+      const setIdentitySpy = jest.spyOn(localDbService, 'setIdentity').mockResolvedValueOnce()
+      const getIdentitySpy = jest.spyOn(localDbService, 'getIdentity').mockResolvedValueOnce(identity)
+      await storageService.setIdentity(identity)
+      expect(setIdentitySpy).toHaveBeenCalledWith(identity)
+      const result = await storageService.getIdentity(identity.userId)
+      expect(getIdentitySpy).toHaveBeenCalledWith(identity.userId)
+      expect(result).toEqual(identity)
+    })
+
+    it('startSync should not run when IPFS is not started', async () => {
+      jest.spyOn(ipfsService, 'isStarted').mockReturnValue(false as unknown as Promise<boolean>)
+      const userProfileStartSpy = jest.spyOn(userProfileStore, 'startSync')
+      await (storageService as any).startSync()
+      expect(userProfileStartSpy).not.toHaveBeenCalled()
+    })
+
+    it('updatePeerStore should merge existing and new peers', async () => {
+      const existingPeerStats = {
+        '/dns4/oldpeer.onion/tcp/80/ws/p2p/peerOld': { peerId: 'peerOld', lastSeen: 0, connectionTime: 0 },
+      }
+      jest.spyOn(localDbService, 'getPeerStats').mockResolvedValue(existingPeerStats as any)
+
+      const members = [{ userId: 'user1' }]
+      jest.spyOn(sigchainService, 'getActiveChain').mockReturnValue({
+        team: {
+          members: () => members,
+        },
+      } as any)
+
+      const userProfiles = [
+        {
+          userId: 'user1',
+          userData: { onionAddress: 'addr1.onion', peerId: 'peer1' },
+        },
+      ] as any
+      jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue(userProfiles)
+
+      const setPeerStatsSpy = jest.spyOn(localDbService, 'setPeerStats').mockImplementation(async () => {})
+
+      await storageService.updatePeerStore()
+
+      const expectedMultiaddr = `/dns4/addr1.onion/tcp/80/ws/p2p/peer1`
+      expect(setPeerStatsSpy).toHaveBeenCalled()
+      const arg = setPeerStatsSpy.mock.calls[0][0]
+      expect(arg[expectedMultiaddr]).toBeDefined()
+      expect(arg[expectedMultiaddr].peerId).toEqual('peer1')
     })
   })
 })
