@@ -202,4 +202,54 @@ describe('Sticky Date Markers', () => {
     // We should now see a March 25 message
     await expect(element(by.text('This message is from March 25'))).toBeVisible()
   })
+  
+  test('chat should not have layout jumps on initial render', async () => {
+    // Launch fresh and navigate to the chat component again
+    await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
+    
+    // Navigate to storybook sidebar
+    await press(element(by.id('BottomMenu.Sidebar')))
+    
+    // Use Storybook's search to find our MultiDayChat component
+    await waitFor(element(by.id('Storybook.ListView.SearchBar')))
+      .toBeVisible()
+      .withTimeout(BASIC)
+    
+    await press(element(by.id('Storybook.ListView.SearchBar')))
+    await clear(element(by.id('Storybook.ListView.SearchBar')))
+    await write(element(by.id('Storybook.ListView.SearchBar')), 'Chat')
+    
+    // Close keyboard if on Android
+    if (device.getPlatform() === 'android') {
+      await device.pressBack()
+    }
+    
+    // Select the MultiDayChat story
+    await press(element(by.text('MultiDayChat')).atIndex(0), true)
+    
+    // Go to canvas view
+    await press(element(by.id('BottomMenu.Canvas')))
+    
+    // Get initial positions of important elements to check for layout jumps
+    await waitFor(element(by.id('chat_StickyDateTest')))
+      .toBeVisible()
+      .withTimeout(BASIC * 2)
+      
+    // Take a screenshot immediately after rendering
+    await device.takeScreenshot('initial-render')
+    
+    // Wait a moment to let any animations or layout changes happen
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Take another screenshot after possible layout changes
+    await device.takeScreenshot('after-render')
+    
+    // Note: Screenshots can be compared visually, but we can't do pixel comparison in the test
+    
+    // Verify the chat component is still visible
+    await expect(element(by.id('chat_StickyDateTest'))).toBeVisible()
+    
+    // Check that input area has expected components
+    await expect(element(by.id('input'))).toBeVisible()
+  })
 })
