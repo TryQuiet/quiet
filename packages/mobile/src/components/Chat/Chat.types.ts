@@ -12,6 +12,12 @@ import { useContextMenu } from '../../hooks/useContextMenu'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 
+// Define a new type for date groups with timestamps
+export interface DateGroup {
+  displayDate: string // Displayed date string like "Today", "Yesterday", etc.
+  timestamp: number // ISO timestamp for accurate sorting
+}
+
 export interface ChatProps extends UserLabelHandlers {
   contextMenu?: ReturnType<typeof useContextMenu> | null
   sendMessageAction: (message: string) => void

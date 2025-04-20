@@ -20,7 +20,7 @@ import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
-import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
+import { ChannelMessagesComponentProps, ChatProps, DateGroup } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
@@ -137,50 +137,38 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     itemVisiblePercentThreshold: VISIBILITY_THRESHOLD,
   }).current
 
-  // This callback fires when items enter or exit the viewport
+  // This callback fires when items enter or exit the viewport, to determine which date to show in the sticky MessagesDivider
   const onViewableItemsChanged = useRef(
     ({ viewableItems, changed }: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
       // If no items are visible, don't update
       if (viewableItems.length === 0) return
 
       // Get all dates currently visible on screen
-      // The ViewToken type has item as any, so we need to cast it to string
-      const visibleDates = viewableItems.map(token => token.item as string)
+      // The ViewToken type has item as any, so we need to cast it to DateGroup
+      const visibleDateGroups = viewableItems.map(token => token.item as DateGroup)
 
       // Get the "oldest" date (which is actually the earliest chronologically)
-      // Since our dates are formatted like "January 1, 2023", we need to parse them
-      // to determine which is oldest
-      const oldestDate = findOldestDate(visibleDates)
+      // We can now sort by the actual timestamp rather than display string
+      const oldestDateGroup = findOldestDate(visibleDateGroups)
 
       // Update if the oldest visible date has changed
-      if (currentVisibleDate !== oldestDate) {
-        setCurrentVisibleDate(oldestDate)
+      if (oldestDateGroup && currentVisibleDate !== oldestDateGroup.displayDate) {
+        setCurrentVisibleDate(oldestDateGroup.displayDate)
       }
     }
   ).current
 
-  // Helper function to find the earliest date from an array of date strings
-  const findOldestDate = (dateStrings: string[]): string => {
-    if (dateStrings.length === 0) return ''
-    if (dateStrings.length === 1) return dateStrings[0]
+  // Helper function to find the earliest date from an array of DateGroup objects
+  const findOldestDate = (dateGroups: DateGroup[]): DateGroup | null => {
+    if (dateGroups.length === 0) return null
+    if (dateGroups.length === 1) return dateGroups[0]
 
-    // Since we can sort these by their index in the original array, we can
-    // look at the order of them in the messages.groups object
-    const dateKeys = Object.keys(messages.groups).reverse()
-
-    // Find the earliest date that's visible (the one with the highest index in our reversed array)
-    let earliestIndex = -1
-    let earliestDate = ''
-
-    for (const dateString of dateStrings) {
-      const index = dateKeys.indexOf(dateString)
-      if (index > earliestIndex) {
-        earliestIndex = index
-        earliestDate = dateString
-      }
-    }
-
-    return earliestDate
+    // Now we can directly sort by timestamp (lower timestamp = older date)
+    // This is much more reliable than sorting by display strings
+    return dateGroups.reduce((oldest, current) => {
+      // Lower timestamp = older date (earliest chronologically)
+      return current.timestamp < oldest.timestamp ? current : oldest
+    }, dateGroups[0])
   }
 
   const insets = useSafeAreaInsets()
@@ -207,6 +195,34 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   // Store result of the check
   const shouldDisableSubmit = checkShouldDisableSubmit()
+
+  // Function to create date groups with timestamps from message groups
+  const createDateGroupsWithTimestamps = useCallback((): DateGroup[] => {
+    if (!messages.groups || Object.keys(messages.groups).length === 0) {
+      return []
+    }
+
+    // Get all date keys and find the earliest message in each group to use its timestamp
+    return Object.keys(messages.groups)
+      .map(dateKey => {
+        // Get the first message group for this date
+        const messageGroups = messages.groups[dateKey]
+        if (messageGroups.length === 0) {
+          // Fallback timestamp if no messages (shouldn't happen)
+          return { displayDate: dateKey, timestamp: 0 }
+        }
+
+        // Get the first message in the first group
+        const firstMessage = messageGroups[0][0]
+
+        // Return the date group with timestamp
+        return {
+          displayDate: dateKey,
+          timestamp: firstMessage.createdAt, // Using actual message timestamp
+        }
+      })
+      .reverse() // Reverse to maintain the same order as before
+  }, [messages.groups])
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -279,11 +295,11 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   // Stable renderItem - no need to rotate with inverted FlatList
   const renderDateGroup = useCallback(
-    ({ item }: { item: string }) => (
+    ({ item }: { item: DateGroup }) => (
       <ChannelMessagesComponent
-        messages={messages.groups[item]}
+        messages={messages.groups[item.displayDate]}
         pendingMessages={pendingMessages}
-        day={item}
+        day={item.displayDate}
         downloadStatuses={downloadStatuses}
         downloadFile={downloadFile}
         cancelDownload={cancelDownload}
@@ -307,7 +323,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   )
 
   // Stable keyExtractor function
-  const keyExtractorFn = useCallback((item: string) => item, [])
+  const keyExtractorFn = useCallback((item: DateGroup) => item.displayDate, [])
 
   // Stable onEndReached handler
   const handleEndReached = useCallback(() => {
@@ -337,7 +353,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                 ref={flatListRef}
                 style={styles.list}
                 inverted={true} // Use built-in inverted prop instead of manual rotation
-                data={Object.keys(messages.groups).reverse()} // Need to keep reverse for proper chronological order
+                data={createDateGroupsWithTimestamps()} // Using enhanced date groups with timestamps
                 keyExtractor={keyExtractorFn}
                 renderItem={renderDateGroup}
                 onEndReached={handleEndReached}
