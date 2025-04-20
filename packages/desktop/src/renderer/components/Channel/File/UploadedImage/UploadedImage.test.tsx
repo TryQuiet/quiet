@@ -55,7 +55,7 @@ describe('UploadedFile', () => {
             class="css-gd4qex"
           >
             <div
-              class="css-bxyyfp"
+              class="css-1i8wbh6"
               data-testid="abcd1234-imagePlaceholder"
             >
               <p

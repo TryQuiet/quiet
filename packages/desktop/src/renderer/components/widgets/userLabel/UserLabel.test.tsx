@@ -33,7 +33,7 @@ describe('UserLabel', () => {
                 src="test-file-stub"
               />
               <span
-                class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textWhite css-1m4pgvy-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textWhite css-1d4bzk2-MuiTypography-root"
               >
                 Duplicate
               </span>
@@ -64,7 +64,7 @@ describe('UserLabel', () => {
               class="MuiGrid-root MuiGrid-container MuiGrid-item UserLabel-wrapper UserLabel-wrapperGray css-1gb55do-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textBlack css-1m4pgvy-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textBlack css-1d4bzk2-MuiTypography-root"
               >
                 Unregistered
               </span>
