@@ -61,7 +61,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   // Animation value for date marker fade effect
   const fadeAnim = useRef(new Animated.Value(0)).current
-  const [showShadow, setShowShadow] = useState(false)
   const isScrolling = useRef(false)
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
 
@@ -76,8 +75,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!isScrolling.current) {
         isScrolling.current = true
-        // Immediately show the date marker with shadow
-        setShowShadow(true)
+        // Immediately show the date marker
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: DATE_FADE_IN_DURATION,
@@ -101,12 +99,10 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
           toValue: 0,
           duration: DATE_FADE_OUT_DURATION,
           useNativeDriver: true,
-        }).start(() => {
-          setShowShadow(false)
-        })
+        }).start()
       }, DATE_VISIBILITY_TIMEOUT)
     },
-    [fadeAnim, setShowShadow, DATE_FADE_IN_DURATION, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT]
+    [fadeAnim, DATE_FADE_IN_DURATION, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT]
   )
 
   const handleMomentumScrollEnd = useCallback(() => {
@@ -124,11 +120,9 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         toValue: 0,
         duration: DATE_FADE_OUT_DURATION,
         useNativeDriver: true,
-      }).start(() => {
-        setShowShadow(false)
-      })
+      }).start()
     }, DATE_VISIBILITY_TIMEOUT)
-  }, [fadeAnim, setShowShadow, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT])
+  }, [fadeAnim, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT])
 
   const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList>(null)
@@ -335,9 +329,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
           <>
             <View style={styles.messagesContainer}>
               {currentVisibleDate && (
-                <Animated.View
-                  style={[styles.dateMarker, { opacity: fadeAnim }, showShadow ? styles.dateMarkerWithShadow : null]}
-                >
+                <Animated.View style={[styles.dateMarker, { opacity: fadeAnim }]}>
                   <MessagesDivider title={currentVisibleDate} isSticky />
                 </Animated.View>
               )}
@@ -467,13 +459,6 @@ const styles = StyleSheet.create({
     zIndex: 20,
     width: '100%',
     backgroundColor: 'white',
-  },
-  dateMarkerWithShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   bottomControls: {
     flexDirection: 'row',
