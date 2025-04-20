@@ -203,25 +203,29 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
 
     // Get all date keys and find the earliest message in each group to use its timestamp
-    return Object.keys(messages.groups)
-      .map(dateKey => {
-        // Get the first message group for this date
-        const messageGroups = messages.groups[dateKey]
-        if (messageGroups.length === 0) {
-          // Fallback timestamp if no messages (shouldn't happen)
-          return { displayDate: dateKey, timestamp: 0 }
-        }
+    return (
+      Object.keys(messages.groups)
+        .map(dateKey => {
+          // Get the first message group for this date
+          const messageGroups = messages.groups[dateKey]
+          if (messageGroups.length === 0) {
+            // Fallback timestamp if no messages (shouldn't happen)
+            return { displayDate: dateKey, timestamp: 0 }
+          }
 
-        // Get the first message in the first group
-        const firstMessage = messageGroups[0][0]
+          // Get the first message in the first group
+          const firstMessage = messageGroups[0][0]
 
-        // Return the date group with timestamp
-        return {
-          displayDate: dateKey,
-          timestamp: firstMessage.createdAt, // Using actual message timestamp
-        }
-      })
-      .reverse() // Reverse to maintain the same order as before
+          // Return the date group with timestamp
+          return {
+            displayDate: dateKey,
+            timestamp: firstMessage.createdAt, // Using actual message timestamp
+          }
+        })
+        // Keep original order (which is in reverse chronological order - newest first)
+        // but maintain timestamp information for proper date marker selection
+        .reverse()
+    ) // Reverse to maintain the same order as before
   }, [messages.groups])
 
   useEffect(() => {
@@ -245,8 +249,26 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   // Initialize the current visible date when messages load, but don't show it
   useEffect(() => {
     if (Object.keys(messages.groups).length > 0) {
-      const firstDateKey = Object.keys(messages.groups).reverse()[0]
-      setCurrentVisibleDate(firstDateKey)
+      // Get all date keys
+      const dateKeys = Object.keys(messages.groups)
+
+      // Create temporary date groups to find the oldest by timestamp
+      const tempGroups = dateKeys.map(dateKey => {
+        const firstMessage = messages.groups[dateKey][0][0]
+        return {
+          displayDate: dateKey,
+          timestamp: firstMessage.createdAt,
+        }
+      })
+
+      // Find oldest date group (earliest timestamp)
+      const oldestGroup = tempGroups.reduce(
+        (oldest, current) => (current.timestamp < oldest.timestamp ? current : oldest),
+        tempGroups[0]
+      )
+
+      // Set to oldest chronological date
+      setCurrentVisibleDate(oldestGroup.displayDate)
       // Don't show the date marker initially - only show when scrolling
     }
   }, [messages.groups])
