@@ -25,6 +25,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { ConnectionContext, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { SigChain } from '../auth/sigchain'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -114,7 +115,7 @@ export class Libp2pAuth {
 
   // Process any connections that were buffered because we were waiting for a chain
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
-    if (this.qssService?.joinStatus === JoinStatus.PENDING_MEMBER && this.joinStatus !== JoinStatus.JOINED) {
+    if (this.joinedViaQSS() && this.joinStatus !== JoinStatus.JOINED) {
       this.joinStatus = JoinStatus.PENDING_MEMBER
     }
 
@@ -136,10 +137,6 @@ export class Libp2pAuth {
         await this.onPeerConnected(conn.peerId, conn.connection)
       }
     }
-  }
-
-  private joinedViaQSS(): boolean {
-    return [JoinStatus.JOINED, JoinStatus.PENDING_MEMBER].includes(this.qssService?.joinStatus)
   }
 
   async start() {
@@ -352,12 +349,7 @@ export class Libp2pAuth {
           this.logger.error('Cannot emit sync event, team is null')
         }
 
-        if (this.joinedViaQSS() || this.joinStatus !== JoinStatus.JOINED) {
-          this.joinStatus = JoinStatus.JOINED
-          this.unblockConnections(this.bufferedConnections)
-          this.emit(Libp2pEvents.AUTH_JOINED)
-          await this.sigChainService.saveChain(sigChain.team!.teamName)
-        }
+        await this.handleJoinViaQSS(sigChain)
       }
       this.emit(Libp2pEvents.AUTH_CONNECTED)
     })
@@ -402,12 +394,7 @@ export class Libp2pAuth {
       this.emit(Libp2pEvents.AUTH_UPDATED, head)
       const sigChain = this.sigChainService.getActiveChain()
       await this.sigChainService.saveChain(sigChain.team!.teamName)
-      if (this.joinedViaQSS() || this.joinStatus !== JoinStatus.JOINED) {
-        this.joinStatus = JoinStatus.JOINED
-        this.unblockConnections(this.bufferedConnections)
-        this.emit(Libp2pEvents.AUTH_JOINED)
-        await this.sigChainService.saveChain(sigChain.team!.teamName)
-      }
+      await this.handleJoinViaQSS(sigChain)
     })
 
     // Handle errors from local or remote sources.
@@ -450,6 +437,18 @@ export class Libp2pAuth {
       }
       this.authConnections.delete(key)
     }
+  }
+
+  private async handleJoinViaQSS(sigChain: SigChain): Promise<void> {
+    if (this.joinedViaQSS() || this.joinStatus !== JoinStatus.JOINED) {
+      this.unblockConnections(this.bufferedConnections)
+      this.emit(Libp2pEvents.AUTH_JOINED)
+      await this.sigChainService.saveChain(sigChain.team!.teamName)
+    }
+  }
+
+  private joinedViaQSS(): boolean {
+    return [JoinStatus.JOINED, JoinStatus.PENDING_MEMBER].includes(this.qssService?.joinStatus)
   }
 }
 
