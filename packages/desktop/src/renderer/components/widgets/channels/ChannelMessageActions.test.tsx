@@ -10,7 +10,7 @@ describe('ChannelMessageActions', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container css-1g9kzhb-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container css-5bpk4b-MuiGrid-root"
           >
             <img
               src="test-file-stub"
@@ -19,7 +19,7 @@ describe('ChannelMessageActions', () => {
               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root MuiTypography-caption ChannelMessageActionswarrning css-1m4pgvy-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption ChannelMessageActionswarrning css-1d4bzk2-MuiTypography-root"
               >
                 Coudn't send.
               </span>
@@ -28,7 +28,7 @@ describe('ChannelMessageActions', () => {
               class="MuiGrid-root MuiGrid-item ChannelMessageActionspointer css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root MuiTypography-caption ChannelMessageActionstryAgain css-1m4pgvy-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption ChannelMessageActionstryAgain css-1d4bzk2-MuiTypography-root"
               >
                 Try again
               </span>

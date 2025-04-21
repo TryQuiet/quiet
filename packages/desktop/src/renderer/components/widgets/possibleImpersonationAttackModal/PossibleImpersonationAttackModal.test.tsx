@@ -21,7 +21,7 @@ describe('PossibleImpersonationAttackModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1on48p8-MuiModal-root"
+          class="MuiModal-root css-16f7e5u-MuiModal-root"
           role="presentation"
         >
           <div
@@ -61,7 +61,7 @@ describe('PossibleImpersonationAttackModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >

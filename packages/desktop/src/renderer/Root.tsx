@@ -40,14 +40,20 @@ import { communities } from '@quiet/state-manager'
 
 export const persistor = persistStore(store)
 
+const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
+  const theme = useTheme()
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>
+}
+
 export default () => {
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={useTheme()}>
-        <DndProvider backend={HTML5Backend}>
-          <HashRouter>
-            <Provider store={store}>
-              <PersistGate loading={null} persistor={persistor}>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <HashRouter>
+          <StyledEngineProvider injectFirst>
+            <ThemeWrapper>
+              <DndProvider backend={HTML5Backend}>
+                <CssBaseline />
                 <SentryWarning />
                 <WarningModal />
                 <UnregisteredModalContainer />
@@ -62,7 +68,6 @@ export default () => {
                 <JoinCommunity />
                 <CreateCommunity />
                 <CreateUsername />
-                <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />
                 <BreakingChangesWarning />
@@ -75,11 +80,11 @@ export default () => {
                   <Route path='/main/*' element={<Main />} />
                 </Routes>
                 <SaveStateComponent persistor={persistor} />
-              </PersistGate>
-            </Provider>
-          </HashRouter>
-        </DndProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+              </DndProvider>
+            </ThemeWrapper>
+          </StyledEngineProvider>
+        </HashRouter>
+      </PersistGate>
+    </Provider>
   )
 }

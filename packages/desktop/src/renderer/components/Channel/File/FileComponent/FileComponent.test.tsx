@@ -44,7 +44,7 @@ describe('FileComponent', () => {
       <body>
         <div>
           <div
-            class="css-bnw0xg"
+            class="css-5tykn0"
             data-testid="12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY-fileComponent"
           >
             <span>

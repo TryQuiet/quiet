@@ -1,4 +1,4 @@
-# Quiet Desktop
+git ch# Quiet Desktop
 
 Running the desktop version of Quiet should be straightforward on Mac and Linux. On Windows we recommend using git-bash or just wsl.
 Here are the steps:
@@ -10,14 +10,14 @@ Here are the steps:
 3. Initialize submodules in the project's root:
 
 ```
-git submodule update --init --recursive --remote
+npm
 ```
 
 4. Install python3 and setuptools through your preferred method. (used by node-gyp)
 
 5. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
-```
+```npm 
 npm i lerna@6.6.2
 npm i typescript@4.9.3
 npm i -g pnpm@9.12.1 // may be needed depending on configuration
@@ -32,7 +32,7 @@ If you run into problems please double check if you have exact version Node and 
 ```
 npm run start:desktop
 ```
-
+npmnpm
 ----
 
 ## Versioning packages
@@ -52,14 +52,6 @@ To build a test version with Sentry, run:
 ```
 npm run lerna version prerelease
 ```
-
-----
-
-## Logging
-
-By default logs are output to the console and to files located in the application data directory (this location varies by OS).
-
-_See the `node-common` README for a more detailed description of file logging in Quiet._
 
 ----
 

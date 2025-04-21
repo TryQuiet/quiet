@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* Theme tab in settings that allows users to set the theme when the system theme is not being detected [#2583](https://github.com/TryQuiet/quiet/issues/2583)
 
 ### New Features
 
@@ -27,7 +28,6 @@
 ### New features
 
 * Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#503](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
-
 ### Fixes
 
 * Fixes issue where the app may crash when trying to redial a peer that doesn't recognize your user as being in the sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))

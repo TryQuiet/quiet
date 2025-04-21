@@ -15,7 +15,7 @@ describe('QuitAppDialog', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiDialog-root MuiModal-root css-1jwcu1u-MuiModal-root-MuiDialog-root"
+          class="MuiDialog-root MuiModal-root css-vzv1bc-MuiModal-root-MuiDialog-root"
           role="presentation"
         >
           <div
@@ -35,7 +35,7 @@ describe('QuitAppDialog', () => {
           >
             <div
               aria-labelledby=":r0:"
-              class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-1clza1p-MuiPaper-root-MuiDialog-paper"
+              class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-fns82q-MuiPaper-root-MuiDialog-paper"
               role="dialog"
             >
               <div

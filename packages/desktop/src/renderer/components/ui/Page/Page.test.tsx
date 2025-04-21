@@ -22,7 +22,7 @@ describe('Page', () => {
             style="height: 100vh;"
           >
             <div
-              class="MuiGrid-root MuiGrid-item PageHeaderroot css-jq8uxm-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-item PageHeaderroot css-1soy4gb-MuiGrid-root"
             >
               <div>
                 Test header
