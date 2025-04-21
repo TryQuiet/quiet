@@ -80,8 +80,8 @@ export class Libp2pService extends EventEmitter {
       concurrency: 10,
       backoffFactor: 1.25,
       fuzzFactor: 0.05,
-      baseDelayMs: 10_000,
-      maxDelayMs: 25_000,
+      baseDelayMs: 8_000,
+      maxDelayMs: 20_000,
       rolloverAtMaxDelay: true,
     })
 

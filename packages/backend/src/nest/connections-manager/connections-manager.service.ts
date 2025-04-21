@@ -52,6 +52,7 @@ import {
   DownloadFilePayload,
   DeleteChannelPayload,
   SetUserProfilePayload,
+  InvitationData,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ENABLED, QSS_ENDPOINT, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -74,6 +75,7 @@ import { Base58, InviteResult } from '@localfirst/auth'
 import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { RoleName } from '../auth/services/roles/roles'
+import { SigChain } from '../auth/sigchain'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -508,6 +510,38 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
+  // TODO: add back when QSS is implemented
+  // public async downloadCommunityData(inviteData: InvitationDataV2) {
+  //   this.logger.info('Downloading invite data', inviteData)
+  //   this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
+  //   let downloadedData: ServerStoredCommunityMetadata
+  //   try {
+  //     downloadedData = await this.storageServerProxyService.downloadData(inviteData.cid)
+  //   } catch (e) {
+  //     this.logger.error(`Downloading community data failed`, e)
+  //     return
+  //   }
+  //   return {
+  //     psk: downloadedData.psk,
+  //     peers: downloadedData.peerList,
+  //     ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
+  //   }
+  // }
+
+  private async signInToQSS(inviteData: InvitationData, sigChain: SigChain) {
+    if (
+      inviteData.version === InvitationDataVersion.v3 &&
+      inviteData.qssEnabled &&
+      inviteData.authData.teamId != null &&
+      inviteData.qssEndpoint != null
+    ) {
+      const connected = await this.qssService.connect(true, inviteData.qssEndpoint)
+      if (connected) {
+        await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain)
+      }
+    }
+  }
+
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
@@ -532,17 +566,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         true
       )
 
-      if (
-        inviteData.version === InvitationDataVersion.v3 &&
-        inviteData.qssEnabled &&
-        inviteData.authData.teamId != null &&
-        inviteData.qssEndpoint != null
-      ) {
-        const connected = await this.qssService.connect(true, inviteData.qssEndpoint)
-        if (connected) {
-          await this.qssService.signInToCommunity(inviteData.authData.teamId, joiningSigchain)
-        }
-      }
+      this.signInToQSS(inviteData, joiningSigchain)
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {

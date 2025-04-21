@@ -952,7 +952,7 @@ export class Channel {
     let testIdSplit = testId.split('-')
     const parentMessageId = testIdSplit[testIdSplit.length - 1]
 
-    const contentElement = await this.waitForMessageContentByText(message, messageElement)
+    const contentElement = await this.waitForMessageContentByText(message, messageElement, timeoutMs)
     if (!contentElement) {
       throw logAndReturnError(`No message content element found for message content ${message}`)
     }

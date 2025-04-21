@@ -39,7 +39,7 @@ export interface Libp2pAuthStatus {
   joining: boolean
 }
 
-enum JoinStatus {
+export enum JoinStatus {
   PENDING_MEMBER = 'PENDING_MEMBER',
   PENDING = 'PENDING',
   JOINING = 'JOINING',
@@ -60,7 +60,6 @@ export class Libp2pAuth {
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
   private unblockInterval: NodeJS.Timeout
   private joinStatus: JoinStatus
-  private joinedViaQSS: boolean = false
   private logger: QuietLogger = createLogger('libp2p:auth')
   readonly [serviceCapabilities]: string[] = ['@quiet/auth']
   readonly [Symbol.toStringTag]: string = 'lfaAuth'
@@ -98,7 +97,6 @@ export class Libp2pAuth {
     this.qssService.once(QSSEvents.QSS_AUTH_JOINED, async () => {
       if (this.joinStatus !== JoinStatus.JOINED) {
         this.joinStatus = JoinStatus.PENDING_MEMBER
-        this.joinedViaQSS = true
       }
     })
 
@@ -116,6 +114,10 @@ export class Libp2pAuth {
 
   // Process any connections that were buffered because we were waiting for a chain
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
+    if (this.qssService?.joinStatus === JoinStatus.PENDING_MEMBER && this.joinStatus !== JoinStatus.JOINED) {
+      this.joinStatus = JoinStatus.PENDING_MEMBER
+    }
+
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamName != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
       this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
@@ -134,6 +136,10 @@ export class Libp2pAuth {
         await this.onPeerConnected(conn.peerId, conn.connection)
       }
     }
+  }
+
+  private joinedViaQSS(): boolean {
+    return [JoinStatus.JOINED, JoinStatus.PENDING_MEMBER].includes(this.qssService?.joinStatus)
   }
 
   async start() {
@@ -330,7 +336,7 @@ export class Libp2pAuth {
     } as ConnectionParams)
 
     // Set up auth connection event handlers.
-    authConnection.on('connected', () => {
+    authConnection.on('connected', async () => {
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
@@ -344,6 +350,13 @@ export class Libp2pAuth {
           this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
         } else {
           this.logger.error('Cannot emit sync event, team is null')
+        }
+
+        if (this.joinedViaQSS() || this.joinStatus !== JoinStatus.JOINED) {
+          this.joinStatus = JoinStatus.JOINED
+          this.unblockConnections(this.bufferedConnections)
+          this.emit(Libp2pEvents.AUTH_JOINED)
+          await this.sigChainService.saveChain(sigChain.team!.teamName)
         }
       }
       this.emit(Libp2pEvents.AUTH_CONNECTED)
@@ -385,13 +398,15 @@ export class Libp2pAuth {
     })
 
     authConnection.on('updated', async head => {
-      this.logger.trace('Received sync message, team graph updated', head)
-      if (
-        (this.joinedViaQSS || this.joinStatus === JoinStatus.PENDING_MEMBER) &&
-        this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
-      ) {
+      this.logger.info('Received sync message, team graph updated', head)
+      this.emit(Libp2pEvents.AUTH_UPDATED, head)
+      const sigChain = this.sigChainService.getActiveChain()
+      await this.sigChainService.saveChain(sigChain.team!.teamName)
+      if (this.joinedViaQSS() || this.joinStatus !== JoinStatus.JOINED) {
         this.joinStatus = JoinStatus.JOINED
+        this.unblockConnections(this.bufferedConnections)
         this.emit(Libp2pEvents.AUTH_JOINED)
+        await this.sigChainService.saveChain(sigChain.team!.teamName)
       }
     })
 

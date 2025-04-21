@@ -215,7 +215,7 @@ describe('Multiple Clients (QSS)', () => {
 
     describe('Second User Joins', () => {
       it('Second user opens the app', async () => {
-        await users.user2.app.openWithRetries(undefined, true)
+        await users.user2.app.openWithRetries()
         const debugModal = new DebugModeModal(users.user2.app.driver)
         await debugModal.close()
       })
@@ -301,6 +301,7 @@ describe('Multiple Clients (QSS)', () => {
 
       it('"Unregistered" label is removed from second user\'s messages', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages[0], users.user2.username, 120_000)
         await generalChannelOwner.waitForLabelsNotPresent(users.user2.username, 30_000)
       })
 

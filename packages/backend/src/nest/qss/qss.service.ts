@@ -29,12 +29,15 @@ import { SigChainService } from '../auth/sigchain.service'
 import { createWinstonQuietLogger } from '@quiet/node-common'
 import EventEmitter from 'node:events'
 import { sleep } from '../common/sleep'
+import { RoleName } from '../auth/services/roles/roles'
+import { JoinStatus } from '../libp2p/libp2p.auth'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleInit {
   private _connecting = false
+  private _joinStatus: JoinStatus = JoinStatus.NOT_STARTED
   private readonly logger = createLogger(`qss:service`)
-  private readonly createLfaLogger = createWinstonQuietLogger('localfirst')
+  private readonly createLfaLogger = createWinstonQuietLogger('localfirst:qss')
 
   constructor(
     @Inject(QSS_ENABLED) private qssEnabled: boolean,
@@ -51,11 +54,15 @@ export class QSSService extends EventEmitter implements OnModuleInit {
   }
 
   public get connected(): boolean {
-    return !!this.qssClient.clientSocket?.connected
+    return this.enabled && !!this.qssClient.clientSocket?.connected
   }
 
   public get enabled(): boolean {
     return this.qssEnabled && this.qssEndpoint !== '' && this.qssEndpoint != null
+  }
+
+  public get joinStatus(): JoinStatus {
+    return this._joinStatus
   }
 
   public async connect(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<boolean> {
@@ -219,10 +226,13 @@ export class QSSService extends EventEmitter implements OnModuleInit {
     }
 
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
+    if (sigChain.team != null && sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+      this._joinStatus = JoinStatus.JOINED
+    }
     await this.startAuthConnection(teamId, sigChain)
   }
 
-  private async startAuthConnection(teamId: string, sigChain: SigChain): Promise<void> {
+  private async startAuthConnection(teamId: string, sigChain1: SigChain): Promise<void> {
     if (!this.enabled) {
       this.logger.warn(`Can't initiate auth connection with QSS because QSS is not enabled for this community`)
       return
@@ -235,6 +245,7 @@ export class QSSService extends EventEmitter implements OnModuleInit {
 
     this.logger.info(`Starting auth connection with QSS for syncing`)
 
+    const sigChain = this.sigChainService.getActiveChain()
     // Create an auth connection using an ephemeral sendMessage callback.
     const authConnection = new AuthConnection({
       context: sigChain.context,
@@ -302,6 +313,9 @@ export class QSSService extends EventEmitter implements OnModuleInit {
           user,
         } as MemberContext
         sigChain.team = team
+        this._joinStatus = JoinStatus.PENDING_MEMBER
+      } else {
+        this._joinStatus = JoinStatus.JOINED
       }
       await this.sigChainService.saveChain(team.teamName)
       this.emit(QSSEvents.QSS_AUTH_JOINED) // tell other services that we've joined via QSS
