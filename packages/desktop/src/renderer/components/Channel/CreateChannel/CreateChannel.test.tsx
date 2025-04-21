@@ -2,11 +2,10 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
 import { screen, waitFor } from '@testing-library/dom'
-import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
-import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
+import { prepareStore } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 import CreateChannel from './CreateChannel'
@@ -15,9 +14,10 @@ import CreateChannelComponent from './CreateChannelComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
-import { getReduxStoreFactory, identity, publicChannels } from '@quiet/state-manager'
+import { getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
 
 import { createLogger } from '../../../logger'
+import { act } from '@testing-library/react'
 
 const logger = createLogger('createChannel:test')
 
@@ -27,6 +27,8 @@ describe('Add new channel', () => {
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+    // @ts-ignore
+    socket.emitWithAck = async (...input: [string, ...any]) => {}
   })
 
   it('entered channel name is slugified', async () => {
@@ -44,7 +46,9 @@ describe('Add new channel', () => {
 
     renderComponent(<CreateChannel />, store)
 
-    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+    await act(async () => {
+      store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+    })
 
     const input = await screen.findByPlaceholderText('Enter a channel name')
     await user.type(input, 'Some channel NAME  ')

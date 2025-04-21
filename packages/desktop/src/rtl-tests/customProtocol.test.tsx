@@ -18,6 +18,7 @@ import {
   type Identity,
 } from '@quiet/types'
 import { composeInvitationDeepUrl } from '@quiet/common'
+import { act } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
@@ -73,19 +74,22 @@ describe('Opening app through custom protocol', () => {
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
-    renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-      </>,
-      store
-    )
+    await act(async () => {
+      renderComponent(
+        <>
+          <JoinCommunity />
+          <CreateUsername />
+        </>,
+        store
+      )
+    })
 
-    store.dispatch(communities.actions.addNewCommunity(community))
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    // @ts-expect-error
-    store.dispatch(identity.actions.addNewIdentity(_identity))
+    await act(async () => {
+      store.dispatch(communities.actions.addNewCommunity(community))
+      store.dispatch(communities.actions.setCurrentCommunity(community.id))
+      // @ts-expect-error
+      store.dispatch(identity.actions.addNewIdentity(_identity))
+    })
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
