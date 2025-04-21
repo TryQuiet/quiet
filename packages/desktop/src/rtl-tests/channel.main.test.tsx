@@ -13,7 +13,6 @@ import Channel from '../renderer/components/Channel/Channel'
 import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
 import { AnyAction } from 'redux'
 import {
-  identity,
   communities,
   publicChannels,
   getReduxStoreFactory,
@@ -21,7 +20,6 @@ import {
   files,
   AUTODOWNLOAD_SIZE_LIMIT,
   network,
-  connection,
   generateMessageFactoryContentWithId,
 } from '@quiet/state-manager'
 import {

@@ -18,6 +18,7 @@ import { getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
 
 import { createLogger } from '../../../logger'
 import { act } from '@testing-library/react'
+import { ErrorMessages, Identity, PublicChannel } from '@quiet/types'
 
 const logger = createLogger('createChannel:test')
 
@@ -90,6 +91,32 @@ describe('Add new channel', () => {
 
     await userEvent.type(input, 'happy-path')
     expect(warning).toBeNull()
+  })
+
+  it('Displays error if trying to add channel with already taken name', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+    const alice = await factory.create<Identity>('Identity')
+
+    renderComponent(<CreateChannel />, store)
+
+    await act(async () => {
+      store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+    })
+
+    const input = await screen.findByPlaceholderText('Enter a channel name')
+    const user = userEvent.setup()
+    await user.type(input, 'general')
+
+    const button = screen.getByText('Create Channel')
+    await user.click(button)
+
+    const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
+    expect(error).toBeVisible()
   })
 
   it.each([
