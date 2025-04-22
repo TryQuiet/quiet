@@ -219,82 +219,286 @@ exports[`Chat component renders component 1`] = `
         }
       }
     >
-      <View
-        collapsable={false}
-        style={
-          {
-            "backgroundColor": "white",
-            "opacity": 0,
-            "position": "absolute",
-            "width": "100%",
-            "zIndex": 20,
-          }
-        }
-      >
-        <View
-          style={
-            [
-              {
-                "alignItems": "center",
-                "flexDirection": "row",
-                "justifyContent": "center",
-                "paddingVertical": 10,
-              },
-              {
-                "left": 0,
-                "paddingVertical": 8,
-                "position": "absolute",
-                "right": 0,
-                "top": 0,
-                "zIndex": 10,
-              },
-            ]
-          }
-          testID="StickyDateMarker_Today"
-        >
-          <View
-            style={
-              [
-                {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#F0F0F0",
-                  "borderRadius": 72,
-                  "borderWidth": 1,
-                  "paddingHorizontal": 18,
-                  "paddingVertical": 5,
-                },
-                {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#EEEEEE",
-                },
-              ]
-            }
-          >
-            <Text
-              style={
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik",
-                  "fontSize": 13,
-                  "fontWeight": "400",
-                  "lineHeight": 15,
-                }
-              }
-            >
-              Today
-            </Text>
-          </View>
-        </View>
-      </View>
       <RCTScrollView
         data={
           [
-            "Today",
-            "28 Oct",
+            {
+              "displayDate": "Today",
+              "id": "17",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "17",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+                  "nickname": "vader",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "16",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "16",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "We cannot grant you the rank of messager",
+                  "nickname": "windoo",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "15",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "15",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "The more messages the better",
+                  "nickname": "luke",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "14",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "14",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Yeah!",
+                  "nickname": "leah",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "13",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "13",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Wrough!",
+                  "nickname": "wookie",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "11",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "11",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "I Agree",
+                  "nickname": "obi",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "12",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Of course, I Agree",
+                  "nickname": "obi",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "9",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "9",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Messages more there should be",
+                  "nickname": "yoda",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "8",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "8",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Why?",
+                  "nickname": "anakin",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "7",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:46",
+                  "id": "7",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Uhuhu!",
+                  "nickname": "anakin",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "4",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "12:40",
+                  "id": "4",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Luck, I am your father!",
+                  "nickname": "chad",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+                {
+                  "createdAt": 0,
+                  "date": "12:41",
+                  "id": "5",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "That's impossible!",
+                  "nickname": "chad",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+                {
+                  "createdAt": 0,
+                  "date": "12:45",
+                  "id": "6",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Nooo!",
+                  "nickname": "chad",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "Today",
+              "id": "divider-Today",
+              "type": "divider",
+            },
+            {
+              "displayDate": "28 Oct",
+              "id": "3",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "28 Oct, 10:02",
+                  "id": "3",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Great, thanks!",
+                  "nickname": "john",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "28 Oct",
+              "id": "1",
+              "messageGroup": [
+                {
+                  "createdAt": 0,
+                  "date": "28 Oct, 10:00",
+                  "id": "1",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "Hello",
+                  "nickname": "alice",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+                {
+                  "createdAt": 0,
+                  "date": "28 Oct, 10:01",
+                  "id": "2",
+                  "isDuplicated": false,
+                  "isRegistered": true,
+                  "message": "How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.",
+                  "nickname": "alice",
+                  "pubKey": "test",
+                  "type": 1,
+                },
+              ],
+              "type": "message",
+            },
+            {
+              "displayDate": "28 Oct",
+              "id": "divider-28 Oct",
+              "type": "divider",
+            },
           ]
         }
         getItem={[Function]}
         getItemCount={[Function]}
+        invertStickyHeaders={true}
+        inverted={true}
+        isInvertedVirtualizedList={true}
         keyExtractor={[Function]}
         onContentSizeChange={[Function]}
         onEndReached={[Function]}
@@ -312,15 +516,19 @@ exports[`Chat component renders component 1`] = `
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[]}
         style={
-          {
-            "paddingLeft": 20,
-            "paddingRight": 20,
-            "transform": [
-              {
-                "rotate": "180deg",
-              },
-            ],
-          }
+          [
+            {
+              "transform": [
+                {
+                  "scaleY": -1,
+                },
+              ],
+            },
+            {
+              "paddingLeft": 20,
+              "paddingRight": 20,
+            },
+          ]
         }
         viewabilityConfig={
           {
@@ -342,68 +550,124 @@ exports[`Chat component renders component 1`] = `
           <View
             onFocusCapture={[Function]}
             onLayout={[Function]}
-            style={null}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
           >
             <View
               style={
                 {
-                  "transform": [
-                    {
-                      "rotate": "180deg",
-                    },
-                  ],
+                  "flex": 1,
                 }
               }
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "flexDirection": "row",
-                        "justifyContent": "center",
-                        "paddingVertical": 10,
-                      },
-                      undefined,
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
                   }
-                  testID="DateDivider_Today"
                 >
                   <View
                     style={
-                      [
-                        {
-                          "backgroundColor": "#FFFFFF",
-                          "borderColor": "#F0F0F0",
-                          "borderRadius": 72,
-                          "borderWidth": 1,
-                          "paddingHorizontal": 18,
-                          "paddingVertical": 5,
-                        },
-                        undefined,
-                      ]
+                      {
+                        "width": 37,
+                      }
                     }
                   >
-                    <Text
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
                       style={
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik",
-                          "fontSize": 13,
-                          "fontWeight": "400",
-                          "lineHeight": 15,
-                        }
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
                       }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      Today
-                    </Text>
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
                   </View>
                 </View>
                 <View
                   style={
                     {
-                      "flex": 1,
+                      "flex": 8,
                     }
                   }
                 >
@@ -411,1965 +675,85 @@ exports[`Chat component renders component 1`] = `
                     style={
                       {
                         "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "paddingBottom": 3,
                       }
                     }
                   >
                     <View
                       style={
                         {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
+                          "alignSelf": "flex-start",
                         }
                       }
                     >
-                      <View
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
                         style={
-                          {
-                            "width": 37,
-                          }
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
                         }
+                        verticalTextAlign="center"
                       >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
+                        vader
+                      </Text>
                     </View>
                     <View
                       style={
                         {
-                          "flex": 8,
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
                         }
                       }
                     >
-                      <View
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
                         style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
                         }
+                        verticalTextAlign="center"
                       >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            chad
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Luck, I am your father!
-                          </div>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "paddingTop": 4,
-                            }
-                          }
-                        >
-                          <div>
-                            That's impossible!
-                          </div>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "paddingTop": 4,
-                            }
-                          }
-                        >
-                          <div>
-                            Nooo!
-                          </div>
-                        </View>
-                      </View>
+                        8:00 PM
+                      </Text>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flexShrink": 1,
                       }
                     }
                   >
                     <View
                       style={
                         {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
+                          "paddingTop": 0,
                         }
                       }
                     >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            anakin
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Uhuhu!
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            anakin
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Why?
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            yoda
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Messages more there should be
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            obi
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            I Agree
-                          </div>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "paddingTop": 4,
-                            }
-                          }
-                        >
-                          <div>
-                            Of course, I Agree
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            wookie
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Wrough!
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            leah
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Yeah!
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            luke
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            The more messages the better
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            windoo
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            We cannot grant you the rank of messager
-                          </div>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            vader
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-                          </div>
-                        </View>
-                      </View>
+                      <div>
+                        deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+                      </div>
                     </View>
                   </View>
                 </View>
@@ -2379,68 +763,124 @@ exports[`Chat component renders component 1`] = `
           <View
             onFocusCapture={[Function]}
             onLayout={[Function]}
-            style={null}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
           >
             <View
               style={
                 {
-                  "transform": [
-                    {
-                      "rotate": "180deg",
-                    },
-                  ],
+                  "flex": 1,
                 }
               }
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
                 <View
                   style={
-                    [
-                      {
-                        "alignItems": "center",
-                        "flexDirection": "row",
-                        "justifyContent": "center",
-                        "paddingVertical": 10,
-                      },
-                      undefined,
-                    ]
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
                   }
-                  testID="DateDivider_28 Oct"
                 >
                   <View
                     style={
-                      [
-                        {
-                          "backgroundColor": "#FFFFFF",
-                          "borderColor": "#F0F0F0",
-                          "borderRadius": 72,
-                          "borderWidth": 1,
-                          "paddingHorizontal": 18,
-                          "paddingVertical": 5,
-                        },
-                        undefined,
-                      ]
+                      {
+                        "width": 37,
+                      }
                     }
                   >
-                    <Text
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
                       style={
-                        {
-                          "color": "#000000",
-                          "fontFamily": "Rubik",
-                          "fontSize": 13,
-                          "fontWeight": "400",
-                          "lineHeight": 15,
-                        }
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
                       }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      28 Oct
-                    </Text>
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
                   </View>
                 </View>
                 <View
                   style={
                     {
-                      "flex": 1,
+                      "flex": 8,
                     }
                   }
                 >
@@ -2448,397 +888,1835 @@ exports[`Chat component renders component 1`] = `
                     style={
                       {
                         "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "paddingBottom": 3,
                       }
                     }
                   >
                     <View
                       style={
                         {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
+                          "alignSelf": "flex-start",
                         }
                       }
                     >
-                      <View
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
                         style={
-                          {
-                            "width": 37,
-                          }
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
                         }
+                        verticalTextAlign="center"
                       >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
+                        windoo
+                      </Text>
                     </View>
                     <View
                       style={
                         {
-                          "flex": 8,
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
                         }
                       }
                     >
-                      <View
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
                         style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
                         }
+                        verticalTextAlign="center"
                       >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            alice
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Hello
-                          </div>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "paddingTop": 4,
-                            }
-                          }
-                        >
-                          <div>
-                            How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.
-                          </div>
-                        </View>
-                      </View>
+                        8:00 PM
+                      </Text>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flexShrink": 1,
                       }
                     }
                   >
                     <View
                       style={
                         {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
+                          "paddingTop": 0,
                         }
                       }
                     >
-                      <View
-                        style={
-                          {
-                            "width": 37,
-                          }
-                        }
-                      >
-                        <RNSVGSvgView
-                          align="xMidYMid"
-                          bbHeight="37"
-                          bbWidth="37"
-                          focusable={false}
-                          height={37}
-                          meetOrSlice={0}
-                          minX={0}
-                          minY={0}
-                          style={
-                            [
-                              {
-                                "backgroundColor": "transparent",
-                                "borderWidth": 0,
-                              },
-                              {
-                                "flex": 0,
-                                "height": 37,
-                                "width": 37,
-                              },
-                            ]
-                          }
-                          vbHeight={37}
-                          vbWidth={37}
-                          width={37}
-                          xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <RNSVGGroup
-                            fill={
-                              {
-                                "payload": 4278190080,
-                                "type": 0,
-                              }
-                            }
-                          >
-                            <RNSVGPath
-                              d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
-                              fill={
-                                {
-                                  "payload": 4293125091,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                            <RNSVGPath
-                              d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
-                              fill={
-                                {
-                                  "payload": 4284072135,
-                                  "type": 0,
-                                }
-                              }
-                              propList={
-                                [
-                                  "fill",
-                                ]
-                              }
-                            />
-                          </RNSVGGroup>
-                        </RNSVGSvgView>
-                      </View>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            john
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            8:00 PM
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flexShrink": 1,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "paddingTop": 0,
-                            }
-                          }
-                        >
-                          <div>
-                            Great, thanks!
-                          </div>
-                        </View>
-                      </View>
+                      <div>
+                        We cannot grant you the rank of messager
+                      </div>
                     </View>
                   </View>
                 </View>
               </View>
             </View>
           </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        luke
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        The more messages the better
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        leah
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        Yeah!
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        wookie
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        Wrough!
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        obi
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        I Agree
+                      </div>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "paddingTop": 4,
+                        }
+                      }
+                    >
+                      <div>
+                        Of course, I Agree
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        yoda
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        Messages more there should be
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        anakin
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        Why?
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        anakin
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        Uhuhu!
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            onFocusCapture={[Function]}
+            onLayout={[Function]}
+            style={
+              [
+                {
+                  "flexDirection": "column-reverse",
+                },
+                {
+                  "transform": [
+                    {
+                      "scaleY": -1,
+                    },
+                  ],
+                },
+              ]
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingBottom": 30,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "alignItems": "center",
+                      "flex": 1,
+                      "paddingRight": 15,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "width": 37,
+                      }
+                    }
+                  >
+                    <RNSVGSvgView
+                      align="xMidYMid"
+                      bbHeight="37"
+                      bbWidth="37"
+                      focusable={false}
+                      height={37}
+                      meetOrSlice={0}
+                      minX={0}
+                      minY={0}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                            "borderWidth": 0,
+                          },
+                          {
+                            "flex": 0,
+                            "height": 37,
+                            "width": 37,
+                          },
+                        ]
+                      }
+                      vbHeight={37}
+                      vbWidth={37}
+                      width={37}
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#e3e3e3" d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"/><path fill="#59c0c7" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"/></svg>"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <RNSVGGroup
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      >
+                        <RNSVGPath
+                          d="M11 4L18 4L18 11ZM25 4L25 11L18 11ZM25 32L18 32L18 25ZM11 32L11 25L18 25ZM4 11L11 11L11 18ZM32 11L32 18L25 18ZM32 25L25 25L25 18ZM4 25L4 18L11 18Z"
+                          fill={
+                            {
+                              "payload": 4293125091,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                        <RNSVGPath
+                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32ZM11 11L18 11L18 18L11 18ZM13 17L17 17L17 13L13 13ZM25 11L25 18L18 18L18 11ZM19 13L19 17L23 17L23 13ZM25 25L18 25L18 18L25 18ZM23 19L19 19L19 23L23 23ZM11 25L11 18L18 18L18 25ZM17 23L17 19L13 19L13 23Z"
+                          fill={
+                            {
+                              "payload": 4284072135,
+                              "type": 0,
+                            }
+                          }
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                        />
+                      </RNSVGGroup>
+                    </RNSVGSvgView>
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <View
+                    style={
+                      {
+                        "flexDirection": "row",
+                        "paddingBottom": 3,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                        }
+                      }
+                    >
+                      <Text
+                        color="main"
+                        fontSize={16}
+                        fontWeight="medium"
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#000000",
+                              "fontFamily": "Rubik-Medium",
+                              "fontSize": 16,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        chad
+                      </Text>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "alignSelf": "flex-start",
+                          "paddingLeft": 8,
+                          "paddingTop": 2,
+                        }
+                      }
+                    >
+                      <Text
+                        color="subtitle"
+                        fontSize={14}
+                        horizontalTextAlign="left"
+                        style={
+                          [
+                            {
+                              "color": "#999999",
+                              "fontFamily": "Rubik-Regular",
+                              "fontSize": 14,
+                              "textAlign": "left",
+                              "textAlignVertical": "center",
+                            },
+                          ]
+                        }
+                        verticalTextAlign="center"
+                      >
+                        8:00 PM
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "flexShrink": 1,
+                      }
+                    }
+                  >
+                    <View
+                      style={
+                        {
+                          "paddingTop": 0,
+                        }
+                      }
+                    >
+                      <div>
+                        Luck, I am your father!
+                      </div>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "paddingTop": 4,
+                        }
+                      }
+                    >
+                      <div>
+                        That's impossible!
+                      </div>
+                    </View>
+                    <View
+                      style={
+                        {
+                          "paddingTop": 4,
+                        }
+                      }
+                    >
+                      <div>
+                        Nooo!
+                      </div>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "height": 0,
+              }
+            }
+          />
         </View>
       </RCTScrollView>
     </View>
@@ -2852,11 +2730,15 @@ exports[`Chat component renders component 1`] = `
     >
       <View
         style={
-          {
-            "paddingLeft": 20,
-            "paddingRight": 20,
-            "width": "100%",
-          }
+          [
+            {
+              "paddingLeft": 20,
+              "width": "100%",
+            },
+            {
+              "paddingRight": 20,
+            },
+          ]
         }
       >
         <View

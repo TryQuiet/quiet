@@ -40,15 +40,14 @@ describe('Sticky Date Markers', () => {
       .withTimeout(BASIC * 2)
   })
   
-  /*
   test('sticky date marker should not be visible initially', async () => {
     // Initially, the sticky date marker should not be visible
+    // Try to find the sticky date marker - it should either not exist or not be visible
     await expect(element(by.id('StickyDateMarker_Today'))).not.toBeVisible()
     
     // Regular date divider should be visible
-    await expect(element(by.id('DateDivider_Today'))).toBeVisible()
+    await expect(element(by.text('Today'))).toBeVisible()
   })
-  */
  
   test('sticky date marker should appear on scroll and show correct date', async () => {
     // Swipe up to trigger scrolling
@@ -144,6 +143,35 @@ describe('Sticky Date Markers', () => {
     
     // We should still see the chat component
     await expect(element(by.id('chat_StickyDateTest'))).toBeVisible()
+  })
+  
+  test('sticky date marker should update correctly when scrolling between dates', async () => {
+    // Get the chat message list element
+    const chatList = element(by.id('chat_StickyDateTest'))
+    
+    // Reset position - scroll to top to see Today's messages
+    await chatList.scrollTo('top')
+    
+    // Wait a short time for the scroll event to be processed
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Scroll down a lot to see the oldest messages (from March 25)
+    await chatList.scroll(500, 'down', NaN, 0.8)
+    
+    // Wait a short time for the scroll event to be processed
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // The sticky date marker should show the oldest date (March 25)
+    await expect(element(by.text('25 Mar'))).toBeVisible()
+    
+    // Now scroll up to see messages from March 26
+    await chatList.scroll(300, 'up', NaN, 0.8)
+    
+    // Wait a short time for the scroll event to be processed
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // The sticky date marker should now show March 26
+    await expect(element(by.text('26 Mar'))).toBeVisible()
   })
   
   test('scrolling through date boundaries should show messages from different days', async () => {
