@@ -31,6 +31,12 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('chat:component')
 
+// UI constants
+const DEFAULT_PADDING = 20
+const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
+const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
+const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
+
 const ChatInner: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
   sendMessageAction,
@@ -67,12 +73,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current
   const isScrolling = useRef(false)
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
-
-  // UI constants
-  const DEFAULT_PADDING = 20
-  const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
-  const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
-  const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
 
   // Flatten the nested messages.groups structure into an array that combines dividers and message groups
 
@@ -420,14 +420,14 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     backgroundColor: defaultTheme.palette.background.white,
-    paddingBottom: 20, // DEFAULT_PADDING
+    paddingBottom: DEFAULT_PADDING,
   },
   messagesContainer: {
     flex: 1,
   },
   list: {
-    paddingLeft: 20, // Using DEFAULT_PADDING value
-    paddingRight: 20, // Using DEFAULT_PADDING value
+    paddingLeft: DEFAULT_PADDING,
+    paddingRight: DEFAULT_PADDING,
   },
   dateMarker: {
     position: 'absolute',
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '100%',
-    paddingLeft: 20, // DEFAULT_PADDING
+    paddingLeft: DEFAULT_PADDING,
   },
   inputRow: {
     flexDirection: 'row',
