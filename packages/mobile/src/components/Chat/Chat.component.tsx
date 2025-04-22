@@ -74,11 +74,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
   const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
 
-  /**
-   * Flatten the nested messages.groups structure into a single array that
-   * interleaves date dividers and message groups so we can feed it directly
-   * to FlatList.
-   */
+  // Flatten the nested messages.groups structure into an array that combines dividers and message groups
+
   const listData = useMemo((): ListItem[] => {
     if (!messages.groups || Object.keys(messages.groups).length === 0) return []
 
@@ -163,9 +160,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const flatListRef = useRef<FlatList<ListItem>>(null)
 
   // We pass this to FlatList to determine which items it will return as viewable
-  // Use 0% threshold to detect as soon as any part becomes visible
   const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 0, // Item is visible when any part is showing
+    itemVisiblePercentThreshold: 0, // 0% threshold means an item is visible when any part is showing
   }).current
 
   // This callback fires when items enter or exit the viewport to determine the date to show
@@ -235,8 +231,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   // Store result of the check
   const shouldDisableSubmit = checkShouldDisableSubmit()
 
-  // The date groups with timestamps are now handled directly in the buildFlatData function
-
   useEffect(() => {
     const onKeyboardDidShow = () => {
       setKeyboardShow(true)
@@ -254,8 +248,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       hideSubscription.remove()
     }
   }, [messageInput?.length, setKeyboardShow])
-
-  // No debouncing - update date immediately for responsive feedback
 
   // Clean up any timers when component unmounts
   useEffect(() => {
@@ -331,10 +323,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       unregisteredUsernameHandleBack,
     ]
   )
-
-  // A simple getter function to extract the unique ID from each list item
-
-  // Removed getItemLayout since it can cause jank when estimates don't match real heights
 
   const handleEndReached = useCallback(() => {
     loadMessagesAction(true)
@@ -421,8 +409,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     </View>
   )
 }
-
-// ChannelMessagesComponent has been removed - list is flat now
 
 // Create styles for components
 const styles = StyleSheet.create({
