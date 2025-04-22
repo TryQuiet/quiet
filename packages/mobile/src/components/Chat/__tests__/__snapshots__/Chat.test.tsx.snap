@@ -733,7 +733,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -946,7 +946,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -1159,7 +1159,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -1372,7 +1372,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -1585,7 +1585,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -1798,7 +1798,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -2022,7 +2022,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -2235,7 +2235,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -2448,7 +2448,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
@@ -2661,7 +2661,7 @@ exports[`Chat component renders component 1`] = `
                         }
                         verticalTextAlign="center"
                       >
-                        8:00 PM
+                        12:00 AM
                       </Text>
                     </View>
                   </View>
