@@ -117,9 +117,9 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.MESSAGE_MEDIA_UPDATED}`, payload)
       emit(filesActions.updateMessageMedia(payload))
     })
-    socket.on(SocketEvents.FILE_UPLOADED, (payload: UploadFilePayload) => {
+    socket.on(SocketEvents.FILE_UPLOADED, (payload: FileMetadata) => {
       logger.info(`${SocketEvents.FILE_UPLOADED}`, payload)
-      emit(filesActions.broadcastHostedFile(payload.file))
+      emit(filesActions.broadcastHostedFile(payload))
     })
     socket.on(SocketEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       logger.info(`${SocketEvents.DOWNLOAD_PROGRESS}`, payload)

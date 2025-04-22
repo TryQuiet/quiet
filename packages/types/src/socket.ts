@@ -218,7 +218,7 @@ export interface SocketEventsMap {
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
 
   // ====== Files ======
-  [SocketEvents.FILE_UPLOADED]: EmitEvent<UploadFilePayload>
+  [SocketEvents.FILE_UPLOADED]: EmitEvent<FileMetadata>
   [SocketEvents.DOWNLOAD_PROGRESS]: EmitEvent<DownloadStatus>
   [SocketEvents.REMOVE_DOWNLOAD_STATUS]: EmitEvent<RemoveDownloadStatus>
 

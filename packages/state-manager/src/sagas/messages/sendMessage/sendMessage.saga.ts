@@ -18,7 +18,7 @@ export function* sendMessageSaga(
 ): Generator {
   const payload = action.payload as ReturnType<typeof messagesActions.sendMessage>['payload']
   const generatedMessageId = yield* call(generateMessageId)
-  const id = action.payload.id || generatedMessageId
+  const id = payload.id || generatedMessageId
   let identity = yield* select(identitySelectors.currentIdentity)
   while (!identity || !identity.userId) {
     logger.info('Identity not present, waiting for identity to be added.', identity)
@@ -33,7 +33,7 @@ export function* sendMessageSaga(
   logger.info('Identity present', identity)
 
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  const channelId = action.payload.channelId || currentChannelId
+  const channelId = payload.channelId || currentChannelId
   if (!channelId) {
     logger.error(`Failed to send message ${id} - channel ID is missing`)
     return
@@ -46,13 +46,13 @@ export function* sendMessageSaga(
   const message: ChannelMessage = {
     id,
     userId: identity.userId,
-    type: action.payload.type || MessageType.Basic,
-    message: action.payload.message,
+    type: payload.type || MessageType.Basic,
+    message: payload.message,
     createdAt,
     channelId,
   }
-  if (action.payload.media) {
-    message.media = action.payload.media
+  if (payload.media) {
+    message.media = payload.media
   }
 
   // Grey out message until saved in db
@@ -81,7 +81,7 @@ export function* sendMessageSaga(
     })
   )
 
-  const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
+  const isUploadingFileMessage = payload.media?.cid?.includes('uploading')
   if (isUploadingFileMessage) {
     logger.info(`Waiting to send message ${id} - file upload is in progress`)
     return // Do not broadcast message until file is uploaded

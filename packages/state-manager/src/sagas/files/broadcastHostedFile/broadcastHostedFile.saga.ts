@@ -5,7 +5,7 @@ import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { type filesActions } from '../files.slice'
-import { instanceOfChannelMessage, SocketActions, SocketActionsMap } from '@quiet/types'
+import { ChannelMessage, instanceOfChannelMessage, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('broadcastHostedFileSaga')
@@ -15,6 +15,7 @@ export function* broadcastHostedFileSaga(
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
   const payload = action.payload
+  logger.info('Broadcasting hosted file', payload)
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) return
 
@@ -29,7 +30,7 @@ export function* broadcastHostedFileSaga(
     return
   }
 
-  const sendMessagePayload: Parameters<SocketActionsMap[SocketActions.SEND_MESSAGE]>[0] = {
+  const sendMessagePayload: ChannelMessage = {
     ...message,
     media: {
       ...payload,
