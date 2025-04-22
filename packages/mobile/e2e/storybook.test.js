@@ -20,44 +20,6 @@ const blacklist = [
   'UploadingPreview'
 ]
 
-let storybookAppAlreadyLaunched = false
-
-export function launchStorybookApp() {
-  return device.launchApp({ newInstance: !storybookAppAlreadyLaunched, launchArgs: { detoxDebugVisibility: 'YES' } })
-}
-
-export async function navigateToStorybookSidebar() {
-  await press(element(by.id('BottomMenu.Sidebar')))
-}
-
-export async function searchForComponent(component) {
-  await waitFor(element(by.id('Storybook.ListView.SearchBar')))
-    .toBeVisible()
-    .withTimeout(BASIC)
-
-  // Use Storybook's search section
-  await press(element(by.id('Storybook.ListView.SearchBar')))
-  await clear(element(by.id('Storybook.ListView.SearchBar')))
-  await write(element(by.id('Storybook.ListView.SearchBar')), component)
-
-  // Hide keyboard if on Android
-  if (device.getPlatform() === 'android') {
-    await device.pressBack()
-  }
-}
-
-export async function selectScenario(scenario) {
-  await press(element(by.text(scenario)).atIndex(0), true)
-}
-
-export async function goToCanvasView() {
-  await press(element(by.id('BottomMenu.Canvas')))
-}
-
-export async function goToSidebarView() {
-  await press(element(by.id('BottomMenu.Sidebar')))
-}
-
 /* eslint-disable no-undef */
 describe('Storybook', () => {
   let stories = []
@@ -120,10 +82,9 @@ describe('Storybook', () => {
     // Start at particular story
     if (process.argv.find(x => x.startsWith('-starting-story'))) trimStories()
 
-    await launchStorybookApp()
-    storybookAppAlreadyLaunched = true
+    await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
 
-    await navigateToStorybookSidebar()
+    await press(element(by.id('BottomMenu.Sidebar')))
   })
 
   afterAll(async () => {
@@ -140,21 +101,31 @@ describe('Storybook', () => {
         `Performing visual regression test for ${component} (${stories.indexOf(story) + 1}/${stories.length})`
       )
 
-      await searchForComponent(component)
+      await waitFor(element(by.id('Storybook.ListView.SearchBar')))
+        .toBeVisible()
+        .withTimeout(BASIC)
+
+      // Use Storybook's search section
+      await press(element(by.id('Storybook.ListView.SearchBar')))
+      await clear(element(by.id('Storybook.ListView.SearchBar')))
+      await write(element(by.id('Storybook.ListView.SearchBar')), component)
+
+      // Hide keyboard
+      if (!ios) await device.pressBack()
 
       for (const scenario of scenarios) {
         console.log(`----checking ${scenario}`)
 
-        await selectScenario(scenario)
+        await press(element(by.text(scenario)).atIndex(0), true)
 
-        await goToCanvasView()
+        await press(element(by.id('BottomMenu.Canvas')))
 
         const componentID = `${component.toLowerCase()}--${scenario.toLowerCase()}`
         const componentName = `${component}${scenario}`
 
         await checkVisualRegression(componentID, componentName)
 
-        await goToSidebarView()
+        await press(element(by.id('BottomMenu.Sidebar')))
       }
     }
   })
