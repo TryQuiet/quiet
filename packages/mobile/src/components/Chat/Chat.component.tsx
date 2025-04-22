@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState, useEffect, useCallback } from 'react'
+import React, { FC, useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Keyboard,
   View,
@@ -20,7 +20,8 @@ import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
-import { ChannelMessagesComponentProps, ChatProps, DateGroup } from './Chat.types'
+import { ChatProps, ListItem } from './Chat.types'
+import { DisplayableMessage } from '@quiet/types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
@@ -57,7 +58,10 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string>('')
-  const [currentVisibleDate, setCurrentVisibleDate] = useState<string | null>(null)
+  const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
+
+  // For keeping the UI container from overlapping with critical system UI elements
+  const insets = useSafeAreaInsets()
 
   // Animation value for date marker fade effect
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -69,6 +73,40 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
   const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
   const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
+
+  /**
+   * Flatten the nested messages.groups structure into a single array that
+   * interleaves date dividers and message groups so we can feed it directly
+   * to FlatList.
+   */
+  const listData = useMemo((): ListItem[] => {
+    if (!messages.groups || Object.keys(messages.groups).length === 0) return []
+
+    const out: ListItem[] = []
+
+    Object.keys(messages.groups).forEach(dateKey => {
+      const dateDisplay = dateKey // Already formatted (e.g. "Mar 12, 2025")
+
+      // Push divider first (so it sticks visually above its messages)
+      out.push({ type: 'divider', id: `divider-${dateKey}`, displayDate: dateDisplay })
+
+      // Each element inside messages.groups[dateKey] is a merged-message array
+      messages.groups[dateKey].forEach(group => {
+        if (group.length === 0) return // Skip empty groups
+
+        const id = group[0].id // use first message id as stable key
+        out.push({
+          type: 'message',
+          id,
+          displayDate: dateDisplay,
+          messageGroup: group,
+        })
+      })
+    })
+
+    // Original impl was inverted; newest messages at bottom => reverse here
+    return out.reverse()
+  }, [messages.groups])
 
   // Stable scroll handler
   const handleScroll = useCallback(
@@ -87,9 +125,6 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       if (scrollTimer.current) {
         clearTimeout(scrollTimer.current)
       }
-
-      // We're now handling date changes through onViewableItemsChanged
-      // Just let scroll animation show/hide the marker
 
       // Set a timer to fade out the date marker after scrolling stops
       scrollTimer.current = setTimeout(() => {
@@ -125,53 +160,57 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [fadeAnim, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT])
 
   const messageInputRef = useRef<null | TextInput>(null)
-  const flatListRef = useRef<FlatList>(null)
+  const flatListRef = useRef<FlatList<ListItem>>(null)
 
-  // Visibility detection constants
-  const VISIBILITY_THRESHOLD = 0 // Any part of an item visible (0%) counts as "viewable"
-
-  // Use a simple viewability configuration - items are either visible or not
+  // We pass this to FlatList to determine which items it will return as viewable
+  // Use 0% threshold to detect as soon as any part becomes visible
   const viewabilityConfig = useRef({
-    // The minimum percent of an item that must be visible to count as "viewable"
-    // Using 0 means "any part visible at all" - most sensitive setting
-    itemVisiblePercentThreshold: VISIBILITY_THRESHOLD,
+    itemVisiblePercentThreshold: 0, // Item is visible when any part is showing
   }).current
 
-  // This callback fires when items enter or exit the viewport, to determine which date to show in the sticky MessagesDivider
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems, changed }: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
-      // If no items are visible, don't update
-      if (viewableItems.length === 0) return
+  // This callback fires when items enter or exit the viewport to determine the date to show
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      // Skip processing if no viewable items
+      if (!viewableItems || viewableItems.length === 0) return
 
-      // Get all dates currently visible on screen
-      // The ViewToken type has item as any, so we need to cast it to DateGroup
-      const visibleDateGroups = viewableItems.map(token => token.item as DateGroup)
+      // Filter only *messages*; dividers don't have timestamps
+      const visibleMessages = viewableItems.filter(v => {
+        const item = v.item as ListItem
+        return item?.type === 'message'
+      })
 
-      // Get the "oldest" date (which is actually the earliest chronologically)
-      // We can now sort by the actual timestamp rather than display string
-      const oldestDateGroup = findOldestDate(visibleDateGroups)
+      if (visibleMessages.length === 0) return
 
-      // Update if the oldest visible date has changed
-      if (oldestDateGroup && currentVisibleDate !== oldestDateGroup.displayDate) {
-        setCurrentVisibleDate(oldestDateGroup.displayDate)
+      // Find the oldest (earliest) timestamp among visible messages
+      // Initialize with MAX_SAFE_INTEGER so any real timestamp will be smaller
+      let oldestTimestamp = Number.MAX_SAFE_INTEGER
+
+      // Examine each visible message to find the earliest timestamp
+      visibleMessages.forEach(token => {
+        // Extract message group from the list item
+        const messageItem = token.item as ListItem & { messageGroup?: DisplayableMessage[] }
+
+        // Ensure it's a valid message with data
+        if (messageItem.type === 'message' && messageItem.messageGroup && messageItem.messageGroup.length > 0) {
+          // Get the timestamp from the first message in the group
+          // (Each message group contains messages from the same timestamp)
+          const messageTimestamp = messageItem.messageGroup[0].createdAt
+
+          // If we found an earlier timestamp, update our tracking variable
+          if (messageTimestamp && messageTimestamp < oldestTimestamp) {
+            oldestTimestamp = messageTimestamp
+          }
+        }
+      })
+
+      // Only update if we found a valid timestamp and it's different from current
+      if (oldestTimestamp !== Number.MAX_SAFE_INTEGER && currentVisibleTimestamp !== oldestTimestamp) {
+        setCurrentVisibleTimestamp(oldestTimestamp)
       }
-    }
-  ).current
-
-  // Helper function to find the earliest date from an array of DateGroup objects
-  const findOldestDate = (dateGroups: DateGroup[]): DateGroup | null => {
-    if (dateGroups.length === 0) return null
-    if (dateGroups.length === 1) return dateGroups[0]
-
-    // Now we can directly sort by timestamp (lower timestamp = older date)
-    // This is much more reliable than sorting by display strings
-    return dateGroups.reduce((oldest, current) => {
-      // Lower timestamp = older date (earliest chronologically)
-      return current.timestamp < oldest.timestamp ? current : oldest
-    }, dateGroups[0])
-  }
-
-  const insets = useSafeAreaInsets()
+    },
+    [currentVisibleTimestamp]
+  )
 
   // Calculate if files are uploaded - defined at top level
   const checkFilesUploaded = useCallback(() => {
@@ -196,37 +235,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   // Store result of the check
   const shouldDisableSubmit = checkShouldDisableSubmit()
 
-  // Function to create date groups with timestamps from message groups
-  const createDateGroupsWithTimestamps = useCallback((): DateGroup[] => {
-    if (!messages.groups || Object.keys(messages.groups).length === 0) {
-      return []
-    }
-
-    // Get all date keys and find the earliest message in each group to use its timestamp
-    return (
-      Object.keys(messages.groups)
-        .map(dateKey => {
-          // Get the first message group for this date
-          const messageGroups = messages.groups[dateKey]
-          if (messageGroups.length === 0) {
-            // Fallback timestamp if no messages (shouldn't happen)
-            return { displayDate: dateKey, timestamp: 0 }
-          }
-
-          // Get the first message in the first group
-          const firstMessage = messageGroups[0][0]
-
-          // Return the date group with timestamp
-          return {
-            displayDate: dateKey,
-            timestamp: firstMessage.createdAt, // Using actual message timestamp
-          }
-        })
-        // Keep original order (which is in reverse chronological order - newest first)
-        // but maintain timestamp information for proper date marker selection
-        .reverse()
-    ) // Reverse to maintain the same order as before
-  }, [messages.groups])
+  // The date groups with timestamps are now handled directly in the buildFlatData function
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -246,32 +255,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
   }, [messageInput?.length, setKeyboardShow])
 
-  // Initialize the current visible date when messages load, but don't show it
-  useEffect(() => {
-    if (Object.keys(messages.groups).length > 0) {
-      // Get all date keys
-      const dateKeys = Object.keys(messages.groups)
-
-      // Create temporary date groups to find the oldest by timestamp
-      const tempGroups = dateKeys.map(dateKey => {
-        const firstMessage = messages.groups[dateKey][0][0]
-        return {
-          displayDate: dateKey,
-          timestamp: firstMessage.createdAt,
-        }
-      })
-
-      // Find oldest date group (earliest timestamp)
-      const oldestGroup = tempGroups.reduce(
-        (oldest, current) => (current.timestamp < oldest.timestamp ? current : oldest),
-        tempGroups[0]
-      )
-
-      // Set to oldest chronological date
-      setCurrentVisibleDate(oldestGroup.displayDate)
-      // Don't show the date marker initially - only show when scrolling
-    }
-  }, [messages.groups])
+  // No debouncing - update date immediately for responsive feedback
 
   // Clean up any timers when component unmounts
   useEffect(() => {
@@ -315,39 +299,43 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
   }
 
-  // Stable renderItem - no need to rotate with inverted FlatList
-  const renderDateGroup = useCallback(
-    ({ item }: { item: DateGroup }) => (
-      <ChannelMessagesComponent
-        messages={messages.groups[item.displayDate]}
-        pendingMessages={pendingMessages}
-        day={item.displayDate}
-        downloadStatuses={downloadStatuses}
-        downloadFile={downloadFile}
-        cancelDownload={cancelDownload}
-        openImagePreview={openImagePreview}
-        openUrl={openUrl}
-        duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
-        unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
-      />
-    ),
+  const renderItem = useCallback(
+    ({ item }: { item: ListItem }) => {
+      if (item.type === 'divider') {
+        return <MessagesDivider title={item.displayDate} />
+      }
+
+      return (
+        <Message
+          key={item.id}
+          data={item.messageGroup}
+          downloadStatus={downloadStatuses?.[item.id]}
+          downloadFile={downloadFile}
+          cancelDownload={cancelDownload}
+          openImagePreview={openImagePreview}
+          openUrl={openUrl}
+          pendingMessages={pendingMessages}
+          duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+          unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+        />
+      )
+    },
     [
-      messages.groups,
-      pendingMessages,
       downloadStatuses,
       downloadFile,
       cancelDownload,
       openImagePreview,
       openUrl,
+      pendingMessages,
       duplicatedUsernameHandleBack,
       unregisteredUsernameHandleBack,
     ]
   )
 
-  // Stable keyExtractor function
-  const keyExtractorFn = useCallback((item: DateGroup) => item.displayDate, [])
+  // A simple getter function to extract the unique ID from each list item
 
-  // Stable onEndReached handler
+  // Removed getItemLayout since it can cause jank when estimates don't match real heights
+
   const handleEndReached = useCallback(() => {
     loadMessagesAction(true)
   }, [loadMessagesAction])
@@ -366,25 +354,25 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         ) : (
           <>
             <View style={styles.messagesContainer}>
-              {currentVisibleDate && (
+              {currentVisibleTimestamp && (
                 <Animated.View style={[styles.dateMarker, { opacity: fadeAnim }]}>
-                  <MessagesDivider title={currentVisibleDate} isSticky />
+                  <MessagesDivider timestamp={currentVisibleTimestamp} isSticky />
                 </Animated.View>
               )}
               <FlatList
                 ref={flatListRef}
                 style={styles.list}
-                inverted={true} // Use built-in inverted prop instead of manual rotation
-                data={createDateGroupsWithTimestamps()} // Using enhanced date groups with timestamps
-                keyExtractor={keyExtractorFn}
-                renderItem={renderDateGroup}
+                inverted
+                data={listData}
+                keyExtractor={(item: ListItem) => item.id}
+                renderItem={renderItem}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.7}
                 viewabilityConfig={viewabilityConfig}
                 onViewableItemsChanged={onViewableItemsChanged}
                 showsVerticalScrollIndicator={false}
                 onScroll={handleScroll}
-                scrollEventThrottle={16} // Updates approx every 16ms (60fps) for smooth animation
+                scrollEventThrottle={16}
                 onMomentumScrollEnd={handleMomentumScrollEnd}
               />
             </View>
@@ -434,44 +422,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   )
 }
 
-const ChannelMessagesComponentInner: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
-  messages,
-  day,
-  pendingMessages,
-  downloadStatuses,
-  downloadFile,
-  cancelDownload,
-  openImagePreview,
-  openUrl,
-  duplicatedUsernameHandleBack,
-  unregisteredUsernameHandleBack,
-}) => {
-  return (
-    <View key={day}>
-      <MessagesDivider title={day} />
-      {messages.map(data => {
-        // Messages merged by sender (DisplayableMessage[])
-        const messageId = data[0].id
-        return (
-          <Message
-            key={messageId}
-            data={data}
-            downloadStatus={downloadStatuses?.[messageId]}
-            downloadFile={downloadFile}
-            cancelDownload={cancelDownload}
-            openImagePreview={openImagePreview}
-            openUrl={openUrl}
-            pendingMessages={pendingMessages}
-            duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
-            unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
-          />
-        )
-      })}
-    </View>
-  )
-}
-
-export const ChannelMessagesComponent = React.memo(ChannelMessagesComponentInner)
+// ChannelMessagesComponent has been removed - list is flat now
 
 // Create styles for components
 const styles = StyleSheet.create({
