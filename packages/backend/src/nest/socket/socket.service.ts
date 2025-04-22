@@ -141,7 +141,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       socket.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
-        this.emit(SocketActions.DOWNLOAD_FILE, payload.metadata)
+        this.emit(SocketActions.DOWNLOAD_FILE, payload)
       })
 
       socket.on(SocketActions.CANCEL_DOWNLOAD, async (payload: CancelDownloadPayload) => {
