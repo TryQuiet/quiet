@@ -158,6 +158,4 @@ describe('Storybook', () => {
       }
     }
   })
-
-  // Removed duplicate Sticky Date Markers tests - see dedicated test file: sticky-date-markers.test.js
 })
