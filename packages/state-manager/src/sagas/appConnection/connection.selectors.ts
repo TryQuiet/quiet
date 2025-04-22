@@ -1,5 +1,5 @@
-import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
+import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { peersStatsAdapter } from './connection.adapter'
 import { isCurrentCommunityInitialized } from '../network/network.selectors'
@@ -40,18 +40,24 @@ export const peerList = createSelector(
   identitySelectors.currentPeerAddress,
   peerStats,
   (userProfiles, localPeerAddress, stats) => {
-    if (!userProfiles) return []
-
-    const profiles = Object.values(userProfiles)
-    const arr = profiles
-      .map((user: UserProfile) => {
-        if (!user.userData) return null
-        if (!user.userData.onionAddress) return null
-        if (!user.userData.peerId) return null
-        return createLibp2pAddress(user.userData.onionAddress, user.userData.peerId)
-      })
-      .filter((address): address is string => address !== null && address !== undefined)
-    return filterAndSortPeers(arr, stats, localPeerAddress)
+    let arr: string[] = []
+    if (userProfiles) {
+      const profiles = Object.values(userProfiles)
+      arr = profiles
+        .map((user: UserProfile) => {
+          if (!user.userData) return null
+          if (!user.userData.onionAddress) return null
+          if (!user.userData.peerId) return null
+          return createLibp2pAddress(user.userData.onionAddress, user.userData.peerId)
+        })
+        .filter((address): address is string => address !== null && address !== undefined)
+    }
+    logger.info('peerAddresses', { arr })
+    logger.info('peerStats', { stats })
+    logger.info('localPeerAddress', { localPeerAddress })
+    const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress)
+    logger.info('filteredAndSortedPeers', { filteredAndSortedPeers })
+    return filteredAndSortedPeers
   }
 )
 
@@ -65,11 +71,26 @@ export const invitationUrl = createSelector(
   peerList,
   longLivedInvite,
   (communityPsk, currentCommunity, sortedPeerList, longLivedInvite) => {
-    if (!sortedPeerList || sortedPeerList?.length === 0) return ''
-    if (!communityPsk) return ''
-    if (!longLivedInvite) return ''
-    if (!currentCommunity) return ''
-    if (!currentCommunity.name) return ''
+    if (!sortedPeerList || sortedPeerList?.length === 0) {
+      logger.warn('invitationUrl: No sorted peer list available or it is empty')
+      return ''
+    }
+    if (!communityPsk) {
+      logger.warn('invitationUrl: Community PSK is not available')
+      return ''
+    }
+    if (!longLivedInvite) {
+      logger.warn('invitationUrl: Long-lived invite is not available')
+      return ''
+    }
+    if (!currentCommunity) {
+      logger.warn('invitationUrl: Current community is not available')
+      return ''
+    }
+    if (!currentCommunity.name) {
+      logger.warn('invitationUrl: Current community name is not available')
+      return ''
+    }
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
     const inviteData: InvitationData = {
