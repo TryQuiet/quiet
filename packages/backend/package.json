@@ -53,7 +53,10 @@
     "setupFiles": [
       "./jestSetup.ts"
     ],
-    "testEnvironment": "jest-environment-node"
+    "testEnvironment": "jest-environment-node",
+    "testMatch": [
+      "<rootDir>/src/**/?(*.)+(spec|test).[tj]s?(x)"
+    ]
   },
   "devDependencies": {
     "@jest/globals": "29.7.0",
