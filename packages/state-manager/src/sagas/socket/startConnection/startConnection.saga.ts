@@ -175,7 +175,7 @@ export function subscribe(socket: Socket) {
     })
 
     socket.on(SocketEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload)
+      logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
     return () => undefined
@@ -187,9 +187,8 @@ export function* handleActions(socket: Socket): Generator {
   try {
     const socketChannel = yield* call(subscribe, socket)
     yield takeEvery(socketChannel, function* (action) {
-      logger.info('Received action', action)
+      logger.info('Dispatching action', action.type)
       yield put(action)
-      logger.info('Action dispatched', action)
     })
   } finally {
     logger.info('handleActions stopping')

@@ -13,6 +13,7 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { type Socket, applyEmitParams } from '../../../types'
 import { createLogger } from '../../../utils/logger'
 import { usersActions } from '../users.slice'
+import { userProfileSelectors } from './userProfile.selectors'
 
 const logger = createLogger('saveUserProfileSaga')
 
@@ -24,7 +25,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
     return
   }
 
-  let base64EncodedPhoto: string | undefined
+  let base64EncodedPhoto: string | undefined = undefined
   if (action.payload.photo) {
     try {
       base64EncodedPhoto = yield* call(fileToBase64String, action.payload.photo)
@@ -34,16 +35,20 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
     }
   }
 
+  const existingUserProfile = yield* select(userProfileSelectors.myUserProfile)
+  if (!existingUserProfile) {
+    logger.error('No existing user profile found, cannot save profile')
+    return
+  }
   const userProfile: UserProfile = {
-    userId: identity.userId,
-    nickname: action.payload.nickname || identity.userId,
-    bio: action.payload.bio,
+    ...existingUserProfile,
+    nickname:
+      action.payload.nickname && action.payload.nickname.trim() !== ''
+        ? action.payload.nickname
+        : (existingUserProfile?.nickname ?? ''),
+    bio: action.payload.bio && action.payload.bio.trim() !== '' ? action.payload.bio : existingUserProfile?.bio,
+    photo: base64EncodedPhoto && base64EncodedPhoto.trim() !== '' ? base64EncodedPhoto : existingUserProfile?.photo,
   }
-  if (base64EncodedPhoto) {
-    userProfile.photo = base64EncodedPhoto
-  }
-
-  logger.info('Saving user profile', userProfile)
 
   const socketPayload: SetUserProfilePayload = {
     profile: userProfile,

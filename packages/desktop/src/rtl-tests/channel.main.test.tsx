@@ -6,9 +6,9 @@ import { apply, take } from 'typed-redux-saga'
 import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { CommunityOwnership, socketEventData } from '@quiet/types'
+import { CommunityOwnership, socketEventData, UserProfile } from '@quiet/types'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
 import { AnyAction } from 'redux'
@@ -21,6 +21,7 @@ import {
   AUTODOWNLOAD_SIZE_LIMIT,
   network,
   generateMessageFactoryContentWithId,
+  getBaseTypesFactory,
 } from '@quiet/state-manager'
 import {
   SocketActions,
@@ -34,57 +35,55 @@ import {
   UploadFilePayload,
   FileContent,
   DownloadState,
-  SendMessagePayload,
   MessageVerificationStatus,
   DownloadStatus,
-  type MessagesLoadedPayload,
-  ResponseLaunchCommunityPayload,
+  MessagesLoadedPayload,
   Community,
 } from '@quiet/types'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
+import { createLogger } from './logger'
+import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
-const notification = jest.fn().mockImplementation(() => {
-  return jest.fn()
-})
-// @ts-expect-error
-window.Notification = notification
-
-jest.mock('electron', () => {
-  return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
-    remote: {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [
-            {
-              show: jest.fn(),
-              isFocused: jest.fn(),
-            },
-          ]
-        },
-      },
-    },
-  }
-})
-
-jest.mock('../shared/sounds', () => ({
-  ...jest.requireActual('../shared/sounds'),
-  soundTypeToAudio: {
-    pow: {
-      play: jest.fn(),
-    },
-  },
-}))
-
 describe('Channel', () => {
   let socket: MockedSocket
+  let notification: any
 
   beforeEach(() => {
+    notification = jest.fn().mockImplementation(() => {
+      return jest.fn()
+    })
+    window.Notification = notification
+    jest.mock('electron', () => {
+      return {
+        ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+        remote: {
+          BrowserWindow: {
+            getAllWindows: () => {
+              return [
+                {
+                  show: jest.fn(),
+                  isFocused: jest.fn(),
+                },
+              ]
+            },
+          },
+        },
+      }
+    })
+
+    jest.mock('../shared/sounds', () => ({
+      ...jest.requireActual('../shared/sounds'),
+      soundTypeToAudio: {
+        pow: {
+          play: jest.fn(),
+        },
+      },
+    }))
+
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -92,6 +91,9 @@ describe('Channel', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
+  })
+  afterEach(() => {
+    cleanup()
   })
 
   it("causes no error if there's no data yet", async () => {
@@ -118,13 +120,13 @@ describe('Channel', () => {
 
     const factory = await getReduxStoreFactory(store)
 
-    // const community = await factory.create<
-    // ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    // >('Community')
-
-    const alice = await factory.create('Identity', {
-      nickname: 'alice',
+    const nickname = 'alice'
+    const alice = await factory.create('Identity', { userId: 'alice' })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+      nickname: nickname,
     })
+    const alicesUser = await factory.create('User', { userId: alice.userId })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -138,7 +140,7 @@ describe('Channel', () => {
     const channelName = screen.getByText('#general')
     expect(channelName).toBeVisible()
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${nickname}`)
     expect(messageInput).toBeVisible()
   })
 
@@ -378,7 +380,7 @@ describe('Channel', () => {
     )
 
     // Verify loading spinner is not visible
-    const spinner = await screen.queryByText(fetchingChannelMessagesText)
+    const spinner = screen.queryByText(fetchingChannelMessagesText)
     expect(spinner).toBeNull()
   })
 
@@ -462,6 +464,7 @@ describe('Channel', () => {
     )
 
     const factory = await getReduxStoreFactory(store)
+    const baseTypesFactory = await getBaseTypesFactory()
 
     const community = await factory.create('Community')
 
@@ -471,7 +474,6 @@ describe('Channel', () => {
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -487,18 +489,12 @@ describe('Channel', () => {
     const messages: ChannelMessage[] = []
 
     for (const msg of messagesText) {
-      const message = (
-        await factory.build('TestMessage', {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: msg,
-            createdAt: messagesText.indexOf(msg) + 1,
-            channelId: generalId,
-          },
-        })
-      ).payload.message
+      const message = await baseTypesFactory.build('ChannelMessage', {
+        createdAt: messagesText.indexOf(msg) + 1,
+        channelId: generalId,
+        userId: alice.userId,
+        message: msg,
+      })
       messages.push(message)
     }
 
@@ -555,6 +551,10 @@ describe('Channel', () => {
       communityId: community.id,
       nickname: 'alice',
     })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+      nickname: 'alice',
+    })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -578,10 +578,10 @@ describe('Channel', () => {
       }
     })
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alicesUserProfile.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
-    await userEvent.type(messageInput, 'hhello')
+    await userEvent.type(messageInput, 'hello')
 
     const isTextVisible = screen.getByText('hello')
 
@@ -680,6 +680,9 @@ describe('Channel', () => {
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
@@ -704,12 +707,12 @@ describe('Channel', () => {
     const infoMessage = screen.getByText('Initializing community. This may take a few minutes...')
     expect(infoMessage).toBeVisible()
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alicesUserProfile.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
     await userEvent.type(messageInput, 'hhello')
 
-    expect(await screen.queryByText('hello')).toBeNull()
+    expect(screen.queryByText('hello')).toBeNull()
 
     await userEvent.type(messageInput, '{enter}')
 
@@ -726,6 +729,9 @@ describe('Channel', () => {
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
@@ -735,19 +741,21 @@ describe('Channel', () => {
         ownership: CommunityOwnership.Owner,
       })
     )
+    initialState.dispatch(network.actions.addInitializedCommunity(community.id))
 
     let cid = ''
 
     const uploadingDelay = 100
 
     // TODO: use the real socket mock
-    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions | SocketEvents, ...socketEventData<[any]>]) => {
       const action = input[0]
+      const logger = createLogger('immediatelyShowUploadedImage')
+      logger.info('Mock emit action:', action)
       if (action === SocketActions.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-      }
-      if (action === SocketActions.UPLOAD_FILE) {
+      } else if (action === SocketActions.UPLOAD_FILE) {
         const data = input[1] as UploadFilePayload
         const payload = data
 
@@ -770,24 +778,21 @@ describe('Channel', () => {
           cid: cid,
           downloadState: DownloadState.Hosted,
         })
-      }
-      if (action === SocketActions.SEND_MESSAGE) {
-        const data = input[1] as SendMessagePayload
+      } else if (action === SocketActions.SEND_MESSAGE) {
+        const data = input[1] as ChannelMessage
         const payload = data
         return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
-          messages: [payload.message],
+          messages: [payload],
+        })
+      } else if (action === SocketEvents.MESSAGES_STORED) {
+        const data = input[1] as MessagesLoadedPayload
+        const media = data.messages[0].media
+        if (!media) return
+        return socket.socketClient.emit<UploadFilePayload>(SocketActions.UPLOAD_FILE, {
+          file: media,
+          peerId: alice.networkInfo.peerId.id,
         })
       }
-      // TOOD: why is there no overlap. What did I replace it with?
-      // if (action === SocketEvents.MESSAGES_STORED) {
-      //   const data = input[1] as MessagesLoadedPayload
-      //   const media = data.messages[0].media
-      //   if (!media) return
-      //   return socket.socketClient.emit<UploadFilePayload>(SocketActions.UPLOAD_FILE, {
-      //     file: media,
-      //     peerId: alice.networkInfo.peerId.id,
-      //   })
-      // }
     }
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -845,8 +850,8 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Files/uploadFile",
         "Messages/sendMessage",
-        "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
+        "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/addMessages",
         "PublicChannels/cacheMessages",
@@ -869,16 +874,19 @@ describe('Channel', () => {
   })
 
   it('downloads and displays missing images after app restart', async () => {
+    const logger = createLogger('downloadAndDisplayMissingImages')
+    logger.info('Starting test')
     const initialState = (await prepareStore()).store
 
     const factory = await getReduxStoreFactory(initialState)
 
-    const community: Community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community', { rootCa: 'rootCa' })
+    const community: Community = await factory.create('Community')
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
@@ -889,7 +897,7 @@ describe('Channel', () => {
       })
     )
 
-    const message = Math.random().toString(36).substr(2.9)
+    const messageId = Math.random().toString(36).substr(2.9)
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
@@ -903,16 +911,15 @@ describe('Channel', () => {
       width: 100,
       height: 200,
       message: {
-        id: message,
-        // @ts-expect-error
-        channelId: generalId,
+        id: messageId,
+        channelId: generalId!,
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
       message: {
-        id: message,
+        id: messageId,
         type: MessageType.Image,
         message: '',
         createdAt: DateTime.utc().valueOf(),
@@ -922,18 +929,21 @@ describe('Channel', () => {
       },
     })
 
-    initialState.dispatch(
-      files.actions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: `uploading_${missingFile.cid}`,
-        downloadState: DownloadState.Queued,
-        downloadProgress: {
-          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
-          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
-          transferSpeed: 1024,
-        },
-      })
-    )
+    expect(publicChannels.selectors.currentChannelMessages(initialState.getState()).length).toBe(1)
+    await act(async () => {
+      initialState.dispatch(
+        files.actions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: `uploading_${missingFile.cid}`,
+          downloadState: DownloadState.Queued,
+          downloadProgress: {
+            downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
+            size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+            transferSpeed: 1024,
+          },
+        })
+      )
+    })
 
     const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -1011,15 +1021,20 @@ describe('Channel', () => {
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        ownership: CommunityOwnership.Owner,
-      })
-    )
+    await act(async () => {
+      initialState.dispatch(
+        communities.actions.updateCommunityData({
+          id: community.id,
+          ownership: CommunityOwnership.Owner,
+        })
+      )
+    })
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -1070,9 +1085,9 @@ describe('Channel', () => {
       </>,
       store
     )
-
-    store.dispatch(files.actions.uploadFile(fileContent))
-
+    await act(async () => {
+      store.dispatch(files.actions.uploadFile(fileContent))
+    })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
 
@@ -1083,8 +1098,8 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Files/uploadFile",
         "Messages/sendMessage",
-        "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
+        "Files/updateDownloadStatus",
         "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
@@ -1110,15 +1125,19 @@ describe('Channel', () => {
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
-
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        ownership: CommunityOwnership.Owner,
-      })
-    )
+    await act(async () => {
+      initialState.dispatch(
+        communities.actions.updateCommunityData({
+          id: community.id,
+          ownership: CommunityOwnership.Owner,
+        })
+      )
+    })
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1137,19 +1156,17 @@ describe('Channel', () => {
       },
     }
 
-    const message = (
-      await factory.build('TestMessage', {
-        message: {
-          id: messageId,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          userId: alice.userId,
-          media: media,
-        },
-      })
-    ).payload.message
+    const message = await factory.build('TestMessage', {
+      message: {
+        id: messageId,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalId,
+        userId: alice.userId,
+        media: media,
+      },
+    })
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -1211,9 +1228,14 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
       ]
     `)
   })
@@ -1222,21 +1244,25 @@ describe('Channel', () => {
     const initialState = (await prepareStore()).store
 
     const factory = await getReduxStoreFactory(initialState)
+    const baseTypesFactory = await getBaseTypesFactory()
 
     const community = await factory.create('Community')
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
-
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        ownership: CommunityOwnership.Owner,
-      })
-    )
-
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+    })
+    await act(async () => {
+      initialState.dispatch(
+        communities.actions.updateCommunityData({
+          id: community.id,
+          ownership: CommunityOwnership.Owner,
+        })
+      )
+      initialState.dispatch(network.actions.addInitializedCommunity(community.id))
+    })
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
@@ -1254,19 +1280,14 @@ describe('Channel', () => {
       },
     }
 
-    const message = (
-      await factory.build('TestMessage', {
-        identity: alice,
-        message: {
-          id: messageId,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          media: media,
-        },
-      })
-    ).payload.message
+    const message = await baseTypesFactory.build('ChannelMessage', {
+      id: messageId,
+      type: MessageType.File,
+      message: '',
+      createdAt: DateTime.utc().valueOf(),
+      channelId: generalId,
+      media: media,
+    })
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -1308,7 +1329,6 @@ describe('Channel', () => {
         SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
-          communityId: community.id,
           isVerified: true,
         },
       ])
@@ -1325,10 +1345,10 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
@@ -1338,24 +1358,29 @@ describe('Channel', () => {
   })
 
   it('downloads file on demand', async () => {
+    const logger = createLogger('downloadsFileOnDemand')
     const initialState = (await prepareStore()).store
 
     const factory = await getReduxStoreFactory(initialState)
+    const baseTypesFactory = await getBaseTypesFactory()
 
     const community = await factory.create('Community')
 
     const alice = await factory.create('Identity', {
       communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
-
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        ownership: CommunityOwnership.Owner,
-      })
-    )
-
+    await act(async () => {
+      initialState.dispatch(
+        communities.actions.updateCommunityData({
+          id: community.id,
+          ownership: CommunityOwnership.Owner,
+        })
+      )
+    })
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
@@ -1373,23 +1398,19 @@ describe('Channel', () => {
       },
     }
 
-    const message = (
-      await factory.build('TestMessage', {
-        identity: alice,
-        message: {
-          id: messageId,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          userId: alice.userId,
-          media: media,
-        },
-      })
-    ).payload.message
+    const message = await baseTypesFactory.build('ChannelMessage', {
+      id: messageId,
+      type: MessageType.File,
+      message: '',
+      createdAt: DateTime.utc().valueOf(),
+      channelId: generalId,
+      userId: alice.userId,
+      media: media,
+    })
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
+      logger.info('Mock emit action:', action)
       if (action === SocketActions.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
@@ -1427,15 +1448,14 @@ describe('Channel', () => {
       id: message.id,
       isVerified: true,
     }
-
-    store.dispatch(messages.actions.addMessageVerificationStatus(verificationStatus))
-
+    await act(async () => {
+      store.dispatch(messages.actions.addMessageVerificationStatus(verificationStatus))
+    })
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
-          communityId: community.id,
           isVerfied: true,
         },
       ])
@@ -1464,15 +1484,13 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "Messages/addMessageVerificationStatus",
-        "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
-        "PublicChannels/cacheMessages",
-        "Messages/setDisplayedMessagesNumber",
+        "Messages/addMessageVerificationStatus",
         "Files/downloadFile",
         "Files/updateDownloadStatus",
       ]

@@ -5,11 +5,12 @@ import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelContextMenu from '../renderer/components/ContextMenu/menus/ChannelContextMenu.container'
 import DeleteChannel from '../renderer/components/Channel/DeleteChannel/DeleteChannel'
 import { identity, getReduxStoreFactory, communities } from '@quiet/state-manager'
+import { CommunityOwnership } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -40,6 +41,7 @@ describe('Channel menu', () => {
       CA: null,
       rootCa: '',
       peerList: [],
+      ownership: CommunityOwnership.User,
     })
 
     await factory.create('Identity', {

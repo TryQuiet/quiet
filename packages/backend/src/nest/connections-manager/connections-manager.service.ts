@@ -51,6 +51,7 @@ import {
   ChannelMessage,
   DownloadFilePayload,
   DeleteChannelPayload,
+  SetUserProfilePayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -738,8 +739,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // User Profile
-    this.socketService.on(SocketActions.SET_USER_PROFILE, async (profile: UserProfile) => {
-      await this.storageService?.addUserProfile(profile)
+    this.socketService.on(SocketActions.SET_USER_PROFILE, async (payload: SetUserProfilePayload) => {
+      await this.storageService?.addUserProfile(payload.profile)
     })
   }
 

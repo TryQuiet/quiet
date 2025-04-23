@@ -26,7 +26,6 @@ export const usersSlice = createSlice({
       for (const userProfile of action.payload) {
         state.userProfiles[userProfile.userId] = userProfile
       }
-      logger.info('Setting user profiles', state.userProfiles)
       return state
     },
     // Sets a single user profile, overwriting the existing one
