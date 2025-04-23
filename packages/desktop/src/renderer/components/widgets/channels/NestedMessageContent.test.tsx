@@ -139,7 +139,7 @@ describe('NestedMessageContent', () => {
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="css-gd4qex"
+                class="css-2iuva0"
               >
                 <div
                   class="ImageAttachmentcontainer"
