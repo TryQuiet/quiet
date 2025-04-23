@@ -7,15 +7,6 @@ import * as jimpModule from 'jimp'
 // Access Jimp constructor without TypeScript interference
 const Jimp = (jimpModule as any).Jimp
 
-// Expose helper functions for color conversion
-export const intToRGBA = (int: number) => {
-  const r = (int >> 24) & 255
-  const g = (int >> 16) & 255
-  const b = (int >> 8) & 255
-  const a = int & 255
-  return { r, g, b, a }
-}
-
 // Define proper type for Jimp instances
 export type JimpImage = ReturnType<typeof Jimp.read> extends Promise<infer R> ? R : never
 
