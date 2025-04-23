@@ -184,17 +184,16 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     const newPath = path.join(uploadsDir, newFilename)
-    let filePath = originalFilePath
     try {
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true })
       }
       fs.copyFileSync(originalFilePath, newPath)
-      filePath = newPath
+      return newPath
     } catch (e) {
       this.logger.error(`Couldn't copy file ${originalFilePath} to ${newPath}.`, e)
+      return originalFilePath
     }
-    return filePath
   }
 
   public deleteFile(filePath: string) {
