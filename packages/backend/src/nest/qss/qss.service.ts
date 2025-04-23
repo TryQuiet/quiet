@@ -1,9 +1,5 @@
-import { Server, Connection as AuthConnection } from '../../../../../3rd-party/auth/packages/auth/dist'
-import {
-  ConnectionParams as AuthConnectionParams,
-  InviteeContext,
-  MemberContext,
-} from '../../../../../3rd-party/auth/packages/auth/dist/connection'
+import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
@@ -12,7 +8,6 @@ import { QSS_ENABLED, QSS_ENDPOINT } from '../const'
 import { QSSClient } from './qss.client'
 import * as uint8arrays from 'uint8arrays'
 import {
-  AuthSyncMessage,
   CommunityOperationStatus,
   CommunitySignInMessage,
   CreateCommunity,
@@ -20,30 +15,26 @@ import {
   CreateCommunityStatus,
   GeneratePublicKeysMessage,
   GeneratePublicKeysResponse,
-  QSSEvents,
   WebsocketEvents,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
-import { SigChainService } from '../auth/sigchain.service'
-import { createWinstonQuietLogger } from '@quiet/node-common'
 import EventEmitter from 'node:events'
 import { sleep } from '../common/sleep'
-import { RoleName } from '../auth/services/roles/roles'
 import { JoinStatus } from '../libp2p/libp2p.auth'
+import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleInit {
   private _connecting = false
-  private _joinStatus: JoinStatus = JoinStatus.NOT_STARTED
+
   private readonly logger = createLogger(`qss:service`)
-  private readonly createLfaLogger = createWinstonQuietLogger('localfirst:qss')
 
   constructor(
     @Inject(QSS_ENABLED) private qssEnabled: boolean,
     @Inject(QSS_ENDPOINT) public qssEndpoint: string,
     private readonly qssClient: QSSClient,
-    private readonly sigChainService: SigChainService
+    private readonly qssAuthConnManager: QSSAuthConnectionManager
   ) {
     super({ captureRejections: true })
   }
@@ -61,8 +52,9 @@ export class QSSService extends EventEmitter implements OnModuleInit {
     return this.qssEnabled && this.qssEndpoint !== '' && this.qssEndpoint != null
   }
 
-  public get joinStatus(): JoinStatus {
-    return this._joinStatus
+  public joinStatus(teamId: string): JoinStatus {
+    const authConnection = this.qssAuthConnManager.getConnection(teamId)
+    return authConnection?.joinStatus ?? JoinStatus.NOT_STARTED
   }
 
   public async connect(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<boolean> {
@@ -183,7 +175,7 @@ export class QSSService extends EventEmitter implements OnModuleInit {
       return false
     }
 
-    this.startAuthConnection(sigChain.team.id, sigChain)
+    await this.qssAuthConnManager.startNewConnection(sigChain.team.id)
     return true
   }
 
@@ -226,120 +218,12 @@ export class QSSService extends EventEmitter implements OnModuleInit {
     }
 
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    if (sigChain.team != null && sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      this._joinStatus = JoinStatus.JOINED
-    }
-    await this.startAuthConnection(teamId, sigChain)
+    this.qssAuthConnManager.startNewConnection(teamId)
   }
 
-  private async startAuthConnection(teamId: string, sigChain1: SigChain): Promise<void> {
-    if (!this.enabled) {
-      this.logger.warn(`Can't initiate auth connection with QSS because QSS is not enabled for this community`)
-      return
-    }
-
-    if (!this.connected) {
-      this.logger.trace(`Can't initiate auth connection with QSS because the client hasn't connected`)
-      return
-    }
-
-    this.logger.info(`Starting auth connection with QSS for syncing`)
-
-    const sigChain = this.sigChainService.getActiveChain()
-    // Create an auth connection using an ephemeral sendMessage callback.
-    const authConnection = new AuthConnection({
-      context: sigChain.context,
-      sendMessage: (message: Uint8Array) => {
-        const socketMessage: AuthSyncMessage = {
-          ts: DateTime.utc().toMillis(),
-          payload: {
-            status: CommunityOperationStatus.SUCCESS,
-            payload: {
-              userId: (sigChain.context as MemberContext).user.userId,
-              teamId,
-              message: uint8arrays.toString(message, 'base64'),
-            },
-          },
-        }
-        this.qssClient.sendMessage(WebsocketEvents.AUTH_SYNC, socketMessage, false)
-      },
-      createLogger: this.createLfaLogger,
-    } as AuthConnectionParams)
-
-    this.qssClient.clientSocket!.on(WebsocketEvents.AUTH_SYNC, async (encryptedMessage: string): Promise<void> => {
-      try {
-        const decryptedMessage = this.qssClient.decryptPayload(encryptedMessage) as AuthSyncMessage
-        if (decryptedMessage.payload.payload?.message == null) {
-          throw new Error(`Missing message`)
-        }
-        authConnection.deliver(uint8arrays.fromString(decryptedMessage.payload.payload.message, 'base64'))
-      } catch (e) {
-        this.logger.error(`Error handling auth sync message`, e)
-        authConnection.emit('localError', {
-          message: 'Error handling auth sync message',
-          type: 'ClientAuthSyncError',
-        })
-      }
-    })
-
-    // Set up auth connection event handlers.
-    authConnection.on('connected', () => {
-      if (this.sigChainService.activeChainTeamName != null) {
-        this.logger.debug(`Sending sync message because our chain is initialized`)
-        const sigChain = this.sigChainService.getActiveChain()
-        const team = sigChain.team
-        const user = sigChain.localUserContext.user
-        authConnection.emit('sync', { team, user })
-      }
-    })
-
-    authConnection.on('disconnected', event => {
-      this.logger.info(`LFA Disconnected!`, event)
-    })
-
-    authConnection.on('joined', async payload => {
-      const { team, user } = payload
-      const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(
-        `${sigChain.localUserContext.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`
-      )
-      if (sigChain.team == null) {
-        this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
-        )
-        sigChain.context = {
-          device: (sigChain.context as InviteeContext).device,
-          team,
-          user,
-        } as MemberContext
-        sigChain.team = team
-        this._joinStatus = JoinStatus.PENDING_MEMBER
-      } else {
-        this._joinStatus = JoinStatus.JOINED
-      }
-      await this.sigChainService.saveChain(team.teamName)
-      this.emit(QSSEvents.QSS_AUTH_JOINED) // tell other services that we've joined via QSS
-    })
-
-    authConnection.on('change', payload => {
-      this.logger.info(`Auth state change`, payload)
-    })
-
-    authConnection.on('updated', async head => {
-      this.logger.info('Received sync message, team graph updated', head)
-      const sigChain = this.sigChainService.getActiveChain()
-      await this.sigChainService.saveChain(sigChain.team!.teamName)
-    })
-
-    // Handle errors from local or remote sources.
-    authConnection.on('localError', error => {
-      this.logger.error(`Local LFA error`, error)
-    })
-    authConnection.on('remoteError', error => {
-      this.logger.error(`Remote LFA error`, error)
-    })
-
-    this.logger.info(`Auth connection established with QSS`)
-    authConnection.start()
+  public close(): void {
+    this.logger.info(`Closing QSS service`)
+    this.qssAuthConnManager.close()
+    this.qssClient.close()
   }
 }

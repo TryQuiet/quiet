@@ -73,7 +73,6 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { Base58, InviteResult } from '@localfirst/auth'
 import { QSSService } from '../qss/qss.service'
-import { QSSEvents } from '../qss/qss.types'
 import { RoleName } from '../auth/services/roles/roles'
 import { SigChain } from '../auth/sigchain'
 
@@ -332,6 +331,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.localDbService) {
       this.logger.info('Closing local DB')
       await this.localDbService.close()
+    }
+    if (this.qssService) {
+      this.logger.info('Closing QSS service')
+      this.qssService.close()
     }
   }
 
