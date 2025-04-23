@@ -27,7 +27,7 @@ describe('ImageAttachmentPlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-bxyyfp"
+            class="css-1d93fl3"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
@@ -107,7 +107,7 @@ describe('ImageAttachmentPlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-bxyyfp"
+            class="css-1d93fl3"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
