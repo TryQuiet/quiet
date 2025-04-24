@@ -14,7 +14,6 @@ export function* deleteChannelSaga(
 ): Generator {
   const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
-  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
 
   if (generalChannel === undefined) return

@@ -37,13 +37,16 @@ export function* channelDeletionResponseSaga(
   }
 
   const deletedGeneral = channelId === generalChannel.id
+  if (!deletedGeneral && channelId === currentChannelId) {
+    yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+  }
+  yield* put(publicChannelsActions.disableChannel({ channelId }))
+
   if (deletedGeneral) {
     yield* put(publicChannelsActions.startGeneralRecreation())
   } else if (channelId === currentChannelId) {
     yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
   }
-
-  yield* put(publicChannelsActions.disableChannel({ channelId }))
 
   yield* put(filesActions.deleteFilesFromChannel({ channelId }))
 
@@ -55,20 +58,25 @@ export function* channelDeletionResponseSaga(
 
   yield* put(publicChannelsActions.completeChannelDeletion({}))
 
-  if (deletedGeneral) {
-    yield* put(publicChannelsActions.createGeneralChannel())
-  } else {
-    yield* put(messagesActions.sendDeletionMessage({ channelId }))
-  }
+  const isOwner = yield* select(communitiesSelectors.isOwner)
 
-  const isUserOnGeneral = currentChannelId === generalChannel.id
-  if (deletedGeneral && isUserOnGeneral) {
-    let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
-    while (!newGeneralChannel) {
-      logger.warn('General channel has not been replicated yet')
-      yield* delay(1000)
-      newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
+  if (isOwner) {
+    if (deletedGeneral) {
+      yield* put(publicChannelsActions.createGeneralChannel())
+    } else {
+      yield* put(messagesActions.sendDeletionMessage({ channelId }))
     }
-    yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))
+  } else {
+    const isUserOnGeneral = currentChannelId === generalChannel.id
+
+    if (deletedGeneral && isUserOnGeneral) {
+      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
+      while (!newGeneralChannel) {
+        logger.warn('General channel has not been replicated yet')
+        yield* delay(1000)
+        newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
+      }
+      yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))
+    }
   }
 }

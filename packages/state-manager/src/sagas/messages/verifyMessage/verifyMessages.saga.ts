@@ -3,8 +3,8 @@ import { select, call, put } from 'typed-redux-saga'
 
 import { messagesActions } from '../messages.slice'
 import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@quiet/types'
-import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { deleteChannelMessageRegex, verifyUserInfoMessage } from '@quiet/common'
+import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
@@ -33,6 +33,8 @@ export function* verifyMessagesSaga(
       } else {
         // Handle channel deletion info messages sent to #general
         if (channel.name === 'general' && deleteChannelMessageRegex.test(message.message)) {
+          logger.debug('Trusting deletion message until we have a better solution')
+        } else if (generalChannelDeletionMessageRegex.test(message.message)) {
           logger.debug('Trusting deletion message until we have a better solution')
         } else {
           const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
