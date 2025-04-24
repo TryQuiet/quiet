@@ -28,6 +28,22 @@ export const usersSlice = createSlice({
       }
       return state
     },
+    updateUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
+      if (!state.userProfiles) {
+        state.userProfiles = {}
+      }
+      for (const userProfile of action.payload) {
+        if (state.userProfiles[userProfile.userId]) {
+          state.userProfiles[userProfile.userId] = {
+            ...state.userProfiles[userProfile.userId],
+            ...userProfile,
+          }
+        } else {
+          state.userProfiles[userProfile.userId] = userProfile
+        }
+      }
+      return state
+    },
     // Sets a single user profile, overwriting the existing one
     setUserProfile: (state, action: PayloadAction<UserProfile>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1

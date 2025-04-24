@@ -10,7 +10,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
-import { generateChannelId } from '@quiet/common'
+import { deleteChannelMessage, generateChannelId } from '@quiet/common'
 import {
   type Community,
   type Identity,
@@ -66,7 +66,7 @@ describe('sendDeletionMessage', () => {
         },
       })
     ).channel
-    message = `@${ownerProfile.nickname} deleted #${photoChannel.name}`
+    message = deleteChannelMessage(photoChannel.name)
     messagePayload = {
       type: MessageType.Info,
       message,

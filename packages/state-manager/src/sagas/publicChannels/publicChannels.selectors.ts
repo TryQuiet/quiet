@@ -7,7 +7,6 @@ import {
   publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers } from '../users/users.selectors'
 import { userProfiles } from '../users/userProfile/userProfile.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'

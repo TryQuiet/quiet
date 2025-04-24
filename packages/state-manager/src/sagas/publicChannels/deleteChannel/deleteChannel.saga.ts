@@ -2,7 +2,6 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { apply, put, select } from 'typed-redux-saga'
 import { type Socket, applyEmitParams } from '../../../types'
-import { filesActions } from '../../files/files.slice'
 import { DeleteChannelResponse, SocketActions, SocketActionsMap } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { createLogger } from '../../../utils/logger'
@@ -21,8 +20,6 @@ export function* deleteChannelSaga(
   if (generalChannel === undefined) return
   if (payloadChannel?.disabled) return
 
-  const isGeneral = channelId === generalChannel.id
-
   logger.info(`Deleting channel ${channelId}`)
 
   const response: DeleteChannelResponse = yield* apply(
@@ -37,20 +34,7 @@ export function* deleteChannelSaga(
 
   if (response == null) {
     logger.error('Failed to delete channel')
-  }
-
-  if (response && !response.deleted) {
-    // TODO: handle case when user does not have permission to delete channel
-    logger.info('Failed to delete channel')
-  } else {
-    yield* put(filesActions.deleteFilesFromChannel({ channelId }))
-
-    if (!isGeneral) {
-      if (currentChannelId === channelId) {
-        yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
-      }
-      yield* put(publicChannelsActions.disableChannel({ channelId }))
-    }
+    return
   }
 
   yield* put(publicChannelsActions.channelDeletionResponse(response))

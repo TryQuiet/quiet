@@ -61,7 +61,7 @@ export const generateMessageFactoryContentWithId = (
     message: (Math.random() * 10 ** 18).toString(36),
     createdAt: DateTime.utc().valueOf(),
     channelId,
-    userId: (Math.random() * 10 ** 18).toString(36),
+    userId: userId || (Math.random() * 10 ** 18).toString(36),
     media: media || undefined,
   }
 }
@@ -243,17 +243,20 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+  factory.define(
     'PublicChannel',
     publicChannels.actions.addChannel,
     {
-      channel: {
-        name: 'publicChannel',
-        description: 'Description',
-        timestamp: DateTime.utc().toSeconds(),
-        owner: factory.assoc('Identity', 'nickname'),
-        id: generateChannelId(factory.sequence('PublicChannel.name', (n: number) => `publicChannel${n}`).toString()),
-      },
+      channel: factory.sequence('PublicChannel.channel', (n: number) => {
+        const name = `public-channel-${n}`
+        return {
+          name,
+          description: 'Description',
+          timestamp: DateTime.utc().toSeconds(),
+          owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
+          id: generateChannelId(name),
+        }
+      }),
     },
     {
       afterCreate: async (payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']) => {

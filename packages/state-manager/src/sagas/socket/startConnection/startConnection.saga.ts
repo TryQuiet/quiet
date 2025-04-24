@@ -82,6 +82,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.setUsers>
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
+    | ReturnType<typeof usersActions.updateUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
     // UPDATE FOR APP
@@ -176,7 +177,7 @@ export function subscribe(socket: Socket) {
 
     socket.on(SocketEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
-      emit(usersActions.setUserProfiles(payload.profiles))
+      emit(usersActions.updateUserProfiles(payload.profiles))
     })
     return () => undefined
   })

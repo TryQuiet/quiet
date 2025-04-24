@@ -1,10 +1,10 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, call, put, delay } from 'typed-redux-saga'
+import { select, call, put } from 'typed-redux-saga'
+
 import { messagesActions } from '../messages.slice'
 import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-
-import { verifyUserInfoMessage } from '@quiet/common'
+import { deleteChannelMessageRegex, verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
@@ -31,12 +31,17 @@ export function* verifyMessagesSaga(
         logger.warn(`No author for ID found in redux`, message.userId, message.id)
         isVerified = false
       } else {
-        const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
-        if (message.message !== expectedMessage) {
-          logger.warn(`${author.nickname} tried to send a malicious info message`)
-          logger.info('Expected message:', expectedMessage)
-          logger.info('Received message:', message.message)
-          isVerified = false
+        // Handle channel deletion info messages sent to #general
+        if (channel.name === 'general' && deleteChannelMessageRegex.test(message.message)) {
+          logger.debug('Trusting deletion message until we have a better solution')
+        } else {
+          const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
+          if (message.message !== expectedMessage) {
+            logger.warn(`${author.nickname} tried to send a malicious info message`)
+            logger.info('Expected message:', expectedMessage)
+            logger.info('Received message:', message.message)
+            isVerified = false
+          }
         }
       }
     }
