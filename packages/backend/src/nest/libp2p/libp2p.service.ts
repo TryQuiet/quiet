@@ -67,11 +67,9 @@ export class Libp2pService extends EventEmitter {
   public connectedPeers: Map<string, Libp2pConnectedPeer>
   public dialedPeers: Set<string>
   public libp2pDatastore: Libp2pDatastore | null
-  private redialTimeout: NodeJS.Timeout
   public localAddress: string
   private _connectedPeersInterval: NodeJS.Timeout
   private authService: Libp2pAuth | undefined
-  private dialQueue: string[]
 
   private logger = createLogger(Libp2pService.name)
 
@@ -170,35 +168,24 @@ export class Libp2pService extends EventEmitter {
     }
   }
 
-  /**
-   * Sets up a background process that will dial peers every 20 seconds
-   */
-  private dialPeersInBackground = () => {
-    this.addPeersToDialQueue().then(() => {
-      this.logger.info('Dial queue updated')
-    })
-    this.dialedPeers.clear()
-    for (const addr of this.dialQueue) {
-      this.dialPeer(addr)
-      if (this.libp2pInstance?.getConnections().length === CONNECTION_LIMIT) {
-        this.logger.info('Dialed enough peers, stopping dialing')
-        break
-      }
+  public addPeersToDialQueue = async () => {
+    let sortedPeers: string[]
+    try {
+      sortedPeers = await this.localDbService.getSortedPeers(false)
+    } catch {
+      this.logger.info('No peers to dial')
+      return
     }
 
-    // TODO: Implement exponential backoff for peers that fail to connect
-    this.redialTimeout = setTimeout(this.dialPeersInBackground.bind(this), 20000)
-  }
+    for (const addr of sortedPeers) {
+      if (addr === this.localAddress) continue
+      if (this.redialQueue.hasTask(addr)) continue
 
-  // TODO: integrate with the redialQueue
-  public addPeersToDialQueue = async () => {
-    try {
-      const sortedPeers = await this.localDbService.getSortedPeers(false)
-      this.dialQueue = sortedPeers
-    } catch (e) {
-      this.logger.info('No peers to dial')
-      this.dialQueue = []
-      return
+      await this.redialQueue.enqueue({
+        key: addr,
+        delayMs: 0, // first attempt immediately
+        task: async () => this.dialPeer(addr, { throwOnError: true, redialOnError: true }),
+      })
     }
   }
 
@@ -220,15 +207,12 @@ export class Libp2pService extends EventEmitter {
     return peerInfo
   }
 
-  public resume = async (peersToDial: string[]): Promise<void> => {
-    this.addPeersToDialQueue()
-    this.dialPeersInBackground()
+  public resume = async (peersToDial?: string[]): Promise<void> => {
+    await this.addPeersToDialQueue()
     // await this.libp2pInstance?.start()
-    if (peersToDial.length > 0) {
+    if (peersToDial && peersToDial.length > 0) {
       this.logger.info(`Redialing ${peersToDial.length} peers`)
       await this.redialPeers(peersToDial)
-    } else {
-      this.logger.info(`No peers to redial!`)
     }
 
     this.redialQueue.start()
@@ -581,12 +565,8 @@ export class Libp2pService extends EventEmitter {
     })
 
     await this.libp2pInstance.start()
-    try {
-      await this.addPeersToDialQueue()
-    } catch (e) {
-      this.logger.info('No peers to dial')
-    }
-    this.dialPeersInBackground()
+    await this.addPeersToDialQueue()
+    this.logger.info('Queued peers for initial dialing')
     this.logger.info(`Dialing peers and starting libp2p`)
 
     this._connectedPeersInterval = setInterval(() => {
@@ -618,7 +598,6 @@ export class Libp2pService extends EventEmitter {
 
   public async close(closeDatastore = true): Promise<void> {
     this.logger.info('Closing libp2p service')
-    clearTimeout(this.redialTimeout)
     clearInterval(this._connectedPeersInterval)
 
     await this.hangUpPeers()
@@ -630,7 +609,8 @@ export class Libp2pService extends EventEmitter {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
-    this.dialQueue = []
     this.redialQueue.stop(true)
   }
 }
+
+// ensure no references to removed properties/methods

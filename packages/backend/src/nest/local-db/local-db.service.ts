@@ -100,7 +100,7 @@ export class LocalDbService {
    * @param stats
    */
   public async setPeerStats(stats: Record<string, NetworkStats>) {
-    this.logger.info('Setting peer stats', stats)
+    this.logger.debug('Setting peer stats', stats)
     for (const addr of Object.keys(stats)) {
       if (!isMultiaddr(multiaddr(addr))) {
         this.logger.error('Invalid multiaddr', addr)
@@ -115,7 +115,7 @@ export class LocalDbService {
    * @param stats
    */
   public async updatePeerStats(stats: Record<string, NetworkStats>) {
-    this.logger.info('Updating peer stats', stats)
+    this.logger.debug('Updating peer stats', stats)
     for (const addr of Object.keys(stats)) {
       if (!isMultiaddr(multiaddr(addr))) {
         this.logger.error('Invalid multiaddr', addr)
@@ -127,9 +127,7 @@ export class LocalDbService {
       this.put(LocalDBKeys.PEERS, stats)
       return
     }
-    this.logger.info('Updating peer stats', existingStats, stats)
     const updatedStats = { ...existingStats, ...stats }
-    this.logger.info('Updated peer stats', updatedStats)
     this.put(LocalDBKeys.PEERS, updatedStats)
   }
 
@@ -176,13 +174,10 @@ export class LocalDbService {
           identity.networkInfo.hiddenService.onionAddress,
           identity.networkInfo.peerId.id
         )
-        this.logger.info('Local peer', localPeerAddress)
         return filterAndSortPeers(addresses, stats, localPeerAddress, includeLocalPeerAddress)
       }
     }
-    this.logger.info('Sorting peers', addresses, stats)
     const sortedPeers = filterAndSortPeers(addresses, stats, undefined, includeLocalPeerAddress)
-    this.logger.info('Sorted peers', sortedPeers)
     return sortedPeers
   }
 

@@ -24,7 +24,7 @@ import {
   TEST_IMAGE_FILE_NAME,
   UPLOAD_FILE_DIR,
 } from '../uploadFile.const'
-import { deleteChannelMessage } from '@quiet/common'
+import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
 const logger = createLogger('multipleClients')
 
@@ -403,10 +403,7 @@ describe('Multiple Clients', () => {
 
       it('Second user sees info about channel deletion in general channel', async () => {
         expect(await generalChannelUser3.isOpen(30_000)).toBeTruthy()
-        await generalChannelUser3.getMessageIdsByText(
-          `@${users.owner.username} deleted #${newChannelName}`,
-          users.owner.username
-        )
+        await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
       it('User sees that the channel is missing in the sidebar', async () => {
@@ -542,7 +539,7 @@ describe('Multiple Clients', () => {
 
         // add an extra long timeout to wait for connection
         await generalChannelUser1.getMessageIdsByText(
-          `@${users.owner.username} deleted all messages in #general`,
+          generalChannelDeletionMessage(users.owner.username),
           users.owner.username,
           120_000
         )

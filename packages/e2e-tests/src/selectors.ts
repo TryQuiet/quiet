@@ -1524,14 +1524,50 @@ export class Settings {
     await this.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
   }
 
-  async leaveCommunityButton() {
-    const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[text()="Leave community"]')),
-      15_000,
-      `Leave community button couldn't be found within timeout`,
-      500
-    )
-    await button.click()
+  /**
+   * Clicks the “Leave community” button, retrying until it becomes clickable or the timeout elapses.
+   *
+   * @param timeoutMs  how long to keep retrying (default = 30 s)
+   */
+  async leaveCommunityButton(timeoutMs = 30_000): Promise<void> {
+    const start = Date.now()
+    const retryInterval = 500 // ms
+    let lastError: Error | undefined
+
+    while (Date.now() - start < timeoutMs) {
+      try {
+        const button = await this.driver.wait(
+          until.elementLocated(By.xpath('//button[@data-testid="leave-community-button"]')),
+          10_000,
+          `Leave community button couldn't be found within timeout`,
+          500
+        )
+
+        // Ensure it is visible and enabled before clicking.
+        await this.driver.wait(until.elementIsVisible(button), 5_000)
+        await this.driver.wait(until.elementIsEnabled(button), 5_000)
+
+        await button.click()
+        return // Success – exit the loop
+      } catch (e: any) {
+        // Swallow common transient errors and retry.
+        if (
+          e.message?.includes('element not interactable') ||
+          e.message?.includes('ElementNotInteractableError') ||
+          e.message?.includes('stale element reference')
+        ) {
+          lastError = e as Error
+        } else {
+          // Any other error is unexpected – re‑throw.
+          throw e
+        }
+      }
+
+      await this.driver.sleep(retryInterval)
+    }
+
+    // Exhausted retries.
+    throw lastError ?? new Error('Leave community button was not interactable within the allotted time')
   }
 
   async switchTab(name: SettingsModalTabName) {
