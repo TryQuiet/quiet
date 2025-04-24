@@ -126,6 +126,36 @@ export class StartingLoadingPanel {
       500
     )
   }
+
+  async waitForLoadingToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
+    try {
+      const panel = await this.element
+      await this.driver.wait(
+        until.elementIsVisible(panel),
+        visibleTimeoutMs,
+        `Loading panel element couldn't be seen within timeout`,
+        500
+      )
+    } catch (e) {
+      logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+    }
+
+    try {
+      const panel = await this.element
+      await this.driver.wait(
+        until.elementIsNotVisible(panel),
+        completionTimeoutMs,
+        `Loading panel element didn't disappear within timeout`,
+        5_000
+      )
+    } catch (e) {
+      if (e.message.includes('stale element reference')) {
+        logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+      } else {
+        throw e
+      }
+    }
+  }
 }
 
 export class WarningModal {
@@ -180,11 +210,11 @@ export class JoiningLoadingPanel {
     )
   }
 
-  async waitForJoinToComplete() {
+  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
     const panel = await this.element
     await this.driver.wait(
       until.elementIsVisible(panel),
-      15_000,
+      visibleTimeoutMs,
       `Loading panel element couldn't be seen within timeout`,
       500
     )
@@ -192,7 +222,7 @@ export class JoiningLoadingPanel {
     try {
       await this.driver.wait(
         until.elementIsNotVisible(panel),
-        300_000,
+        completionTimeoutMs,
         `Loading panel element didn't disappear within timeout`,
         5_000
       )
@@ -518,10 +548,10 @@ export class JoinCommunityModal {
     )
   }
 
-  async isReady(): Promise<boolean> {
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
     await this.driver.wait(
       until.elementIsVisible(this.element),
-      10_000,
+      timeoutMs,
       `Join community modal wasn't ready within timeout`,
       500
     )
@@ -659,27 +689,34 @@ export class Channel {
     return true
   }
 
-  async waitForUserMessageByText(username: string, messageContent: string) {
+  async waitForUserMessageByText(
+    username: string,
+    messageContent: string,
+    timeoutMs: number = 30_000
+  ): Promise<WebElement> {
     logger.info(`Waiting for user "${username}" message "${messageContent}"`)
     return this.driver.wait(
       async () => {
         const startTime = DateTime.utc().toMillis()
-        const endTime = startTime + 20_000
+        const endTime = startTime + timeoutMs
         while (DateTime.utc().toMillis() < endTime) {
-          const messages = await this.getUserMessages(username)
-          for (const element of messages) {
-            const text = await element.getText()
-            logger.info(`Potential message with text: ${text}`)
-            if (text.includes(messageContent)) {
-              logger.info(`Found message with matching text ${text}`)
-              return element
+          try {
+            const messages = await this.getUserMessages(username)
+            for (const element of messages) {
+              const text = await element.getText()
+              if (text.includes(messageContent)) {
+                logger.info(`Found message with matching text ${text}`)
+                return element
+              }
             }
+          } catch (e) {
+            // swallow timeout error during polling
           }
           await sleep(500)
         }
         throw logAndReturnError(`No message found for user ${username} and message content ${messageContent}`)
       },
-      30_000,
+      timeoutMs,
       `Message in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -901,8 +938,8 @@ export class Channel {
     }
   }
 
-  async getMessageIdsByText(message: string, username: string): Promise<MessageIds> {
-    const messageElement = await this.waitForUserMessageByText(username, message)
+  async getMessageIdsByText(message: string, username: string, timeoutMs: number = 30_000): Promise<MessageIds> {
+    const messageElement = await this.waitForUserMessageByText(username, message, timeoutMs)
     if (!messageElement) {
       throw logAndReturnError(`No message element found for message ${message}`)
     }
@@ -984,10 +1021,10 @@ export class Channel {
     }
   }
 
-  async getUserMessages(username: string): Promise<WebElement[]> {
+  async getUserMessages(username: string, timeoutMs: number = 15_000): Promise<WebElement[]> {
     return await this.driver.wait(
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`)),
-      15_000,
+      timeoutMs,
       `Messages for user ${username} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -1079,11 +1116,15 @@ export class Channel {
     throw logAndReturnError(`Failed to find content for message with ID ${messageId}`)
   }
 
-  async waitForMessageContentByText(messageContent: string, messageElement: WebElement): Promise<WebElement> {
+  async waitForMessageContentByText(
+    messageContent: string,
+    messageElement: WebElement,
+    timeoutMs: number = 15_000
+  ): Promise<WebElement> {
     logger.info(`Waiting for content for message with text ${messageContent}`)
     const messageContentElements = await this.driver.wait(
       messageElement.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`)),
-      15_000,
+      timeoutMs,
       `Message content element for text ${messageContent} in channel ${this.name} couldn't be found within timeout`,
       500
     )
