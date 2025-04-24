@@ -3,6 +3,7 @@ import { put } from 'typed-redux-saga'
 import { identityActions } from '../identity.slice'
 import { Socket } from '../../../types'
 import { createLogger } from '../../../utils/logger'
+import { identitySelectors } from '../identity.selectors'
 
 const logger = createLogger('registerUsernameSaga')
 

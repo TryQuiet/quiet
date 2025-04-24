@@ -248,7 +248,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async resume() {
     this.logger.info('Resuming!')
     await this.openSocket()
-    this.libp2pService?.resume()
+    this.libp2pService?.resume(await this.localDbService.getSortedPeers())
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes

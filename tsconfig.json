@@ -3,15 +3,17 @@
     "compilerOptions": {
       "target": "ES2020",
       "baseUrl": ".",
+      "outDir": "./lib",
       "paths": {
         "@quiet/identity": ["packages/identity/src/index.ts"],
         "@quiet/state-manager": ["packages/state-manager/src/index.ts"],
         "@quiet/backend": ["packages/backend/src/index.ts"],
         "@quiet/logger": ["packages/logger/src/index.ts"],
         "@quiet/common": ["packages/common/src/index.ts"],
+        "@quiet/node-common": ["packages/node-common/src/index.ts"],
         "helia": ["packages/helia/src/index.ts"],
         "@quiet/types": ["packages/types/src/index.ts"],
-        // "integration-tests": ["packages/integration-tests/src/index.ts"],
+        "integration-tests": ["packages/integration-tests/src/index.ts"],
       },
       "module": "commonjs",
       "declaration": true,

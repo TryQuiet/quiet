@@ -60,7 +60,6 @@ export default () => {
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />
-                <LeaveCommunity />
                 <CreateUsername />
                 <CssBaseline />
                 <SettingsModal />

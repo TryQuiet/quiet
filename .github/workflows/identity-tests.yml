@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-13, windows-2019]
+        os: [ubuntu-22.04, macos-13, windows-2019]
 
     steps:
       - uses: dorny/paths-filter@v3
@@ -38,7 +38,7 @@ jobs:
         uses: ./.github/actions/setup-env
         if: steps.filter.outputs.identity == 'true'
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/types,@quiet/identity,backend-bundle,helia"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/types,@quiet/identity,backend-bundle,helia,@quiet/node-common"
 
       - name: "Unit tests"
         if: steps.filter.outputs.identity == 'true'

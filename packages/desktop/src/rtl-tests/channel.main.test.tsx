@@ -41,7 +41,7 @@ import {
   Community,
 } from '@quiet/types'
 
-import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
+import { FETCHING_CHANNEL_MESSAGES } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
 import { createLogger } from './logger'
 import { cleanup } from '@testing-library/react'
@@ -335,7 +335,7 @@ describe('Channel', () => {
     expect(Object.values(messages).length).toBe(0)
 
     // Verify loading spinner is visible
-    const spinner = screen.getByText(fetchingChannelMessagesText)
+    const spinner = screen.getByText(FETCHING_CHANNEL_MESSAGES)
     expect(spinner).toBeVisible()
   })
 
@@ -380,7 +380,7 @@ describe('Channel', () => {
     )
 
     // Verify loading spinner is not visible
-    const spinner = screen.queryByText(fetchingChannelMessagesText)
+    const spinner = await screen.queryByText(FETCHING_CHANNEL_MESSAGES)
     expect(spinner).toBeNull()
   })
 
