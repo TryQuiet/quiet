@@ -38,6 +38,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TEST_MODE: true
+      IS_LOCAL: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,6 +69,7 @@ jobs:
         with:
           name: Quiet-${{ matrix.target }}-${{ github.sha }}
           path: ${{ matrix.artifact_glob }}
+          retention-days: 14
 
       # Comment once (Linux runner) so we don't spam the PR
       - name: Comment PR with download link
