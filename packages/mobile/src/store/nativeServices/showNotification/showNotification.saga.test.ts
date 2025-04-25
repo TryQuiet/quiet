@@ -27,6 +27,7 @@ import {
   MarkUnreadChannelPayload,
   MessageType,
   PublicChannel,
+  UserProfile,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
@@ -39,6 +40,7 @@ describe('showNotificationSaga', () => {
 
   let community: Community
   let alice: Identity
+  let alicesProfile: UserProfile
 
   let generalChannel: PublicChannel
 
@@ -66,6 +68,11 @@ describe('showNotificationSaga', () => {
     community = await factory.create('Community')
     alice = await factory.create('Identity', {
       communityId: community.id,
+      userId: 'userIdAlice',
+    })
+    alicesProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+      nickname: 'alice',
     })
 
     const generalChannelState = publicChannels.selectors.generalChannel(store.getState())
@@ -83,12 +90,12 @@ describe('showNotificationSaga', () => {
         },
       })
     ).channel
-    const channelMessage: ChannelMessage = await factory.create('ChannelMessage', {
+    const channelMessage: ChannelMessage = await baseTypes.create('ChannelMessage', {
       channelId: photoChannel.id,
       createdAt: 0,
       id: 'id',
       message: 'message',
-      userId: 'userId',
+      userId: alice.userId,
       type: MessageType.Basic,
     })
 
@@ -112,8 +119,6 @@ describe('showNotificationSaga', () => {
       handleIncomingEvents: jest.fn(),
     }
 
-    const username = 'alice'
-
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
       .withReducer(
         combineReducers({
@@ -132,16 +137,13 @@ describe('showNotificationSaga', () => {
           },
         }
       )
-      .provide([
-        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.allUsers), { userId: { username } }],
-      ])
+      .provide([[call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null]])
       .call(JSON.stringify, messageWithChannelName)
       .call(
         NativeModules.CommunicationModule.handleIncomingEvents,
         PUSH_NOTIFICATION_CHANNEL,
         expectedMessage,
-        username
+        alicesProfile.nickname
       )
       .run()
   })

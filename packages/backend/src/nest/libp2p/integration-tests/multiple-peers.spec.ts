@@ -143,7 +143,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
           allDisconnected()
         })
       }
-      modules[0].get(Libp2pService).close()
+      modules[0].get(Libp2pService).hangUpPeers()
     })
   })
 })

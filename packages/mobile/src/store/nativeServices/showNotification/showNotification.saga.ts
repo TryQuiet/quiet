@@ -28,10 +28,15 @@ export function* showNotificationSaga(
     logger.warn(`No channel found for id ${channelId}`)
     return
   }
-  const username = yield* select(users.selectors.getUserProfileById(_message.userId)) || _message.userId
+  const userProfile = yield* select(users.selectors.getUserProfileById(_message.userId))
+  if (!userProfile) {
+    logger.warn(`No user profile found for id ${_message.userId}`)
+    return
+  }
+  const nickname = userProfile.nickname
   const messageWithChannelName = { ..._message, channelName: channel.name }
 
   const message = yield* call(JSON.stringify, messageWithChannelName)
 
-  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, nickname)
 }
