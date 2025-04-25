@@ -115,6 +115,11 @@ export class Libp2pAuth {
 
   // Process any connections that were buffered because we were waiting for a chain
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
+    // const sigChain = this.sigChainService.getActiveChain()
+    // if (this.joinStatus !== JoinStatus.JOINED && sigChain.team != null && this.joinedViaQSS(sigChain.team.id)) {
+    //   this.joinStatus = JoinStatus.PENDING_MEMBER
+    // }
+
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamName != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
       this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING

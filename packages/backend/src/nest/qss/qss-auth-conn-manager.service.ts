@@ -42,7 +42,7 @@ export class QSSAuthConnectionManager extends EventEmitter {
   }
 
   public close(sendPeerDisconnect = false): void {
-    this.logger.warn('Closing all QSS auth connections')
+    this.logger.trace('Closing all QSS auth connections')
     for (const [teamId, connection] of this.authConnMap.entries()) {
       this.logger.info('Closing QSS auth connection for team ID', teamId)
       connection.stop(sendPeerDisconnect)

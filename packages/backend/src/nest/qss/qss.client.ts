@@ -129,7 +129,7 @@ export class QSSClient {
 
   public close(): void {
     if (this.clientSocket == null) {
-      this.logger.warn(`Client socket wasn't open!`)
+      this.logger.trace(`Client socket wasn't open!`)
       return
     }
 

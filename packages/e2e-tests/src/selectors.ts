@@ -686,6 +686,12 @@ export class Channel {
       `Channel message input element for ${this.name} couldn't be seen within timeout`,
       500
     )
+    await this.driver.wait(
+      until.elementIsEnabled(this.messageInput),
+      15_000,
+      `Channel message input element for ${this.name} wasn't enabled within timeout`,
+      500
+    )
     return true
   }
 

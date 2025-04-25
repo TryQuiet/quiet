@@ -401,7 +401,7 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     env: {
       NODE_OPTIONS: '--experimental-global-customevent',
-      DEBUG: 'backend*:trace,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*:trace',
+      DEBUG: 'backend*:trace,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p',
       LOG_DIR: process.env.LOG_DIR,
       COLORIZE: process.env.COLORIZE ?? 'true',
       LOG_TO_FILE: process.env.LOG_TO_FILE ?? 'true',
