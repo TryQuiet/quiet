@@ -29,7 +29,8 @@ import base64url from 'base64url'
 const logger = createLogger('invite:validator')
 
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
-const PEER_ID_REGEX = /^[a-zA-Z0-9]{52}$/g
+// Accept both 46‑char (CIDv0, "Qm…") and 52‑char (ed25519, "12D3…") base58 peer IDs
+const PEER_ID_REGEX = /^(?:[A-Za-z0-9]{46}|[A-Za-z0-9]{52})$/
 const INVITATION_SEED_REGEX = /^[a-zA-Z0-9]{16}$/g
 const COMMUNITY_NAME_REGEX = /^[-a-zA-Z0-9 ]+$/g
 const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
