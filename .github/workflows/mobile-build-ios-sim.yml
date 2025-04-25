@@ -41,32 +41,39 @@ jobs:
           pod install
         shell: bash
 
-      - name: Setup provisioning profile
-        run: ./.github/secrets/decrypt_secrets.sh
-        env:
-          IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
-          IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
-
-      - name: Build
-        run: |
-          cd ./packages/mobile/ios
-          xcodebuild archive \
-            -workspace Quiet.xcworkspace \
-            -scheme Quiet \
-            -configuration Release \
-            -archivePath build/Quiet.xcarchive \
-            PROVISIONING_PROFILE="762df280-302c-4336-a56d-c74914169337" \
-            CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)"
-
-      - name: Export .ipa
+      - name: Build for iOS Simulator (unsigned)
         run: |
           cd ./packages/mobile/ios
           xcodebuild \
-            -exportArchive \
-            -archivePath build/Quiet.xcarchive \
-            -exportOptionsPlist ci.plist \
-            -exportPath build/
+            -workspace Quiet.xcworkspace \
+            -scheme Quiet \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            build CODE_SIGNING_ALLOWED=NO
 
-      - name: Cleanup environment
-        if: always()
-        run: security delete-keychain build.keychain && rm -f ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision
+      - name: Zip .app bundle
+        run: |
+          cd ./packages/mobile/ios/build/Release-iphonesimulator
+          zip -r Quiet.app.zip Quiet.app
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quiet-iOS-simulator-${{ github.sha }}
+          path: ./packages/mobile/ios/build/Release-iphonesimulator/Quiet.app.zip
+          retention-days: 14
+
+      - name: "Comment PR with download link"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}#artifacts`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: "📱 **iOS simulator build (.app.zip) is ready!**\n\n➡️ [Download artifact](" + runUrl + ")"
+            });

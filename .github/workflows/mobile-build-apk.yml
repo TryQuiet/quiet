@@ -154,7 +154,6 @@ jobs:
           name: app-standard-debug.apk
           path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
 
-      # Drop a single comment with the artifact link
       - name: "Comment PR with download link"
         uses: actions/github-script@v7
         with:
