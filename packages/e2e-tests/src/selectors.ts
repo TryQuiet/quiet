@@ -704,6 +704,7 @@ export class Channel {
             const messages = await this.getUserMessages(username)
             for (const element of messages) {
               const text = await element.getText()
+              logger.info(`Checking if message ${text} contains ${messageContent}`)
               if (text.includes(messageContent)) {
                 logger.info(`Found message with matching text ${text}`)
                 return element
@@ -908,6 +909,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with downloading cancelable status`)
         }
+        sleep(100)
       }
 
       if (statusElement == null) {
@@ -930,6 +932,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with download file status`)
         }
+        sleep(100)
       }
       return true
     } catch (e) {

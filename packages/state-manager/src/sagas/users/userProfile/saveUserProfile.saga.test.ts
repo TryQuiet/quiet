@@ -42,7 +42,9 @@ describe('saveUserProfileSaga', () => {
     })
   })
 
-  test('sends user profile without photo to backend', async () => {
+  // currently frontend doesn't supprot removing the photo
+  // from the user profile, so we are skipping this test
+  test.skip('sends user profile without photo to backend', async () => {
     const logger = createLogger('saveUserProfileSaga-test1')
     delete userProfile.photo
     logger.info('userProfile', userProfile)

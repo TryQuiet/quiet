@@ -37,6 +37,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
 
   const existingUserProfile = yield* select(userProfileSelectors.myUserProfile)
   if (!existingUserProfile) {
+    // we expect the backend to setup a user profile for us when we first connect
     logger.error('No existing user profile found, cannot save profile')
     return
   }
