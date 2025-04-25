@@ -52,11 +52,7 @@ export const peerList = createSelector(
         })
         .filter((address): address is string => address !== null && address !== undefined)
     }
-    logger.info('peerAddresses', { arr })
-    logger.info('peerStats', { stats })
-    logger.info('localPeerAddress', { localPeerAddress })
     const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress)
-    logger.info('filteredAndSortedPeers', { filteredAndSortedPeers })
     return filteredAndSortedPeers
   }
 )

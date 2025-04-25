@@ -21,6 +21,8 @@ export function* createInviteSaga(
     socket.emitWithAck,
     applyEmitParams(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, { id: existingLongLivedInvite?.id })
   )
+  logger.info('existingLongLivedInvite', JSON.stringify(existingLongLivedInvite, null, 2))
+  logger.info('lfaInviteData', JSON.stringify(lfaInviteData, null, 2))
   if (!lfaInviteData?.valid && lfaInviteData?.newInvite != null) {
     yield* putResolve(connectionActions.setLongLivedInvite(lfaInviteData.newInvite))
   } else if (!lfaInviteData?.valid && lfaInviteData?.newInvite == null) {

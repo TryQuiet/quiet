@@ -15,6 +15,7 @@ import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { identityActions } from '../../identity/identity.slice'
 import { usersActions } from '../../users/users.slice'
+import { connectionActions } from '../../appConnection/connection.slice'
 
 const logger = createLogger('createCommunitySaga')
 
@@ -78,4 +79,5 @@ export function* createCommunitySaga(
   yield* put(publicChannelsActions.createGeneralChannel())
   logger.info('launchCommunity')
   yield* put(communitiesActions.launchCommunity({ id: communityId }))
+  yield* put(connectionActions.createInvite({}))
 }
