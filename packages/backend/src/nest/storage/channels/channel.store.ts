@@ -22,6 +22,7 @@ import { MessagesService } from './messages/messages.service'
 import { DBOptions, StorageEvents } from '../storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { EncryptedMessage } from './messages/messages.types'
+import { UserProfileStore } from '../userProfile/userProfile.store'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
@@ -36,7 +37,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   constructor(
     private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService,
-    private readonly messagesService: MessagesService
+    private readonly messagesService: MessagesService,
+    private readonly userProfileStore: UserProfileStore
   ) {
     super()
   }
@@ -146,16 +148,13 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       // Do not notify about old messages
       if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
 
-      const username = message.encSignature?.author?.name
-      if (!username) {
-        this.logger.error(`Can't send push notification, no username found for userId '${message.userId}'`)
-        return
-      }
-
+      const username = (await this.userProfileStore.getUsername(message.userId)) || message.userId
       const payload: PushNotificationPayload = {
         message: JSON.stringify(message),
         username: username,
       }
+
+      this.logger.info(`Sending push notification`, JSON.stringify(payload))
 
       this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
     }

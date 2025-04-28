@@ -1,48 +1,140 @@
-import * as Block from 'multiformats/block'
-import { sha256 } from 'multiformats/hashes/sha2'
-import * as dagCbor from '@ipld/dag-cbor'
-import { arrayBufferToString } from 'pvutils'
-import { getCrypto, PublicKeyInfo } from 'pkijs'
+import { getCrypto } from 'pkijs'
+import { jest } from '@jest/globals'
+import fs from 'fs'
 
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
-import { configCrypto, generateKeyPair, sign } from '@quiet/identity'
-
 import { UserProfileStore } from './userProfile.store'
+import { Test, TestingModule } from '@nestjs/testing'
+import { getBaseTypesFactory } from '@quiet/state-manager'
+import { FactoryGirl } from 'factory-girl'
+import { createLogger } from '../../common/logger'
+import { SigChainService } from '../../auth/sigchain.service'
+import { TestModule } from '../../common/test.module'
+import { StorageModule } from '../storage.module'
+import { Libp2pModule } from '../../libp2p/libp2p.module'
+import { IpfsModule } from '../../ipfs/ipfs.module'
+import { SigChainModule } from '../../auth/sigchain.service.module'
+import { Libp2pService } from '../../libp2p/libp2p.service'
+import { IpfsService } from '../../ipfs/ipfs.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
+import { LocalDbService } from '../../local-db/local-db.service'
+import { libp2pInstanceParams } from '../../common/utils'
+import { TestConfig } from '../../const'
+
+const logger = createLogger('messagesService:test')
+
+describe('UserProfileStore', () => {
+  let userProfileStore: UserProfileStore
+
+  let module: TestingModule
+  let libp2pService: Libp2pService
+  let ipfsService: IpfsService
+  let orbitDbService: OrbitDbService
+  let localDbService: LocalDbService
+  let sigChainService: SigChainService
+  let factory: FactoryGirl
+  let userProfile: UserProfile
+
+  beforeAll(async () => {
+    factory = await getBaseTypesFactory()
+  })
+
+  beforeEach(async () => {
+    jest.clearAllMocks()
+
+    module = await Test.createTestingModule({
+      imports: [TestModule, StorageModule, Libp2pModule, IpfsModule, SigChainModule],
+    }).compile()
+
+    sigChainService = await module.resolve(SigChainService)
+    await sigChainService.createChain('test-community', 'alice', true)
+
+    libp2pService = await module.resolve(Libp2pService)
+    const libp2pParams = await libp2pInstanceParams()
+    await libp2pService.createInstance(libp2pParams)
+
+    ipfsService = await module.resolve(IpfsService)
+    await ipfsService.createInstance()
+
+    orbitDbService = await module.resolve(OrbitDbService)
+    await orbitDbService.create(libp2pParams.peerId.peerId, ipfsService.ipfsInstance!)
+    localDbService = await module.resolve(LocalDbService)
+
+    userProfile = await factory.build('UserProfile', {
+      userId: sigChainService.getActiveChain().user.userId,
+      photo: undefined,
+    })
+    userProfileStore = await module.resolve(UserProfileStore)
+    await userProfileStore.init()
+    // log the test that is about to run
+    logger.info('Running test:', expect.getState().currentTestName)
+  })
+
+  afterEach(async () => {
+    await userProfileStore.close()
+    await localDbService.close()
+    await orbitDbService.stop()
+    await ipfsService.stop()
+    await libp2pService.close()
+    if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
+      fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
+    }
+  })
+
+  test('should be defined', () => {
+    expect(userProfileStore).toBeDefined()
+  })
+
+  test('should add a new user profile', async () => {
+    const entry = await userProfileStore.setEntry(userProfile.userId, userProfile)
+    expect(entry).toBeDefined()
+    expect(entry).not.toEqual(userProfile)
+  })
+
+  test('should get a user profile', async () => {
+    const entry = await userProfileStore.setEntry(userProfile.userId, userProfile)
+    expect(entry).toBeDefined()
+    const result = await userProfileStore.getEntry(userProfile.userId)
+    expect(result).toEqual(userProfile)
+  })
+
+  test('should get all user profiles', async () => {
+    const entry = await userProfileStore.setEntry(userProfile.userId, userProfile)
+    expect(entry).toBeDefined()
+    const result = await userProfileStore.getUserProfiles()
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual(userProfile)
+  })
+
+  test('should cache userId to nickname mapping', async () => {
+    const entry = await userProfileStore.setEntry(userProfile.userId, userProfile)
+    expect(entry).toBeDefined()
+    const result = await userProfileStore.getUsername(userProfile.userId)
+    expect(result).toEqual(userProfile.nickname)
+  })
+})
 
 const getUserProfile = async ({
   pngByteArray,
-  signature,
   photoUrl,
 }: {
   pngByteArray?: Uint8Array
-  signature?: string
   photoUrl?: string
 }): Promise<UserProfile> => {
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
 
-  const keyPair = await generateKeyPair({ signAlg: configCrypto.signAlg })
-
   // Bytes in decimal copied out of a PNG file
   // e.g. od -t u1 ~/Pictures/test.png | less
   const png = pngByteArray || new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
   const pngBase64 = 'data:image/png;base64,' + Buffer.from(png).toString('base64')
-  const profile = { photo: photoUrl || pngBase64, nickname: 'Alice' }
-
-  const codec = dagCbor
-  const hasher = sha256
-  const { bytes } = await Block.encode({ value: profile, codec: codec, hasher: hasher })
-  const signatureArrayBuffer = await sign(bytes, keyPair.privateKey)
-  signature = signature || arrayBufferToString(signatureArrayBuffer)
-
-  const pubKeyInfo = new PublicKeyInfo()
-  await pubKeyInfo.importKey(keyPair.publicKey)
-  const pubKeyDer = Buffer.from(pubKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
-
-  return {
-    ...profile,
-    userId: pubKeyDer,
-  }
+  const factory = await getBaseTypesFactory()
+  const userProfile = await factory.build<UserProfile>('UserProfile', {
+    userId: 'aliceUserId',
+    nickname: 'Alice',
+    photo: photoUrl || pngBase64,
+  })
+  return userProfile
 }
 
 describe('UserProfileStore/validateUserProfile', () => {
