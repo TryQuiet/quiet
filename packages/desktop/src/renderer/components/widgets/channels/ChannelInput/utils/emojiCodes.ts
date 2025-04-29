@@ -561,6 +561,8 @@ export const emojiShortcodes: EmojiMapping = {
   ':koko:': '🈁',
   ':vs:': '🆚',
   ':accept:': '🉑',
+  ':thumbsup:': '👍',
+  ':thumbsdown:': '👎',
 
   // --- Flags ---
   ':flag_us:': '🇺🇸',
