@@ -4,7 +4,7 @@
 
 ### New Features
 
-* Adds a bunch of missing emoji codes ()
+* Adds a bunch of missing emoji codes [2824](https://github.com/TryQuiet/quiet/issues/2824)
 * Adds sticky date markers to the chat view [#505](https://github.com/TryQuiet/quiet/issues/505)
 * Adds meaningful text to date markers, like "Today", "Yesterday", "Friday", or "Nov 30, 1999" [#2745](https://github.com/TryQuiet/quiet/issues/2745)
 * You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540) (thanks @agiledev24 for your initial work on this!)
