@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/react'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { socketActions, SocketState } from '../renderer/sagas/socket/socket.slice'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
@@ -12,15 +12,19 @@ import {
   communities,
   connection,
   getReduxStoreFactory,
+  getBaseTypesFactory,
   publicChannels,
   network,
   LoadingPanelType,
+  identity,
 } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from '@testing-library/react'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { createLogger } from './logger'
+import { CommunityOwnership } from '@quiet/types'
+import { channel } from 'diagnostics_channel'
 
 const logger = createLogger('loadingPanel')
 
@@ -93,48 +97,21 @@ describe('Loading panel', () => {
 
     const factory = await getReduxStoreFactory(store)
 
-    const community = (await factory.build('Community')).payload
-
-    logger.info('Adding new community')
-    await act(async () => {
-      store.dispatch(communities.actions.addNewCommunity(community))
+    // creates community but does not set create initial messages or initalized status
+    const community = await factory.create('Community', {
+      ownership: CommunityOwnership.User,
     })
-    await act(async () => {
-      store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    })
-
-    const channel = (
-      await factory.build('PublicChannel', {
-        communityId: community.id,
-        channel: {
-          name: 'general',
-          description: 'Welcome to #general',
-          timestamp: DateTime.utc().valueOf(),
-          owner: 'owner',
-          id: 'general',
-        },
-      })
-    ).payload
-
-    await factory.create('Identity', {
+    const owner = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
     })
 
-    logger.info('Setting community and opening modal')
-    await act(async () => {
-      store.dispatch(communities.actions.addNewCommunity(community))
-    })
-    await act(async () => {
-      store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    })
     await act(async () => {
       store.dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
     })
     await act(async () => {
       store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
     })
-    logger.info('Rendering component')
+
     await act(async () => {
       renderComponent(
         <>
@@ -152,14 +129,19 @@ describe('Loading panel', () => {
     const startingApplicationMessage = screen.getByText('Joining now!')
     expect(startingApplicationMessage).toBeVisible()
 
-    logger.info('Dispatching addChannel')
-    await act(async () => {
-      store.dispatch(publicChannels.actions.addChannel(channel))
-    })
+    // Satisfy joining conditions
     await act(async () => {
       store.dispatch(network.actions.addInitializedCommunity(community.id))
     })
-    const message = await factory.create('TestMessage')
+    const generalChannelId = publicChannels.selectors.currentChannel(store.getState())
+    const userId = identity.selectors.currentIdentity(store.getState())!.userId
+    const baseTypeFactory = await getBaseTypesFactory()
+    const channelMessage = await baseTypeFactory.create('ChannelMessage', {
+      channelId: generalChannelId!.id,
+      userId: userId,
+    })
+    const message = await factory.create('TestMessage', { message: channelMessage })
+
     // Verify that isJoiningCompletedSelector is now true
     logger.info('Verify that isJoiningCompletedSelector is now true')
     await waitFor(

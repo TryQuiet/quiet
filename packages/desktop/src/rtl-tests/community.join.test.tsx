@@ -113,31 +113,35 @@ describe('User', () => {
           socket.socketClient.emit<ChannelSubscribedPayload>(SocketEvents.CHANNEL_SUBSCRIBED, {
             channelId: 'general',
           })
-          // return {
-          //   id: payload.id,
-          //   community: {
-          //     id: payload.id,
-          //     name: 'community',
-          //     ownership: CommunityOwnership.User,
-          //   },
-          //   identity: {
-          //     communityId: payload.id,
-          //     userId: 'alice123',
-          //     nickname: 'alice',
-          //     networkInfo: {
-          //       hiddenService: {
-          //         onionAddress: 'onionAddress',
-          //         privateKey: 'privateKey',
-          //       },
-          //       peerId: {
-          //         id: 'id',
-          //         privKey: 'privKey',
-          //         noiseKey: 'noiseKey',
-          //       },
-          //     },
-          //     joinTimestamp: 0,
-          //   },
-          // } as ResponseJoinCommunityPayload
+          return {
+            id: payload.id,
+            community: {
+              id: payload.id,
+              name: 'community',
+              ownership: CommunityOwnership.User,
+            },
+            identity: {
+              communityId: payload.id,
+              userId: 'alice123',
+              nickname: 'alice',
+              networkInfo: {
+                hiddenService: {
+                  onionAddress: 'onionAddress',
+                  privateKey: 'privateKey',
+                },
+                peerId: {
+                  id: 'id',
+                  privKey: 'privKey',
+                  noiseKey: 'noiseKey',
+                },
+              },
+              joinTimestamp: 0,
+            },
+            profile: {
+              userId: 'alice123',
+              nickname: 'alice',
+            },
+          } as ResponseJoinCommunityPayload
           break
         default:
           throw new Error(`Unexpected action: ${action}`)
@@ -197,29 +201,32 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/createNetwork",
+        "Communities/joinCommunity",
         "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Modals/closeModal",
         "Modals/openModal",
-        "Identity/addNewIdentity",
         "Identity/registerUsername",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/updateIdentity",
-        "Communities/launchCommunity",
-        "Files/checkForMissingFiles",
-        "Network/addInitializedCommunity",
-        "Communities/clearInvitationCodes",
+        "Identity/setUsername",
         "PublicChannels/channelsReplicated",
         "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/sendIntroductionMessage",
-        "Messages/sendMessage",
+        "Network/setLoadingPanelType",
+        "Modals/openModal",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
+        "Users/setUserProfile",
+        "Communities/launchCommunity",
+        "Communities/setCurrentCommunity",
+        "Communities/clearInvitationCodes",
+        "Files/checkForMissingFiles",
+        "Network/addInitializedCommunity",
         "Modals/closeModal",
         "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
       ]
     `)
