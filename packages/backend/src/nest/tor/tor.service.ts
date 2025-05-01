@@ -61,7 +61,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
-  private async isBootstrappingFinished(): Promise<boolean> {
+  public async isBootstrappingFinished(): Promise<boolean> {
     this.logger.info('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {

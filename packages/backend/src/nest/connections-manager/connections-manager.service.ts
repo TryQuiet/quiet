@@ -603,6 +603,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await setupStorage()
       })
     }
+    if (await this.tor.isBootstrappingFinished()) {
+      this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+    }
 
     this.logger.info('Storage initialized')
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)

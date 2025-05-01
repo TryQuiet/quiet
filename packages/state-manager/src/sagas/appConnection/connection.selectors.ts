@@ -108,7 +108,10 @@ export const isJoiningCompleted = createSelector(
   areMessagesLoaded,
   areChannelsLoaded,
   (isTorInit, isCommunityInitialized, areMessages, areChannels) => {
-    logger.info('isJoiningCompleted', JSON.stringify({ isCommunityInitialized, areMessages, areChannels }, null, 2))
+    logger.info(
+      'isJoiningCompleted',
+      JSON.stringify({ isTorInit, isCommunityInitialized, areMessages, areChannels }, null, 2)
+    )
     return !!(isTorInit && isCommunityInitialized && areChannels && areMessages)
   }
 )
