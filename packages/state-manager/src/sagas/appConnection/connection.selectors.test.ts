@@ -279,6 +279,12 @@ describe('communitiesSelectors', () => {
     expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
     expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
 
+    store.dispatch(connectionActions.setTorInitialized())
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
+
     const message = await factory.create('TestMessage', {
       message: baseTypesFactory.build('ChannelMessage', {
         channelId: publicChannelsSelectors.generalChannel(store.getState())?.id,

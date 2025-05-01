@@ -1,5 +1,5 @@
 import { setupCrypto } from '@quiet/identity'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '../../..'
+import { AUTODOWNLOAD_SIZE_LIMIT, connection } from '../../..'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -11,6 +11,7 @@ import { networkActions } from '../../network/network.slice'
 import { DownloadState, type FileMetadata, MessageType, SocketActions } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { connectionActions } from '../../appConnection/connection.slice'
 
 describe('checkForMissingFilesSaga', () => {
   beforeAll(async () => {
@@ -65,6 +66,7 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(connectionActions.setTorInitialized())
     store.dispatch(
       filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
@@ -77,7 +79,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -145,6 +147,7 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(connectionActions.setTorInitialized())
     store.dispatch(
       filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
@@ -157,7 +160,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -268,12 +271,13 @@ describe('checkForMissingFilesSaga', () => {
         downloadState: DownloadState.Downloading,
       })
     )
+    store.dispatch(connectionActions.setTorInitialized())
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -355,6 +359,7 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(connectionActions.setTorInitialized())
     store.dispatch(
       filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
@@ -367,7 +372,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -435,6 +440,7 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(connectionActions.setTorInitialized())
     store.dispatch(
       filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
@@ -447,7 +453,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -521,12 +527,13 @@ describe('checkForMissingFilesSaga', () => {
         downloadState: DownloadState.Canceled,
       })
     )
+    store.dispatch(connectionActions.setTorInitialized())
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -601,12 +608,13 @@ describe('checkForMissingFilesSaga', () => {
         downloadState: DownloadState.Malicious,
       })
     )
+    store.dispatch(connectionActions.setTorInitialized())
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -679,12 +687,13 @@ describe('checkForMissingFilesSaga', () => {
         cid: missingFile.cid,
       })
     )
+    store.dispatch(connectionActions.setTorInitialized())
 
     const reducer = combineReducers(testReducers)
     await expectSaga(
       checkForMissingFilesSaga,
       socket as unknown as Socket,
-      networkActions.addInitializedCommunity(community.id)
+      filesActions.checkForMissingFiles(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -756,12 +765,13 @@ describe('checkForMissingFilesSaga', () => {
           downloadState: DownloadState.Queued,
         })
       )
+      store.dispatch(connectionActions.setTorInitialized())
 
       const reducer = combineReducers(testReducers)
       await expectSaga(
         checkForMissingFilesSaga,
         socket as unknown as Socket,
-        networkActions.addInitializedCommunity(community.id)
+        filesActions.checkForMissingFiles(community.id)
       )
         .withReducer(reducer)
         .withState(store.getState())

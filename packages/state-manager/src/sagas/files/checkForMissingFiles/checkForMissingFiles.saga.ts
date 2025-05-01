@@ -18,7 +18,7 @@ const logger = createLogger('checkForMissingFilesSaga')
 
 export function* checkForMissingFilesSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof networkActions.addInitializedCommunity>['payload']>
+  action: PayloadAction<ReturnType<typeof filesActions.checkForMissingFiles>['payload']>
 ): Generator {
   let identity: ReturnType<typeof identitySelectors.currentIdentity> | null = null
   let channels: ReturnType<typeof publicChannelsSelectors.publicChannels> | null = null
