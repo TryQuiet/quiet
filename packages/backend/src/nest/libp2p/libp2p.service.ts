@@ -564,10 +564,10 @@ export class Libp2pService extends EventEmitter {
       await this.localDbService.updatePeerStats(peerStats)
     })
 
+    this.logger.info(`Starting libp2p`)
     await this.libp2pInstance.start()
+    this.logger.info('Queueing peers for initial dialing')
     await this.addPeersToDialQueue()
-    this.logger.info('Queued peers for initial dialing')
-    this.logger.info(`Dialing peers and starting libp2p`)
 
     this._connectedPeersInterval = setInterval(() => {
       const connections: Libp2pConnectedPeer[] = []
@@ -612,5 +612,3 @@ export class Libp2pService extends EventEmitter {
     this.redialQueue.stop(true)
   }
 }
-
-// ensure no references to removed properties/methods

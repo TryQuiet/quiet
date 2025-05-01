@@ -89,18 +89,18 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
   }
 
   public async decryptEntry(payload: EncryptedAndSignedPayload): Promise<UserProfile> {
-    logger.warn('Decrypting user profile:', payload)
+    logger.debug('Decrypting user profile:', payload)
     try {
       // Normalize encrypted.contents to a Buffer/Uint8Array for decryption
       const encrypted = payload.encrypted
       // Handle Base64 string case
       if (typeof encrypted.contents === 'string') {
-        logger.warn('Converting Base64 string to Buffer')
+        logger.debug('Converting Base64 string to Buffer')
         encrypted.contents = Buffer.from(encrypted.contents, 'base64')
       }
       // Handle numeric array case (JSON-encoded Uint8Array)
       else if (Array.isArray(encrypted.contents)) {
-        logger.warn('Converting numeric array to Buffer')
+        logger.debug('Converting numeric array to Buffer')
         encrypted.contents = Buffer.from(encrypted.contents)
       }
       // Handle Node.js Buffer JSON representation ({"type":"Buffer","data":[...]})
@@ -110,18 +110,18 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         (encrypted.contents as any).type === 'Buffer' &&
         Array.isArray((encrypted.contents as any).data)
       ) {
-        logger.warn('Converting JSON Buffer representation to Buffer')
+        logger.debug('Converting JSON Buffer representation to Buffer')
         encrypted.contents = Buffer.from((encrypted.contents as any).data)
       }
       // Handle object with numeric keys (parsed JSON representation)
       else if (encrypted.contents && typeof encrypted.contents === 'object' && !Buffer.isBuffer(encrypted.contents)) {
-        logger.warn('Converting object with numeric keys to Buffer')
+        logger.debug('Converting object with numeric keys to Buffer')
         const nums = Object.keys(encrypted.contents)
           .filter(key => /^\d+$/.test(key))
           .map(key => (encrypted.contents as any)[key] as number)
         encrypted.contents = Buffer.from(nums)
       }
-      logger.warn('Decrypting payload:', encrypted)
+      logger.debug('Decrypting payload:', encrypted)
       const decryptedPayload = this.auth.crypto.decryptAndVerify<UserProfile>(encrypted, payload.signature)
       if (!decryptedPayload.isValid) {
         throw new Error('Failed to decrypt user entry: invalid signature')

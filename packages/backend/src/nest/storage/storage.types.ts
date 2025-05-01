@@ -13,8 +13,6 @@ export enum StorageEvents {
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
-  CSRS_STORED = 'csrsStored',
-  CERTIFICATES_STORED = 'certificatesStored',
   USER_PROFILES_STORED = 'userProfilesStored',
   // Community
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',

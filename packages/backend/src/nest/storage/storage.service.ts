@@ -83,9 +83,6 @@ export class StorageService extends EventEmitter {
       return
     }
 
-    // await this.communityMetadataStore.startSync()
-    // await this.certificatesStore.startSync()
-    // await this.certificatesRequestsStore.startSync()
     await this.userProfileStore.startSync()
     await this.channelsService.startSync()
   }
@@ -112,15 +109,7 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('1/3')
     this.attachStoreListeners()
-
-    // FIXME: This is sort of messy how we are initializing things. Currently,
-    // the CommunityMetadataStore sends an event during initialization which is
-    // picked up by the CertificatesStore. Perhaps we can initialize stores
-    // first and then load data/send events.
     this.logger.info('2/3')
-    // await this.certificatesStore.init()
-    // await this.certificatesRequestsStore.init()
-    // await this.communityMetadataStore.init()
     await this.userProfileStore.init()
 
     this.logger.info('3/3')

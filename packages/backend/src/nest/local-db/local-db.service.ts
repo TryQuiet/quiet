@@ -119,6 +119,7 @@ export class LocalDbService {
     for (const addr of Object.keys(stats)) {
       if (!isMultiaddr(multiaddr(addr))) {
         this.logger.error('Invalid multiaddr', addr)
+        delete stats[addr]
         continue
       }
     }
