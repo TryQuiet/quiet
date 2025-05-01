@@ -23,15 +23,15 @@ export const communitiesSlice = createSlice({
   name: StoreKeys.Communities,
   reducers: {
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
-      logger.info('Setting current community', action.payload)
+      logger.info('Setting current community', JSON.stringify(action.payload, null, 2))
       state.currentCommunity = action.payload
     },
     addNewCommunity: (state, action: PayloadAction<Community>) => {
-      logger.info('Adding new community', action.payload)
+      logger.info('Adding new community', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.addOne(state.communities, action.payload)
     },
     updateCommunityData: (state, action: PayloadAction<Community>) => {
-      logger.info('Updating community data', action.payload)
+      logger.info('Updating community data', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
@@ -40,7 +40,7 @@ export const communitiesSlice = createSlice({
       })
     },
     deleteCommunity: (state, action: PayloadAction<string>) => {
-      logger.info('Deleting community', action.payload)
+      logger.info('Deleting community', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.removeOne(state.communities, action.payload)
       if (state.currentCommunity === action.payload) {
         state.currentCommunity = ''

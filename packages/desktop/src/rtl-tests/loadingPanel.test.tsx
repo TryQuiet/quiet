@@ -132,6 +132,7 @@ describe('Loading panel', () => {
     // Satisfy joining conditions
     await act(async () => {
       store.dispatch(network.actions.addInitializedCommunity(community.id))
+      store.dispatch(connection.actions.setTorInitialized())
     })
     const generalChannelId = publicChannels.selectors.currentChannel(store.getState())
     const userId = identity.selectors.currentIdentity(store.getState())!.userId

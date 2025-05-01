@@ -103,12 +103,13 @@ export const invitationUrl = createSelector(
 )
 
 export const isJoiningCompleted = createSelector(
+  isTorInitialized,
   isCurrentCommunityInitialized,
   areMessagesLoaded,
   areChannelsLoaded,
-  (isCommunityInitialized, areMessages, areChannels) => {
-    logger.info('isJoiningCompleted', { isCommunityInitialized, areMessages, areChannels })
-    return !!(isCommunityInitialized && areChannels && areMessages)
+  (isTorInit, isCommunityInitialized, areMessages, areChannels) => {
+    logger.info('isJoiningCompleted', JSON.stringify({ isCommunityInitialized, areMessages, areChannels }, null, 2))
+    return !!(isTorInit && isCommunityInitialized && areChannels && areMessages)
   }
 )
 

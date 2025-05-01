@@ -1,5 +1,5 @@
 import { applyEmitParams, type Socket } from '../../../types'
-import { select, apply, put } from 'typed-redux-saga'
+import { select, apply, put, take } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
@@ -9,8 +9,10 @@ import { filesActions } from '../files.slice'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
 import { type networkActions } from '../../network/network.slice'
-import { DownloadState, SocketActions } from '@quiet/types'
+import { DownloadState, Identity, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { networkSelectors } from '../../network/network.selectors'
+import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 const logger = createLogger('checkForMissingFilesSaga')
 
@@ -18,26 +20,29 @@ export function* checkForMissingFilesSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof networkActions.addInitializedCommunity>['payload']>
 ): Generator {
-  const community = yield* select(communitiesSelectors.currentCommunity)
+  let identity: ReturnType<typeof identitySelectors.currentIdentity> | null = null
+  let channels: ReturnType<typeof publicChannelsSelectors.publicChannels> | null = null
+  let isTorInitialized: ReturnType<typeof connectionSelectors.isTorInitialized> | null = null
+  let community: ReturnType<typeof communitiesSelectors.currentCommunity> | null = null
+  while (true) {
+    community = yield* select(communitiesSelectors.currentCommunity)
+    if (community && community?.id !== action.payload) {
+      logger.warn(
+        `Tried to check for missing files, but the community ${action.payload} is not the current community ${community?.id}`
+      )
+      return
+    }
 
-  if (community?.id !== action.payload) {
-    logger.warn(
-      `Tried to check for missing files, but the community ${action.payload} is not the current community ${community?.id}`
-    )
-    return
-  }
+    identity = yield* select(identitySelectors.currentIdentity)
+    channels = yield* select(publicChannelsSelectors.publicChannels)
+    isTorInitialized = yield* select(connectionSelectors.isTorInitialized)
 
-  const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) {
-    logger.warn('Tried to check for missing files, but no identity was found')
-    return
-  }
+    if (identity && channels && isTorInitialized) {
+      break // All conditions are met, exit the loop
+    }
 
-  const channels = yield* select(publicChannelsSelectors.publicChannels)
-
-  if (!channels) {
-    logger.warn('Tried to check for missing files, but no channels were found')
-    return
+    logger.warn('Waiting for all conditions to be met...')
+    yield* take('*') // Wait for any action to be dispatched
   }
 
   const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
