@@ -94,23 +94,25 @@ export class AppModule {
         {
           provide: SERVER_IO_PROVIDER,
           useFactory: async (expressProvider: express.Application) => {
+            const _ioLogger = logger.extend('serverIoProvider')
             const _app = expressProvider
             _app.use(cors())
             const server = createServer(_app)
             const io = new SocketIO<SocketActionsMap, SocketEventsMap>(server, {
               cors: {
                 origin: '127.0.0.1',
-                allowedHeaders: ['authorization'],
+                allowedHeaders: ['authorization', 'Upgrade', 'Connection'],
                 credentials: true,
               },
-              pingInterval: 1000_000,
-              pingTimeout: 1000_000,
+              allowUpgrades: true,
+              pingInterval: 60_000,
+              pingTimeout: 30_000,
             })
             // @ts-ignore
             io.engine.use((req, res, next) => {
               const authHeader = req.headers['authorization']
               if (!authHeader) {
-                logger.error('Backend server: No authorization header')
+                _ioLogger.error('Backend server: No authorization header')
                 res.writeHead(401, 'No authorization header')
                 res.end()
                 return
@@ -118,7 +120,7 @@ export class AppModule {
 
               const token = authHeader && authHeader.split(' ')[1]
               if (!token) {
-                logger.error('Backend server: No auth token')
+                _ioLogger.error('Backend server: No auth token')
                 res.writeHead(401, 'No authorization token')
                 res.end()
                 return
@@ -127,12 +129,33 @@ export class AppModule {
               if (verifyToken(options.socketIOSecret, token)) {
                 next()
               } else {
-                logger.error('Backend server: Unauthorized')
+                _ioLogger.error('Backend server: Unauthorized')
                 res.writeHead(401, 'Unauthorized')
                 res.end()
               }
             })
-            logger.info('ok')
+
+            io.engine.on('connection_error', async err => {
+              _ioLogger.error('Server IO connection error', err.message, err.code, err.context, err)
+            })
+
+            io.on('connection', async socket => {
+              _ioLogger.info(`New server io connection`, socket.conn.transport.name, socket.client.conn.remoteAddress)
+              socket.conn.on('close', reason => {
+                _ioLogger.warn('Underlying connection closed on server IO', reason)
+              })
+              socket.on('disconnect', reason => {
+                _ioLogger.warn('Client disconnected from server IO', reason)
+              })
+              socket.on('error', async err => {
+                _ioLogger.error('Error on server IO client connection', err)
+              })
+
+              socket.conn.once('upgrade', () => {
+                _ioLogger.trace('Server IO client connection transport upgraded', socket.conn.transport.name)
+              })
+            })
+            _ioLogger.info('ok')
             return { server, io }
           },
           inject: [EXPRESS_PROVIDER],

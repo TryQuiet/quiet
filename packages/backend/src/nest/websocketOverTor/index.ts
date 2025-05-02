@@ -40,6 +40,7 @@ import type { ProgressEvent } from 'progress-events'
 import type { ClientOptions } from 'ws'
 import http from 'node:http'
 import https from 'node:https'
+import { QuietLibp2pLogger } from '../libp2p/libp2p.logger'
 
 export interface WebSocketsInit extends AbortOptions, WebSocketOptions {
   /**
@@ -114,7 +115,7 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
   readonly [serviceCapabilities]: string[] = ['@libp2p/transport']
 
   async dial(ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<Connection> {
-    const _log = this.components.logger.forComponent(`libp2p:websockets:dial:${ma.getPeerId()}`)
+    const _log = this.components.logger.forComponent(`libp2p:websockets:dial:${ma.getPeerId()}`) as QuietLibp2pLogger
     _log('dialing %s', ma)
     options = options ?? {}
 
@@ -135,7 +136,9 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
   async _connect(ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<DuplexWebSocket> {
     options?.signal?.throwIfAborted()
 
-    const _log = this.components.logger.forComponent(`libp2p:websockets:dial:connect:${ma.getPeerId()}`)
+    const _log = this.components.logger.forComponent(
+      `libp2p:websockets:dial:connect:${ma.getPeerId()}`
+    ) as QuietLibp2pLogger
 
     const cOpts = ma.toOptions()
     _log('dialing %s:%s', cOpts.host, cOpts.port)
@@ -148,11 +151,17 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
       // the WebSocket.ErrorEvent type doesn't actually give us any useful
       // information about what happened
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event
-      const err = new ConnectionFailedError(`Could not connect to ${ma.toString()}: ${errorEvent.message}`)
-      _log.error('Connection Error:', err)
-      _log.error(`Original Connection Error`, errorEvent.error)
       this.metrics?.dialerEvents.increment({ error: true })
-      errorPromise.reject(err)
+      const message = `Could not connect to ${ma.toString()}: ${errorEvent.message}`
+      // 404 errors are plentiful and logging them as errors muddies the logs
+      if (errorEvent.message === 'Unexpected server response: 404') {
+        _log.warn(message)
+      } else {
+        const err = new ConnectionFailedError(message)
+        _log.error('Connection Error:', err)
+        _log.error(`Original Connection Error`, errorEvent.error)
+        errorPromise.reject(err)
+      }
     })
 
     try {

@@ -32,8 +32,11 @@ export function* startConnectionSaga(
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
+    upgrade: true,
     extraHeaders: {
       authorization: `Basic ${token}`,
+      Connection: 'Upgrade',
+      Upgrade: 'websocket',
     },
   })
   yield* fork(handleSocketLifecycleActions, socket)
@@ -71,8 +74,8 @@ function subscribeSocketLifecycle(socket?: Socket) {
       logger.info('websocket connected')
       emit(socketActions.setConnected())
     })
-    socket?.on('disconnect', () => {
-      logger.info('closing socket connection')
+    socket?.on('disconnect', reason => {
+      logger.info('closing socket connection', reason)
       emit(socketActions.suspendConnection())
     })
     return () => {}

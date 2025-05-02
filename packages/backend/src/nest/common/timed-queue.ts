@@ -137,9 +137,13 @@ export class TimedQueue {
         this.inProcess.delete(processDef.key)
         this.scheduled.delete(processDef.key)
         const newDelayMs = this._generateNewDelayMs(delayMs)
+        let errorContext: Error | string = e
+        if (e.message.includes('Unexpected server response: 404')) {
+          errorContext = e.message
+        }
         this.logger.warn(
           `Error while processing task with key ${processDef.key}, retrying with delay ${newDelayMs}ms`,
-          e
+          errorContext
         )
         await this.enqueue({
           ...processDef,

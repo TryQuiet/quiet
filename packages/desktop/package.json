@@ -116,9 +116,9 @@
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
-    "start": "cross-env DEBUG='backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*:trace' npm run start:renderer",
-    "start:main": "cross-env COLORIZE=true NODE_ENV=development DEBUG='backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*' electron .",
-    "start:renderer": "cross-env COLORIZE=true NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
+    "start": "cross-env DEBUG='backend*:trace,quiet*,state-manager*:trace,desktop*:trace,utils*,identity*:trace,common*:trace,libp2p*:trace' npm run start:renderer",
+    "start:main": "cross-env COLORIZE=true NODE_ENV=development DEBUG='backend*:trace,quiet*,state-manager*:trace,desktop*:trace,utils*,identity*:trace,common*:trace,libp2p*:trace' electron .",
+    "start:renderer": "cross-env COLORIZE=true NODE_ENV=development DEBUG='backend*:trace,quiet*,state-manager*:trace,desktop*:trace,utils*,identity*:trace,common*:trace,libp2p*:trace' webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",
     "build-storybook": "export NODE_OPTIONS=--openssl-legacy-provider && build-storybook",
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
@@ -148,7 +148,7 @@
     "react-markdown": "^6.0.3",
     "react-qr-code": "^2.0.11",
     "remark-gfm": "^1.0.0",
-    "socket.io-client": "^4.7.4"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",

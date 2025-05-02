@@ -44,8 +44,11 @@ export function* startConnectionSaga(
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
+    upgrade: true,
     extraHeaders: {
       authorization: `Basic ${token}`,
+      Connection: 'Upgrade',
+      Upgrade: 'websocket',
     },
   })
   yield* fork(handleSocketLifecycleActions, socket, action.payload)

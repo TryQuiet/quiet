@@ -4,7 +4,7 @@ import { yamux } from '@chainsafe/libp2p-yamux'
 import { mplex } from '@libp2p/mplex'
 import { FaultTolerance } from '@libp2p/interface-transport'
 import { identify, identifyPush } from '@libp2p/identify'
-import { KEEP_ALIVE, type Libp2p } from '@libp2p/interface'
+import { type Libp2p } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
 import { keychain } from '@libp2p/keychain'
 import { peerIdFromString } from '@libp2p/peer-id'
@@ -18,23 +18,14 @@ import { Inject, Injectable } from '@nestjs/common'
 
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
-import { Agent } from 'https'
 import { DateTime } from 'luxon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import {
-  ConnectionProcessInfo,
-  type NetworkDataPayload,
-  NetworkStats,
-  SocketEvents,
-  type UserData,
-  UserProfile,
-} from '@quiet/types'
+import { ConnectionProcessInfo, type NetworkDataPayload, NetworkStats, SocketEvents } from '@quiet/types'
 
-import { getUsersAddresses } from '../common/utils'
-import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { webSockets as webSocketsOverTor } from '../websocketOverTor'
 import {
@@ -74,9 +65,8 @@ export class Libp2pService extends EventEmitter {
   private logger = createLogger(Libp2pService.name)
 
   constructor(
-    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
-    @Inject(LIBP2P_DB_PATH) public readonly datastorePath: string,
+    @Inject(SERVER_IO_PROVIDER) private readonly serverIoProvider: ServerIoProviderTypes,
+    @Inject(LIBP2P_DB_PATH) private readonly datastorePath: string,
     private sigchainService: SigChainService,
     private localDbService: LocalDbService
   ) {
@@ -93,6 +83,23 @@ export class Libp2pService extends EventEmitter {
       maxDelayMs: 25_000,
       rolloverAtMaxDelay: true,
     })
+
+    // Catch issues with the connection to the frontend closing and causing issues with peer connections
+    // by redialing after the new connection is established
+    this.serverIoProvider.io.engine.on('connection_error', async err => {
+      this.logger.error(
+        'Server IO experienced a connection error with frontend',
+        err.message,
+        err.code,
+        err.context,
+        err
+      )
+      this.serverIoProvider.io.on('connection', async socket => {
+        this.logger.warn('Redialing all known peers due to a server IO reconnect')
+        await this.hangUpPeers()
+        await this.addPeersToDialQueue()
+      })
+    })
   }
 
   public emit(event: string | symbol, ...args: any[]): boolean {
@@ -102,13 +109,13 @@ export class Libp2pService extends EventEmitter {
       args[0].event != null &&
       ['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(args[0].event.type)
     ) {
-      // const innerEvent = args[0].event
-      // const redial =
-      //   (innerEvent.type === 'ERROR' &&
-      //     innerEvent.payload.type === 'DEVICE_UNKNOWN' &&
-      //     innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
-      //   (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
-      const redial = false
+      const innerEvent = args[0].event
+      // Check for errors related to ephemeral LFA connection isseus that warrant a redial attempt
+      const redial =
+        (innerEvent.type === 'ERROR' &&
+          innerEvent.payload.type === 'DEVICE_UNKNOWN' &&
+          innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
+        (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
       this.hangUpPeer(args[0].connection.remoteAddr.toString(), redial)
     }
     return super.emit(event, ...args)
@@ -144,7 +151,11 @@ export class Libp2pService extends EventEmitter {
         }
         await this.libp2pInstance?.dial(parsedMultiAddr)
       } catch (e) {
-        this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
+        let errorContext: Error | string = e
+        if (e.message.includes('Unexpected server response: 404')) {
+          errorContext = e.message
+        }
+        this.logger.warn(`Failed to dial peer address: ${peerAddress}`, errorContext)
         if (options.redialOnError) {
           await this.redialPeerAfterDelay(peerAddress)
         }

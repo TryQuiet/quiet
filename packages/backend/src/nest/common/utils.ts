@@ -140,7 +140,7 @@ export class DummyIOServer extends Server {
     return true
   }
 
-  close() {
+  async close() {
     logger.info('Closing DummyIOServer')
   }
 }
