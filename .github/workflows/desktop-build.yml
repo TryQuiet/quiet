@@ -61,6 +61,7 @@ jobs:
 
       - name: Get branch name
         id: branch
+        shell: bash
         run: |
           B_NAME=$(echo "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's|/|-|g')
           echo "branch_name=$B_NAME" >> $GITHUB_OUTPUT
@@ -73,11 +74,20 @@ jobs:
 
       - name: Build desktop preview
         shell: bash
+        env:
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ steps.branch.outputs.branch_name }}
         run: |
           cd packages/desktop
-          BRANCH="$BRANCH_NAME"
-          COMMIT=$(git rev-parse --short HEAD)
-          jq --arg suffix "-${BRANCH}-${COMMIT}" '.version += $suffix' package.json > package.tmp.json && mv package.tmp.json package.json
+          export VERSION_SUFFIX="-$BRANCH-$COMMIT_SHA"
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const pkgPath = path.resolve('package.json');
+          const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+          pkg.version += process.env.VERSION_SUFFIX;
+          fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+          NODE
           USE_HARD_LINKS=false node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
 
       - name: Upload artifact
