@@ -1,10 +1,11 @@
-name: Test IOS build
+name: iOS SIM Build
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
-  test-build-ios:
+  build-ios-simulator:
     # needs: detox-ios
     runs-on: ${{ matrix.os }}
 
@@ -41,32 +42,38 @@ jobs:
           pod install
         shell: bash
 
-      - name: Setup provisioning profile
-        run: ./.github/secrets/decrypt_secrets.sh
-        env:
-          IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
-          IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/mobile
 
-      - name: Build
+      - name: Get branch name
+        id: branch
+        shell: bash
         run: |
-          cd ./packages/mobile/ios
-          xcodebuild archive \
-            -workspace Quiet.xcworkspace \
-            -scheme Quiet \
-            -configuration Release \
-            -archivePath build/Quiet.xcarchive \
-            PROVISIONING_PROFILE="762df280-302c-4336-a56d-c74914169337" \
-            CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)"
+          B_NAME=$(echo "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's|/|-|g')
+          echo "branch_name=$B_NAME" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$B_NAME" >> $GITHUB_ENV
 
-      - name: Export .ipa
+      - name: Build (unsigned simulator)
+        shell: bash
         run: |
           cd ./packages/mobile/ios
           xcodebuild \
-            -exportArchive \
-            -archivePath build/Quiet.xcarchive \
-            -exportOptionsPlist ci.plist \
-            -exportPath build/
+            -workspace Quiet.xcworkspace \
+            -scheme Quiet \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
 
-      - name: Cleanup environment
-        if: always()
-        run: security delete-keychain build.keychain && rm -f ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision
+      - name: Upload simulator .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quiet-ios-simulator-${{ steps.extract_version.outputs.version }}-${{ steps.branch.outputs.branch_name }}-${{ github.event.pull_request.head.sha }}
+          path: ./packages/mobile/ios/build/sim/Build/Products/Release-iphonesimulator/Quiet.app
+          retention-days: 14

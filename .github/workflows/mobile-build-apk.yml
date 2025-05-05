@@ -4,12 +4,8 @@ on:
   release:
     types: [prereleased, released]
 
-  # Trigger a lightweight debug build for every non‑draft PR
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'packages/mobile/**'
-      - '.github/workflows/mobile-build-apk.yml'
 
 jobs:
   build-prod-apk:

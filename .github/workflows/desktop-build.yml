@@ -1,16 +1,11 @@
 name: Desktop Build
 
 on:
-  # Keep the release workflow for tagged builds
   release:
     types: [released, prereleased]
 
-  # Run a lightweight preview build for every PR that touches desktop code
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'packages/desktop/**'
-      - '.github/workflows/desktop-build.yml'
 
 jobs:
   build-debug-distributables:
