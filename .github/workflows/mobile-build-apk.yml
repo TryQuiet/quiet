@@ -150,7 +150,11 @@ jobs:
 
       - name: Get branch name
         id: branch
-        run: echo "branch_name=$(echo '${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}' | sed 's|/|-|g')" >> $GITHUB_OUTPUT
+        shell: bash
+        run: |
+          B_NAME=$(echo "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's|/|-|g')
+          echo "branch_name=$B_NAME" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$B_NAME" >> $GITHUB_ENV
 
       - name: "Upload debug .apk to artifacts"
         uses: actions/upload-artifact@v4
