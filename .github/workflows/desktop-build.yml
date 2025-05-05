@@ -61,7 +61,10 @@ jobs:
 
       - name: Get branch name
         id: branch
-        run: echo "branch_name=$(echo '${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}' | sed 's|/|-|g')" >> $GITHUB_OUTPUT
+        run: |
+          B_NAME=$(echo "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's|/|-|g')
+          echo "branch_name=$B_NAME" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$B_NAME" >> $GITHUB_ENV
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -72,6 +75,9 @@ jobs:
         shell: bash
         run: |
           cd packages/desktop
+          BRANCH="$BRANCH_NAME"
+          COMMIT=$(git rev-parse --short HEAD)
+          jq --arg suffix "-${BRANCH}-${COMMIT}" '.version += $suffix' package.json > package.tmp.json && mv package.tmp.json package.json
           USE_HARD_LINKS=false node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
 
       - name: Upload artifact
