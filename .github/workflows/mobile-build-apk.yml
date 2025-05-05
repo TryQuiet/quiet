@@ -12,7 +12,7 @@ on:
       - '.github/workflows/mobile-build-apk.yml'
 
 jobs:
-  build-android-package-kit:
+  build-prod-apk:
     # needs: detox-android
     runs-on: ${{ matrix.os }}
     if: |
@@ -110,7 +110,7 @@ jobs:
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
-  pr-build-android-debug:
+  build-debug-apk:
     # Only run for ready PRs (not drafts)
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -148,22 +148,12 @@ jobs:
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
 
+      - name: Get branch name
+        id: branch
+        run: echo "branch_name=$(echo '${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}' | sed 's|/|-|g')" >> $GITHUB_OUTPUT
+
       - name: "Upload debug .apk to artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: app-standard-debug.apk
+          name: Quiet-APK-${{steps.branch.outputs.branch_name}}-${{ github.event.pull_request.head.sha }}
           path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
-
-      # Drop a single comment with the artifact link
-      - name: "Comment PR with download link"
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}#artifacts`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: "📱 **Android debug build is ready!**\n\n➡️ [Download APK](" + runUrl + ")"
-            });

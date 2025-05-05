@@ -1,4 +1,4 @@
-name: Desktop release build
+name: Desktop Build
 
 on:
   # Keep the release workflow for tagged builds
@@ -13,7 +13,7 @@ on:
       - '.github/workflows/desktop-build.yml'
 
 jobs:
-  pr-build-desktop:
+  build-debug-distributables:
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     strategy:
       fail-fast: false
@@ -49,9 +49,19 @@ jobs:
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
 
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/desktop
+
       - name: Install libfuse (Linux only)
         if: matrix.os == 'ubuntu-22.04'
         run: sudo apt-get update && sudo apt-get install -y libfuse2
+
+      - name: Get branch name
+        id: branch
+        run: echo "branch_name=$(echo '${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}' | sed 's|/|-|g')" >> $GITHUB_OUTPUT
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -67,24 +77,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Quiet-${{ matrix.target }}-${{ github.sha }}
+          name: Quiet-${{ matrix.target }}-${{ steps.extract_version.outputs.version }}-${{ steps.branch.outputs.branch_name }}-${{ github.event.pull_request.head.sha }}
           path: ${{ matrix.artifact_glob }}
           retention-days: 14
-
-      # Comment once (Linux runner) so we don't spam the PR
-      - name: Comment PR with download link
-        if: matrix.os == 'ubuntu-22.04'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}#artifacts`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: "🖥️ **Desktop preview builds (Linux, macOS, Windows) are ready!**\n\n➡️ [Download all artifacts](" + runUrl + ")"
-            });
 
   release-start-notification-desktop:
     runs-on: ubuntu-22.04
@@ -126,7 +121,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-win.yml
 
-  build-linux:
+  build-linux-prod:
     # needs: run-e2e-tests-linux
     runs-on: ubuntu-22.04
     if: |
@@ -209,7 +204,7 @@ jobs:
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
-  build-macos:
+  build-macos-prod:
     # needs: run-e2e-tests-mac
     runs-on: macos-13
     if: |
@@ -294,7 +289,7 @@ jobs:
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
-  build-windows:
+  build-windows-prod:
     # needs: run-e2e-tests-win
     runs-on: windows-2019
     if: |
