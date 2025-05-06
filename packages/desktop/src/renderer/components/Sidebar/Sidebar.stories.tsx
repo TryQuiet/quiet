@@ -73,9 +73,7 @@ const args: IdentityPanelProps & ChannelsPanelProps & TorStatusProps & UserProfi
   },
   isTorInitialized: true,
   // @ts-expect-error
-  currentIdentity: {
-    nickname: 'nick',
-  },
+  currentIdentity: {},
   userProfileContextMenu: {
     visible: false,
     handleOpen: function (_args?: any): any {},

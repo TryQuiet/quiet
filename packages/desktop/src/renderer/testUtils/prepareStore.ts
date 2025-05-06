@@ -24,7 +24,7 @@ import { navigationReducer } from '../store/navigation/navigation.slice'
 import MockedSocket from 'socket.io-mock'
 import { fork, delay, call, put } from 'typed-redux-saga'
 
-export const reducers = {
+export const testReducers = {
   [StateManagerStoreKeys.Communities]: communities.reducer,
   [StateManagerStoreKeys.Identity]: identity.reducer,
   [StateManagerStoreKeys.Users]: users.reducer,
@@ -90,7 +90,7 @@ export const prepareStore = async (
   mockedState?: { [key in StoreKeys | StateManagerStoreKeys]?: any },
   mockedSocket?: MockedSocket
 ): Promise<PrepareStore> => {
-  const combinedReducers = combineReducers(reducers)
+  const combinedReducers = combineReducers(testReducers)
 
   const sagaMonitor = new SagaMonitor()
   const sagaMiddleware = createSagaMiddleware({

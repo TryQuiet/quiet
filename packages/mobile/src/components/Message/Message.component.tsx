@@ -25,7 +25,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   return message.photo ? (
     <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
   ) : (
-    <Jdenticon value={message.pubKey} size={37} />
+    <Jdenticon value={message.userId} size={37} />
   )
 }
 

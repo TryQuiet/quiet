@@ -1,93 +1,87 @@
-import { setupCrypto, pubKeyFromCsr } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communitiesActions } from '../../communities/communities.slice'
-import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { generateChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import {
   type Community,
   type Identity,
   MessageType,
   type PublicChannel,
-  ChannelMessage,
   MessagesLoadedPayload,
+  UserProfile,
+  User,
 } from '@quiet/types'
 import { verifyMessagesSaga } from './verifyMessages.saga'
 import { messagesActions } from '../messages.slice'
-import { messagesSelectors } from '../messages.selectors'
+import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
+import { createLogger } from '../../../utils/logger'
 import { usersSelectors } from '../../users/users.selectors'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
+
+const logger = createLogger('verifyMessagesSaga-test')
 
 describe('verifyMessage saga test', () => {
   let store: Store
   let factory: FactoryGirl
+  let baseTypes: FactoryGirl
 
   let community: Community
-  let alice: Identity
-  let bob: Identity
+  let owner: Identity
+
+  let ownerProfile: UserProfile
+  let bobProfile: UserProfile
 
   let generalChannel: PublicChannel
   let sportChannel: PublicChannel
 
-  let bobCsr: string
-  let aliceCsr: string
-
   beforeAll(async () => {
-    setupCrypto()
-
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    baseTypes = await getBaseTypesFactory()
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    logger.info('create community')
+    community = await factory.create('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    logger.info('create owner identity')
+    owner = await factory.create('Identity', {
+      communityId: community.id,
+    })
+
+    ownerProfile = await factory.create('UserProfile', {
+      userId: owner.userId,
       nickname: 'alice',
     })
 
-    aliceCsr = alice.userCsr?.userCsr || ''
-
-    store.dispatch(
-      communitiesActions.updateCommunityData({
-        id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
-      })
-    )
-
-    bob = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    bobProfile = await factory.create('UserProfile', {
       nickname: 'bob',
+      userId: 'bob123',
     })
 
-    bobCsr = bob.userCsr?.userCsr || ''
-
+    logger.info('create general channel')
     generalChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'general',
           description: 'Welcome to #general',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: owner.userId,
           id: generateChannelId('general'),
         },
       })
     ).channel
 
+    logger.info('create sport channel')
     sportChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'sport',
           description: 'Welcome to #sport',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: owner.userId,
           id: generateChannelId('sport'),
         },
       })
@@ -95,63 +89,75 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify standard message ', async () => {
-    const message: ChannelMessage = {
-      id: 'id1',
-      type: MessageType.Basic,
-      message: 'message',
-      createdAt: 24,
-      channelId: generalChannel.id,
-      signature: 'signature',
-      pubKey: pubKeyFromCsr(aliceCsr),
-      media: undefined,
-    }
-
-    const payload: MessagesLoadedPayload = {
-      messages: [message],
+    logger.info('verify standard message')
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: owner.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Basic,
+        }),
+      ],
       isVerified: true,
-    }
+    })
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
-      .withReducer(reducer)
+    logger.info('payload', action)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
+      .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .not.call(verifyUserInfoMessage)
       .put(
         messagesActions.addMessageVerificationStatus({
-          publicKey: message.pubKey,
-          signature: message.signature,
+          id: action.payload.messages[0].id,
           isVerified: true,
         })
       )
       .run()
   })
 
-  it('verify info message from owner on general', async () => {
-    const message: ChannelMessage = {
-      id: 'id1',
-      type: MessageType.Info,
-      message: 'message',
-      createdAt: 24,
-      channelId: generalChannel.id,
-      signature: 'signature',
-      pubKey: pubKeyFromCsr(aliceCsr),
-      media: undefined,
-    }
+  it('verify standard message - fail', async () => {
+    logger.info('verify standard message')
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: owner.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Basic,
+        }),
+      ],
+      isVerified: false,
+    })
 
-    const payload: MessagesLoadedPayload = {
-      messages: [message],
-      isVerified: true,
-    }
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
-      .withReducer(reducer)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
+      .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .not.call(verifyUserInfoMessage)
       .put(
         messagesActions.addMessageVerificationStatus({
-          publicKey: message.pubKey,
-          signature: message.signature,
+          id: action.payload.messages[0].id,
+          isVerified: false,
+        })
+      )
+      .run()
+  })
+
+  it('verify info message from owner on general', async () => {
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: owner.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Info,
+          message: createdChannelMessage(generalChannel.name),
+        }),
+      ],
+      isVerified: true,
+    })
+    const reducer = combineReducers(testReducers)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        messagesActions.addMessageVerificationStatus({
+          id: action.payload.messages[0].id,
           isVerified: true,
         })
       )
@@ -159,71 +165,52 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from user on general - fail', async () => {
-    const message: ChannelMessage = {
-      id: 'id1',
-      type: MessageType.Info,
-      message: 'message',
-      createdAt: 24,
-      channelId: generalChannel.id,
-      signature: 'signature',
-      pubKey: pubKeyFromCsr(bobCsr),
-      media: undefined,
-    }
-
-    const payload: MessagesLoadedPayload = {
-      messages: [message],
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: bobProfile.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Info,
+          message: 'fake info message',
+        }),
+      ],
       isVerified: true,
-    }
+    })
 
-    store.dispatch(messagesActions.addMessages({ messages: [message] }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
+    const reducer = combineReducers(testReducers)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(reducer)
       .withState(store.getState())
-      .call(verifyUserInfoMessage, 'bob', {
-        ...generalChannel,
-        messages: { ids: [], entities: {} },
-      })
-      .not.put(
+      .put(
         messagesActions.addMessageVerificationStatus({
-          publicKey: message.pubKey,
-          signature: message.signature,
-          isVerified: true,
+          id: action.payload.messages[0].id,
+          isVerified: false,
         })
       )
       .run()
   })
 
   it('verify info message from user on general - success', async () => {
-    const message: ChannelMessage = {
-      id: 'id1',
-      type: MessageType.Info,
-      message: userJoinedMessage(bob.nickname),
-      createdAt: 24,
-      channelId: generalChannel.id,
-      signature: 'signature',
-      pubKey: pubKeyFromCsr(bobCsr),
-      media: undefined,
-    }
-
-    const payload: MessagesLoadedPayload = {
-      messages: [message],
+    logger.info('verify info message from user on general - success')
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: bobProfile.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Info,
+          message: userJoinedMessage(bobProfile.nickname),
+        }),
+      ],
       isVerified: true,
-    }
+    })
 
-    store.dispatch(messagesActions.addMessages({ messages: [message] }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
+    const reducer = combineReducers(testReducers)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(reducer)
       .withState(store.getState())
-      .call(verifyUserInfoMessage, 'bob', {
-        ...generalChannel,
-        messages: { ids: [], entities: {} },
-      })
       .put(
         messagesActions.addMessageVerificationStatus({
-          publicKey: message.pubKey,
-          signature: message.signature,
+          id: action.payload.messages[0].id,
           isVerified: true,
         })
       )
@@ -231,71 +218,57 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from user on other channel - fail', async () => {
-    const message: ChannelMessage = {
-      id: 'id1',
-      type: MessageType.Info,
-      message: 'message',
-      createdAt: 24,
-      channelId: sportChannel.id,
-      signature: 'signature',
-      pubKey: pubKeyFromCsr(bobCsr),
-      media: undefined,
-    }
-
-    const payload: MessagesLoadedPayload = {
-      messages: [message],
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: bobProfile.userId,
+          channelId: sportChannel.id,
+          type: MessageType.Info,
+          message: 'not a valid info message',
+        }),
+      ],
       isVerified: true,
-    }
+    })
 
-    store.dispatch(messagesActions.addMessages({ messages: [message] }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
+    const reducer = combineReducers(testReducers)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(reducer)
       .withState(store.getState())
-      .call(verifyUserInfoMessage, 'bob', {
-        ...sportChannel,
-        messages: { ids: [], entities: {} },
-      })
       .not.put(
         messagesActions.addMessageVerificationStatus({
-          publicKey: message.pubKey,
-          signature: message.signature,
+          id: action.payload.messages[0].id,
           isVerified: true,
+        })
+      )
+      .put(
+        messagesActions.addMessageVerificationStatus({
+          id: action.payload.messages[0].id,
+          isVerified: false,
         })
       )
       .run()
   })
 
   it('verify info message from user on other channel - success', async () => {
-    const message: ChannelMessage = {
-      id: 'id1',
-      type: MessageType.Info,
-      message: createdChannelMessage(sportChannel.name),
-      createdAt: 24,
-      channelId: sportChannel.id,
-      signature: 'signature',
-      pubKey: pubKeyFromCsr(bobCsr),
-      media: undefined,
-    }
-
-    const payload: MessagesLoadedPayload = {
-      messages: [message],
+    const action = await factory.build('AddMessages', {
+      messages: [
+        await baseTypes.build('ChannelMessage', {
+          userId: bobProfile.userId,
+          channelId: sportChannel.id,
+          type: MessageType.Info,
+          message: createdChannelMessage(sportChannel.name),
+        }),
+      ],
       isVerified: true,
-    }
+    })
 
-    store.dispatch(messagesActions.addMessages({ messages: [message] }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
+    const reducer = combineReducers(testReducers)
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(action.payload))
       .withReducer(reducer)
       .withState(store.getState())
-      .call(verifyUserInfoMessage, 'bob', {
-        ...sportChannel,
-        messages: { ids: [], entities: {} },
-      })
       .put(
         messagesActions.addMessageVerificationStatus({
-          publicKey: message.pubKey,
-          signature: message.signature,
+          id: action.payload.messages[0].id,
           isVerified: true,
         })
       )

@@ -5,6 +5,9 @@ import ConnectionProcessComponent from '../../components/ConnectionProcess/Conne
 import { Linking } from 'react-native'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('ConnectionProcessScreen')
 
 export const ConnectionProcessScreen: FC = () => {
   const dispatch = useDispatch()
@@ -17,7 +20,9 @@ export const ConnectionProcessScreen: FC = () => {
   }, [])
 
   useEffect(() => {
+    logger.info(isJoiningCompletedSelector)
     if (isJoiningCompletedSelector) {
+      logger.info('Joining completed')
       dispatch(
         navigationActions.replaceScreen({
           screen: ScreenNames.ChannelListScreen,

@@ -84,8 +84,8 @@ describe('IpfsFileManagerService', () => {
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }
-    await libp2pService.libp2pInstance?.stop()
-    await ipfsService.ipfsInstance?.stop()
+    await libp2pService.close()
+    await ipfsService.stop()
     await module.close()
     sleep(1000)
   })
@@ -100,7 +100,6 @@ describe('IpfsFileManagerService', () => {
     await ipfsFileManagerService.stop()
     await localDbService.close()
     await module.close()
-    sleep(10000)
   })
 
   it('uploads image', async () => {

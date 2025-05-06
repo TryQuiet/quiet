@@ -13,8 +13,8 @@ export interface NetworkDataPayload {
 
 export interface NetworkStats {
   peerId: string
-  lastSeen: number
-  connectionTime: number
+  lastSeen: number // last time the peer was seen
+  connectionTime: number // time spent connected
 }
 
 export enum ConnectionProcessInfo {
@@ -34,6 +34,11 @@ export enum ConnectionProcessInfo {
   BACKEND_MODULES = 'Initializing backend',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',
   CONNECTING_TO_COMMUNITY = 'Connecting to community members via Tor',
+}
+
+export interface SetConnectionProcessInfoPayload {
+  info: string
+  isOwner: boolean
 }
 
 export const TOR_BOOTSTRAP_COMPLETE = 'Bootstrapped 100% (done)'

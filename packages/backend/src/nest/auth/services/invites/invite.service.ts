@@ -26,8 +26,8 @@ export const DEFAULT_LONG_LIVED_MAX_USES = 0 // no limit
 export const DEFAULT_LONG_LIVED_VALID_FOR_MS = 0 // no limit
 
 class InviteService extends ChainServiceBase {
-  public static init(sigChain: SigChain): InviteService {
-    return new InviteService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
 
   public createUserInvite(
@@ -42,7 +42,7 @@ class InviteService extends ChainServiceBase {
     if (!this.sigChain.team) {
       throw new Error('SigChain is not initialized')
     }
-    if (!this.sigChain.team!.memberIsAdmin(this.sigChain.localUserContext.user.userId)) {
+    if (!this.sigChain.user || !this.sigChain.team!.memberIsAdmin(this.sigChain.user.userId)) {
       throw new PermissionsError('Only the admin can create invites')
     }
     const invitation: InviteResult = this.sigChain.team!.inviteMember({
@@ -84,7 +84,7 @@ class InviteService extends ChainServiceBase {
   }
 
   public revoke(id: string) {
-    if (!this.sigChain.team!.memberIsAdmin(this.sigChain.localUserContext.user.userId)) {
+    if (!this.sigChain.user || !this.sigChain.team!.memberIsAdmin(this.sigChain.user.userId)) {
       throw new PermissionsError('Only the admin can revoke invites')
     }
     this.sigChain.team!.revokeInvitation(id)

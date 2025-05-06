@@ -1,60 +1,55 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, call, put, delay } from 'typed-redux-saga'
-import { messagesActions } from '../messages.slice'
-import { MessageType, type MessageVerificationStatus } from '@quiet/types'
-import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { select, call, put } from 'typed-redux-saga'
 
-import { usersSelectors } from '../../users/users.selectors'
-import { verifyUserInfoMessage } from '@quiet/common'
+import { messagesActions } from '../messages.slice'
+import { ChannelMessage, MessageType, type MessageVerificationStatus } from '@quiet/types'
+import { generalChannel, publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { deleteChannelMessageRegex, generalChannelDeletionMessageRegex, verifyUserInfoMessage } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('verifyMessagesSaga')
 
 export function* verifyMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>>['payload']
 ): Generator {
-  const messages = action.payload.messages
-
-  let ownerData = yield* select(usersSelectors.ownerData)
-
-  while (true) {
-    ownerData = yield* select(usersSelectors.ownerData)
-    if (ownerData?.pubKey) {
-      break
-    }
-    yield* delay(500)
-  }
+  const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
-    let isVerified = Boolean(action.payload.isVerified)
+    let isVerified = !!action.payload.isVerified
 
-    if (message.type === MessageType.Info && message.pubKey !== ownerData.pubKey) {
-      let user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
-
-      while (true) {
-        user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
-        if (user) {
-          break
-        }
-        yield* delay(500)
-      }
+    if (message.type === MessageType.Info) {
+      logger.info('getting channel for info message', message.channelId, message.id)
       const channel = yield* select(publicChannelsSelectors.getChannelById(message.channelId))
       if (!channel) {
         logger.warn(`No channel for ID found in redux`, message.channelId, message.id)
         return
       }
 
-      const expectedMessage = yield* call(verifyUserInfoMessage, user.username, channel)
-
-      if (message.message !== expectedMessage) {
-        logger.error(`${user.username} tried to send a malicious info message`)
+      const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
+      if (author == null) {
+        logger.warn(`No author for ID found in redux`, message.userId, message.id)
         isVerified = false
+      } else {
+        // Handle channel deletion info messages sent to #general
+        if (channel.name === 'general' && deleteChannelMessageRegex.test(message.message)) {
+          logger.debug('Trusting deletion message until we have a better solution')
+        } else if (generalChannelDeletionMessageRegex.test(message.message)) {
+          logger.debug('Trusting deletion message until we have a better solution')
+        } else {
+          const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
+          if (message.message !== expectedMessage) {
+            logger.warn(`${author.nickname} tried to send a malicious info message`)
+            logger.info('Expected message:', expectedMessage)
+            logger.info('Received message:', message.message)
+            isVerified = false
+          }
+        }
       }
     }
 
     const verificationStatus: MessageVerificationStatus = {
-      publicKey: message.pubKey,
-      signature: message.signature,
+      id: message.id,
       isVerified,
     }
 

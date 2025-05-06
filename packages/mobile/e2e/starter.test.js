@@ -164,7 +164,7 @@ describe('User', () => {
   test('sees channel deletion information in #general channel', async () => {
     await press(element(by.text('#general')))
 
-    await waitFor(element(by.text('@rick deleted #roll')))
+    await waitFor(element(by.text(deleteChannelMessage('roll'))))
       .toBeVisible()
       .withTimeout(BASIC)
   })

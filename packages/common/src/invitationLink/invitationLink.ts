@@ -91,8 +91,10 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
 
   let data: InvitationData | null = null
   if (psk != null && authData == null) {
+    logger.info('Parsing v1 invitation link')
     data = parseLinkV1(_url)
   } else if (psk != null && authData != null) {
+    logger.info('Parsing v2 invitation link')
     data = parseLinkV2(_url)
   }
 
@@ -235,7 +237,6 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationDataV1 | Invitati
     case InvitationDataVersion.v2:
       url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs))
       url.searchParams.append(PSK_PARAM_KEY, data.psk)
-      url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
       url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
       break
   }

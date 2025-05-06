@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
@@ -13,7 +13,7 @@ import {
 } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, getFactory, network, publicChannels } from '@quiet/state-manager'
+import { communities, getReduxStoreFactory, network, publicChannels } from '@quiet/state-manager'
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
 import { LoadingPanelType } from '@quiet/types'
@@ -39,17 +39,16 @@ describe('Restart app works correctly', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
     })
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
