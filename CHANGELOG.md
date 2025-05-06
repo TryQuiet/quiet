@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Chores
+
+* Disabled automatic updates from v4.x to v5.x by changing the update bucket [#2832](https://github.com/TryQuiet/quiet/issues/2832)
+
 ## [4.1.0]
 
 ### New Features
