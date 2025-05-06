@@ -1,91 +1,11 @@
 name: Desktop release build
 
 on:
-  # Keep the release workflow for tagged builds
   release:
-    types: [released, prereleased]
-
-  # Run a lightweight preview build for every PR that touches desktop code
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'packages/desktop/**'
-      - '.github/workflows/desktop-build.yml'
+    types:
+      [released, prereleased]
 
 jobs:
-  pr-build-desktop:
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-22.04
-            target: linux
-            source_path: linux
-            build_cmd: "--linux AppImage"
-            artifact_glob: "packages/desktop/dist/*.AppImage"
-          - os: macos-13
-            target: macos
-            source_path: darwin
-            build_cmd: "--mac"
-            artifact_glob: "packages/desktop/dist/*.dmg"
-          - os: windows-2019
-            target: win
-            source_path: win32
-            build_cmd: "--win"
-            artifact_glob: "packages/desktop/dist/*.exe"
-
-    runs-on: ${{ matrix.os }}
-    env:
-      TEST_MODE: true
-      IS_LOCAL: true
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup environment
-        uses: ./.github/actions/setup-env
-        with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
-
-      - name: Install libfuse (Linux only)
-        if: matrix.os == 'ubuntu-22.04'
-        run: sudo apt-get update && sudo apt-get install -y libfuse2
-
-      - name: Before build
-        uses: ./.github/actions/before-build
-        with:
-          source-path: ${{ matrix.source_path }}
-
-      - name: Build desktop preview
-        shell: bash
-        run: |
-          cd packages/desktop
-          USE_HARD_LINKS=false node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Quiet-${{ matrix.target }}-${{ github.sha }}
-          path: ${{ matrix.artifact_glob }}
-          retention-days: 14
-
-      # Comment once (Linux runner) so we don't spam the PR
-      - name: Comment PR with download link
-        if: matrix.os == 'ubuntu-22.04'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}#artifacts`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: "🖥️ **Desktop preview builds (Linux, macOS, Windows) are ready!**\n\n➡️ [Download all artifacts](" + runUrl + ")"
-            });
-
   release-start-notification-desktop:
     runs-on: ubuntu-22.04
     if: |
@@ -95,11 +15,13 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: 'recursive'
+          
       - name: Extract version
         id: extract_version
         uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
         with:
           path: packages/desktop
+          
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
         if: always()

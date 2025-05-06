@@ -46,7 +46,7 @@ runs:
         message: |
           Release Success - `${{ inputs.os-name }} ${{ inputs.version }}`
         channel: releases
-
+        
     - name: 'Failure Notification'
       uses: actions-ecosystem/action-slack-notifier@v1
       if: ${{ inputs.status == 'failure' }}
