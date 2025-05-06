@@ -8,7 +8,7 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('message:stories')
 
-storiesOf('Message', module)
+storiesOf('TestMessage', module)
   .add('Default', () => {
     return (
       <Message
@@ -23,9 +23,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            userId: 'test',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -48,9 +48,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            userId: 'test',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -76,9 +76,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            userId: 'test',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
           },
         ]}
         openUrl={openUrl}
@@ -101,9 +101,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'someone',
+            userId: 'testSomeone',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'testSomeone',
           },
         ]}
         openUrl={() => {}}
@@ -126,9 +126,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'scientist',
+            userId: 'testScience',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'testScience',
           },
         ]}
         openUrl={() => {}}

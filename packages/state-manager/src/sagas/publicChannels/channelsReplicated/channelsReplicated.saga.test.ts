@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
-import { generateMessageFactoryContentWithId, getFactory, messages, publicChannels } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { messages, publicChannels } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -16,12 +16,14 @@ import { messagesActions } from '../../messages/messages.slice'
 import { type Community, type Identity, type PublicChannel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
+import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
 const logger = createLogger('channelsReplicatedSaga-test')
 
 describe('channelsReplicatedSaga', () => {
   let store: Store
   let factory: FactoryGirl
+  let baseTypes: FactoryGirl
 
   let community: Community
   let alice: Identity
@@ -35,12 +37,13 @@ describe('channelsReplicatedSaga', () => {
     setupCrypto()
 
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    baseTypes = await getBaseTypesFactory()
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -50,7 +53,7 @@ describe('channelsReplicatedSaga', () => {
 
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     sailingChannel = (
-      await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
+      await factory.build('PublicChannel', {
         communityId: community.id,
         channel: {
           name: 'sailing',
@@ -63,7 +66,7 @@ describe('channelsReplicatedSaga', () => {
     ).payload.channel
 
     photoChannel = (
-      await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
+      await factory.build('PublicChannel', {
         communityId: community.id,
         channel: {
           name: 'photo',
@@ -78,7 +81,7 @@ describe('channelsReplicatedSaga', () => {
 
   test('save replicated channels in local storage', async () => {
     logger.info({ generalChannel })
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -96,7 +99,7 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('do not modify already stored channel', async () => {
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -119,7 +122,7 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('Add replicated channel to local store and create corresponding messages base', async () => {
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -142,7 +145,7 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('Do not perform adding channel and messages base actions if channel is already stored', async () => {
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -175,9 +178,11 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('populate channel cache on collecting data from persist', async () => {
-    const message = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      message: generateMessageFactoryContentWithId(generalChannel.id),
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        userId: alice.userId,
+        channelId: generalChannel.id,
+      }),
     })
 
     store.dispatch(
@@ -187,7 +192,7 @@ describe('channelsReplicatedSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -201,12 +206,14 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('do not reset channel cache if already populated', async () => {
-    const message = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      message: generateMessageFactoryContentWithId(generalChannel.id),
+    const message = await factory.create('TestMessage', {
+      message: baseTypes.build('ChannelMessage', {
+        userId: alice.userId,
+        channelId: generalChannel.id,
+      }),
     })
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -222,7 +229,7 @@ describe('channelsReplicatedSaga', () => {
   test('remove channel from store if it doesnt exist in the payload from the backend', async () => {
     store.dispatch(publicChannelsActions.addChannel({ channel: photoChannel }))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
@@ -242,7 +249,7 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('bug replication - dont delete when channels object from database is empty', async () => {
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({

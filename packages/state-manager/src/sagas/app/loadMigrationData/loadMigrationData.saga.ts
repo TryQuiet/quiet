@@ -1,7 +1,7 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, select } from 'typed-redux-saga'
 
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 
 import { type appActions } from '../app.slice'
 import { type Socket, applyEmitParams } from '../../../types'
@@ -29,5 +29,5 @@ export function* loadMigrationDataSaga(
     }
   }
 
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LOAD_MIGRATION_DATA, data))
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.LOAD_MIGRATION_DATA, data))
 }

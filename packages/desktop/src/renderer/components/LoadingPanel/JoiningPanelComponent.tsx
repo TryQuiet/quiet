@@ -6,6 +6,9 @@ import { Grid, Typography } from '@mui/material'
 import { Site } from '@quiet/common'
 import { ConnectionProcessInfo } from '@quiet/types'
 import classNames from 'classnames'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('JoiningPanelComponent')
 
 const PREFIX = 'JoiningPanelComponent'
 
@@ -114,6 +117,7 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   connectionInfo,
   isOwner,
 }) => {
+  logger.info('Generating JoiningPanelComponent with props:', { open, connectionInfo, isOwner })
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
       <StyledGrid container justifyContent='center' className={classes.root} width={connectionInfo.number * 3}>

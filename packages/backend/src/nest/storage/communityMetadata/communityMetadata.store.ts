@@ -86,11 +86,10 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
   public encryptEntry(payload: CommunityMetadata): EncryptedAndSignedPayload {
     try {
       const chain = this.sigchainService.getActiveChain()
-      const encryptedPayload = chain.crypto.encryptAndSign(
-        payload,
-        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
-        chain.localUserContext
-      )
+      const encryptedPayload = chain.crypto.encryptAndSign(payload, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
       return encryptedPayload
     } catch (err) {
       logger.error('Failed to encrypt user entry:', err)
@@ -101,11 +100,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
   public decryptEntry(payload: EncryptedAndSignedPayload): CommunityMetadata {
     try {
       const chain = this.sigchainService.getActiveChain()
-      const decryptedPayload = chain.crypto.decryptAndVerify<CommunityMetadata>(
-        payload.encrypted,
-        payload.signature,
-        chain.localUserContext
-      )
+      const decryptedPayload = chain.crypto.decryptAndVerify<CommunityMetadata>(payload.encrypted, payload.signature)
       return decryptedPayload.contents
     } catch (err) {
       logger.error('Failed to decrypt user entry:', err)
@@ -214,11 +209,8 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
       }
       const meta = sigChainService
         .getActiveChain()
-        .crypto.decryptAndVerify<CommunityMetadata>(
-          entryValue.encrypted,
-          entryValue.signature,
-          sigChainService.getActiveChain().localUserContext
-        ).contents as CommunityMetadata
+        .crypto.decryptAndVerify<CommunityMetadata>(entryValue.encrypted, entryValue.signature)
+        .contents as CommunityMetadata
       if (entry.payload.value && entry.payload.key !== meta.id) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry key != payload id')
         return false

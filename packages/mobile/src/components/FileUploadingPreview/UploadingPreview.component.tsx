@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Image, ScrollView, TouchableWithoutFeedback, View } from 'react-native'
-import { imagesExtensions } from '@quiet/state-manager'
-import { FileContent, FilePreviewData } from '@quiet/types'
+import { FileContent, FilePreviewData, imagesExtensions } from '@quiet/types'
 import { appImages } from '../../assets'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'

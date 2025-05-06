@@ -9,9 +9,8 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelContextMenu from '../renderer/components/ContextMenu/menus/ChannelContextMenu.container'
 import DeleteChannel from '../renderer/components/Channel/DeleteChannel/DeleteChannel'
-import { identity, getFactory, communities } from '@quiet/state-manager'
-import { navigationActions } from '../renderer/store/navigation/navigation.slice'
-import { MenuName } from '../const/MenuNames.enum'
+import { identity, getReduxStoreFactory, communities } from '@quiet/state-manager'
+import { CommunityOwnership } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -34,21 +33,19 @@ describe('Channel menu', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        id: '0',
-        name: 'community',
-        CA: null,
-        rootCa: '',
-        peerList: [],
-      }
-    )
+    const community = await factory.create('Community', {
+      id: '0',
+      name: 'community',
+      CA: null,
+      rootCa: '',
+      peerList: [],
+      ownership: CommunityOwnership.User,
+    })
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -81,13 +78,12 @@ describe('Channel menu', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 

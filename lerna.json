@@ -11,7 +11,7 @@
     },
     "bootstrap" : {
       "hoist": [
-        "eslint*", 
+        "eslint*",
         "@typescript-eslint/*",
         "prettier*",
         "lerna",

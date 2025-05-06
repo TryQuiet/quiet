@@ -1,4 +1,4 @@
-import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
+import { KeyMetadata } from '@localfirst/crdx/'
 import { Base58 } from '@localfirst/auth'
 
 export enum EncryptionScopeType {
@@ -26,7 +26,7 @@ export type EncryptedAndSignedPayload = {
   encrypted: EncryptedPayload
   signature: Signature
   ts: number
-  username: string
+  userId: string
 }
 
 export type DecryptedPayload<T> = {

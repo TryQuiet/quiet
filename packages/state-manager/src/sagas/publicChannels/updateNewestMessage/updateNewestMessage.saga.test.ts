@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { type communitiesActions } from '../../communities/communities.slice'
@@ -31,12 +31,12 @@ describe('markUnreadChannelsSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
@@ -54,7 +54,7 @@ describe('markUnreadChannelsSaga', () => {
             name,
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
+            owner: alice.userId,
             id: generateChannelId(name),
           },
         }
@@ -70,7 +70,7 @@ describe('markUnreadChannelsSaga', () => {
     // Automatically create messages
     for (const id of messagesides) {
       const message = (
-        await factory.build<typeof publicChannelsActions.test_message>('Message', {
+        await factory.build('TestMessage', {
           identity: alice,
           message: {
             id: Math.random().toString(36).substr(2.9),
@@ -87,7 +87,7 @@ describe('markUnreadChannelsSaga', () => {
       messages.push(message)
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       updateNewestMessageSaga,
       messagesActions.addMessages({
@@ -108,7 +108,7 @@ describe('markUnreadChannelsSaga', () => {
     // Automatically create messages
     for (const id of messagesides) {
       const message = (
-        await factory.build<typeof publicChannelsActions.test_message>('Message', {
+        await factory.build('TestMessage', {
           identity: alice,
           message: {
             id: Math.random().toString(36).substr(2.9),
@@ -127,7 +127,7 @@ describe('markUnreadChannelsSaga', () => {
 
     // Set the newest message
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+      await factory.create('TestMessage', {
         identity: alice,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -144,7 +144,7 @@ describe('markUnreadChannelsSaga', () => {
 
     store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       updateNewestMessageSaga,
       messagesActions.addMessages({
@@ -163,7 +163,7 @@ describe('markUnreadChannelsSaga', () => {
     // Automatically create messages
     for (const id of messagesides) {
       const message = (
-        await factory.build<typeof publicChannelsActions.test_message>('Message', {
+        await factory.build('TestMessage', {
           identity: alice,
           message: {
             id: Math.random().toString(36).substr(2.9),
@@ -182,7 +182,7 @@ describe('markUnreadChannelsSaga', () => {
 
     // Set the newest message
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+      await factory.create('TestMessage', {
         identity: alice,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -199,7 +199,7 @@ describe('markUnreadChannelsSaga', () => {
 
     store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       updateNewestMessageSaga,
       messagesActions.addMessages({

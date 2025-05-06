@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, users, publicChannels } from '@quiet/state-manager'
+import { communities, identity, publicChannels } from '@quiet/state-manager'
 import { getChannelNameFromChannelId } from '@quiet/common'
 
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
@@ -16,7 +16,6 @@ export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
 
   const usernameTaken = useSelector(identity.selectors.usernameTaken)
-  const duplicateCerts = useSelector(users.selectors.duplicateCerts)
 
   useEffect(() => {
     if (usernameTaken) {
@@ -26,15 +25,7 @@ export const ChannelListScreen: FC = () => {
         })
       )
     }
-
-    if (duplicateCerts) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.PossibleImpersonationAttackScreen,
-        })
-      )
-    }
-  }, [dispatch, usernameTaken, duplicateCerts])
+  }, [dispatch, usernameTaken])
 
   const redirect = useCallback(
     (id: string) => {

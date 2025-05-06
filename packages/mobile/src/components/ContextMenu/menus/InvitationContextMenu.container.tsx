@@ -25,10 +25,6 @@ export const InvitationContextMenu: FC = () => {
   const inviteLink = useSelector(connection.selectors.invitationUrl)
   const [invitationLink, setInvitationLink] = useState<string>(inviteLink)
   const [invitationReady, setInvitationReady] = useState<boolean>(false)
-  useEffect(() => {
-    dispatch(connection.actions.createInvite({}))
-    setInvitationReady(true)
-  }, [])
 
   useEffect(() => {
     if (invitationReady) {
@@ -37,6 +33,11 @@ export const InvitationContextMenu: FC = () => {
   }, [invitationReady, inviteLink])
 
   const invitationContextMenu = useContextMenu(MenuName.Invitation)
+
+  useEffect(() => {
+    dispatch(connection.actions.createInvite({}))
+    setInvitationReady(true)
+  }, [invitationContextMenu.visible])
 
   const redirect = useCallback(
     (screen: ScreenNames) => {

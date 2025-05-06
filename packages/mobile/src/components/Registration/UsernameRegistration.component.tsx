@@ -47,12 +47,13 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
-    if (registeredUsers && !isNewUser) {
-      const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
-      if (allUsersSet.has(name)) {
-        setInputError(`Username @${name} is already taken`)
-      }
-    }
+    // cutting out unique username check for now
+    // if (registeredUsers && !isNewUser) {
+    //   const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
+    //   if (allUsersSet.has(name)) {
+    //     setInputError(`Username @${name} is already taken`)
+    //   }
+    // }
   }
 
   const onPress = () => {

@@ -20,6 +20,7 @@ export const ChannelContextMenu: FC = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
   const channel = useSelector(publicChannels.selectors.currentChannel)
+  const isOwner = useSelector(communities.selectors.isOwner)
 
   let title = ''
   if (channel?.name) {
@@ -42,7 +43,7 @@ export const ChannelContextMenu: FC = () => {
 
   let items: ContextMenuItemProps[] = []
 
-  if (community?.CA) {
+  if (isOwner) {
     items = [
       ...items,
       {

@@ -1,10 +1,9 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, MessageType } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type Socket } from 'socket.io-client'
+import { type Socket } from '../../../types'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
@@ -16,13 +15,15 @@ import {
   type FileMetadata,
   type Identity,
   type PublicChannel,
-  SocketActionTypes,
+  SocketActions,
   ChannelMessage,
   SendingStatus,
+  MessageType,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 import { uploadFileSaga } from './uploadFile.saga'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('uploadFileSaga', () => {
   let store: Store
@@ -42,22 +43,21 @@ describe('uploadFileSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    alice = await factory.create('Identity', {
+      communityId: community.id,
     })
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'comics',
           description: 'Welcome to #comics',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('comics'),
         },
       })
@@ -77,8 +77,7 @@ describe('uploadFileSaga', () => {
     }
 
     message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-        identity: alice,
+      await factory.create('TestMessage', {
         message: {
           id: messageId,
           type: MessageType.Basic,
@@ -101,9 +100,9 @@ describe('uploadFileSaga', () => {
 
     if (!currentChannel) throw new Error('no current channel id')
 
-    const peerId = alice.peerId.id
+    const peerId = alice.networkInfo.peerId.id
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       uploadFileSaga,
       socket,
@@ -112,7 +111,7 @@ describe('uploadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
+        SocketActions.UPLOAD_FILE,
         {
           file: media,
           peerId,
@@ -128,14 +127,14 @@ describe('uploadFileSaga', () => {
 
     if (!currentChannel) throw new Error('no current channel id')
 
-    const peerId = alice.peerId.id
+    const peerId = alice.networkInfo.peerId.id
 
     const messageWithoutMedia = {
       ...message,
       media: undefined,
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       uploadFileSaga,
       socket,
@@ -144,7 +143,7 @@ describe('uploadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
+        SocketActions.UPLOAD_FILE,
         {
           file: media,
           peerId,

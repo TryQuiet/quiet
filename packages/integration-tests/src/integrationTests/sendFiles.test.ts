@@ -8,7 +8,7 @@ import {
 import { createCommunity, joinCommunity, getCommunityOwnerData, sendImage, SendImage } from './appActions'
 import { createApp, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { FileContent } from '@quiet/state-manager'
+import { FileContent } from '@quiet/types'
 import { createLogger } from '../logger'
 
 const logger = createLogger('files')

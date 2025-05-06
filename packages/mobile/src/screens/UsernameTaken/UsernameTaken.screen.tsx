@@ -12,9 +12,9 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const usernameRegistered = currentIdentity?.userCertificate != null
+  const usernameRegistered = Boolean(currentIdentity?.userId)
 
-  const registeredUsers = useSelector(users.selectors.certificatesMapping)
+  const registeredUsers = useSelector(users.selectors.allUsers)
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
@@ -41,7 +41,7 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
       fetching={false}
       variant={UsernameVariant.TAKEN}
       handleBackButton={handleBackButton}
-      currentUsername={currentIdentity?.nickname}
+      currentUsername={currentIdentity?.userId}
       registeredUsers={registeredUsers}
     />
   )

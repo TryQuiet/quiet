@@ -48,9 +48,9 @@ describe('Chat component', () => {
               createdAt: 1698483600, // Oct 28, 2023, 9:00 AM UTC
               date: '28 Oct, 10:00',
               nickname: 'alice',
+              userId: 'aliceUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '2',
@@ -60,9 +60,9 @@ describe('Chat component', () => {
               createdAt: 1698483660, // Oct 28, 2023, 9:00 AM UTC
               date: '28 Oct, 10:01',
               nickname: 'alice',
+              userId: 'aliceUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -73,9 +73,9 @@ describe('Chat component', () => {
               createdAt: 1698483720, // Oct 28, 2023, 9:02 AM UTC
               date: '28 Oct, 10:02',
               nickname: 'john',
+              userId: 'johnUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
         ],
@@ -88,9 +88,9 @@ describe('Chat component', () => {
               createdAt: 1714485600, // Apr 30, 2024, 2:00 PM UTC (same day as test)
               date: '12:40',
               nickname: 'chad',
+              userId: 'chadUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '5',
@@ -99,9 +99,9 @@ describe('Chat component', () => {
               createdAt: 1714485660, // Apr 30, 2024, 2:06 PM UTC
               date: '12:41',
               nickname: 'chad',
+              userId: 'chadUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '6',
@@ -110,9 +110,9 @@ describe('Chat component', () => {
               createdAt: 1714485900, // Apr 30, 2024, 2:06 PM UTC
               date: '12:45',
               nickname: 'chad',
+              userId: 'chadUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -123,9 +123,9 @@ describe('Chat component', () => {
               createdAt: 1714485960, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'anakin',
+              userId: 'anakinUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -136,9 +136,9 @@ describe('Chat component', () => {
               createdAt: 1714485970, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'anakin',
+              userId: 'anakinUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -149,9 +149,9 @@ describe('Chat component', () => {
               createdAt: 1714485980, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'yoda',
+              userId: 'yodaUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -162,9 +162,9 @@ describe('Chat component', () => {
               createdAt: 1714485990, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'obi',
+              userId: 'obiUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '12',
@@ -173,9 +173,9 @@ describe('Chat component', () => {
               createdAt: 1714486000, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'obi',
+              userId: 'obiUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -186,9 +186,9 @@ describe('Chat component', () => {
               createdAt: 1714486010, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'wookie',
+              userId: 'wookieUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -199,9 +199,9 @@ describe('Chat component', () => {
               createdAt: 1714486020, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'leah',
+              userId: 'leahUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -212,9 +212,9 @@ describe('Chat component', () => {
               createdAt: 1714486030, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'luke',
+              userId: 'lukeUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -225,9 +225,9 @@ describe('Chat component', () => {
               createdAt: 1714486040, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'windoo',
+              userId: 'windooUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -239,9 +239,9 @@ describe('Chat component', () => {
               createdAt: 1714486050, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'vader',
+              userId: 'vaderUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
         ],

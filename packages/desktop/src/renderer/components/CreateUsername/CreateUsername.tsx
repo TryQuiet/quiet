@@ -5,6 +5,9 @@ import { communities, identity, network } from '@quiet/state-manager'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('CreateUsername')
 
 const CreateUsername = () => {
   const dispatch = useDispatch()
@@ -16,22 +19,26 @@ const CreateUsername = () => {
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   useEffect(() => {
-    if (currentCommunity && !currentIdentity?.userCsr && !createUsernameModal.open) {
+    if (currentCommunity && !currentIdentity?.userId && !createUsernameModal.open) {
+      logger.info('Open create username modal')
       createUsernameModal.handleOpen()
     }
-    if (currentIdentity?.userCsr && createUsernameModal.open) {
+    if (currentIdentity?.userId && createUsernameModal.open) {
+      logger.info('Close create username modal')
       createUsernameModal.handleClose()
     }
   }, [currentIdentity, currentCommunity])
 
   const registerUsername = (nickname: string) => {
+    logger.info('Register username', nickname)
     dispatch(
       identity.actions.registerUsername({
         nickname,
       })
     )
-
+    logger.info('Set loading panel type', LoadingPanelType.Joining)
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
+    logger.info('Open loading panel')
     loadingPanelModal.handleOpen()
   }
 
