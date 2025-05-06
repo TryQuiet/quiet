@@ -1,20 +1,20 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { generateMessageFactoryContentWithId, getFactory, type publicChannels } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { messagesActions } from './../messages.slice'
 import { type communitiesActions } from '../../communities/communities.slice'
-import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { checkForMessagesSaga } from './checkForMessages.saga'
 import { selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
 import { type Community, type Identity, type PublicChannel } from '@quiet/types'
+import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('checkForMessagesSaga', () => {
   let store: Store
   let factory: FactoryGirl
+  let baseTypes: FactoryGirl
 
   let community: Community
   let alice: Identity
@@ -29,7 +29,8 @@ describe('checkForMessagesSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    baseTypes = await getBaseTypesFactory()
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
@@ -40,22 +41,21 @@ describe('checkForMessagesSaga', () => {
       messagesSlice: undefined,
     }
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
   })
 
   test('ask for missing messages', async () => {
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(generalChannel.id),
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', { channelId: generalChannel.id, userId: alice.userId }),
         verifyAutomatically: true,
       })
     ).message
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       checkForMessagesSaga,
       messagesActions.checkForMessages({
@@ -68,7 +68,7 @@ describe('checkForMessagesSaga', () => {
       .withState(store.getState())
       .put(
         messagesActions.getMessages({
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           communityId: community.id,
           channelId: generalChannel.id,
           ids: ['jf84hwwa', 'kl12sa0a'],

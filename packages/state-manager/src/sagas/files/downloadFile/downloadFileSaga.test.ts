@@ -1,21 +1,31 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, type PublicChannel } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type Socket } from 'socket.io-client'
+import { type Socket } from '../../../types'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { downloadFileSaga } from './downloadFileSaga'
 import { type FactoryGirl } from 'factory-girl'
 import { filesActions } from '../files.slice'
-import { type Community, DownloadState, type FileMetadata, type Identity, SocketActionTypes } from '@quiet/types'
+import {
+  type Community,
+  DownloadState,
+  type FileMetadata,
+  type Identity,
+  SocketActions,
+  type PublicChannel,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { MockedSocket } from '../../../utils/tests/mockedSocket'
+import { getSocketFactory } from '../../../utils/tests/factories'
 
 describe('downloadFileSaga', () => {
   let store: Store
   let factory: FactoryGirl
+  let socket: MockedSocket
 
   let community: Community
   let alice: Identity
@@ -29,25 +39,28 @@ describe('downloadFileSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
-    message = Math.random().toString(36).substr(2.9)
+    message = Math.random().toString(36).substring(2, 11)
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
   })
 
-  test('downloading file', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
+  beforeEach(async () => {
+    const socketPayloadFactory = await getSocketFactory()
+    socket = new MockedSocket()
+  })
 
+  test('downloading file', async () => {
     const media: FileMetadata = {
       cid: 'cid',
       path: null,
@@ -59,8 +72,8 @@ describe('downloadFileSaga', () => {
       },
     }
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(downloadFileSaga, socket, filesActions.downloadFile(media))
+    const reducer = combineReducers(testReducers)
+    await expectSaga(downloadFileSaga, socket as unknown as Socket, filesActions.downloadFile(media))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
@@ -71,9 +84,9 @@ describe('downloadFileSaga', () => {
         })
       )
       .apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])

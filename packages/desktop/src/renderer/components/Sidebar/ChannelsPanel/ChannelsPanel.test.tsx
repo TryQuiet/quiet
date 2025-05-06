@@ -1,9 +1,9 @@
 import React from 'react'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
-import { prepareStore } from '../../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
+import { getReduxStoreFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
 import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
@@ -22,14 +22,13 @@ describe('Channels panel', () => {
       socket // Fork State manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
     const generalChannel = publicChannels.selectors.generalChannel(store.getState())
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -37,7 +36,7 @@ describe('Channels panel', () => {
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: name,
           description: `Welcome to #${name}`,

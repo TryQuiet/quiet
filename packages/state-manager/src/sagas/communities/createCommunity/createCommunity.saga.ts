@@ -1,13 +1,21 @@
 import { type Socket, applyEmitParams } from '../../../types'
-import { select, apply, putResolve } from 'typed-redux-saga'
+import { select, apply, put, take } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { identityActions } from '../../identity/identity.slice'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import {
+  type Community,
+  CommunityOwnership,
+  type InitCommunityPayload,
+  ResponseCreateCommunityPayload,
+  SocketActions,
+} from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { generateId } from '../../../utils/cryptography/cryptography'
+import { identityActions } from '../../identity/identity.slice'
+import { usersActions } from '../../users/users.slice'
+import { connectionActions } from '../../appConnection/connection.slice'
 
 const logger = createLogger('createCommunitySaga')
 
@@ -17,48 +25,59 @@ export function* createCommunitySaga(
 ): Generator {
   logger.info('Creating community')
 
-  let communityId: string = action.payload
-
-  if (!communityId) {
-    communityId = yield* select(communitiesSelectors.currentCommunityId)
-  }
+  const communityId = generateId()
 
   logger.info('Community ID:', communityId)
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
-  const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!identity) {
-    logger.error('Could not create community - identity missing')
+  if (community) {
+    logger.error('Community already exists')
     return
   }
 
+  yield* put(
+    communitiesActions.addNewCommunity({
+      id: communityId,
+      name: action.payload.name,
+      ownership: CommunityOwnership.Owner,
+    } as Community)
+  )
+  yield* put(communitiesActions.setCurrentCommunity(communityId))
+
+  logger.info('Waiting for username registration')
+
+  const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
+    identityActions.registerUsername
+  )
+  const username = registerAction.payload.nickname
+
   const payload: InitCommunityPayload = {
     id: communityId,
-    name: community?.name,
-    CA: community?.CA,
-    rootCa: community?.rootCa,
+    name: action.payload.name,
+    username,
   }
 
-  const createdCommunity: Community | undefined = yield* apply(
+  const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload)
+    applyEmitParams(SocketActions.CREATE_COMMUNITY, payload)
   )
 
-  if (!createdCommunity || !createdCommunity.ownerCertificate) {
+  if (!createCommunityResponse || !createCommunityResponse.community || !createCommunityResponse.identity) {
     logger.error('Failed to create community - invalid response from backend')
     return
   }
 
-  yield* putResolve(communitiesActions.updateCommunityData(createdCommunity))
-
-  yield* putResolve(
-    identityActions.storeUserCertificate({
-      communityId: createdCommunity.id,
-      userCertificate: createdCommunity.ownerCertificate,
-    })
-  )
-
-  yield* putResolve(publicChannelsActions.createGeneralChannel())
+  logger.info('Community data:', createCommunityResponse.community)
+  yield* put(communitiesActions.updateCommunityData(createCommunityResponse.community))
+  logger.info('Identity data:', createCommunityResponse.identity)
+  yield* put(identityActions.addNewIdentity(createCommunityResponse.identity))
+  logger.info('setUserProfile', createCommunityResponse.profile)
+  yield* put(usersActions.setUserProfile(createCommunityResponse.profile))
+  logger.info('createGeneralChannel')
+  yield* put(publicChannelsActions.createGeneralChannel())
+  logger.info('launchCommunity')
+  yield* put(communitiesActions.launchCommunity({ id: communityId }))
+  yield* put(connectionActions.createInvite({}))
 }

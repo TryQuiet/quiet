@@ -2,6 +2,7 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
+import { DisplayableMessage } from '@quiet/types'
 
 describe('ChannelMessages', () => {
   beforeEach(() => {
@@ -13,16 +14,16 @@ describe('ChannelMessages', () => {
   })
 
   it('renders component', async () => {
-    const message = {
+    const message: DisplayableMessage = {
       id: 'string',
       type: 1,
       message: 'string',
       createdAt: 1636995488.44,
       date: 'string',
+      userId: 'string',
       nickname: 'string',
       isDuplicated: false,
       isRegistered: true,
-      pubKey: 'string',
     }
 
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => {

@@ -5,7 +5,7 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
@@ -13,14 +13,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import {
-  communities,
-  RegisterUserCertificatePayload,
-  ErrorCodes,
-  ErrorMessages,
-  getFactory,
-  errors,
-} from '@quiet/state-manager'
+import { communities, identity, errors } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
@@ -29,15 +22,19 @@ import {
   ChannelsReplicatedPayload,
   ChannelSubscribedPayload,
   ErrorPayload,
-  InitCommunityPayload,
   ResponseLaunchCommunityPayload,
-  SocketActionTypes,
+  SocketActions,
+  SocketEvents,
   socketEventData,
   Identity,
-  InitUserCsrPayload,
-  PeerId,
-  UserCsr,
   InvitationDataVersion,
+  InvitationAuthData,
+  InitCommunityPayload,
+  ErrorCodes,
+  ErrorMessages,
+  ResponseJoinCommunityPayload,
+  CommunityOwnership,
+  JoinCommunityPayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -50,7 +47,7 @@ jest.setTimeout(20_000)
 describe('User', () => {
   let socket: MockedSocket
   const validData: InvitationData = {
-    version: InvitationDataVersion.v1,
+    version: InvitationDataVersion.v2,
     pairs: [
       {
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
@@ -58,7 +55,10 @@ describe('User', () => {
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-    ownerOrbitDbIdentity: 'testOrbitDbIdentity',
+    authData: {
+      communityName: 'testCommunityName',
+      seed: '123456789abcdefg',
+    } as InvitationAuthData,
   }
   const validCode = composeInvitationShareUrl(validData)
   // trigger
@@ -91,61 +91,15 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
       logger.info('emitWithAck', action)
       const community = communities.selectors.currentCommunity(store.getState())
+      const currentIdentity = identity.selectors.currentIdentity(store.getState())
       switch (action) {
-        case SocketActionTypes.CREATE_IDENTITY:
-          const createIdentityPayload = input[1]
-          return {
-            id: createIdentityPayload,
-            nickname: 'alice',
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-              privKey: 'mock',
-              noiseKey: 'mock',
-            },
-          } as Identity
-        case SocketActionTypes.CREATE_USER_CSR:
-          const csrPayload = input[1] as InitUserCsrPayload
-          // Mock identity object
-          const mockIdentity: Identity = {
-            id: csrPayload.communityId,
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: csrPayload.communityId,
-              privKey: 'mock',
-              noiseKey: 'mock',
-            } as PeerId,
-            nickname: csrPayload.nickname,
-            userCsr: {
-              userCsr: 'mock',
-              userKey: 'mock',
-              pkcs10: {
-                publicKey: 'mock',
-                privateKey: 'mock',
-                pkcs10: 'mock',
-              },
-            } as UserCsr,
-            userCertificate: null,
-            joinTimestamp: null,
-          }
-          return mockIdentity
-        case SocketActionTypes.LAUNCH_COMMUNITY:
+        case SocketActions.JOIN_COMMUNITY:
           const payload = input[1] as InitCommunityPayload
-          expect(payload.id).toEqual(community?.id)
-          socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-            id: payload.id,
-          })
-          socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
+          socket.socketClient.emit<ChannelsReplicatedPayload>(SocketEvents.CHANNELS_STORED, {
             channels: [
               {
                 name: 'general',
@@ -156,9 +110,38 @@ describe('User', () => {
               },
             ],
           })
-          socket.socketClient.emit<ChannelSubscribedPayload>(SocketActionTypes.CHANNEL_SUBSCRIBED, {
+          socket.socketClient.emit<ChannelSubscribedPayload>(SocketEvents.CHANNEL_SUBSCRIBED, {
             channelId: 'general',
           })
+          return {
+            id: payload.id,
+            community: {
+              id: payload.id,
+              name: 'community',
+              ownership: CommunityOwnership.User,
+            },
+            identity: {
+              communityId: payload.id,
+              userId: 'alice123',
+              nickname: 'alice',
+              networkInfo: {
+                hiddenService: {
+                  onionAddress: 'onionAddress',
+                  privateKey: 'privateKey',
+                },
+                peerId: {
+                  id: 'id',
+                  privKey: 'privKey',
+                  noiseKey: 'noiseKey',
+                },
+              },
+              joinTimestamp: 0,
+            },
+            profile: {
+              userId: 'alice123',
+              nickname: 'alice',
+            },
+          } as ResponseJoinCommunityPayload
           break
         default:
           throw new Error(`Unexpected action: ${action}`)
@@ -218,29 +201,32 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/createNetwork",
+        "Communities/joinCommunity",
         "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Modals/closeModal",
         "Modals/openModal",
-        "Identity/addNewIdentity",
         "Identity/registerUsername",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/updateIdentity",
-        "Communities/launchCommunity",
-        "Files/checkForMissingFiles",
-        "Network/addInitializedCommunity",
-        "Communities/clearInvitationCodes",
+        "Identity/setUsername",
         "PublicChannels/channelsReplicated",
         "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/sendIntroductionMessage",
-        "Messages/sendMessage",
+        "Network/setLoadingPanelType",
+        "Modals/openModal",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
+        "Users/setUserProfile",
+        "Communities/launchCommunity",
+        "Communities/setCurrentCommunity",
+        "Communities/clearInvitationCodes",
+        "Files/checkForMissingFiles",
+        "Network/addInitializedCommunity",
         "Modals/closeModal",
         "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
       ]
     `)
@@ -265,32 +251,8 @@ describe('User', () => {
       store
     )
 
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_NETWORK) {
-        return {
-          hiddenService: {
-            onionAddress: 'onionAddress',
-            privateKey: 'privKey',
-          },
-          peerId: {
-            id: 'peerId',
-            privKey: 'mock',
-            noiseKey: 'mock',
-          },
-        }
-      }
-      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-        const payload = input[1] as RegisterUserCertificatePayload
-        const community = communities.selectors.currentCommunity(store.getState())
-        expect(payload.communityId).toEqual(community?.id)
-        socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
-          code: ErrorCodes.FORBIDDEN,
-          message: ErrorMessages.USERNAME_TAKEN,
-          community: community?.id,
-        })
-      }
     }
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -334,98 +296,6 @@ describe('User', () => {
     expect(createUsernameTitle).toBeVisible()
     const usernameTakenErrorMessage = await screen.findByText(ErrorMessages.USERNAME_TAKEN)
     expect(usernameTakenErrorMessage).toBeVisible()
-
-    expect(actions).toMatchInlineSnapshot()
-  })
-
-  it.skip('clears error before sending another username registration request', async () => {
-    const { store, runSaga } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-    store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-
-    renderComponent(
-      <>
-        <LoadingPanel />
-        <JoinCommunity />
-        <CreateUsername />
-        <Channel />
-      </>,
-      store
-    )
-
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.CREATE_NETWORK) {
-        return {
-          hiddenService: {
-            onionAddress: 'onionAddress',
-            privateKey: 'privKey',
-          },
-          peerId: {
-            id: 'peerId',
-            privKey: 'mock',
-            noiseKey: 'mock',
-          },
-        }
-      }
-    }
-
-    // @ts-ignore
-    socket.emitWithAck = mockEmitImpl
-
-    // Log all the dispatched actions in order
-    const actions: AnyAction[] = []
-    runSaga(function* (): Generator {
-      while (true) {
-        const action = yield* take()
-        actions.push(action.type)
-      }
-    })
-
-    // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
-
-    // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, validCode)
-    await userEvent.click(joinCommunityButton)
-
-    // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
-    expect(createUsernameTitle).toBeVisible()
-
-    await act(async () => {
-      const community = communities.selectors.currentCommunity(store.getState())
-      store.dispatch(
-        errors.actions.addError({
-          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
-          code: ErrorCodes.FORBIDDEN,
-          message: ErrorMessages.USERNAME_TAKEN,
-          community: community?.id,
-        })
-      )
-    })
-
-    // Check if 'username taken' error message is visible
-    expect(createUsernameTitle).toBeVisible()
-    expect(await screen.findByText(ErrorMessages.USERNAME_TAKEN)).toBeVisible()
-
-    // Enter username and hit button
-    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
-    const createUsernameButton = screen.getByText('Register')
-    await userEvent.type(createUsernameInput, 'bob')
-    await userEvent.click(createUsernameButton)
-
-    // Wait for the actions that updates the store
-    await act(async () => {})
-
-    // Check if 'username taken' error message disappeared
-    expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
 
     expect(actions).toMatchInlineSnapshot()
   })

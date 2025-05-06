@@ -59,20 +59,20 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
 
 export interface UserProfilePanelProps {
   currentIdentity?: Identity
-  pubKey?: string
+  userId: string
   userProfile?: UserProfile
   userProfileContextMenu: ReturnType<typeof useContextMenu>
 }
 
 export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
   currentIdentity,
-  pubKey,
+  userId: userID,
   userProfile,
   userProfileContextMenu,
 }) => {
   const theme = useTheme()
 
-  const username = currentIdentity?.nickname || ''
+  const username = userProfile?.nickname || ''
   return (
     <UserProfilePanelButtonStyled>
       <Button
@@ -84,11 +84,11 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
         classes={{ root: classes.button }}
         data-testid={'user-profile-menu-button'}
       >
-        {userProfile?.profile.photo ? (
-          <img className={classes.profilePhoto} src={userProfile?.profile.photo} alt={'Your user profile image'} />
+        {userProfile?.photo ? (
+          <img className={classes.profilePhoto} src={userProfile?.photo} alt={'Your user profile image'} />
         ) : (
           <Jdenticon
-            value={pubKey}
+            value={userID}
             size='24'
             style={{
               width: '24px',

@@ -1,8 +1,13 @@
-import { type HiddenService, type PeerId, type Identity, type UserCsr } from './identity'
+import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
+import { type Identity } from './identity'
 import { InvitationData } from './network'
+import { User, UserProfile } from './user'
+
+// ----- Base Types -----
 
 export interface Community {
   id: string
+  ownership: CommunityOwnership
   name?: string
   CA?: null | {
     rootCertString: string
@@ -17,33 +22,43 @@ export interface Community {
   ownerOrbitDbIdentity?: string
 }
 
+export interface CommunityMetadata {
+  id: string
+  // Perhaps we should rename this to rootCertificate? When I think of
+  // certificate authority, I think of the owner themselves.
+  rootCa: string
+  ownerCertificate: string
+  // Owner's OrbitDB identity
+  ownerOrbitDbIdentity?: string
+}
+
 export enum CommunityOwnership {
   Owner = 'owner',
   User = 'user',
 }
 
-export interface CreateNetworkPayload {
-  ownership: CommunityOwnership
-  name?: string
-  inviteData?: InvitationData
+// ----- Frontend Payloads -----
+
+export interface CreateCommunityPayload {
+  name: string
 }
 
-export interface NetworkInfo {
-  hiddenService: HiddenService
-  peerId: PeerId
+export interface JoinCommunityPayload {
+  inviteData: InvitationData
 }
 
-export interface Certificates {
-  certificate: string
-  key: string
-  CA: string[]
-}
-
-export interface InitCommunityPayload {
-  // Used for both joining and creating community
-  // Remove redundancy and pass data in inviteData?
+export interface LaunchCommunityPayload {
   id: string
-  name?: string
+}
+
+export interface LeaveCommunityPayload {
+  id: string
+}
+
+// ----- State-Manager <-> Backend Payloads -----
+export interface InitCommunityPayload {
+  id: string
+  name: string
   CA?: null | {
     rootCertString: string
     rootKeyString: string
@@ -53,38 +68,42 @@ export interface InitCommunityPayload {
   psk?: string
   ownerOrbitDbIdentity?: string
   inviteData?: InvitationData | null
-}
-
-export interface StorePeerListPayload {
-  communityId: string
-  peerList: string[]
-}
-
-export interface UpdatePeerListPayload {
-  communityId: string
-  peerId: string
-}
-
-export interface ResponseCreateCommunityPayload {
-  id: string
-  payload: Partial<Identity>
+  username: string
 }
 
 export interface ResponseLaunchCommunityPayload {
   id: string
 }
-
-export interface AddOwnerCertificatePayload {
-  communityId: string
-  ownerCertificate: string
+export interface ResponseCreateCommunityPayload {
+  id: string
+  community: Community
+  identity: Identity
+  profile: UserProfile
 }
 
-export interface CommunityMetadata {
+export interface ResponseJoinCommunityPayload {
   id: string
-  // Perhaps we should rename this to rootCertificate? When I think of
-  // certificate authority, I think of the owner themselves.
-  rootCa: string
-  ownerCertificate: string
-  // Owner's OrbitDB identity
-  ownerOrbitDbIdentity?: string
+  community: Community
+  identity: Identity
+  profile: UserProfile
+}
+
+export interface ResponseLeaveCommunityPayload {
+  id: string
+}
+
+// ----- Invites -----
+export interface RequestInvitePayload {
+  id: Base58 | undefined
+}
+export interface ResponseInvitePayload {
+  valid: boolean
+  newInvite?: InviteResult
+}
+
+// ----- deprecated -----
+export interface Certificates {
+  certificate: string
+  key: string
+  CA: string[]
 }

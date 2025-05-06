@@ -1,12 +1,10 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { generateMessageFactoryContentWithId, getFactory, type publicChannels } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type Socket } from 'socket.io-client'
+import { type Socket } from '../../../types'
 import { type communitiesActions } from '../../communities/communities.slice'
-import { type identityActions } from '../../identity/identity.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
@@ -21,12 +19,15 @@ import {
   type Identity,
   MessageType,
   type PublicChannel,
-  SocketActionTypes,
+  SocketActions,
 } from '@quiet/types'
+import { MockedSocket } from '../../../utils/tests/mockedSocket'
+import { getBaseTypesFactory, getSocketFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
-describe('downloadFileSaga', () => {
+describe('autoDownloadFilesSaga', () => {
   let store: Store
   let factory: FactoryGirl
+  let socket: MockedSocket
 
   let community: Community
   let alice: Identity
@@ -39,7 +40,7 @@ describe('downloadFileSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
@@ -47,28 +48,29 @@ describe('downloadFileSaga', () => {
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    alice = await factory.create('Identity', {
+      communityId: community.id,
     })
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('sailing'),
         },
       })
     ).channel
   })
 
-  test('auto download file of type image', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
+  beforeEach(async () => {
+    socket = new MockedSocket()
+  })
 
-    const id = Math.random().toString(36).substr(2.9)
+  test('auto download file of type image', async () => {
+    const id = Math.random().toString(36).substring(2, 9)
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
@@ -86,32 +88,33 @@ describe('downloadFileSaga', () => {
         channelId: generalChannel.id,
       },
     }
+    const baseTypes = await getBaseTypesFactory()
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.Image,
+          media: media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,
-      socket,
+      socket as unknown as Socket,
       messagesActions.addMessages({
-        messages: [
-          {
-            id,
-            type: MessageType.Image,
-            message: 'message',
-            createdAt: 8,
-            channelId: generalChannel.id,
-            signature: 'signature',
-            pubKey: 'publicKey',
-            media,
-          },
-        ],
+        messages: [message],
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])
@@ -140,31 +143,33 @@ describe('downloadFileSaga', () => {
       },
     }
 
-    const reducer = combineReducers(reducers)
+    const baseTypes = await getBaseTypesFactory()
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
+
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
       messagesActions.addMessages({
-        messages: [
-          {
-            id,
-            type: MessageType.File,
-            message: 'message',
-            createdAt: 8,
-            channelId: generalChannel.id,
-            signature: 'signature',
-            pubKey: 'publicKey',
-            media,
-          },
-        ],
+        messages: [message],
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])
@@ -193,14 +198,21 @@ describe('downloadFileSaga', () => {
       },
     }
 
+    const baseTypes = await getBaseTypesFactory()
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(generalChannel.id),
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
       })
     ).message
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
@@ -211,9 +223,9 @@ describe('downloadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])
@@ -242,14 +254,21 @@ describe('downloadFileSaga', () => {
       },
     }
 
+    const baseTypes = await getBaseTypesFactory()
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(generalChannel.id),
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
       })
     ).message
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
@@ -260,9 +279,9 @@ describe('downloadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])
@@ -292,31 +311,34 @@ describe('downloadFileSaga', () => {
       },
     }
 
-    const reducer = combineReducers(reducers)
+    const baseTypes = await getBaseTypesFactory()
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
+
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
       messagesActions.addMessages({
-        messages: [
-          {
-            id,
-            type: MessageType.File,
-            message: 'message',
-            createdAt: 8,
-            channelId: generalChannel.id,
-            signature: 'signature',
-            pubKey: 'publicKey',
-            media,
-          },
-        ],
+        messages: [message],
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])
@@ -346,31 +368,33 @@ describe('downloadFileSaga', () => {
       },
     }
 
-    const reducer = combineReducers(reducers)
+    const baseTypes = await getBaseTypesFactory()
+    const message = (
+      await factory.create('TestMessage', {
+        message: baseTypes.build('ChannelMessage', {
+          id,
+          userId: alice.userId,
+          channelId: generalChannel.id,
+          type: MessageType.File,
+          media,
+        }),
+        verifyAutomaically: true,
+      })
+    ).message
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
       messagesActions.addMessages({
-        messages: [
-          {
-            id,
-            type: MessageType.Image,
-            message: 'message',
-            createdAt: 8,
-            channelId: generalChannel.id,
-            signature: 'signature',
-            pubKey: 'publicKey',
-            media,
-          },
-        ],
+        messages: [message],
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+        SocketActions.DOWNLOAD_FILE,
         {
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
           metadata: media,
         },
       ])
