@@ -435,7 +435,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:00 PM
                         </Text>
                       </View>
                     </View>
@@ -651,7 +651,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:06 PM
                         </Text>
                       </View>
                     </View>
@@ -845,7 +845,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:06 PM
                         </Text>
                       </View>
                     </View>
@@ -1039,7 +1039,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:06 PM
                         </Text>
                       </View>
                     </View>
@@ -1233,7 +1233,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:06 PM
                         </Text>
                       </View>
                     </View>
@@ -1438,7 +1438,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:06 PM
                         </Text>
                       </View>
                     </View>
@@ -1632,7 +1632,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:07 PM
                         </Text>
                       </View>
                     </View>
@@ -1826,7 +1826,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:07 PM
                         </Text>
                       </View>
                     </View>
@@ -2020,7 +2020,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:07 PM
                         </Text>
                       </View>
                     </View>
@@ -2214,7 +2214,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Apr 30, 2024, 2:07 PM
                         </Text>
                       </View>
                     </View>
@@ -2428,7 +2428,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Oct 28, 2023, 9:00 AM
                         </Text>
                       </View>
                     </View>
@@ -2633,7 +2633,7 @@ exports[`Chat component renders component 1`] = `
                           }
                           verticalTextAlign="center"
                         >
-                          Jan 1, 1970, 12:00 AM
+                          Oct 28, 2023, 9:02 AM
                         </Text>
                       </View>
                     </View>
