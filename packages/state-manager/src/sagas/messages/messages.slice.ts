@@ -82,7 +82,6 @@ export const messagesSlice = createSlice({
       const { messages } = action.payload
       for (const message of messages) {
         if (!instanceOfChannelMessage(message)) {
-          logger.error('Failed to add message, object not instance of message')
           continue
         }
         if (!state.publicChannelsMessagesBase.entities[message.channelId]) {
@@ -109,7 +108,6 @@ export const messagesSlice = createSlice({
           throw new Error('Failed to add message, channel went missing')
         }
 
-        logger.info('Upserting message to Redux store', toAdd.id)
         channelMessagesAdapter.upsertOne(messagesBase.messages, toAdd)
       }
     },
@@ -137,8 +135,7 @@ export const messagesSlice = createSlice({
     ) => {
       const { message, isVerified } = action.payload
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
-        publicKey: message.pubKey,
-        signature: message.signature,
+        id: message.id,
         isVerified,
       })
     },

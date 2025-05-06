@@ -174,9 +174,6 @@ export class IpfsService {
 
   public async stop() {
     this.logger.info('Stopping IPFS')
-    if (!this.ipfsInstance) {
-      throw new Error('IPFS instance does not exist')
-    }
 
     try {
       await this.ipfsInstance?.stop()

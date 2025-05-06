@@ -30,11 +30,12 @@
     "@types/luxon": "^3.4.2",
     "@types/redux-saga": "^0.10.5",
     "@types/tmp": "^0.2.2",
+    "@redux-saga/types": "^1.1.0",
     "babel-jest": "^29.3.1",
     "check-disk-space": "^3.3.0",
     "jest": "^27.4.5",
     "lint-staged": "^15.2.2",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.5"
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.4.3",
@@ -42,6 +43,7 @@
     "@quiet/logger": "^2.0.2-alpha.0",
     "@quiet/node-common": "^4.0.3",
     "@quiet/state-manager": "^2.0.2-alpha.3",
+    "@quiet/types": "^2.0.2-alpha.1",
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",
@@ -53,7 +55,7 @@
     "redux": "^4.1.1",
     "redux-saga": "^1.1.3",
     "redux-thunk": "^2.4.0",
-    "socket.io-client": "^4.1.3",
+    "socket.io-client": "^4.8.1",
     "tmp": "^0.2.1",
     "typed-redux-saga": "^1.3.1",
     "wait-for-expect": "^3.0.2"

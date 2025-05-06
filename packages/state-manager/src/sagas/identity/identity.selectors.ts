@@ -3,9 +3,8 @@ import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities, currentCommunity } from '../communities/communities.selectors'
-import { certificatesMapping } from '../users/users.selectors'
+import { allUsers } from '../users/users.selectors'
 import { createLibp2pAddress } from '@quiet/common'
-import { pubKeyFromCsr } from '@quiet/identity'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
 
@@ -24,50 +23,25 @@ export const currentIdentity = createSelector(
   }
 )
 
-export const currentPubKey = createSelector(currentIdentity, identity => {
-  if (identity?.userCsr) {
-    return pubKeyFromCsr(identity.userCsr.userCsr)
-  }
-  return undefined
-})
-
 export const currentPeerAddress = createSelector(currentIdentity, identity => {
   if (!identity) return ''
-  return createLibp2pAddress(identity?.hiddenService.onionAddress, identity?.peerId.id)
+  return createLibp2pAddress(identity?.networkInfo.hiddenService.onionAddress, identity?.networkInfo.peerId.id)
 })
 
 export const communityMembership = createSelector(currentIdentity, currentCommunity, (identity, community) => {
-  return Boolean(identity?.userCsr && community?.name)
-})
-
-export const hasCertificate = createSelector(currentIdentity, identity => {
-  return Boolean(identity?.userCertificate)
+  return Boolean(identity && community)
 })
 
 export const joinedCommunities = createSelector(selectCommunities, selectEntities, (communities, identities) => {
+  // TODO: base on sigchains
   return communities.filter(community => {
-    return identities[community.id]?.userCertificate
+    return identities[community.id]?.joinTimestamp
   })
 })
 
 export const joinTimestamp = createSelector(currentIdentity, identity => identity?.joinTimestamp)
 
-export const csr = createSelector(communitiesSelectors.currentCommunityId, selectEntities, (id, identities) => {
-  return identities[id]?.userCsr
-})
-
-export const usernameTaken = createSelector(currentIdentity, certificatesMapping, (identity, certs) => {
-  const userCertificate = identity?.userCertificate
-  if (userCertificate) return false
-
-  const username = identity?.nickname
-  if (!username) return false
-
-  const allUsersSet = new Set(Object.values(certs).map(user => user.username))
-  if (allUsersSet.has(username)) {
-    return true
-  }
-
+export const usernameTaken = createSelector(currentIdentity, allUsers, (identity, users) => {
   return false
 })
 
@@ -76,11 +50,8 @@ export const identitySelectors = {
   selectEntities,
   currentIdentity,
   currentPeerAddress,
-  currentPubKey,
   communityMembership,
   joinedCommunities,
   joinTimestamp,
-  csr,
   usernameTaken,
-  hasCertificate,
 }

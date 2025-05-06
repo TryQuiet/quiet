@@ -1,17 +1,24 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, identity, Identity } from '@quiet/state-manager'
+import { communities, identity } from '@quiet/state-manager'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
-import { InvitationDataVersion, type Community, type InvitationData } from '@quiet/types'
+import {
+  CommunityOwnership,
+  InvitationDataVersion,
+  type Community,
+  type InvitationData,
+  type Identity,
+} from '@quiet/types'
 import { composeInvitationDeepUrl } from '@quiet/common'
+import { act } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
@@ -31,13 +38,11 @@ describe('Opening app through custom protocol', () => {
     peerList: [],
     onionAddress: '',
     ownerCertificate: '',
+    ownership: CommunityOwnership.User,
   }
 
   const _identity: Partial<Identity> = {
-    id: id,
-    nickname: '',
-    userCsr: null,
-    userCertificate: null,
+    communityId: id,
     joinTimestamp: 0,
   }
 
@@ -69,19 +74,22 @@ describe('Opening app through custom protocol', () => {
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
-    renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-      </>,
-      store
-    )
+    await act(async () => {
+      renderComponent(
+        <>
+          <JoinCommunity />
+          <CreateUsername />
+        </>,
+        store
+      )
+    })
 
-    store.dispatch(communities.actions.addNewCommunity(community))
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    // @ts-expect-error
-    store.dispatch(identity.actions.addNewIdentity(_identity))
+    await act(async () => {
+      store.dispatch(communities.actions.addNewCommunity(community))
+      store.dispatch(communities.actions.setCurrentCommunity(community.id))
+      // @ts-expect-error
+      store.dispatch(identity.actions.addNewIdentity(_identity))
+    })
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')

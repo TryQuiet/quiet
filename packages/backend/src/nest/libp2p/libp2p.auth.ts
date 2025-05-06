@@ -70,7 +70,7 @@ export class Libp2pAuth {
       this.logger.warn('No active chain found')
       this.joinStatus = JoinStatus.NOT_STARTED
     } else {
-      this.logger = this.logger.extend(sigChainService.getActiveChain().localUserContext.user.userName)
+      this.logger = this.logger.extend(this.sigChainService.user.userName)
       if (sigChainService.getActiveChain()!.team == null) {
         this.joinStatus = JoinStatus.PENDING
       } else {
@@ -293,10 +293,13 @@ export class Libp2pAuth {
     authConnection.on('connected', () => {
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
-        const sigChain = this.sigChainService.getActiveChain()
-        const team = sigChain.team
-        const user = sigChain.localUserContext.user
-        authConnection.emit('sync', { team, user })
+        const team = this.sigChainService.team
+        const user = this.sigChainService.user
+        if (team) {
+          authConnection.emit('sync', { team, user })
+        } else {
+          this.logger.error('Cannot emit sync event, team is null')
+        }
       }
       this.emit(Libp2pEvents.AUTH_CONNECTED)
     })
@@ -307,46 +310,32 @@ export class Libp2pAuth {
         event,
         connection,
       })
-      // if (
-      //   event.type === 'DISCONNECT' &&
-      //   ['closed', 'closing'].includes(this.peerConnections.get(peerId.toString())?.status ?? 'closed')
-      // ) {
-      //   this.closeAuthConnection(peerId, false)
-      // }
     })
 
     authConnection.on('joined', async payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(
-        `${sigChain.localUserContext.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`
-      )
+      this.logger.info(`Joined team ${team.teamName} (userid: ${user.userId})!`)
       if (sigChain.team == null) {
         this.logger.info(
           `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
         )
-        sigChain.context = {
-          device: (sigChain.context as Auth.InviteeContext).device,
-          team,
-          user,
-        } as Auth.MemberContext
-        sigChain.team = team
+        if (!('team' in sigChain.context)) {
+          this.logger.error('SigChain context team is null')
+          sigChain.context = {
+            device: (sigChain.context as Auth.InviteeContext).device,
+            team,
+            user,
+          } as Auth.MemberContext
+        }
       }
       this.joinStatus = JoinStatus.JOINED
       this.unblockConnections(this.bufferedConnections)
       this.emit(Libp2pEvents.AUTH_JOINED)
-      await this.sigChainService.saveChain(team.teamName)
     })
 
     authConnection.on('change', payload => {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
-    })
-
-    authConnection.on('updated', async head => {
-      this.logger.info('Received sync message, team graph updated', head)
-      this.emit(Libp2pEvents.AUTH_UPDATED, head)
-      const sigChain = this.sigChainService.getActiveChain()
-      await this.sigChainService.saveChain(sigChain.team!.teamName)
     })
 
     // Handle errors from local or remote sources.

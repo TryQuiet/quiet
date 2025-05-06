@@ -25,7 +25,7 @@ describe('Libp2pService', () => {
   })
 
   afterAll(async () => {
-    await libp2pService.libp2pInstance?.stop()
+    await libp2pService.close()
     await module.close()
   })
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Chores
+
+* Removed deprecated identity systems not based on LFA [#2762](https://github.com/TryQuiet/quiet/issues/2762)
+
 ## [4.1.0]
 
 ### New Features
@@ -46,7 +52,7 @@
 
 * Add `trace` level logs to `@quiet/logger` ([#2716](https://github.com/TryQuiet/quiet/issues/2716))
 * Add slack notifications to release workflows ([#2722](https://github.com/TryQuiet/quiet/issues/2722))
-* Refactor the `StorageService` and create `ChannelService`, `MessageService` and `ChannelStore` for handling channel-related persistence ([#2631](https://github.com/TryQuiet/quiet/issues/2631)) 
+* Refactor the `StorageService` and create `ChannelService`, `MessageService` and `ChannelStore` for handling channel-related persistence ([#2631](https://github.com/TryQuiet/quiet/issues/2631))
 
 ## [3.0.0]
 

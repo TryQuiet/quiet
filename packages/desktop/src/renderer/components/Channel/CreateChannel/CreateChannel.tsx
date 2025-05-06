@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { ErrorCodes, ErrorMessages, PublicChannel, SocketActionTypes } from '@quiet/types'
+import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActions } from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -15,14 +15,14 @@ const logger = createLogger('createChannel')
 export const CreateChannel = () => {
   const dispatch = useDispatch()
 
-  const [newChannel, setNewChannel] = useState<PublicChannel | null>(null)
+  const [newChannel, setNewChannel] = useState<CreateChannelPayload | null>(null)
 
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunityId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const error = communityErrors[SocketActionTypes.CREATE_CHANNEL]
+  const error = communityErrors[SocketActions.CREATE_CHANNEL]
 
   const createChannelModal = useModal(ModalName.createChannel)
 
@@ -52,7 +52,7 @@ export const CreateChannel = () => {
       logger.error('No identity found')
       dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.CREATE_CHANNEL,
+          type: SocketActions.CREATE_CHANNEL,
           code: ErrorCodes.NOT_FOUND,
           message: ErrorMessages.GENERAL,
           community: community,
@@ -64,7 +64,7 @@ export const CreateChannel = () => {
     if (channels.some(channel => channel.name === name)) {
       dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.CREATE_CHANNEL,
+          type: SocketActions.CREATE_CHANNEL,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.CHANNEL_NAME_TAKEN,
           community: community,
@@ -72,24 +72,13 @@ export const CreateChannel = () => {
       )
       return
     }
-    // Move to state manager
-    // Create channel
-    const channel: PublicChannel = {
+    const payload = {
+      id: generateChannelId(name),
       name: name,
       description: `Welcome to #${name}`,
-      owner: user.nickname,
-      id: generateChannelId(name),
-      timestamp: DateTime.utc().valueOf(),
-    }
-    flushSync(() => {
-      // TODO: maybe add a better fix. React 18 does not perform rerenders inside callback functions
-      setNewChannel(channel)
-    })
-    dispatch(
-      publicChannels.actions.createChannel({
-        channel: channel,
-      })
-    )
+    } as CreateChannelPayload
+    dispatch(publicChannels.actions.createChannel(payload))
+    setNewChannel(payload)
   }
   return (
     <>

@@ -22,7 +22,7 @@ const UsernameTakenModalContainer = () => {
 
   const modal = useModal(ModalName.usernameTakenModal)
 
-  const registeredUsernames = useSelector(users.selectors.registeredUsernames)
+  const registeredUsernames = useSelector(users.selectors.allUsers)
 
   const user = useSelector(identity.selectors.currentIdentity)
 
@@ -32,20 +32,24 @@ const UsernameTakenModalContainer = () => {
       setRegistrationError(null)
 
       // Trying to register the same username
-      if (nickname === user?.nickname) {
-        setRegistrationError('You cannot register with this username.')
-        return
-      }
+      // if (nickname === user?.nickname) {
+      //   setRegistrationError('You cannot register with this username.')
+      //   return
+      // }
 
       // Trying to register another already taken username
-      if (registeredUsernames.has(nickname)) {
-        setRegistrationError(`${nickname} is already taken`)
-      }
+      // if (
+      //   Object.values(registeredUsernames)
+      //     .map(u => u.username)
+      //     .includes(nickname)
+      // ) {
+      //   setRegistrationError(`${nickname} is already taken`)
+      // }
 
       dispatch(
         identity.actions.registerUsername({
           nickname,
-          isUsernameTaken: true,
+          isUsernameTaken: false,
         })
       )
 
@@ -66,7 +70,7 @@ const UsernameTakenModalContainer = () => {
     <Modal title={!requestedUsername ? 'Username taken' : 'New username requested'} isBold addBorder {...modal}>
       {!requestedUsername ? (
         <ChangeUsername
-          currentUsername={user?.nickname}
+          currentUsername={user?.userId}
           registerUsername={registerUsername}
           registrationError={registrationError}
           {...modal}

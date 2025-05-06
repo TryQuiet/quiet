@@ -1,19 +1,15 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../store.types'
 import { type FactoryGirl } from 'factory-girl'
-import { getFactory, type publicChannels } from '../..'
-import { prepareStore } from '../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
   currentChannelMessagesMergedBySender,
   sortedCurrentChannelMessages,
-  displayableCurrentChannelMessages,
   publicChannelsSelectors,
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 
-import { type identityActions } from '../identity/identity.slice'
-import { usersActions } from '../users/users.slice'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
@@ -25,17 +21,19 @@ import {
   type Identity,
   MessageType,
   type PublicChannel,
-  User,
+  UserProfile,
 } from '@quiet/types'
-import { type communitiesActions } from '../communities/communities.slice'
+import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
+import { communitiesSelectors } from '../communities/communities.selectors'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
   let factory: FactoryGirl
 
   let community: Community
-  let alice: Identity
-  let john: Identity
+  let owner: Identity
+  let alice: UserProfile
+  let john: UserProfile
 
   let generalChannel: PublicChannel
   let channelIdes: string[] = []
@@ -51,12 +49,15 @@ describe('publicChannelsSelectors', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    owner = await factory.create('Identity')
+    community =
+      communitiesSelectors.currentCommunity(store.getState()) ||
+      (await factory.create('Community', { id: owner.communityId }))
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('UserProfile', {
+      userId: 'userId_alice',
       nickname: 'alice',
     })
 
@@ -66,8 +67,8 @@ describe('publicChannelsSelectors', () => {
     expect(generalChannel).not.toBeUndefined()
 
     channelIdes = [...channelIdes, generalChannel.id]
-    john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    john = await factory.create('UserProfile', {
+      userId: 'userId_john',
       nickname: 'john',
     })
 
@@ -76,24 +77,19 @@ describe('publicChannelsSelectors', () => {
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      const channel = await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name,
-            description: `Welcome to #${name}`,
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: generateChannelId(name),
-          },
-        }
-      )
+      const channel = await factory.create('PublicChannel', {
+        channel: {
+          name,
+          description: `Welcome to #${name}`,
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.userId,
+          id: generateChannelId(name),
+        },
+      })
       channelIdes = [...channelIdes, channel.channel.id]
     }
 
-    /* Messages ids are being used only for veryfing proper order...
-    ...they have no impact on selectors work */
-    const messages = [
+    const messageData = [
       {
         id: '1',
         createdAt: DateTime.fromObject({
@@ -103,7 +99,7 @@ describe('publicChannelsSelectors', () => {
           hour: 5,
           minute: 50,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       // Message 2 and 3 have info type, so they are tested for not being grouped together.
       {
@@ -116,7 +112,7 @@ describe('publicChannelsSelectors', () => {
           hour: 6,
           minute: 10,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       {
         id: '3',
@@ -130,7 +126,7 @@ describe('publicChannelsSelectors', () => {
           second: 30,
           millisecond: 1,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       {
         id: '4',
@@ -143,7 +139,7 @@ describe('publicChannelsSelectors', () => {
           second: 30,
           millisecond: 2,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       {
         id: '5',
@@ -155,7 +151,7 @@ describe('publicChannelsSelectors', () => {
           minute: 12,
           second: 1,
         }).toSeconds(),
-        identity: john,
+        userId: john.userId,
       },
       {
         id: '6',
@@ -167,7 +163,7 @@ describe('publicChannelsSelectors', () => {
           minute: 12,
           second: 2,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       {
         id: '7',
@@ -178,7 +174,7 @@ describe('publicChannelsSelectors', () => {
           hour: 18,
           minute: 2,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       {
         id: '8',
@@ -189,7 +185,7 @@ describe('publicChannelsSelectors', () => {
           hour: 20,
           minute: 50,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
       {
         id: '9',
@@ -200,35 +196,30 @@ describe('publicChannelsSelectors', () => {
           hour: 20,
           minute: 50,
         }).toSeconds(),
-        identity: alice,
+        userId: alice.userId,
       },
     ]
 
     // Shuffle messages array
-    const shuffled = messages
+    const shuffled = messageData
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value)
 
     for (const item of shuffled) {
-      const message = await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: item.identity,
-          message: {
-            id: item.id,
-            type: item.type || MessageType.Basic,
-            message: `message_${item.id}`,
-            createdAt: item.createdAt,
-            channelId: generalChannel.id,
-            signature: '',
-            pubKey: '',
-          },
-          verifyAutomatically: true,
-        }
-      )
+      const message = await factory.create('TestMessage', {
+        message: {
+          id: item.id,
+          type: item.type || MessageType.Basic,
+          message: `message_${item.id}`,
+          createdAt: item.createdAt,
+          channelId: generalChannel.id,
+          userId: item.userId,
+        },
+        verifyAutomatically: true,
+      })
       msgs[item.id] = message.message
-      msgsOwners[item.id] = item.identity.nickname
+      msgsOwners[item.id] = item.userId
     }
   })
 
@@ -248,8 +239,7 @@ describe('publicChannelsSelectors', () => {
     formattedMessages.forEach(message => {
       expect(message).toMatchSnapshot({
         createdAt: expect.any(Number),
-        pubKey: expect.any(String),
-        signature: expect.any(String),
+        userId: expect.any(String),
       })
     })
   })
@@ -259,14 +249,8 @@ describe('publicChannelsSelectors', () => {
     // Convert regular messages to displayable messages
     const displayable: Record<string, DisplayableMessage> = {}
     for (const message of Object.values(msgs)) {
-      const user: User = {
-        isDuplicated: false,
-        isRegistered: true,
-        onionAddress: '',
-        peerId: '',
-        pubKey: msgs[message.id].pubKey,
-        username: msgsOwners[message.id],
-      }
+      // select user
+      const user = message.userId === alice.userId ? alice : john
       displayable[message.id] = displayableMessage(message, user)
     }
 
@@ -309,60 +293,11 @@ describe('publicChannelsSelectors', () => {
     expect(channels).toStrictEqual(['general', 'allergies', 'antiques', 'croatia', 'pets', 'sailing'])
   })
 
-  it("don't select messages without author", async () => {
-    const channelId = generateChannelId('utah')
-    const channel = (
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: 'utah',
-          description: 'Welcome to #utah',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: channelId,
-        },
-      })
-    ).channel
-
-    const elouise = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'elouise',
-    })
-
-    if (!elouise.userCertificate) throw new Error('no elouise.userCertificate')
-    store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
-    // @ts-expect-error - This is statically mocked data so it'll never be undefined
-    store.dispatch(usersActions.test_remove_user_csr({ csr: elouise.userCsr?.userCsr }))
-
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({
-        channelId: channel.id,
-      })
-    )
-
-    await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-      identity: elouise,
-      message: {
-        id: '0',
-        type: MessageType.Basic,
-        message: 'elouise_message',
-        createdAt: DateTime.now().valueOf(),
-        channelId: channel.id,
-        signature: '',
-        pubKey: '',
-      },
-      verifyAutomatically: true,
-    })
-
-    const messages = displayableCurrentChannelMessages(store.getState())
-
-    expect(messages.length).toBe(0)
-  })
-
   it('unreadChannels return empty object if PublicChannels is in the wrong state (no channelStatus)', async () => {
     // This case occurred in a built app
     const store = prepareStore().store
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Community')
 
     const oldState = store.getState()
     const channelId = oldState.PublicChannels.channels.ids[0]
