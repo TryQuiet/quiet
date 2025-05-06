@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## [unreleased]
+
+## Chores
 
 * Updates file storage locations on iOS and Android
 
