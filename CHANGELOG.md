@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Updates storage location on desktop from "Quiet4" to "Quiet5" so users can run both at once
+
 ## [4.1.0]
 
 ### New Features
