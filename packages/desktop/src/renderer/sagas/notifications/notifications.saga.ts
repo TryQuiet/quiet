@@ -5,7 +5,6 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import {
   connection,
   settings,
-  identity,
   users,
   messages,
   publicChannels,
@@ -17,6 +16,9 @@ import { MessageType, FileMetadata, DownloadState } from '@quiet/types'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('notifications.saga')
 
 // eslint-disable-next-line
 const remote = require('@electron/remote')
@@ -35,9 +37,8 @@ export function* displayMessageNotificationSaga(
 
   const currentChannelId = yield* select(publicChannels.selectors.currentChannelId)
   const publicChannelsSelector = yield* select(publicChannels.selectors.publicChannels)
-
-  const currentIdentity = yield* select(identity.selectors.currentIdentity)
-  const allUsers = yield* select(users.selectors.allUsers)
+  const myUserProfile = yield* select(users.selectors.myUserProfile)
+  const myUserId = myUserProfile?.userId || ''
 
   const lastConnectedTime = yield* select(connection.selectors.lastConnectedTime)
 
@@ -54,9 +55,18 @@ export function* displayMessageNotificationSaga(
     if (focused && message.channelId === currentChannelId) return
 
     // Do not display notifications for own messages
-    const sender = allUsers[message.pubKey]?.username
-    if (!sender || sender === currentIdentity?.nickname) return
-
+    const sender = message.userId
+    if (!sender || !myUserId || sender === myUserId) {
+      logger.debug('Notification ignored: own message')
+      return
+    }
+    const senderProfile = yield* select(users.selectors.getUserProfileById(sender))
+    if (!senderProfile) {
+      logger.info('Notification ignored: sender profile not found')
+      return
+    }
+    const senderName = senderProfile.nickname
+    logger.info(`Notification: ${senderName} sent a message in #${channelName}`)
     // Do not display notifications if turned off in configuration
     if (notificationsConfig === NotificationsOptions.doNotNotifyOfAnyMessages) return
 
@@ -66,12 +76,12 @@ export function* displayMessageNotificationSaga(
     // Do not display when message is not verified
     if (!action.payload.isVerified) return
 
-    let label = `New message from @${sender} in #${channelName}`
+    let label = `New message from @${senderName} in #${channelName}`
     let body: string | undefined = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
     // Change notification's label for the image
     if (message.type === MessageType.Image) {
-      label = `@${sender} sent an image in #${channelName}`
+      label = `@${senderName} sent an image in #${channelName}`
       body = undefined
     }
 
@@ -79,11 +89,11 @@ export function* displayMessageNotificationSaga(
     if (message.type === MessageType.File) {
       const status = downloadStatuses[message.id]
 
-      label = `@${sender} sends file in #${channelName}`
+      label = `@${senderName} sends file in #${channelName}`
       body = undefined
 
       if (status?.downloadState === DownloadState.Completed) {
-        label = `@${sender} sent a file in #${channelName}`
+        label = `@${senderName} sent a file in #${channelName}`
         body = 'Download complete. Click to show file in folder.'
       }
     }

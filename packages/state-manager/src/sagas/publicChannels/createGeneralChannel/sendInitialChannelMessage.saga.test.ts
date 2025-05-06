@@ -1,20 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, type Identity } from '../../..'
-import { prepareStore } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { type communitiesActions } from '../../communities/communities.slice'
-import { type identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
-import { reducers } from '../../reducers'
 import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
-import { type Community, type PublicChannel } from '@quiet/types'
+import { type Community, type PublicChannel, type Identity, UserProfile } from '@quiet/types'
+import { userProfiles, userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -26,18 +25,22 @@ describe('sendInitialChannelMessageSaga', () => {
 
   let community: Community
   let owner: Identity
+  let ownerUserProfile: UserProfile
 
   beforeAll(async () => {
     setupCrypto()
 
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    owner = await factory.create('Identity', {
+      communityId: community.id,
+      userId: 'ownerUserId',
+    })
+    ownerUserProfile = await factory.create('UserProfile', {
+      userId: owner.userId,
     })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
@@ -50,7 +53,7 @@ describe('sendInitialChannelMessageSaga', () => {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: owner.nickname,
+          owner: owner.userId,
           id: generateChannelId('photo'),
         },
       })
@@ -58,7 +61,7 @@ describe('sendInitialChannelMessageSaga', () => {
   })
 
   test('send initial channel message', async () => {
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
@@ -80,7 +83,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
   test('send deletion message for general channel', async () => {
     store.dispatch(publicChannelsActions.startGeneralRecreation())
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
@@ -93,7 +96,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .put(
         messagesActions.sendMessage({
           type: 3,
-          message: generalChannelDeletionMessage(owner.nickname),
+          message: generalChannelDeletionMessage(ownerUserProfile.nickname),
           channelId: generalChannel.id,
         })
       )

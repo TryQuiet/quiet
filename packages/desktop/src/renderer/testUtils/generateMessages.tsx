@@ -23,10 +23,10 @@ export const generateMessages = (options: IGenerateMessages = defaults) => {
       message: `${message}${i}`,
       createdAt: 0,
       date: 'string',
-      nickname,
+      nickname: nickname,
       isDuplicated: false,
       isRegistered: true,
-      pubKey: `${nickname}PubKey`,
+      userId: `${nickname}PubKey`,
     })
   }
 

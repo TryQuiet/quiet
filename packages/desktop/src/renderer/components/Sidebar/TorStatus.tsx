@@ -2,8 +2,6 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Grid, GridProps } from '@mui/material'
 import { Typography } from '@mui/material'
-import { connection } from '@quiet/state-manager'
-import { useSelector } from 'react-redux'
 
 const PREFIX = 'TorStatus'
 

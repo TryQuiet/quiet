@@ -9,28 +9,24 @@ import MockedSocket from 'socket.io-mock'
 import { FactoryGirl } from 'factory-girl'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
 
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 import Channel from '../renderer/components/Channel/Channel'
 
 import {
-  getFactory,
-  identity,
+  getReduxStoreFactory,
   publicChannels,
-  communities,
-  Identity,
   Store,
-  MessageType,
-  ChannelMessage,
   messages,
   generateMessageFactoryContentWithId,
 } from '@quiet/state-manager'
+import { Identity, MessageType, ChannelMessage, SocketEvents } from '@quiet/types'
 
 import { DateTime } from 'luxon'
 
 import store from '../renderer/store'
-import { type Community, SocketActionTypes } from '@quiet/types'
+import { type Community, SocketActions } from '@quiet/types'
 
 jest.setTimeout(20_000)
 jest.mock('electron', () => {
@@ -74,12 +70,12 @@ describe('Switch channels', () => {
     }))
 
     redux = await prepareStore({}, socket)
-    factory = await getFactory(redux.store)
+    factory = await getReduxStoreFactory(redux.store)
 
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
     const entities = redux.store.getState().PublicChannels.channels.entities
@@ -89,12 +85,12 @@ describe('Switch channels', () => {
     const channelNames = ['memes', 'pets', 'travels']
     // Automatically create channels
     for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: name,
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: name,
         },
       })
@@ -102,12 +98,9 @@ describe('Switch channels', () => {
   })
 
   it('Opens another channel', async () => {
-    const generalChannelMessage = await factory.create<
-      ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
-      identity: alice,
+    const generalChannelMessage = await factory.create('TestMessage', {
       // @ts-expect-error
-      message: generateMessageFactoryContentWithId(generalId),
+      message: generateMessageFactoryContentWithId(generalId, alice.userId),
       verifyAutomatically: true,
     })
 
@@ -154,16 +147,14 @@ describe('Switch channels', () => {
     // Automatically create messages
     for (const id of messagesIds) {
       const message = (
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice,
+        await factory.build('TestMessage', {
           message: {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
             channelId: id,
-            signature: '',
-            pubKey: '',
+            userId: alice.userId,
           },
           verifyAutomatically: true,
         })
@@ -208,7 +199,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: messages,
           communityId: community.id,
@@ -219,16 +210,14 @@ describe('Switch channels', () => {
 
   it('Does not show information about unread messages if channel is active', async () => {
     const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
+      await factory.build('TestMessage', {
         message: {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
           channelId: 'general',
-          signature: '',
-          pubKey: '',
+          userId: alice.userId,
         },
         verifyAutomatically: true,
       })
@@ -258,7 +247,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -269,16 +258,14 @@ describe('Switch channels', () => {
 
   it('Loads messages to cache when switching channel', async () => {
     const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
+      await factory.build('TestMessage', {
         message: {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
           channelId: 'travels',
-          signature: '',
-          pubKey: '',
+          userId: alice.userId,
         },
         verifyAutomatically: true,
       })
@@ -328,7 +315,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,

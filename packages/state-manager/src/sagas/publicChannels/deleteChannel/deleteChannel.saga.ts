@@ -2,10 +2,8 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { apply, put, select } from 'typed-redux-saga'
 import { type Socket, applyEmitParams } from '../../../types'
-import { filesActions } from '../../files/files.slice'
-import { SocketActionTypes } from '@quiet/types'
+import { DeleteChannelResponse, SocketActions, SocketActionsMap } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { usersSelectors } from '../../users/users.selectors'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('deleteChannelSaga')
@@ -16,33 +14,26 @@ export function* deleteChannelSaga(
 ): Generator {
   const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
-  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  const ownerData = yield* select(usersSelectors.ownerData)
   const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
 
   if (generalChannel === undefined) return
   if (payloadChannel?.disabled) return
 
-  const isGeneral = channelId === generalChannel.id
-
   logger.info(`Deleting channel ${channelId}`)
 
-  const response = yield* apply(
+  const response: DeleteChannelResponse = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
+    applyEmitParams(SocketActions.DELETE_CHANNEL, {
       channelId,
-      ownerPeerId: ownerData?.peerId,
     })
   )
 
-  yield* put(filesActions.deleteFilesFromChannel({ channelId }))
+  logger.info(`Delete channel response: ${JSON.stringify(response)}`)
 
-  if (!isGeneral) {
-    if (currentChannelId === channelId) {
-      yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
-    }
-    yield* put(publicChannelsActions.disableChannel({ channelId }))
+  if (response == null) {
+    logger.error('Failed to delete channel')
+    return
   }
 
   yield* put(publicChannelsActions.channelDeletionResponse(response))

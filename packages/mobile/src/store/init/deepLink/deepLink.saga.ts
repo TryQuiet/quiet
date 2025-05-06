@@ -7,7 +7,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
+import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
 import _ from 'lodash'
 import {
   AlreadyBelongToCommunityWarning,
@@ -18,6 +18,9 @@ import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('deepLink')
 
+/**
+ * Handles invitation deep links
+ */
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
 
@@ -115,12 +118,11 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  const payload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
+  const payload: JoinCommunityPayload = {
     inviteData: data,
   }
 
-  yield* put(communities.actions.createNetwork(payload))
+  yield* put(communities.actions.joinCommunity(payload))
 
   yield* put(
     navigationActions.replaceScreen({

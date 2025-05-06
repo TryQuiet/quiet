@@ -1,22 +1,17 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, MessageType, type PublicChannel, type publicChannels } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type Identity } from '../../identity/identity.types'
-import { type identityActions } from '../../identity/identity.slice'
-import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
-import { type Socket } from 'socket.io-client'
+import { type Socket } from '../../../types'
 import { filesActions } from '../../files/files.slice'
 import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { generateChannelId } from '@quiet/common'
-import { type Community, SocketActionTypes } from '@quiet/types'
+import { type Community, Identity, MessageType, PublicChannel, SocketActions } from '@quiet/types'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('deleteFilesFromChannelSaga', () => {
   let store: Store
@@ -36,12 +31,12 @@ describe('deleteFilesFromChannelSaga', () => {
     setupCrypto()
 
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    owner = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -50,19 +45,19 @@ describe('deleteFilesFromChannelSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: owner.nickname,
+          owner: owner.userId,
           id: generateChannelId('id'),
         },
       })
     ).channel
     const id = Math.random().toString(36).substr(2.9)
     message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      await factory.create('TestMessage', {
         identity: owner,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -70,8 +65,6 @@ describe('deleteFilesFromChannelSaga', () => {
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
           channelId: photoChannel.id,
-          signature: '',
-          pubKey: '',
           media: {
             cid: 'cid',
             path: null,
@@ -91,12 +84,15 @@ describe('deleteFilesFromChannelSaga', () => {
   test('delete files from channel', async () => {
     const channelId = photoChannel.id
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(deleteFilesFromChannelSaga, socket, filesActions.deleteFilesFromChannel({ channelId }))
-      .withReducer(reducer)
+    await expectSaga(
+      deleteFilesFromChannelSaga,
+      socket as unknown as Socket,
+      filesActions.deleteFilesFromChannel({ channelId })
+    )
+      .withReducer(combineReducers(testReducers))
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
+        SocketActions.DELETE_FILES_FROM_CHANNEL,
         {
           messages: {
             [message.id]: message,

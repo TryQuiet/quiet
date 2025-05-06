@@ -1,5 +1,5 @@
 import { capitalizeFirstLetter } from '@quiet/common'
-import { communities, users } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useModal } from '../../../containers/hooks'
@@ -10,7 +10,8 @@ const PossibleImpersonationAttackModalContainer = () => {
   const possibleImpersonationAttackModal = useModal(ModalName.possibleImpersonationAttackModal)
 
   const community = useSelector(communities.selectors.currentCommunity)
-  const duplicateCerts = useSelector(users.selectors.duplicateCerts)
+  // const duplicateUsers = useSelector(users.selectors.duplicateUsers)
+  const duplicateUsers = false
 
   let communityName = '...'
 
@@ -19,10 +20,10 @@ const PossibleImpersonationAttackModalContainer = () => {
   }
 
   useEffect(() => {
-    if (duplicateCerts) {
+    if (duplicateUsers) {
       possibleImpersonationAttackModal.handleOpen()
     }
-  }, [duplicateCerts])
+  }, [duplicateUsers])
 
   return (
     <PossibleImpersonationAttackModalComponent communityName={communityName} {...possibleImpersonationAttackModal} />

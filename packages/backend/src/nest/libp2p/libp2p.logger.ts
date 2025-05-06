@@ -13,6 +13,7 @@ export interface QuietLibp2pLogger {
   (formatter: string, ...args: any[]): void
   error(formatter: string, ...args: any[]): void
   trace(formatter: any, ...args: any[]): void
+  warn(formatter: any, ...args: any[]): void
   enabled: boolean
 }
 
@@ -176,6 +177,7 @@ export function logger(name: string): () => CallableQuietLogger {
         enabled: [LogSetting.DEBUG, LogSetting.TRACE].includes(logger.logSetting),
         error: (message: any, ...optionalParams: any[]) => logger.error(message, ...optionalParams),
         trace: (message: any, ...optionalParams: any[]) => logger.trace(message, ...optionalParams),
+        warn: (message: any, ...optionalParams: any[]) => logger.warn(message, ...optionalParams),
       }
       const func = (message: any, ...optionalParams: any[]) => logger.info(message, ...optionalParams)
       return Object.assign(func, callable)

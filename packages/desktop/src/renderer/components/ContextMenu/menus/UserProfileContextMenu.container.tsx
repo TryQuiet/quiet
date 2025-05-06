@@ -14,6 +14,7 @@ import { MenuName } from '../../../../const/MenuNames.enum'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import Jdenticon from '../../Jdenticon/Jdenticon'
 import { createLogger } from '../../../logger'
+import { UserProfile } from '@quiet/types'
 
 const logger = createLogger('userProfileContextMenu:container')
 
@@ -111,16 +112,15 @@ export const UserProfileContextMenu: FC = () => {
  * and associated actions (e.g. edit profile)
  */
 export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => void }> = ({ setRoute }) => {
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
-  const username = currentIdentity?.nickname || ''
-  const pubKey = useSelector(identity.selectors.currentPubKey)
+  const username = userProfile?.nickname || ''
+  const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
 
   return (
     <UserProfileMenuProfileView
       username={username}
-      pubKey={pubKey}
+      userId={userId}
       userProfile={userProfile}
       contextMenu={contextMenu}
       setRoute={setRoute}
@@ -130,8 +130,8 @@ export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => 
 
 export interface UserProfileMenuProfileViewProps {
   username: string
-  pubKey?: string
-  userProfile?: { profile: { photo: string } }
+  userId: string
+  userProfile?: UserProfile
   contextMenu: {
     // FIXME: should be boolean; useContextMenu typing is broken
     visible: boolean
@@ -143,7 +143,7 @@ export interface UserProfileMenuProfileViewProps {
 
 export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = ({
   username,
-  pubKey,
+  userId,
   userProfile,
   contextMenu,
   setRoute,
@@ -199,15 +199,15 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                 >
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.profile.photo ? (
+                      {userProfile?.photo ? (
                         <img
                           className={classes.profilePhoto}
-                          src={userProfile?.profile.photo}
+                          src={userProfile?.photo}
                           alt={'Your user profile image'}
                         />
                       ) : (
                         <Jdenticon
-                          value={pubKey}
+                          value={userId}
                           size='96'
                           style={{
                             width: '96px',
@@ -272,8 +272,8 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const dispatch = useDispatch()
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
-  const username = currentIdentity?.nickname || ''
-  const pubKey = useSelector(identity.selectors.currentPubKey)
+  const username = userProfile?.nickname || ''
+  const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
     dispatch(users.actions.saveUserProfile({ photo }))
@@ -282,7 +282,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   return (
     <UserProfileMenuEditView
       username={username}
-      pubKey={pubKey}
+      userId={userId}
       userProfile={userProfile}
       contextMenu={contextMenu}
       setRoute={setRoute}
@@ -293,8 +293,8 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
 
 export interface UserProfileMenuEditViewProps {
   username: string
-  pubKey?: string
-  userProfile?: { profile: { photo: string } }
+  userId: string
+  userProfile?: UserProfile
   contextMenu: {
     visible: boolean
     handleOpen: (args?: object | undefined) => any
@@ -306,7 +306,7 @@ export interface UserProfileMenuEditViewProps {
 
 export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   username,
-  pubKey,
+  userId,
   userProfile,
   contextMenu,
   setRoute,
@@ -422,15 +422,15 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                 >
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.profile.photo ? (
+                      {userProfile?.photo ? (
                         <img
                           className={classes.profilePhoto}
-                          src={userProfile?.profile.photo}
+                          src={userProfile?.photo}
                           alt={'Your user profile image'}
                         />
                       ) : (
                         <Jdenticon
-                          value={pubKey}
+                          value={userId}
                           size='96'
                           style={{
                             width: '96px',

@@ -22,7 +22,7 @@ describe('Message component', () => {
             nickname: 'holmes',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
+            userId: 'test',
           },
         ]}
         pendingMessages={{}}
@@ -276,7 +276,7 @@ describe('Message component', () => {
             nickname: 'somebody',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
+            userId: 'test',
           },
         ]}
         pendingMessages={{}}
@@ -505,7 +505,7 @@ describe('Message component', () => {
                       }
                     }
                   >
-                    Hello! Does in-line LaTeX work? 
+                    Hello! Does in-line LaTeX work?
                   </Text>
                   <RNSVGSvgView
                     align="xMidYMid"
