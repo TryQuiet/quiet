@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Specifies timezone in mobile snapshot tests
+
 ## [4.1.0]
 
 ### New Features
