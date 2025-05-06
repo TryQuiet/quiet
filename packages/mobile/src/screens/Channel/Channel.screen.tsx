@@ -38,8 +38,6 @@ export const ChannelScreen: FC = () => {
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -50,9 +48,11 @@ export const ChannelScreen: FC = () => {
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
+  const isOwner = useSelector(communities.selectors.isOwner)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!community?.CA || !isWebsocketConnected) {
+  if (!isOwner || !isWebsocketConnected) {
     contextMenu = null
   }
 

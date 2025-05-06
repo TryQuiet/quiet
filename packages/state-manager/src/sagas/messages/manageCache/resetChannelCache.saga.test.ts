@@ -1,8 +1,8 @@
 import { setupCrypto } from '@quiet/identity'
 import { type FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
-import { getFactory } from '../../../utils/tests/factories'
-import { prepareStore } from '../../..//utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../..//utils/tests/prepareStore'
 import { combineReducers, type Store } from 'redux'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
@@ -28,12 +28,12 @@ describe('resetChannelCacheSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -56,7 +56,7 @@ describe('resetChannelCacheSaga', () => {
       const iterations = 80
       ;[...Array(iterations)].map(async (_, index) => {
         const item = (
-          await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+          await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('TestMessage', {
             identity: alice,
             message: {
               id: Math.random().toString(36).substr(2.9),
@@ -88,7 +88,7 @@ describe('resetChannelCacheSaga', () => {
       sortedCurrentChannelMessages.length
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(resetCurrentPublicChannelCacheSaga)
       .withReducer(reducer)
       .withState(store.getState())

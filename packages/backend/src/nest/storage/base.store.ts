@@ -1,6 +1,7 @@
 import { type KeyValueType, type EventsType } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import { createLogger } from '../common/logger'
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
 
 const logger = createLogger('store')
 
@@ -34,8 +35,30 @@ export abstract class KeyValueStoreBase<V, U = V> extends StoreBase<V, KeyValueT
   abstract getEntry(key?: string): Promise<U | null>
 }
 
+export abstract class EncryptedKeyValueStoreBase<EncryptedType, DecryptedType> extends StoreBase<
+  EncryptedType,
+  KeyValueType<EncryptedType>
+> {
+  protected store: KeyValueType<EncryptedType> | undefined
+  abstract encryptEntry(value: DecryptedType): Promise<EncryptedAndSignedPayload>
+  abstract decryptEntry(value: EncryptedType): Promise<DecryptedType>
+  abstract setEntry(key: string, value: DecryptedType): Promise<EncryptedType>
+  abstract getEntry(key?: string): Promise<DecryptedType | null>
+}
+
 export abstract class EventStoreBase<V, U = V> extends StoreBase<V, EventsType<V>> {
   protected store: EventsType<V> | undefined
   abstract addEntry(value: U): Promise<string>
   abstract getEntries(): Promise<U[]>
+}
+
+export abstract class EncryptedEventStoreBase<EncryptedType, DecryptedType> extends StoreBase<
+  EncryptedType,
+  EventsType<EncryptedType>
+> {
+  protected store: EventsType<EncryptedType> | undefined
+  abstract encryptEntry(value: DecryptedType): Promise<EncryptedAndSignedPayload>
+  abstract decryptEntry(value: EncryptedType): Promise<DecryptedType>
+  abstract addEntry(value: DecryptedType): Promise<string>
+  abstract getEntries(): Promise<DecryptedType[]>
 }
