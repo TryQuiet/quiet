@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Chores
+
+* Removed deprecated identity systems not based on LFA [#2762](https://github.com/TryQuiet/quiet/issues/2762)
+
 ## [4.0.0]
 
 ### New Features
