@@ -900,7 +900,7 @@ const emoticons: EmojiMapping = {
   ':-3': '😊',
   'XD': '😆',
   'X-D': '😆',
-  xD: '😆',
+  'xD': '😆',
   'x-D': '😆',
   '=D': '😄',
   '=)': '😊',
