@@ -1,5 +1,5 @@
 export const DESKTOP_DEV_DATA_DIR = 'Quietdev'
-export const DESKTOP_DATA_DIR = 'Quiet4'
+export const DESKTOP_DATA_DIR = 'Quiet5'
 
 export enum Site {
   DOMAIN = 'tryquiet.org',
