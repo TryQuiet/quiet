@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Updates file storage locations on iOS and Android
+
 ## [4.1.0]
 
 ### New Features
