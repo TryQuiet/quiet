@@ -1,17 +1,14 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [5.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@4.1.2...@quiet/mobile@5.0.0-alpha.0) (2025-05-06)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
+
+## [5.0.0]
+
+### Chores
+
+* Disabled automatic desktop updates from v4.x to v5.x by changing the update bucket [#2832](https://github.com/TryQuiet/quiet/issues/2832)
+* Specifies timezone in mobile snapshot tests
+* Removed deprecated identity systems not based on LFA [#2762](https://github.com/TryQuiet/quiet/issues/2762)
+* Updates storage location on desktop from "Quiet4" to "Quiet5" so users can run both at once
+* Updates file storage locations on iOS and Android
 
 ## [4.1.0]
 
