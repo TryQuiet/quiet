@@ -50,7 +50,7 @@ jobs:
             -configuration Release \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
-            build CODE_SIGNING_ALLOWED=NO
+            build CODE_SIGNING_ALLOWED=NO ENABLE_BITCODE=NO
 
       - name: Zip .app bundle
         run: |
