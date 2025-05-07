@@ -7,7 +7,6 @@ exports.default = async function notarizing(context) {
   const skip =
     electronPlatformName !== 'darwin' ||
     process.env.GITHUB_EVENT_NAME === 'pull_request' ||
-    process.env.TEST_MODE === 'true' ||
     process.env.IS_LOCAL === 'true' ||
     process.env.IS_E2E === 'true'
 
