@@ -4,6 +4,7 @@
 
 ### Chores
 
+* Disables bitcode creation and strips bitcode from Tor.framework for xcode 16 compatibility
 * Targets iOS 18 SDK as required by Apple
 * Disabled automatic desktop updates from v4.x to v5.x by changing the update bucket [#2832](https://github.com/TryQuiet/quiet/issues/2832)
 * Specifies timezone in mobile snapshot tests
