@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0]
+
+### Chores
+
+* Targets iOS 18 SDK as required by Apple
+* Disabled automatic desktop updates from v4.x to v5.x by changing the update bucket [#2832](https://github.com/TryQuiet/quiet/issues/2832)
+* Specifies timezone in mobile snapshot tests
+* Removed deprecated identity systems not based on LFA [#2762](https://github.com/TryQuiet/quiet/issues/2762)
+* Updates storage location on desktop from "Quiet4" to "Quiet5" so users can run both at once
+* Updates file storage locations on iOS and Android
+
 ## [4.1.0]
 
 ### New Features
