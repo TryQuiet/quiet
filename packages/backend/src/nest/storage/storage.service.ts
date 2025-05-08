@@ -74,6 +74,9 @@ export class StorageService extends EventEmitter {
     this.logger.info(`Starting database sync`)
     await this.startSync()
 
+    this.logger.info('Updating peer store')
+    await this.updatePeerStore()
+
     this.logger.info('Initialized storage')
   }
 
@@ -181,12 +184,16 @@ export class StorageService extends EventEmitter {
     const peers: Record<string, NetworkStats> = {}
     for (const userData of currentUserData) {
       const multiaddr = createLibp2pAddress(userData.onionAddress, userData.peerId)
-      const existingStats = existingPeers[multiaddr]
+      const existingStats = existingPeers[userData.peerId]
       if (existingStats) {
-        peers[multiaddr] = existingPeers[multiaddr]
+        peers[userData.peerId] = existingPeers[userData.peerId]
+        if (!existingPeers.address) {
+          peers[userData.peerId].address = multiaddr
+        }
       } else {
-        peers[multiaddr] = {
+        peers[userData.peerId] = {
           peerId: userData.peerId,
+          address: multiaddr,
           lastSeen: DateTime.utc().toSeconds(),
           connectionTime: 0,
         }
