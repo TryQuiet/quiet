@@ -2,8 +2,13 @@
 
 ## [5.0.0]
 
+### Features
+
+* Users can now enter the channel view before Tor has fully initialized which means much less waiting time when opening the app. Actions will be queued to be sent when the connection is established. [#2837](https://github.com/TryQuiet/quiet/issues/2837)
+
 ### Fixes
 
+* Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
 * Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
 
 ### Chores
