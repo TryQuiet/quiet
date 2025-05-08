@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [5.0.0-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@5.0.0-alpha.6...@quiet/mobile@5.0.0-alpha.7) (2025-05-08)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 ## [5.0.0]
@@ -22,6 +9,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Fixes
 
 * Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
+* Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
 
 ### Chores
 
