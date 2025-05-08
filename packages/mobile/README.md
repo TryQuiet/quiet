@@ -158,7 +158,8 @@ const watchFolders = [
 ### Prerequisites for iOS development
 
 1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
-1. Follow the [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) instructions to set up your development environment.
+1. Install Xcode Command Line Tools by running `xcode-select --install` 
+1. Install [Homebrew](https://brew.sh/)
 1. Install rbenv, a Ruby version manager.
 
     ```bash
@@ -181,18 +182,18 @@ const watchFolders = [
     bundle install
     ```
 
-1. Install the pods for the iOS project.
+1. Install the pods for the iOS project. TODO: note which version
 
     ```bash
     cd ios
-    bundle exec pod install
+    bundle exec pod install 
     ```
 
-1. Open the `ios` directory in Xcode.
+1. Open the `ios` directory in Xcode by typing `xed ios` in `packages/mobile`
 
 1. If planning to run on device, setup the signing certificate and provisioning profile in Xcode.
 
-    [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
+    [React Native: Running on Device](https://reactnative.dev/docs/running-on-device) (TODO: specify these instructions more, including how to add an account to Xcode, pick the right project, and provision a device)
 
 ### Running iOS App With Command Line
 
