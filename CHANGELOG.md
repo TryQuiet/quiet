@@ -2,6 +2,10 @@
 
 ## [5.0.0]
 
+### Features
+
+* Users can now enter the channel view before Tor has fully initialized which means much less waiting time when opening the app. Actions will be queued to be sent when the connection is established. [#2837](https://github.com/TryQuiet/quiet/issues/2837)
+
 ### Chores
 
 * Disables bitcode creation and strips bitcode from Tor.framework for xcode 16 compatibility
