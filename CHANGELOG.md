@@ -2,6 +2,10 @@
 
 ## [5.0.0]
 
+### Fixes
+
+* Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
+
 ### Chores
 
 * Disables bitcode creation and strips bitcode from Tor.framework for xcode 16 compatibility

@@ -321,17 +321,18 @@ export class Libp2pAuth {
           `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
         )
         if (!('team' in sigChain.context)) {
-          this.logger.error('SigChain context team is null')
           sigChain.context = {
             device: (sigChain.context as Auth.InviteeContext).device,
             team,
             user,
           } as Auth.MemberContext
         }
+        this.sigChainService.setActiveChain(team.teamName)
       }
       this.joinStatus = JoinStatus.JOINED
       this.unblockConnections(this.bufferedConnections)
       this.emit(Libp2pEvents.AUTH_JOINED)
+      this.sigChainService.saveChain(team.teamName)
     })
 
     authConnection.on('change', payload => {
