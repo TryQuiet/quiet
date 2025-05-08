@@ -460,8 +460,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const bootstrapPeerStats: Record<string, NetworkStats> = {}
     for (const pair of inviteData.pairs) {
       const multiaddr = createLibp2pAddress(pair.onionAddress, pair.peerId)
-      bootstrapPeerStats[multiaddr] = {
+      bootstrapPeerStats[pair.peerId] = {
         peerId: pair.peerId,
+        address: multiaddr,
         connectionTime: 0,
         lastSeen: DateTime.utc().toSeconds(),
       } as NetworkStats
@@ -577,7 +578,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),
       noiseKey: Buffer.from(identity.networkInfo.peerId.noiseKey, 'base64'),
     }
-    this.logger.info(peerIdData.peerId.toString())
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
     const params: Libp2pNodeParams = {
@@ -794,6 +794,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.storageService.updatePeerStore()
+      this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)
     })
   }

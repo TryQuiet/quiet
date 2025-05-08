@@ -101,12 +101,6 @@ export class LocalDbService {
    */
   public async setPeerStats(stats: Record<string, NetworkStats>) {
     this.logger.debug('Setting peer stats', stats)
-    for (const addr of Object.keys(stats)) {
-      if (!isMultiaddr(multiaddr(addr))) {
-        this.logger.error('Invalid multiaddr', addr)
-        continue
-      }
-    }
     this.put(LocalDBKeys.PEERS, stats)
   }
 
@@ -115,14 +109,7 @@ export class LocalDbService {
    * @param stats
    */
   public async updatePeerStats(stats: Record<string, NetworkStats>) {
-    this.logger.debug('Updating peer stats', stats)
-    for (const addr of Object.keys(stats)) {
-      if (!isMultiaddr(multiaddr(addr))) {
-        this.logger.error('Invalid multiaddr', addr)
-        delete stats[addr]
-        continue
-      }
-    }
+    this.logger.debug('Updating peer stats', JSON.stringify(stats, null, 2))
     const existingStats = await this.get(LocalDBKeys.PEERS)
     if (!existingStats) {
       this.put(LocalDBKeys.PEERS, stats)
@@ -135,21 +122,15 @@ export class LocalDbService {
   /**
    * Get the local db entry for peers
    */
-  public async getPeerStats(peerId: string): Promise<NetworkStats | undefined>
+  public async getPeerStats(peerId: string): Promise<NetworkStats | null>
   public async getPeerStats(): Promise<Record<string, NetworkStats>>
-  public async getPeerStats(peerId?: string): Promise<NetworkStats | Record<string, NetworkStats> | undefined> {
+  public async getPeerStats(peerId?: string): Promise<NetworkStats | Record<string, NetworkStats> | null> {
+    if (peerId) {
+      return await this.find(LocalDBKeys.PEERS, peerId)
+    }
     const peers = await this.get(LocalDBKeys.PEERS)
     if (!peers) {
-      return peerId ? undefined : {}
-    }
-    if (peerId) {
-      // find the stats entry matching the given peerId
-      for (const stats of Object.values(peers) as NetworkStats[]) {
-        if (stats.peerId === peerId) {
-          return stats
-        }
-      }
-      return undefined
+      return null
     }
     return peers
   }
@@ -163,8 +144,10 @@ export class LocalDbService {
    */
   public async getSortedPeers(includeLocalPeerAddress: boolean = true): Promise<string[]> {
     const entries = (await this.get(LocalDBKeys.PEERS)) || {}
-    const addresses: string[] = Object.keys(entries)
     const stats: NetworkStats[] = Object.values(entries)
+    const addresses: string[] = stats
+      .map((peer: NetworkStats) => peer.address)
+      .filter((address): address is string => address !== undefined)
 
     if (includeLocalPeerAddress) {
       const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))

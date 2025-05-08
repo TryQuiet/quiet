@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quiet/state-manager'
-import { Community, Identity, PublicChannel, UserProfile } from '@quiet/types'
+import { Community, Identity, NetworkStats, PublicChannel, UserProfile } from '@quiet/types'
 
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
@@ -25,6 +25,7 @@ import { createLogger } from '../common/logger'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
+import { Network } from '@libp2p/kad-dht/dist/src/network'
 
 const logger = createLogger('storageService:test')
 
@@ -193,8 +194,13 @@ describe('StorageService', () => {
 
     it('updatePeerStore should merge existing and new peers', async () => {
       const existingPeerStats = {
-        '/dns4/oldpeer.onion/tcp/80/ws/p2p/peerOld': { peerId: 'peerOld', lastSeen: 0, connectionTime: 0 },
-      }
+        peerOld: {
+          peerId: 'peerOld',
+          address: '/dns4/oldpeer.onion/tcp/80/ws/p2p/peerOld',
+          lastSeen: 0,
+          connectionTime: 0,
+        },
+      } as Record<string, NetworkStats>
       jest.spyOn(localDbService, 'getPeerStats').mockResolvedValue(existingPeerStats as any)
 
       const members = [{ userId: 'user1' }]
@@ -219,8 +225,9 @@ describe('StorageService', () => {
       const expectedMultiaddr = `/dns4/addr1.onion/tcp/80/ws/p2p/peer1`
       expect(setPeerStatsSpy).toHaveBeenCalled()
       const arg = setPeerStatsSpy.mock.calls[0][0]
-      expect(arg[expectedMultiaddr]).toBeDefined()
-      expect(arg[expectedMultiaddr].peerId).toEqual('peer1')
+      expect(arg['peer1']).toBeDefined()
+      expect(arg['peer1'].peerId).toEqual('peer1')
+      expect(arg['peer1'].address).toEqual(expectedMultiaddr)
     })
   })
 })
