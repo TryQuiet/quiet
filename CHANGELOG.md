@@ -2,6 +2,10 @@
 
 ## [5.0.0]
 
+### Fixes
+
+* Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
+
 ### Chores
 
 * Disables bitcode creation and strips bitcode from Tor.framework for xcode 16 compatibility
