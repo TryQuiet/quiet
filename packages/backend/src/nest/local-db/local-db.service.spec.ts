@@ -27,16 +27,18 @@ describe('LocalDbService', () => {
   const addr2 = createLibp2pAddress('zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion', peer2Id)
 
   const stats1: Record<string, NetworkStats> = {
-    [addr1]: {
+    [peer1Id]: {
       peerId: peer1Id,
+      address: addr1,
       connectionTime: 50,
       lastSeen: 1_000,
     },
   }
 
   const stats2: Record<string, NetworkStats> = {
-    [addr2]: {
+    [peer2Id]: {
       peerId: peer2Id,
+      address: addr2,
       connectionTime: 500,
       lastSeen: 500,
     },
