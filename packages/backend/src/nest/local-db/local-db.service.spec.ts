@@ -159,8 +159,8 @@ describe('LocalDbService', () => {
       })
 
       // single peer – key by peerId
-      expect(await service.getPeerStats(peer1Id)).toEqual(stats1[addr1])
-      expect(await service.getPeerStats(peer2Id)).toEqual(stats2[addr2])
+      expect(await service.getPeerStats(peer1Id)).toEqual(stats1[peer1Id])
+      expect(await service.getPeerStats(peer2Id)).toEqual(stats2[peer2Id])
     })
 
     it('getSortedPeers returns addresses sorted alphabetically', async () => {
