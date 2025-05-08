@@ -46,10 +46,12 @@ class SigChain extends EventEmitter {
     const newTeam = 'team' in context ? context.team : null
     const oldTeam = oldContext && 'team' in oldContext ? oldContext.team : null
 
-    if (oldTeam && oldTeam !== newTeam) {
+    if (oldTeam) {
+      logger.info('Detaching socket listeners')
       oldTeam.removeListener('updated', this.handleTeamUpdate)
     }
-    if (newTeam && newTeam !== oldTeam) {
+    if (newTeam) {
+      logger.info('Attaching socket listeners')
       newTeam.on('updated', this.handleTeamUpdate)
     }
 
