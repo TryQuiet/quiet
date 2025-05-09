@@ -13,7 +13,7 @@ Here are the steps:
 git submodule update --init --recursive --remote
 ```
 
-4. Install python3 and setuptools through your preferred method. (used by node-gyp)
+4. Install python3 and setuptools (used by node-gyp) through your preferred method. 
 
 5. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
