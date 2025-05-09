@@ -43,7 +43,6 @@ import { UNKNOWN_THIS_PEER, WEBSOCKET_CIPHER_SUITE } from './libp2p.const'
 import { libp2pAuth, Libp2pAuth } from './libp2p.auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { LocalDbService } from '../local-db/local-db.service'
-import { LocalDBKeys } from '../local-db/local-db.types'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
 
@@ -149,6 +148,10 @@ export class Libp2pService extends EventEmitter {
     peerAddress: string,
     options: DialPeerOptions = { throwOnError: false, redialOnError: true }
   ) => {
+    if (this.connectedPeers.has(peerAddress.split('/').pop()!)) {
+      this.logger.debug(`Already connected to peer address: ${peerAddress}`)
+      return
+    }
     this.logger.info(`Dialing peer address: ${peerAddress}`)
 
     if (!peerAddress.includes(this.libp2pInstance?.peerId.toString() ?? '')) {
@@ -174,7 +177,7 @@ export class Libp2pService extends EventEmitter {
         }
       }
     } else {
-      this.logger.warn('Not dialing self')
+      this.logger.debug('Not dialing self')
     }
   }
 
@@ -199,7 +202,7 @@ export class Libp2pService extends EventEmitter {
     }
 
     for (const addr of sortedPeers) {
-      const peerId = addr.split('/')[2]
+      const peerId = addr.split('/').pop()!
       if (addr === this.localAddress) continue
       if (this.redialQueue.hasTask(addr)) continue
       if (this.connectedPeers.has(peerId)) continue

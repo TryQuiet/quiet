@@ -330,9 +330,9 @@ export class Libp2pAuth {
         this.sigChainService.setActiveChain(team.teamName)
       }
       this.joinStatus = JoinStatus.JOINED
-      this.unblockConnections(this.bufferedConnections)
-      this.emit(Libp2pEvents.AUTH_JOINED)
       this.sigChainService.saveChain(team.teamName)
+      this.emit(Libp2pEvents.AUTH_JOINED)
+      this.unblockConnections(this.bufferedConnections)
     })
 
     authConnection.on('change', payload => {

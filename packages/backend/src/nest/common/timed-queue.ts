@@ -193,6 +193,6 @@ export class TimedQueue {
 
   /** Check if a key is already scheduled (waiting or running) */
   public hasTask(key: string): boolean {
-    return this.scheduled.has(key)
+    return this.scheduled.has(key) || this.inProcess.has(key)
   }
 }
