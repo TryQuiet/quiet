@@ -172,14 +172,16 @@ const watchFolders = [
 1. Install [Git Large File Storage (LFS)](https://git-lfs.com/)
 
     ```bash
-    brew install git-lfs # TODO: `git lfs install` and `git lfs pull` may be necessary steps here. Confirm.
+    brew install git-lfs
     ```
 
-1. Initialize submodules in the project's root:
+1. Initialize submodules in the project's root and pull files with Git LFS:
 
     ```bash
-    git submodule update --init --recursive --remote
+    git submodule update --init --recursive --remote 
+    git lfs pull # Note: it may be necessary to first run `git lfs install`
     ```
+
 1. Confirm that submodules are properly initialized by checking that NodeMobile is a binary file, not text:
 
     ```bash
