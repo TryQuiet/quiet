@@ -6,7 +6,9 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
-1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md).
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md). 
+
+<!-- TODO: replace with instructions sufficient for a from-scratch mobile install -->
 
 1. If not on Mac (which comes preinstalled with `patch`), install `patch` (e.g. via your Linux package manager).
 
@@ -155,19 +157,43 @@ const watchFolders = [
 ]
 ```
 
-## Setting up iOS environment
+## Setting up an iOS environment
 
-### Prerequisites for iOS development
+### How to get started on iOS
 
-1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md)
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
 1. Create an account at [developer.apple.com](https://developer.apple.com) 
-1. Install [Xcode 16.2](https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_16.2/Xcode_16.2.xip) (Note: it must be this version of Xcode. If you already have another version of Xcode installed see [this thread](https://developer.apple.com/forums/thread/692271) to use them side by side.)
-1. Install the latest iOS simulator in Xcode. TODO: Add instructions 
-1. Install Xcode Command Line Tools by running `xcode-select --install`
-1. If you are using multiple versions of Xcode, be sure to select version 16.2 of Xcode Command Line Tools in Xcode > Settings > Locations
+1. Install Xcode Command Line Tools (required for Homebrew):
+    
+    ```bash
+    xcode-select --install
+    ```
 1. Install [Homebrew](https://brew.sh/)
-1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version. *You will need to restart your terminal after this step for the correct ruby version to become available.*
+1. Install [Git Large File Storage (LFS)](https://git-lfs.com/)
 
+    ```bash
+    brew install git-lfs # TODO: `git lfs install` and `git lfs pull` may be necessary steps here. Confirm.
+    ```
+
+1. Initialize submodules in the project's root:
+
+    ```bash
+    git submodule update --init --recursive --remote
+    ```
+1. Confirm that submodules are properly initialized by checking that NodeMobile is a binary file, not text:
+
+    ```bash
+    cd packages/mobile/ios
+    file NodeJsMobile/NodeMobile.framework/NodeMobile # You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup was not successful.
+    ```
+
+1. In the project's root, bootstrap the project again (must be run *after* submodule initialization)
+
+    ```bash
+    npm run bootstrap
+    ```
+
+1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version. *You will need to restart your terminal after this step for the correct ruby version to become available.*
 
     ```bash
     brew install rbenv
@@ -177,10 +203,20 @@ const watchFolders = [
     ruby --version
     ```
 
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use version 16.2)
+
+    ```bash
+    gem install xcode-install
+    xcversion list # will show if you already have Xcode 16.2.0
+    xcversion install 16.2.0 # if you do not already have it installed
+    xcversion select 16.2.0
+    xcversion install-cli-tools
+    ```
+
 1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
 
     ```bash
-    gem install bundler -v 1.17.2
+    gem install bundler -v 1.17.2 # This version is required for some older gems
     bundle install
     ```
 
@@ -191,7 +227,18 @@ const watchFolders = [
     bundle exec pod install 
     ```
 
-1. Create a `.xcode.env.local` file containing the static location of your node binary, e.g. `export NODE_BINARY=/Users/holmes/.nvm/versions/node/v18.20.4/bin/node`
+1. Create a `.xcode.env.local` file in the `packages/mobile` directory with your Node path:
+
+     ```bash
+     echo "export NODE_BINARY=$(which node)" > packages/mobile/.xcode.env.local
+     ```
+
+1. Install `ios-deploy` for deploying to iOS devices from the command line
+
+     ```bash
+     brew install ios-deploy
+     ```
+
 1. Open the `ios` directory in Xcode by typing `xed ios` in `packages/mobile`
 1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
 1. Set up the signing certificate and provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
@@ -203,12 +250,10 @@ const watchFolders = [
 
     From the `packages/mobile` directory,
 
-    ```bash
-    npm run start
-    ```
+     ```bash
+     npm run start
+     ```
 
-1. Select the iPhone under Product > Destination and press the play button 
-1. Alternately, to start Quiet from the command line, 
 1. Build and run the application,
 
       From the `packages/mobile` directory,
@@ -216,7 +261,7 @@ const watchFolders = [
       ```bash
       npm run ios
       ```
-            
+
 The application should now be running on your device.
 
 ### Quiet log files
