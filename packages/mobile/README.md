@@ -6,6 +6,8 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md).
+
 1. If not on Mac (which comes preinstalled with `patch`), install `patch` (e.g. via your Linux package manager).
 
 1. Install python3 and setuptools through your preferred method. (used by node-gyp)
@@ -157,47 +159,47 @@ const watchFolders = [
 
 ### Prerequisites for iOS development
 
-1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
-1. Install Xcode Command Line Tools by running `xcode-select --install` 
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md)
+1. Create an account at [developer.apple.com](https://developer.apple.com) 
+1. Install [Xcode 16.2](https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_16.2/Xcode_16.2.xip) (Note: it must be this version of Xcode. If you already have another version of Xcode installed see [this thread](https://developer.apple.com/forums/thread/692271) to use them side by side.)
+1. Install the latest iOS simulator in Xcode. TODO: Add instructions 
+1. Install Xcode Command Line Tools by running `xcode-select --install`
+1. If you are using multiple versions of Xcode, be sure to select version 16.2 of Xcode Command Line Tools in Xcode > Settings > Locations
 1. Install [Homebrew](https://brew.sh/)
-1. Install rbenv, a Ruby version manager.
+1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version. *You will need to restart your terminal after this step for the correct ruby version to become available.*
+
 
     ```bash
     brew install rbenv
-    ```
-
-1. Set your Ruby version to the suggested version.
-
-    At the time of writing, the suggested Ruby version is 2.7.5
-
-    ```bash
+    rbenv init
     rbenv install 2.7.5
     rbenv global 2.7.5
+    ruby --version
     ```
 
 1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
 
     ```bash
-    gem install bundler
+    gem install bundler -v 1.17.2
     bundle install
     ```
 
-1. Install the pods for the iOS project. TODO: note which version
+1. Install the pods for the iOS project.
 
     ```bash
     cd ios
     bundle exec pod install 
     ```
 
+1. Create a `.xcode.env.local` file containing the static location of your node binary, e.g. `export NODE_BINARY=/Users/holmes/.nvm/versions/node/v18.20.4/bin/node`
 1. Open the `ios` directory in Xcode by typing `xed ios` in `packages/mobile`
-
-1. If planning to run on device, setup the signing certificate and provisioning profile in Xcode.
-
-    [React Native: Running on Device](https://reactnative.dev/docs/running-on-device) (TODO: specify these instructions more, including how to add an account to Xcode, pick the right project, and provision a device)
-
-### Running iOS App With Command Line
-
-1. Start the Metro bundler,
+1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
+1. Set up the signing certificate and provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
+1. Connect your iPhone via USB cable
+1. Add your Apple Developer account in Xcode > Settings > Accounts
+1. In Settings > Accounts click "Download Manual Profiles" (you can also download the profile from https://developer.apple.com/account/resources/profiles/list)
+1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (then wait for "Copying shared cache symbols from iPhone" to complete) 
+1. Start React Native's Metro bundler,
 
     From the `packages/mobile` directory,
 
@@ -205,6 +207,8 @@ const watchFolders = [
     npm run start
     ```
 
+1. Select the iPhone under Product > Destination and press the play button 
+1. Alternately, to start Quiet from the command line, 
 1. Build and run the application,
 
       From the `packages/mobile` directory,
@@ -212,24 +216,8 @@ const watchFolders = [
       ```bash
       npm run ios
       ```
-
-      or from Xcode, select the target device and press the play button.
-
-      The application should now be running on your device.
-
-### Xcode
-
-1. Start the metro bundler,
-
-    From the `packages/mobile` directory,
-
-    ```bash
-    npm run start
-    ```
-
-1. Open the `ios` directory in Xcode.
-1. Select the target device or simulator and press the play button.
-
+            
+The application should now be running on your device.
 
 ### Quiet log files
 
