@@ -161,7 +161,6 @@ const watchFolders = [
 
 ### How to get started on iOS
 
-1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
 1. Create an account at [developer.apple.com](https://developer.apple.com) 
 1. Install Xcode Command Line Tools (required for Homebrew):
     
@@ -169,6 +168,7 @@ const watchFolders = [
     xcode-select --install
     ```
 1. Install [Homebrew](https://brew.sh/)
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
 1. Install [Git Large File Storage (LFS)](https://git-lfs.com/)
 
     ```bash
