@@ -175,18 +175,27 @@ const watchFolders = [
     brew install git-lfs
     ```
 
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use version 16.2) <!-- These steps did not work. gem install xcode-install gives a 404. Maybe we need a newer ruby to use it? -->
+
+    ```bash
+    brew install xcodesorg/made/xcodes
+    xcodes install 16.2.0 
+    ```
+
 1. Initialize submodules in the project's root and pull files with Git LFS:
 
     ```bash
     git submodule update --init --recursive --remote 
-    git lfs pull # Note: it may be necessary to first run `git lfs install`
+    git lfs pull 
+     # Note: it may be necessary to first run `git lfs install`
     ```
 
 1. Confirm that submodules are properly initialized by checking that NodeMobile is a binary file, not text:
 
     ```bash
     cd packages/mobile/ios
-    file NodeJsMobile/NodeMobile.framework/NodeMobile # You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup was not successful.
+    file NodeJsMobile/NodeMobile.framework/NodeMobile 
+     # You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup was not successful.
     ```
 
 1. In the project's root, bootstrap the project again (must be run *after* submodule initialization)
@@ -205,20 +214,10 @@ const watchFolders = [
     ruby --version
     ```
 
-1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use version 16.2)
-
-    ```bash
-    gem install xcode-install
-    xcversion list # will show if you already have Xcode 16.2.0
-    xcversion install 16.2.0 # if you do not already have it installed
-    xcversion select 16.2.0
-    xcversion install-cli-tools
-    ```
-
 1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
 
     ```bash
-    gem install bundler -v 1.17.2 # This version is required for some older gems
+    gem install bundler -v 1.17.2
     bundle install
     ```
 
