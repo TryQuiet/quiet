@@ -180,6 +180,7 @@ const watchFolders = [
     ```bash
     brew install xcodesorg/made/xcodes
     xcodes install 16.2.0 
+    xcodes select 16.2.0
     ```
 
 1. Initialize submodules in the project's root and pull files with Git LFS:
