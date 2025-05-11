@@ -175,14 +175,16 @@ const watchFolders = [
     brew install git-lfs
     ```
 
-1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use version 16.2) <!-- These steps did not work. gem install xcode-install gives a 404. Maybe we need a newer ruby to use it? -->
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) <!--Not sure if "xcodes runtimes install" is important here-- my error might be around finding or connecting to the device, or provisioning profiles --> 
 
     ```bash
     brew install xcodesorg/made/xcodes
     xcodes install 16.2.0 
     xcodes select 16.2.0
+    xcodes runtimes install "iOS 18.4"
     ```
 
+1. Wait for Verifying Runtime modal to complete 
 1. Initialize submodules in the project's root and pull files with Git LFS:
 
     ```bash
@@ -240,14 +242,16 @@ const watchFolders = [
      ```bash
      brew install ios-deploy
      ```
-
 1. Open the `ios` directory in Xcode by typing `xed ios` in `packages/mobile`
 1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
-1. Set up the signing certificate and provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
-1. Connect your iPhone via USB cable
-1. Add your Apple Developer account in Xcode > Settings > Accounts
-1. In Settings > Accounts click "Download Manual Profiles" (you can also download the profile from https://developer.apple.com/account/resources/profiles/list)
-1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (then wait for "Copying shared cache symbols from iPhone" to complete) 
+1. Connect your iPhone to your Mac via USB cable and accept various "Trust Device?" prompts
+1. Set up the signing certificate and Ad Hoc provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
+1. Download the profile and open it in Xcode 
+1. In Xcode, go to Settings > Accounts, create a new account, and sign in with your Apple developer account
+1. In Settings > Accounts click "Download Manual Profiles" (you can also download the profile from https://developer.apple.com/account/resources/profiles/list) <!-- I'm not sure how this works for developers who are not part of the Quiet team-->
+1. Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors
+1. Wait for "Copying shared cache symbols from iPhone" to complete
+1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (the connection with the iPhone should be visible in the Xcode UI)
 1. Start React Native's Metro bundler,
 
     From the `packages/mobile` directory,
