@@ -172,7 +172,7 @@ const watchFolders = [
     brew install git-lfs
     ```
 
-1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) <!--Not sure if "xcodes runtimes install" is important here-- my error might be around finding or connecting to the device, or provisioning profiles --> 
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) 
 
     ```bash
     brew install xcodesorg/made/xcodes
@@ -180,8 +180,9 @@ const watchFolders = [
     xcodes select 16.2.0
     xcodes runtimes install "iOS 18.4"
     ```
+    
+    You may need to wait for the "Verifying Runtime" modal to complete before running Quiet
 
-1. Wait for Verifying Runtime modal to complete 
 1. Initialize submodules in the project's root and pull files with Git LFS:
 
     ```bash
@@ -284,6 +285,8 @@ const watchFolders = [
     - In Quiet on your iPhone, shake the phone twice to open the React Native dev menu, then tap "Configure Bundler"
     - Enter the local IP address of your dev machine (get it with e.g. `ifconfig`)
     - After a short delay, you should be able to confirm a connection by shaking your phone twice and tapping "Reload", or by tapping "r" in the terminal running Metro
+
+Currently you cannot run Quiet for iOS in a simulator.
 
 ### Quiet log files
 
