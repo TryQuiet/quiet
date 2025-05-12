@@ -206,13 +206,18 @@ const watchFolders = [
     npm run bootstrap
     ```
 
-1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version. *You will need to restart your terminal after this step for the correct ruby version to become available.*
+1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version.
 
     ```bash
     brew install rbenv
     rbenv init
     rbenv install 2.7.5
     rbenv global 2.7.5
+    ```
+
+1. Restart your terminal and confirm that you are using Ruby 2.7.5
+
+    ```bash
     ruby --version
     ```
 
@@ -241,30 +246,31 @@ const watchFolders = [
      ```bash
      brew install ios-deploy
      ```
-1. Open the `ios` directory in Xcode by typing `xed ios` in `packages/mobile`
+1. Open the Quiet project in Xcode
+
+    From the `packages/mobile` directory
+    ```bash
+    xed ios
+    ```
+
 1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
-1. Connect your iPhone to your Mac via USB cable and accept various "Trust Device?" prompts
-1. Set up the signing certificate and Ad Hoc provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
-1. Download the profile and open it in Xcode 
-1. In Xcode, go to Settings > Accounts, create a new account, and sign in with your Apple developer account
-1. In Settings > Accounts click "Download Manual Profiles" (you can also download the profile from https://developer.apple.com/account/resources/profiles/list) <!-- I'm not sure how this works for developers who are not part of the Quiet team-->
-1. Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors. If you have not been added to the Quiet team, you will also need to:
-  - Uncheck "Automatically manage signing" if checked
-  - Change Team to "Personal Team" (your Apple ID)
-  - Create a unique Bundle Identifier (e.g. com.quietmobile.yourname) 
-  - Let Xcode create a new provisioning profile (click "Fix Issue" if prompted)
-  - If errors persist, go to Build Settings → Code Signing
-  - Set "Code Signing Identity" to "Apple Development"
-  - Set "Provisioning Profile" to "Automatic"
-1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (the connection with the iPhone should be visible in the Xcode UI)
-1. You may also need to wait for "Copying shared cache symbols from iPhone" to complete
-1. Start React Native's Metro bundler,
-
-    From the `packages/mobile` directory,
-
-     ```bash
-     npm run start
-     ```
+1. Connect your iPhone to your Mac via USB and accept "Trust Device?" prompts
+1. Now we must get Apple's *permission* to run our own app on our own device. In addition to being a kafkaesque violation of everyone's basic rights, this step is difficult to document due to all the shuttling between Apple's website and the Xcode UI. Doing this wrong results in unclear and difficult-to-attribute errors. [Apple's documentation](https://developer.apple.com/help/account/) is not helpful so we'll attempt to provide instructions here: 
+    - Set up the signing certificate and Ad Hoc provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
+    - Download the profile and open it in Xcode 
+    - In Xcode, go to Settings > Accounts, create a new account, and sign in with your Apple developer account
+    - For good measure, in Settings > Accounts click "Download Manual Profiles"
+    - Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors.
+    
+    If you have not been added on developer.apple.com to the Quiet team, you will also need to:
+    - Uncheck "Automatically manage signing" if checked
+    - Change Team to "Personal Team" (your Apple ID)
+    - Create a unique Bundle Identifier (e.g. com.quietmobile.yourname) 
+    - Let Xcode create a new provisioning profile (click "Fix Issue" if prompted)
+    - If errors persist, go to Build Settings → Code Signing
+    - Set "Code Signing Identity" to "Apple Development"
+    - Set "Provisioning Profile" to "Automatic"
+1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (the connection with the iPhone should be visible in the Xcode UI). You may also need to wait for "Copying shared cache symbols from iPhone" to complete
 
 1. Build and run the application,
 
