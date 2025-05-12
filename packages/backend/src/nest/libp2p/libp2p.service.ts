@@ -535,8 +535,6 @@ export class Libp2pService extends EventEmitter {
       const connection = this.libp2pInstance?.getConnections(event.detail)
       this.logger.info(`Connection established with ${remotePeerId}`, JSON.stringify(connection))
       this.logger.info(`${localPeerId} connected to ${remotePeerId}`)
-      this.logger.info(`Local: ${localPeerId} is connected to ${this.connectedPeers.size} peers`)
-      this.logger.info(`Local: ${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
       // update peer stats
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
@@ -556,6 +554,9 @@ export class Libp2pService extends EventEmitter {
           connectedAtSeconds: DateTime.utc().toSeconds(),
         } as Libp2pConnectedPeer)
       }
+
+      this.logger.info(`Local: ${localPeerId} is connected to ${this.connectedPeers.size} peers`)
+      this.logger.info(`Local: ${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
       this.serverIoProvider.io.emit(SocketEvents.PEER_CONNECTED, {
         peer: remotePeerId,
