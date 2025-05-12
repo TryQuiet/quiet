@@ -423,7 +423,7 @@ export class Libp2pService extends EventEmitter {
           }),
         ],
         // @ts-ignore
-        connectionEncrypters: [noise({ crypto: pureJsCrypto, staticNoiseKey: params.peerId.noiseKey })],
+        connectionEncrypters: [noise({ crypto: pureJsCrypto })],
         transports: params.transport
           ? params.transport
           : [
