@@ -6,13 +6,11 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
-1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md). 
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
 
-<!-- TODO: replace with instructions sufficient for a from-scratch mobile install -->
+1. If not on Mac (which comes preinstalled with `patch`), install `patch`, e.g. via your Linux package manager
 
-1. If not on Mac (which comes preinstalled with `patch`), install `patch` (e.g. via your Linux package manager).
-
-1. Install python3 and setuptools through your preferred method. (used by node-gyp)
+1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
 
 1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
@@ -407,7 +405,7 @@ Built app bundle cannot contain symlinks linking outside the package (which some
 
 Usage of native methods (like the ones for file management) must be adapted for mobile environment. There're several ways to fix the issue with incompatible packages/files:
 
-1. Shim packages with `rn-dodeify` <https://www.npmjs.com/package/rn-nodeify>
+1. Shim packages with `rn-nodeify` <https://www.npmjs.com/package/rn-nodeify>
 2. Blacklist certain files in `metro.config.js:30`
 3. Use diff & patch <https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/>
 
