@@ -159,8 +159,7 @@ const watchFolders = [
 
 ## Setting up an iOS environment
 
-### How to get started on iOS
-
+1. Have a Mac (Apple requires this)
 1. Create an account at [developer.apple.com](https://developer.apple.com) 
 1. Install Xcode Command Line Tools (required for Homebrew):
     
@@ -184,8 +183,9 @@ const watchFolders = [
 
     ```bash
     cd packages/mobile/ios
-    file NodeJsMobile/NodeMobile.framework/NodeMobile # You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup was not successful.
+    file NodeJsMobile/NodeMobile.framework/NodeMobile 
     ```
+    You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup step was not successful.
 
 1. In the project's root, bootstrap the project again (must be run *after* submodule initialization)
 
@@ -242,27 +242,24 @@ const watchFolders = [
 1. Open the `ios` directory in Xcode by typing `xed ios` in `packages/mobile`
 1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
 1. Set up the signing certificate and provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
-1. Connect your iPhone via USB cable
+1. Connect your iPhone via USB cable to your dev machine
 1. Add your Apple Developer account in Xcode > Settings > Accounts
 1. In Settings > Accounts click "Download Manual Profiles" (you can also download the profile from https://developer.apple.com/account/resources/profiles/list)
 1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (then wait for "Copying shared cache symbols from iPhone" to complete) 
-1. Start React Native's Metro bundler,
-
-    From the `packages/mobile` directory,
-
-     ```bash
-     npm run start
-     ```
-
-1. Build and run the application,
+1. Build the application and install it on your device
 
       From the `packages/mobile` directory,
 
       ```bash
       npm run ios
       ```
+      There should now be a Quiet icon on your iOS device, and the React Native Metro bundler should be running in its own terminal. Opening Quiet on your iPhone should start Quiet. (🎉!)
 
-The application should now be running on your device.
+1. To see most changes without rebuilding the app, ensure the Quiet app on your phone can connect to the Metro bundler:
+    - Ensure your iPhone and dev machine are both connected to the same wifi network
+    - In Quiet on your iPhone, shake the phone twice to open the React Native dev menu, then tap "Configure Bundler"
+    - Enter the local IP address of your dev machine (get it with e.g. `ifconfig`)
+    - After a short delay, you should be able to confirm a connection by shaking your phone twice and tapping "Reload", or by tapping "r" in the terminal running Metro
 
 ### Quiet log files
 
