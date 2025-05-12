@@ -249,9 +249,16 @@ const watchFolders = [
 1. Download the profile and open it in Xcode 
 1. In Xcode, go to Settings > Accounts, create a new account, and sign in with your Apple developer account
 1. In Settings > Accounts click "Download Manual Profiles" (you can also download the profile from https://developer.apple.com/account/resources/profiles/list) <!-- I'm not sure how this works for developers who are not part of the Quiet team-->
-1. Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors
-1. Wait for "Copying shared cache symbols from iPhone" to complete
+1. Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors. If you have not been added to the Quiet team, you will also need to:
+  - Uncheck "Automatically manage signing" if checked
+  - Change Team to "Personal Team" (your Apple ID)
+  - Create a unique Bundle Identifier (e.g. com.quietmobile.yourname) 
+  - Let Xcode create a new provisioning profile (click "Fix Issue" if prompted)
+  - If errors persist, go to Build Settings → Code Signing
+  - Set "Code Signing Identity" to "Apple Development"
+  - Set "Provisioning Profile" to "Automatic"
 1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (the connection with the iPhone should be visible in the Xcode UI)
+1. You may also need to wait for "Copying shared cache symbols from iPhone" to complete
 1. Start React Native's Metro bundler,
 
     From the `packages/mobile` directory,
