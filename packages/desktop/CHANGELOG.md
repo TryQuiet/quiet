@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [5.0.0-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@5.0.0-alpha.7...@quiet/desktop@5.0.0-alpha.8) (2025-05-13)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [5.0.0]
@@ -23,6 +10,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
 * Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
+* Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)
+* Resolved an issue with logger duplication [#2853](https://github.com/TryQuiet/quiet/issues/2853)
 
 ### Chores
 
