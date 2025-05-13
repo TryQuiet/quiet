@@ -7,8 +7,8 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 1. Follow the instructions for running [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop) and confirm it runs
 1. If not on Mac, which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
 1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
-1. Install [Temurin 17 JDK](https://adoptium.net/temurin/releases/?package=jdk&version=17) (`apt install temurin-17-jdk` is convenient on Ubuntu/Debian)
-1. Assign the Temurin install location to `JAVA_HOME`, e.g. by adding a line to your `.bashrc` or `.zshrc`  
+1. Install the [Temurin 17 JDK](https://adoptium.net/temurin) for [Mac](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=mac) (.pkg) or [Linux](https://adoptium.net/installation/linux/)
+1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:  
     - Mac: `export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"`
     - Linux: `export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/`
 1. Install [Android Studio](https://developer.android.com/studio), ensuring that all of the following items in the installation wizard are checked
@@ -18,7 +18,8 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     You can find it here:
       - macOS: `~/Library/Android/sdk/`
       - Linux: `~/Android/Sdk/`
-1. Ensure Android Studio's `platform-tools` and `cmdline-tools` directories are added to your `PATH`. 
+
+1. Ensure Android Studio's `platform-tools` directories are added to your `PATH`. 
     
     Your `.bashrc` or `.zshrc` should now include something like:
     ```bash
@@ -26,30 +27,25 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     export ANDROID_HOME=$HOME/Android/Sdk
     export PATH=$PATH:$ANDROID_HOME/emulator
     export PATH=$PATH:$ANDROID_HOME/platform-tools
-    export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
     ```
-1. Accept SDK Manager licenses
+
+1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35")
 
     ```bash
-    yes | sdkmanager --licenses
+    ls $ANDROID_HOME/platforms
     ```
-
-1. Install the "Android 15 (VanillaIceCream)" SDK required by React Native
-
-    ```bash
-    sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
-    ```
+    You should see `android-35`. You may also need to select specific versions of the SDK or tools, but currently the default install is sufficient (see: [React Native setup instructions](https://reactnative.dev/docs/set-up-your-environment))
 
 1. Enable [Developer options](https://developer.android.com/studio/debug/dev-options#enable) and [USB debugging](https://developer.android.com/studio/debug/dev-options#Enable-debugging) on your Android phone and restart it
 1. Connect your phone to your dev machine via USB
-1. On Linux, follow [these instructions](https://reactnative.dev/docs/running-on-device?platform=android&os=linux#2-plug-in-your-device-via-usb-2) for authorizing your phone as a USB device (not necessary on Mac or Windows)
+1. On Linux, follow [these instructions](https://reactnative.dev/docs/running-on-device?platform=android&os=linux#2-plug-in-your-device-via-usb-2) for authorizing your phone as a USB device (skip this step on Mac)
 1. Accept any "USB Debugging" prompt on your phone
 1. Confirm you can run [adb](https://developer.android.com/studio/command-line/adb) (Android Debug Bridge, installed with Android Studio) and that it can connect to your phone
     
     ```bash
     adb devices
     ```
-    You should see your phone under "List of Devices Attached". If you do not, try `adb kill-server` or restarting your phone and your dev machine.
+    You should see your phone under "List of Devices Attached". If you do not, try `adb kill-server` or restarting your phone and your dev machine. You device should not appear as "Unauthorized". If it does, make sure you have accepted any "USB Debugging" prompts on your device.
 
 1. Run Quiet
 
@@ -68,7 +64,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     ```bash
     npm run start
     ```
-    Connecting to Metro can be fiddly. One Metro is running, shake the Android device twice to access React Native's dev menu, then tap "Reload"
+    Connecting to Metro can be fiddly. To get it working, once Metro is fully up and running, shake the Android device twice to access React Native's dev menu, then tap "Reload".  
 
 #### Running from Android Studio
 
