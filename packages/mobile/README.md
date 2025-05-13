@@ -57,7 +57,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
     The application should now be running on your device.
 
-1. Run Metro Bundler for faster loading of changes
+1. On Mac, Metro will launch automatically in a new terminal window, but on Linux you may need a separate step
 
     From the `packages/mobile` directory
     
