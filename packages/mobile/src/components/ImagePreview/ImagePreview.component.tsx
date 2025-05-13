@@ -21,6 +21,9 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
   currentChannelName,
   resetPreviewData,
 }) => {
+  // IMPORTANT: When using React Native's Modal component, always use useSafeAreaInsets
+  // to ensure UI elements are properly positioned on devices with notches or home indicators.
+  // Without this, elements near the top (like back buttons) may be inaccessible on iOS devices.
   const insets = useSafeAreaInsets()
   const { width, height } = imagePreviewData
   if (!imagePreviewData || !width || !height) return null
@@ -34,6 +37,7 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
         resetPreviewData()
       }}
     >
+      {/* Apply paddingTop with safe area insets to ensure the Appbar is within the safe area */}
       <View style={{ paddingTop: insets.top }}>
         <Appbar title={`#${currentChannelName}`} back={resetPreviewData} />
         <View style={{ padding: 5 }}>
