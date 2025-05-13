@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
 import { Modal, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { FileMetadata } from '@quiet/types'
 import FastImage from 'react-native-fast-image'
@@ -20,6 +21,7 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
   currentChannelName,
   resetPreviewData,
 }) => {
+  const insets = useSafeAreaInsets()
   const { width, height } = imagePreviewData
   if (!imagePreviewData || !width || !height) return null
   return (
@@ -32,9 +34,11 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
         resetPreviewData()
       }}
     >
-      <Appbar title={`#${currentChannelName}`} back={resetPreviewData} />
-      <View style={{ padding: 5 }}>
-        <FastImage source={{ uri: `file://${imagePreviewData.path}` }} style={{ aspectRatio: width / height }} />
+      <View style={{ paddingTop: insets.top }}>
+        <Appbar title={`#${currentChannelName}`} back={resetPreviewData} />
+        <View style={{ padding: 5 }}>
+          <FastImage source={{ uri: `file://${imagePreviewData.path}` }} style={{ aspectRatio: width / height }} />
+        </View>
       </View>
     </Modal>
   )
