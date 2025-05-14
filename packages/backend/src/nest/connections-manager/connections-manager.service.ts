@@ -263,8 +263,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       deleteChainFromDisk: false,
     }
   ) {
-    this.logger.info('Saving active sigchain')
-    await this.saveActiveChain()
+    if (!options.deleteChainFromDisk) {
+      this.logger.info('Saving active sigchain')
+      await this.saveActiveChain()
+    }
     await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
 
     this.logger.info('Closing services', options)
