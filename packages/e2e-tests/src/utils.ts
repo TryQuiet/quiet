@@ -117,8 +117,7 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DEBUG:
-        'backend*:trace,quiet*:trace,state-manager*:trace,desktop*:trace,utils*:trace,identity*:trace,common*:trace,main*:trace,libp2p*:trace',
+      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
     }

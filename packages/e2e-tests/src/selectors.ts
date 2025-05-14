@@ -909,7 +909,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with downloading cancelable status`)
         }
-        sleep(500)
+        sleep(2_000)
       }
 
       if (statusElement == null) {
@@ -932,7 +932,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with download file status`)
         }
-        sleep(500)
+        sleep(2_000)
       }
       return true
     } catch (e) {
@@ -1309,7 +1309,7 @@ export class Channel {
       messageElement.findElement(By.xpath(`//p[text()='${locatorString!}']`)),
       timeoutMs,
       `File download status element with text ${locatorString} in channel ${this.name} couldn't be found within timeout`,
-      500
+      2_000
     )
   }
 

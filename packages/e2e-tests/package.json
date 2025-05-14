@@ -53,7 +53,8 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!variables/.*)"
-    ]
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/src/setupTests.ts"]
   },
   "author": "",
   "license": "GPL-3.0-or-later",
