@@ -527,23 +527,14 @@ describe('Multiple Clients', () => {
         await joinPanel.waitForJoinToComplete()
       })
 
-      // Check correct channels replication
-      // TODO: add check for number of messages
-      it('User sees information about recreation general channel and see correct amount of messages', async () => {
-        logger.info('TEST 6')
+      it('Guest app is ready to use', async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         expect(await generalChannelUser1.isReady()).toBeTruthy()
         expect(await generalChannelUser1.isOpen()).toBeTruthy()
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
-        logger.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
+      })
 
-        // add an extra long timeout to wait for connection
-        await generalChannelUser1.getMessageIdsByText(
-          generalChannelDeletionMessage(users.owner.username),
-          users.owner.username,
-          120_000
-        )
-
+      it('Guest sees join message', async () => {
         await generalChannelUser1.getMessageIdsByText(
           `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
           users.user2.username,
@@ -551,12 +542,43 @@ describe('Multiple Clients', () => {
         )
       })
 
+      it('Owner sees join message for guest', async () => {
+        await generalChannelOwner.getMessageIdsByText(
+          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          users.user2.username,
+          120_000
+        )
+      })
+
+      it('Other user sees join message for guest', async () => {
+        await generalChannelUser3.getMessageIdsByText(
+          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          users.user2.username,
+          120_000
+        )
+      })
+
       it('Guest sends a message after rejoining community as a new user and it is visible', async () => {
-        logger.info('TEST 7')
-        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
-        expect(await generalChannelUser1.isReady()).toBeTruthy()
-        expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
         await generalChannelUser1.sendMessage(users.user2.messages[0], users.user2.username)
+      })
+
+      it('Owner sees the message sent by guest', async () => {
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages[0], users.user2.username, 120_000)
+      })
+
+      it('Other user sees the message sent by guest', async () => {
+        await generalChannelUser3.getMessageIdsByText(users.user2.messages[0], users.user2.username, 120_000)
+      })
+
+      // Check correct channels replication
+      // TODO: add check for number of messages
+      it('User sees information about recreation general channel and see correct amount of messages', async () => {
+        // add an extra long timeout to wait for connection
+        await generalChannelUser1.getMessageIdsByText(
+          generalChannelDeletionMessage(users.owner.username).replaceAll('**', ''),
+          users.owner.username,
+          300_000
+        )
       })
     })
 

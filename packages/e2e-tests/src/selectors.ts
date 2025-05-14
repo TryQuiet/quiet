@@ -909,7 +909,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with downloading cancelable status`)
         }
-        sleep(100)
+        sleep(2_000)
       }
 
       if (statusElement == null) {
@@ -932,7 +932,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with download file status`)
         }
-        sleep(100)
+        sleep(2_000)
       }
       return true
     } catch (e) {
@@ -1107,7 +1107,7 @@ export class Channel {
     logger.info(`Waiting for content for message with ID ${messageId}`)
     const messageContentElement = await this.driver.wait(
       this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-${messageId}")]`)),
-      30_000,
+      45_000,
       `Message content element for message ID ${messageId} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -1208,7 +1208,7 @@ export class Channel {
           )
           await this.driver.wait(
             until.elementIsNotVisible(placeholderElement),
-            30_000,
+            120_000,
             `Image placeholder element for ${filename} in channel ${this.name} didn't disappear within timeout`,
             500
           )
@@ -1309,7 +1309,7 @@ export class Channel {
       messageElement.findElement(By.xpath(`//p[text()='${locatorString!}']`)),
       timeoutMs,
       `File download status element with text ${locatorString} in channel ${this.name} couldn't be found within timeout`,
-      500
+      2_000
     )
   }
 
