@@ -17,6 +17,7 @@ import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
 import { createLogger } from './logger'
 import { pureJsCrypto } from '@chainsafe/libp2p-noise'
 import { webSockets } from '@libp2p/websockets'
+import { memory } from '@libp2p/memory'
 
 const logger = createLogger('utils')
 
@@ -253,6 +254,26 @@ export async function getLocalLibp2pInstanceParams(): Promise<Libp2pNodeParams> 
     targetPort: port,
     psk: libp2pKey,
     transport: [webSockets()],
+    useConnectionProtector: false,
+  }
+}
+
+/**
+ * Generates params for use in testing libp2p instances with in-memory transport
+ * @returns {Promise<Libp2pNodeParams>}
+ */
+export async function getInMemoryLibp2pInstanceParams(): Promise<Libp2pNodeParams> {
+  const port = await getPort()
+  const peerId = await createPeerId()
+  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
+  return {
+    peerId,
+    listenAddresses: [`/memory/${port}`],
+    agent: undefined,
+    localAddress: `/memory/${port}/p2p/${peerId.peerId.toString()}`,
+    targetPort: port,
+    psk: libp2pKey,
+    transport: [memory()],
     useConnectionProtector: false,
   }
 }

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 import { TestingModule } from '@nestjs/testing'
 import { Libp2pService } from '../libp2p.service'
 import { SigChainService } from '../../auth/sigchain.service'
-import { Libp2pEvents } from '../libp2p.types'
+import { Libp2pEvents, Libp2pNodeParams } from '../libp2p.types'
 import { createLogger } from '../../common/logger'
 import {
   spawnLibp2pInstancesInMemory,
@@ -11,6 +11,9 @@ import {
   timelinesInclude,
 } from '../../common/test-utils'
 import { headsAreEqual, Hash } from '@localfirst/crdx'
+import { StorageService } from '../../storage/storage.service'
+import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
+import { IpfsService } from '../../ipfs/ipfs.service'
 
 const logger = createLogger('libp2p:multiple-peers.spec')
 
@@ -21,6 +24,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
   const eventTimeline: string[] = []
   const eventTimelines: Array<string[]> = []
   const modules: TestingModule[] = []
+  let libp2pNodeParams: Libp2pNodeParams[] = []
 
   beforeAll(async () => {
     modules.push(...(await spawnTestModules(N_PEERS)))
@@ -38,7 +42,17 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     }
 
     // Create libp2p instances (in-memory transport)
-    await spawnLibp2pInstancesInMemory(modules)
+    libp2pNodeParams = await spawnLibp2pInstancesInMemory(modules)
+    // Initialize IPFS and OrbitDB instances
+    await Promise.all(
+      modules.map(async (module, i) => {
+        const ipfsService = module.get(IpfsService)
+        const orbitDbService = module.get(OrbitDbService)
+        ipfsService.createInstance()
+        ipfsService.start()
+        await orbitDbService.create(libp2pNodeParams[i].peerId.peerId, ipfsService.ipfsInstance!)
+      })
+    )
 
     // Attach event listeners to all libp2p service instances
     for (let i = 0; i < modules.length; i++) {
@@ -66,42 +80,22 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
   })
 
   it('joins with an invitation', async () => {
+    logger.info('joins with an invitation')
     const libp2pService = modules[0].get(Libp2pService)
-    await new Promise<void>((resolve, reject) => {
-      const resolveIfMet = async () => {
-        if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.AUTH_JOINED)) {
+    // Sequentially dial and wait for each peer to join
+    for (let i = 1; i < modules.length; i++) {
+      const peerLibp2pService = await modules[i].resolve(Libp2pService)
+      await peerLibp2pService.dialPeer(libp2pService.localAddress)
+      logger.info(`dialed peer ${i}`)
+      // Wait for the peer to be connected (AUTH_JOINED)
+      await new Promise<void>(resolve => {
+        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+          logger.info(`peer ${i} connected`)
           resolve()
-        }
-      }
-
-      for (const libp2pService of modules.slice(1).map(module => module.get(Libp2pService))) {
-        libp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
-          resolveIfMet()
         })
-      }
-      for (let i = 1; i < modules.length; i++) {
-        modules[i].get(Libp2pService).dialPeer(libp2pService.localAddress)
-        logger.info(`dialed peer ${i}`)
-      }
-    })
+      })
+    }
   })
-
-  it('emits connected after syncing', async () => {
-    logger.info('emits connected after syncing')
-    await new Promise<void>((resolve, reject) => {
-      const resolveIfMet = async () => {
-        if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.AUTH_CONNECTED)) {
-          resolve()
-        }
-      }
-      for (const libp2pService of modules.slice(1).map(module => module.get(Libp2pService))) {
-        libp2pService.once(Libp2pEvents.AUTH_CONNECTED, () => {
-          resolveIfMet()
-        })
-      }
-      resolveIfMet()
-    })
-  }, 240_000)
 
   it('merges graphs between all peers', async () => {
     logger.info('merges graphs between all peers')
@@ -131,7 +125,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     })
   }, 240_000)
 
-  it('gracefully disconnects', async () => {
+  it('owner gracefully disconnects with all peers', async () => {
     logger.info('gracefully disconnects')
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {

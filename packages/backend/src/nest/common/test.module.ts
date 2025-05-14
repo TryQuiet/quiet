@@ -101,7 +101,13 @@ export const defaultConfigForTest = {
     },
     {
       provide: LEVEL_DB,
-      useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
+      useFactory: (dbPath: string) =>
+        new Level<string, any>(dbPath, {
+          valueEncoding: 'json',
+          createIfMissing: true,
+          errorIfExists: false,
+          keyEncoding: 'utf-8',
+        }),
       inject: [DB_PATH],
     },
   ],

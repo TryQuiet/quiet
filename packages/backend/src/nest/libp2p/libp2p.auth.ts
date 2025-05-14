@@ -339,6 +339,10 @@ export class Libp2pAuth {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
     })
 
+    authConnection.on('updated', payload => {
+      this.emit(Libp2pEvents.AUTH_UPDATED, payload)
+    })
+
     // Handle errors from local or remote sources.
     authConnection.on('localError', error => {
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
