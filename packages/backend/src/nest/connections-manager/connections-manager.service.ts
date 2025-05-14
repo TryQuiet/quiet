@@ -257,11 +257,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(
-    options: { saveTor: boolean; closeDatastore: boolean } = { saveTor: false, closeDatastore: true }
+    options: { saveTor: boolean; closeDatastore: boolean; deleteChainFromDisk: boolean } = {
+      saveTor: false,
+      closeDatastore: true,
+      deleteChainFromDisk: false,
+    }
   ) {
-    this.logger.info('Saving active sigchain')
-    await this.saveActiveChain()
-    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, false)
+    if (!options.deleteChainFromDisk) {
+      this.logger.info('Saving active sigchain')
+      await this.saveActiveChain()
+    }
+    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
 
     this.logger.info('Closing services', options)
 
@@ -290,7 +296,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
-    await this.closeAllServices({ saveTor: true, closeDatastore: false })
+    await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
     this.logger.info('Resetting StorageService')
     await this.storageService.clean()
@@ -327,6 +333,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async purgeData() {
     this.logger.info('Purging community data')
+    await this._purgeDataDirectories()
+    await this._purgeFiles()
+  }
+
+  private async _purgeDataDirectories() {
     const dirsToRemove = fs
       .readdirSync(this.quietDir)
       .filter(
@@ -336,12 +347,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           i.startsWith('backendDB') ||
           i.startsWith('Local Storage') ||
           i.startsWith('libp2pDatastore') ||
-          i.startsWith('databases')
+          i.startsWith('databases') ||
+          i.startsWith('TorDataDirectory')
       )
     for (const dir of dirsToRemove) {
       const dirPath = path.join(this.quietDir, dir)
       this.logger.info(`Removing dir: ${dirPath}`)
       removeFilesFromDir(dirPath)
+    }
+  }
+
+  private async _purgeFiles() {
+    const filesToRemove = ['torPid.json', 'Network Persistent State']
+    for (const filePath of filesToRemove) {
+      this.logger.info(`Removing file ${filePath}`)
+      fs.rmSync(path.join(this.quietDir, filePath))
     }
   }
 

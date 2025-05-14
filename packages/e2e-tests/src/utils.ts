@@ -30,6 +30,7 @@ export class BuildSetup {
   public debugPort?: number
   public dataDir?: string
   public dataDirPath: string
+  public id: string
   private child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
@@ -40,9 +41,10 @@ export class BuildSetup {
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
+    this.id = (Math.random() * 10 ** 18).toString(36)
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (!this.dataDir) {
-      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
+      this.dataDir = `e2e_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
   }
@@ -115,9 +117,9 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DEBUG:
-        'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:connection-manager:auto-dial',
+      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
       DATA_DIR: this.dataDir,
+      STATIC_LOG_ID: this.id,
     }
     if (process.platform === 'win32') {
       logger.info('!WINDOWS!')
