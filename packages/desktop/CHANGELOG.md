@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [5.0.0-alpha.10](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@5.0.0-alpha.9...@quiet/desktop@5.0.0-alpha.10) (2025-05-14)
-
-
-### Bug Fixes
-
-* Fixes issues related to joining, leaving communities and syncing ([#2857](https://github.com/TryQuiet/quiet/issues/2857)) ([37ecee0](https://github.com/TryQuiet/quiet/commit/37ecee07441a8c5c53689e308bfd7afdd35726e4))
-
-
-
-
-
 # Changelog
 
 ## [5.0.0]
