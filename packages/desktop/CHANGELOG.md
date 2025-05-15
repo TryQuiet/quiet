@@ -8,6 +8,7 @@
 
 ### Fixes
 
+* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858) 
 * Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
 * Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
 * Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)

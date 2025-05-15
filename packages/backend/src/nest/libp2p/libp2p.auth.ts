@@ -82,6 +82,7 @@ export class Libp2pAuth {
     this.logger.info('sigChainService', sigChainService.activeChainTeamName)
 
     // Set up a periodic check to process buffered connections
+    this.unblockConnections = this.unblockConnections.bind(this)
     this.unblockInterval = setInterval(this.unblockConnections, 5_000, this.bufferedConnections)
   }
 
