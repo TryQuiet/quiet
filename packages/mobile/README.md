@@ -13,6 +13,8 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
     ```bash
+    git submodule init
+    git submodule update --recursive
     npm install
     npm run bootstrap
     ```
