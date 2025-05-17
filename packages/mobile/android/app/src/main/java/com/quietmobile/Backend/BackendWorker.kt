@@ -40,6 +40,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     companion object {
         init {
             System.loadLibrary("own-native-lib")
+            System.loadLibrary("tor")
             System.loadLibrary("node")
         }
     }
@@ -114,9 +115,9 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             val dataPath = Utils.createDirectory(context)
 
-            val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
+            val appInfo = applicationContext.packageManager.getApplicationInfo(context.packageName, 0)
             val torBinary = appInfo.nativeLibraryDir + "/libtor.so"
-            
+
             val platform = "mobile"
 
             launch {
