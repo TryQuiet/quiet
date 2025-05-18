@@ -324,8 +324,6 @@ dependencies {
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
-    implementation 'info.guardianproject:tor-android:0.4.6.7'
-
     // Websockets connection
     implementation ('io.socket:socket.io-client:2.0.0') {
         exclude group: 'org.json', module: 'json'
