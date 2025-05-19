@@ -19,13 +19,17 @@ let _winstonLogger: Logger | undefined = undefined
 const initWinstonLogger = (): Logger | undefined => {
   if (_winstonLogger) return _winstonLogger
   // Add a non-colorized format for file logs
-  const fileFormat = format.combine(
+  const formats: winston.Logform.Format[] = [
     format.splat(),
     format.timestamp(),
     format.errors(),
-    format.uncolorize(), // Remove ANSI color codes
-    format.printf(info => info.message as string)
-  )
+    format.printf(info => info.message as string),
+  ]
+  if (process.env.COLORIZE !== 'true') {
+    // Remove ANSI color codes
+    formats.push(format.uncolorize())
+  }
+  const fileFormat = format.combine(...formats)
   const logDir = process.env.LOG_DIR
   const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
   if (logToFile && logDir != null) {
