@@ -473,7 +473,7 @@ export class QuietLogger {
   private _getLogSetting(): LogSetting {
     if (this._canTrace()) {
       return LogSetting.TRACE
-    } else if (debug.enabled(this.name)) {
+    } else if (debug.enabled('*') || debug.enabled(this.name)) {
       return LogSetting.DEBUG
     }
 
@@ -486,6 +486,9 @@ export class QuietLogger {
    * @returns True if this logger can emit TRACE logs
    */
   private _canTrace(): boolean {
+    if (debug.enabled('*:trace')) {
+      return true
+    }
     if (!debug.enabled(`${this.name}:trace`)) {
       return false
     }

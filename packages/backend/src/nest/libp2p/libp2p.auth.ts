@@ -94,8 +94,12 @@ export class Libp2pAuth {
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamName != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
-      this.joinStatus = JoinStatus.PENDING
+      this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
     } else if (this.joinStatus !== JoinStatus.JOINED) {
+      return
+    }
+
+    if (conns.length === 0) {
       return
     }
 
@@ -111,15 +115,18 @@ export class Libp2pAuth {
   async start() {
     this.logger.info('Auth service starting')
 
+    this.onPeerConnected = this.onPeerConnected.bind(this)
+    this.onPeerDisconnected = this.onPeerDisconnected.bind(this)
+    this.onIncomingStream = this.onIncomingStream.bind(this)
     const topology: Topology = {
-      onConnect: this.onPeerConnected.bind(this),
-      onDisconnect: this.onPeerDisconnected.bind(this),
+      onConnect: this.onPeerConnected,
+      onDisconnect: this.onPeerDisconnected,
       notifyOnLimitedConnection: false,
     }
 
     const registrar = this.components.registrar
     await registrar.register(this.protocol, topology)
-    await registrar.handle(this.protocol, this.onIncomingStream.bind(this), {
+    await registrar.handle(this.protocol, this.onIncomingStream, {
       runOnLimitedConnection: false,
     })
   }
@@ -272,10 +279,18 @@ export class Libp2pAuth {
     const context = this.sigChainService.getActiveChain().context
 
     if (this.authConnections.has(peerId.toString())) {
-      this.logger.info(
-        `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
-      )
-      return
+      const oldAuthConnection = this.authConnections.get(peerId.toString())!
+      const oldPeerConnection = this.peerConnections.get(peerId.toString())
+      if (oldPeerConnection != null && oldPeerConnection.status === 'open') {
+        this.logger.warn(
+          `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
+        )
+        return
+      }
+      this.logger.warn('Replacing closed auth connection with a new one', oldPeerConnection?.remotePeer)
+      oldAuthConnection.stop()
+      this.authConnections.delete(peerId.toString())
+      this.peerConnections.delete(peerId.toString())
     }
 
     // Create an auth connection using an ephemeral sendMessage callback.

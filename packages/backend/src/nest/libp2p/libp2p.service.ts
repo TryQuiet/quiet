@@ -109,6 +109,7 @@ export class Libp2pService extends EventEmitter {
       args[0].event != null &&
       ['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(args[0].event.type)
     ) {
+      this.logger.trace('Got an auth error on disconnect')
       try {
         const innerEvent = args[0].event
         // Check for errors related to ephemeral LFA connection isseus that warrant a redial attempt
@@ -118,10 +119,16 @@ export class Libp2pService extends EventEmitter {
             innerEvent.payload.message === UNKNOWN_THIS_PEER) ||
           (innerEvent.type === 'LOCAL_ERROR' && innerEvent.payload.type === 'TIMEOUT')
 
-        const remotePeerId = args[0].connection?.remotePeerId?.toString()
+        const remotePeerId = args[0].connection?.remotePeerId?.toString() ?? args[0].connection?.remotePeer?.toString()
+        this.logger.trace('Got this peer ID from this auth connection', remotePeerId)
         const peerAddress = this.connectedPeers.get(remotePeerId)?.address
         if (peerAddress) {
           this.hangUpPeer(peerAddress, redial)
+        } else {
+          this.logger.warn(
+            `No peer address associated with this peer's connection, can't hang up or redial`,
+            remotePeerId
+          )
         }
       } catch (e) {
         this.logger.error('Error while deciding to redial', e)
