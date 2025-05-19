@@ -25,7 +25,7 @@ const initWinstonLogger = (): Logger | undefined => {
     format.errors(),
     format.printf(info => info.message as string),
   ]
-  if (process.env.COLORIZE !== 'true') {
+  if (process.env.COLORIZE_LOG_FILES !== 'true') {
     // Remove ANSI color codes
     formats.push(format.uncolorize())
   }
