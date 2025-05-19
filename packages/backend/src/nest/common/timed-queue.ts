@@ -56,7 +56,8 @@ export class TimedQueue {
       throw new Error(`Backoff factor must be a positive number greater than or equal to 1`)
     }
 
-    this.queue = fastq.promise(this._processQueue.bind(this), options.concurrency ?? DEFAULT_CONCURRENCY)
+    this._processQueue = this._processQueue.bind(this)
+    this.queue = fastq.promise(this._processQueue, options.concurrency ?? DEFAULT_CONCURRENCY)
     if (options.start) {
       this.start()
     } else {
