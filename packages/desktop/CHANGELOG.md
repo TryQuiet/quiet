@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [5.0.0-alpha.11](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@5.0.0-alpha.10...@quiet/desktop@5.0.0-alpha.11) (2025-05-19)
-
-
-### Bug Fixes
-
-* Fixes for crashes and connection hanging on 5.0.0 ([#2863](https://github.com/TryQuiet/quiet/issues/2863)) ([be1dd72](https://github.com/TryQuiet/quiet/commit/be1dd72ca3d65e170238a2b3ea8ecf88f8151141))
-
-
-
-
-
 # Changelog
 
 ## [5.0.0]
