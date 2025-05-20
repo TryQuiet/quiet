@@ -265,7 +265,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   ) {
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
-      await this.saveActiveChain()
+      try {
+        await this.saveActiveChain()
+      } catch (e) {
+        this.logger.error('Error while saving active sigchain', e)
+      }
     }
     await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
 
@@ -358,10 +362,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   private async _purgeFiles() {
-    const filesToRemove = ['torPid.json', 'Network Persistent State']
+    const filesToRemove = ['Network Persistent State']
     for (const filePath of filesToRemove) {
       this.logger.info(`Removing file ${filePath}`)
-      fs.rmSync(path.join(this.quietDir, filePath))
+      try {
+        fs.rmSync(path.join(this.quietDir, filePath))
+      } catch (e) {
+        this.logger.warn('Failed to delete file on purge', filePath)
+      }
     }
   }
 
