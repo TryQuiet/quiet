@@ -60,7 +60,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       TEST_MODE: process.env.TEST_MODE,
-      COLORIZE: true
+      COLORIZE: true,
     }),
     new WebpackOnBuildPlugin(async () => {
       await new Promise((resolve, reject) => {
