@@ -116,11 +116,13 @@ export class SigChainService extends EventEmitter {
   }
 
   private attachSocketListeners(chain: SigChain): void {
+    this.logger.info('Attaching socket listeners')
     chain.on('updated', this.handleChainUpdate)
     this.emit('updated')
   }
 
   private detachSocketListeners(chain: SigChain): void {
+    this.logger.info('Detaching socket listeners')
     chain.removeListener('updated', this.handleChainUpdate)
   }
 

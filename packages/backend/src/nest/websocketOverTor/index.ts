@@ -114,10 +114,10 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
 
   readonly [serviceCapabilities]: string[] = ['@libp2p/transport']
 
-  async dial(ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<Connection> {
+  async dial(ma: Multiaddr, options?: DialTransportOptions<WebSocketsDialEvents>): Promise<Connection> {
     const _log = this.components.logger.forComponent(`libp2p:websockets:dial:${ma.getPeerId()}`) as QuietLibp2pLogger
     _log('dialing %s', ma)
-    options = options ?? {}
+    options = options ?? ({} as DialTransportOptions<WebSocketsDialEvents>)
 
     const socket = await this._connect(ma, options)
     const maConn = socketToMaConn(socket, ma, {
