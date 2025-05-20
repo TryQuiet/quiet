@@ -1,11 +1,10 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity } from '@quiet/state-manager'
+import { identity } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
-import { ErrorCodes } from '@quiet/types'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -13,7 +12,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const fetching = route.params?.fetching
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const usernameRegistered = currentIdentity?.userCertificate != null
+  const usernameRegistered = Boolean(currentIdentity?.userId)
 
   const navigation = useCallback(
     (screen: ScreenNames, params?: any) => {

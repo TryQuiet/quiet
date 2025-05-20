@@ -4,6 +4,7 @@ import { createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from 
 
 describe('messages helper', () => {
   const username = 'johnny'
+  const otherUsername = 'not-johnny'
 
   const generalChannel: PublicChannelStorage = {
     name: 'general',
@@ -22,6 +23,7 @@ describe('messages helper', () => {
     id: generateChannelId('sport'),
     messages: { ids: [], entities: {} },
   }
+
   it('createdChannelMessage', () => {
     const expectedMessage = 'Created #sport'
     const message = createdChannelMessage(sportChannel.name)
@@ -35,16 +37,21 @@ describe('messages helper', () => {
     expect(message).toEqual(expectedMessage)
   })
 
-  it('verifyUserInfoMessage - general channel', () => {
-    const expectedMessage =
-      '**@johnny** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)'
-    const message = verifyUserInfoMessage(username, generalChannel)
+  it('owner created general channel message', () => {
+    const expectedMessage = 'Created #general'
+    const message = verifyUserInfoMessage(username, username, generalChannel)
     expect(message).toEqual(expectedMessage)
   })
 
-  it('verifyUserInfoMessage - other channel', () => {
+  it('verifyUserInfoMessage - general channel', () => {
+    const expectedMessage = `**@${otherUsername}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)`
+    const message = verifyUserInfoMessage(otherUsername, otherUsername, generalChannel)
+    expect(message).toEqual(expectedMessage)
+  })
+
+  it('verifyUserInfoMessage - owner created other channel', () => {
     const expectedMessage = 'Created #sport'
-    const message = verifyUserInfoMessage(username, sportChannel)
+    const message = verifyUserInfoMessage(username, username, sportChannel)
     expect(message).toEqual(expectedMessage)
   })
 })

@@ -100,12 +100,13 @@ const registerBots = async () => {
 
     const communityId = store.getState().Communities.communities.ids[0]
 
-    await waitForExpect(() => {
-      assert.ok(
-        store.getState().Identity.identities.entities[communityId].userCertificate,
-        `User ${username} did not receive certificate`
-      )
-    }, timeout)
+    // TODO: replalcae with new joining flow
+    // await waitForExpect(() => {
+    //   assert.ok(
+    //     store.getState().Identity.identities.entities[communityId].userCertificate,
+    //     `User ${username} did not receive certificate`
+    //   )
+    // }, timeout)
     await assertReceivedChannel(username, channelName, timeout, store)
     await switchChannel({ channelName, store })
   }

@@ -18,13 +18,14 @@ import { QUIET_JOIN_PAGE } from '../const'
 import { validInvitationDatav1, validInvitationDatav2 } from '../tests'
 import { createLibp2pAddress } from '../libp2p'
 import { encodeAuthData } from './invitationLink.validator'
+import { createLogger } from '../logger'
+
+const logger = createLogger('invite')
 
 describe(`Invitation link helper ${InvitationDataVersion.v1}`, () => {
-  const address = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-  const peerId = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
   const data: InvitationDataV1 = {
     ...validInvitationDatav1[0],
-    pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId, onionAddress: address }],
+    pairs: [...validInvitationDatav1[0].pairs, ...validInvitationDatav1[1].pairs],
   }
   const urlParams = [
     [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
@@ -61,10 +62,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v1}`, () => {
   })
 
   it('converts list of p2p addresses to invitation pairs', () => {
-    const pair: InvitationPair = {
-      peerId,
-      onionAddress: address,
-    }
+    const pair: InvitationPair = data.pairs[0]
     const peerList = [
       createLibp2pAddress(pair.onionAddress, pair.peerId),
       'invalidAddress',
@@ -121,21 +119,19 @@ describe(`Invitation link helper ${InvitationDataVersion.v1}`, () => {
 })
 
 describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
-  const address = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-  const peerId = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
   const data: InvitationDataV2 = {
     ...validInvitationDatav2[0],
-    pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId, onionAddress: address }],
+    pairs: [...validInvitationDatav2[0].pairs, ...validInvitationDatav2[1].pairs],
   }
   const urlParams = [
-    [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
+    [PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs)],
     [PSK_PARAM_KEY, data.psk],
-    [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
     [AUTH_DATA_KEY, encodeAuthData(data.authData)],
   ]
 
   it('retrieves invitation link from argv', () => {
     const result = argvInvitationLink(['something', 'quiet:/invalid', 'zbay://invalid', composeInvitationDeepUrl(data)])
+    logger.info('result', result)
     expect(result).toEqual(data)
   })
 
@@ -163,10 +159,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
   })
 
   it('converts list of p2p addresses to invitation pairs', () => {
-    const pair: InvitationPair = {
-      peerId,
-      onionAddress: address,
-    }
+    const pair: InvitationPair = data.pairs[0]
     const peerList = [
       createLibp2pAddress(pair.onionAddress, pair.peerId),
       'invalidAddress',
@@ -186,12 +179,23 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
     })
   })
 
+  it('does not throw error when deprecated params are present', () => {
+    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
+    urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
+    url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, validInvitationDatav1[0].ownerOrbitDbIdentity)
+
+    const parsed = parseInvitationLinkDeepUrl(url.href)
+    expect(parsed).toEqual({
+      version: InvitationDataVersion.v2,
+      ...data,
+    })
+  })
+
   it('throw error if auth data string is invalid', () => {
     const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, '()_*'],
     ]
     urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
@@ -209,7 +213,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, 'foobar'],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
     ]
     urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
@@ -227,7 +230,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
     const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
     const urlParams = [
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
     ]
     urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
@@ -245,7 +247,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [
         AUTH_DATA_KEY,
         encodeAuthData({
@@ -269,7 +270,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [
         AUTH_DATA_KEY,
         encodeAuthData({
@@ -318,7 +318,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
         ]),
       ],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
     ]
 
@@ -338,7 +337,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v2}`, () => {
       [data.pairs[0].peerId, data.pairs[0].onionAddress],
       [data.pairs[1].peerId, data.pairs[1].onionAddress],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
     ]
 

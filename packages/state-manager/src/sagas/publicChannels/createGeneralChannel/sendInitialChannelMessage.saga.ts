@@ -4,8 +4,8 @@ import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { MessageType, type WriteMessagePayload } from '@quiet/types'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { generalChannelDeletionMessage, createdChannelMessage } from '@quiet/common'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>['payload']>
@@ -17,7 +17,7 @@ export function* sendInitialChannelMessageSaga(
 
   const pendingGeneralChannelRecreation = yield* select(publicChannelsSelectors.pendingGeneralChannelRecreation)
 
-  const user = yield* select(identitySelectors.currentIdentity)
+  const user = yield* select(userProfileSelectors.myUserProfile)
 
   const message =
     pendingGeneralChannelRecreation && isGeneral

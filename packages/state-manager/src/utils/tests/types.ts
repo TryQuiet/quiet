@@ -1,8 +1,8 @@
 import { configureStore, combineReducers, getDefaultMiddleware } from '@reduxjs/toolkit'
-import { reducers } from './prepareStore'
+import { testReducers } from './prepareStore'
 import createSagaMiddleware from 'redux-saga'
 
-const rootReducer = combineReducers(reducers)
+const rootReducer = combineReducers(testReducers)
 const sagaMiddleware = createSagaMiddleware()
 
 const store = configureStore({

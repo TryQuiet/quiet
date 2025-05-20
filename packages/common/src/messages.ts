@@ -1,15 +1,21 @@
-import { PublicChannelStorage } from '@quiet/types'
-
+import { PublicChannel } from '@quiet/types'
 export const createdChannelMessage = (channelName: string): string => `Created #${channelName}`
+export const createdChannelMessageRegex = /^Created #(.+)$/
 
 export const generalChannelDeletionMessage = (username: string): string =>
   `**@${username}** deleted all messages in #general`
+export const generalChannelDeletionMessageRegex = /^\*\*@(.+)\*\* deleted all messages in #general$/
 
 export const userJoinedMessage = (username: string): string =>
   `**@${username}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)`
+export const userJoinedMessageRegex =
+  /^\*\*@(.+)\*\* has joined and will be registered soon\. 🎉 \[Learn more\]\(https:\/\/github\.com\/TryQuiet\/quiet\/wiki\/Quiet-FAQ#how-does-username-registration-work\)$/
 
-export const verifyUserInfoMessage = (username: string, channel: PublicChannelStorage): string => {
-  if (channel.name === 'general') {
+export const deleteChannelMessage = (channelName: string): string => `Deleted #${channelName}`
+export const deleteChannelMessageRegex = /^Deleted #(.+)$/
+
+export const verifyUserInfoMessage = (username: string, userId: string, channel: PublicChannel): string => {
+  if (channel.name === 'general' && channel.owner !== userId) {
     return userJoinedMessage(username)
   } else {
     return createdChannelMessage(channel.name)

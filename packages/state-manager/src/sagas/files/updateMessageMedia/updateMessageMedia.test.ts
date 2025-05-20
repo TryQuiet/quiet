@@ -1,7 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, type publicChannels } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type FactoryGirl } from 'factory-girl'
@@ -15,6 +14,7 @@ import { DateTime } from 'luxon'
 import { type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('downloadedFileSaga', () => {
   let store: Store
@@ -32,26 +32,25 @@ describe('downloadedFileSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    alice = await factory.create('Identity', {
+      communityId: community.id,
     })
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('sailing'),
         },
       })
@@ -79,7 +78,7 @@ describe('downloadedFileSaga', () => {
     }
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      await factory.create('TestMessage', {
         identity: alice,
         message: {
           id,
@@ -94,7 +93,7 @@ describe('downloadedFileSaga', () => {
       })
     ).message
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
       .withReducer(reducer)
       .withState(store.getState())
@@ -133,7 +132,7 @@ describe('downloadedFileSaga', () => {
     }
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      await factory.create('TestMessage', {
         identity: alice,
         message: {
           id,
@@ -148,7 +147,7 @@ describe('downloadedFileSaga', () => {
       })
     ).message
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
       .withReducer(reducer)
       .withState(store.getState())

@@ -3,18 +3,18 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { combineReducers } from '@reduxjs/toolkit'
 
 import { setupCrypto } from '@quiet/identity'
-import { capitalizeFirstLetter } from '@quiet/common'
+import { userJoinedMessage } from '@quiet/common'
 
 import { type Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory } from '../../..'
-import { reducers } from '../../reducers'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { sendIntroductionMessageSaga } from './sendIntroductionMessage.saga'
+import { CommunityOwnership, MessageType } from '@quiet/types'
 
 describe('sendIntroductionMessageSaga', () => {
   let store: Store
@@ -26,24 +26,27 @@ describe('sendIntroductionMessageSaga', () => {
 
   beforeEach(async () => {
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   test('sends introduction message', async () => {
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community', { ownership: CommunityOwnership.User })
 
     store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: null }))
 
-    const user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const identity = await factory.create('Identity', {
+      communityId: community.id,
+      userId: 'userId',
+    })
+    const userProfile = await factory.create('UserProfile', {
+      userId: identity.userId,
     })
 
-    await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel')
+    await factory.create('PublicChannel')
 
     const generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
 
     await expectSaga(
       sendIntroductionMessageSaga,
@@ -52,14 +55,15 @@ describe('sendIntroductionMessageSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .call(userJoinedMessage, userProfile.nickname)
       .put(
         messagesActions.sendMessage({
-          type: 3,
-          message: `**@${user.nickname}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)`,
+          type: MessageType.Info,
+          message: userJoinedMessage(userProfile.nickname),
           channelId: generalChannel?.id,
         })
       )
-      .put(identityActions.updateIdentity({ ...user, introMessageSent: true }))
+      .put(identityActions.updateIdentity({ ...identity, introMessageSent: true }))
       .run()
   })
 })

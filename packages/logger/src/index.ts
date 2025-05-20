@@ -483,11 +483,18 @@ export class QuietLogger {
     }
 
     for (const debugName of debug.names) {
-      if (!debugName.toString().includes(':trace')) {
+      // `debug.names` can contain either strings or regular expressions. Guard against
+      // calling `.test()` on non‑RegExp values.
+      const isRegExp = debugName instanceof RegExp
+      const nameStr = isRegExp ? debugName.toString() : (debugName as string)
+
+      if (!nameStr.includes(':trace')) {
         continue
       }
 
-      if (debugName.test(`${this.name}:trace`)) {
+      const matches = isRegExp ? (debugName as RegExp).test(`${this.name}:trace`) : nameStr === `${this.name}:trace`
+
+      if (matches) {
         return true
       }
     }

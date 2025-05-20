@@ -1,33 +1,58 @@
 export interface UserData {
-  username: string
   onionAddress: string
   peerId: string
 }
 
-export interface User extends UserData {
+export interface User {
   isRegistered: boolean
   isDuplicated: boolean
-  pubKey: string
+  roles?: string[]
+  userId: string
 }
 
-export interface UserProfileData {
-  photo: string // base64 encoded image
+export interface UserProfileDisplayData {
+  photo?: string // base64 encoded image
+  nickname: string
+  bio?: string
 }
 
 export interface UserProfile {
-  profile: UserProfileData
-  profileSig: string
-  pubKey: string
+  userId: string
+  nickname: string
+  photo?: string // base64 encoded image
+  bio?: string
+  userData?: UserData
+}
+
+// ----
+// redux action payloads
+// ----
+export interface SaveUserProfileActionPayload {
+  photo?: File
+  bio?: string
+  nickname?: string
+}
+
+export interface DeleteUserProfileActionPayload {
+  userId: string
+}
+
+// ----
+// socket payloads
+// ----
+
+export interface SetUserProfilePayload {
+  profile: UserProfile
 }
 
 export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
 }
 
-export interface SendCertificatesResponse {
-  certificates: string[]
+export interface UsersUpdatedEvent {
+  users: User[]
 }
 
-export interface SendCsrsResponse {
-  csrs: string[]
+export interface UsersRemovedEvent {
+  users: User[]
 }

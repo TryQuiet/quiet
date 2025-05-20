@@ -1,3 +1,4 @@
+// tsconfig.json for the desktop package
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {

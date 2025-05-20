@@ -45,9 +45,7 @@ describe('Libp2pAuth', () => {
   afterAll(async () => {
     for (const module of modules) {
       const libp2pService = await module.resolve(Libp2pService)
-      if (libp2pService.libp2pInstance?.status !== 'stopped') {
-        await libp2pService.libp2pInstance?.stop()
-      }
+      await libp2pService.close()
       await module.close()
     }
   })

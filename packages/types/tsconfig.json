@@ -5,7 +5,9 @@
     "outDir": "./lib",
     "typeRoots": [
       "../@types",
-      "./node_modules/@types"
+      "./node_modules/@types",
+      "../../3rd-party/auth/packages/auth/dist",
+      "../../3rd-party/crdx/packages/crdx/dist",
     ],
     "declaration": true
   },

@@ -3,14 +3,14 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { Main } from './Main'
-import { communities, getFactory } from '@quiet/state-manager'
-import { prepareStore } from '../../testUtils'
+import { communities, getReduxStoreFactory } from '@quiet/state-manager'
+import { prepareStore, testReducers } from '../../testUtils'
 
 describe('Main', () => {
   it('renders component', async () => {
     const store = (await prepareStore()).store
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Community', {
       rootCa: 'rootCa',
     })
     const result = renderComponent(
