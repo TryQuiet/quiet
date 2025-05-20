@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Fixes
+
+* Adds a bunch of missing emoji codes [2824](https://github.com/TryQuiet/quiet/issues/2824)
+
 ## [5.0.0]
 
 ### Chores
@@ -21,11 +27,15 @@
 * You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540) (thanks @agiledev24 for your initial work on this!)
 
 ### Fixes
+
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
 * Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
 * Changes close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
 * Changes the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 * Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
+* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
+* Change close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
+* Changing the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 
 ### Chores
 
