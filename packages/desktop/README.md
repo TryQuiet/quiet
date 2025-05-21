@@ -19,7 +19,7 @@ git submodule update --init --recursive --remote
 
 ```
 npm i lerna@6.6.2
-npm i typescript@4.9.3
+npm i typescript@4.9.5
 npm i -g pnpm@9.12.1 // may be needed depending on configuration
 npm install
 npm run bootstrap

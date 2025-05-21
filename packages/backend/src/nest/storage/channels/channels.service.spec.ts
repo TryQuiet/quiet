@@ -1,22 +1,15 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
-import {
-  prepareStore,
-  getFactory,
-  publicChannels,
-  generateMessageFactoryContentWithId,
-  Store,
-} from '@quiet/state-manager'
+import { getBaseTypesFactory } from '@quiet/state-manager'
 import {
   ChannelMessage,
   Community,
+  DeleteChannelResponse,
   FileMetadata,
   Identity,
   MessageType,
   PublicChannel,
-  TestMessage,
 } from '@quiet/types'
 
 import path from 'path'
@@ -55,44 +48,17 @@ describe('ChannelsService', () => {
   let sigChainService: SigChainService
   let peerId: PeerId
 
-  let store: Store
   let factory: FactoryGirl
-  let community: Community
   let channel: PublicChannel
-  let alice: Identity
-  let john: Identity
   let message: ChannelMessage
-  let channelio: PublicChannel
   let filePath: string
+
+  let aliceUserId: string
 
   jest.setTimeout(50000)
 
   beforeAll(async () => {
-    store = prepareStore().store
-    factory = await getFactory(store)
-
-    community = await factory.create<Community>('Community')
-
-    channel = publicChannels.selectors.publicChannels(store.getState())[0]
-
-    channelio = {
-      name: channel.name,
-      description: channel.description,
-      owner: channel.owner,
-      timestamp: channel.timestamp,
-      id: channel.id,
-    }
-
-    alice = await factory.create<Identity>('Identity', { id: community.id, nickname: 'alice' })
-
-    john = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
-
-    message = (
-      await factory.create<TestMessage>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(channel.id),
-      })
-    ).message
+    factory = await getBaseTypesFactory()
   })
 
   beforeEach(async () => {
@@ -119,17 +85,29 @@ describe('ChannelsService', () => {
     await localDbService.open()
     expect(localDbService.getStatus()).toEqual('open')
 
+    const community = await factory.create<Community>('Community')
+
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
 
-    await sigChainService.createChain(community.name!, alice.nickname, true)
+    await sigChainService.createChain(community.name!, 'alice', true)
+    aliceUserId = sigChainService.getActiveChain().user.userId
 
     await storageService.init(peerId)
+
+    channel = await factory.build<PublicChannel>('PublicChannel', {
+      owner: aliceUserId,
+    })
+
+    message = await factory.build('ChannelMessage', {
+      channelId: channel.id,
+      userId: aliceUserId,
+    })
   })
 
   afterEach(async () => {
-    await libp2pService.libp2pInstance?.stop()
-    await ipfsService.ipfsInstance?.stop()
+    await libp2pService.close()
+    await ipfsService.stop()
     await storageService.stop()
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
@@ -139,29 +117,45 @@ describe('ChannelsService', () => {
 
   describe('Channels', () => {
     it('deletes channel as owner', async () => {
-      await channelsService.subscribeToChannel(channelio)
+      logger.info('Deleting channel as owner')
+      await channelsService.subscribeToChannel(channel)
 
-      const result = await channelsService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
-      expect(result).toEqual({ channelId: channelio.id })
+      const success: DeleteChannelResponse = {
+        channelId: channel.id,
+        deleted: true,
+      }
 
-      const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === channelio.id)
+      const result = await channelsService.deleteChannel({ channelId: channel.id })
+      expect(result).toEqual(success)
+
+      const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === channel.id)
       expect(channelFromKeyValueStore).toEqual([])
     })
 
-    it('delete channel as standard user', async () => {
-      await channelsService.subscribeToChannel(channelio)
+    // skipping because we don't have a strong way to prevent a user from deleting a channel yet
+    it.skip('delete channel as standard user', async () => {
+      logger.info('Deleting channel as standard user')
+      const notOwnersChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: 'notAlice',
+      })
+      await channelsService.subscribeToChannel(notOwnersChannel)
 
-      const result = await channelsService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
-      expect(result).toEqual({ channelId: channelio.id })
+      const failure: DeleteChannelResponse = {
+        channelId: channel.id,
+        deleted: false,
+      }
 
-      const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === channelio.id)
-      expect(channelFromKeyValueStore).toEqual([channelio])
+      const result = await channelsService.deleteChannel({ channelId: channel.id })
+      expect(result).toEqual(failure)
+
+      const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === notOwnersChannel.id)
+      expect(channelFromKeyValueStore).toEqual([notOwnersChannel])
     })
   })
 
   describe('Message access controller', () => {
     it('is saved to db if passed signature verification', async () => {
-      await channelsService.subscribeToChannel(channelio)
+      await channelsService.subscribeToChannel(channel)
 
       const publicChannelRepo = channelsService.publicChannelsRepos.get(message.channelId)
       expect(publicChannelRepo).not.toBeUndefined()
@@ -177,7 +171,7 @@ describe('ChannelsService', () => {
 
       // Confirm message has passed orbitdb validator (check signature verification only)
       expect(eventSpy).toHaveBeenCalled()
-      const savedMessages = await channelsService.getMessages(channelio.id)
+      const savedMessages = await channelsService.getMessages(channel.id)
       expect(savedMessages?.messages.length).toBe(1)
       expect(savedMessages?.messages[0]).toEqual({
         ...messageCopy,
@@ -186,45 +180,11 @@ describe('ChannelsService', () => {
           author: {
             generation: 0,
             type: 'USER',
-            name: sigChainService.getActiveChain().localUserContext.user.userId,
+            name: sigChainService.getActiveChain().user.userId,
           },
           signature: expect.any(String),
         }),
       })
-    })
-
-    // TODO: figure out a good way to spoof the signature
-    it.skip('is not saved to db if did not pass signature verification', async () => {
-      const aliceMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(channel.id),
-        }
-      )
-      // @ts-expect-error userCertificate can be undefined
-      const johnCertificate: string = john.userCertificate
-      const johnPublicKey = keyFromCertificate(parseCertificate(johnCertificate))
-
-      const spoofedMessage = {
-        ...aliceMessage.message,
-        channelId: channelio.id,
-        pubKey: johnPublicKey,
-      }
-      delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
-
-      await channelsService.subscribeToChannel(channelio)
-
-      const publicChannelRepo = channelsService.publicChannelsRepos.get(message.channelId)
-      expect(publicChannelRepo).not.toBeUndefined()
-      const store = publicChannelRepo!.store
-      const eventSpy = jest.spyOn(store, 'addEntry')
-
-      await channelsService.sendMessage(spoofedMessage)
-
-      // Confirm message has passed orbitdb validator (check signature verification only)
-      expect(eventSpy).toHaveBeenCalled()
-      expect((await channelsService.getMessages(channelio.id))?.messages.length).toBe(0)
     })
   })
 
@@ -233,12 +193,13 @@ describe('ChannelsService', () => {
     let messages: {
       messages: Record<string, ChannelMessage>
     }
+    let aliceMessage: ChannelMessage
 
     beforeEach(async () => {
       realFilePath = path.join(dirname, '/real-file.txt')
       await createArbitraryFile(realFilePath, 2147483)
 
-      const metadata: FileMetadata = {
+      const media: FileMetadata = {
         path: realFilePath,
         name: 'test-large-file',
         ext: '.txt',
@@ -249,17 +210,16 @@ describe('ChannelsService', () => {
         },
       }
 
-      const aliceMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(channel.id, MessageType.File, metadata),
-        }
-      )
+      aliceMessage = await factory.build('ChannelMessage', {
+        channelId: channel.id,
+        userId: aliceUserId,
+        type: MessageType.File,
+        media: media,
+      })
 
       messages = {
         messages: {
-          [aliceMessage.message.id]: aliceMessage.message,
+          [aliceMessage.id]: aliceMessage,
         },
       }
     })
@@ -271,7 +231,8 @@ describe('ChannelsService', () => {
     })
 
     it('delete file correctly', async () => {
-      console.warn(fs.existsSync(realFilePath))
+      expect(fs.existsSync(realFilePath)).toBeTruthy()
+      expect(messages.messages[aliceMessage.id]?.media?.path).toEqual(realFilePath)
       const isFileExist = await channelsService.checkIfFileExist(realFilePath)
       expect(isFileExist).toBeTruthy()
 

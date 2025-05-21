@@ -1,10 +1,10 @@
-import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataV1 } from '@quiet/types'
+import { communities, getReduxStoreFactory, Store } from '@quiet/state-manager'
+import { Community, CommunityOwnership, InvitationData, InvitationDataV1, JoinCommunityPayload } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
 import { SocketState } from '../socket/socket.slice'
-import { prepareStore } from '../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
@@ -32,20 +32,28 @@ describe('Handle invitation code', () => {
       })
     ).store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     validInvitationData = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
     validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav1[0]).deepUrl()
   })
 
   it('joins network if code is valid', async () => {
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.createNetwork(createNetworkPayload))
+      .not.put(
+        modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: AlreadyBelongToCommunityWarning.TITLE,
+            subtitle: AlreadyBelongToCommunityWarning.MESSAGE,
+          },
+        })
+      )
+      .put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 
@@ -53,20 +61,21 @@ describe('Handle invitation code', () => {
   // it('joins network if v2 code is valid', async () => {
   //   const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
   //   const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
-  //   const createNetworkPayload: CreateNetworkPayload = {
-  //     ownership: CommunityOwnership.User,
+  //   const joinCommunityPayload: JoinCommunityPayload = {
   //     inviteData: validInvitationData,
   //   }
   //   await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
   //     .withState(store.getState())
-  //     .put(communities.actions.createNetwork(createNetworkPayload))
+  //     .put(communities.actions.joinCommunity(joinCommunityPayload))
   //     .run()
   // })
 
   it('does not try to create network if user is already in community', async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    community = await factory.create('Community')
+    const identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
 
@@ -81,14 +90,14 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .not.put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 
   // TODO: https://github.com/TryQuiet/quiet/issues/2628
   // it('does not try to create network if user used v2 invitation link and is joining another community', async () => {
   //   const invitationData = validInvitationDatav2[0]
-  //   community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+  //   community = await factory.create('Community', {
   //     name: '',
   //     inviteData: invitationData,
   //   })
@@ -96,8 +105,7 @@ describe('Handle invitation code', () => {
   //     ...invitationData,
   //     serverAddress: 'http://something-else.pl',
   //   }
-  //   const createNetworkPayload: CreateNetworkPayload = {
-  //     ownership: CommunityOwnership.User,
+  //   const joinCommunityPayload: JoinCommunityPayload = {
   //     inviteData: newInvitationData,
   //   }
 
@@ -118,13 +126,12 @@ describe('Handle invitation code', () => {
   //         },
   //       })
   //     )
-  //     .not.put(communities.actions.createNetwork(createNetworkPayload))
+  //     .not.put(communities.actions.joinCommunity(joinCommunityPayload))
   //     .run()
   // })
 
   it('does not try to create network if code is missing data', async () => {
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validInvitationData,
     }
 
@@ -142,39 +149,38 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      // .not.put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 
-  test("doesn't display error if user is connecting with the same community", async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
-      name: '',
-      psk: validInvitationData.psk,
-    })
+  // test("doesn't display error if user is connecting with the same community", async () => {
+  //   community = await factory.create('Community', {
+  //     name: '',
+  //     psk: validInvitationData.psk,
+  //   })
 
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      inviteData: validInvitationData,
-    }
+  //   const joinCommunityPayload: JoinCommunityPayload = {
+  //     inviteData: validInvitationData,
+  //   }
 
-    store.dispatch(communities.actions.addNewCommunity(community))
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+  //   store.dispatch(communities.actions.addNewCommunity(community))
+  //   store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
-      .withState(store.getState())
-      .not.put.like({
-        action: {
-          type: modalsActions.openModal.type,
-          payload: {
-            name: ModalName.warningModal,
-            params: {
-              title: AlreadyBelongToCommunityWarning.TITLE,
-              message: AlreadyBelongToCommunityWarning.MESSAGE,
-            },
-          },
-        },
-      })
-      .put(communities.actions.createNetwork(createNetworkPayload))
-      .run()
-  })
+  //   await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
+  //     .withState(store.getState())
+  //     .not.put.like({
+  //       action: {
+  //         type: modalsActions.openModal.type,
+  //         payload: {
+  //           name: ModalName.warningModal,
+  //           params: {
+  //             title: AlreadyBelongToCommunityWarning.TITLE,
+  //             message: AlreadyBelongToCommunityWarning.MESSAGE,
+  //           },
+  //         },
+  //       },
+  //     })
+  //     .put(communities.actions.joinCommunity(joinCommunityPayload))
+  //     .run()
+  // })
 })

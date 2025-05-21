@@ -10,6 +10,7 @@ import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { Asset } from 'react-native-image-picker'
 import { getFilesData } from '@quiet/common'
 
 export const ChannelScreen: FC = () => {
@@ -38,8 +39,6 @@ export const ChannelScreen: FC = () => {
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -50,9 +49,11 @@ export const ChannelScreen: FC = () => {
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
+  const isOwner = useSelector(communities.selectors.isOwner)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!community?.CA || !isWebsocketConnected) {
+  if (!isOwner || !isWebsocketConnected) {
     contextMenu = null
   }
 
@@ -99,6 +100,23 @@ export const ChannelScreen: FC = () => {
     // FilePreviewData
     setUploadingFiles(existingFiles => {
       const updatedFiles = { ...existingFiles, ...filesData }
+      return updatedFiles
+    })
+  }
+
+  const updateUploadedImages = (assets: Asset[]) => {
+    const assetData: FilePreviewData = getFilesData(
+      assets.map(assetObj => {
+        return {
+          path: assetObj.uri || assetObj.originalPath || '',
+          isTmp: false,
+        }
+      })
+    )
+
+    // FilePreviewData
+    setUploadingFiles(existingFiles => {
+      const updatedFiles = { ...existingFiles, ...assetData }
       return updatedFiles
     })
   }
@@ -174,6 +192,7 @@ export const ChannelScreen: FC = () => {
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
       updateUploadedFiles={updateUploadedFiles}
+      updateUploadedImages={updateUploadedImages}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
       uploadedFiles={uploadingFiles}

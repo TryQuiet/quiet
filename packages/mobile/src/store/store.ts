@@ -16,7 +16,6 @@ import {
   FilesTransform,
   ConnectionTransform,
   UsersTransform,
-  communities,
   storeMigrations,
 } from '@quiet/state-manager'
 
@@ -28,7 +27,7 @@ import { createLogger } from '../utils/logger'
 const logger = createLogger('store')
 
 FilesystemStorage.config({
-  storagePath: `${RNFetchBlob.fs.dirs.DocumentDir}/persistStore2`,
+  storagePath: `${RNFetchBlob.fs.dirs.DocumentDir}/persistStore5`,
   encoding: 'utf8',
   toFileName: (name: string) => name.split(':').join('-'),
   fromFileName: (name: string) => name.split('-').join(':'),

@@ -28,7 +28,6 @@ describe('CopyLink', () => {
         },
       ],
       psk: '123435',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',
@@ -143,7 +142,6 @@ describe('CopyLink', () => {
         },
       ],
       psk: '12345',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',
@@ -201,7 +199,7 @@ describe('CopyLink', () => {
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
                     data-testid="invitation-link"
                   >
-                    https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&o=testOwnerOrbitDbIdentity&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVA
+                    https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVA
                   </p>
                   <button
                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-8prnfn-MuiButtonBase-root-MuiIconButton-root"

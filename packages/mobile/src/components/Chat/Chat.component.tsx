@@ -11,6 +11,8 @@ import {
   Animated,
   ViewToken,
   StyleSheet,
+  TextInputChangeEventData,
+  TextInputEndEditingEventData,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -25,6 +27,7 @@ import { DisplayableMessage } from '@quiet/types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
@@ -55,6 +58,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   setImagePreview,
   openImagePreview,
   updateUploadedFiles,
+  updateUploadedImages,
   removeFilePreview,
   uploadedFiles,
   openUrl,
@@ -158,6 +162,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList<ListItem>>(null)
+  // keep latest input text (including any pending autocorrect) in a ref
+  const messageInputValueRef = useRef<string>('')
 
   // We pass this to FlatList to determine which items it will return as viewable
   const viewabilityConfig = useRef({
@@ -259,8 +265,22 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [])
 
   const onInputTextChange = (value: string) => {
+    // track current text on manual entry
+    messageInputValueRef.current = value
     setMessageInput(value)
   }
+  // capture native change events (e.g., autocorrect commit)
+  const onInputChange = useCallback((e: NativeSyntheticEvent<TextInputChangeEventData>) => {
+    const value = e.nativeEvent.text
+    messageInputValueRef.current = value
+    setMessageInput(value)
+  }, [])
+  // capture end of editing (e.g., on blur)
+  const onInputEndEditing = useCallback((e: NativeSyntheticEvent<TextInputEndEditingEventData>) => {
+    const value = e.nativeEvent.text
+    messageInputValueRef.current = value
+    setMessageInput(value)
+  }, [])
 
   const openAttachments = async () => {
     let response: DocumentPickerResponse[]
@@ -283,11 +303,54 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
   }
 
+  const openImages = async () => {
+    launchImageLibrary(
+      {
+        presentationStyle: 'fullScreen',
+        mediaType: 'mixed', // photos and videos
+        selectionLimit: 5, // we don't want to overwhelm helia or libp2p
+      },
+      (response: ImagePickerResponse) => {
+        if (response.didCancel === true) {
+          logger.debug(`User cancelled image library fetch`)
+          return
+        }
+
+        if (response.errorCode != null || response.errorMessage != null) {
+          logger.error(`Error while fetching image library`, response.errorCode, response.errorMessage)
+          return
+        }
+
+        if (response.assets != null && response.assets.length > 0) {
+          updateUploadedImages(response.assets)
+        }
+      }
+    )
+  }
+
   const onPress = () => {
-    if ((messageInputRef.current && messageInput?.length > 0) || areFilesUploaded) {
-      messageInputRef?.current?.clear()
-      sendMessageAction(messageInput)
-      setMessageInput('')
+    // only send if there's text or uploaded files
+    if (messageInputValueRef.current.length > 0 || areFilesUploaded) {
+      if (messageInputValueRef.current.length > 0) {
+        // append space to force iOS to commit any pending autocorrect
+        const original = messageInputValueRef.current
+        const commitText = original + ' '
+        // update native text to trigger autocorrect commit
+        messageInputRef.current?.setNativeProps({ text: commitText })
+        messageInputValueRef.current = commitText
+        // after commit, send trimmed text and clear input
+        setTimeout(() => {
+          const textToSend = messageInputValueRef.current.trim()
+          sendMessageAction(textToSend)
+          // clear native input and reset state
+          messageInputRef.current?.clear()
+          messageInputValueRef.current = ''
+          setMessageInput('')
+        }, 50)
+      } else {
+        // no text but files attached
+        sendMessageAction('')
+      }
     }
   }
 
@@ -376,15 +439,25 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                     <View style={styles.inputContent}>
                       <Input
                         ref={messageInputRef}
+                        // uncontrolled: do not pass value to allow native setNativeProps to work
                         onChangeText={onInputTextChange}
+                        onChange={onInputChange}
+                        onEndEditing={onInputEndEditing}
                         placeholder={`Message #${channel?.name}`}
                         multiline={true}
                         style={styles.inputStyle}
                         round
                       />
                     </View>
-                    <View style={styles.attachmentButtonContainer}>
-                      <AttachmentButton onPress={openAttachments} />
+                    <View
+                      style={{
+                        position: 'absolute',
+                        height: '100%',
+                        right: 10,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <AttachmentButton onPress={openImages} />
                     </View>
                   </View>
                   {(didKeyboardShow || areFilesUploaded) && (

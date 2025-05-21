@@ -4,15 +4,15 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { communitiesSelectors } from '../../communities/communities.selectors'
+import { communitiesSelectors, isOwner } from '../../communities/communities.selectors'
 import { createLogger } from '../../../utils/logger'
+import { CommunityOwnership } from '@quiet/types'
 
 const logger = createLogger('channelsReplicatedSaga')
 
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  // TODO: Refactor to use QuietLogger
   logger.info(`Syncing channels: ${JSON.stringify(action.payload, null, 2)}`)
 
   const { channels } = action.payload
@@ -26,13 +26,13 @@ export function* channelsReplicatedSaga(
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.id)) {
-      // TODO: Refactor to use QuietLogger
       logger.info(`Adding #${channel.name} to store`)
       yield* putResolve(
         publicChannelsActions.addChannel({
           channel,
         })
       )
+      logger.info(`Adding #${channel.name} messages to store`)
       yield* putResolve(
         messagesActions.addPublicChannelsMessagesBase({
           channelId: channel.id,
@@ -45,7 +45,6 @@ export function* channelsReplicatedSaga(
   if (databaseStoredChannelsIds.length > 0) {
     for (const channelId of locallyStoredChannels) {
       if (!databaseStoredChannelsIds.includes(channelId)) {
-        // TODO: Refactor to use QuietLogger
         logger.info(`Removing #${channelId} from store`)
         yield* putResolve(publicChannelsActions.deleteChannel({ channelId }))
         yield* take(publicChannelsActions.completeChannelDeletion)
@@ -53,17 +52,21 @@ export function* channelsReplicatedSaga(
     }
   }
 
+  logger.info('Channels synced')
   const currentChannelCache = yield* select(publicChannelsSelectors.currentChannelMessages)
   const currentChannelRepository = yield* select(messagesSelectors.currentPublicChannelMessagesEntries)
 
   // (On collecting data from persist) Populating displayable data
   if (currentChannelCache.length < 1 && currentChannelRepository.length > 0) {
+    logger.info('Populating current channel cache')
     yield* putResolve(messagesActions.resetCurrentPublicChannelCache())
   }
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
+  const isOwner = yield* select(communitiesSelectors.isOwner)
 
-  if (!community?.CA && databaseStoredChannels.find(channel => channel.name === 'general')) {
+  if (!isOwner && databaseStoredChannels.find(channel => channel.name === 'general')) {
+    logger.info('Sending introduction message')
     yield* putResolve(publicChannelsActions.sendIntroductionMessage())
   }
+  logger.info('Channel replication saga finished')
 }

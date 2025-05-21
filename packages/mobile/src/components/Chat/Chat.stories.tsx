@@ -4,6 +4,7 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 
 import { Chat } from './Chat.component'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { Asset } from 'react-native-image-picker'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('chat:stories')
@@ -44,7 +45,7 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
               {
                 id: '2',
@@ -56,7 +57,7 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -69,7 +70,7 @@ storiesOf('Chat', module)
                 nickname: 'john',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
           ],
@@ -84,7 +85,7 @@ storiesOf('Chat', module)
                 nickname: 'chad',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
               {
                 id: '5',
@@ -95,7 +96,7 @@ storiesOf('Chat', module)
                 nickname: 'chad',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
               {
                 id: '6',
@@ -106,7 +107,7 @@ storiesOf('Chat', module)
                 nickname: 'chad',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -119,7 +120,7 @@ storiesOf('Chat', module)
                 nickname: 'anakin',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -132,7 +133,7 @@ storiesOf('Chat', module)
                 nickname: 'anakin',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -145,7 +146,7 @@ storiesOf('Chat', module)
                 nickname: 'yoda',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -158,7 +159,7 @@ storiesOf('Chat', module)
                 nickname: 'obi',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
               {
                 id: '12',
@@ -169,7 +170,7 @@ storiesOf('Chat', module)
                 nickname: 'obi',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -182,7 +183,7 @@ storiesOf('Chat', module)
                 nickname: 'wookie',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -195,7 +196,7 @@ storiesOf('Chat', module)
                 nickname: 'leah',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -208,7 +209,7 @@ storiesOf('Chat', module)
                 nickname: 'luke',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -221,7 +222,7 @@ storiesOf('Chat', module)
                 nickname: 'windoo',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
             [
@@ -235,7 +236,7 @@ storiesOf('Chat', module)
                 nickname: 'vader',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                userId: 'test',
               },
             ],
           ],
@@ -244,11 +245,14 @@ storiesOf('Chat', module)
       updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateUploadedFiles')
       }}
+      updateUploadedImages={function (_assets: Asset[]): void {
+        logger.info('updateUploadedImages')
+      }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
       duplicatedUsernameHandleBack={function (): void {}}
-      unregisteredUsernameHandleBack={function (username: string): void {}}
+      unregisteredUsernameHandleBack={function (nickname: string): void {}}
     />
   ))
   .add('Empty', () => (
@@ -275,11 +279,14 @@ storiesOf('Chat', module)
       updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateUploadedFiles')
       }}
+      updateUploadedImages={function (_assets: Asset[]): void {
+        logger.info('updateUploadedImages')
+      }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
       duplicatedUsernameHandleBack={function (): void {}}
-      unregisteredUsernameHandleBack={function (username: string): void {}}
+      unregisteredUsernameHandleBack={function (nickname: string): void {}}
     />
   ))
   .add('MultiDayChat', () => (

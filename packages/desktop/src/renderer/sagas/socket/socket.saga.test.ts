@@ -1,8 +1,8 @@
-import { connection, getFactory, Store } from '@quiet/state-manager'
+import { connection, getReduxStoreFactory, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { socketActions, WebsocketConnectionPayload } from '../socket/socket.slice'
-import { prepareStore } from '../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../testUtils/prepareStore'
 import { startConnectionSaga } from './socket.saga'
 
 describe('Start Connection Saga', () => {
@@ -12,7 +12,7 @@ describe('Start Connection Saga', () => {
 
   beforeEach(async () => {
     store = (await prepareStore()).store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   it('socketIOSecret is null - take setSocketIOSecret', async () => {

@@ -7,11 +7,12 @@ import StateManager, {
   publicChannels,
   users,
   PUSH_NOTIFICATION_CHANNEL,
-  getFactory,
+  getReduxStoreFactory,
   prepareStore,
   Store,
   communities,
   identity,
+  getBaseTypesFactory,
 } from '@quiet/state-manager'
 import { StoreKeys } from '../../store.keys'
 import { initReducer, InitState } from '../../init/init.slice'
@@ -24,7 +25,9 @@ import {
   FileMetadata,
   Identity,
   MarkUnreadChannelPayload,
+  MessageType,
   PublicChannel,
+  UserProfile,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
@@ -37,6 +40,7 @@ describe('showNotificationSaga', () => {
 
   let community: Community
   let alice: Identity
+  let alicesProfile: UserProfile
 
   let generalChannel: PublicChannel
 
@@ -50,8 +54,7 @@ describe('showNotificationSaga', () => {
     message: string
     createdAt: number
     channelId: string
-    signature: string
-    pubKey: string
+    userId: string
     media?: FileMetadata
     channelName: string
   }
@@ -59,11 +62,16 @@ describe('showNotificationSaga', () => {
   beforeAll(async () => {
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
+    const baseTypes = await getBaseTypesFactory()
 
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    community = await factory.create('Community')
+    alice = await factory.create('Identity', {
+      communityId: community.id,
+      userId: 'userIdAlice',
+    })
+    alicesProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
@@ -72,26 +80,24 @@ describe('showNotificationSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('photo'),
         },
       })
     ).channel
-
-    const channelMessage: ChannelMessage = {
+    const channelMessage: ChannelMessage = await baseTypes.create('ChannelMessage', {
       channelId: photoChannel.id,
       createdAt: 0,
       id: 'id',
       message: 'message',
-      pubKey: 'pubKey',
-      signature: 'signature',
-      type: 1,
-    }
+      userId: alice.userId,
+      type: MessageType.Basic,
+    })
 
     payload = {
       channelId: photoChannel.id,
@@ -113,8 +119,6 @@ describe('showNotificationSaga', () => {
       handleIncomingEvents: jest.fn(),
     }
 
-    const username = 'alice'
-
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
       .withReducer(
         combineReducers({
@@ -133,16 +137,13 @@ describe('showNotificationSaga', () => {
           },
         }
       )
-      .provide([
-        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.allUsers), { pubKey: { username } }],
-      ])
+      .provide([[call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null]])
       .call(JSON.stringify, messageWithChannelName)
       .call(
         NativeModules.CommunicationModule.handleIncomingEvents,
         PUSH_NOTIFICATION_CHANNEL,
         expectedMessage,
-        username
+        alicesProfile.nickname
       )
       .run()
   })
@@ -180,7 +181,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
+        [select(users.selectors.allUsers), { userId: { username } }],
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
@@ -219,7 +220,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
+        [select(users.selectors.allUsers), { userId: { username } }],
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()

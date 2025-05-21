@@ -10,8 +10,8 @@ import { createLogger } from '../../../common/logger'
 
 const logger = createLogger('auth:deviceService')
 class DeviceService extends ChainServiceBase {
-  public static init(sigChain: SigChain): DeviceService {
-    return new DeviceService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
 
   /**

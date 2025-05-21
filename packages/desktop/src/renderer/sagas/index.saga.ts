@@ -5,7 +5,7 @@ import { startConnectionSaga } from './socket/socket.saga'
 import { socketActions } from './socket/socket.slice'
 
 export default function* root(): Generator {
-  const dataPort = new URLSearchParams(window.location.search).get('dataPort') || ''
+  const dataPort = new URLSearchParams(window.location.search).get('dataPort') || '4677'
   yield all([
     takeEvery(communities.actions.customProtocol.type, customProtocolSaga),
     startConnectionSaga(

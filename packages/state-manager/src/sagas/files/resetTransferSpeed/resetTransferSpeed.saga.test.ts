@@ -1,19 +1,25 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { getFactory, MessageType, type PublicChannel, type publicChannels } from '../../..'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type communitiesActions } from '../../communities/communities.slice'
-import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { resetTransferSpeedSaga } from './resetTransferSpeed.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
-import { type Community, DownloadState, type FileMetadata, type Identity } from '@quiet/types'
+import {
+  type Community,
+  DownloadState,
+  type FileMetadata,
+  type Identity,
+  MessageType,
+  PublicChannel,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -29,7 +35,7 @@ describe('downloadFileSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
@@ -37,8 +43,8 @@ describe('downloadFileSaga', () => {
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
   })
@@ -64,7 +70,7 @@ describe('downloadFileSaga', () => {
 
     const message = Math.random().toString(36).substr(2.9)
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+    await factory.create('TestMessage', {
       identity: alice,
       message: {
         id: message,
@@ -91,7 +97,7 @@ describe('downloadFileSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
       .withReducer(reducer)
       .withState(store.getState())
@@ -131,7 +137,7 @@ describe('downloadFileSaga', () => {
 
     const message = Math.random().toString(36).substr(2.9)
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+    await factory.create('TestMessage', {
       identity: alice,
       message: {
         id: message,
@@ -153,7 +159,7 @@ describe('downloadFileSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
       .withReducer(reducer)
       .withState(store.getState())
@@ -193,7 +199,7 @@ describe('downloadFileSaga', () => {
 
     const message = Math.random().toString(36).substr(2.9)
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+    await factory.create('TestMessage', {
       identity: alice,
       message: {
         id: message,
@@ -220,7 +226,7 @@ describe('downloadFileSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
       .withReducer(reducer)
       .withState(store.getState())

@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-13]
+        os: [macos-14]
 
     steps:
       - name: "Print OS"
@@ -37,7 +37,7 @@ jobs:
       - name: Setup XCode
         uses: maxim-lobanov/setup-xcode@9a697e2b393340c3cacd97468baa318e4c883d98 # v1.5.1
         with:
-          xcode-version: '15.2'
+          xcode-version: '16.2.0'
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -50,6 +50,24 @@ jobs:
           cd ./packages/mobile/ios
           pod install
         shell: bash
+        
+      - name: Remove bitcode from Tor.framework
+        run: |
+          cd ./packages/mobile/ios
+          FRAMEWORK_PATH="Pods/Tor/Build/iOS/Tor.framework/Tor"
+          if [ -f "$FRAMEWORK_PATH" ]; then
+            echo "Removing bitcode from Tor.framework"
+            xcrun bitcode_strip -r "$FRAMEWORK_PATH" -o "$FRAMEWORK_PATH"
+            echo "Verifying bitcode removal"
+            if otool -l "$FRAMEWORK_PATH" | grep -q LLVM; then
+              echo "WARNING: Bitcode still present in Tor framework!"
+            else
+              echo "SUCCESS: Bitcode successfully removed from Tor framework"
+            fi
+          else
+            echo "Tor framework not found at expected path: $FRAMEWORK_PATH"
+            find . -name "Tor.framework" -type d
+          fi
 
       - name: Setup provisioning profile
         run: ./.github/secrets/decrypt_secrets.sh
@@ -66,7 +84,8 @@ jobs:
             -configuration Release \
             -archivePath build/Quiet.xcarchive \
             PROVISIONING_PROFILE="762df280-302c-4336-a56d-c74914169337" \
-            CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)"
+            CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)" \
+            ENABLE_BITCODE=NO
 
       - name: Export .ipa
         run: |

@@ -31,6 +31,8 @@ export class TimedQueue {
    * Map of running tasks
    */
   private readonly inProcess: Map<string, NodeJS.Timeout | number> = new Map()
+  /** Keys that are either waiting in the queue or currently running */
+  private readonly scheduled: Set<string> = new Set()
 
   private readonly logger = createLogger(TimedQueue.name)
 
@@ -54,7 +56,8 @@ export class TimedQueue {
       throw new Error(`Backoff factor must be a positive number greater than or equal to 1`)
     }
 
-    this.queue = fastq.promise(this._processQueue.bind(this), options.concurrency ?? DEFAULT_CONCURRENCY)
+    this._processQueue = this._processQueue.bind(this)
+    this.queue = fastq.promise(this._processQueue, options.concurrency ?? DEFAULT_CONCURRENCY)
     if (options.start) {
       this.start()
     } else {
@@ -99,6 +102,11 @@ export class TimedQueue {
    */
   public async enqueue(processDef: TimedQueueProcessDef): Promise<void> {
     this.logger.debug(`Adding task with key ${processDef.key} to timed queue`)
+    if (this.scheduled.has(processDef.key)) {
+      this.logger.trace(`Task ${processDef.key} already scheduled – skipping`)
+      return
+    }
+    this.scheduled.add(processDef.key)
     await this.queue.push(processDef)
   }
 
@@ -125,12 +133,18 @@ export class TimedQueue {
       try {
         await processDef.task()
         this.inProcess.delete(processDef.key)
+        this.scheduled.delete(processDef.key)
       } catch (e) {
         this.inProcess.delete(processDef.key)
+        this.scheduled.delete(processDef.key)
         const newDelayMs = this._generateNewDelayMs(delayMs)
+        let errorContext: Error | string = e
+        if (e.message.includes('Unexpected server response: 404')) {
+          errorContext = e.message
+        }
         this.logger.warn(
           `Error while processing task with key ${processDef.key}, retrying with delay ${newDelayMs}ms`,
-          e
+          errorContext
         )
         await this.enqueue({
           ...processDef,
@@ -176,5 +190,10 @@ export class TimedQueue {
     const max = this.options.fuzzFactor
     const randomFactor = Math.random() * (max - min) + min
     return 5_000 * randomFactor
+  }
+
+  /** Check if a key is already scheduled (waiting or running) */
+  public hasTask(key: string): boolean {
+    return this.scheduled.has(key) || this.inProcess.has(key)
   }
 }
