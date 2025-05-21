@@ -2,7 +2,13 @@
 
 ## [unreleased]
 
+## Features
+
 * Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
+
+## Chores
+
+* Removes Sentry logger and the associated warning modal, since we aren't using it anymore. ([#2777](https://github.com/TryQuiet/quiet/issues/2777))
 
 ## [5.0.0]
 
