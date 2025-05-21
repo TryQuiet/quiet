@@ -1,5 +1,9 @@
 # Changelog
 
+## [unreleased]
+
+* Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
+
 ## [5.0.0]
 
 ### Features
