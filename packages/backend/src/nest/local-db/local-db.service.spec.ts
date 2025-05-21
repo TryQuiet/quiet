@@ -27,16 +27,18 @@ describe('LocalDbService', () => {
   const addr2 = createLibp2pAddress('zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion', peer2Id)
 
   const stats1: Record<string, NetworkStats> = {
-    [addr1]: {
+    [peer1Id]: {
       peerId: peer1Id,
+      address: addr1,
       connectionTime: 50,
       lastSeen: 1_000,
     },
   }
 
   const stats2: Record<string, NetworkStats> = {
-    [addr2]: {
+    [peer2Id]: {
       peerId: peer2Id,
+      address: addr2,
       connectionTime: 500,
       lastSeen: 500,
     },
@@ -157,8 +159,8 @@ describe('LocalDbService', () => {
       })
 
       // single peer – key by peerId
-      expect(await service.getPeerStats(peer1Id)).toEqual(stats1[addr1])
-      expect(await service.getPeerStats(peer2Id)).toEqual(stats2[addr2])
+      expect(await service.getPeerStats(peer1Id)).toEqual(stats1[peer1Id])
+      expect(await service.getPeerStats(peer2Id)).toEqual(stats2[peer2Id])
     })
 
     it('getSortedPeers returns addresses sorted alphabetically', async () => {
