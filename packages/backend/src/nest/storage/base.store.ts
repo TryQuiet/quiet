@@ -1,6 +1,7 @@
 import { type KeyValueType, type EventsType } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import { createLogger } from '../common/logger'
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
 
 const logger = createLogger('store')
 
@@ -24,18 +25,40 @@ abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends E
     logger.info('Closed', this.getAddress())
   }
 
-  abstract init(): Promise<void>
+  abstract init(...args: any[]): Promise<void> | Promise<StoreBase<V, S>>
   abstract clean(): void
 }
 
-export abstract class KeyValueStoreBase<V> extends StoreBase<V, KeyValueType<V>> {
+export abstract class KeyValueStoreBase<V, U = V> extends StoreBase<V, KeyValueType<V>> {
   protected store: KeyValueType<V> | undefined
-  abstract setEntry(key: string, value: V): Promise<V>
-  abstract getEntry(key?: string): Promise<V | null>
+  abstract setEntry(key: string, value: U): Promise<V>
+  abstract getEntry(key?: string): Promise<U | null>
 }
 
-export abstract class EventStoreBase<V> extends StoreBase<V, EventsType<V>> {
+export abstract class EncryptedKeyValueStoreBase<EncryptedType, DecryptedType> extends StoreBase<
+  EncryptedType,
+  KeyValueType<EncryptedType>
+> {
+  protected store: KeyValueType<EncryptedType> | undefined
+  abstract encryptEntry(value: DecryptedType): Promise<EncryptedAndSignedPayload>
+  abstract decryptEntry(value: EncryptedType): Promise<DecryptedType>
+  abstract setEntry(key: string, value: DecryptedType): Promise<EncryptedType>
+  abstract getEntry(key?: string): Promise<DecryptedType | null>
+}
+
+export abstract class EventStoreBase<V, U = V> extends StoreBase<V, EventsType<V>> {
   protected store: EventsType<V> | undefined
-  abstract addEntry(value: V): Promise<string>
-  abstract getEntries(): Promise<V[]>
+  abstract addEntry(value: U): Promise<string>
+  abstract getEntries(): Promise<U[]>
+}
+
+export abstract class EncryptedEventStoreBase<EncryptedType, DecryptedType> extends StoreBase<
+  EncryptedType,
+  EventsType<EncryptedType>
+> {
+  protected store: EventsType<EncryptedType> | undefined
+  abstract encryptEntry(value: DecryptedType): Promise<EncryptedAndSignedPayload>
+  abstract decryptEntry(value: EncryptedType): Promise<DecryptedType>
+  abstract addEntry(value: DecryptedType): Promise<string>
+  abstract getEntries(): Promise<DecryptedType[]>
 }

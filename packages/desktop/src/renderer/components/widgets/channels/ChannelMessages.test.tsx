@@ -2,6 +2,7 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
+import { DisplayableMessage } from '@quiet/types'
 
 describe('ChannelMessages', () => {
   beforeEach(() => {
@@ -13,16 +14,16 @@ describe('ChannelMessages', () => {
   })
 
   it('renders component', async () => {
-    const message = {
+    const message: DisplayableMessage = {
       id: 'string',
       type: 1,
       message: 'string',
       createdAt: 1636995488.44,
       date: 'string',
+      userId: 'string',
       nickname: 'string',
       isDuplicated: false,
       isRegistered: true,
-      pubKey: 'string',
     }
 
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => {
@@ -52,30 +53,48 @@ describe('ChannelMessages', () => {
       <body>
         <div>
           <div
-            class="ChannelMessagesComponentscroll css-sxxllx"
+            class="ChannelMessagesComponentscroll css-5o22xt"
             data-testid="channelContent"
           >
+            <div
+              class="MuiGrid-root MuiGrid-container css-ahu7e1-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
+              />
+              <div
+                class="MuiGrid-root MuiGrid-item FloatingDatetitleDiv css-13i4rnv-MuiGrid-root"
+                style="opacity: 0; pointer-events: none;"
+              >
+                <p
+                  class="MuiTypography-root MuiTypography-body1 FloatingDatedateText css-ghvhpl-MuiTypography-root"
+                />
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
+              />
+            </div>
             <ul
               class="MuiList-root ChannelMessagesComponentlist css-1mk9mw3-MuiList-root"
               id="messages-scroll"
-              tabindex="0"
             >
               <div>
                 <div
-                  class="MuiGrid-root MuiGrid-container css-1nj3j97-MuiGrid-root"
+                  aria-label="Messages from Today"
+                  class="MuiGrid-root MuiGrid-container css-aaog9h-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <div
-                      class="MessagesDividerdivider"
+                      class="DateDividerdivider"
                     />
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-item MessagesDividertitleDiv css-13i4rnv-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item DateDividertitleDiv css-13i4rnv-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1 css-ghvhpl-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-body1 DateDividerdateText css-ghvhpl-MuiTypography-root"
                     >
                       Today
                     </p>
@@ -84,12 +103,12 @@ describe('ChannelMessages', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <div
-                      class="MessagesDividerdivider"
+                      class="DateDividerdivider"
                     />
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-1v3s10o-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -131,7 +150,7 @@ describe('ChannelMessages', () => {
                               <p
                                 class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                               >
-                                string
+                                4:58 PM
                               </p>
                             </div>
                           </div>
@@ -145,7 +164,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

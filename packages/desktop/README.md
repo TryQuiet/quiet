@@ -10,7 +10,7 @@ Here are the steps:
 3. Initialize submodules in the project's root:
 
 ```
-git submodule update --init --recursive
+git submodule update --init --recursive --remote
 ```
 
 4. Install python3 and setuptools through your preferred method. (used by node-gyp)
@@ -19,7 +19,7 @@ git submodule update --init --recursive
 
 ```
 npm i lerna@6.6.2
-npm i typescript@4.9.3
+npm i typescript@4.9.5
 npm i -g pnpm@9.12.1 // may be needed depending on configuration
 npm install
 npm run bootstrap
@@ -52,6 +52,14 @@ To build a test version with Sentry, run:
 ```
 npm run lerna version prerelease
 ```
+
+----
+
+## Logging
+
+By default logs are output to the console and to files located in the application data directory (this location varies by OS).
+
+_See the `node-common` README for a more detailed description of file logging in Quiet._
 
 ----
 

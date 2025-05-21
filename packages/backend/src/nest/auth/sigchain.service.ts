@@ -1,23 +1,74 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import { Keyring, LocalUserContext } from '3rd-party/auth/packages/auth/dist'
+import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '@localfirst/auth'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
+import { SocketService } from '../socket/socket.service'
+import { SocketEvents, User } from '@quiet/types'
+import { type RoleService } from './services/roles/role.service'
+import { type DeviceService } from './services/members/device.service'
+import { type InviteService } from './services/invites/invite.service'
+import { type UserService } from './services/members/user.service'
+import { type CryptoService } from './services/crypto/crypto.service'
+import { type UserWithSecrets } from '@localfirst/auth'
+import { type DeviceWithSecrets } from '@localfirst/auth'
+import { SERVER_IO_PROVIDER } from '../const'
+import { ServerIoProviderTypes } from '../types'
+import EventEmitter from 'events'
 
 @Injectable()
-export class SigChainService implements OnModuleInit {
+export class SigChainService extends EventEmitter {
   public activeChainTeamName: string | undefined
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
-  private static _instance: SigChainService | undefined
+  public connections: Map<string, Connection> = new Map()
 
-  constructor(private readonly localDbService: LocalDbService) {}
+  constructor(
+    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
+    private readonly localDbService: LocalDbService,
+    private readonly socketService: SocketService
+  ) {
+    super()
+  }
 
-  onModuleInit() {
-    if (SigChainService._instance) {
-      throw new Error('SigChainManagerService already initialized!')
-    }
-    SigChainService._instance = this
+  get activeChain(): SigChain {
+    return this.getActiveChain()
+  }
+
+  get users(): UserService {
+    return this.getActiveChain().users
+  }
+
+  get roles(): RoleService {
+    return this.getActiveChain().roles
+  }
+
+  get devices(): DeviceService {
+    return this.getActiveChain().devices
+  }
+
+  get invites(): InviteService {
+    return this.getActiveChain().invites
+  }
+
+  get crypto(): CryptoService {
+    return this.getActiveChain().crypto
+  }
+
+  get team(): Team {
+    return this.getActiveChain().team!
+  }
+
+  get context(): MemberContext | InviteeMemberContext {
+    return this.getActiveChain().context
+  }
+
+  get user(): UserWithSecrets {
+    return this.getActiveChain().user
+  }
+
+  get device(): DeviceWithSecrets {
+    return this.getActiveChain().device
   }
 
   getActiveChain(): SigChain {
@@ -40,18 +91,39 @@ export class SigChainService implements OnModuleInit {
     return this.chains.get(teamName)!
   }
 
-  static get instance(): SigChainService {
-    if (!SigChainService._instance) {
-      throw new Error("SigChainManagerService hasn't been initialized yet! Run init() before accessing")
-    }
-    return SigChainService._instance
-  }
-
   setActiveChain(teamName: string): void {
+    if (this.activeChainTeamName && this.activeChainTeamName !== teamName) {
+      this.detachSocketListeners(this.getChain(this.activeChainTeamName))
+    }
     if (!this.chains.has(teamName)) {
       throw new Error(`No chain found for team ${teamName}, can't set to active!`)
     }
     this.activeChainTeamName = teamName
+    this.attachSocketListeners(this.getChain(teamName))
+  }
+
+  private handleChainUpdate = () => {
+    const users = this.getActiveChain()
+      .team?.members()
+      .map(user => ({
+        userId: user.userId,
+        roles: user.roles,
+        isRegistered: true,
+        isDuplicated: false,
+      })) as User[]
+    this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+    this.saveChain(this.activeChainTeamName!)
+  }
+
+  private attachSocketListeners(chain: SigChain): void {
+    this.logger.info('Attaching socket listeners')
+    chain.on('updated', this.handleChainUpdate)
+    this.emit('updated')
+  }
+
+  private detachSocketListeners(chain: SigChain): void {
+    this.logger.info('Detaching socket listeners')
+    chain.removeListener('updated', this.handleChainUpdate)
   }
 
   /**
@@ -70,6 +142,7 @@ export class SigChainService implements OnModuleInit {
       this.setActiveChain(teamName)
       return true
     }
+
     return false
   }
 
@@ -145,18 +218,22 @@ export class SigChainService implements OnModuleInit {
   async loadChain(teamName: string, setActive: boolean): Promise<SigChain> {
     await this._ensureDb()
     this.logger.info(`Loading chain for team ${teamName}`)
-    const chain = await this.localDbService.getSigChain(teamName)
-    if (!chain) {
+    const chainData = await this.localDbService.getSigChain(teamName)
+    if (!chainData) {
       throw new Error(`Chain for team ${teamName} not found`)
     }
-    if (chain.serializedTeam && chain.teamKeyRing) {
-      return await this.deserialize(chain.serializedTeam, chain.localUserContext, chain.teamKeyRing, setActive)
+    if (!chainData.serializedTeam) {
+      throw new Error(`Chain for team ${teamName} is missing serialized team`)
     }
-    this.logger.info('No serialized team found, creating new chain from:', chain)
-    const sigchain = SigChain.init(chain.localUserContext)
-    sigchain.context = chain.context
-    this.addChain(sigchain, setActive, teamName)
-    return sigchain
+    if (!chainData.teamKeyRing) {
+      throw new Error(`Chain for team ${teamName} is missing keyring`)
+    }
+    return await this.deserialize(
+      chainData.serializedTeam,
+      chainData.localUserContext,
+      chainData.teamKeyRing,
+      setActive
+    )
   }
 
   /**

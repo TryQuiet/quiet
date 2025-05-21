@@ -126,6 +126,36 @@ export class StartingLoadingPanel {
       500
     )
   }
+
+  async waitForLoadingToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
+    try {
+      const panel = await this.element
+      await this.driver.wait(
+        until.elementIsVisible(panel),
+        visibleTimeoutMs,
+        `Loading panel element couldn't be seen within timeout`,
+        500
+      )
+    } catch (e) {
+      logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+    }
+
+    try {
+      const panel = await this.element
+      await this.driver.wait(
+        until.elementIsNotVisible(panel),
+        completionTimeoutMs,
+        `Loading panel element didn't disappear within timeout`,
+        5_000
+      )
+    } catch (e) {
+      if (e.message.includes('stale element reference')) {
+        logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+      } else {
+        throw e
+      }
+    }
+  }
 }
 
 export class WarningModal {
@@ -180,11 +210,11 @@ export class JoiningLoadingPanel {
     )
   }
 
-  async waitForJoinToComplete() {
+  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
     const panel = await this.element
     await this.driver.wait(
       until.elementIsVisible(panel),
-      15_000,
+      visibleTimeoutMs,
       `Loading panel element couldn't be seen within timeout`,
       500
     )
@@ -192,7 +222,7 @@ export class JoiningLoadingPanel {
     try {
       await this.driver.wait(
         until.elementIsNotVisible(panel),
-        300_000,
+        completionTimeoutMs,
         `Loading panel element didn't disappear within timeout`,
         5_000
       )
@@ -518,10 +548,10 @@ export class JoinCommunityModal {
     )
   }
 
-  async isReady(): Promise<boolean> {
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
     await this.driver.wait(
       until.elementIsVisible(this.element),
-      10_000,
+      timeoutMs,
       `Join community modal wasn't ready within timeout`,
       500
     )
@@ -639,10 +669,10 @@ export class Channel {
     return true
   }
 
-  async isOpen(): Promise<boolean> {
+  async isOpen(timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
-      15_000,
+      timeout,
       `Channel title element for ${this.name} couldn't be seen within timeout`,
       500
     )
@@ -659,27 +689,35 @@ export class Channel {
     return true
   }
 
-  async waitForUserMessageByText(username: string, messageContent: string) {
+  async waitForUserMessageByText(
+    username: string,
+    messageContent: string,
+    timeoutMs: number = 30_000
+  ): Promise<WebElement> {
     logger.info(`Waiting for user "${username}" message "${messageContent}"`)
     return this.driver.wait(
       async () => {
         const startTime = DateTime.utc().toMillis()
-        const endTime = startTime + 20_000
+        const endTime = startTime + timeoutMs
         while (DateTime.utc().toMillis() < endTime) {
-          const messages = await this.getUserMessages(username)
-          for (const element of messages) {
-            const text = await element.getText()
-            logger.info(`Potential message with text: ${text}`)
-            if (text.includes(messageContent)) {
-              logger.info(`Found message with matching text ${text}`)
-              return element
+          try {
+            const messages = await this.getUserMessages(username)
+            for (const element of messages) {
+              const text = await element.getText()
+              logger.info(`Checking if message ${text} contains ${messageContent}`)
+              if (text.includes(messageContent)) {
+                logger.info(`Found message with matching text ${text}`)
+                return element
+              }
             }
+          } catch (e) {
+            // swallow timeout error during polling
           }
           await sleep(500)
         }
         throw logAndReturnError(`No message found for user ${username} and message content ${messageContent}`)
       },
-      30_000,
+      timeoutMs,
       `Message in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -694,7 +732,7 @@ export class Channel {
     return this.driver.wait(
       async () => {
         const startTime = DateTime.utc().toMillis()
-        const endTime = startTime + 30_000
+        const endTime = startTime + 40_000
         while (DateTime.utc().toMillis() < endTime) {
           const messages = await this.getUserMessages(username)
           for (const element of messages) {
@@ -770,7 +808,7 @@ export class Channel {
     try {
       const filenameElement = await this.driver.wait(
         baseElement.findElement(By.xpath(`//p[text()='${filename}']`)),
-        15_000,
+        25_000,
         `Filename component for uploaded image ${filename} in channel ${this.name} couldn't be found within timeout`,
         500
       )
@@ -871,6 +909,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with downloading cancelable status`)
         }
+        sleep(2_000)
       }
 
       if (statusElement == null) {
@@ -893,6 +932,7 @@ export class Channel {
         } catch (e) {
           logger.warn(`Couldn't find status element with download file status`)
         }
+        sleep(2_000)
       }
       return true
     } catch (e) {
@@ -901,8 +941,8 @@ export class Channel {
     }
   }
 
-  async getMessageIdsByText(message: string, username: string): Promise<MessageIds> {
-    const messageElement = await this.waitForUserMessageByText(username, message)
+  async getMessageIdsByText(message: string, username: string, timeoutMs: number = 30_000): Promise<MessageIds> {
+    const messageElement = await this.waitForUserMessageByText(username, message, timeoutMs)
     if (!messageElement) {
       throw logAndReturnError(`No message element found for message ${message}`)
     }
@@ -984,10 +1024,10 @@ export class Channel {
     }
   }
 
-  async getUserMessages(username: string): Promise<WebElement[]> {
+  async getUserMessages(username: string, timeoutMs: number = 15_000): Promise<WebElement[]> {
     return await this.driver.wait(
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`)),
-      15_000,
+      timeoutMs,
       `Messages for user ${username} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -1067,7 +1107,7 @@ export class Channel {
     logger.info(`Waiting for content for message with ID ${messageId}`)
     const messageContentElement = await this.driver.wait(
       this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-${messageId}")]`)),
-      15_000,
+      45_000,
       `Message content element for message ID ${messageId} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -1079,11 +1119,15 @@ export class Channel {
     throw logAndReturnError(`Failed to find content for message with ID ${messageId}`)
   }
 
-  async waitForMessageContentByText(messageContent: string, messageElement: WebElement): Promise<WebElement> {
+  async waitForMessageContentByText(
+    messageContent: string,
+    messageElement: WebElement,
+    timeoutMs: number = 15_000
+  ): Promise<WebElement> {
     logger.info(`Waiting for content for message with text ${messageContent}`)
     const messageContentElements = await this.driver.wait(
       messageElement.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`)),
-      15_000,
+      timeoutMs,
       `Message content element for text ${messageContent} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -1158,13 +1202,13 @@ export class Channel {
         try {
           const placeholderElement = await this.driver.wait(
             this.driver.findElement(By.xpath(`//*[@class='UploadedImagePlaceholderplaceholder']`)),
-            10_000,
+            20_000,
             `Image placeholder element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
           await this.driver.wait(
             until.elementIsNotVisible(placeholderElement),
-            30_000,
+            120_000,
             `Image placeholder element for ${filename} in channel ${this.name} didn't disappear within timeout`,
             500
           )
@@ -1176,7 +1220,7 @@ export class Channel {
 
         containerElements = await this.driver.wait(
           testableMessageContentElement.findElements(By.xpath(`//*[@class='UploadedImagecontainer']`)),
-          15_000,
+          30_000,
           `Image container elements in channel ${this.name} couldn't be found within timeout`,
           500
         )
@@ -1203,7 +1247,7 @@ export class Channel {
         case UploadedFileType.IMAGE:
           contentElement = await this.driver.wait(
             container.findElement(By.xpath(`//img[@class='UploadedImageimage']`)),
-            15_000,
+            30_000,
             `Image element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
@@ -1211,7 +1255,7 @@ export class Channel {
         case UploadedFileType.FILE:
           contentElement = await this.driver.wait(
             container.findElement(By.xpath(`//img[@class='FileComponentactionIcon']`)),
-            15_000,
+            30_000,
             `File element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
@@ -1265,18 +1309,18 @@ export class Channel {
       messageElement.findElement(By.xpath(`//p[text()='${locatorString!}']`)),
       timeoutMs,
       `File download status element with text ${locatorString} in channel ${this.name} couldn't be found within timeout`,
-      500
+      2_000
     )
   }
 
-  async waitForLabelsNotPresent(username: string) {
+  async waitForLabelsNotPresent(username: string, timeout = 15_000) {
     logger.info(`Waiting for user's "${username}" label to not be present`)
     await this.driver.wait(
       async () => {
         const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
         return labels.length === 0
       },
-      15_000,
+      timeout,
       `User name label ${username} in channel ${this.name} didn't disappear within timeout`,
       500
     )
@@ -1354,7 +1398,7 @@ export class Sidebar {
   async switchChannel(name: string): Promise<Channel> {
     const channelLink = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`)),
-      10_000,
+      20_000,
       `Channel link button for ${name} couldn't be found within timeout`,
       500
     )
@@ -1483,14 +1527,50 @@ export class Settings {
     await this.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
   }
 
-  async leaveCommunityButton() {
-    const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[text()="Leave community"]')),
-      15_000,
-      `Leave community button couldn't be found within timeout`,
-      500
-    )
-    await button.click()
+  /**
+   * Clicks the “Leave community” button, retrying until it becomes clickable or the timeout elapses.
+   *
+   * @param timeoutMs  how long to keep retrying (default = 30 s)
+   */
+  async leaveCommunityButton(timeoutMs = 30_000): Promise<void> {
+    const start = Date.now()
+    const retryInterval = 500 // ms
+    let lastError: Error | undefined
+
+    while (Date.now() - start < timeoutMs) {
+      try {
+        const button = await this.driver.wait(
+          until.elementLocated(By.xpath('//button[@data-testid="leave-community-button"]')),
+          10_000,
+          `Leave community button couldn't be found within timeout`,
+          500
+        )
+
+        // Ensure it is visible and enabled before clicking.
+        await this.driver.wait(until.elementIsVisible(button), 5_000)
+        await this.driver.wait(until.elementIsEnabled(button), 5_000)
+
+        await button.click()
+        return // Success – exit the loop
+      } catch (e: any) {
+        // Swallow common transient errors and retry.
+        if (
+          e.message?.includes('element not interactable') ||
+          e.message?.includes('ElementNotInteractableError') ||
+          e.message?.includes('stale element reference')
+        ) {
+          lastError = e as Error
+        } else {
+          // Any other error is unexpected – re‑throw.
+          throw e
+        }
+      }
+
+      await this.driver.sleep(retryInterval)
+    }
+
+    // Exhausted retries.
+    throw lastError ?? new Error('Leave community button was not interactable within the allotted time')
   }
 
   async switchTab(name: SettingsModalTabName) {

@@ -4,9 +4,14 @@ const { notarize } = require('@electron/notarize')
 exports.default = async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context
   const appName = context.packager.appInfo.productFilename
+  const skip =
+    electronPlatformName !== 'darwin' ||
+    process.env.GITHUB_EVENT_NAME === 'pull_request' ||
+    process.env.IS_LOCAL === 'true' ||
+    process.env.IS_E2E === 'true'
 
-  if (electronPlatformName !== 'darwin' || process.env.IS_E2E || process.env.IS_LOCAL) {
-    console.log('skipping notarization')
+  if (skip) {
+    console.log('[notarize] Skipping notarization (preview build or no cert)')
     return
   }
 

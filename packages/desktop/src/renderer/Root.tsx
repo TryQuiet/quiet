@@ -35,7 +35,6 @@ import DuplicateModalContainer from './components/widgets/userLabel/duplicate/Du
 import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
-import { communities } from '@quiet/state-manager'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -61,7 +60,6 @@ export default () => {
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />
-                <LeaveCommunity />
                 <CreateUsername />
                 <CssBaseline />
                 <SettingsModal />

@@ -62,7 +62,6 @@ export class TorControl {
       try {
         this.logger.info(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
         await this._connect()
-        this.logger.info('Tor connected')
         return
       } catch (e) {
         this.logger.error('Retrying due to error...', e)
@@ -123,6 +122,7 @@ export class TorControl {
     const res = await this._sendCommand(command)
     this.disconnect()
     this.isSending = false
+    this.logger.info(`Tor command response: ${res.code} ${res.messages}`)
     return res
   }
 }

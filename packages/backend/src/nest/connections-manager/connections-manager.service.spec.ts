@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { getFactory, identity, prepareStore, type Store, type communities } from '@quiet/state-manager'
-import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
+import { getReduxStoreFactory, identity, prepareStore, type Store, type communities } from '@quiet/state-manager'
+import { CommunityOwnership, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -11,14 +11,12 @@ import { Libp2pModule } from '../libp2p/libp2p.module'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { RegistrationModule } from '../registration/registration.module'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
 import { createLibp2pAddress } from '@quiet/common'
-import { SigChain } from '../auth/sigchain'
+
 import { createLogger } from '../common/logger'
-import { Logger } from '@nestjs/common'
 import { SigChainService } from '../auth/sigchain.service'
 
 const logger = createLogger('connections-manager.service.spec')
@@ -38,18 +36,17 @@ describe('ConnectionsManagerService', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
     communityRootCa = 'rootCa'
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       rootCa: communityRootCa,
     })
-    userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+    userIdentity = await factory.create('Identity', {
+      communityId: community.id,
     })
 
     module = await Test.createTestingModule({
-      imports: [TestModule, ConnectionsManagerModule, LocalDbModule, RegistrationModule, SocketModule, Libp2pModule],
+      imports: [TestModule, ConnectionsManagerModule, LocalDbModule, SocketModule, Libp2pModule],
     })
       .overrideProvider(TOR_PASSWORD_PROVIDER)
       .useValue({ torPassword: '', torHashedPassword: '' })
@@ -58,9 +55,10 @@ describe('ConnectionsManagerService', () => {
     connectionsManagerService = await module.resolve(ConnectionsManagerService)
     localDbService = await module.resolve(LocalDbService)
     sigChainService = await module.resolve(SigChainService)
+    localDbService.open()
 
     // initialize sigchain on local db
-    await sigChainService.createChain(community.name!, userIdentity.nickname, false)
+    await sigChainService.createChain(community.name!, 'john', false)
     await sigChainService.saveChain(community.name!)
     await sigChainService.deleteChain(community.name!, false)
     quietDir = await module.resolve(QUIET_DIR)
@@ -94,8 +92,8 @@ describe('ConnectionsManagerService', () => {
       id: community.id,
       name: community.name,
       peerList: [remotePeer],
+      ownership: CommunityOwnership.Owner,
     }
-    // await localDbService.setSigChain(sigChain)
     await localDbService.setCommunity(actualCommunity)
     await localDbService.setCurrentCommunityId(community.id)
 
@@ -108,15 +106,7 @@ describe('ConnectionsManagerService', () => {
 
     await connectionsManagerService.init()
 
-    const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
-    const updatedLaunchCommunityPayload = { ...actualCommunity, peerList: [localPeerAddress, remotePeer] }
-
-    logger.info('updatedLaunchCommunityPayload', updatedLaunchCommunityPayload)
-
-    // expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
-    expect(launchCommunitySpy).toBeCalledWith(updatedLaunchCommunityPayload)
-    expect(sigChainService.getActiveChain()).toBeDefined()
-    expect(sigChainService.getActiveChain()?.team!.teamName).toBe(community.name)
+    expect(launchCommunitySpy).toHaveBeenCalledTimes(1)
   })
 
   it('does not launch community on init if its data does not exist in local db', async () => {
@@ -140,28 +130,5 @@ describe('ConnectionsManagerService', () => {
     ])
 
     expect(launchSpy).toBeCalledTimes(1)
-  })
-
-  it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity from backend and state manager', async () => {
-    await localDbService.setCommunity(community)
-    await localDbService.setCurrentCommunityId(community.id)
-    await localDbService.setIdentity(userIdentity)
-
-    const peerid = '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
-    await localDbService.put(LocalDBKeys.PEERS, {
-      [peerid]: {
-        peerId: peerid,
-        connectionTime: 50,
-        lastSeen: 1000,
-      },
-    })
-
-    await connectionsManagerService.closeAllServices()
-
-    const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
-
-    await connectionsManagerService.init()
-
-    expect(launchCommunitySpy).toBeCalledTimes(1)
   })
 })

@@ -1,4 +1,5 @@
 import fs from 'fs'
+import fsAsync from 'fs/promises'
 import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
@@ -8,7 +9,6 @@ import { generateKeyPair } from '@libp2p/crypto/keys'
 import { peerIdFromPrivateKey } from '@libp2p/peer-id'
 import tmp from 'tmp'
 import crypto from 'crypto'
-import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
 import { CreatedLibp2pPeerId, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
@@ -140,7 +140,7 @@ export class DummyIOServer extends Server {
     return true
   }
 
-  close() {
+  async close() {
     logger.info('Closing DummyIOServer')
   }
 }
@@ -178,20 +178,6 @@ export const getUsersAddresses = async (users: UserData[]): Promise<string[]> =>
   return await Promise.all(peers)
 }
 
-export const getUsersFromCsrs = async (csrs: string[]): Promise<UserData[]> => {
-  const users = await Promise.all(
-    csrs.map(async csr => {
-      const parsedCsr = await loadCSR(csr)
-      const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-      const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
-      const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
-
-      return username && peerId && onionAddress ? { username, onionAddress, peerId } : undefined
-    })
-  )
-  return users.filter(isDefined)
-}
-
 /**
  * Compares given numbers
  *
@@ -220,14 +206,6 @@ export const getCors = () => {
   }
   return {}
 }
-
-export const rootPermsData: PermsData = {
-  certificate:
-    'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
-  privKey:
-    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln',
-}
-
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
@@ -298,19 +276,16 @@ export async function createPeerId(): Promise<CreatedLibp2pPeerId> {
   }
 }
 
-export const createArbitraryFile = (filePath: string, sizeBytes: number) => {
-  const stream = fs.createWriteStream(filePath)
+export const createArbitraryFile = async (filePath: string, sizeBytes: number) => {
   const maxChunkSize = 1048576 // 1MB
 
   let remainingSize = sizeBytes
 
   while (remainingSize > 0) {
     const chunkSize = Math.min(maxChunkSize, remainingSize)
-    stream.write(crypto.randomBytes(chunkSize))
+    await fsAsync.appendFile(filePath, crypto.randomBytes(chunkSize))
     remainingSize -= chunkSize
   }
-
-  stream.end()
 }
 
 export async function* asyncGeneratorFromIterator<T>(asyncIterator: AsyncIterable<T>): AsyncGenerator<T> {

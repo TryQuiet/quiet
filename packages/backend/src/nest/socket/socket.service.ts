@@ -1,6 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import {
-  SocketActionTypes,
+  SocketActions,
+  SocketEvents,
   type CreateChannelPayload,
   type CreateChannelResponse,
   SendMessagePayload,
@@ -12,12 +13,13 @@ import {
   InitCommunityPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
-  SaveCSRPayload,
   type UserProfile,
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
   type NetworkInfo,
-  Identity,
+  LaunchCommunityPayload,
+  ResponseJoinCommunityPayload,
+  ResponseCreateCommunityPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -27,6 +29,11 @@ import { createLogger } from '../common/logger'
 import type net from 'node:net'
 import { Base58, InviteResult } from '@localfirst/auth'
 
+/**
+ * Handles socket connections with the state-manager.
+ * Consumers can listen to events emitted by this service
+ * to receive incoming events from the state-manager
+ */
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
   private readonly logger = createLogger(SocketService.name)
@@ -50,6 +57,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.attachListeners()
   }
 
+  public emit(event: string | symbol, ...args: any[]): boolean {
+    this.logger.info(`Emitting event: ${String(event)}`)
+    return super.emit(event, ...args)
+  }
+
   async onModuleInit() {
     this.logger.info('init: Started')
     await this.init()
@@ -58,8 +70,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   public async init() {
     const connection = new Promise<void>(resolve => {
-      this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
-        socket.on(SocketActionTypes.START, async () => {
+      this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
+        socket.on(SocketActions.START, async () => {
           resolve()
         })
       })
@@ -76,15 +88,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.logger.info('Attaching listeners')
 
     // Attach listeners here
-    this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
+    this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
       this.logger.info('Socket connection')
 
-      // On websocket connection, update presentation service with network data
-      this.emit(SocketActionTypes.CONNECTION)
-
-      socket.on(SocketActionTypes.CLOSE, async () => {
+      socket.on(SocketActions.CLOSE, async () => {
         this.logger.info('Socket connection closed')
-        this.emit(SocketActionTypes.CLOSE)
+        this.emit(SocketActions.CLOSE)
       })
 
       socket.use(async (event, next) => {
@@ -98,141 +107,110 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       // ====== Channels =====
       socket.on(
-        SocketActionTypes.CREATE_CHANNEL,
+        SocketActions.CREATE_CHANNEL,
         (payload: CreateChannelPayload, callback: (response: CreateChannelResponse) => void) => {
-          this.emit(SocketActionTypes.CREATE_CHANNEL, payload, callback)
+          this.emit(SocketActions.CREATE_CHANNEL, payload, callback)
         }
       )
 
       socket.on(
-        SocketActionTypes.DELETE_CHANNEL,
+        SocketActions.DELETE_CHANNEL,
         async (
           payload: { channelId: string; ownerPeerId: string },
           callback: (response: DeleteChannelResponse) => void
         ) => {
-          this.emit(SocketActionTypes.DELETE_CHANNEL, payload, callback)
+          this.emit(SocketActions.DELETE_CHANNEL, payload, callback)
         }
       )
 
       // ====== Messages ======
-      socket.on(SocketActionTypes.SEND_MESSAGE, async (payload: SendMessagePayload) => {
-        this.emit(SocketActionTypes.SEND_MESSAGE, payload)
+      socket.on(SocketActions.SEND_MESSAGE, async (payload: SendMessagePayload) => {
+        this.emit(SocketActions.SEND_MESSAGE, payload)
       })
 
       socket.on(
-        SocketActionTypes.GET_MESSAGES,
+        SocketActions.GET_MESSAGES,
         (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
-          this.emit(SocketActionTypes.GET_MESSAGES, payload, callback)
+          this.emit(SocketActions.GET_MESSAGES, payload, callback)
         }
       )
 
       // ====== Files ======
-      socket.on(SocketActionTypes.UPLOAD_FILE, async (payload: UploadFilePayload) => {
-        this.emit(SocketActionTypes.UPLOAD_FILE, payload.file)
+      socket.on(SocketActions.UPLOAD_FILE, async (payload: UploadFilePayload) => {
+        this.emit(SocketActions.UPLOAD_FILE, payload.file)
       })
 
-      socket.on(SocketActionTypes.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
-        this.emit(SocketActionTypes.DOWNLOAD_FILE, payload.metadata)
+      socket.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
+        this.emit(SocketActions.DOWNLOAD_FILE, payload)
       })
 
-      socket.on(SocketActionTypes.CANCEL_DOWNLOAD, async (payload: CancelDownloadPayload) => {
-        this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload.mid)
+      socket.on(SocketActions.CANCEL_DOWNLOAD, async (payload: CancelDownloadPayload) => {
+        this.emit(SocketActions.CANCEL_DOWNLOAD, payload.mid)
       })
 
-      socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
-        this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
-      })
-
-      // ====== Certificates ======
-      socket.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
-        this.logger.info(`On ${SocketActionTypes.ADD_CSR}`)
-
-        this.emit(SocketActionTypes.ADD_CSR, payload)
+      socket.on(SocketActions.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
+        this.emit(SocketActions.DELETE_FILES_FROM_CHANNEL, payload)
       })
 
       // ====== Community ======
       socket.on(
-        SocketActionTypes.CREATE_COMMUNITY,
-        async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
+        SocketActions.CREATE_COMMUNITY,
+        async (
+          payload: InitCommunityPayload,
+          callback: (response: ResponseCreateCommunityPayload | undefined) => void
+        ) => {
           this.logger.info(`Creating community`, payload.id)
-          this.emit(SocketActionTypes.CREATE_COMMUNITY, payload, callback)
+          this.emit(SocketActions.CREATE_COMMUNITY, payload, callback)
         }
       )
 
       socket.on(
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-          this.logger.info(`Launching community ${payload.id}`)
-          this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload, callback)
-          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
+        SocketActions.JOIN_COMMUNITY,
+        async (
+          payload: InitCommunityPayload,
+          callback: (response: ResponseJoinCommunityPayload | undefined) => void
+        ) => {
+          this.logger.info(`Received request to join community`, payload.id)
+          this.emit(SocketActions.JOIN_COMMUNITY, payload, callback)
+          this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
         }
       )
 
-      socket.on(
-        SocketActionTypes.CREATE_NETWORK,
-        async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
-          this.logger.info(`Creating network for community ${communityId}`)
-          this.emit(SocketActionTypes.CREATE_NETWORK, communityId, callback)
-        }
-      )
-      socket.on(
-        SocketActionTypes.CREATE_IDENTITY,
-        async (communityId: string, callback: (response: Identity | undefined) => void) => {
-          this.logger.info(`Creating identity for community ${communityId}`)
-          this.emit(SocketActionTypes.CREATE_IDENTITY, communityId, callback)
-        }
-      )
-      socket.on(
-        SocketActionTypes.CREATE_USER_CSR,
-        async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
-          this.logger.info(`Creating user CSR for community ${payload}`)
-          this.emit(SocketActionTypes.CREATE_USER_CSR, payload, callback)
-        }
-      )
+      // socket.on(SocketActions.LAUNCH_COMMUNITY, async (payload: LaunchCommunityPayload) => {
+      //   this.logger.info(`Launching community ${payload.id}`)
+      //   this.emit(SocketActions.LAUNCH_COMMUNITY, payload)
+      // })
 
-      socket.on(SocketActionTypes.LEAVE_COMMUNITY, (callback: (closed: boolean) => void) => {
+      socket.on(SocketActions.LEAVE_COMMUNITY, (callback: (closed: boolean) => void) => {
         this.logger.info('Leaving community')
-        this.emit(SocketActionTypes.LEAVE_COMMUNITY, callback)
-      })
-
-      socket.on(SocketActionTypes.LIBP2P_PSK_STORED, payload => {
-        this.logger.info('Saving PSK', payload)
-        this.emit(SocketActionTypes.LIBP2P_PSK_STORED, payload)
+        this.emit(SocketActions.LEAVE_COMMUNITY, callback)
       })
 
       // ====== Users ======
 
-      socket.on(SocketActionTypes.SET_USER_PROFILE, (profile: UserProfile) => {
-        this.emit(SocketActionTypes.SET_USER_PROFILE, profile)
+      socket.on(SocketActions.SET_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActions.SET_USER_PROFILE, profile)
       })
 
       // ====== Local First Auth ======
 
       socket.on(
-        SocketActionTypes.CREATE_LONG_LIVED_LFA_INVITE,
-        async (callback: (response: InviteResult | undefined) => void) => {
-          this.logger.info(`Creating long lived LFA invite code`)
-          this.emit(SocketActionTypes.CREATE_LONG_LIVED_LFA_INVITE, callback)
-        }
-      )
-
-      socket.on(
-        SocketActionTypes.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE,
+        SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE,
         async (inviteId: Base58, callback: (response: InviteResult | undefined) => void) => {
           this.logger.info(`Validating long lived LFA invite with ID ${inviteId} or creating a new one`)
-          this.emit(SocketActionTypes.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, inviteId, callback)
+          this.emit(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, inviteId, callback)
         }
       )
 
-      socket.on(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, (invite: InviteResult) => {
+      socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (invite: InviteResult) => {
         this.logger.info(`Created new long lived LFA invite code with id ${invite.id}`)
-        this.emit(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, invite)
+        this.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, invite)
       })
 
       // ====== Misc ======
 
-      socket.on(SocketActionTypes.LOAD_MIGRATION_DATA, async (data: Record<string, any>) => {
-        this.emit(SocketActionTypes.LOAD_MIGRATION_DATA, data)
+      socket.on(SocketActions.LOAD_MIGRATION_DATA, async (data: Record<string, any>) => {
+        this.emit(SocketActions.LOAD_MIGRATION_DATA, data)
       })
     })
 

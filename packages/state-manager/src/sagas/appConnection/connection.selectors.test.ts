@@ -1,39 +1,39 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '@reduxjs/toolkit'
-import { getFactory } from '../../utils/tests/factories'
-import { prepareStore } from '../../utils/tests/prepareStore'
+import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
-import { type FactoryGirl } from 'factory-girl'
-import { InvitationDataVersion, type Community } from '@quiet/types'
+import { InvitationDataVersion, InvitationPair, UserProfile, type Community } from '@quiet/types'
 import { composeInvitationShareUrl, createLibp2pAddress, p2pAddressesToPairs } from '@quiet/common'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
+import { networkSelectors } from '../network/network.selectors'
+import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
+import { networkActions } from '../network/network.slice'
+import { identityActions } from '../identity/identity.slice'
+import { identitySelectors } from '../identity/identity.selectors'
+import { usersActions } from '../users/users.slice'
 
 const logger = createLogger('connection.selectors.test')
 
 describe('communitiesSelectors', () => {
   setupCrypto()
 
-  let store: Store
-  let community: Community
-  let factory: FactoryGirl
-
-  beforeEach(async () => {
-    store = prepareStore({}).store
-    factory = await getFactory(store)
-  })
-
   it('select peers sorted by quality', async () => {
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+    const baseTypesFactory = await getBaseTypesFactory()
+
+    const community = await factory.create('Community', {
       peerList: [
-        '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
-        '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
-        '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/443/ws/p2p/12D3KooWPYjyHnYYwe3kzEESMVbpAUHkQyEQpRHehH8QYtGRntVn',
-        '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/443/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
-        '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/443/ws/p2p/12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
+        '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/80/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
+        '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/80/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
+        '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/80/ws/p2p/12D3KooWPYjyHnYYwe3kzEESMVbpAUHkQyEQpRHehH8QYtGRntVn',
+        '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/80/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+        '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/80/ws/p2p/12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
       ],
     })
 
@@ -74,18 +74,35 @@ describe('communitiesSelectors', () => {
     )
 
     const expectedArray = [
-      '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/443/ws/p2p/12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
-      '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
-      '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
-      '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/443/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
-      '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/443/ws/p2p/12D3KooWPYjyHnYYwe3kzEESMVbpAUHkQyEQpRHehH8QYtGRntVn',
+      '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/80/ws/p2p/12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
+      '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/80/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
+      '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/80/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
+      '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/80/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/80/ws/p2p/12D3KooWPYjyHnYYwe3kzEESMVbpAUHkQyEQpRHehH8QYtGRntVn',
     ]
+
+    const userProfiles: UserProfile[] = []
+    for (const [i, peer] of expectedArray.entries()) {
+      const onionAddress = peer.split('/')[2]
+      const peerId = peer.split('/')[7]
+      const userProfile = {
+        userId: peerId,
+        userData: {
+          onionAddress,
+          peerId,
+        },
+      } as UserProfile
+      userProfiles.push(userProfile)
+    }
+    store.dispatch(usersActions.setUserProfiles(userProfiles))
 
     const peersList = connectionSelectors.peerList(store.getState())
     expect(peersList).toMatchObject(expectedArray)
   })
 
   it('select socketIOSecret', async () => {
+    const store = prepareStore().store
+
     const secret = 'secret'
     const socketIOSecret = connectionSelectors.socketIOSecret(store.getState())
 
@@ -104,59 +121,23 @@ describe('communitiesSelectors', () => {
     expect(invitationUrl).toEqual('')
   })
 
-  it('invitationUrl selector returns proper url', async () => {
-    const peerList = [
-      createLibp2pAddress(
-        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
-        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-      ),
-    ]
-    const psk = '12345'
-    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      peerList,
-      psk,
-      ownerOrbitDbIdentity,
-    })
-    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
-    const pairs = p2pAddressesToPairs(peerList)
-    const expectedUrl = composeInvitationShareUrl({
-      pairs,
-      psk,
-      ownerOrbitDbIdentity,
-      version: InvitationDataVersion.v1,
-    })
-    expect(expectedUrl).not.toEqual('')
-    expect(selectorInvitationUrl).toEqual(expectedUrl)
-  })
-
-  it('invitationUrl selector returns empty string if state lacks psk', async () => {
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      peerList: [
-        createLibp2pAddress(
-          'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
-          '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-        ),
-      ],
-    })
-    const invitationUrl = connectionSelectors.invitationUrl(store.getState())
-    expect(invitationUrl).toEqual('')
-  })
-
   it('invitationUrl selector returns proper v2 url when community and long lived invite are defined', async () => {
-    const peerList = [
-      createLibp2pAddress(
-        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
-        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-      ),
-    ]
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
+    logger.info('invitationUrl selector returns proper v2 url when community and long lived invite are defined')
     const psk = '12345'
     const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      peerList,
       psk,
       ownerOrbitDbIdentity,
     })
+    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      communityId: communitiesSelectors.currentCommunity(store.getState())!.id,
+    })
+    expect(identitySelectors.currentPeerAddress(store.getState())).toEqual(
+      createLibp2pAddress(identity.networkInfo.hiddenService.onionAddress, identity.networkInfo.peerId.id)
+    )
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
@@ -170,11 +151,18 @@ describe('communitiesSelectors', () => {
       seed: '5ah8uYodiwuwVybT',
       communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
     }
-    const pairs = p2pAddressesToPairs(peerList)
+
+    const pairs: InvitationPair[] = [
+      {
+        peerId: identity.networkInfo.peerId.id,
+        onionAddress: identity.networkInfo.hiddenService.onionAddress.split('.')[0],
+      },
+    ]
+    logger.info('pairs', { pairs })
+    expect(pairs).toHaveLength(1)
     const expectedUrl = composeInvitationShareUrl({
       pairs,
       psk,
-      ownerOrbitDbIdentity,
       authData,
       version: InvitationDataVersion.v2,
     })
@@ -182,16 +170,130 @@ describe('communitiesSelectors', () => {
     expect(selectorInvitationUrl).toEqual(expectedUrl)
   })
 
-  it('invitationUrl selector returns empty string if state lacks psk', async () => {
+  it('invitationUrl selector returns empty string if state lacks peer list', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
+      ),
+    ]
+    const psk = '1234'
+    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      peerList: [
-        createLibp2pAddress(
-          'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
-          '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-        ),
-      ],
+      // peerList, // peerList is not defined
+      psk,
+      ownerOrbitDbIdentity,
     })
-    const invitationUrl = connectionSelectors.invitationUrl(store.getState())
-    expect(invitationUrl).toEqual('')
+    store.dispatch(
+      connectionActions.setLongLivedInvite({
+        seed: '5ah8uYodiwuwVybT',
+        id: '5ah8uYodiwuwVybT' as Base58,
+      })
+    )
+    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
+    expect(selectorInvitationUrl).toEqual('')
+  })
+
+  it('invitationUrl selector returns empty string if state lacks psk', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
+      ),
+    ]
+    const psk = '1234'
+    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList,
+      // psk, // psk is not defined
+      ownerOrbitDbIdentity,
+    })
+    store.dispatch(
+      connectionActions.setLongLivedInvite({
+        seed: '5ah8uYodiwuwVybT',
+        id: '5ah8uYodiwuwVybT' as Base58,
+      })
+    )
+    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
+    expect(selectorInvitationUrl).toEqual('')
+  })
+
+  it('invitationUrl selector returns empty string if state lacks lfa invite seed', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
+      ),
+    ]
+    const psk = '1234'
+    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList,
+      psk,
+      ownerOrbitDbIdentity,
+    })
+    // store.dispatch(
+    //   connectionActions.setLongLivedInvite({
+    //     seed: '5ah8uYodiwuwVybT',
+    //     id: '5ah8uYodiwuwVybT' as Base58,
+    //   })
+    // )
+    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
+    expect(selectorInvitationUrl).toEqual('')
+  })
+
+  it('sets isJoiningCompleted to true only when all conditions are met', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+    const baseTypesFactory = await getBaseTypesFactory()
+
+    logger.info('Checking initial state')
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(false)
+
+    logger.info('Creating community')
+    const community = await factory.create('Community')
+    // store.dispatch(communitiesActions.setCurrentCommunity(community.id))
+    const identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
+
+    store.dispatch(networkActions.addInitializedCommunity(community.id))
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
+
+    store.dispatch(connectionActions.setTorInitialized())
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(false)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(false)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
+
+    const message = await factory.create('TestMessage', {
+      message: baseTypesFactory.build('ChannelMessage', {
+        channelId: publicChannelsSelectors.generalChannel(store.getState())?.id,
+        userId: identity.userId,
+      }),
+    })
+    expect(connectionSelectors.isJoiningCompleted(store.getState())).toBe(true)
+    expect(networkSelectors.isCurrentCommunityInitialized(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areMessagesLoaded(store.getState())).toBe(true)
+    expect(publicChannelsSelectors.areChannelsLoaded(store.getState())).toBe(true)
   })
 })

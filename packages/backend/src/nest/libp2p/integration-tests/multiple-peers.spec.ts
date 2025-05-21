@@ -55,15 +55,13 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     // Stop all instances and close modules
     for (const module of modules) {
       const libp2pService = await module.resolve(Libp2pService)
-      if (libp2pService.libp2pInstance?.status !== 'stopped') {
-        await libp2pService.libp2pInstance?.stop()
-      }
+      await libp2pService.close()
       await module.close()
     }
   })
 
   it('joins with an invitation', async () => {
-    const libp2pService = await modules[0].get(Libp2pService)
+    const libp2pService = modules[0].get(Libp2pService)
     await new Promise<void>((resolve, reject) => {
       const resolveIfMet = async () => {
         if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.AUTH_JOINED)) {
@@ -133,7 +131,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('PEER_DISCONNECTED events did not occur within expected time.'))
-      }, 70_000)
+      }, 10_000)
       const allDisconnected = async () => {
         if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.PEER_DISCONNECTED)) {
           clearTimeout(timeout)
@@ -145,7 +143,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
           allDisconnected()
         })
       }
-      modules[0].get(Libp2pService).close()
+      modules[0].get(Libp2pService).hangUpPeers()
     })
   })
 })

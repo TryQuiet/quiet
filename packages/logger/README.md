@@ -3,12 +3,16 @@
 ## Creating a logger for a package
 
 ```
-import { createQuietLogger } from '@quiet/logger'
+import { createQuietLogger, DEFAULT_INTERNAL_LOG_METHOD } from '@quiet/logger'
 
-export const createLogger = createQuietLogger('backend')
+export const createLogger = createQuietLogger(DEFAULT_INTERNAL_LOG_METHOD, 'backend')
 ```
 
 This creates the base logger that all modules will extend from.
+
+### Mobile vs Desktop and Backend vs Frontend
+
+Due to differences in javascript environments (node vs browser JS) in desktop and mobile we have to split out logging functionality that is specific to node environments to the `node-common` package.  This is because in node environments we log to files and react-native doesn't support the `fs` package.  However, logging to files is still used in `backend` when run on mobile.  For more information see the `node-common` README.
 
 ## Creating a logger for a module
 

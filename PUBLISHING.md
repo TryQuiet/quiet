@@ -45,9 +45,9 @@
 
 ## Checklist Before Alpha Release
 
-- [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`.
-- [ ] Reviewed the base `CHANGELOG.md` file and ensured that it is up to date with all changes included in the release since the last production release. Package level `CHANGELOG.md` files are automatically updated during the release process.
-- [ ] Reviewed the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
+- [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`. (Choose version number based on [semantic versioning](https://semver.org/) and our [last release](https://github.com/TryQuiet/quiet/releases).)
+- [ ] Review the base `CHANGELOG.md` file (Package level `CHANGELOG.md` files are automatically updated during the release process) and ensured that it is up to date with all changes included in the release since the last production release and update the version number.
+- [ ] Review the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
 
 ## Preparing a Release Candidate (Alpha)
 
@@ -80,6 +80,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 
 ## Post-release checklist (production)
 
+- [ ] Release branch with any fixes is moved back to develop and any conflicts are resolved
 - [ ] Release build completed successfully and the assets are uploaded to the release page
 - [ ] Download links are updated on website
 - [ ] App is promoted and sent for review on a production track in Google Play

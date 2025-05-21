@@ -1,0 +1,75 @@
+{
+  "name": "@quiet/node-common",
+  "version": "4.0.3",
+  "description": "Common node-env monorepo utils",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:TryQuiet/node-common.git"
+  },
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
+    "lint:no-fix": "eslint --ext .ts src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged --no-stash",
+    "test": "jest --runInBand",
+    "prettier": "prettier",
+    "rmDist": "rimraf lib/"
+  },
+  "devDependencies": {
+    "@quiet/eslint-config": "^2.0.2-alpha.0",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^17.0.21",
+    "@types/validator": "^13.11.5",
+    "@types/winston": "^2.4.4",
+    "jest": "^26.6.3",
+    "lint-staged": "^15.2.2",
+    "ts-jest": "^26.5.2",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@babel/runtime": "7.26.10",
+    "@formatjs/intl-datetimeformat": "^6.12.3",
+    "@formatjs/intl-getcanonicallocales": "^2.3.0",
+    "@formatjs/intl-locale": "^3.4.5",
+    "@quiet/logger": "^2.0.2-alpha.0",
+    "@quiet/types": "^2.0.2-alpha.1",
+    "@types/node": "18.11.9",
+    "base64url": "^3.0.1",
+    "cross-env": "^7.0.3",
+    "debug": "^4.3.1",
+    "semver": "5.7.2",
+    "validator": "^13.11.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "5.0.0"
+  },
+  "overrides": {
+    "semver": "5.7.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testPathIgnorePatterns": [
+      "node_modules/"
+    ],
+    "testRegex": ".*\\.test\\.(t|j)s$",
+    "testEnvironment": "node",
+    "rootDir": "src"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

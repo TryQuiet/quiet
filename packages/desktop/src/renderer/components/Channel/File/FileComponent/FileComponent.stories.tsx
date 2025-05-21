@@ -33,7 +33,7 @@ const args: FileComponentProps = {
     id: '32',
     isDuplicated: false,
     isRegistered: true,
-    pubKey: 'pubKey',
+    userId: 'userId',
     type: 2,
     media: {
       cid: cid,

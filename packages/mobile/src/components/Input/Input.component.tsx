@@ -10,6 +10,9 @@ export const Input = forwardRef<TextInput, InputProps>(
   (
     {
       onChangeText,
+      onChange,
+      onEndEditing,
+      value,
       label,
       placeholder,
       capitalize,
@@ -53,7 +56,10 @@ export const Input = forwardRef<TextInput, InputProps>(
           }}
         >
           <StyledTextInput
+            value={value}
             onChangeText={onChangeText}
+            onChange={onChange}
+            onEndEditing={onEndEditing}
             onContentSizeChange={event => {
               if (multiline) {
                 setHeight(event.nativeEvent.contentSize.height)

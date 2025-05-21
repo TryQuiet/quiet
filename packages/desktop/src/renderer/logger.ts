@@ -1,3 +1,3 @@
-import { createQuietLogger } from '@quiet/logger'
+import { createWinstonQuietLogger } from '@quiet/node-common'
 
-export const createLogger = createQuietLogger('desktop:renderer', true)
+export const createLogger = createWinstonQuietLogger('desktop:renderer', true)

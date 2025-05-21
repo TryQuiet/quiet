@@ -1,9 +1,9 @@
+import { createLogger } from './utils/logger'
+
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { LogBox, NativeModules, StatusBar } from 'react-native'
-
-import { APP_READY_CHANNEL } from '@quiet/state-manager'
+import { LogBox, StatusBar } from 'react-native'
 
 import WebviewCrypto from 'react-native-webview-crypto'
 
@@ -54,8 +54,6 @@ import { UnregisteredUsernameContextMenu } from './components/ContextMenu/menus/
 import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUsernameRequested.screen'
 import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
-
-import { createLogger } from './utils/logger'
 
 const logger = createLogger('app')
 
@@ -138,6 +136,7 @@ function App(): JSX.Element {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default () => (
   <StoreProvider>
     <App />

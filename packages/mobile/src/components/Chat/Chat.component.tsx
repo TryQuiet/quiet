@@ -1,5 +1,15 @@
 import React, { FC, useRef, useState, useEffect, useCallback } from 'react'
-import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import {
+  Keyboard,
+  View,
+  FlatList,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
+  TextInputEndEditingEventData,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Loading } from '../Loading/Loading.component'
@@ -48,6 +58,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const [messageInput, setMessageInput] = useState<string>('')
 
   const messageInputRef = useRef<null | TextInput>(null)
+  // keep latest input text (including any pending autocorrect) in a ref
+  const messageInputValueRef = useRef<string>('')
 
   const insets = useSafeAreaInsets()
 
@@ -87,8 +99,22 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   }, [messageInput?.length, setKeyboardShow])
 
   const onInputTextChange = (value: string) => {
+    // track current text on manual entry
+    messageInputValueRef.current = value
     setMessageInput(value)
   }
+  // capture native change events (e.g., autocorrect commit)
+  const onInputChange = useCallback((e: NativeSyntheticEvent<TextInputChangeEventData>) => {
+    const value = e.nativeEvent.text
+    messageInputValueRef.current = value
+    setMessageInput(value)
+  }, [])
+  // capture end of editing (e.g., on blur)
+  const onInputEndEditing = useCallback((e: NativeSyntheticEvent<TextInputEndEditingEventData>) => {
+    const value = e.nativeEvent.text
+    messageInputValueRef.current = value
+    setMessageInput(value)
+  }, [])
 
   const openAttachments = async () => {
     let response: DocumentPickerResponse[]
@@ -137,10 +163,28 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   }
 
   const onPress = () => {
-    if ((messageInputRef.current && messageInput?.length > 0) || areFilesUploaded) {
-      messageInputRef?.current?.clear()
-      sendMessageAction(messageInput)
-      setMessageInput('')
+    // only send if there's text or uploaded files
+    if (messageInputValueRef.current.length > 0 || areFilesUploaded) {
+      if (messageInputValueRef.current.length > 0) {
+        // append space to force iOS to commit any pending autocorrect
+        const original = messageInputValueRef.current
+        const commitText = original + ' '
+        // update native text to trigger autocorrect commit
+        messageInputRef.current?.setNativeProps({ text: commitText })
+        messageInputValueRef.current = commitText
+        // after commit, send trimmed text and clear input
+        setTimeout(() => {
+          const textToSend = messageInputValueRef.current.trim()
+          sendMessageAction(textToSend)
+          // clear native input and reset state
+          messageInputRef.current?.clear()
+          messageInputValueRef.current = ''
+          setMessageInput('')
+        }, 50)
+      } else {
+        // no text but files attached
+        sendMessageAction('')
+      }
     }
   }
 
@@ -219,7 +263,10 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                     <View style={{ justifyContent: 'center' }}>
                       <Input
                         ref={messageInputRef}
+                        // uncontrolled: do not pass value to allow native setNativeProps to work
                         onChangeText={onInputTextChange}
+                        onChange={onInputChange}
+                        onEndEditing={onInputEndEditing}
                         placeholder={`Message #${channel?.name}`}
                         multiline={true}
                         style={{ paddingRight: 50 }}

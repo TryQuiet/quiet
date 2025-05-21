@@ -2,7 +2,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, select } from 'typed-redux-saga'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { type Socket, applyEmitParams } from '../../../types'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 import { type filesActions } from '../files.slice'
 
 export function* deleteFilesFromChannelSaga(
@@ -16,7 +16,7 @@ export function* deleteFilesFromChannelSaga(
   yield* apply(
     socket,
     socket.emit,
-    applyEmitParams(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, {
+    applyEmitParams(SocketActions.DELETE_FILES_FROM_CHANNEL, {
       messages,
     })
   )

@@ -58,11 +58,10 @@ export { storeMigrations } from './sagas/store.migrations'
 export { prepareStore } from './utils/tests/prepareStore'
 export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 
-export { getFactory, generateMessageFactoryContentWithId } from './utils/tests/factories'
+export * from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
-export { certificatesAdapter } from './sagas/users/users.adapter'
 
 export { publicChannelsAdapter, channelMessagesAdapter } from './sagas/publicChannels/publicChannels.adapter'
 
@@ -83,23 +82,7 @@ export { getInvitationLinks as getInvitationCodes } from './utils/functions/invi
 
 export type { Socket } from './types'
 
-export * from './sagas/identity/identity.types'
-
-export * from './sagas/communities/communities.types'
-
-export * from './sagas/users/users.types'
-
-export * from './sagas/publicChannels/publicChannels.types'
-
-export * from './sagas/messages/messages.types'
-
-export * from './sagas/files/files.types'
-
-export * from './sagas/errors/errors.types'
-
 export * from './sagas/settings/settings.types'
-
-export * from './sagas/appConnection/connection.types'
 
 export const app = {
   actions: appActions,

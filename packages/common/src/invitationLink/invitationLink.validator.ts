@@ -24,10 +24,13 @@ import {
 import { isPSKcodeValid } from '../libp2p'
 import { createLogger } from '../logger'
 
+import base64url from 'base64url'
+
 const logger = createLogger('invite:validator')
 
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
-const PEER_ID_REGEX = /^[a-zA-Z0-9]{52}$/g
+// Accept both 46‑char (CIDv0, "Qm…") and 52‑char (ed25519, "12D3…") base58 peer IDs
+const PEER_ID_REGEX = /^(?:[A-Za-z0-9]{46}|[A-Za-z0-9]{52})$/
 const INVITATION_SEED_REGEX = /^[a-zA-Z0-9]{16}$/g
 const COMMUNITY_NAME_REGEX = /^[-a-zA-Z0-9 ]+$/g
 const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
@@ -61,7 +64,7 @@ export class UrlParamValidatorError extends Error {
  */
 export const encodeAuthData = (authData: InvitationAuthData): string => {
   const encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
-  return Buffer.from(encodedAuthData, 'utf8').toString('base64url')
+  return base64url.encode(Buffer.from(encodedAuthData, 'utf8'))
 }
 
 /**
@@ -76,7 +79,7 @@ export const encodeAuthData = (authData: InvitationAuthData): string => {
  * @returns {string} URL-encoded string of the InvitationAuthData object as URL with parameters
  */
 export const decodeAuthData: InvitationLinkUrlNamedParamProcessorFun<string> = (authDataString: string): string => {
-  return `${DEEP_URL_SCHEME_WITH_SEPARATOR}?${Buffer.from(authDataString, 'base64url').toString('utf8')}`
+  return `${DEEP_URL_SCHEME_WITH_SEPARATOR}?${base64url.toBuffer(authDataString).toString('utf-8')}`
 }
 
 /**
@@ -356,10 +359,6 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
         required: true,
         validator: validatePsk,
       },
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY]: {
-        required: true,
-        validator: validateOwnerOrbitDbIdentity,
-      },
       [PEER_ADDRESS_KEY]: {
         required: false,
         validator: validatePeerAddresses,
@@ -489,6 +488,7 @@ export const parseAndValidateUrlParams = <T extends InvitationData>(
   // dynamic params instead
   let pairs: InvitationPair[] | undefined = output.pairs
   if (pairs == null && paramConfigMap.named.get(PEER_ADDRESS_KEY) != null) {
+    logger.info(`No peer pairs found in named params, trying to pull them from dynamic params`)
     pairs = validatePeerPairsFromUrlParams(url, remainingParams)
   }
 

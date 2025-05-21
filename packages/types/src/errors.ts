@@ -1,5 +1,11 @@
 export class NoCryptoEngineError extends Error {}
 
+export class PermissionsError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PermissionsError'
+  }
+}
 export interface ErrorPayload {
   type: string
   code?: number
@@ -34,6 +40,7 @@ export enum ErrorMessages {
 
   // Community
   COMMUNITY_LAUNCH_FAILED = 'Could not launch community',
+  INVITE_DATA_REQUIRED = 'Invite data is required',
 
   // Network
   NETWORK_SETUP_FAILED = 'Creating network failed',
@@ -52,4 +59,13 @@ export enum ErrorMessages {
 
   // Storage Server
   STORAGE_SERVER_CONNECTION_FAILED = 'Connecting to storage server failed',
+}
+
+export class CompoundError<T extends Error> extends Error {
+  constructor(
+    message: string,
+    public readonly originalError: T
+  ) {
+    super(message)
+  }
 }

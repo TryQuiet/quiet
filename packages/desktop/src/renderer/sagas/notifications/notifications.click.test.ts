@@ -1,10 +1,11 @@
 import { shell } from 'electron'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
-import { prepareStore } from '../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { call, fork } from 'typed-redux-saga'
-import { publicChannels, NotificationsSounds, MessageType, FileMetadata } from '@quiet/state-manager'
+import { publicChannels, NotificationsSounds } from '@quiet/state-manager'
+import { MessageType, FileMetadata } from '@quiet/types'
 import { createNotification, handleNotificationActions, NotificationData } from './notifications.saga'
 import { generateChannelId } from '@quiet/common'
 

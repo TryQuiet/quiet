@@ -3,7 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { identity, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
+import { users, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -22,7 +22,7 @@ import { MenuName } from '../../../const/MenuNames.enum'
 const Channel = () => {
   const dispatch = useDispatch()
 
-  const user = useSelector(identity.selectors.currentIdentity)
+  const user = useSelector(users.selectors.myUserProfile)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
@@ -191,7 +191,7 @@ const Channel = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
 
-  if (!user || !currentChannelId) return null
+  if (!currentChannelId) return null
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,

@@ -4,7 +4,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { renderComponent } from '../../testUtils/renderComponent'
-import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
+import { getReduxStoreFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import SearchModalComponent from './SearchModelComponent'
 import { generateChannelId } from '@quiet/common'
 
@@ -22,13 +22,12 @@ describe('Search Modal', () => {
       socket // Fork State manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -40,7 +39,7 @@ describe('Search Modal', () => {
     ]
 
     for (const channelMock of channelsMocks) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: channelMock.name,
           description: `Welcome to #${channelMock.name}`,
@@ -77,7 +76,7 @@ describe('Search Modal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-1mbrbs1-MuiModal-root"
+            class="MuiModal-root css-1on48p8-MuiModal-root"
             data-testid="searchChannelModal"
             role="presentation"
           >
@@ -146,7 +145,7 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-8xkipt-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-7qrazo-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"

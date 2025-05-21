@@ -6,26 +6,27 @@ import { apply, take } from 'typed-redux-saga'
 import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '@quiet/types'
+import { CommunityOwnership, socketEventData, UserProfile } from '@quiet/types'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
 import { AnyAction } from 'redux'
 import {
-  identity,
   communities,
   publicChannels,
-  getFactory,
+  getReduxStoreFactory,
   messages,
   files,
   AUTODOWNLOAD_SIZE_LIMIT,
   network,
-  connection,
   generateMessageFactoryContentWithId,
+  getBaseTypesFactory,
+  connection,
 } from '@quiet/state-manager'
 import {
-  SocketActionTypes,
+  SocketActions,
+  SocketEvents,
   ChannelMessage,
   SendingStatus,
   MessageType,
@@ -35,57 +36,55 @@ import {
   UploadFilePayload,
   FileContent,
   DownloadState,
-  SendMessagePayload,
   MessageVerificationStatus,
   DownloadStatus,
-  type MessagesLoadedPayload,
-  ResponseLaunchCommunityPayload,
+  MessagesLoadedPayload,
   Community,
 } from '@quiet/types'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
-import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
+import { FETCHING_CHANNEL_MESSAGES } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
+import { createLogger } from './logger'
+import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
-const notification = jest.fn().mockImplementation(() => {
-  return jest.fn()
-})
-// @ts-expect-error
-window.Notification = notification
-
-jest.mock('electron', () => {
-  return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
-    remote: {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [
-            {
-              show: jest.fn(),
-              isFocused: jest.fn(),
-            },
-          ]
-        },
-      },
-    },
-  }
-})
-
-jest.mock('../shared/sounds', () => ({
-  ...jest.requireActual('../shared/sounds'),
-  soundTypeToAudio: {
-    pow: {
-      play: jest.fn(),
-    },
-  },
-}))
-
 describe('Channel', () => {
   let socket: MockedSocket
+  let notification: any
 
   beforeEach(() => {
+    notification = jest.fn().mockImplementation(() => {
+      return jest.fn()
+    })
+    window.Notification = notification
+    jest.mock('electron', () => {
+      return {
+        ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+        remote: {
+          BrowserWindow: {
+            getAllWindows: () => {
+              return [
+                {
+                  show: jest.fn(),
+                  isFocused: jest.fn(),
+                },
+              ]
+            },
+          },
+        },
+      }
+    })
+
+    jest.mock('../shared/sounds', () => ({
+      ...jest.requireActual('../shared/sounds'),
+      soundTypeToAudio: {
+        pow: {
+          play: jest.fn(),
+        },
+      },
+    }))
+
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -93,6 +92,9 @@ describe('Channel', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
+  })
+  afterEach(() => {
+    cleanup()
   })
 
   it("causes no error if there's no data yet", async () => {
@@ -117,15 +119,15 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    // const community = await factory.create<
-    // ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    // >('Community')
-
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
+    const nickname = 'alice'
+    const alice = await factory.create('Identity', { userId: 'alice123' })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+      nickname: nickname,
     })
+    const alicesUser = await factory.create('User', { userId: alice.userId })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -139,7 +141,7 @@ describe('Channel', () => {
     const channelName = screen.getByText('#general')
     expect(channelName).toBeVisible()
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${nickname}`)
     expect(messageInput).toBeVisible()
   })
 
@@ -149,10 +151,9 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -168,31 +169,27 @@ describe('Channel', () => {
       )
     })
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
-    const john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const john = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'john',
     })
-    expect(john.userCertificate).not.toBeNull()
-    // @ts-expect-error
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    expect(john.userId).not.toBeNull()
 
     const authenticMessage: ChannelMessage = {
       ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice,
+        await factory.build('TestMessage', {
           message: {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
             message: 'authenticMessage',
             createdAt: DateTime.utc().valueOf(),
             channelId: generalId,
-            signature: '',
-            pubKey: '',
+            userId: john.userId,
           },
         })
       ).payload.message,
@@ -200,16 +197,14 @@ describe('Channel', () => {
 
     const spoofedMessage: ChannelMessage = {
       ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice,
+        await factory.build('TestMessage', {
           message: {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
             message: 'spoofedMessage',
             createdAt: DateTime.utc().valueOf(),
             channelId: generalId,
-            signature: '',
-            pubKey: johnPublicKey,
+            userId: 'fakeUserId',
           },
         })
       ).payload.message,
@@ -237,7 +232,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [authenticMessage],
           communityId: community.id,
@@ -245,7 +240,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [spoofedMessage],
           communityId: community.id,
@@ -261,31 +256,28 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
     const aliceMessage = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
+      await factory.build('TestMessage', {
         message: {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
           channelId: generalId,
-          signature: '',
-          pubKey: '',
+          userId: alice.userId,
         },
       })
     ).payload.message
@@ -309,7 +301,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [aliceMessage],
           communityId: community.id,
@@ -325,13 +317,11 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+    const community = await factory.create('Community')
+    await factory.create('Identity', {
+      communityId: community.id,
     })
 
     renderComponent(
@@ -346,7 +336,7 @@ describe('Channel', () => {
     expect(Object.values(messages).length).toBe(0)
 
     // Verify loading spinner is visible
-    const spinner = screen.getByText(fetchingChannelMessagesText)
+    const spinner = screen.getByText(FETCHING_CHANNEL_MESSAGES)
     expect(spinner).toBeVisible()
   })
 
@@ -356,25 +346,21 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
     expect(generalId).not.toBeUndefined()
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
     })
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      // @ts-expect-error
-      message: generateMessageFactoryContentWithId(generalId),
+    await factory.create('TestMessage', {
+      message: generateMessageFactoryContentWithId(generalId!, alice.userId),
       verifyAutomatically: true,
     })
 
@@ -395,7 +381,7 @@ describe('Channel', () => {
     )
 
     // Verify loading spinner is not visible
-    const spinner = await screen.queryByText(fetchingChannelMessagesText)
+    const spinner = await screen.queryByText(FETCHING_CHANNEL_MESSAGES)
     expect(spinner).toBeNull()
   })
 
@@ -405,14 +391,12 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -458,7 +442,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [sentMessage],
           communityId: community.id,
@@ -480,18 +464,17 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
+    const baseTypesFactory = await getBaseTypesFactory()
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -507,20 +490,12 @@ describe('Channel', () => {
     const messages: ChannelMessage[] = []
 
     for (const msg of messagesText) {
-      const message = (
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: msg,
-            createdAt: messagesText.indexOf(msg) + 1,
-            channelId: generalId,
-            signature: '',
-            pubKey: '',
-          },
-        })
-      ).payload.message
+      const message = await baseTypesFactory.build('ChannelMessage', {
+        createdAt: messagesText.indexOf(msg) + 1,
+        channelId: generalId,
+        userId: alice.userId,
+        message: msg,
+      })
       messages.push(message)
     }
 
@@ -532,7 +507,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message1],
           communityId: community.id,
@@ -540,7 +515,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message3],
           communityId: community.id,
@@ -548,7 +523,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message2],
           communityId: community.id,
@@ -569,13 +544,16 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
@@ -601,10 +579,10 @@ describe('Channel', () => {
       }
     })
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alicesUserProfile.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
-    await userEvent.type(messageInput, 'hhello')
+    await userEvent.type(messageInput, 'hello')
 
     const isTextVisible = screen.getByText('hello')
 
@@ -697,13 +675,15 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
@@ -728,12 +708,12 @@ describe('Channel', () => {
     const infoMessage = screen.getByText('Initializing community. This may take a few minutes...')
     expect(infoMessage).toBeVisible()
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alicesUserProfile.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
     await userEvent.type(messageInput, 'hhello')
 
-    expect(await screen.queryByText('hello')).toBeNull()
+    expect(screen.queryByText('hello')).toBeNull()
 
     await userEvent.type(messageInput, '{enter}')
 
@@ -744,39 +724,39 @@ describe('Channel', () => {
   it('immediately shows uploaded image', async () => {
     const initialState = (await prepareStore()).store
 
-    const factory = await getFactory(initialState)
+    const factory = await getReduxStoreFactory(initialState)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
+    initialState.dispatch(network.actions.addInitializedCommunity(community.id))
 
     let cid = ''
 
     const uploadingDelay = 100
 
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    // TODO: use the real socket mock
+    const mockEmitImpl = async (...input: [SocketActions | SocketEvents, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      const logger = createLogger('immediatelyShowUploadedImage')
+      logger.info('Mock emit action:', action)
+      if (action === SocketActions.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
-      }
-      if (action === SocketActionTypes.UPLOAD_FILE) {
+      } else if (action === SocketActions.UPLOAD_FILE) {
         const data = input[1] as UploadFilePayload
         const payload = data
 
@@ -786,7 +766,7 @@ describe('Channel', () => {
           setTimeout(resolve, uploadingDelay)
         })
 
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
+        socket.socketClient.emit<FileMetadata>(SocketEvents.FILE_UPLOADED, {
           ...payload.file,
           cid: cid,
           path: null,
@@ -794,26 +774,24 @@ describe('Channel', () => {
           height: 100,
           size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
         })
-        return socket.socketClient.emit<DownloadStatus>(SocketActionTypes.DOWNLOAD_PROGRESS, {
+        return socket.socketClient.emit<DownloadStatus>(SocketEvents.DOWNLOAD_PROGRESS, {
           mid: payload.file.message.id,
           cid: cid,
           downloadState: DownloadState.Hosted,
         })
-      }
-      if (action === SocketActionTypes.SEND_MESSAGE) {
-        const data = input[1] as SendMessagePayload
+      } else if (action === SocketActions.SEND_MESSAGE) {
+        const data = input[1] as ChannelMessage
         const payload = data
-        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
-          messages: [payload.message],
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketEvents.MESSAGES_STORED, {
+          messages: [payload],
         })
-      }
-      if (action === SocketActionTypes.MESSAGES_STORED) {
+      } else if (action === SocketEvents.MESSAGES_STORED) {
         const data = input[1] as MessagesLoadedPayload
         const media = data.messages[0].media
         if (!media) return
-        return socket.socketClient.emit<UploadFilePayload>(SocketActionTypes.UPLOAD_FILE, {
+        return socket.socketClient.emit<UploadFilePayload>(SocketActions.UPLOAD_FILE, {
           file: media,
-          peerId: alice.peerId.id,
+          peerId: alice.networkInfo.peerId.id,
         })
       }
     }
@@ -873,8 +851,8 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Files/uploadFile",
         "Messages/sendMessage",
-        "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
+        "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/addMessages",
         "PublicChannels/cacheMessages",
@@ -897,29 +875,24 @@ describe('Channel', () => {
   })
 
   it('downloads and displays missing images after app restart', async () => {
+    const logger = createLogger('downloadAndDisplayMissingImages')
+    logger.info('Starting test')
     const initialState = (await prepareStore()).store
 
-    const factory = await getFactory(initialState)
+    const factory = await getReduxStoreFactory(initialState)
 
-    const community: Community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community', { rootCa: 'rootCa' })
+    const community: Community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
+    const alicesUser = await factory.create('User', { userId: alice.userId })
 
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
-      })
-    )
-
-    const message = Math.random().toString(36).substr(2.9)
+    const messageId = Math.random().toString(36).substr(2.9)
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
@@ -933,28 +906,27 @@ describe('Channel', () => {
       width: 100,
       height: 200,
       message: {
-        id: message,
-        // @ts-expect-error
-        channelId: generalId,
+        id: messageId,
+        channelId: generalId!,
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      message: {
-        id: message,
-        type: MessageType.Image,
-        message: '',
-        createdAt: DateTime.utc().valueOf(),
-        // @ts-expect-error
-        channelId: generalId,
-        signature: '',
-        pubKey: '',
-        media: missingFile,
-      },
+    const baseTypesFactory = await getBaseTypesFactory()
+    const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      id: messageId,
+      type: MessageType.Image,
+      message: '',
+      channelId: generalId,
+      userId: alice.userId,
+      media: missingFile,
     })
 
+    await factory.create('TestMessage', {
+      message,
+    })
+
+    expect(publicChannels.selectors.currentChannelMessages(initialState.getState()).length).toBe(1)
     initialState.dispatch(
       files.actions.updateDownloadStatus({
         mid: missingFile.message.id,
@@ -968,21 +940,15 @@ describe('Channel', () => {
       })
     )
 
-    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActions, ...socketEventData<[any]>]) => {
+      logger.info('Mock emit action:', input[0])
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-        const data = input[1] as InitCommunityPayload
-        const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
-      }
-      if (action === SocketActionTypes.DOWNLOAD_FILE) {
+      if (action === SocketActions.DOWNLOAD_FILE) {
         const data = input[1] as DownloadFilePayload
         const payload = data
         expect(payload.metadata.cid).toEqual(missingFile.cid)
         await new Promise(resolve => setTimeout(resolve, 1000))
-        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.MESSAGE_MEDIA_UPDATED, {
+        return socket.socketClient.emit<FileMetadata>(SocketEvents.MESSAGE_MEDIA_UPDATED, {
           ...missingFile,
           path: `${__dirname}/test-image.jpeg`,
         })
@@ -998,7 +964,6 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
-    store.dispatch(connection.actions.torBootstrapped('100%'))
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
     runSaga(function* (): Generator {
@@ -1007,7 +972,9 @@ describe('Channel', () => {
         actions.push(action.type)
       }
     })
-
+    await act(async () => {
+      store.dispatch(connection.actions.setTorInitialized())
+    })
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
@@ -1020,21 +987,33 @@ describe('Channel', () => {
     // Confirm image placeholder is visible until image downloads
     expect(screen.getByTestId(`${missingFile.cid}-imagePlaceholder`)).toBeVisible()
 
+    await act(async () => {})
+
     // Confirm image is visible and it's placeholder is gone after downloading the image
     expect(await screen.findByTestId(`${missingFile.cid}-imageVisual`)).toBeVisible()
     expect(await screen.queryByTestId(`${missingFile.cid}-imagePlaceholder`)).toBeNull()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
+        "Connection/setTorInitialized",
+        "Communities/launchCommunity",
+        "Communities/setCurrentCommunity",
+        "Connection/setLastConnectedTime",
+        "Files/checkForMissingFiles",
+        "Network/addInitializedCommunity",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
         "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
         "Files/updateMessageMedia",
         "Messages/addMessages",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "PublicChannels/cacheMessages",
       ]
     `)
   })
@@ -1042,42 +1021,37 @@ describe('Channel', () => {
   it('displays hosted file in proper state', async () => {
     const initialState = (await prepareStore()).store
 
-    const factory = await getFactory(initialState)
+    const factory = await getReduxStoreFactory(initialState)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
 
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
-      })
-    )
-
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-        const data = input[1] as InitCommunityPayload
-        const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
+    await act(async () => {
+      initialState.dispatch(
+        communities.actions.updateCommunityData({
+          id: community.id,
+          ownership: CommunityOwnership.Owner,
         })
-      }
-      if (action === SocketActionTypes.UPLOAD_FILE) {
+      )
+    })
+
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
+      const action = input[0]
+      if (action === SocketActions.UPLOAD_FILE) {
         const data = input[1] as UploadFilePayload
         const payload = data
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
+        socket.socketClient.emit<FileMetadata>(SocketEvents.FILE_UPLOADED, {
           ...payload.file,
           size: 1024,
         })
-        return socket.socketClient.emit<DownloadStatus>(SocketActionTypes.DOWNLOAD_PROGRESS, {
+        return socket.socketClient.emit<DownloadStatus>(SocketEvents.DOWNLOAD_PROGRESS, {
           mid: payload.file.message.id,
           cid: `uploading_${payload.file.message.id}`,
           downloadState: DownloadState.Hosted,
@@ -1113,9 +1087,9 @@ describe('Channel', () => {
       </>,
       store
     )
-
-    store.dispatch(files.actions.uploadFile(fileContent))
-
+    await act(async () => {
+      store.dispatch(files.actions.uploadFile(fileContent))
+    })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
 
@@ -1126,8 +1100,8 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Files/uploadFile",
         "Messages/sendMessage",
-        "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
+        "Files/updateDownloadStatus",
         "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
@@ -1147,27 +1121,23 @@ describe('Channel', () => {
   it('displays file queued for download', async () => {
     const initialState = (await prepareStore()).store
 
-    const factory = await getFactory(initialState)
+    const factory = await getReduxStoreFactory(initialState)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community: Community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
-
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
-      })
-    )
+    const alicesUser = await factory.create('User', { userId: alice.userId })
 
     const messageId = Math.random().toString(36).substr(2.9)
+
     const entities = initialState.getState().PublicChannels.channels.entities
+
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
     expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
@@ -1178,37 +1148,21 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
-        // @ts-expect-error
-        channelId: generalId,
+        channelId: generalId!,
       },
     }
 
-    const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: messageId,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          signature: '',
-          pubKey: '',
-          media: media,
-        },
-      })
-    ).payload.message
-
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-        const data = input[1] as InitCommunityPayload
-        const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
-      }
+    const baseTypesFactory = await getBaseTypesFactory()
+    const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      id: messageId,
+      type: MessageType.File,
+      message: '',
+      channelId: generalId,
+      userId: alice.userId,
+      media: media,
     })
+
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {})
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
@@ -1239,12 +1193,11 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
-          communityId: community.id,
           isVerified: true,
-        },
+        } as MessagesLoadedPayload,
       ])
     }
 
@@ -1252,7 +1205,7 @@ describe('Channel', () => {
 
     // Confirm file component displays in QUEUED state
     // Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264
-    // expect(await screen.findByText('Queued for download')).toBeVisible()
+    expect(await screen.findByText('Queued for download')).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
@@ -1262,9 +1215,14 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
       ]
     `)
   })
@@ -1272,27 +1230,24 @@ describe('Channel', () => {
   it('displays large file as ready to download', async () => {
     const initialState = (await prepareStore()).store
 
-    const factory = await getFactory(initialState)
+    const factory = await getReduxStoreFactory(initialState)
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community: Community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
-
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
-      })
-    )
+    const alicesUser = await factory.create('User', { userId: alice.userId })
+    initialState.dispatch(network.actions.addInitializedCommunity(community.id))
 
     const messageId = Math.random().toString(36).substr(2.9)
+
     const entities = initialState.getState().PublicChannels.channels.entities
+
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
     expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
@@ -1303,37 +1258,21 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
-        // @ts-expect-error
-        channelId: generalId,
+        channelId: generalId!,
       },
     }
 
-    const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: messageId,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          signature: '',
-          pubKey: '',
-          media: media,
-        },
-      })
-    ).payload.message
-
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-        const data = input[1] as InitCommunityPayload
-        const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
-      }
+    const baseTypesFactory = await getBaseTypesFactory()
+    const message: ChannelMessage = await baseTypesFactory.build('ChannelMessage', {
+      id: messageId,
+      type: MessageType.File,
+      message: '',
+      channelId: generalId,
+      userId: alice.userId,
+      media: media,
     })
+
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {})
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
@@ -1358,16 +1297,17 @@ describe('Channel', () => {
       store
     )
 
+    store.dispatch(connection.actions.setTorInitialized())
+
     await act(async () => {
       await runSaga(mockIncomingMessages).toPromise()
     })
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
-          communityId: community.id,
           isVerified: true,
         },
       ])
@@ -1381,13 +1321,15 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
+        "Connection/setTorInitialized",
+        "Connection/setLastConnectedTime",
         "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
@@ -1397,27 +1339,29 @@ describe('Channel', () => {
   })
 
   it('downloads file on demand', async () => {
+    const logger = createLogger('downloadsFileOnDemand')
     const initialState = (await prepareStore()).store
 
-    const factory = await getFactory(initialState)
+    const factory = await getReduxStoreFactory(initialState)
+    const baseTypesFactory = await getBaseTypesFactory()
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const alicesUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
       nickname: 'alice',
     })
-
-    initialState.dispatch(
-      communities.actions.updateCommunityData({
-        id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
-      })
-    )
-
+    await act(async () => {
+      initialState.dispatch(
+        communities.actions.updateCommunityData({
+          id: community.id,
+          ownership: CommunityOwnership.Owner,
+        })
+      )
+    })
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
@@ -1435,30 +1379,22 @@ describe('Channel', () => {
       },
     }
 
-    const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: messageId,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          signature: '',
-          pubKey: '',
-          media: media,
-        },
-      })
-    ).payload.message
+    const message = await baseTypesFactory.build('ChannelMessage', {
+      id: messageId,
+      type: MessageType.File,
+      message: '',
+      createdAt: DateTime.utc().valueOf(),
+      channelId: generalId,
+      userId: alice.userId,
+      media: media,
+    })
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      logger.info('Mock emit action:', action)
+      if (action === SocketActions.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
       }
     })
 
@@ -1490,19 +1426,17 @@ describe('Channel', () => {
     })
 
     const verificationStatus: MessageVerificationStatus = {
-      publicKey: message.pubKey,
-      signature: message.signature,
+      id: message.id,
       isVerified: true,
     }
-
-    store.dispatch(messages.actions.addMessageVerificationStatus(verificationStatus))
-
+    await act(async () => {
+      store.dispatch(messages.actions.addMessageVerificationStatus(verificationStatus))
+    })
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_STORED,
+        SocketEvents.MESSAGES_STORED,
         {
           messages: [message],
-          communityId: community.id,
           isVerfied: true,
         },
       ])
@@ -1518,8 +1452,8 @@ describe('Channel', () => {
     // Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264
     // expect(await screen.findByText('Queued for download')).toBeVisible()
 
-    expect(downloadSpy).toHaveBeenCalledWith(SocketActionTypes.DOWNLOAD_FILE, {
-      peerId: alice.peerId.id,
+    expect(downloadSpy).toHaveBeenCalledWith(SocketActions.DOWNLOAD_FILE, {
+      peerId: alice.networkInfo.peerId.id,
       metadata: media,
     })
 
@@ -1531,15 +1465,13 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "Messages/addMessageVerificationStatus",
-        "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
-        "PublicChannels/cacheMessages",
-        "Messages/setDisplayedMessagesNumber",
+        "Messages/addMessageVerificationStatus",
         "Files/downloadFile",
         "Files/updateDownloadStatus",
       ]

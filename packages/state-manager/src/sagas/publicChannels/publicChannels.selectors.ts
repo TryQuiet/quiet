@@ -7,9 +7,8 @@ import {
   publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers } from '../users/users.selectors'
 import { userProfiles } from '../users/userProfile/userProfile.selectors'
-import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
 import {
@@ -35,7 +34,10 @@ export const selectChannels = createSelector(selectState, state => {
 })
 
 const selectChannelsSubscriptions = createSelector(selectState, state => {
-  if (!state) return []
+  if (!state) {
+    logger.info('state is undefined')
+    return []
+  }
   return publicChannelsSubscriptionsAdapter.getSelectors().selectAll(state.channelsSubscriptions)
 })
 
@@ -44,6 +46,7 @@ const pendingGeneralChannelRecreation = createSelector(selectState, state => {
 })
 
 export const subscribedChannels = createSelector(selectChannelsSubscriptions, subscriptions => {
+  logger.info('selectChannelsSubscriptions', subscriptions)
   return subscriptions.map(subscription => {
     if (subscription.subscribed) return subscription.id
   })
@@ -173,16 +176,15 @@ export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMe
 
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
-  allUsers,
   userProfiles,
-  (messages, users, userProfiles: Record<string, UserProfile>) => {
+  (messages, users: Record<string, UserProfile>) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
-      const user = users[message.pubKey]
+      const user = users[message.userId!]
       if (user) {
         // @ts-ignore
-        result.push(displayableMessage(message, user, userProfiles[message.pubKey]))
+        result.push(displayableMessage(message, users[message.userId]))
       } else {
-        logger.warn('Received a message from a user that does not exist', message.id, message.pubKey, users)
+        logger.warn('Received a message from a user that does not exist', message.id, message.userId)
       }
       return result
     }, [])
@@ -198,7 +200,7 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
  */
 export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
   const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
-    const date = formatMessageDisplayDay(message.date)
+    const date = formatMessageDisplayDate(message.createdAt)
 
     if (!groups[date]) {
       groups[date] = []
@@ -232,7 +234,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
         const last = merged[index][0]
 
         if (
-          last?.pubKey === message?.pubKey &&
+          last?.userId === message?.userId &&
           message.createdAt - last.createdAt < 300 &&
           message.type !== MessageType.Info &&
           last.type !== MessageType.Info
@@ -282,12 +284,17 @@ export const unreadChannels = createSelector(channelsStatus, status => {
     }, [])
 })
 
-export const areMessagesLoaded = createSelector(
-  currentChannelMessagesMergedBySender,
-  currentChannelMessages => Object.values(currentChannelMessages).length > 0
-)
+export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
+  const messageCount = Object.values(currentChannelMessages).length
+  logger.info(`Number of messages: ${messageCount}`)
+  return messageCount > 0
+})
 
-export const areChannelsLoaded = createSelector(publicChannels, channels => channels.length > 0)
+export const areChannelsLoaded = createSelector(publicChannels, channels => {
+  const channelCount = channels.length
+  logger.info(`Number of channels: ${channelCount}`)
+  return channelCount > 0
+})
 
 export const publicChannelsSelectors = {
   publicChannels,

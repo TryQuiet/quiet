@@ -1,11 +1,9 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put, take, apply } from 'typed-redux-saga'
+import { put } from 'typed-redux-saga'
 import { identityActions } from '../identity.slice'
-import { Socket, applyEmitParams } from '../../../types'
-import { communitiesActions } from '../../communities/communities.slice'
-import { communitiesSelectors } from '../../communities/communities.selectors'
-import { SocketActionTypes, Identity, InitUserCsrPayload } from '@quiet/types'
+import { Socket } from '../../../types'
 import { createLogger } from '../../../utils/logger'
+import { identitySelectors } from '../identity.selectors'
 
 const logger = createLogger('registerUsernameSaga')
 
@@ -15,36 +13,7 @@ export function* registerUsernameSaga(
 ): Generator {
   logger.info('Registering username', action.payload.nickname)
 
-  // Nickname can differ between saga calls
-
   const { nickname, isUsernameTaken = false } = action.payload
-
-  let community = yield* select(communitiesSelectors.currentCommunity)
-  if (!community) {
-    logger.warn('Community missing, waiting...')
-    yield* take(communitiesActions.addNewCommunity)
-  }
-  community = yield* select(communitiesSelectors.currentCommunity)
-  if (!community) {
-    logger.error('Could not register username, no community data')
-    return
-  }
-  logger.info(`Found community ${community?.id} has CA?: ${community?.CA !== null}`)
-
-  logger.info('Emitting CREATE_USER_CSR')
-  const payload: InitUserCsrPayload = { communityId: community.id, nickname, isUsernameTaken }
-  const identity: Identity = yield* apply(
-    socket,
-    socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.CREATE_USER_CSR, payload)
-  )
-
-  yield* put(identityActions.updateIdentity(identity))
-
-  if (community.CA?.rootCertString) {
-    yield* put(communitiesActions.createCommunity(community.id))
-  } else if (!isUsernameTaken) {
-    logger.info('Username is not taken, launching community')
-    yield* put(communitiesActions.launchCommunity(community.id))
-  }
+  yield* put(identityActions.setUsername(nickname))
+  logger.info('Username registered')
 }

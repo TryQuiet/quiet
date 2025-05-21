@@ -1,10 +1,10 @@
 import React from 'react'
 import { createEvent, fireEvent, screen } from '@testing-library/dom'
-import { prepareStore } from '../../../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../../../testUtils/prepareStore'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { ChannelInputComponent } from './ChannelInput'
 import { INPUT_STATE } from './InputState.enum'
-import { getFactory, identity } from '@quiet/state-manager'
+import { getReduxStoreFactory } from '@quiet/state-manager'
 import { FileContent } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
 
@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-4yjsav-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-qqhj93-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -39,6 +39,9 @@ describe('ChannelInput', () => {
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
+                  <div
+                    style="position: relative; width: 100%;"
+                  />
                   <textarea
                     class="ChannelInputinput"
                     data-testid="messageInput"
@@ -115,7 +118,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-4yjsav-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-qqhj93-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -126,6 +129,9 @@ describe('ChannelInput', () => {
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
+                  <div
+                    style="position: relative; width: 100%;"
+                  />
                   <textarea
                     class="ChannelInputinput"
                     data-testid="messageInput"
@@ -211,8 +217,8 @@ describe('ChannelInput', () => {
     }
 
     const { store } = await prepareStore()
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const factory = await getReduxStoreFactory(store)
+    await factory.create('Identity', {
       nickname: 'alice',
     })
 

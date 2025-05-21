@@ -157,7 +157,7 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
     setMaxListeners(Infinity, signal)
 
     void this.upgrader
-      .upgradeInbound(maConn)
+      .upgradeInbound(maConn, { signal })
       .then(() => {
         this.log('inbound connection %s upgraded', maConn.remoteAddr)
 

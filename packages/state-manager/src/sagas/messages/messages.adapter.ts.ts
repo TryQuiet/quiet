@@ -13,7 +13,7 @@ export const publicChannelsMessagesBaseAdapter = createEntityAdapter<PublicChann
 export const messagesBaseAdapter = createEntityAdapter<ChannelMessage>()
 
 export const messageVerificationStatusAdapter = createEntityAdapter<MessageVerificationStatus>({
-  selectId: status => status.signature,
+  selectId: status => status.id,
 })
 
 export const messageSendingStatusAdapter = createEntityAdapter<MessageSendingStatus>()

@@ -2,8 +2,8 @@ import { testSaga } from 'redux-saga-test-plan'
 import { ErrorCodes, ErrorMessages, ErrorTypes } from '@quiet/types'
 import { errorsActions } from '../errors.slice'
 import { handleErrorsSaga } from './handleErrors.saga'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
-import { getFactory } from '../../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('handle errors', () => {
   test('Error adds error to store', async () => {
