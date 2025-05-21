@@ -2,7 +2,6 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Grid, useTheme } from '@mui/material'
-import { DownloadState, DownloadStatus } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 import ImageAttachment from '../../Channel/File/ImageAttachment/ImageAttachment'
@@ -11,7 +10,7 @@ import { displayMathRegex } from '../../../../utils/functions/splitByTex'
 import { TextMessageComponent } from './TextMessage'
 import { MathMessageComponent } from '../../MathMessage/MathMessageComponent'
 import { UseModalType } from '../../../containers/hooks'
-import { DisplayableMessage } from '@quiet/types'
+import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/types'
 
 const PREFIX = 'NestedMessageContent'
 

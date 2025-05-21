@@ -6,7 +6,7 @@ import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, communities, identity, connection } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities, identity, connection } from '@quiet/state-manager'
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
@@ -30,11 +30,9 @@ describe('Joining process', () => {
     const { store, root } = await prepareStore({}, socket)
     const userName = 'johnny'
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community = await factory.create('Community')
 
     renderComponent(
       <>
@@ -44,8 +42,8 @@ describe('Joining process', () => {
       store
     )
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
       nickname: userName,
     })
     await act(async () => {})
@@ -80,11 +78,9 @@ describe('Joining process', () => {
     const { store, root } = await prepareStore({}, socket)
     const userName = 'johnny'
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community = await factory.create('Community')
 
     const route: { key: string; name: ScreenNames.UsernameRegistrationScreen; path?: string | undefined } = {
       key: '',
@@ -111,8 +107,8 @@ describe('Joining process', () => {
 
     fireEvent.press(button)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
       nickname: userName,
     })
     await act(async () => {})

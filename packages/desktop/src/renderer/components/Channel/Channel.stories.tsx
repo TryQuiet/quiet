@@ -15,6 +15,7 @@ import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 // Provide a user object that satisfies 'Identity'
 const validUser = {
   id: 'id',
+  userId: 'userId',
   nickname: 'vader',
   hiddenService: {
     onionAddress: 'onionAddress',
@@ -29,7 +30,7 @@ const validUser = {
     userCsr: 'fakeCsr',
     userKey: 'fakeUserKey',
     pkcs10: {
-      publicKey: 'fakePubKey',
+      publicKey: 'fakeuserId',
       privateKey: 'fakePrivKey',
       pkcs10: 'fakePkcs10',
     },
@@ -70,10 +71,10 @@ const OCT_28_2023 = 1698451200 // Unix timestamp for Oct 28, 2023 00:00:00 UTC
 const formatTimeOnly = (timestamp: number) => DateTime.fromSeconds(timestamp).toFormat('HH:mm')
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
-  // Use the valid user object
-  user: validUser,
-
-  // Return a Redux-like object instead of '(...) => void'
+  user: {
+    userId: 'userId',
+    nickname: 'nickname',
+  },
   fileAttachmentModal: {
     open: false,
     handleOpen(_args?: { src: string }) {
@@ -116,8 +117,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     message: 'I agree!',
     createdAt: OCT_28_2023,
     channelId: 'general',
-    signature: 'signature',
-    pubKey: 'pubKey',
+    userId: 'test',
   },
   pendingMessages: {},
   channelId: 'general',
@@ -185,7 +185,7 @@ ImageAttachmentPreview.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'userId',
   }),
   downloadStatuses: {
     32: {
@@ -219,7 +219,7 @@ ImagePlaceholder.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -253,7 +253,7 @@ SentImage.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -325,7 +325,7 @@ UploadingFile.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -360,7 +360,7 @@ HostedFile.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -395,7 +395,7 @@ ReadyDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -430,7 +430,7 @@ Downloading.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -469,7 +469,7 @@ CompletedDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -508,7 +508,7 @@ CancelingDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -547,7 +547,7 @@ CanceledDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -582,7 +582,7 @@ MaliciousDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   downloadStatuses: {
     32: {
@@ -609,7 +609,7 @@ NewUserMessage.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
 }
 
@@ -628,7 +628,7 @@ Link.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
 }
 
@@ -649,7 +649,7 @@ MathJaxMiddle.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
 }
 MathJaxPending.args = {
@@ -664,7 +664,7 @@ MathJaxPending.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
   pendingMessages: {
     32: {
@@ -685,7 +685,7 @@ MathJaxBeginning.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey',
+    userId: 'test',
   }),
 }
 
@@ -706,10 +706,10 @@ Emojis.args = {
             message: 'Hey there! 👋 How is everyone doing today?',
             createdAt: OCT_28_2023,
             date: formatTimeOnly(OCT_28_2023),
-            nickname: users.alice.username,
+            nickname: users.alice.nickname,
             isRegistered: true,
             isDuplicated: false,
-            pubKey: users.alice.pubkey,
+            userId: users.alice.userId,
           },
         ],
         [
@@ -719,10 +719,10 @@ Emojis.args = {
             message: 'I just finished the new feature! 🎉🚀',
             createdAt: OCT_28_2023,
             date: formatTimeOnly(OCT_28_2023),
-            nickname: users.john.username,
+            nickname: users.john.nickname,
             isRegistered: true,
             isDuplicated: false,
-            pubKey: users.john.pubkey,
+            userId: users.john.userId,
           },
         ],
         [
@@ -732,10 +732,10 @@ Emojis.args = {
             message: '😊',
             createdAt: OCT_28_2023,
             date: formatTimeOnly(OCT_28_2023),
-            nickname: users.luke.username,
+            nickname: users.luke.nickname,
             isRegistered: true,
             isDuplicated: false,
-            pubKey: users.luke.pubkey,
+            userId: users.luke.userId,
           },
         ],
         [
@@ -745,10 +745,10 @@ Emojis.args = {
             message: '👍 Great job! The code looks really clean.',
             createdAt: OCT_28_2023,
             date: formatTimeOnly(OCT_28_2023),
-            nickname: users.vader.username,
+            nickname: users.vader.nickname,
             isRegistered: true,
             isDuplicated: false,
-            pubKey: users.vader.pubkey,
+            userId: users.vader.userId,
           },
         ],
         [
@@ -758,10 +758,10 @@ Emojis.args = {
             message: '❤️ 🔥 💯',
             createdAt: OCT_28_2023,
             date: formatTimeOnly(OCT_28_2023),
-            nickname: users.yoda.username,
+            nickname: users.yoda.nickname,
             isRegistered: true,
             isDuplicated: false,
-            pubKey: users.yoda.pubkey,
+            userId: users.yoda.userId,
           },
         ],
       ],
@@ -773,8 +773,7 @@ Emojis.args = {
     message: '❤️ 🔥 💯',
     createdAt: OCT_28_2023,
     channelId: 'general',
-    signature: 'signature',
-    pubKey: 'pubKey',
+    userId: 'userId',
   },
 }
 
@@ -803,7 +802,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
       nickname: 'vader',
       isRegistered: true,
       isDuplicated: false,
-      pubKey: 'pubKey',
+      userId: 'userId',
     }
 
     setLocalMessages(prev => {
@@ -837,8 +836,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
             message: 'I agree!',
             createdAt: 0,
             channelId: 'general',
-            signature: 'signature',
-            pubKey: 'pubKey',
+            userId: 'userId',
           }
         }
         pendingMessages={args.pendingMessages || {}}

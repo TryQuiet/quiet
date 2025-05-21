@@ -10,6 +10,7 @@ import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { Asset } from 'react-native-image-picker'
 import { getFilesData } from '@quiet/common'
 
 export const ChannelScreen: FC = () => {
@@ -38,8 +39,6 @@ export const ChannelScreen: FC = () => {
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -50,9 +49,11 @@ export const ChannelScreen: FC = () => {
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
+  const isOwner = useSelector(communities.selectors.isOwner)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!community?.CA || !isWebsocketConnected) {
+  if (!isOwner || !isWebsocketConnected) {
     contextMenu = null
   }
 
@@ -86,7 +87,7 @@ export const ChannelScreen: FC = () => {
   )
 
   // Files
-  const updateFileAttachments = (files: DocumentPickerResponse[]) => {
+  const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
     const filesData: FilePreviewData = getFilesData(
       files.map(fileObj => {
         return {
@@ -99,6 +100,23 @@ export const ChannelScreen: FC = () => {
     // FilePreviewData
     setUploadingFiles(existingFiles => {
       const updatedFiles = { ...existingFiles, ...filesData }
+      return updatedFiles
+    })
+  }
+
+  const updateUploadedImages = (assets: Asset[]) => {
+    const assetData: FilePreviewData = getFilesData(
+      assets.map(assetObj => {
+        return {
+          path: assetObj.uri || assetObj.originalPath || '',
+          isTmp: false,
+        }
+      })
+    )
+
+    // FilePreviewData
+    setUploadingFiles(existingFiles => {
+      const updatedFiles = { ...existingFiles, ...assetData }
       return updatedFiles
     })
   }
@@ -147,7 +165,7 @@ export const ChannelScreen: FC = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannel?.id])
 
-  const [imageAttachmentPreview, setImageAttachmentPreview] = useState<FileMetadata | null>(null)
+  const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
 
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
@@ -170,10 +188,15 @@ export const ChannelScreen: FC = () => {
       downloadStatuses={downloadStatusesMapping}
       downloadFile={downloadFile}
       cancelDownload={cancelDownload}
-      imageAttachmentPreview={imageAttachmentPreview}
-      setImageAttachmentPreview={setImageAttachmentPreview}
-      openImageAttachmentPreview={setImageAttachmentPreview}
-      updateFileAttachments={updateFileAttachments}
+      imageAttachmentPreview={imagePreview}
+      setImageAttachmentPreview={setImagePreview}
+      openImageAttachmentPreview={setImagePreview}
+      updateFileAttachments={updateUploadedFiles}
+      imagePreview={imagePreview}
+      setImagePreview={setImagePreview}
+      openImagePreview={setImagePreview}
+      updateUploadedFiles={updateUploadedFiles}
+      updateUploadedImages={updateUploadedImages}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
       fileAttachments={uploadingFiles}

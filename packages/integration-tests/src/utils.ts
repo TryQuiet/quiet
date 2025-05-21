@@ -70,7 +70,6 @@ export const createApp = async (
 
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
-    // @ts-expect-error
     yield* fork(useIO, socket)
   }
 
@@ -117,7 +116,6 @@ export const createAppWithoutTor = async (
 
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
-    // @ts-expect-error
     const task = yield* fork(useIO, socket)
   }
 

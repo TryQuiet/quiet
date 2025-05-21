@@ -4,11 +4,17 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { messagesSelectors } from '../messages.selectors'
 import { messagesActions } from '../messages.slice'
 import { type CacheMessagesPayload, type SetDisplayedMessagesNumberPayload } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('extendChannelCacheSaga')
 
 export function* extendCurrentPublicChannelCacheSaga(): Generator {
   const channelId = yield* select(publicChannelsSelectors.currentChannelId)
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  if (!currentChannelId || !channelId) return
+  if (!currentChannelId || !channelId) {
+    logger.warn('Tried to extend channel cache, but no current channel ID was found')
+    return
+  }
 
   const channelMessagesChunkSize = 50
 
@@ -38,6 +44,5 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
     channelId,
     display,
   }
-
   yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))
 }

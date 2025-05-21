@@ -21,8 +21,8 @@ import validate from '../../validation/validators'
 import { MessagesService } from './messages/messages.service'
 import { DBOptions, StorageEvents } from '../storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { CertificatesStore } from '../certificates/certificates.store'
 import { EncryptedMessage } from './messages/messages.types'
+import { UserProfileStore } from '../userProfile/userProfile.store'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
@@ -38,7 +38,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService,
     private readonly messagesService: MessagesService,
-    private readonly certificatesStore: CertificatesStore
+    private readonly userProfileStore: UserProfileStore
   ) {
     super()
   }
@@ -101,7 +101,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this._subscribing = true
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
-      this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
+      this.logger.info(
+        `${this.channelData.id} database updated`,
+        entry.hash,
+        entry.payload.value?.channelId,
+        entry.payload
+      )
       let message: ChannelMessage | undefined = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
@@ -148,16 +153,13 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       // Do not notify about old messages
       if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
 
-      const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
-      if (!username) {
-        this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
-        return
-      }
-
+      const username = (await this.userProfileStore.getUsername(message.userId)) || message.userId
       const payload: PushNotificationPayload = {
         message: JSON.stringify(message),
         username: username,
       }
+
+      this.logger.info(`Sending push notification`, JSON.stringify(payload))
 
       this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
     }
@@ -214,15 +216,23 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * @emits StorageEvents.MESSAGE_IDS_STORED
    */
   private async refreshMessageIds(): Promise<void> {
-    const ids = (await this.getEntries()).map(msg => msg.id)
-    const community = await this.localDbService.getCurrentCommunity()
+    try {
+      const ids = (await this.getEntries()).map(msg => msg.id)
+      const community = await this.localDbService.getCurrentCommunity()
 
-    if (community) {
-      this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-        ids,
-        channelId: this.channelData.id,
-        communityId: community.id,
-      })
+      if (community) {
+        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+          ids,
+          channelId: this.channelData.id,
+          communityId: community.id,
+        })
+      }
+    } catch (e) {
+      if (e.message.includes('Store not initialized')) {
+        this.logger.warn(`Attempted to refresh message IDs for store that isn't open`)
+      } else {
+        throw e
+      }
     }
   }
 
@@ -270,7 +280,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         messages.push(decryptedMessage)
       }
     }
-
+    this.logger.info(`Got ${messages.length} messages for channel`, this.channelData.id, this.channelData.name)
     return messages
   }
 

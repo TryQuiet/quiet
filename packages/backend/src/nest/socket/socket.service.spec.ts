@@ -6,7 +6,7 @@ import { SocketModule } from './socket.module'
 import { SocketService } from './socket.service'
 import { io, Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { TEST_DATA_PORT } from '../const'
 
@@ -57,13 +57,7 @@ describe('SocketService', () => {
   })
 
   it('there are no fragile endpoints in the collection of suspendables', async () => {
-    const fragile: string[] = [
-      SocketActionTypes.CREATE_NETWORK.valueOf(),
-      SocketActionTypes.CREATE_COMMUNITY.valueOf(),
-      SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
-      SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
-      SocketActionTypes.ADD_CSR.valueOf(),
-    ]
+    const fragile: string[] = [SocketActions.CREATE_COMMUNITY.valueOf(), SocketActions.JOIN_COMMUNITY.valueOf()]
 
     fragile.forEach(event => {
       expect(suspendableSocketEvents).not.toContain(event)

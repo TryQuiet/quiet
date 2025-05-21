@@ -13,15 +13,7 @@ import {
 } from './types'
 import { ChainServiceBase } from '../chainServiceBase'
 import { SigChain } from '../../sigchain'
-import {
-  asymmetric,
-  Base58,
-  Keyset,
-  LocalUserContext,
-  Member,
-  SignedEnvelope,
-  EncryptStreamTeamPayload,
-} from '@localfirst/auth'
+import { asymmetric, Keyset, Member, SignedEnvelope, EncryptStreamTeamPayload } from '@localfirst/auth'
 import { DEFAULT_SEARCH_OPTIONS, MemberSearchOptions } from '../members/types'
 import { createLogger } from '../../../common/logger'
 import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
@@ -29,8 +21,8 @@ import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
 const logger = createLogger('auth:cryptoService')
 
 class CryptoService extends ChainServiceBase {
-  public static init(sigChain: SigChain): CryptoService {
-    return new CryptoService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
 
   // TODO: Can we get other members' keys by generation?
@@ -44,7 +36,7 @@ class CryptoService extends ChainServiceBase {
     })
   }
 
-  public encryptAndSign(message: any, scope: EncryptionScope, context: LocalUserContext): EncryptedAndSignedPayload {
+  public encryptAndSign(message: any, scope: EncryptionScope): EncryptedAndSignedPayload {
     let encryptedPayload: EncryptedPayload
     switch (scope.type) {
       // Symmetrical Encryption Types
@@ -55,7 +47,7 @@ class CryptoService extends ChainServiceBase {
         break
       // Asymmetrical Encryption Types
       case EncryptionScopeType.USER:
-        encryptedPayload = this.asymUserEncrypt(message, scope, context)
+        encryptedPayload = this.asymUserEncrypt(message, scope)
         break
       // Unknown Type
       default:
@@ -71,7 +63,7 @@ class CryptoService extends ChainServiceBase {
         signature: signature.signature,
       },
       ts: Date.now(),
-      username: context.user.userName,
+      userId: this.sigChain.user.userId,
     } as EncryptedAndSignedPayload
   }
 
@@ -90,14 +82,14 @@ class CryptoService extends ChainServiceBase {
     }
   }
 
-  private asymUserEncrypt(message: any, scope: EncryptionScope, context: LocalUserContext): EncryptedPayload {
+  private asymUserEncrypt(message: any, scope: EncryptionScope): EncryptedPayload {
     if (scope.name == null) {
       throw new Error(`Must provide a user ID when encryption scope is set to ${scope.type}`)
     }
 
     const recipientKeys = this.getPublicKeysForMembersById([scope.name])
     const recipientKey = recipientKeys[0].encryption
-    const senderKey = context.user.keys.encryption.secretKey
+    const senderKey = this.sigChain.user.keys.encryption.secretKey
     const generation = recipientKeys[0].generation
 
     const encryptedContents = asymmetric.encryptBytes({
@@ -118,7 +110,6 @@ class CryptoService extends ChainServiceBase {
   public decryptAndVerify<T>(
     encrypted: EncryptedPayload,
     signature: Signature,
-    context: LocalUserContext,
     failOnInvalid = true
   ): DecryptedPayload<T> {
     let contents: T
@@ -131,7 +122,7 @@ class CryptoService extends ChainServiceBase {
         break
       // Asymmetrical Encryption Types
       case EncryptionScopeType.USER:
-        contents = this.asymUserDecrypt<T>(encrypted, signature, context)
+        contents = this.asymUserDecrypt<T>(encrypted, signature)
         break
       // Unknown Type
       default:
@@ -142,7 +133,7 @@ class CryptoService extends ChainServiceBase {
       ...signature,
       contents,
     }
-    const isValid = this.verifyMessage(fullSig)
+    const isValid = this.validateSignature(fullSig)
     if (!isValid && failOnInvalid) {
       throw new Error(`Couldn't verify signature on message`)
     }
@@ -153,7 +144,7 @@ class CryptoService extends ChainServiceBase {
     }
   }
 
-  public verifyMessage(signature: SignedEnvelope): boolean {
+  public validateSignature(signature: SignedEnvelope): boolean {
     return this.sigChain.team!.verify(signature)
   }
 
@@ -172,17 +163,13 @@ class CryptoService extends ChainServiceBase {
     }) as T
   }
 
-  private asymUserDecrypt<T>(
-    encrypted: EncryptedPayload,
-    signature: Signature | SignedEnvelope,
-    context: LocalUserContext
-  ): T {
+  private asymUserDecrypt<T>(encrypted: EncryptedPayload, signature: Signature | SignedEnvelope): T {
     if (encrypted.scope.name == null) {
       throw new Error(`Must provide a user ID when encryption scope is set to ${encrypted.scope.type}`)
     }
 
     const senderKeys = this.sigChain.crypto.getPublicKeysForMembersById([signature.author.name])
-    const recipientKey = context.user.keys.encryption.secretKey
+    const recipientKey = this.sigChain.user.keys.encryption.secretKey
     const senderKey = senderKeys[0].encryption
 
     return asymmetric.decryptBytes({

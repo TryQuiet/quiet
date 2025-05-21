@@ -1,52 +1,73 @@
 import { expectSaga } from 'redux-saga-test-plan'
 import { Blob } from 'buffer'
-import * as Block from 'multiformats/block'
-import * as dagCbor from '@ipld/dag-cbor'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { stringToArrayBuffer } from 'pvutils'
-import { getCrypto } from 'pkijs'
+import { type FactoryGirl } from 'factory-girl'
 
+import { getReduxStoreFactory } from '../../..'
+import { type Store } from '../../store.types'
 import { saveUserProfileSaga } from './saveUserProfile.saga'
 import { usersActions } from '../users.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions } from '../../communities/communities.slice'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { type Socket } from '../../../types'
-import { type Identity } from '@quiet/types'
+import { type Identity, SocketActions, UserProfile } from '@quiet/types'
+import { MockedSocket } from '../../../utils/tests/mockedSocket'
+import { getBaseTypesFactory, getSocketFactory } from '../../../utils/tests/factories'
+import { fileToBase64String } from '@quiet/common'
+import { combineReducers } from 'redux'
+import { createLogger } from '../../../utils/logger'
 
-import { createUserCsr, pubKeyFromCsr, keyObjectFromString, verifySignature } from '@quiet/identity'
+const PHOTO_B64 = 'dGVzdAo='
 
 jest.mock('@quiet/common', () => ({
-  fileToBase64String: jest.fn(() => 'dGVzdAo='),
+  ...jest.requireActual('@quiet/common'),
+  fileToBase64String: jest.fn(() => Promise.resolve(PHOTO_B64)),
 }))
 
 describe('saveUserProfileSaga', () => {
-  test('sends user profile to backend', async () => {
-    const store = prepareStore().store
-    const socket = { emit: jest.fn() }
-    const csr = await createUserCsr({
-      nickname: '',
-      commonName: '',
-      peerId: '',
-      signAlg: '',
-      hashAlg: '',
+  let store: Store
+  let reduxFactory: FactoryGirl
+  let baseTypesFactory: FactoryGirl
+  let socket: MockedSocket
+  let identity: Identity
+  let userProfile: UserProfile
+
+  beforeEach(async () => {
+    const socketPayloadFactory = await getSocketFactory()
+    socket = new MockedSocket()
+    store = prepareStore().store
+    reduxFactory = await getReduxStoreFactory(store)
+    baseTypesFactory = await getBaseTypesFactory()
+    identity = await reduxFactory.create('Identity')
+    userProfile = await baseTypesFactory.build('UserProfile', {
+      userId: identity.userId,
     })
+  })
 
-    store.dispatch(
-      identityActions.addNewIdentity({
-        id: 'test',
-        userCsr: csr,
-      } as Identity)
+  // currently frontend doesn't supprot removing the photo
+  // from the user profile, so we are skipping this test
+  test.skip('sends user profile without photo to backend', async () => {
+    const logger = createLogger('saveUserProfileSaga-test1')
+    delete userProfile.photo
+    logger.info('userProfile', userProfile)
+    // We are testing browser-targeting code in NodeJS and this
+    // version of NodeJS doesn't have a File class, so we are using a
+    // Blob instead.
+    await expectSaga(
+      saveUserProfileSaga,
+      socket as unknown as Socket,
+      // @ts-ignore
+      usersActions.saveUserProfile({ photo: undefined, nickname: userProfile.nickname, bio: userProfile.bio })
     )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .not.call(fileToBase64String, expect.any(Blob))
+      .put(usersActions.setUserProfile(userProfile))
+      .apply(socket, socket.emit, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
+      .run()
+  })
 
-    store.dispatch(communitiesActions.setCurrentCommunity('test'))
-
-    const profile = { photo: 'dGVzdAo=' }
-    const codec = dagCbor
-    const hasher = sha256
-    const { bytes } = await Block.encode({ value: profile, codec, hasher })
-    const pubKey = pubKeyFromCsr(csr.userCsr)
-    const pubKeyObj = await keyObjectFromString(pubKey, getCrypto())
+  test('sends user profile with photo to backend', async () => {
+    const logger = createLogger('saveUserProfileSaga-test2')
+    logger.info('userProfile', userProfile)
 
     // We are testing browser-targeting code in NodeJS and this
     // version of NodeJS doesn't have a File class, so we are using a
@@ -55,16 +76,12 @@ describe('saveUserProfileSaga', () => {
       saveUserProfileSaga,
       socket as unknown as Socket,
       // @ts-ignore
-      usersActions.saveUserProfile({ photo: new Blob([]) })
+      usersActions.saveUserProfile({ photo: new Blob([]), nickname: userProfile.nickname, bio: userProfile.bio })
     )
+      .withReducer(combineReducers(testReducers))
       .withState(store.getState())
+      .put(usersActions.setUserProfile(userProfile))
+      .apply(socket, socket.emit, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
       .run()
-
-    const actual = socket.emit.mock.calls[0][1]
-    const actualSig = actual.profileSig
-    delete actual['profileSig']
-
-    expect(actual).toStrictEqual({ profile: profile, pubKey })
-    expect(await verifySignature(stringToArrayBuffer(actualSig), bytes, pubKeyObj)).toBe(true)
   })
 })

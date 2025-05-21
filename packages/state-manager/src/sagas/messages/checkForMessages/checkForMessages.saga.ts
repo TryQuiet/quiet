@@ -20,7 +20,7 @@ export function* checkForMessagesSaga(
   if (missingMessages?.length > 0) {
     yield* put(
       messagesActions.getMessages({
-        peerId: identity.peerId.id,
+        peerId: identity.networkInfo.peerId.id,
         communityId: community.id,
         channelId,
         ids: missingMessages,

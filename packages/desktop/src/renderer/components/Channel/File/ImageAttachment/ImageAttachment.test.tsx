@@ -20,7 +20,7 @@ describe('FileAttachment', () => {
       nickname: 'bob',
       isDuplicated: false,
       isRegistered: true,
-      pubKey: 'string',
+      userId: 'string',
       media: {
         path: null,
         name: 'test',

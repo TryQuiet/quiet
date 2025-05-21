@@ -5,29 +5,73 @@
 import * as auth from '@localfirst/auth'
 import { UserService } from './services/members/user.service'
 import { RoleService } from './services/roles/role.service'
-import { ChannelService } from './services/roles/channel.service'
 import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
 import { RoleName } from './services/roles/roles'
 import { createLogger } from '../common/logger'
+import EventEmitter from 'events'
 
 const logger = createLogger('auth:sigchain')
 
-class SigChain {
-  public localUserContext: auth.LocalUserContext
-  public context: auth.Context
-  public team: auth.Team | null = null
+class SigChain extends EventEmitter {
+  private _context: auth.MemberContext | auth.InviteeMemberContext
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
-  private _channels: ChannelService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
 
-  private constructor(localUserContext: auth.LocalUserContext, team?: auth.Team) {
-    this.localUserContext = localUserContext
-    if (team) this.team = team
+  private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
+    super()
+    this.context = context
+    this.initServices()
+  }
+
+  get team(): auth.Team | null {
+    if ('team' in this.context) {
+      return this.context.team
+    }
+    return null
+  }
+
+  get context(): auth.MemberContext | auth.InviteeMemberContext {
+    return this._context
+  }
+
+  set context(context: auth.MemberContext | auth.InviteeMemberContext) {
+    logger.warn('Setting context', Object.keys(context))
+
+    const oldContext = this._context
+    const newTeam = 'team' in context ? context.team : null
+    const oldTeam = oldContext && 'team' in oldContext ? oldContext.team : null
+
+    if (oldTeam) {
+      logger.info('Detaching socket listeners')
+      oldTeam.removeListener('updated', this.handleTeamUpdate)
+    }
+    if (newTeam) {
+      logger.info('Attaching socket listeners')
+      newTeam.on('updated', this.handleTeamUpdate)
+    }
+
+    this._context = context
+  }
+
+  get user(): auth.UserWithSecrets {
+    return this.context.user
+  }
+
+  get username(): string {
+    return this.user!.userName
+  }
+
+  get device(): auth.DeviceWithSecrets {
+    return this.context.device
+  }
+
+  private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
+    this.emit('updated', payload)
   }
 
   /**
@@ -37,80 +81,80 @@ class SigChain {
    * @param username Username of the initial user we are generating
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(teamName: string, username: string): SigChain {
-    const context = UserService.create(username)
-    const team: auth.Team = this.lfa.createTeam(teamName, context)
-    const sigChain = this.init(context, team)
-    sigChain.context = {
-      user: context.user,
-      device: context.device,
+  public static create(teamName: string, username: string, userId?: string): SigChain {
+    const localUser = UserService.create(username, userId)
+    const team: auth.Team = auth.createTeam(teamName, localUser)
+    const adminContext = {
+      user: localUser.user,
+      device: localUser.device,
       team: team,
     } as auth.MemberContext
+    const sigChain = new SigChain(adminContext)
 
-    // sigChain.roles.createWithMembers(RoleName.ADMIN, [context.user.userId])
-    sigChain.roles.createWithMembers(RoleName.MEMBER, [context.user.userId])
+    // Initialize member role with yourself
+    sigChain.roles.createWithMembers(RoleName.MEMBER, [localUser.user.userId])
 
     return sigChain
   }
 
+  /**
+   * Create a SigChain from a Team object and a LocalUserContext
+   *
+   * @param team Team to create the SigChain from
+   * @param context LocalUserContext of the user
+   * @returns LoadedSigChain instance with the given team and user context
+   */
   public static createFromTeam(team: auth.Team, context: auth.LocalUserContext): SigChain {
-    const sigChain = this.init(context, team)
-    sigChain.context = {
+    const memberContext = {
       user: context.user,
       device: context.device,
       team: team,
     } as auth.MemberContext
-    return sigChain
+    return new SigChain(memberContext)
   }
 
+  /**
+   * Load a SigChain from a saved state
+   *
+   * @param serializedTeam Serialized team object to load
+   * @param context LocalUserContext of the user
+   * @param teamKeyRing Keyring of the team
+   * @returns LoadedSigChain instance with the given team and user context
+   */
   public static load(serializedTeam: Uint8Array, context: auth.LocalUserContext, teamKeyRing: auth.Keyring): SigChain {
-    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing)
-    const sigChain = this.init(context, team)
-    sigChain.context = {
+    const team: auth.Team = auth.loadTeam(serializedTeam, context, teamKeyRing)
+    const memberContext = {
       user: context.user,
       device: context.device,
       team: team,
     } as auth.MemberContext
 
-    return sigChain
+    return new SigChain(memberContext)
   }
 
+  /**
+   * Create a SigChain from an invite seed
+   *
+   * @param username Username of the user to create
+   * @param seed Seed of the invite
+   * @returns LoadedSigChain instance with the given user context
+   */
   public static createFromInvite(username: string, seed: string): SigChain {
     const prospectiveUser = UserService.createFromInviteSeed(username, seed)
-    const sigChain = this.init(prospectiveUser.context)
-    sigChain.context = {
+    const context = {
       user: prospectiveUser.context.user,
       device: prospectiveUser.context.device,
       invitationSeed: seed,
-    } as auth.InviteeContext
-
-    return sigChain
-  }
-
-  // TODO: Is this the right signature for this method?
-  public static join(context: auth.LocalUserContext, serializedTeam: Uint8Array, teamKeyRing: auth.Keyring): SigChain {
-    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing)
-    team.join(teamKeyRing)
-
-    const sigChain = this.init(context, team)
-
-    return sigChain
-  }
-
-  public static init(context: auth.LocalUserContext, team?: auth.Team): SigChain {
-    const sigChain = new SigChain(context, team)
-    sigChain.initServices()
-
-    return sigChain
+    } as auth.InviteeMemberContext
+    return new SigChain(context)
   }
 
   private initServices() {
-    this._users = UserService.init(this)
-    this._devices = DeviceService.init(this)
-    this._roles = RoleService.init(this)
-    this._channels = ChannelService.init(this)
-    this._invites = InviteService.init(this)
-    this._crypto = CryptoService.init(this)
+    this._users = new UserService(this)
+    this._devices = new DeviceService(this)
+    this._roles = new RoleService(this)
+    this._invites = new InviteService(this)
+    this._crypto = new CryptoService(this)
   }
 
   public save(): Uint8Array {
@@ -128,10 +172,6 @@ class SigChain {
     return this._roles!
   }
 
-  get channels(): ChannelService {
-    return this._channels!
-  }
-
   get devices(): DeviceService {
     return this._devices!
   }
@@ -146,6 +186,24 @@ class SigChain {
 
   static get lfa(): typeof auth {
     return auth
+  }
+
+  /**
+   * Join a team for testing purposes. Actual joining will be done through Connection handshakes
+   */
+  public static joinForTesting(
+    context: auth.LocalUserContext,
+    serializedTeam: Uint8Array,
+    teamKeyRing: auth.Keyring
+  ): SigChain {
+    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing)
+    team.join(teamKeyRing)
+    const memberContext = {
+      user: context.user,
+      device: context.device,
+      team: team,
+    } as auth.MemberContext
+    return new SigChain(memberContext)
   }
 }
 

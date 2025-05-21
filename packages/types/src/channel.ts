@@ -1,14 +1,15 @@
 import { type EntityState } from '@reduxjs/toolkit'
 import { type FileMetadata } from './files'
+import { Base58, KeyMetadata } from '@localfirst/crdx'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
 export interface PublicChannel {
+  id: string
   name: string
   description: string
   owner: string
   timestamp: number
-  id: string
   disabled?: boolean
 }
 
@@ -33,9 +34,11 @@ export interface PublicChannelSubscription {
 
 // NOTE: These are all typed as any because they are all LFA types and I don't wanna import LFA into
 // the types package.
+export interface SignatureAuthor extends KeyMetadata {}
+
 export interface EncryptionSignature {
-  signature: any
-  author: any
+  signature: Base58
+  author: SignatureAuthor
 }
 
 export interface ChannelMessage {
@@ -44,9 +47,8 @@ export interface ChannelMessage {
   message: string
   createdAt: number
   channelId: string
-  signature: string
+  userId: string
   encSignature?: EncryptionSignature
-  pubKey: string
   media?: FileMetadata
 }
 
@@ -57,6 +59,7 @@ export interface ConsumedChannelMessage extends ChannelMessage {
 export interface DisplayableMessage {
   id: string
   type: number
+  userId: string
   message: string
   createdAt: number // seconds
   date: string // displayable
@@ -64,8 +67,9 @@ export interface DisplayableMessage {
   media?: FileMetadata
   isRegistered: boolean
   isDuplicated: boolean
-  pubKey: string
   photo?: string // base64 encoded image
+  pubkey?: string // deprecated
+  signature?: string // deprecated
 }
 
 export type MessagesGroupsType = Record<string, DisplayableMessage[]>
@@ -77,7 +81,9 @@ export interface ChannelsReplicatedPayload {
 }
 
 export interface CreateChannelPayload {
-  channel: PublicChannel
+  id: string
+  name: string
+  description?: string
 }
 
 export interface CreateChannelResponse {
@@ -90,6 +96,7 @@ export interface DeleteChannelPayload {
 
 export interface DeleteChannelResponse {
   channelId: string
+  deleted: boolean
 }
 
 export interface ChannelSubscribedPayload {

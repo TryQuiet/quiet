@@ -14,6 +14,7 @@ import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
+import { DateTime } from 'luxon'
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -24,7 +25,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   return message.photo ? (
     <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
   ) : (
-    <Jdenticon value={message.pubKey} size={37} />
+    <Jdenticon value={message.userId} size={37} />
   )
 }
 
@@ -115,6 +116,20 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const representativeMessage = data[0]
 
+  const formatDateTime = (createdAt: number): string => {
+    // get timezone offset from native Date, for correct local timezone
+    const tzOffsetHours = -new Date().getTimezoneOffset() / 60
+    const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
+
+    const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
+    const now = DateTime.now().setZone(formattedOffset)
+
+    // Use DateTime.DATETIME_MED to properly respect locale settings including 12h/24h preference
+    return messageTime.toLocaleString(DateTime.DATETIME_MED)
+  }
+
+  const representativeMessageDateTime = formatDateTime(representativeMessage.createdAt)
+
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
 
@@ -177,7 +192,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               }}
             >
               <Typography fontSize={14} color={'subtitle'}>
-                {representativeMessage.date}
+                {representativeMessageDateTime}
               </Typography>
             </View>
           </View>

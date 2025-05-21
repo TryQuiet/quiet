@@ -1,0 +1,79 @@
+name: Test IOS build
+
+on:
+  pull_request:
+
+jobs:
+  test-build-ios:
+    # needs: detox-ios
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-14]
+
+    steps:
+      - name: "Print OS"
+        run: echo ${{ matrix.os }}
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          submodules: 'recursive'
+          lfs: true
+
+      - name: Install gpg
+        run: brew install gnupg
+
+      - name: Setup XCode
+        uses: maxim-lobanov/setup-xcode@9a697e2b393340c3cacd97468baa318e4c883d98 # v1.5.1
+        with:
+          xcode-version: '16.2.0'
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "deploy-ios"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
+
+      - name: Install pod dependencies
+        run: |
+          cd ./packages/mobile/ios
+          pod install
+        shell: bash
+
+      - name: Build for iOS Simulator (unsigned)
+        run: |
+          cd ./packages/mobile/ios
+          xcodebuild \
+            -workspace Quiet.xcworkspace \
+            -scheme Quiet \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            build CODE_SIGNING_ALLOWED=NO ENABLE_BITCODE=NO
+
+      - name: Zip .app bundle
+        run: |
+          cd ./packages/mobile/ios/build/Release-iphonesimulator
+          zip -r Quiet.app.zip Quiet.app
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quiet-iOS-simulator-${{ github.sha }}
+          path: ./packages/mobile/ios/build/Release-iphonesimulator/Quiet.app.zip
+          retention-days: 14
+
+      - name: "Comment PR with download link"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}#artifacts`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: "📱 **iOS simulator build (.app.zip) is ready!**\n\n➡️ [Download artifact](" + runUrl + ")"
+            });

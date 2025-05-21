@@ -6,25 +6,20 @@ import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'
 import { Permissions } from './permissions'
 import { QuietRole, RoleName } from './roles'
-import { LocalUserContext, Member, PermissionsMap, Role } from '@localfirst/auth'
+import { Member, PermissionsMap, Role } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { QuietLogger } from '@quiet/logger'
 
-class RoleService extends ChainServiceBase {
-  private readonly logger: QuietLogger
+const logger = createLogger('auth:roleService')
 
+class RoleService extends ChainServiceBase {
   constructor(sigChain: SigChain) {
     super(sigChain)
-    this.logger = createLogger(`auth:roleService`)
-  }
-
-  public static init(sigChain: SigChain): RoleService {
-    return new RoleService(sigChain)
   }
 
   // TODO: figure out permissions
   public create(roleName: RoleName | string, permissions: PermissionsMap = {}, staticMembership: boolean = false) {
-    this.logger.info(`Adding new role with name ${roleName}`)
+    logger.info(`Adding new role with name ${roleName}`)
     if (!staticMembership) {
       permissions[Permissions.MODIFIABLE_MEMBERSHIP] = true
     }
@@ -51,31 +46,31 @@ class RoleService extends ChainServiceBase {
   }
 
   public addMember(memberId: string, roleName: string) {
-    this.logger.info(`Adding member with ID ${memberId} to role ${roleName}`)
+    logger.info(`Adding member with ID ${memberId} to role ${roleName}`)
     this.sigChain.team!.addMemberRole(memberId, roleName)
   }
 
   public revokeMembership(memberId: string, roleName: string) {
-    this.logger.info(`Revoking role ${roleName} for member with ID ${memberId}`)
+    logger.info(`Revoking role ${roleName} for member with ID ${memberId}`)
     this.sigChain.team!.removeMemberRole(memberId, roleName)
   }
 
   public delete(roleName: string) {
-    this.logger.info(`Removing role with name ${roleName}`)
+    logger.info(`Removing role with name ${roleName}`)
     this.sigChain.team!.removeRole(roleName)
   }
 
-  public getRole(roleName: string, context: LocalUserContext): QuietRole {
+  public getRole(roleName: string): QuietRole {
     const role = this.sigChain.team!.roles(roleName)
     if (!role) {
       throw new Error(`No role found with name ${roleName}`)
     }
 
-    return this.roleToQuietRole(role, context)
+    return this.roleToQuietRole(role)
   }
 
-  public getAllRoles(context: LocalUserContext, haveAccessOnly: boolean = false): QuietRole[] {
-    const allRoles = this.sigChain.team!.roles().map(role => this.roleToQuietRole(role, context))
+  public getAllRoles(haveAccessOnly: boolean = false): QuietRole[] {
+    const allRoles = this.sigChain.team!.roles().map(role => this.roleToQuietRole(role))
     if (haveAccessOnly) {
       return allRoles.filter((role: QuietRole) => role.hasRole === true)
     }
@@ -87,17 +82,17 @@ class RoleService extends ChainServiceBase {
     return this.sigChain.team!.memberHasRole(memberId, roleName)
   }
 
-  public amIMemberOfRole(context: LocalUserContext, roleName: string): boolean {
-    return this.memberHasRole(context.user.userId, roleName)
+  public amIMemberOfRole(roleName: string): boolean {
+    return this.memberHasRole(this.sigChain.user.userId, roleName)
   }
 
   public getMembersForRole(roleName: string): Member[] {
     return this.sigChain.team!.membersInRole(roleName)
   }
 
-  private roleToQuietRole(role: Role, context: LocalUserContext): QuietRole {
+  private roleToQuietRole(role: Role): QuietRole {
     const members = this.sigChain.roles.getMembersForRole(role.roleName)
-    const hasRole = this.sigChain.roles.amIMemberOfRole(context, role.roleName)
+    const hasRole = this.sigChain.roles.amIMemberOfRole(role.roleName)
     return {
       ...role,
       members,

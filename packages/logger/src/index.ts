@@ -37,6 +37,7 @@ export enum LogSetting {
  */
 export enum ColorField {
   SCOPE = 'scope',
+  STATIC_LOG_ID = 'staticLogId',
   DATE = 'date',
   OBJECT = 'object',
   OBJECT_ERROR = 'object_error',
@@ -88,6 +89,8 @@ colors.theme({
   // misc
   scope: colors.magenta,
   scope_trace: colors.italic.magenta,
+  staticLogId: colors.bold.white,
+  staticLogId_trace: colors.bold.italic.white,
   date: colors.bold.gray,
   date_trace: colors.bold.italic.gray,
   object: colors.green,
@@ -113,6 +116,8 @@ export class QuietLogger {
   public readonly logSetting: LogSetting = LogSetting.ON
   // Tracks timers created by the `time` log method
   private readonly timers: Map<string, number> = new Map()
+  // Static, traceable ID that is attached to all logs from a given instance of Quiet
+  private readonly staticLogId: string | undefined
 
   /**
    * @param internalLogMethod This is what determines how and where logs are written
@@ -127,6 +132,7 @@ export class QuietLogger {
     private formatters?: LogFormatters
   ) {
     this.logSetting = this._getLogSetting()
+    this.staticLogId = process.env.STATIC_LOG_ID
   }
 
   extend(moduleName: string): QuietLogger {
@@ -282,6 +288,7 @@ export class QuietLogger {
   private formatMessage(message: any, level: LogLevel, ...optionalParams: any[]): FormattedMessage {
     let formattedLevel = level.toUpperCase()
     let scope = this.name
+    let staticId = this.staticLogId
     let date = DateTime.utc().toISO()
     const { formatted, params } = this.formatMessageText(message, level, ...optionalParams)
 
@@ -289,10 +296,11 @@ export class QuietLogger {
       formattedLevel = colors[level](formattedLevel)
       scope = this._getColorForField(ColorField.SCOPE, level)(scope)
       date = this._getColorForField(ColorField.DATE, level)(date)
+      staticId = staticId != null ? this._getColorForField(ColorField.STATIC_LOG_ID, level)(staticId) : undefined
     }
 
     return {
-      formatted: `${date} ${formattedLevel} ${scope} ${formatted}`,
+      formatted: `${date} ${formattedLevel} ${staticId != null ? `${staticId} ${scope}` : scope} ${formatted}`,
       params,
     }
   }
@@ -465,7 +473,7 @@ export class QuietLogger {
   private _getLogSetting(): LogSetting {
     if (this._canTrace()) {
       return LogSetting.TRACE
-    } else if (debug.enabled(this.name)) {
+    } else if (debug.enabled('*') || debug.enabled(this.name)) {
       return LogSetting.DEBUG
     }
 
@@ -478,16 +486,26 @@ export class QuietLogger {
    * @returns True if this logger can emit TRACE logs
    */
   private _canTrace(): boolean {
+    if (debug.enabled('*:trace')) {
+      return true
+    }
     if (!debug.enabled(`${this.name}:trace`)) {
       return false
     }
 
     for (const debugName of debug.names) {
-      if (!debugName.toString().includes(':trace')) {
+      // `debug.names` can contain either strings or regular expressions. Guard against
+      // calling `.test()` on non‑RegExp values.
+      const isRegExp = debugName instanceof RegExp
+      const nameStr = isRegExp ? debugName.toString() : (debugName as string)
+
+      if (!nameStr.includes(':trace')) {
         continue
       }
 
-      if (debugName.test(`${this.name}:trace`)) {
+      const matches = isRegExp ? (debugName as RegExp).test(`${this.name}:trace`) : nameStr === `${this.name}:trace`
+
+      if (matches) {
         return true
       }
     }

@@ -18,7 +18,6 @@ export enum SendingStatus {
 
 export interface SendMessagePayload {
   message: ChannelMessage
-  peerId: string
 }
 
 export interface PushNotificationPayload {
@@ -59,8 +58,7 @@ export interface LazyLoadingPayload {
 }
 
 export interface MessageVerificationStatus {
-  publicKey: string
-  signature: string
+  id: string
   isVerified: boolean
 }
 

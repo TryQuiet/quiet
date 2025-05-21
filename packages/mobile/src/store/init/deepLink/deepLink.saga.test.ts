@@ -3,18 +3,12 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, getFactory } from '@quiet/state-manager'
+import { communities, getReduxStoreFactory } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import {
-  type Community,
-  CommunityOwnership,
-  InvitationData,
-  CreateNetworkPayload,
-  InvitationDataVersion,
-} from '@quiet/types'
+import { type Community, InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
 import { FactoryGirl } from 'factory-girl'
 
@@ -31,7 +25,7 @@ describe('deepLinkSaga', () => {
 
   beforeEach(async () => {
     store = (await prepareStore()).store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   test('joins community', async () => {
@@ -41,8 +35,7 @@ describe('deepLinkSaga', () => {
         socketIOSecret: 'secret',
       })
     )
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validData,
     }
     const reducer = combineReducers(reducers)
@@ -50,7 +43,7 @@ describe('deepLinkSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(initActions.resetDeepLink())
-      .put(communities.actions.createNetwork(createNetworkPayload))
+      .put(communities.actions.joinCommunity(joinCommunityPayload))
       .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
@@ -60,7 +53,7 @@ describe('deepLinkSaga', () => {
   })
 
   test('displays error if user already belongs to a community', async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       id,
       name: 'rockets',
     })
@@ -87,8 +80,7 @@ describe('deepLinkSaga', () => {
         },
       })
       .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
+        communities.actions.joinCommunity({
           inviteData: validData,
         })
       )
@@ -96,7 +88,7 @@ describe('deepLinkSaga', () => {
   })
 
   test("doesn't display error if user is connecting with the same community", async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create('Community', {
       id,
       name: '',
       psk: validData.psk,
@@ -108,8 +100,7 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: validData,
     }
 
@@ -135,8 +126,8 @@ describe('deepLinkSaga', () => {
       })
       .put.like({
         action: {
-          type: communities.actions.createNetwork.type,
-          payload: createNetworkPayload,
+          type: communities.actions.joinCommunity.type,
+          payload: joinCommunityPayload,
         },
       })
       .run()
@@ -154,8 +145,7 @@ describe('deepLinkSaga', () => {
       psk: 'BNlxfE=',
       ownerOrbitDbIdentity: 'testId',
     }
-    const createNetworkPayload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
+    const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: invalidData,
     }
     const invalidCode = composeInvitationShareUrl(invalidData)
@@ -181,7 +171,7 @@ describe('deepLinkSaga', () => {
           },
         },
       })
-      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .not.put(communities.actions.joinCommunity(joinCommunityPayload))
       .run()
   })
 })

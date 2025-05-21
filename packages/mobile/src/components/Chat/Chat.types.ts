@@ -6,10 +6,12 @@ import {
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannel,
+  CancelDownload,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { Asset } from 'react-native-image-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 
 export interface ChatProps extends UserLabelHandlers {
@@ -24,10 +26,17 @@ export interface ChatProps extends UserLabelHandlers {
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  downloadFile?: (media: FileMetadata) => void
+  cancelDownload?: (data: CancelDownload) => void
   imageAttachmentPreview?: FileMetadata | null
   setImageAttachmentPreview?: (media: FileMetadata | null) => void
   openImageAttachmentPreview: (media: FileMetadata) => void
   updateFileAttachments: (filesData: DocumentPickerResponse[]) => void
+  imagePreview?: FileMetadata | null
+  setImagePreview?: (media: FileMetadata | null) => void
+  openImagePreview: (media: FileMetadata) => void
+  updateUploadedFiles: (filesData: DocumentPickerResponse[]) => void
+  updateUploadedImages: (assets: Asset[]) => void
   removeFilePreview: (id: string) => void
   fileAttachments?: FilePreviewData
   openUrl: (url: string) => void

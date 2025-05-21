@@ -13,5 +13,7 @@
     </dict>
     <key>uploadSymbols</key>
     <false/>
+    <key>compileBitcode</key>
+    <false/>
 </dict>
 </plist>

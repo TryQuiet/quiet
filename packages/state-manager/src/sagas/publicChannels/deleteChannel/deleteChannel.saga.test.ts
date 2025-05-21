@@ -1,35 +1,35 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { type identityActions } from '../../identity/identity.slice'
-import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { deleteChannelSaga } from './deleteChannel.saga'
-import { type Socket } from 'socket.io-client'
+import { type Socket } from '../../../types'
 import { generateChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
 import {
   type Community,
   type Identity,
   type PublicChannel,
-  SocketActionTypes,
+  SocketActions,
   DeleteChannelResponse,
+  DeleteChannelPayload,
 } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { usersSelectors } from '../../users/users.selectors'
 import { createLogger } from '../../../utils/logger'
-
-const logger = createLogger('deleteChannelSaga-test')
+import { MockedSocket } from '../../../utils/tests/mockedSocket'
+import { getBaseTypesFactory, getSocketFactory } from '../../../utils/tests/factories'
 
 describe('deleteChannelSaga', () => {
   let store: Store
   let factory: FactoryGirl
+  let socketPayloadFactory: FactoryGirl
+  let baseTypesFactory: FactoryGirl
+  const reducers = combineReducers(testReducers)
 
   let community: Community
   let owner: Identity
@@ -37,39 +37,31 @@ describe('deleteChannelSaga', () => {
   let photoChannel: PublicChannel
   let generalChannel: PublicChannel
 
-  let ownerData: {
-    username: string | null
-    onionAddress: string | null
-    peerId: string | null
-    pubKey: string
-  } | null
-
-  const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
-
   beforeEach(async () => {
     setupCrypto()
 
+    socketPayloadFactory = await getSocketFactory()
+    baseTypesFactory = await getBaseTypesFactory()
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    owner = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
-    ownerData = usersSelectors.ownerData(store.getState())
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
-          owner: owner.nickname,
+          owner: owner.userId,
           id: generateChannelId('photo'),
         },
       })
@@ -77,78 +69,91 @@ describe('deleteChannelSaga', () => {
   })
 
   test('delete standard channel', async () => {
-    logger.info({ generalChannel })
+    const logger = createLogger('deleteChannelSaga-test1')
+    const socket = new MockedSocket()
     const channelId = photoChannel.id
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
-      .withReducer(reducer)
+    const deleteChannelPayload: DeleteChannelPayload = {
+      channelId,
+    }
+    const deleteChannelResponse: DeleteChannelResponse = await socket.buildResponse(SocketActions.DELETE_CHANNEL)
+    logger.info(`deleteChannelResponse: ${JSON.stringify(deleteChannelResponse)}`)
+    socket.registerExpectedResponse(SocketActions.DELETE_CHANNEL, deleteChannelResponse)
+
+    await expectSaga(deleteChannelSaga, socket as unknown as Socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducers)
       .withState(store.getState())
-      .apply(socket, socket.emitWithAck, [
-        SocketActionTypes.DELETE_CHANNEL,
-        {
-          channelId,
-          ownerPeerId: ownerData?.peerId,
-        },
-      ])
-      .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
-      .put(publicChannelsActions.disableChannel({ channelId }))
+      .apply(socket, socket.emitWithAck, [SocketActions.DELETE_CHANNEL, deleteChannelPayload])
+      .put(publicChannelsActions.channelDeletionResponse(deleteChannelResponse))
       .run()
   })
 
   test('delete general channel', async () => {
+    const logger = createLogger('deleteChannelSaga-test2')
+    const socket = new MockedSocket()
     const channelId = generalChannel.id
+    const deleteChannelPayload: DeleteChannelPayload = {
+      channelId,
+    }
+    const deleteChannelResponse: DeleteChannelResponse = await socket.buildResponse(SocketActions.DELETE_CHANNEL)
+    logger.info(`deleteChannelResponse: ${JSON.stringify(deleteChannelResponse)}`)
+    socket.registerExpectedResponse(SocketActions.DELETE_CHANNEL, deleteChannelResponse)
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
-      .withReducer(reducer)
+    await expectSaga(deleteChannelSaga, socket as unknown as Socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducers)
       .withState(store.getState())
-      .apply(socket, socket.emitWithAck, [
-        SocketActionTypes.DELETE_CHANNEL,
-        {
-          channelId,
-          ownerPeerId: ownerData?.peerId,
-        },
-      ])
-      .put(filesActions.deleteFilesFromChannel({ channelId }))
+      .apply(socket, socket.emitWithAck, [SocketActions.DELETE_CHANNEL, deleteChannelPayload])
+      .put(publicChannelsActions.channelDeletionResponse(deleteChannelResponse))
       .run()
   })
 
   test('delete standard channel - already disabled', async () => {
+    const logger = createLogger('deleteChannelSaga-test3')
+    const socket = new MockedSocket()
     const channelId = photoChannel.id
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
     store.dispatch(publicChannelsActions.disableChannel({ channelId }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
-      .withReducer(reducer)
+
+    const deleteChannelPayload: DeleteChannelPayload = {
+      channelId,
+    }
+    const deleteChannelResponse: DeleteChannelResponse = await socket.buildResponse(SocketActions.DELETE_CHANNEL, {
+      deleted: false,
+      channelId: channelId,
+    })
+    logger.info(`deleteChannelResponse: ${JSON.stringify(deleteChannelResponse)}`)
+    socket.registerExpectedResponse(SocketActions.DELETE_CHANNEL, deleteChannelResponse)
+
+    logger.info(`deleteChannelResponse: ${JSON.stringify(deleteChannelResponse)}`)
+    await expectSaga(
+      deleteChannelSaga,
+      socket as unknown as Socket,
+      publicChannelsActions.deleteChannel(deleteChannelPayload)
+    )
+      .withReducer(reducers)
       .withState(store.getState())
-      .not.apply(socket, socket.emitWithAck, [
-        SocketActionTypes.DELETE_CHANNEL,
-        {
-          channelId,
-          ownerPeerId: ownerData?.peerId,
-        },
-      ])
-      .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
-      .not.put(publicChannelsActions.disableChannel({ channelId }))
+      .not.apply(socket, socket.emitWithAck, [SocketActions.DELETE_CHANNEL, deleteChannelPayload])
+      .not.put(publicChannelsActions.channelDeletionResponse(deleteChannelResponse))
       .run()
   })
 
   test('delete standard channel when currentChannel is not specified - mobile channel list case', async () => {
+    const logger = createLogger('deleteChannelSaga-test4')
+    const socket = new MockedSocket()
     const channelId = photoChannel.id
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: '' }))
-    const reducer = combineReducers(reducers)
-    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
-      .withReducer(reducer)
+    const deleteChannelPayload: DeleteChannelPayload = {
+      channelId,
+    }
+    const deleteChannelResponse: DeleteChannelResponse = await socket.buildResponse(SocketActions.DELETE_CHANNEL)
+    logger.info(`deleteChannelResponse: ${JSON.stringify(deleteChannelResponse)}`)
+    socket.registerExpectedResponse(SocketActions.DELETE_CHANNEL, deleteChannelResponse)
+
+    await expectSaga(deleteChannelSaga, socket as unknown as Socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducers)
       .withState(store.getState())
-      .apply(socket, socket.emitWithAck, [
-        SocketActionTypes.DELETE_CHANNEL,
-        {
-          channelId,
-          ownerPeerId: ownerData?.peerId,
-        },
-      ])
-      .put(publicChannelsActions.disableChannel({ channelId }))
+      .apply(socket, socket.emitWithAck, [SocketActions.DELETE_CHANNEL, deleteChannelPayload])
+      .put(publicChannelsActions.channelDeletionResponse(deleteChannelResponse))
       .run()
   })
 })

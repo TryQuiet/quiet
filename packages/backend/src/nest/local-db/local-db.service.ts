@@ -9,6 +9,7 @@ import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
+import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
 
 @Injectable()
 export class LocalDbService {
@@ -66,17 +67,13 @@ export class LocalDbService {
     await this.put(key, updatedObj)
   }
 
-  public async find(key: string, value: string) {
-    /**
-     * Find and return nested key
-     */
+  public async find(key: string, prop: string) {
     const obj = await this.get(key)
-    try {
-      return obj[value]
-    } catch (e) {
-      this.logger.error(`${value} not found in ${key}`)
+    if (!obj || !(prop in obj)) {
+      this.logger.error(`${prop} not found in ${key}`)
       return null
     }
+    return obj[prop]
   }
 
   public async delete(key: string) {
@@ -98,21 +95,74 @@ export class LocalDbService {
     }
   }
 
-  // I think we can move this into StorageService (keep this service
-  // focused on CRUD).
-  public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
-    const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
-    const stats: NetworkStats[] = Object.values(peersStats)
-    const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))
+  /**
+   * Overwrite the complete local db entry for peers with the given stats
+   * @param stats
+   */
+  public async setPeerStats(stats: Record<string, NetworkStats>) {
+    this.logger.debug('Setting peer stats', stats)
+    this.put(LocalDBKeys.PEERS, stats)
+  }
 
-    let localPeerAddress: string | undefined = undefined
-    if (identity) {
-      localPeerAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
-      this.logger.info('Local peer', localPeerAddress)
-      return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
+  /**
+   * Update the local db entry for the given peers with the given stats
+   * @param stats
+   */
+  public async updatePeerStats(stats: Record<string, NetworkStats>) {
+    this.logger.debug('Updating peer stats', JSON.stringify(stats, null, 2))
+    const existingStats = await this.get(LocalDBKeys.PEERS)
+    if (!existingStats) {
+      this.put(LocalDBKeys.PEERS, stats)
+      return
     }
+    const updatedStats = { ...existingStats, ...stats }
+    this.put(LocalDBKeys.PEERS, updatedStats)
+  }
 
-    return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
+  /**
+   * Get the local db entry for peers
+   */
+  public async getPeerStats(peerId: string): Promise<NetworkStats | null>
+  public async getPeerStats(): Promise<Record<string, NetworkStats>>
+  public async getPeerStats(peerId?: string): Promise<NetworkStats | Record<string, NetworkStats> | null> {
+    if (peerId) {
+      return await this.find(LocalDBKeys.PEERS, peerId)
+    }
+    const peers = await this.get(LocalDBKeys.PEERS)
+    if (!peers) {
+      return null
+    }
+    return peers
+  }
+
+  /**
+   * Retrieves a sorted list of peer addresses from the local database.
+   *
+   * @param includeLocalPeerAddress - A boolean flag indicating whether to include the local peer's address
+   * in the sorted list. Defaults to `true`.
+   * @returns A promise that resolves to an array of sorted peer multiaddr.
+   */
+  public async getSortedPeers(includeLocalPeerAddress: boolean = true): Promise<string[]> {
+    const entries = (await this.get(LocalDBKeys.PEERS)) || {}
+    const stats: NetworkStats[] = Object.values(entries)
+    const addresses: string[] = stats
+      .map((peer: NetworkStats) => peer.address)
+      .filter((address): address is string => address !== undefined)
+
+    if (includeLocalPeerAddress) {
+      const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))
+
+      let localPeerAddress: string | undefined = undefined
+      if (identity) {
+        localPeerAddress = createLibp2pAddress(
+          identity.networkInfo.hiddenService.onionAddress,
+          identity.networkInfo.peerId.id
+        )
+        return filterAndSortPeers(addresses, stats, localPeerAddress, includeLocalPeerAddress)
+      }
+    }
+    const sortedPeers = filterAndSortPeers(addresses, stats, undefined, includeLocalPeerAddress)
+    return sortedPeers
   }
 
   public async setCommunity(community: Community) {
@@ -148,12 +198,11 @@ export class LocalDbService {
 
   // temporarily shoving identity creation here
   public async setIdentity(identity: Identity) {
-    this.logger.info(`Setting identity`, identity.id, identity.nickname)
     let identities = await this.get(LocalDBKeys.IDENTITIES)
     if (!identities) {
       identities = {}
     }
-    identities[identity.id] = identity
+    identities[identity.communityId] = identity
     await this.put(LocalDBKeys.IDENTITIES, identities)
   }
 
@@ -176,8 +225,7 @@ export class LocalDbService {
     }
     const serializedSigChain: SigChainSaveData = {
       serializedTeam: serializedTeam,
-      localUserContext: sigChain.localUserContext,
-      context: sigChain.context,
+      localUserContext: { user: sigChain.user, device: sigChain.device },
       teamKeyRing: teamKeyring,
     }
     this.logger.info('Saving sigchain', teamName)
@@ -206,7 +254,6 @@ export class LocalDbService {
       return {
         serializedTeam: serializedTeam,
         localUserContext: sigChainBlob.localUserContext,
-        context: sigChainBlob.context,
         teamKeyRing: sigChainBlob.teamKeyRing ? sigChainBlob.teamKeyRing : undefined,
       } as SerializedSigChain
     } catch (e) {

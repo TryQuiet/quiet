@@ -1,8 +1,6 @@
 /**
  * Handles user-related chain operations
  */
-
-//import { KeyMap } from '../../../../../../packages/auth/dist/team/selectors/keyMap'
 import { ChainServiceBase } from '../chainServiceBase'
 import { ProspectiveUser, MemberSearchOptions, DEFAULT_SEARCH_OPTIONS } from './types'
 import { DeviceWithSecrets, LocalUserContext, Member, User, UserWithSecrets } from '@localfirst/auth'
@@ -15,10 +13,9 @@ import { createLogger } from '../../../common/logger'
 const logger = createLogger('auth:userService')
 
 class UserService extends ChainServiceBase {
-  public static init(sigChain: SigChain): UserService {
-    return new UserService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
-
   /**
    * Generates a brand new QuietUser instance with an initial device from a given username
    *
