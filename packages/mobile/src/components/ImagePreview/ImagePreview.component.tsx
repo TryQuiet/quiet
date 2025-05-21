@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
-import { Modal, View } from 'react-native'
+import { View } from 'react-native'
+import { SafeAreaModal } from '../SafeAreaModal/SafeAreaModal.component'
 
 import { FileMetadata } from '@quiet/types'
 import FastImage from 'react-native-fast-image'
@@ -20,10 +21,13 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
   currentChannelName,
   resetPreviewData,
 }) => {
+  // Using SafeAreaModal to ensure UI elements are properly positioned on devices with notches
   const { width, height } = imagePreviewData
-  if (!imagePreviewData || !width || !height) return null
+  if (!imagePreviewData || !width || !height) {
+    return null
+  }
   return (
-    <Modal
+    <SafeAreaModal
       animationType='slide'
       transparent={false}
       visible={imagePreviewData !== null}
@@ -32,10 +36,12 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
         resetPreviewData()
       }}
     >
-      <Appbar title={`#${currentChannelName}`} back={resetPreviewData} />
-      <View style={{ padding: 5 }}>
-        <FastImage source={{ uri: `file://${imagePreviewData.path}` }} style={{ aspectRatio: width / height }} />
+      <View>
+        <Appbar title={`#${currentChannelName}`} back={resetPreviewData} />
+        <View style={{ padding: 5 }}>
+          <FastImage source={{ uri: `file://${imagePreviewData.path}` }} style={{ aspectRatio: width / height }} />
+        </View>
       </View>
-    </Modal>
+    </SafeAreaModal>
   )
 }
