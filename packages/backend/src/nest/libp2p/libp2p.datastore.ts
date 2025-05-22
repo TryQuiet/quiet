@@ -22,6 +22,7 @@ export class Libp2pDatastore {
 
   public init(): LevelDatastore | MemoryDatastore {
     this.logger.info(`Initializing Libp2pDatastore using an ${this.inMemory ? 'in-memory' : 'level'} datastore`)
+    this.logger.debug(`Datastore path: ${this.datastorePath}`)
     if (this.datastore != null) {
       this.logger.warn(`Libp2pDatastore already initialized, returning existing datastore instance.`)
       return this.datastore

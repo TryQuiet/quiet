@@ -81,10 +81,22 @@ export const EventsWithStorage =
 
     const get = async (hash: string): Promise<unknown> => {
       try {
-        return db.get(hash)
+        // OrbitDB Events DB get may throw or return undefined
+        const result = await db.get(hash)
+        return result
       } catch (e) {
         db.events.emit('error', e)
         return undefined
+      }
+    }
+
+    // Canonical: expose all, get, iterator, and type
+    const all = async (): Promise<{ hash: string; value: unknown }[]> => {
+      try {
+        return await db.all()
+      } catch (e) {
+        db.events.emit('error', e)
+        return []
       }
     }
 
@@ -92,6 +104,8 @@ export const EventsWithStorage =
       ...db,
       iterator,
       get,
+      all,
+      type: EventsWithStorage.type,
     }
   }
 

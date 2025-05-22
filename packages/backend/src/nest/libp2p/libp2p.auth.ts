@@ -287,7 +287,6 @@ export class Libp2pAuth {
           this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
         })
       },
-      createLogger: createLFALogger,
     } as ConnectionParams)
 
     // Set up auth connection event handlers.

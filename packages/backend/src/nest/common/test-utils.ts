@@ -9,6 +9,7 @@ import { Libp2pService } from '../libp2p/libp2p.service'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { ConnectionsManagerModule } from '../connections-manager/connections-manager.module'
 import { StorageModule } from '../storage/storage.module'
+import { IpfsModule } from '../ipfs/ipfs.module'
 
 const logger = createLogger('libp2p:test-utils')
 
@@ -31,7 +32,7 @@ export const spawnTestModules = async (number: number) => {
   const modules = []
   for (let i = 0; i < number; i++) {
     const module = await Test.createTestingModule({
-      imports: [TestModule, Libp2pModule, StorageModule, ConnectionsManagerModule],
+      imports: [TestModule, Libp2pModule, StorageModule, ConnectionsManagerModule, IpfsModule],
     }).compile()
     modules.push(module)
   }
