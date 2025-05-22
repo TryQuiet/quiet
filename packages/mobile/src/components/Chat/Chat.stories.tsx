@@ -24,6 +24,15 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
+      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateUploadedFiles')
+      }}
+      updateUploadedImages={function (_assets: Asset[]): void {
+        logger.info('updateUploadedImages')
+      }}
+      removeFilePreview={function (id: string): void {
+        logger.info(`removeFilePreview ${id}`)
+      }}
       channel={{
         name: 'Quiet',
         description: '',
@@ -242,15 +251,6 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
-      }}
-      updateUploadedImages={function (_assets: Asset[]): void {
-        logger.info('updateUploadedImages')
-      }}
-      removeFilePreview={function (id: string): void {
-        logger.info(`removeFilePreview ${id}`)
-      }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
     />
@@ -269,13 +269,6 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
-      channel={{
-        name: 'Quiet',
-        description: '',
-        owner: '',
-        timestamp: 0,
-        id: '',
-      }}
       updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateUploadedFiles')
       }}
@@ -284,6 +277,13 @@ storiesOf('Chat', module)
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
+      }}
+      channel={{
+        name: 'Quiet',
+        description: '',
+        owner: '',
+        timestamp: 0,
+        id: '',
       }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
@@ -303,6 +303,15 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
+      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateUploadedFiles')
+      }}
+      updateUploadedImages={function (_assets: Asset[]): void {
+        logger.info('updateUploadedImages')
+      }}
+      removeFilePreview={function (id: string): void {
+        logger.info(`removeFilePreview ${id}`)
+      }}
       channel={{
         name: 'StickyDateTest',
         description: 'Testing sticky date markers',
@@ -324,7 +333,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
               {
                 id: 'march25-2',
@@ -335,7 +345,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -348,7 +359,8 @@ storiesOf('Chat', module)
                 nickname: 'bob',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -361,7 +373,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -374,7 +387,8 @@ storiesOf('Chat', module)
                 nickname: 'charlie',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -387,7 +401,8 @@ storiesOf('Chat', module)
                 nickname: 'dave',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -400,7 +415,8 @@ storiesOf('Chat', module)
                 nickname: 'eve',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -413,7 +429,8 @@ storiesOf('Chat', module)
                 nickname: 'bob',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
           ],
@@ -428,7 +445,8 @@ storiesOf('Chat', module)
                 nickname: 'charlie',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -441,7 +459,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -454,7 +473,8 @@ storiesOf('Chat', module)
                 nickname: 'dave',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -467,7 +487,8 @@ storiesOf('Chat', module)
                 nickname: 'bob',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -480,7 +501,8 @@ storiesOf('Chat', module)
                 nickname: 'dave',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
               {
                 id: 'march26-6',
@@ -492,7 +514,8 @@ storiesOf('Chat', module)
                 nickname: 'dave',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -506,7 +529,8 @@ storiesOf('Chat', module)
                 nickname: 'charlie',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -519,7 +543,8 @@ storiesOf('Chat', module)
                 nickname: 'frank',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -532,7 +557,8 @@ storiesOf('Chat', module)
                 nickname: 'grace',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -545,7 +571,8 @@ storiesOf('Chat', module)
                 nickname: 'henry',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -559,7 +586,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -572,7 +600,8 @@ storiesOf('Chat', module)
                 nickname: 'bob',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
           ],
@@ -587,7 +616,8 @@ storiesOf('Chat', module)
                 nickname: 'eve',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -600,7 +630,8 @@ storiesOf('Chat', module)
                 nickname: 'dave',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -613,7 +644,8 @@ storiesOf('Chat', module)
                 nickname: 'frank',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -626,7 +658,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
               {
                 id: 'today-5',
@@ -637,7 +670,8 @@ storiesOf('Chat', module)
                 nickname: 'alice',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -650,7 +684,8 @@ storiesOf('Chat', module)
                 nickname: 'grace',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -663,7 +698,8 @@ storiesOf('Chat', module)
                 nickname: 'bob',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -677,7 +713,8 @@ storiesOf('Chat', module)
                 nickname: 'charlie',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -690,7 +727,8 @@ storiesOf('Chat', module)
                 nickname: 'henry',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
             [
@@ -703,17 +741,12 @@ storiesOf('Chat', module)
                 nickname: 'eve',
                 isDuplicated: false,
                 isRegistered: true,
-                pubKey: 'test',
+                pubkey: 'test',
+                userId: 'user-id',
               },
             ],
           ],
         },
-      }}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
-      }}
-      removeFilePreview={function (id: string): void {
-        logger.info(`removeFilePreview ${id}`)
       }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (username: string): void {}}
