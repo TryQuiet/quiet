@@ -192,7 +192,6 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             >
               <Typography fontSize={14} color={'subtitle'}>
                 {representativeMessageDateTime}
-                {representativeMessageDateTime}
               </Typography>
             </View>
           </View>
