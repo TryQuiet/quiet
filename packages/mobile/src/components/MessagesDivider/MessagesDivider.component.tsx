@@ -24,9 +24,9 @@ const formatDisplayDate = (timestamp: number): string => {
   } else if (diffInDays === 1) {
     return 'Yesterday'
   } else if (diffInDays >= 2 && diffInDays <= 4) {
-    return messageDate.toFormat('cccc') // Full weekday name
+    return messageDate.toFormat('cccc') // Full weekday name in English, with correct TZ // TODO: use locale here
   } else {
-    return messageDate.toFormat('LLL d, y')
+    return messageDate.toLocaleString(DateTime.DATE_MED)
   }
 }
 
