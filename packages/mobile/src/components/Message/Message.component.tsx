@@ -123,7 +123,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
 
     const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
 
-    // Use DateTime.DATETIME_MED to properly respect locale settings including 12h/24h preference
+    // Use DateTime.TIME_SIMPLE to show time while respecting the 12h/24h preference of the locale
     return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
   }
 
