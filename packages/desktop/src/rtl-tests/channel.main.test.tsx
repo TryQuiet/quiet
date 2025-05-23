@@ -751,7 +751,7 @@ describe('Channel', () => {
     // TODO: use the real socket mock
     const mockEmitImpl = async (...input: [SocketActions | SocketEvents, ...socketEventData<[any]>]) => {
       const action = input[0]
-      const logger = createLogger('immediatelyShowUploadedImage')
+      const logger = createLogger('immediatelyShowImageAttachment')
       logger.info('Mock emit action:', action)
       if (action === SocketActions.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload

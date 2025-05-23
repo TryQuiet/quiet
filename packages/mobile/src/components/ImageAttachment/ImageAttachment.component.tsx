@@ -1,10 +1,10 @@
 import React, { FC } from 'react'
 import { ActivityIndicator, TouchableWithoutFeedback, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { UploadedImageProps } from './UploadedImage.types'
+import { ImageAttachmentProps } from './ImageAttachment.types'
 import FastImage from 'react-native-fast-image'
 
-export const UploadedImage: FC<UploadedImageProps> = ({ media, openImagePreview }) => {
+export const ImageAttachment: FC<ImageAttachmentProps> = ({ media, openImagePreview }) => {
   const { path, width, height } = media
 
   const aspectRatio = width && height ? width / height : undefined

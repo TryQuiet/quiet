@@ -87,7 +87,7 @@ export const ChannelScreen: FC = () => {
   )
 
   // Files
-  const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
+  const updateFileAttachments = (files: DocumentPickerResponse[]) => {
     const filesData: FilePreviewData = getFilesData(
       files.map(fileObj => {
         return {
@@ -104,7 +104,7 @@ export const ChannelScreen: FC = () => {
     })
   }
 
-  const updateUploadedImages = (assets: Asset[]) => {
+  const updateImageAttachments = (assets: Asset[]) => {
     const assetData: FilePreviewData = getFilesData(
       assets.map(assetObj => {
         return {
@@ -191,8 +191,8 @@ export const ChannelScreen: FC = () => {
       imagePreview={imagePreview}
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
-      updateUploadedFiles={updateUploadedFiles}
-      updateUploadedImages={updateUploadedImages}
+      updateFileAttachments={updateFileAttachments}
+      updateImageAttachments={updateImageAttachments}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
       uploadedFiles={uploadingFiles}

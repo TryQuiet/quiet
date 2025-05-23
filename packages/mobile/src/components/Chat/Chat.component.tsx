@@ -13,16 +13,16 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Loading } from '../Loading/Loading.component'
-import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
+import { ImagePreviewModal } from '../../components/ImageAttachmentPreview/ImagePreview.component'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
-import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
-import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
+import UploadFilesPreviewsComponent from '../FileFileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 
@@ -45,8 +45,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
-  updateUploadedFiles,
-  updateUploadedImages,
+  updateFileAttachments,
+  updateImageAttachments,
   removeFilePreview,
   uploadedFiles,
   openUrl,
@@ -133,7 +133,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       return
     }
     if (response) {
-      updateUploadedFiles(response)
+      updateFileAttachments(response)
     }
   }
 
@@ -156,7 +156,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         }
 
         if (response.assets != null && response.assets.length > 0) {
-          updateUploadedImages(response.assets)
+          updateImageAttachments(response.assets)
         }
       }
     )

@@ -242,11 +242,11 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
       }}
-      updateUploadedImages={function (_assets: Asset[]): void {
-        logger.info('updateUploadedImages')
+      updateImageAttachments={function (_assets: Asset[]): void {
+        logger.info('updateImageAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
@@ -276,11 +276,11 @@ storiesOf('Chat', module)
         timestamp: 0,
         id: '',
       }}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
       }}
-      updateUploadedImages={function (_assets: Asset[]): void {
-        logger.info('updateUploadedImages')
+      updateImageAttachments={function (_assets: Asset[]): void {
+        logger.info('updateImageAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)

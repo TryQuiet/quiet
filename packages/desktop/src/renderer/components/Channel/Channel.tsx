@@ -10,7 +10,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
 import { getFilesData } from '@quiet/common'
 

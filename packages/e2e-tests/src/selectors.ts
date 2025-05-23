@@ -1,7 +1,7 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
-import { FileDownloadStatus, PhotoExt, SettingsModalTabName, UploadedFileType, X_DATA_TESTID } from './enums'
+import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
 import { MessageIds, RetryConfig } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
@@ -726,7 +726,7 @@ export class Channel {
   async waitForUserMessageByFilename(
     username: string,
     filename: string,
-    fileType: UploadedFileType
+    fileType: FileAttachmentType
   ): Promise<WebElement> {
     logger.info(`Waiting for user "${username}" message with uploaded file "${filename}"`)
     return this.driver.wait(
@@ -736,7 +736,7 @@ export class Channel {
         while (DateTime.utc().toMillis() < endTime) {
           const messages = await this.getUserMessages(username)
           for (const element of messages) {
-            const filenameElement = await this.getUploadedFilenameElementByType(filename, fileType, element)
+            const filenameElement = await this.getFileAttachmentnameElementByType(filename, fileType, element)
             if (filenameElement != null) {
               logger.info(`Found message with matching filename ${filename}`)
               return element
@@ -752,25 +752,25 @@ export class Channel {
     )
   }
 
-  private async getUploadedFilenameElementByType(
+  private async getFileAttachmentnameElementByType(
     filename: string,
-    fileType: UploadedFileType,
+    fileType: FileAttachmentType,
     baseElement: WebElement
   ): Promise<WebElement | undefined> {
     let filenameElement: WebElement | undefined = undefined
     switch (fileType) {
-      case UploadedFileType.IMAGE:
-        filenameElement = await this.getUploadedImageFilenameElement(filename, baseElement)
+      case FileAttachmentType.IMAGE:
+        filenameElement = await this.getImageAttachmentFilenameElement(filename, baseElement)
         break
-      case UploadedFileType.FILE:
-        filenameElement = await this.getUploadedFileFilenameElement(filename, baseElement)
+      case FileAttachmentType.FILE:
+        filenameElement = await this.getFileAttachmentFilenameElement(filename, baseElement)
         break
     }
 
     return filenameElement
   }
 
-  private async getUploadedFileFilenameElement(
+  private async getFileAttachmentFilenameElement(
     filename: string,
     baseElement: WebElement
   ): Promise<WebElement | undefined> {
@@ -801,7 +801,7 @@ export class Channel {
     return undefined
   }
 
-  private async getUploadedImageFilenameElement(
+  private async getImageAttachmentFilenameElement(
     filename: string,
     baseElement: WebElement
   ): Promise<WebElement | undefined> {
@@ -868,7 +868,7 @@ export class Channel {
   async uploadFile(
     filename: string,
     filePath: string,
-    fileType: UploadedFileType,
+    fileType: FileAttachmentType,
     username: string
   ): Promise<MessageIds> {
     const uploadFileInput = await this.uploadFileInput
@@ -967,7 +967,7 @@ export class Channel {
     }
   }
 
-  async getMessageIdsByFile(filename: string, fileType: UploadedFileType, username: string): Promise<MessageIds> {
+  async getMessageIdsByFile(filename: string, fileType: FileAttachmentType, username: string): Promise<MessageIds> {
     const messageElement = await this.waitForUserMessageByFilename(username, filename, fileType)
     if (!messageElement) {
       throw logAndReturnError(`No message element found for filename ${filename}`)
@@ -996,7 +996,7 @@ export class Channel {
   async getMessageIdsByFileAndId(
     messageIds: MessageIds,
     filename: string,
-    fileType: UploadedFileType,
+    fileType: FileAttachmentType,
     username: string
   ): Promise<MessageIds> {
     const messageElement = await this.waitForUserMessageByFilename(username, filename, fileType)
@@ -1146,11 +1146,11 @@ export class Channel {
 
   async waitForMessageContentByFilename(
     filename: string,
-    fileType: UploadedFileType,
+    fileType: FileAttachmentType,
     messageElement: WebElement
   ): Promise<WebElement> {
     logger.info(`Waiting for file content for message with filename ${filename} and type ${fileType}`)
-    await this.getUploadedFilenameElementByType(filename, fileType, messageElement)
+    await this.getFileAttachmentnameElementByType(filename, fileType, messageElement)
     const messageContentElements = await this.driver.wait(
       messageElement.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`)),
       45_000,
@@ -1171,13 +1171,13 @@ export class Channel {
   async waitForMessageContentByFilenameAndId(
     messageIds: MessageIds,
     filename: string,
-    fileType: UploadedFileType
+    fileType: FileAttachmentType
   ): Promise<WebElement> {
     logger.info(
       `Waiting for file content for message with filename ${filename} and type ${fileType} and ID ${messageIds.messageId}`
     )
     const messageContentElement = await this.waitForMessageContentById(messageIds.messageId)
-    await this.getUploadedFilenameElementByType(filename, fileType, messageContentElement)
+    await this.getFileAttachmentnameElementByType(filename, fileType, messageContentElement)
     const result = await this.testContentByFilename(filename, fileType, messageContentElement)
     if (result != null) {
       return result
@@ -1186,22 +1186,22 @@ export class Channel {
     throw logAndReturnError(`Failed to find content for message with filename ${filename} and type ${fileType}`)
   }
 
-  // class="UploadedImagePlaceholderplaceholderIcon"
-  // class="UploadedImagePlaceholderplaceholder"
+  // class="ImageAttachmentPlaceholderplaceholderIcon"
+  // class="ImageAttachmentPlaceholderplaceholder"
 
   private async testContentByFilename(
     filename: string,
-    fileType: UploadedFileType,
+    fileType: FileAttachmentType,
     testableMessageContentElement: WebElement
   ): Promise<WebElement | undefined> {
     logger.info(`Testing content for type ${fileType}`)
     let containerElements: WebElement[] = []
     switch (fileType) {
-      case UploadedFileType.IMAGE:
+      case FileAttachmentType.IMAGE:
         // wait for the downloading placeholder to appear and then disappear
         try {
           const placeholderElement = await this.driver.wait(
-            this.driver.findElement(By.xpath(`//*[@class='UploadedImagePlaceholderplaceholder']`)),
+            this.driver.findElement(By.xpath(`//*[@class='ImageAttachmentPlaceholderplaceholder']`)),
             20_000,
             `Image placeholder element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
@@ -1219,13 +1219,13 @@ export class Channel {
         }
 
         containerElements = await this.driver.wait(
-          testableMessageContentElement.findElements(By.xpath(`//*[@class='UploadedImagecontainer']`)),
+          testableMessageContentElement.findElements(By.xpath(`//*[@class='ImageAttachmentcontainer']`)),
           30_000,
           `Image container elements in channel ${this.name} couldn't be found within timeout`,
           500
         )
         break
-      case UploadedFileType.FILE:
+      case FileAttachmentType.FILE:
         containerElements = await this.driver.wait(
           testableMessageContentElement.findElements(By.xpath(`//*[contains(@data-testid, "-fileComponent")]`)),
           15_000,
@@ -1237,22 +1237,22 @@ export class Channel {
 
     for (const container of containerElements) {
       logger.info(`Testing uploaded file container ${await container.getId()}`)
-      const filenameElement = await this.getUploadedFilenameElementByType(filename, fileType, container)
+      const filenameElement = await this.getFileAttachmentnameElementByType(filename, fileType, container)
       if (filenameElement == null) {
         continue
       }
 
       let contentElement: WebElement | undefined = undefined
       switch (fileType) {
-        case UploadedFileType.IMAGE:
+        case FileAttachmentType.IMAGE:
           contentElement = await this.driver.wait(
-            container.findElement(By.xpath(`//img[@class='UploadedImageimage']`)),
+            container.findElement(By.xpath(`//img[@class='ImageAttachmentimage']`)),
             30_000,
             `Image element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
           )
           break
-        case UploadedFileType.FILE:
+        case FileAttachmentType.FILE:
           contentElement = await this.driver.wait(
             container.findElement(By.xpath(`//img[@class='FileComponentactionIcon']`)),
             30_000,

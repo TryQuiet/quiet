@@ -16,7 +16,7 @@ import { promiseWithRetries, createArbitraryFile } from '../utils'
 import { MessageIds, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import * as path from 'path'
-import { SettingsModalTabName, UploadedFileType } from '../enums'
+import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import {
   BIG_FILE_SIZE,
   TEST_BIG_FILE_NAME,
@@ -592,7 +592,7 @@ describe('Multiple Clients', () => {
         imageMessageIds = await generalChannelOwner.uploadFile(
           TEST_IMAGE_FILE_NAME,
           uploadFilePath,
-          UploadedFileType.IMAGE,
+          FileAttachmentType.IMAGE,
           users.owner.username
         )
       })
@@ -602,7 +602,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.getMessageIdsByFileAndId(
           imageMessageIds!,
           TEST_IMAGE_FILE_NAME,
-          UploadedFileType.IMAGE,
+          FileAttachmentType.IMAGE,
           users.owner.username
         )
       })
@@ -612,7 +612,7 @@ describe('Multiple Clients', () => {
         fileMessageIds = await generalChannelOwner.uploadFile(
           TEST_FILE_NAME,
           uploadFilePath,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -622,7 +622,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.getMessageIdsByFileAndId(
           fileMessageIds!,
           TEST_FILE_NAME,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -633,7 +633,7 @@ describe('Multiple Clients', () => {
         largeFileMessageIds = await generalChannelOwner.uploadFile(
           TEST_BIG_FILE_NAME,
           uploadFilePath,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -643,7 +643,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.getMessageIdsByFileAndId(
           largeFileMessageIds!,
           TEST_BIG_FILE_NAME,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })

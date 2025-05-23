@@ -6,9 +6,9 @@ import { Jdenticon } from '../Jdenticon/Jdenticon.component'
 import { appImages } from '../../assets'
 import { MessageType, DisplayableMessage } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
-import { UploadedImage } from '../UploadedImage/UploadedImage.component'
-import { UploadedFile } from '../UploadedFile/UploadedFile.component'
-import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
+import { FileAttachment } from '../FileAttachment/FileAttachment.component'
+import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
@@ -48,9 +48,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         return (
           <>
             {fileDisplay && message.media ? (
-              <UploadedImage media={message.media} openImagePreview={openImagePreview} />
+              <ImageAttachment media={message.media} openImagePreview={openImagePreview} />
             ) : (
-              <UploadedFile
+              <FileAttachment
                 message={message}
                 downloadStatus={downloadStatus}
                 downloadFile={downloadFile}
@@ -61,7 +61,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         )
       case 4: // MessageType.File
         return (
-          <UploadedFile
+          <FileAttachment
             message={message}
             downloadStatus={downloadStatus}
             downloadFile={downloadFile}
