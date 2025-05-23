@@ -102,7 +102,7 @@ describe('IpfsFileManagerService', () => {
     await module.close()
   })
 
-  it('uploads image', async () => {
+  it('attaches image', async () => {
     // Uploading
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
@@ -117,7 +117,7 @@ describe('IpfsFileManagerService', () => {
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value as string
     metadata.path = newFilePath
@@ -158,7 +158,7 @@ describe('IpfsFileManagerService', () => {
     })
   })
 
-  it('uploads file other than image', async () => {
+  it('attaches file other than image', async () => {
     // Uploading
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
 
@@ -173,7 +173,7 @@ describe('IpfsFileManagerService', () => {
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
@@ -246,7 +246,7 @@ describe('IpfsFileManagerService', () => {
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     expect(deleteFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value as string
@@ -306,7 +306,7 @@ describe('IpfsFileManagerService', () => {
     }
 
     await waitForExpect(async () => {
-      await expect(ipfsFileManagerService.uploadFile(metadata)).rejects.toThrow()
+      await expect(ipfsFileManagerService.attachFile(metadata)).rejects.toThrow()
     })
     await waitForExpect(() => {
       expect(eventSpy).not.toHaveBeenCalled()
@@ -328,7 +328,7 @@ describe('IpfsFileManagerService', () => {
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
@@ -430,7 +430,7 @@ describe('IpfsFileManagerService', () => {
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     }, 5_000)
@@ -557,7 +557,7 @@ describe('IpfsFileManagerService', () => {
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
@@ -565,12 +565,12 @@ describe('IpfsFileManagerService', () => {
 
     const downloadMetadata = eventSpy.mock.calls[3][1]
 
-    const uploadFileBuffer = fs.readFileSync(filePath)
+    const attachFileBuffer = fs.readFileSync(filePath)
     // @ts-ignore
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 
     await waitForExpect(() => {
-      expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
+      expect(attachFileBuffer).toStrictEqual(downloadFileBuffer)
     })
   })
 
@@ -592,7 +592,7 @@ describe('IpfsFileManagerService', () => {
       path.join(dirname, '/testUtils/test-image.png'),
       'test ima ge.png'
     )
-    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'uploads', 'testimage.png'))
+    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'attachments', 'testimage.png'))
   })
 
   it('copies file with encoded filename containing whitespace but removes whitespace in the new path', () => {
@@ -601,7 +601,7 @@ describe('IpfsFileManagerService', () => {
       'Screenshot_%20with%20whitespace%2020230721-004943.png'
     )
     expect(newFilePath).toEqual(
-      path.join(ipfsFileManagerService.quietDir, 'uploads', 'Screenshot_withwhitespace20230721-004943.png')
+      path.join(ipfsFileManagerService.quietDir, 'attachments', 'Screenshot_withwhitespace20230721-004943.png')
     )
   })
 
@@ -626,7 +626,7 @@ describe('IpfsFileManagerService', () => {
       message: { id: 'jpeg_id', channelId: 'channelId' },
     }
 
-    await ipfsFileManagerService.uploadFile(jpegMetadata)
+    await ipfsFileManagerService.attachFile(jpegMetadata)
 
     // The image compression service should be called for JPG files
     expect(imageCompressionSpy).toHaveBeenCalledWith(expect.any(String), '.jpg')
@@ -643,7 +643,7 @@ describe('IpfsFileManagerService', () => {
       message: { id: 'png_id', channelId: 'channelId' },
     }
 
-    await ipfsFileManagerService.uploadFile(pngMetadata)
+    await ipfsFileManagerService.attachFile(pngMetadata)
 
     // The image compression service should NOT be called for PNG files
     expect(imageCompressionSpy).not.toHaveBeenCalled()
@@ -660,7 +660,7 @@ describe('IpfsFileManagerService', () => {
       message: { id: 'text_id', channelId: 'channelId' },
     }
 
-    await ipfsFileManagerService.uploadFile(textMetadata)
+    await ipfsFileManagerService.attachFile(textMetadata)
 
     // The image compression service should NOT be called for text files
     expect(imageCompressionSpy).not.toHaveBeenCalled()
@@ -698,7 +698,7 @@ describe('IpfsFileManagerService', () => {
   //     },
   //   }
 
-  //   await fileManager.uploadFile(metadata)
+  //   await fileManager.attachFile(metadata)
 
   //   // Downloading
   //   const uploadMetadata: FileMetadata = eventSpy.mock.calls[1][1]

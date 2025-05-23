@@ -95,7 +95,7 @@ describe('IpfsFileManagerService', () => {
       logger.error('File path is null')
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
     metadata.path = newFilePath as string
