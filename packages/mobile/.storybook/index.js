@@ -36,7 +36,7 @@ configure(() => {
   require('../src/components/Success/Success.stories')
   require('../src/components/Error/Error.stories')
   require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
-  require('../src/components/FileUploadingPreview/UploadingPreview.stories')
+  require('../src/components/FileAttachmentPreview/FileAttachmentPreview.stories')
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
 }, module)
 
