@@ -592,7 +592,7 @@ describe('IpfsFileManagerService', () => {
       path.join(dirname, '/testUtils/test-image.png'),
       'test ima ge.png'
     )
-    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'attachments', 'testimage.png'))
+    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'uploads', 'testimage.png'))
   })
 
   it('copies file with encoded filename containing whitespace but removes whitespace in the new path', () => {
@@ -601,7 +601,7 @@ describe('IpfsFileManagerService', () => {
       'Screenshot_%20with%20whitespace%2020230721-004943.png'
     )
     expect(newFilePath).toEqual(
-      path.join(ipfsFileManagerService.quietDir, 'attachments', 'Screenshot_withwhitespace20230721-004943.png')
+      path.join(ipfsFileManagerService.quietDir, 'uploads', 'Screenshot_withwhitespace20230721-004943.png')
     )
   })
 

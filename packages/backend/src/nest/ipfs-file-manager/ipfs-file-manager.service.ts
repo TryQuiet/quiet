@@ -172,7 +172,7 @@ export class IpfsFileManagerService extends EventEmitter {
    * Copy file to a different directory and return the new path
    */
   public copyFile(originalFilePath: string, filename: string): string {
-    const attachmentsDir = path.join(this.quietDir, 'attachments')
+    const uploadsDir = path.join(this.quietDir, 'uploads')
     let newFilename: string
     try {
       newFilename = decodeURIComponent(filename).replace(/\s/g, '')
@@ -181,11 +181,11 @@ export class IpfsFileManagerService extends EventEmitter {
       newFilename = filename
     }
 
-    const newPath = path.join(attachmentsDir, newFilename)
+    const newPath = path.join(uploadsDir, newFilename)
     let filePath = originalFilePath
     try {
-      if (!fs.existsSync(attachmentsDir)) {
-        fs.mkdirSync(attachmentsDir, { recursive: true })
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true })
       }
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
@@ -232,7 +232,7 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     // Create directory for file
-    const dir = `/attachments`
+    const dir = `/uploads`
     await this.ufs.addDirectory({ path: dir })
 
     // Write file to IPFS
@@ -241,7 +241,7 @@ export class IpfsFileManagerService extends EventEmitter {
     const filename = `${uuid}_${metadata.name}${metadata.ext}`
 
     // Save copy to separate directory
-    _logger.info(`Copying ${filename} to attachments directory`)
+    _logger.info(`Copying ${filename} to uploads directory`)
     const filePath = this.copyFile(metadata.path, filename)
 
     _logger.time(`Writing ${filename} to ipfs`)
