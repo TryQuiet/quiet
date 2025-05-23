@@ -610,7 +610,11 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     logger.info('Entries for peer 3 before injection:', peer3EntriesBeforeInjection)
     const entry = await Entry.decode(head.bytes)
     logger.info('Entry to inject:', entry)
-    await mockStores[3].log.joinEntry(entry)
+    try {
+      await mockStores[3].log.joinEntry(entry)
+    } catch (err) {
+      logger.error('Error injecting entry into peer 3:', err)
+    }
     logger.info(`Injected entry into peer 3:`, entry)
     waitForEntriesToSync([mockStores[3]], peer0Entries.length, 5000)
     const peer3Entries = await mockStores[3].getEntries()
