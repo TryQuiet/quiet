@@ -24,15 +24,6 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
-      }}
-      updateUploadedImages={function (_assets: Asset[]): void {
-        logger.info('updateUploadedImages')
-      }}
-      removeFilePreview={function (id: string): void {
-        logger.info(`removeFilePreview ${id}`)
-      }}
       channel={{
         name: 'Quiet',
         description: '',
@@ -251,6 +242,15 @@ storiesOf('Chat', module)
           ],
         },
       }}
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
+      }}
+      updateImageAttachments={function (_assets: Asset[]): void {
+        logger.info('updateImageAttachments')
+      }}
+      removeFilePreview={function (id: string): void {
+        logger.info(`removeFilePreview ${id}`)
+      }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
     />
@@ -269,21 +269,21 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
-      }}
-      updateUploadedImages={function (_assets: Asset[]): void {
-        logger.info('updateUploadedImages')
-      }}
-      removeFilePreview={function (id: string): void {
-        logger.info(`removeFilePreview ${id}`)
-      }}
       channel={{
         name: 'Quiet',
         description: '',
         owner: '',
         timestamp: 0,
         id: '',
+      }}
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
+      }}
+      updateImageAttachments={function (_assets: Asset[]): void {
+        logger.info('updateImageAttachments')
+      }}
+      removeFilePreview={function (id: string): void {
+        logger.info(`removeFilePreview ${id}`)
       }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
@@ -303,11 +303,11 @@ storiesOf('Chat', module)
       openUrl={() => {}}
       downloadFile={() => {}}
       cancelDownload={() => {}}
-      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        logger.info('updateUploadedFiles')
+      updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
+        logger.info('updateFileAttachments')
       }}
-      updateUploadedImages={function (_assets: Asset[]): void {
-        logger.info('updateUploadedImages')
+      updateImageAttachments={function (_assets: Asset[]): void {
+        logger.info('updateImageAttachments')
       }}
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)

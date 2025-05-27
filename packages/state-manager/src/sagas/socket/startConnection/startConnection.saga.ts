@@ -36,7 +36,7 @@ import {
   type Identity,
   type UsersUpdatedEvent,
   SocketEvents,
-  UploadFilePayload,
+  AttachFilePayload,
   LaunchCommunityPayload,
 } from '@quiet/types'
 
@@ -118,8 +118,8 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.MESSAGE_MEDIA_UPDATED}`, payload)
       emit(filesActions.updateMessageMedia(payload))
     })
-    socket.on(SocketEvents.FILE_UPLOADED, (payload: FileMetadata) => {
-      logger.info(`${SocketEvents.FILE_UPLOADED}`, payload)
+    socket.on(SocketEvents.FILE_ATTACHED, (payload: FileMetadata) => {
+      logger.info(`${SocketEvents.FILE_ATTACHED}`, payload)
       emit(filesActions.broadcastHostedFile(payload))
     })
     socket.on(SocketEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {

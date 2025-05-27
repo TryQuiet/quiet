@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles'
 import { UseModalType } from '../../../../containers/hooks'
 import Modal from '../../../ui/Modal/Modal'
 
-const PREFIX = 'UploadedImagePreviewComponent'
+const PREFIX = 'ImageAttachmentPreviewComponent'
 
 const classes = {
   image: `${PREFIX}image`,
@@ -28,7 +28,7 @@ const StyledModalContent = styled('div')(() => ({
   },
 }))
 
-interface UploadedImagePreviewProps {
+interface ImageAttachmentPreviewProps {
   open: boolean
   handleClose: () => void
   uploadedFileModal?: UseModalType<{
@@ -36,7 +36,7 @@ interface UploadedImagePreviewProps {
   }>
 }
 
-const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({
+const ImageAttachmentPreviewComponent: React.FC<ImageAttachmentPreviewProps> = ({
   open,
   handleClose,
   uploadedFileModal,
@@ -50,4 +50,4 @@ const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({
   )
 }
 
-export default UploadedImagePreviewComponent
+export default ImageAttachmentPreviewComponent

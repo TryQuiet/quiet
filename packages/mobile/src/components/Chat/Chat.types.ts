@@ -44,8 +44,8 @@ export interface ChatProps extends UserLabelHandlers {
   imagePreview?: FileMetadata | null
   setImagePreview?: (media: FileMetadata | null) => void
   openImagePreview: (media: FileMetadata) => void
-  updateUploadedFiles: (filesData: DocumentPickerResponse[]) => void
-  updateUploadedImages: (assets: Asset[]) => void
+  updateFileAttachments: (filesData: DocumentPickerResponse[]) => void
+  updateImageAttachments: (assets: Asset[]) => void
   removeFilePreview: (id: string) => void
   uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void

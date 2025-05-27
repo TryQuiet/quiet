@@ -2,6 +2,12 @@
 
 ## [unreleased]
 
+### Chores
+
+* Rename upload/uploaded terminology to attachment for clarity across codebase
+
+### Features
+
 * Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
 * Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
 

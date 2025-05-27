@@ -102,33 +102,33 @@ describe('IpfsFileManagerService', () => {
     await module.close()
   })
 
-  it('uploads image', async () => {
-    // Uploading
+  it('attaches image', async () => {
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
     const metadata: FileMetadata = {
       path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value as string
     metadata.path = newFilePath
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
     })
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           cid: expect.stringContaining('bafy'),
           ext: '.png',
@@ -158,29 +158,29 @@ describe('IpfsFileManagerService', () => {
     })
   })
 
-  it('uploads file other than image', async () => {
-    // Uploading
+  it('attaches file other than image', async () => {
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
     })
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           cid: expect.stringContaining('bafy'),
           ext: '.pdf',
@@ -230,7 +230,7 @@ describe('IpfsFileManagerService', () => {
     const tmpFilePath = path.join(tmpDir.name, '/tmp-test-image.png')
     fs.copyFileSync(path.join(dirname, '/testUtils/test-image.png'), tmpFilePath)
     expect(fs.existsSync(tmpFilePath)).toBeTruthy()
-    // Uploading
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
     const deleteFileSpy = jest.spyOn(ipfsFileManagerService, 'deleteFile')
@@ -239,26 +239,26 @@ describe('IpfsFileManagerService', () => {
       tmpPath: tmpFilePath,
       name: 'test-image',
       ext: '.png',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     expect(deleteFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value as string
     metadata.path = newFilePath
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
     })
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           cid: expect.stringContaining('bafy'),
           ext: '.png',
@@ -291,14 +291,14 @@ describe('IpfsFileManagerService', () => {
   })
 
   it("throws error if file doesn't exists", async () => {
-    // Uploading
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
@@ -306,7 +306,7 @@ describe('IpfsFileManagerService', () => {
     }
 
     await waitForExpect(async () => {
-      await expect(ipfsFileManagerService.uploadFile(metadata)).rejects.toThrow()
+      await expect(ipfsFileManagerService.attachFile(metadata)).rejects.toThrow()
     })
     await waitForExpect(() => {
       expect(eventSpy).not.toHaveBeenCalled()
@@ -314,28 +314,28 @@ describe('IpfsFileManagerService', () => {
   })
 
   it('throws error if reported file size is malicious', async () => {
-    // Uploading
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
     })
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           cid: expect.stringContaining('bafy'),
           ext: '.pdf',
@@ -416,29 +416,29 @@ describe('IpfsFileManagerService', () => {
   })
 
   it('file uploaded to IPFS then can be downloaded', async () => {
-    // Uploading
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
     }, 5_000)
 
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           cid: expect.stringContaining('bafy'),
           ext: '.png',
@@ -543,21 +543,21 @@ describe('IpfsFileManagerService', () => {
 
   // this case causes other tests to fail
   it.skip('downloaded file matches uploaded file', async () => {
-    // Uploading
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const filePath = path.join(dirname, '/testUtils/test-image.png')
     const metadata: FileMetadata = {
       path: filePath,
       name: 'test-image',
       ext: '.png',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
       },
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
@@ -565,12 +565,12 @@ describe('IpfsFileManagerService', () => {
 
     const downloadMetadata = eventSpy.mock.calls[3][1]
 
-    const uploadFileBuffer = fs.readFileSync(filePath)
+    const attachFileBuffer = fs.readFileSync(filePath)
     // @ts-ignore
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 
     await waitForExpect(() => {
-      expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
+      expect(attachFileBuffer).toStrictEqual(downloadFileBuffer)
     })
   })
 
@@ -618,21 +618,21 @@ describe('IpfsFileManagerService', () => {
 
   //   fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
-  //   // Uploading
+  //   // Attaching
   //   const eventSpy = jest.spyOn(fileManager, 'emit')
 
   //   const metadata: FileMetadata = {
   //     path: filePath,
   //     name: 'new-file',
   //     ext: '.txt',
-  //     cid: 'uploading_id',
+  //     cid: 'attachment_id',
   //     message: {
   //       id: 'id',
   //       channelId: 'channelId',
   //     },
   //   }
 
-  //   await fileManager.uploadFile(metadata)
+  //   await fileManager.attachFile(metadata)
 
   //   // Downloading
   //   const uploadMetadata: FileMetadata = eventSpy.mock.calls[1][1]

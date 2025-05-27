@@ -7,7 +7,7 @@ import imageIcon from '../../../../static/images/imageIcon.svg'
 import Icon from '../../../ui/Icon/Icon'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
-const PREFIX = 'UploadedImagePlaceholder'
+const PREFIX = 'ImageAttachmentPlaceholder'
 
 const classes = {
   placeholderWrapper: `${PREFIX}placeholderWrapper`,
@@ -47,20 +47,20 @@ const Root = styled('div')(({ theme }) => ({
   },
 }))
 
-const StyledUploadedFilename = styled('p')(({ theme }) => ({
+const StyledFileAttachmentname = styled('p')(({ theme }) => ({
   color: theme.palette.colors.darkGray,
   margin: 0,
 }))
 
-interface UploadedFilenameProps {
+interface FileAttachmentnameProps {
   fileName: string
 }
 
-export const UploadedFilename: React.FC<UploadedFilenameProps> = ({ fileName }) => {
-  return <StyledUploadedFilename>{fileName}</StyledUploadedFilename>
+export const FileAttachmentname: React.FC<FileAttachmentnameProps> = ({ fileName }) => {
+  return <StyledFileAttachmentname>{fileName}</StyledFileAttachmentname>
 }
 
-export interface UploadedImagePlaceholderProps {
+export interface ImageAttachmentPlaceholderProps {
   cid: string
   imageWidth: number
   imageHeight: number
@@ -69,7 +69,7 @@ export interface UploadedImagePlaceholderProps {
   downloadStatus?: DownloadStatus
 }
 
-export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> = ({
+export const ImageAttachmentPlaceholder: React.FC<ImageAttachmentPlaceholderProps> = ({
   cid,
   imageWidth,
   imageHeight,
@@ -119,7 +119,7 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
 
   return (
     <Root data-testid={`${cid}-imagePlaceholder`}>
-      <UploadedFilename fileName={`${name}${ext}`} />
+      <FileAttachmentname fileName={`${name}${ext}`} />
 
       <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }}>
         <Tooltip
@@ -145,4 +145,4 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   )
 }
 
-export default UploadedImagePlaceholder
+export default ImageAttachmentPlaceholder

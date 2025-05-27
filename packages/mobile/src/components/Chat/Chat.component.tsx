@@ -17,18 +17,18 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Loading } from '../Loading/Loading.component'
-import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
+import { ImagePreviewModal } from '../../components/ImageAttachmentPreview/ImageAttachmentPreview.component'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
-import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
 import { ChatProps, ListItem } from './Chat.types'
+import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
+import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
 import { DisplayableMessage } from '@quiet/types'
-import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
-import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
+import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 
@@ -57,8 +57,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
-  updateUploadedFiles,
-  updateUploadedImages,
+  updateFileAttachments,
+  updateImageAttachments,
   removeFilePreview,
   uploadedFiles,
   openUrl,
@@ -300,7 +300,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       return
     }
     if (response) {
-      updateUploadedFiles(response)
+      updateFileAttachments(response)
     }
   }
 
@@ -323,7 +323,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         }
 
         if (response.assets != null && response.assets.length > 0) {
-          updateUploadedImages(response.assets)
+          updateImageAttachments(response.assets)
         }
       }
     )

@@ -7,7 +7,7 @@ export enum IpfsFilesManagerEvents {
   // Incoming evetns
   DOWNLOAD_FILE = 'downloadFile',
   CANCEL_DOWNLOAD = 'cancelDownload',
-  UPLOAD_FILE = 'uploadFile',
+  ATTACH_FILE = 'attachFile',
   DELETE_FILE = 'deleteFile',
   // Outgoing evnets
   MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',

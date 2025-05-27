@@ -22,7 +22,7 @@ import {
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
-import { uploadFileSaga } from './uploadFile.saga'
+import { uploadFileSaga } from './attachFile.saga'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('uploadFileSaga', () => {
@@ -66,7 +66,7 @@ describe('uploadFileSaga', () => {
     const messageId = Math.random().toString(36).substr(2.9)
 
     media = {
-      cid: `uploading_${messageId}`,
+      cid: `attaching_${messageId}`,
       path: 'temp/name.ext',
       name: 'name',
       ext: 'ext',
@@ -93,7 +93,7 @@ describe('uploadFileSaga', () => {
     ).message
   })
 
-  test('should upload file while message is being saved to db', async () => {
+  test('should attach file while message is being saved to db', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const currentChannel = currentChannelId(store.getState())
@@ -111,7 +111,7 @@ describe('uploadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActions.UPLOAD_FILE,
+        SocketActions.ATTACH_FILE,
         {
           file: media,
           peerId,
@@ -120,7 +120,7 @@ describe('uploadFileSaga', () => {
       .run()
   })
 
-  test('should not upload file if message has no media', async () => {
+  test('should not attach file if message has no media', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const currentChannel = currentChannelId(store.getState())
@@ -143,7 +143,7 @@ describe('uploadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
-        SocketActions.UPLOAD_FILE,
+        SocketActions.ATTACH_FILE,
         {
           file: media,
           peerId,

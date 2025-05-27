@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { DownloadStatus, FileMetadata } from '@quiet/types'
 import { UseModalType } from '../../../../containers/hooks'
-import UploadedFileModal from './UploadedImagePreview'
-import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
+import FileAttachmentModal from './ImageAttachmentPreview'
+import {
+  FileAttachmentname,
+  ImageAttachmentPlaceholder,
+} from '../ImageAttachmentPlaceholder/ImageAttachmentPlaceholder'
 
-const PREFIX = 'UploadedImage'
+const PREFIX = 'ImageAttachment'
 
 const classes = {
   image: `${PREFIX}image`,
@@ -24,7 +27,7 @@ const Root = styled('div')(() => ({
   },
 }))
 
-export interface UploadedImageProps {
+export interface ImageAttachmentProps {
   media: FileMetadata
   uploadedFileModal?: UseModalType<{
     src: string
@@ -33,7 +36,7 @@ export interface UploadedImageProps {
   downloadStatus?: DownloadStatus
 }
 
-export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFileModal, downloadStatus }) => {
+export const ImageAttachment: React.FC<ImageAttachmentProps> = ({ media, uploadedFileModal, downloadStatus }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
   const { cid, path, name, ext } = media
 
@@ -68,7 +71,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
             }}
           >
             <div className={classes.image} data-testid={`${cid}-imageVisual`}>
-              <UploadedFilename fileName={`${name}${ext}`} />
+              <FileAttachmentname fileName={`${name}${ext}`} />
               <img
                 className={classes.image}
                 style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }}
@@ -76,10 +79,10 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
               />
             </div>
           </div>
-          {uploadedFileModal && <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />}
+          {uploadedFileModal && <FileAttachmentModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />}
         </>
       ) : (
-        <UploadedImagePlaceholder
+        <ImageAttachmentPlaceholder
           cid={cid}
           imageWidth={imageWidth}
           imageHeight={imageHeight}
@@ -92,4 +95,4 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
   )
 }
 
-export default UploadedImage
+export default ImageAttachment
