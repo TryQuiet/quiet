@@ -749,6 +749,6 @@ storiesOf('Chat', module)
         },
       }}
       duplicatedUsernameHandleBack={function (): void {}}
-      unregisteredUsernameHandleBack={function (username: string): void {}}
+      unregisteredUsernameHandleBack={function (nickname: string): void {}}
     />
   ))

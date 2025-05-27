@@ -70,7 +70,11 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
 
-  // For keeping the UI container from overlapping with critical system UI elements
+  const messageInputRef = useRef<null | TextInput>(null)
+  // keep latest input text (including any pending autocorrect) in a ref
+  const messageInputValueRef = useRef<string>('')
+
+  // useSafeAreaInsets hook to get the insets for the current device
   const insets = useSafeAreaInsets()
 
   // Animation value for date marker fade effect
@@ -160,10 +164,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }, DATE_VISIBILITY_TIMEOUT)
   }, [fadeAnim, DATE_FADE_OUT_DURATION, DATE_VISIBILITY_TIMEOUT])
 
-  const messageInputRef = useRef<null | TextInput>(null)
   const flatListRef = useRef<FlatList<ListItem>>(null)
-  // keep latest input text (including any pending autocorrect) in a ref
-  const messageInputValueRef = useRef<string>('')
 
   // We pass this to FlatList to determine which items it will return as viewable
   const viewabilityConfig = useRef({
