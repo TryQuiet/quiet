@@ -273,7 +273,6 @@ const composeInvitationUrl = (
     case InvitationDataVersion.v3:
       url.searchParams.append(PEER_ADDRESS_KEY, peerPairsToUrlParamString(data.pairs))
       url.searchParams.append(PSK_PARAM_KEY, data.psk)
-      url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
       url.searchParams.append(AUTH_DATA_KEY, encodeAuthData(data.authData))
       url.searchParams.append(QSS_ENABLED_KEY, `${data.qssEnabled}`)
       url.searchParams.append(QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint))

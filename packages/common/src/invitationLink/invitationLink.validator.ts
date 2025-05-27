@@ -547,10 +547,6 @@ export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDa
         required: true,
         validator: validatePsk,
       },
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY]: {
-        required: true,
-        validator: validateOwnerOrbitDbIdentity,
-      },
       [PEER_ADDRESS_KEY]: {
         required: false,
         validator: validatePeerAddresses,

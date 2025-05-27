@@ -230,12 +230,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    const identity = await this.storageService.getIdentity(community.id)
-    if (!identity) {
-      this.logger.warn('No identity found in storage')
-      return
-    }
-
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
@@ -251,14 +245,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('No community name found in storage')
     }
 
-    const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
-    this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
-    if (sortedPeers.length > 0) {
-      community.peerList = sortedPeers
-    }
-    await this.localDbService.setCommunity(community)
-
-    this.logger.info('Launching community from storage with peers', community.peerList)
     await this.launchCommunity(community)
   }
 
@@ -439,7 +425,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Creating community', payload.id)
 
     this.logger.info(`Creating new LFA chain`)
-    await this.sigChainService.createChain(payload.name, payload.username, true)
+    const sigchain = await this.sigChainService.createChain(payload.name, payload.username, true)
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
@@ -455,30 +441,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity.networkInfo.peerId.id
     )
 
-    const community: Community = {
+    let community: Community = {
       id: payload.id,
       name: payload.name,
       peerList: [localAddress],
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
+      teamId: sigchain.team!.id,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-
-    identity = {
-      ...identity,
-      userCertificate: ownerCertResult.network.certificate,
-      id: payload.id,
-    }
-    await this.storageService.setIdentity(identity)
-
-    if (!community.name) {
-      this.logger.error('Community name is required to create sigchain')
-      return community
-    }
-    this.logger.info(`Creating new LFA chain`)
-    const sigchain = await this.sigChainService.createChain(community.name, identity.nickname, true)
 
     const connected = await this.qssService.connect(this.qssEnabled, this.qssEndpoint)
     let qssEnabled: boolean = false
@@ -486,12 +459,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       qssEnabled = await this.qssService.createCommunity(community, sigchain)
     }
 
-    await this.localDbService.setCommunity({
+    community = {
       ...community,
-      teamId: sigchain.team!.id,
       qssEnabled,
       qssEndpoint: this.qssEndpoint,
-    })
+    }
+    await this.localDbService.setCommunity(community)
 
     await this.launchCommunity(community)
 
@@ -563,7 +536,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
       const joiningSigchain = await this.sigChainService.createChainFromInvite(
-        identity.nickname,
+        payload.username,
         communityName,
         inviteData.authData.seed,
         true
@@ -712,7 +685,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const onionAddress = await this.spawnTorHiddenService(community.id, identity)
 
-    this.logger.info(JSON.stringify(identity.networkInfo.peerId, null, 2))
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
       privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),

@@ -369,7 +369,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
   const urlParams = [
     [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
     [PSK_PARAM_KEY, data.psk],
-    [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
     [AUTH_DATA_KEY, encodeAuthData(data.authData)],
     [QSS_ENABLED_KEY, `${data.qssEnabled}`],
     [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -411,7 +410,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const disabledParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([disabledData.pairs[0], disabledData.pairs[1]])],
       [PSK_PARAM_KEY, disabledData.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, disabledData.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(disabledData.authData)],
       [QSS_ENABLED_KEY, `${disabledData.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -450,7 +448,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, '()_*'],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -470,7 +467,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const invalidUrlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, ''],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -490,7 +486,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const invalidUrlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, 'foo'],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -510,7 +505,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const invalidUrlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
     ]
@@ -529,7 +523,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const invalidUrlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint('foobar')],
@@ -549,7 +542,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const invalidUrlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint('ws://localhost')],
@@ -569,7 +561,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const invalidUrlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint('http://localhost:3000')],
@@ -591,7 +582,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, 'foobar'],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -611,7 +601,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
     const urlParams = [
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -631,7 +620,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [
         AUTH_DATA_KEY,
         encodeAuthData({
@@ -657,7 +645,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [
         AUTH_DATA_KEY,
         encodeAuthData({
@@ -683,7 +670,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [
         AUTH_DATA_KEY,
         encodeAuthData({
@@ -709,7 +695,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     const urlParams = [
       [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [
         AUTH_DATA_KEY,
         encodeAuthData({
@@ -760,7 +745,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
         ]),
       ],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],
@@ -782,7 +766,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
       [data.pairs[0].peerId, data.pairs[0].onionAddress],
       [data.pairs[1].peerId, data.pairs[1].onionAddress],
       [PSK_PARAM_KEY, data.psk],
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
       [AUTH_DATA_KEY, encodeAuthData(data.authData)],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
       [QSS_ENDPOINT_KEY, encodeQssEndpoint(data.qssEndpoint)],

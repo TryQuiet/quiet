@@ -342,17 +342,17 @@ export class Libp2pAuth {
         if (team) {
           authConnection.emit('sync', { team, user })
           if (
-          authConnection._context.peer != null &&
-          !(authConnection._context.peer as Member).roles.includes(RoleName.MEMBER)
-        ) {
-          this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
+            authConnection._context.peer != null &&
+            !(authConnection._context.peer as Member).roles.includes(RoleName.MEMBER)
+          ) {
+            this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
+          }
+          await this.handleJoinViaQSS()
         } else {
           this.logger.error('Cannot emit sync event, team is null')
         }
-
-        await this.handleJoinViaQSS(sigChain)
+        this.emit(Libp2pEvents.AUTH_CONNECTED)
       }
-      this.emit(Libp2pEvents.AUTH_CONNECTED)
     })
 
     authConnection.on('disconnected', event => {
@@ -395,7 +395,7 @@ export class Libp2pAuth {
       this.emit(Libp2pEvents.AUTH_UPDATED, head)
       const sigChain = this.sigChainService.getActiveChain()
       await this.sigChainService.saveChain(sigChain.team!.teamName)
-      await this.handleJoinViaQSS(sigChain)
+      await this.handleJoinViaQSS()
     })
 
     // Handle errors from local or remote sources.
@@ -440,20 +440,20 @@ export class Libp2pAuth {
     }
   }
 
-  private async handleJoinViaQSS(sigChain: SigChain): Promise<void> {
-    if (sigChain.team == null) {
+  private async handleJoinViaQSS(): Promise<void> {
+    if (this.sigChainService.team == null) {
       throw new Error('Team is undefined')
     }
 
     if (
-      this.joinedViaQSS(sigChain.team.id) &&
+      this.joinedViaQSS(this.sigChainService.team.id) &&
       this.joinStatus !== JoinStatus.JOINED &&
-      sigChain.roles.amIMemberOfRole(RoleName.MEMBER)
+      this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
     ) {
       this.joinStatus = JoinStatus.JOINED
       this.unblockConnections(this.bufferedConnections)
       this.emit(Libp2pEvents.AUTH_JOINED)
-      await this.sigChainService.saveChain(sigChain.team!.teamName)
+      await this.sigChainService.saveChain(this.sigChainService.team.teamName)
     }
   }
 

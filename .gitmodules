@@ -9,7 +9,7 @@
 [submodule "3rd-party/orbitdb"]
 	path = 3rd-party/orbitdb
 	url = https://github.com/TryQuiet/orbitdb.git
-	branch = main
+	branch = feat/error-handling-improvements
 [submodule "3rd-party/qss"]
 	path = 3rd-party/qss
 	url = https://github.com/TryQuiet/quiet-storage-service.git

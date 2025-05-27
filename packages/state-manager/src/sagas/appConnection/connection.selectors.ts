@@ -89,16 +89,20 @@ export const invitationUrl = createSelector(
     }
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
-    const inviteData: InvitationData = {
+    let inviteData: InvitationData = {
       psk: communityPsk,
       pairs,
-      version: InvitationDataVersion.v1,
+      authData: {
+        communityName: currentCommunity.name,
+        seed: longLivedInvite.seed,
+      },
+      version: InvitationDataVersion.v2,
     }
     const qssEnabled = currentCommunity.qssEnabled
     const teamId = currentCommunity.teamId
     const qssEndpoint = currentCommunity.qssEndpoint
 
-    if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null && qssEnabled === true) {
+    if (qssEnabled === true) {
       if (teamId == null || qssEndpoint == null) {
         const message = `QSS is enabled but team ID and/or QSS endpoint was null!  You must provide a team ID and QSS endpoint to properly handle QSS invites!`
         logger.error(message)
@@ -111,26 +115,11 @@ export const invitationUrl = createSelector(
         qssEnabled,
         qssEndpoint,
         authData: {
-          communityName: currentCommunity.name,
-          seed: longLivedInvite.seed,
+          ...inviteData.authData,
           teamId,
         },
       }
       logger.info('Added V3 invite data to the invite link')
-    } else if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null) {
-      inviteData = {
-        ...inviteData,
-        version: InvitationDataVersion.v2,
-        authData: {
-          communityName: currentCommunity.name,
-          seed: longLivedInvite.seed,
-        },
-      }
-      logger.info('Added V2 invite data to the invite link')
-    } else {
-      logger.warn(
-        `Community and/or LFA invite data is missing, can't create V2/V3 invite link! \nCommunity non-null? ${currentCommunity != null} \nCommunity name non-null? ${currentCommunity?.name != null} \nLFA invite data non-null? ${longLivedInvite != null}`
-      )
     }
     return composeInvitationShareUrl(inviteData)
   }

@@ -116,7 +116,7 @@ export class QSSAuthConnection extends EventEmitter {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
         const team = sigChain.team
-        const user = sigChain.localUserContext.user
+        const user = sigChain.user
         this.authConnection.emit('sync', { team, user })
         this._joinStatus = JoinStatus.JOINED
       }
@@ -129,9 +129,7 @@ export class QSSAuthConnection extends EventEmitter {
     this.authConnection.on('joined', async payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(
-        `${sigChain.localUserContext.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`
-      )
+      this.logger.info(`${sigChain.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`)
       if (sigChain.team == null) {
         this.logger.info(
           `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
@@ -141,7 +139,7 @@ export class QSSAuthConnection extends EventEmitter {
           team,
           user,
         } as MemberContext
-        sigChain.team = team
+        this.sigChainService.setActiveChain(team.teamName)
         this._joinStatus = JoinStatus.PENDING_MEMBER
       } else {
         this._joinStatus = JoinStatus.JOINED

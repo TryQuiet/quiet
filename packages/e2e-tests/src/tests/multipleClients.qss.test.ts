@@ -128,7 +128,7 @@ describe('Multiple Clients (QSS)', () => {
 
     describe('First User Joins Community', () => {
       it('First user opens the app', async () => {
-        await users.user1.app.openWithRetries()
+        await users.user1.app.openWithRetries(undefined, true)
       })
 
       it('First user submits invitation code received from owner', async () => {
@@ -215,7 +215,7 @@ describe('Multiple Clients (QSS)', () => {
 
     describe('Second User Joins', () => {
       it('Second user opens the app', async () => {
-        await users.user2.app.openWithRetries()
+        await users.user2.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.user2.app.driver)
         await debugModal.close()
       })
@@ -263,15 +263,13 @@ describe('Multiple Clients (QSS)', () => {
         await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
       })
 
-      it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
+      it('Second user can send a message and is visible', async () => {
         await generalChannelUser2.sendMessage(users.user2.messages[0], users.user2.username)
-        generalChannelUser2 = new Channel(users.user2.app.driver, generalChannelName)
-        await generalChannelUser2.waitForLabel(users.user2.username, 'Unregistered')
+        await generalChannelUser2.getMessageIdsByText(users.user2.messages[0], users.user2.username)
       })
 
-      it('First user sees that unregistered user\'s messages are marked as "unregistered"', async () => {
+      it(`First user sees second user's message`, async () => {
         await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username)
-        await generalChannelUser1.waitForLabel(users.user2.username, 'Unregistered')
       })
     })
 
@@ -284,33 +282,18 @@ describe('Multiple Clients (QSS)', () => {
     describe('Second User Registers Using QSS and Owner', () => {
       // TODO: add check for number of messages
       it('Owner goes back online', async () => {
-        await users.owner.app.openWithRetries()
+        await users.owner.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.owner.app.driver)
         await debugModal.close()
         await sleep(30000)
       })
 
-      // @isla - TODO: Uncomment and validate this test when we fix the issues causing it
-      // related to : https://github.com/TryQuiet/quiet/issues/1838, https://github.com/TryQuiet/quiet/issues/2321
-      xit('Second user receives certificate, they can see confirmation that they registered', async () => {
-        await generalChannelUser2.getMessageIdsByText(
-          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
-          users.user2.username
-        )
-      })
-
-      it('"Unregistered" label is removed from second user\'s messages', async () => {
+      it(`Owner can see the second user's message`, async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         await generalChannelOwner.getMessageIdsByText(users.user2.messages[0], users.user2.username, 120_000)
-        await generalChannelOwner.waitForLabelsNotPresent(users.user2.username, 30_000)
       })
 
-      it('"Unregistered" label is removed from second user\'s messages on second user', async () => {
-        generalChannelUser2 = new Channel(users.user2.app.driver, generalChannelName)
-        await generalChannelUser2.waitForLabelsNotPresent(users.user2.username, 30_000)
-      })
-
-      it(`Second user sends a message`, async () => {
+      it(`Second user sends a new message`, async () => {
         await generalChannelUser2.sendMessage(users.user2.messages[1], users.user2.username)
       })
 
@@ -325,19 +308,18 @@ describe('Multiple Clients (QSS)', () => {
 
     describe('First User Comes Back Online', () => {
       it('First user goes back online', async () => {
-        await users.user1.app.openWithRetries()
+        await users.user1.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.owner.app.driver)
         await debugModal.close()
         await sleep(30000)
       })
 
-      it('"Unregistered" label is removed from second user\'s messages on first user', async () => {
-        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
-        await generalChannelUser1.waitForLabelsNotPresent(users.user2.username, 30_000)
-      })
-
       it("Second user's message is visible in a channel for first user", async () => {
-        await generalChannelUser1.getMessageIdsByText(users.user2.messages[1], users.user2.username)
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
+        expect(await generalChannelUser1.isReady()).toBeTruthy()
+        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
+        await generalChannelUser1.getMessageIdsByText(users.user2.messages[1], users.user2.username, 120_000)
       })
     })
   })

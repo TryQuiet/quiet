@@ -69,6 +69,7 @@ export class Libp2pService extends EventEmitter {
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(LIBP2P_DB_PATH) public readonly datastorePath: string,
     private readonly sigchainService: SigChainService,
+    private readonly localDbService: LocalDbService,
     private readonly qssService: QSSService
   ) {
     super()

@@ -171,6 +171,9 @@ describe('communitiesSelectors', () => {
   })
 
   it('invitationUrl selector returns proper v3 url when community and long lived invite are defined and qss is enabled', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
     const peerList = [
       createLibp2pAddress(
         'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
@@ -207,7 +210,6 @@ describe('communitiesSelectors', () => {
     const expectedUrl = composeInvitationShareUrl({
       pairs,
       psk,
-      ownerOrbitDbIdentity,
       authData,
       qssEnabled: true,
       qssEndpoint,
@@ -218,6 +220,9 @@ describe('communitiesSelectors', () => {
   })
 
   it('invitationUrl selector throws when qss is enabled but no team ID is provided', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
     const peerList = [
       createLibp2pAddress(
         'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
@@ -254,6 +259,9 @@ describe('communitiesSelectors', () => {
   })
 
   it('invitationUrl selector throws when qss is enabled but no qss endpoint is provided', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+
     const peerList = [
       createLibp2pAddress(
         'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
