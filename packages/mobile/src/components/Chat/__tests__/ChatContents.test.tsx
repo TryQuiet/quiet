@@ -3,7 +3,7 @@ import { renderComponent } from '../../../utils/functions/renderComponent/render
 import { Chat } from '../Chat.component'
 import { Keyboard } from 'react-native'
 import { ChatProps, ListItem } from '../Chat.types'
-import { FileActionsProps } from '../../UploadedFile/UploadedFile.types'
+import { FileActionsProps } from '../../FileAttachment/FileAttachment.types'
 import { DisplayableMessage } from '@quiet/types'
 
 // Mock dependencies
@@ -178,8 +178,8 @@ describe('Chat component list data', () => {
     },
     pendingMessages: {},
     messages: mockMessages,
-    updateUploadedFiles: jest.fn(),
-    updateUploadedImages: jest.fn(),
+    updateFileAttachments: jest.fn(),
+    updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
   }
 
