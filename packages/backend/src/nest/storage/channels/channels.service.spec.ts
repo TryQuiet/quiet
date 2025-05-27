@@ -203,7 +203,7 @@ describe('ChannelsService', () => {
         path: realFilePath,
         name: 'test-large-file',
         ext: '.txt',
-        cid: 'uploading_id',
+        cid: 'attachment_id',
         message: {
           id: 'id',
           channelId: channel.id,

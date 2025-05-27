@@ -32,7 +32,7 @@ import {
   SendMessagePayload,
   SocketActions,
   SocketEvents,
-  UploadFilePayload,
+  AttachFilePayload,
   type DeleteChannelResponse,
   type UserProfile,
   type UserProfilesStoredEvent,
@@ -754,11 +754,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
       await this.storageService?.channels.downloadFile(payload.metadata)
     })
-    this.socketService.on(SocketActions.UPLOAD_FILE, async (metadata: FileMetadata) => {
-      await this.storageService?.channels.uploadFile(metadata)
+    this.socketService.on(SocketActions.ATTACH_FILE, async (metadata: FileMetadata) => {
+      await this.storageService?.channels.attachFile(metadata)
     })
-    this.socketService.on(SocketEvents.FILE_UPLOADED, async (args: FileMetadata) => {
-      await this.storageService?.channels.uploadFile(args)
+    this.socketService.on(SocketEvents.FILE_ATTACHED, async (args: FileMetadata) => {
+      await this.storageService?.channels.attachFile(args)
     })
     this.socketService.on(SocketActions.CANCEL_DOWNLOAD, mid => {
       this.storageService?.channels.cancelDownload(mid)
@@ -804,8 +804,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.channels.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.serverIoProvider.io.emit(SocketEvents.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.storageService.channels.on(StorageEvents.FILE_UPLOADED, (payload: UploadFilePayload) => {
-      this.serverIoProvider.io.emit(SocketEvents.FILE_UPLOADED, payload)
+    this.storageService.channels.on(StorageEvents.FILE_ATTACHED, (payload: AttachFilePayload) => {
+      this.serverIoProvider.io.emit(SocketEvents.FILE_ATTACHED, payload)
     })
     this.storageService.channels.on(StorageEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       this.serverIoProvider.io.emit(SocketEvents.DOWNLOAD_PROGRESS, payload)

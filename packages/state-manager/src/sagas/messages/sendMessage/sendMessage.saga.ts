@@ -81,9 +81,9 @@ export function* sendMessageSaga(
     })
   )
 
-  const isUploadingFileMessage = payload.media?.cid?.includes('uploading')
-  if (isUploadingFileMessage) {
-    logger.info(`Waiting to send message ${id} - file upload is in progress`)
+  const isAttachingFileMessage = payload.media?.cid?.includes('attaching')
+  if (isAttachingFileMessage) {
+    logger.info(`Waiting to send message ${id} - file attachment is in progress`)
     return // Do not broadcast message until file is uploaded
   }
 

@@ -23,7 +23,7 @@ import {
   TEST_FILE_NAME,
   TEST_IMAGE_FILE_NAME,
   UPLOAD_FILE_DIR,
-} from '../uploadFile.const'
+} from '../attachFile.const'
 import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
 const logger = createLogger('multipleClients')
@@ -582,14 +582,14 @@ describe('Multiple Clients', () => {
       })
     })
 
-    describe('Uploading and downloading files', () => {
+    describe('Attaching and downloading files', () => {
       let imageMessageIds: MessageIds | undefined = undefined
       let fileMessageIds: MessageIds | undefined = undefined
       let largeFileMessageIds: MessageIds | undefined = undefined
 
       it('Owner uploads an image', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_IMAGE_FILE_NAME)
-        imageMessageIds = await generalChannelOwner.uploadFile(
+        imageMessageIds = await generalChannelOwner.attachFile(
           TEST_IMAGE_FILE_NAME,
           uploadFilePath,
           FileAttachmentType.IMAGE,
@@ -609,7 +609,7 @@ describe('Multiple Clients', () => {
 
       it('Owner uploads a file', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_FILE_NAME)
-        fileMessageIds = await generalChannelOwner.uploadFile(
+        fileMessageIds = await generalChannelOwner.attachFile(
           TEST_FILE_NAME,
           uploadFilePath,
           FileAttachmentType.FILE,
@@ -630,7 +630,7 @@ describe('Multiple Clients', () => {
       it('Owner uploads a large file', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_BIG_FILE_NAME)
         createArbitraryFile(uploadFilePath, BIG_FILE_SIZE)
-        largeFileMessageIds = await generalChannelOwner.uploadFile(
+        largeFileMessageIds = await generalChannelOwner.attachFile(
           TEST_BIG_FILE_NAME,
           uploadFilePath,
           FileAttachmentType.FILE,

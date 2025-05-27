@@ -121,7 +121,7 @@ describe('addMessagesSaga', () => {
       .run()
   })
 
-  test("update message after downloading it's media", async () => {
+  test('update message after downloading its media', async () => {
     const id = Math.random().toString(36).substr(2.9)
 
     let message = (
@@ -198,10 +198,10 @@ describe('addMessagesSaga', () => {
       .run()
   })
 
-  test("update message after uploading it's media", async () => {
+  test('update message after attaching its media', async () => {
     const id = Math.random().toString(36).substr(2.9)
     const media = {
-      cid: 'uploading',
+      cid: 'attaching',
       path: 'path/to/image.png',
       name: 'image',
       ext: 'png',
@@ -220,7 +220,7 @@ describe('addMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: generalChannel.id,
           media: {
-            cid: 'uploading',
+            cid: 'attaching',
             path: 'path/to/image.png',
             name: 'image',
             ext: 'png',

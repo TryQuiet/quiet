@@ -6,7 +6,7 @@ export enum StorageEvents {
   MESSAGES_STORED = 'messagesStored',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
-  FILE_UPLOADED = 'fileUploaded',
+  FILE_ATTACHED = 'fileUploaded',
   UPLOAD_PROGRESS = 'uploadProgress',
   DOWNLOAD_PROGRESS = 'downloadProgress',
   MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',

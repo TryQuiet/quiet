@@ -18,7 +18,7 @@ export function* uploadFileSaga(
   yield* apply(
     socket,
     socket.emit,
-    applyEmitParams(SocketActions.UPLOAD_FILE, {
+    applyEmitParams(SocketActions.ATTACH_FILE, {
       file: message.media,
       peerId: identity.networkInfo.peerId.id,
     })

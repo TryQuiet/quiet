@@ -4,7 +4,7 @@ import FileAttachmentPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('uploadingPreview:test')
+const logger = createLogger('attachingPreview:test')
 
 describe('FileAttachmentPreview component', () => {
   it('renders properly for image and document', () => {

@@ -24,7 +24,7 @@ import {
   NetworkInfo,
   SendMessagePayload,
   SocketActions,
-  UploadFilePayload,
+  AttachFilePayload,
   UserProfile,
   Identity,
   ResponseLaunchCommunityPayload,
@@ -472,7 +472,7 @@ export const getSocketFactory = async () => {
     peerId: 'peer-id',
   })
 
-  factory.define<UploadFilePayload>(SocketActions.UPLOAD_FILE, Object, {
+  factory.define<AttachFilePayload>(SocketActions.ATTACH_FILE, Object, {
     file: {
       path: '/path/to/file',
       name: 'test-file.png',

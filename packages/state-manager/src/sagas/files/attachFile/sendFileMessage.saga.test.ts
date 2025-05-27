@@ -70,7 +70,7 @@ describe('sendFileMessageSaga', () => {
     if (!currentChannel) throw new Error('no current channel id')
 
     const media: FileMetadata = {
-      cid: `uploading_${message}`,
+      cid: `attaching_${message}`,
       path: 'temp/name.ext',
       name: 'name',
       ext: 'ext',
@@ -81,7 +81,7 @@ describe('sendFileMessageSaga', () => {
       tmpPath: undefined,
     }
     const reducer = combineReducers(testReducers)
-    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
+    await expectSaga(sendFileMessageSaga, filesActions.attachFile(media))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(generateMessageId), message]])
@@ -96,8 +96,8 @@ describe('sendFileMessageSaga', () => {
       .put(
         filesActions.updateDownloadStatus({
           mid: message,
-          cid: `uploading_${message}`,
-          downloadState: DownloadState.Uploading,
+          cid: `attaching_${message}`,
+          downloadState: DownloadState.Attaching,
           downloadProgress: undefined,
         })
       )
@@ -110,7 +110,7 @@ describe('sendFileMessageSaga', () => {
     if (!currentChannel) throw new Error('no current channel id')
 
     const media: FileMetadata = {
-      cid: `uploading_${message}`,
+      cid: `attaching_${message}`,
       path: 'file://temp/name.ext',
       tmpPath: 'file://temp/name.ext',
       name: 'name',
@@ -127,7 +127,7 @@ describe('sendFileMessageSaga', () => {
     }
 
     const reducer = combineReducers(testReducers)
-    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
+    await expectSaga(sendFileMessageSaga, filesActions.attachFile(media))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(generateMessageId), message]])
@@ -142,8 +142,8 @@ describe('sendFileMessageSaga', () => {
       .put(
         filesActions.updateDownloadStatus({
           mid: message,
-          cid: `uploading_${message}`,
-          downloadState: DownloadState.Uploading,
+          cid: `attaching_${message}`,
+          downloadState: DownloadState.Attaching,
           downloadProgress: undefined,
         })
       )

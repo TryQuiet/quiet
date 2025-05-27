@@ -25,7 +25,7 @@ export function* broadcastHostedFileSaga(
 
   if (!message || !instanceOfChannelMessage(message)) {
     logger.error(
-      `Cannot broadcast message after uploading. Draft ${payload.message.id} from #${payload.message.channelId} does not exist in local storage.`
+      `Cannot broadcast message after attaching. Draft ${payload.message.id} from #${payload.message.channelId} does not exist in local storage.`
     )
     return
   }

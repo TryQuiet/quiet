@@ -59,11 +59,11 @@ export const ChannelScreen: FC = () => {
 
   const unregisteredUsernameContextMenu = useContextMenu(MenuName.UnregisteredUsername)
 
-  const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
+  const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
   const filesRef = React.useRef<FilePreviewData>({})
   React.useEffect(() => {
-    filesRef.current = uploadingFiles
-  }, [uploadingFiles])
+    filesRef.current = attachingFiles
+  }, [attachingFiles])
 
   const downloadFile = useCallback(
     (media: FileMetadata) => {
@@ -98,7 +98,7 @@ export const ChannelScreen: FC = () => {
     )
 
     // FilePreviewData
-    setUploadingFiles(existingFiles => {
+    setAttachingFiles(existingFiles => {
       const updatedFiles = { ...existingFiles, ...filesData }
       return updatedFiles
     })
@@ -115,14 +115,14 @@ export const ChannelScreen: FC = () => {
     )
 
     // FilePreviewData
-    setUploadingFiles(existingFiles => {
+    setAttachingFiles(existingFiles => {
       const updatedFiles = { ...existingFiles, ...assetData }
       return updatedFiles
     })
   }
 
   const removeFilePreview = (id: string) =>
-    setUploadingFiles(existingFiles => {
+    setAttachingFiles(existingFiles => {
       delete existingFiles[id]
       const updatedExistingFiles = { ...existingFiles }
       return updatedExistingFiles
@@ -150,13 +150,13 @@ export const ChannelScreen: FC = () => {
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
-      // Upload files, then send corresponding message (contaning cid) for each of them
+      // Attach files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
         if (!fileData.path) return
-        dispatch(files.actions.uploadFile(fileData))
+        dispatch(files.actions.attachFile(fileData))
       })
       // Reset file previews for input state
-      setUploadingFiles({})
+      setAttachingFiles({})
     },
     [dispatch]
   )
@@ -195,7 +195,7 @@ export const ChannelScreen: FC = () => {
       updateImageAttachments={updateImageAttachments}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
-      uploadedFiles={uploadingFiles}
+      uploadedFiles={attachingFiles}
       ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}

@@ -33,7 +33,7 @@ import {
   FileMetadata,
   DownloadFilePayload,
   InitCommunityPayload,
-  UploadFilePayload,
+  AttachFilePayload,
   FileContent,
   DownloadState,
   MessageVerificationStatus,
@@ -746,7 +746,7 @@ describe('Channel', () => {
 
     let cid = ''
 
-    const uploadingDelay = 100
+    const attachingDelay = 100
 
     // TODO: use the real socket mock
     const mockEmitImpl = async (...input: [SocketActions | SocketEvents, ...socketEventData<[any]>]) => {
@@ -756,17 +756,17 @@ describe('Channel', () => {
       if (action === SocketActions.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-      } else if (action === SocketActions.UPLOAD_FILE) {
-        const data = input[1] as UploadFilePayload
+      } else if (action === SocketActions.ATTACH_FILE) {
+        const data = input[1] as AttachFilePayload
         const payload = data
 
-        cid = `uploading_${payload.file.message.id}`
+        cid = `attaching_${payload.file.message.id}`
 
         await new Promise(resolve => {
-          setTimeout(resolve, uploadingDelay)
+          setTimeout(resolve, attachingDelay)
         })
 
-        socket.socketClient.emit<FileMetadata>(SocketEvents.FILE_UPLOADED, {
+        socket.socketClient.emit<FileMetadata>(SocketEvents.FILE_ATTACHED, {
           ...payload.file,
           cid: cid,
           path: null,
@@ -789,7 +789,7 @@ describe('Channel', () => {
         const data = input[1] as MessagesLoadedPayload
         const media = data.messages[0].media
         if (!media) return
-        return socket.socketClient.emit<UploadFilePayload>(SocketActions.UPLOAD_FILE, {
+        return socket.socketClient.emit<AttachFilePayload>(SocketActions.ATTACH_FILE, {
           file: media,
           peerId: alice.networkInfo.peerId.id,
         })
@@ -829,11 +829,11 @@ describe('Channel', () => {
       store
     )
 
-    store.dispatch(files.actions.uploadFile(fileContent))
+    store.dispatch(files.actions.attachFile(fileContent))
 
     await act(async () => {
       await new Promise(resolve => {
-        setTimeout(resolve, uploadingDelay)
+        setTimeout(resolve, attachingDelay)
       })
     })
 
@@ -841,7 +841,7 @@ describe('Channel', () => {
     // Confirm image's placeholder never displays
     expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
 
-    // Confirm image is visible (in uploading state)
+    // Confirm image is visible (in attaching state)
     expect(await screen.findByTestId(`${cid}-imageVisual`)).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`
@@ -849,7 +849,7 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Files/uploadFile",
+        "Files/attachFile",
         "Messages/sendMessage",
         "Messages/addMessagesSendingStatus",
         "Files/updateDownloadStatus",
@@ -930,7 +930,7 @@ describe('Channel', () => {
     initialState.dispatch(
       files.actions.updateDownloadStatus({
         mid: missingFile.message.id,
-        cid: `uploading_${missingFile.cid}`,
+        cid: `attaching_${missingFile.cid}`,
         downloadState: DownloadState.Queued,
         downloadProgress: {
           downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
@@ -1044,16 +1044,16 @@ describe('Channel', () => {
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActions, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActions.UPLOAD_FILE) {
-        const data = input[1] as UploadFilePayload
+      if (action === SocketActions.ATTACH_FILE) {
+        const data = input[1] as AttachFilePayload
         const payload = data
-        socket.socketClient.emit<FileMetadata>(SocketEvents.FILE_UPLOADED, {
+        socket.socketClient.emit<FileMetadata>(SocketEvents.FILE_ATTACHED, {
           ...payload.file,
           size: 1024,
         })
         return socket.socketClient.emit<DownloadStatus>(SocketEvents.DOWNLOAD_PROGRESS, {
           mid: payload.file.message.id,
-          cid: `uploading_${payload.file.message.id}`,
+          cid: `attaching_${payload.file.message.id}`,
           downloadState: DownloadState.Hosted,
         })
       }
@@ -1088,7 +1088,7 @@ describe('Channel', () => {
       store
     )
     await act(async () => {
-      store.dispatch(files.actions.uploadFile(fileContent))
+      store.dispatch(files.actions.attachFile(fileContent))
     })
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
@@ -1098,7 +1098,7 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Files/uploadFile",
+        "Files/attachFile",
         "Messages/sendMessage",
         "Messages/addMessagesSendingStatus",
         "Files/updateDownloadStatus",

@@ -85,7 +85,7 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   private attachIncomingEvents() {
-    this.on(IpfsFilesManagerEvents.UPLOAD_FILE, async (fileMetadata: FileMetadata) => {
+    this.on(IpfsFilesManagerEvents.ATTACH_FILE, async (fileMetadata: FileMetadata) => {
       await this.attachFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
@@ -207,7 +207,7 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public async attachFile(metadata: FileMetadata) {
-    const _logger = createLogger(`${IpfsFileManagerService.name}:upload`)
+    const _logger = createLogger(`${IpfsFileManagerService.name}:attach`)
     const sigChain = this.sigChainService.getActiveChain()
     if (sigChain == null) {
       throw new Error(`Can't attach file because there was no active sigchain`)
@@ -294,7 +294,7 @@ export class IpfsFileManagerService extends EventEmitter {
       },
     }
 
-    this.emit(StorageEvents.FILE_UPLOADED, fileMetadata)
+    this.emit(StorageEvents.FILE_ATTACHED, fileMetadata)
 
     if (metadata.tmpPath) {
       this.deleteFile(metadata.tmpPath)
