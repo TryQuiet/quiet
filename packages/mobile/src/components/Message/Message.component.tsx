@@ -29,7 +29,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   )
 }
 
-export const Message: FC<MessageProps & FileActionsProps> = ({
+const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
   downloadFile,
@@ -116,19 +116,18 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const representativeMessage = data[0]
 
-  const formatDateTime = (createdAt: number): string => {
+  const formatTime = (createdAt: number): string => {
     // get timezone offset from native Date, for correct local timezone
     const tzOffsetHours = -new Date().getTimezoneOffset() / 60
     const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
 
     const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
-    const now = DateTime.now().setZone(formattedOffset)
 
-    // Use DateTime.DATETIME_MED to properly respect locale settings including 12h/24h preference
-    return messageTime.toLocaleString(DateTime.DATETIME_MED)
+    // Use DateTime.TIME_SIMPLE to show time while respecting the 12h/24h preference of the locale
+    return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
   }
 
-  const representativeMessageDateTime = formatDateTime(representativeMessage.createdAt)
+  const representativeMessageDateTime = formatTime(representativeMessage.createdAt)
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
@@ -261,3 +260,5 @@ const md = MarkdownIt({
   typographer: false,
   linkify: true,
 })
+
+export const Message = React.memo(MessageInner)

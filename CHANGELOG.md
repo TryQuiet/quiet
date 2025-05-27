@@ -3,6 +3,7 @@
 ## [unreleased]
 
 * Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
+* Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
 
 ## [5.0.0]
 
@@ -49,9 +50,6 @@
 * Changes close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
 * Changes the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 * Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
-* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
-* Change close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
-* Changing the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 
 ### Chores
 
