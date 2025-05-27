@@ -242,7 +242,6 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      // TODO: FIX POSSIBLE DUPLICATE FUNCTION ASSIGNMENTS DUE TO MERGE
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
       }}
