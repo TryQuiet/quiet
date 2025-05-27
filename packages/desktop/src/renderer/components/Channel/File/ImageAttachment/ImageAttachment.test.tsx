@@ -52,10 +52,10 @@ describe('FileAttachment', () => {
       <body>
         <div>
           <div
-            class="css-gd4qex"
+            class="css-2iuva0"
           >
             <div
-              class="css-bxyyfp"
+              class="css-1d93fl3"
               data-testid="abcd1234-imagePlaceholder"
             >
               <p
@@ -129,7 +129,7 @@ describe('FileAttachment', () => {
       <body>
         <div>
           <div
-            class="css-gd4qex"
+            class="css-2iuva0"
           >
             <div
               class="ImageAttachmentcontainer"
