@@ -2843,8 +2843,10 @@ exports[`Chat component renders component 1`] = `
                     editable={true}
                     height={54}
                     multiline={true}
+                    onChange={[Function]}
                     onChangeText={[Function]}
                     onContentSizeChange={[Function]}
+                    onEndEditing={[Function]}
                     placeholder="Message #general"
                     style={
                       [
