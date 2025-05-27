@@ -17,7 +17,7 @@ const PREFIX = 'NestedMessageContent'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
-  info: `${PREFIX}info`,
+  noninitial: `${PREFIX}noninitial`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -32,12 +32,13 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     color: theme.palette.colors.lightGray,
   },
 
-  [`& .${classes.info}`]: {
-    color: theme.palette.colors.white,
+  [`& .${classes.noninitial}`]: {
+    marginTop: '10px',
   },
 }))
 
 export interface NestedMessageContentProps {
+  index: number
   message: DisplayableMessage
   pending: boolean
   downloadStatus?: DownloadStatus
@@ -49,6 +50,7 @@ export interface NestedMessageContentProps {
 }
 
 export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
+  index,
   message,
   pending,
   downloadStatus,
@@ -68,48 +70,26 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
         const fileDisplay = !isMalicious && (!size || size < AUTODOWNLOAD_SIZE_LIMIT)
-        return (
-          <div
-            className={classNames({
-              [classes.message]: true,
-              [classes.pending]: pending,
-            })}
-            data-testid={`messagesGroupContent-${message.id}`}
-          >
-            {fileDisplay && message.media ? (
-              <UploadedImage
-                media={message.media}
-                uploadedFileModal={uploadedFileModal}
-                downloadStatus={downloadStatus}
-              />
-            ) : (
-              <FileComponent
-                message={message}
-                downloadStatus={downloadStatus}
-                openContainingFolder={openContainingFolder}
-                downloadFile={downloadFile}
-                cancelDownload={cancelDownload}
-              />
-            )}
-          </div>
+        return fileDisplay && message.media ? (
+          <UploadedImage media={message.media} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
+        ) : (
+          <FileComponent
+            message={message}
+            downloadStatus={downloadStatus}
+            openContainingFolder={openContainingFolder}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+          />
         )
       case 4: // MessageType.File
         return (
-          <div
-            className={classNames({
-              [classes.message]: true,
-              [classes.pending]: pending,
-            })}
-            data-testid={`messagesGroupContent-${message.id}`}
-          >
-            <FileComponent
-              message={message}
-              downloadStatus={downloadStatus}
-              openContainingFolder={openContainingFolder}
-              downloadFile={downloadFile}
-              cancelDownload={cancelDownload}
-            />
-          </div>
+          <FileComponent
+            message={message}
+            downloadStatus={downloadStatus}
+            openContainingFolder={openContainingFolder}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+          />
         )
       default:
         if (!displayMathRegex.test(message.message)) {
@@ -136,7 +116,20 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
     }
   }
 
-  return <StyledGrid item>{renderMessage()}</StyledGrid>
+  return (
+    <StyledGrid item>
+      <div
+        className={classNames({
+          [classes.message]: true,
+          [classes.pending]: pending,
+          [classes.noninitial]: index !== 0,
+        })}
+        data-testid={`messagesGroupContent-${message.id}`}
+      >
+        {renderMessage()}
+      </div>
+    </StyledGrid>
+  )
 }
 
 export default NestedMessageContent
