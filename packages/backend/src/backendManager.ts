@@ -41,8 +41,6 @@ program.parse(process.argv)
 const options = program.opts()
 
 logger.info('options', options)
-logger.info(process.env.QSS_ENABLED)
-logger.info(process.env.QSS_ENDPOINT)
 
 export const runBackendDesktop = async () => {
   logger.info('Running backend manager desktop')
