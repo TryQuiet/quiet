@@ -605,6 +605,72 @@ describe('IpfsFileManagerService', () => {
     )
   })
 
+  it('only tries to compress/process JPEG/JPG images, not e.g. a .txt file', async () => {
+    // Spy on the imageCompressionService.processImage method
+    const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
+
+    // Create test JPG file path
+    const jpegPath = path.join(dirname, '/testUtils/test-image.jpg')
+
+    // Create a test jpg file if it doesn't exist
+    if (!fs.existsSync(jpegPath)) {
+      fs.copyFileSync(path.join(dirname, '/testUtils/test-image.png'), jpegPath)
+    }
+
+    // Upload a JPEG file
+    const jpegMetadata: FileMetadata = {
+      path: jpegPath,
+      name: 'test-jpeg-image',
+      ext: '.jpg',
+      cid: 'jpeg_id',
+      message: { id: 'jpeg_id', channelId: 'channelId' },
+    }
+
+    await ipfsFileManagerService.attachFile(jpegMetadata)
+
+    // The image compression service should be called for JPG files
+    expect(imageCompressionSpy).toHaveBeenCalledWith(expect.any(String), '.jpg')
+
+    // Reset the spy
+    imageCompressionSpy.mockClear()
+
+    // Upload a PNG file
+    const pngMetadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-image.png'),
+      name: 'test-png-image',
+      ext: '.png',
+      cid: 'png_id',
+      message: { id: 'png_id', channelId: 'channelId' },
+    }
+
+    await ipfsFileManagerService.attachFile(pngMetadata)
+
+    // The image compression service should NOT be called for PNG files
+    expect(imageCompressionSpy).not.toHaveBeenCalled()
+
+    // Reset the spy
+    imageCompressionSpy.mockClear()
+
+    // Upload a text file
+    const textMetadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
+      name: 'test-text-file',
+      ext: '.pdf',
+      cid: 'text_id',
+      message: { id: 'text_id', channelId: 'channelId' },
+    }
+
+    await ipfsFileManagerService.attachFile(textMetadata)
+
+    // The image compression service should NOT be called for text files
+    expect(imageCompressionSpy).not.toHaveBeenCalled()
+
+    // Clean up test file
+    if (fs.existsSync(jpegPath)) {
+      fs.unlinkSync(jpegPath)
+    }
+  })
+
   // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
   //   const fileSize = 52428800 // 50MB
   //   createFile(filePath, fileSize)

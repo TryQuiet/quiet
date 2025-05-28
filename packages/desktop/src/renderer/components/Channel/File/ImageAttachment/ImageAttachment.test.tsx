@@ -1,5 +1,6 @@
 import { DisplayableMessage, DownloadState, DownloadStatus, MessageType } from '@quiet/types'
 import React from 'react'
+import '@testing-library/jest-dom'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import ImageAttachment from './ImageAttachment'
@@ -7,6 +8,7 @@ import ImageAttachment from './ImageAttachment'
 describe('FileAttachment', () => {
   let message: DisplayableMessage
   let downloadStatus: DownloadStatus
+  let processingMessage: DisplayableMessage
 
   beforeEach(() => {
     message = {
@@ -31,6 +33,24 @@ describe('FileAttachment', () => {
           channelId: 'general',
         },
       },
+    }
+
+    // Create a processing image message without width/height
+    processingMessage = {
+      ...message,
+      // Cast to any to bypass TypeScript checks for test purposes
+      media: {
+        path: null,
+        name: 'test',
+        ext: '.png',
+        cid: '', // Empty cid for processing images
+        width: undefined,
+        height: undefined,
+        message: {
+          id: 'string',
+          channelId: 'general',
+        },
+      } as any,
     }
 
     downloadStatus = {
@@ -154,5 +174,25 @@ describe('FileAttachment', () => {
         </div>
       </body>
     `)
+  })
+
+  it('renders a placeholder spinner when image is processing (no width/height)', () => {
+    const result = renderComponent(
+      <ImageAttachment
+        // @ts-expect-error
+        media={processingMessage.media}
+        downloadStatus={downloadStatus}
+      />
+    )
+
+    // Instead of verifying by testId which may be empty, check for placeholder elements
+    const placeholderElement = result.container.querySelector('.ImageAttachmentPlaceholderplaceholder')
+    expect(placeholderElement).toBeInTheDocument()
+
+    // Verify the spinner (CircularProgress) is rendered
+    const spinner = result.container.querySelector('.MuiCircularProgress-root')
+    expect(spinner).toBeInTheDocument()
+
+    expect(result.baseElement).toMatchSnapshot()
   })
 })
