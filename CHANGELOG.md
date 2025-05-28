@@ -5,6 +5,7 @@
 ### Chores
 
 * Rename upload/uploaded terminology to attachment for clarity across codebase
+* Updates Android instructions in `packages/mobile/README.md`
 
 ### Features
 
