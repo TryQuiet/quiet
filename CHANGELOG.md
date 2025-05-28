@@ -8,7 +8,7 @@
 
 ### Features
 
-* Compresses images over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
+* Compresses images and user profile photos over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
 * Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
 * Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
 
