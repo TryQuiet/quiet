@@ -31,7 +31,6 @@ const classes = {
   none: `${PREFIX}none`,
   transparent: `${PREFIX}transparent`,
   withoutHeader: `${PREFIX}withoutHeader`,
-  sentry: `${PREFIX}sentry`,
 }
 
 type StyledMaterialModalProps = MaterialModalProps & { zIndex: number }
@@ -154,10 +153,9 @@ export const Modal: React.FC<IModalProps> = ({
   fullPage = true,
   isTransparent = false,
   withoutHeader = false,
-  isSentry = false,
   ...otherProps
 }) => {
-  const zIndex = isSentry ? 9000 : 1300
+  const zIndex = 1300
   return (
     <StyledMaterialModal zIndex={zIndex} open={open} onClose={handleClose} {...otherProps}>
       <Grid
@@ -168,7 +166,6 @@ export const Modal: React.FC<IModalProps> = ({
           [classes.centered]: fullPage,
           [classes.window]: !fullPage,
           [classes.transparent]: isTransparent,
-          [classes.sentry]: isSentry,
         })}
       >
         <Grid

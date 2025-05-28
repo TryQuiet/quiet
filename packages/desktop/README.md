@@ -47,7 +47,7 @@ To create a release run:
 npm run lerna version <release-type>
 ```
 
-To build a test version with Sentry, run:
+To build a prerelease version, run:
 
 ```
 npm run lerna version prerelease

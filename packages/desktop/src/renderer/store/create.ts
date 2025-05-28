@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/browser'
 import { applyMiddleware, createStore } from 'redux'
 import thunk from 'redux-thunk'
 import promise from 'redux-promise-middleware'
@@ -15,20 +14,9 @@ import { createLogger } from '../logger'
 
 const logger = createLogger('store:create')
 
-const testMode = process.env.TEST_MODE
-
-if (testMode) {
-  Sentry.init({
-    dsn: 'https://1ca88607c3d14e15b36cb2cfd5f16d68@o1060867.ingest.sentry.io/6050774',
-  })
-}
-
 const sagaMiddleware = createSagaMiddleware({
   onError(err) {
     logger.error(err)
-    if (testMode) {
-      Sentry.captureException(err)
-    }
   },
 })
 
