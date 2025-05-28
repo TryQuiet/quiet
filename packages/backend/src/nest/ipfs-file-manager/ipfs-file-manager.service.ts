@@ -521,50 +521,66 @@ export class IpfsFileManagerService extends EventEmitter {
       downloadedBytes: Number(initialStats.localFileSize),
     })
 
-    const updateDownloadStatusWithTransferSpeed = setInterval(async () => {
-      if (controller.signal.aborted) {
-        _logger.warn(`Cancelling update status interval due to cancellation`)
-        clearInterval(updateDownloadStatusWithTransferSpeed)
-        return
-      }
+    // Only show progress updates for files above auto-download limit (20MB)
+    // These are files that users must explicitly choose to download
+    const AUTODOWNLOAD_SIZE_LIMIT = 20971520 // 20 MB
+    const requiresUserAction = (fileMetadata.size || 0) > AUTODOWNLOAD_SIZE_LIMIT
 
-      const currentStats = await this.getFileStats(fileCid, {
-        logger: _logger,
-        signal: controller.signal,
-        statOptions: {
-          signal: controller.signal,
-        },
-      })
+    let updateDownloadStatusWithTransferSpeed: NodeJS.Timeout | null = null
 
-      if (currentStats == null) {
-        return
-      }
-
-      const totalDownloadedBytes = Number(currentStats.localFileSize)
-      let recentlyDownloadedBytes = 0
-      const thresholdTimestamp = DateTime.utc().toMillis() - TRANSFER_SPEED_SPAN_MS
-      blocksStats.forEach((blockStat: BlockStat) => {
-        if (blockStat.fetchTimeMs >= thresholdTimestamp) {
-          recentlyDownloadedBytes += blockStat.byteLength
+    if (requiresUserAction) {
+      // Only set up progress updates for large files that require user interaction
+      updateDownloadStatusWithTransferSpeed = setInterval(async () => {
+        if (controller.signal.aborted) {
+          _logger.warn(`Cancelling update status interval due to cancellation`)
+          clearInterval(updateDownloadStatusWithTransferSpeed!)
+          return
         }
-      })
-      this.logger.info(`Current downloaded bytes`, recentlyDownloadedBytes, totalDownloadedBytes)
 
-      const transferSpeed = recentlyDownloadedBytes === 0 ? 0 : recentlyDownloadedBytes / TRANSFER_SPEED_SPAN
-      const fileState = this.files.get(fileMetadata.cid)
-      if (!fileState) {
-        this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
-        return
-      }
-      this.files.set(fileMetadata.cid, {
-        ...fileState,
-        transferSpeed: transferSpeed,
-        downloadedBytes: totalDownloadedBytes,
-      })
+        const currentStats = await this.getFileStats(fileCid, {
+          logger: _logger,
+          signal: controller.signal,
+          statOptions: {
+            signal: controller.signal,
+          },
+        })
+
+        if (currentStats == null) {
+          return
+        }
+
+        const totalDownloadedBytes = Number(currentStats.localFileSize)
+        let recentlyDownloadedBytes = 0
+        const thresholdTimestamp = DateTime.utc().toMillis() - TRANSFER_SPEED_SPAN_MS
+        blocksStats.forEach((blockStat: BlockStat) => {
+          if (blockStat.fetchTimeMs >= thresholdTimestamp) {
+            recentlyDownloadedBytes += blockStat.byteLength
+          }
+        })
+        this.logger.info(`Current downloaded bytes`, recentlyDownloadedBytes, totalDownloadedBytes)
+
+        const transferSpeed = recentlyDownloadedBytes === 0 ? 0 : recentlyDownloadedBytes / TRANSFER_SPEED_SPAN
+        const fileState = this.files.get(fileMetadata.cid)
+        if (!fileState) {
+          this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
+          return
+        }
+        this.files.set(fileMetadata.cid, {
+          ...fileState,
+          transferSpeed: transferSpeed,
+          downloadedBytes: totalDownloadedBytes,
+        })
+        await this.updateStatus(fileMetadata.cid, DownloadState.Downloading)
+
+        _logger.info(`Downloaded ${downloadedBlocks} blocks (${pendingBlocks.size} blocks pending)`)
+      }, UPDATE_STATUS_INTERVAL_MS)
+    } else {
+      // For auto-downloaded files, just send initial downloading status
+      _logger.info(
+        `Auto-download started for ${fileMetadata.name}${fileMetadata.ext} (${fileMetadata.size} bytes), skipping progress updates`
+      )
       await this.updateStatus(fileMetadata.cid, DownloadState.Downloading)
-
-      _logger.info(`Downloaded ${downloadedBlocks} blocks (${pendingBlocks.size} blocks pending)`)
-    }, UPDATE_STATUS_INTERVAL_MS)
+    }
 
     const baseCatOptions: CatOptions = {
       onProgress: handleDownloadProgressEvents,
@@ -597,7 +613,9 @@ export class IpfsFileManagerService extends EventEmitter {
     writeStream.end()
 
     try {
-      clearInterval(updateDownloadStatusWithTransferSpeed)
+      if (updateDownloadStatusWithTransferSpeed) {
+        clearInterval(updateDownloadStatusWithTransferSpeed)
+      }
     } catch (e) {
       _logger.error(`Error while clearing status update interval`, e)
     }
