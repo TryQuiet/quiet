@@ -29,10 +29,12 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
     whiteSpace: 'pre-line',
     lineHeight: '21px',
     overflowWrap: 'anywhere',
+    fontFamily: '"Rubik", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
   },
   [`&.${classes.emojiMessage}`]: {
     fontSize: '1.7rem', // Double the normal fontSize
     lineHeight: '42px', // Double the normal lineHeight
+    fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
   },
   [`&.${classes.pending}`]: {
     color: theme.palette.colors.lightGray,

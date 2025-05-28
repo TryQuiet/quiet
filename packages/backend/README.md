@@ -66,6 +66,12 @@ When your aim is to build the desktop app run the following command in packages/
 
 `npm run webpack:prod`
 
+### Logging
+
+By default logs are output to the console and to files located in the application data directory (this location varies by OS).  This is true for backends running on desktop _and_ mobile.
+
+_See the `node-common` README for a more detailed description of file logging in Quiet._
+
 ### Architecture
 
 // TODO

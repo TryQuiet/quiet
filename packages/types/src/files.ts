@@ -17,9 +17,17 @@ export interface FileMetadata extends FileContent {
   size?: number
   width?: number
   height?: number
+  enc?: {
+    header: string
+    recipient: {
+      generation: number
+      type: string
+      name: string
+    }
+  }
 }
 
-export interface UploadFilePayload {
+export interface AttachFilePayload {
   file: FileMetadata
   peerId: string
 }
@@ -72,7 +80,7 @@ export interface DeleteFilesFromChannelSocketPayload {
 
 export enum DownloadState {
   None = '',
-  Uploading = 'uploading',
+  Attaching = 'attaching',
   Hosted = 'hosted',
   Ready = 'ready',
   Queued = 'queued',
@@ -83,4 +91,17 @@ export enum DownloadState {
   Malicious = 'malicious',
 }
 
-export const imagesExtensions = ['.gif', '.png', '.jpg', '.jpeg']
+export const imagesExtensions = [
+  '.gif',
+  '.png',
+  '.apng',
+  '.jpg',
+  '.jpeg',
+  '.svg',
+  '.avif',
+  '.webp',
+  '.bmp',
+  '.ico',
+  '.tif',
+  '.tiff',
+]

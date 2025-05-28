@@ -10,9 +10,10 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
-import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR, getFilesData } from '@quiet/common'
+import { getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
+const contextMenu = require('electron-context-menu')
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -31,16 +32,11 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
-let dataDir = DESKTOP_DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 let invitationUrl: string | null
 
-if (isDev || process.env.DATA_DIR) {
-  dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
-}
-
-const appDataPath = path.join(app.getPath('appData'), dataDir)
+const appDataPath = process.env.APP_DATA_PATH!
 
 if (!fs.existsSync(appDataPath)) {
   fs.mkdirSync(appDataPath)
@@ -135,7 +131,7 @@ export const applyDevTools = async () => {
       try {
         await installer.default(extension.name)
       } catch (error) {
-        logger.error(`Failed to install ${extension.name}:${extension.path}:`, error)
+        logger.info(`Failed to install ${extension.name}:${extension.path}:`, error)
       }
     })
   )
@@ -343,6 +339,15 @@ app.on('ready', async () => {
 
   await applyDevTools()
 
+  contextMenu({
+    showInspectElement: false,
+    showSaveLinkAs: true,
+    showCopyLink: true,
+    showSaveImage: true,
+    showCopyImage: true,
+    showSaveImageAs: true,
+  })
+
   ports = await getPorts()
   await createWindow()
 
@@ -396,8 +401,11 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     env: {
       NODE_OPTIONS: '--experimental-global-customevent',
-      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*,helia*,blockstore*',
-      COLORIZE: 'true',
+      DEBUG: process.env.DEBUG,
+      LOG_DIR: process.env.LOG_DIR,
+      COLORIZE: process.env.COLORIZE ?? 'true',
+      LOG_TO_FILE: process.env.LOG_TO_FILE ?? 'true',
+      STATIC_LOG_ID: process.env.STATIC_LOG_ID,
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)

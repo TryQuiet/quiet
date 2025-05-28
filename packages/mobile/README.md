@@ -90,6 +90,14 @@ Open a terminal window,
 adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
 
+#### Quiet log files
+
+All quiet-generated logs are output to files in `/data/data/com.quietmobile.debug/files/logs`.  Unlike desktop the logs on mobile are not unified between backend and frontend.  Backend logs can be found in the `log_<date>.log` and `error_<date>.log` files (see the `backend` and `node-common` READMEs for more details) while frontend logs are in the `com.quietmobile.debug-latest.log` file.  This is due to differences in how we have to log in react-native vs node.
+
+These files can be accessed by connecting the Android device to your computer.
+
+_See the `node-common` README for a more detailed description of file logging in Quiet._
+
 ### Locally linking packages (mobile) (optional)
 
 Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
@@ -170,6 +178,15 @@ The iOS app can be built and run in two ways: from the command line or from Xcod
 
 1. Open the `ios` directory in Xcode.
 1. Select the target device or simulator and press the play button.
+
+
+### Quiet log files
+
+All quiet-generated logs are output to files in the application directory under `files/logs`.  Unlike desktop the logs on mobile are not unified between backend and frontend.  Backend logs can be found in the `log_<date>.log` and `error_<date>.log` files (see the `backend` and `node-common` READMEs for more details) while frontend logs are in the `com.quietmobile.debug-latest.log` file.  This is due to differences in how we have to log in react-native vs node.
+
+These files can be accessed via the `Files` app on the iOS device.
+
+_See the `node-common` README for a more detailed description of file logging in Quiet._
 
 ## Running E2E tests (optional)
 

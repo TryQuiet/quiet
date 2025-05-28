@@ -19,7 +19,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-llt4u8-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-w6r0mf-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -40,7 +40,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-llt4u8-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-w6r0mf-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -97,7 +97,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-llt4u8-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-w6r0mf-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -139,13 +139,13 @@ describe('NestedMessageContent', () => {
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="css-gd4qex"
+                class="css-2iuva0"
               >
                 <div
-                  class="UploadedImagecontainer"
+                  class="ImageAttachmentcontainer"
                 >
                   <div
-                    class="UploadedImageimage"
+                    class="ImageAttachmentimage"
                     data-testid="abcd1234-imageVisual"
                   >
                     <p
@@ -154,7 +154,7 @@ describe('NestedMessageContent', () => {
                       test.png
                     </p>
                     <img
-                      class="UploadedImageimage"
+                      class="ImageAttachmentimage"
                       src="path/to/file/test.png"
                       style="width: 400px;"
                     />

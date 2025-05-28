@@ -6,6 +6,7 @@ import { QuietLogger } from '@quiet/logger'
 import {
   ChannelMessage,
   CompoundError,
+  ConsumedChannelMessage,
   MessagesLoadedPayload,
   PublicChannel,
   PushNotificationPayload,
@@ -14,19 +15,20 @@ import {
 import { createLogger } from '../../common/logger'
 import { EventStoreBase } from '../base.store'
 import { EventsWithStorage } from '../orbitDb/eventsWithStorage'
-import { MessagesAccessController } from '../orbitDb/MessagesAccessController'
+import { MessagesAccessController } from './messages/orbitdb/MessagesAccessController'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import validate from '../../validation/validators'
 import { MessagesService } from './messages/messages.service'
 import { DBOptions, StorageEvents } from '../storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { CertificatesStore } from '../certificates/certificates.store'
+import { EncryptedMessage } from './messages/messages.types'
+import { UserProfileStore } from '../userProfile/userProfile.store'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
  */
 @Injectable()
-export class ChannelStore extends EventStoreBase<ChannelMessage> {
+export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChannelMessage> {
   private channelData: PublicChannel
   private _subscribing: boolean = false
 
@@ -36,7 +38,7 @@ export class ChannelStore extends EventStoreBase<ChannelMessage> {
     private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService,
     private readonly messagesService: MessagesService,
-    private readonly certificatesStore: CertificatesStore
+    private readonly userProfileStore: UserProfileStore
   ) {
     super()
   }
@@ -60,12 +62,15 @@ export class ChannelStore extends EventStoreBase<ChannelMessage> {
     this.logger = createLogger(`storage:channels:channelStore:${this.channelData.name}`)
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`)
 
-    this.store = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(`channels.${this.channelData.id}`, {
-      type: 'events',
-      Database: EventsWithStorage(),
-      AccessController: MessagesAccessController({ write: ['*'] }),
-      sync: options.sync,
-    })
+    this.store = await this.orbitDbService.orbitDb.open<EventsType<EncryptedMessage>>(
+      `channels.${this.channelData.id}`,
+      {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: MessagesAccessController({ write: ['*'] }),
+        sync: options.sync,
+      }
+    )
 
     this.logger.info('Initialized')
     return this
@@ -95,49 +100,69 @@ export class ChannelStore extends EventStoreBase<ChannelMessage> {
     this.logger.info('Subscribing to channel ', this.channelData.id)
     this._subscribing = true
 
-    this.getStore().events.on('update', async (entry: LogEntry<ChannelMessage>) => {
-      this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
-
-      const message = await this.messagesService.onConsume(entry.payload.value!)
-
-      this.emit(StorageEvents.MESSAGES_STORED, {
-        messages: [message],
-        isVerified: message.verified,
-      })
-
-      await this.refreshMessageIds()
-
-      // FIXME: the 'update' event runs if we replicate entries and if we add
-      // entries ourselves. So we may want to check if the message is written
-      // by us.
-      //
-      // Display push notifications on mobile
-      if (process.env.BACKEND === 'mobile') {
-        if (!message.verified) return
-
-        // Do not notify about old messages
-        if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
-
-        const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
-        if (!username) {
-          this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
-          return
+    this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
+      this.logger.info(
+        `${this.channelData.id} database updated`,
+        entry.hash,
+        entry.payload.value?.channelId,
+        entry.payload
+      )
+      let message: ChannelMessage | undefined = undefined
+      if (entry.payload.value == null) {
+        this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
+      } else {
+        message = await this.messagesService.onConsume(entry.payload.value!)
+        if (message == null) {
+          this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
+        } else {
+          await this._handleMessageOnUpdate(message)
         }
-
-        const payload: PushNotificationPayload = {
-          message: JSON.stringify(message),
-          username: username,
-        }
-
-        this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
       }
+      await this.refreshMessageIds()
     })
 
-    await this.startSync()
+    try {
+      await this.startSync()
+    } catch (e) {
+      if ((e as Error).name === 'DuplicateProtocolHandlerError') {
+        this.logger.warn(`We have already subscribed to this channel`)
+        this._subscribing = false
+        return
+      }
+    }
     await this.refreshMessageIds()
     this._subscribing = false
 
     this.logger.info(`Subscribed to channel ${this.channelData.id}`)
+  }
+
+  private async _handleMessageOnUpdate(message: ConsumedChannelMessage): Promise<void> {
+    this.emit(StorageEvents.MESSAGES_STORED, {
+      messages: [message],
+      isVerified: message.verified,
+    })
+
+    // FIXME: the 'update' event runs if we replicate entries and if we add
+    // entries ourselves. So we may want to check if the message is written
+    // by us.
+    //
+    // Display push notifications on mobile
+    if (process.env.BACKEND === 'mobile') {
+      if (!message.verified) return
+
+      // Do not notify about old messages
+      if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
+
+      const username = (await this.userProfileStore.getUsername(message.userId)) || message.userId
+      const payload: PushNotificationPayload = {
+        message: JSON.stringify(message),
+        username: username,
+      }
+
+      this.logger.info(`Sending push notification`, JSON.stringify(payload))
+
+      this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
+    }
   }
 
   // Messages
@@ -147,25 +172,28 @@ export class ChannelStore extends EventStoreBase<ChannelMessage> {
    *
    * @param message Message to add to the OrbitDB database
    */
-  public async sendMessage(message: ChannelMessage): Promise<void> {
+  public async sendMessage(message: ChannelMessage): Promise<boolean> {
     this.logger.info(`Sending message with ID ${message.id} on channel ${this.channelData.id}`)
     if (!validate.isMessage(message)) {
       this.logger.error('Public channel message is invalid')
-      return
+      return false
     }
 
     if (message.channelId != this.channelData.id) {
       this.logger.error(
         `Could not send message. Message is for channel ID ${message.channelId} which does not match channel ID ${this.channelData.id}`
       )
-      return
+      return false
     }
 
     try {
       await this.addEntry(message)
+      return true
     } catch (e) {
-      this.logger.error(`Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
+      this.logger.error(`Error while sending message`, e)
     }
+
+    return false
   }
 
   /**
@@ -188,15 +216,23 @@ export class ChannelStore extends EventStoreBase<ChannelMessage> {
    * @emits StorageEvents.MESSAGE_IDS_STORED
    */
   private async refreshMessageIds(): Promise<void> {
-    const ids = (await this.getEntries()).map(msg => msg.id)
-    const community = await this.localDbService.getCurrentCommunity()
+    try {
+      const ids = (await this.getEntries()).map(msg => msg.id)
+      const community = await this.localDbService.getCurrentCommunity()
 
-    if (community) {
-      this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-        ids,
-        channelId: this.channelData.id,
-        communityId: community.id,
-      })
+      if (community) {
+        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+          ids,
+          channelId: this.channelData.id,
+          communityId: community.id,
+        })
+      }
+    } catch (e) {
+      if (e.message.includes('Store not initialized')) {
+        this.logger.warn(`Attempted to refresh message IDs for store that isn't open`)
+      } else {
+        throw e
+      }
     }
   }
 
@@ -219,23 +255,50 @@ export class ChannelStore extends EventStoreBase<ChannelMessage> {
   }
 
   /**
-   * Read a list of entries on the OrbitDB event store
+   * Read a list of entries on the OrbitDB event store and decrypt
    *
    * @param ids Optional list of message IDs to filter by
    * @returns All matching entries on the event store
    */
-  public async getEntries(): Promise<ChannelMessage[]>
-  public async getEntries(ids: string[] | undefined): Promise<ChannelMessage[]>
-  public async getEntries(ids?: string[] | undefined): Promise<ChannelMessage[]> {
+  public async getEntries(): Promise<ConsumedChannelMessage[]>
+  public async getEntries(ids: string[] | undefined): Promise<ConsumedChannelMessage[]>
+  public async getEntries(ids?: string[] | undefined): Promise<ConsumedChannelMessage[]> {
     this.logger.info(`Getting all messages for channel`, this.channelData.id, this.channelData.name)
-    const messages: ChannelMessage[] = []
+    const messages: ConsumedChannelMessage[] = []
+
+    for await (const x of this.getStore().iterator()) {
+      if (x.value == null) {
+        this.logger.warn(`Orbitdb record was null`, x.hash)
+        continue
+      }
+
+      if (ids == null || ids?.includes(x.value.id)) {
+        const decryptedMessage = await this.messagesService.onConsume(x.value)
+        if (decryptedMessage == null) {
+          continue
+        }
+        messages.push(decryptedMessage)
+      }
+    }
+    this.logger.info(`Got ${messages.length} messages for channel`, this.channelData.id, this.channelData.name)
+    return messages
+  }
+
+  /**
+   * Read a list of entries on the OrbitDB event store without decrypting
+   *
+   * @param ids Optional list of message IDs to filter by
+   * @returns All matching entries on the event store
+   */
+  public async getEncryptedEntries(): Promise<EncryptedMessage[]>
+  public async getEncryptedEntries(ids: string[] | undefined): Promise<EncryptedMessage[]>
+  public async getEncryptedEntries(ids?: string[] | undefined): Promise<EncryptedMessage[]> {
+    this.logger.info(`Getting all encrypted messages for channel`, this.channelData.id, this.channelData.name)
+    const messages: EncryptedMessage[] = []
 
     for await (const x of this.getStore().iterator()) {
       if (ids == null || ids?.includes(x.value.id)) {
-        // NOTE: we skipped the verification process when reading many messages in the previous version
-        // so I'm skipping it here - is that really the correct behavior?
-        const processedMessage = await this.messagesService.onConsume(x.value, false)
-        messages.push(processedMessage)
+        messages.push(x.value)
       }
     }
 

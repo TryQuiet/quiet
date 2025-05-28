@@ -4,18 +4,26 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { messagesSelectors } from '../messages.selectors'
 import { messagesActions } from '../messages.slice'
 import { type CacheMessagesPayload, type SetDisplayedMessagesNumberPayload } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('resetChannelCacheSaga')
 
 export function* resetCurrentPublicChannelCacheSaga(): Generator {
   const channelId = yield* select(publicChannelsSelectors.currentChannelId)
-  if (!channelId) return
+  if (!channelId) {
+    logger.warn('No channelId found in resetCurrentPublicChannelCacheSaga')
+    return
+  }
 
   const channelMessagesChunkSize = 50
 
   const channelMessagesEntries = yield* select(messagesSelectors.sortedCurrentPublicChannelMessagesEntries)
 
   // Do not proceed with empty channel
-  if (channelMessagesEntries.length <= 0) return
-
+  if (channelMessagesEntries.length <= 0) {
+    logger.warn('No messages found in curent channel')
+    return
+  }
   const messages = channelMessagesEntries.slice(
     Math.max(0, channelMessagesEntries.length - channelMessagesChunkSize),
     channelMessagesEntries.length

@@ -1,8 +1,8 @@
 import { setupCrypto } from '@quiet/identity'
 import { type FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
-import { getFactory } from '../../../utils/tests/factories'
-import { prepareStore } from '../../..//utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../..//utils/tests/prepareStore'
 import { combineReducers, type Store } from 'redux'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
@@ -38,12 +38,12 @@ describe('addMessagesSaga', () => {
 
     store = prepareStore().store
 
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
 
@@ -52,24 +52,24 @@ describe('addMessagesSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('sailing'),
         },
       })
     ).channel
 
     barbequeChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'barbeque',
           description: 'Welcome to #barbeque',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId('barbeque'),
         },
       })
@@ -78,7 +78,7 @@ describe('addMessagesSaga', () => {
 
   test('put incoming messages in cache', async () => {
     const message = (
-      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+      await factory.build('TestMessage', {
         identity: alice,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -103,7 +103,7 @@ describe('addMessagesSaga', () => {
     // Verify cache in empty
     expect(publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())).toStrictEqual([])
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({
@@ -121,11 +121,11 @@ describe('addMessagesSaga', () => {
       .run()
   })
 
-  test("update message after downloading it's media", async () => {
+  test('update message after downloading its media', async () => {
     const id = Math.random().toString(36).substr(2.9)
 
     let message = (
-      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+      await factory.build('TestMessage', {
         identity: alice,
         message: {
           id,
@@ -180,7 +180,7 @@ describe('addMessagesSaga', () => {
       },
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({
@@ -198,10 +198,10 @@ describe('addMessagesSaga', () => {
       .run()
   })
 
-  test("update message after uploading it's media", async () => {
+  test('update message after attaching its media', async () => {
     const id = Math.random().toString(36).substr(2.9)
     const media = {
-      cid: 'uploading',
+      cid: 'attaching',
       path: 'path/to/image.png',
       name: 'image',
       ext: 'png',
@@ -211,7 +211,7 @@ describe('addMessagesSaga', () => {
       },
     }
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+      await factory.create('TestMessage', {
         identity: alice,
         message: {
           id,
@@ -220,7 +220,7 @@ describe('addMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: generalChannel.id,
           media: {
-            cid: 'uploading',
+            cid: 'attaching',
             path: 'path/to/image.png',
             name: 'image',
             ext: 'png',
@@ -251,7 +251,7 @@ describe('addMessagesSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({
@@ -289,7 +289,7 @@ describe('addMessagesSaga', () => {
 
   test('do nothing for messages from non-active channel', async () => {
     const message = (
-      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+      await factory.build('TestMessage', {
         identity: alice,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -311,7 +311,7 @@ describe('addMessagesSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({
@@ -331,8 +331,7 @@ describe('addMessagesSaga', () => {
 
   test('filter out messages with invalid signature', async () => {
     const message = (
-      await factory.build<typeof publicChannelsActions.test_message>('Message', {
-        identity: alice,
+      await factory.build('TestMessage', {
         message: {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
@@ -349,8 +348,7 @@ describe('addMessagesSaga', () => {
     // Mark message as unverified
     store.dispatch(
       messagesActions.addMessageVerificationStatus({
-        publicKey: message.pubKey,
-        signature: message.signature,
+        id: message.id,
         isVerified: false,
       })
     )
@@ -362,7 +360,7 @@ describe('addMessagesSaga', () => {
       })
     )
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({
@@ -383,7 +381,7 @@ describe('addMessagesSaga', () => {
   test('ignore messages older than last displayed message', async () => {
     // Construct tested message before others
     const message = (
-      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+      await factory.build('TestMessage', {
         identity: alice,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -411,7 +409,7 @@ describe('addMessagesSaga', () => {
       const iterations = 50
       ;[...Array(iterations)].map(async (_, index) => {
         const item = (
-          await factory.build<typeof publicChannelsActions.test_message>('Message', {
+          await factory.build('TestMessage', {
             identity: alice,
             message: {
               id: Math.random().toString(36).substr(2.9),
@@ -441,7 +439,7 @@ describe('addMessagesSaga', () => {
     const cachedMessages = publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())
     expect(cachedMessages.length).toBe(50)
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({
@@ -460,7 +458,7 @@ describe('addMessagesSaga', () => {
   test("don't ignore older messages before reaching maximum messages display number", async () => {
     // Construct tested message before others
     const message = (
-      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+      await factory.build('TestMessage', {
         identity: alice,
         message: {
           id: Math.random().toString(36).substr(2.9),
@@ -488,7 +486,7 @@ describe('addMessagesSaga', () => {
       const iterations = 2
       ;[...Array(iterations)].map(async (_, index) => {
         const item = (
-          await factory.build<typeof publicChannelsActions.test_message>('Message', {
+          await factory.build('TestMessage', {
             identity: alice,
             message: {
               id: Math.random().toString(36).substr(2.9),
@@ -522,7 +520,7 @@ describe('addMessagesSaga', () => {
     const updatedCache = cachedMessages.map(message => message)
     updatedCache.push(message)
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       addMessagesSaga,
       messagesActions.addMessages({

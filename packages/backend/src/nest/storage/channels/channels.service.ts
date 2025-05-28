@@ -11,9 +11,12 @@ import {
   type MessagesLoadedPayload,
   PublicChannel,
   PushNotificationPayload,
-  SocketActionTypes,
+  SocketEvents,
   ChannelMessageIdsResponse,
   DeleteChannelResponse,
+  CreateChannelPayload,
+  ChannelSubscribedPayload,
+  DeleteChannelPayload,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -26,6 +29,10 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
 import { ChannelStore } from './channel.store'
 import { createContextId, ModuleRef } from '@nestjs/core'
+import { SigChainService } from '../../auth/sigchain.service'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { RoleName } from '../../auth/services/roles/roles'
+import { DateTime } from 'luxon'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -35,7 +42,7 @@ export class ChannelsService extends EventEmitter {
   private peerId: PeerId | null = null
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
-  private channels: KeyValueType<PublicChannel> | null
+  private channels: KeyValueType<EncryptedAndSignedPayload> | null
 
   private readonly logger = createLogger(`storage:channels`)
 
@@ -45,7 +52,8 @@ export class ChannelsService extends EventEmitter {
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDbService,
-    private readonly moduleRef: ModuleRef
+    private readonly moduleRef: ModuleRef,
+    private readonly sigchainService: SigChainService
   ) {
     super()
   }
@@ -101,7 +109,7 @@ export class ChannelsService extends EventEmitter {
    */
   private async createChannelsDb(): Promise<void> {
     this.logger.info('Creating public-channels database')
-    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<PublicChannel>>('public-channels', {
+    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
       sync: false,
       Database: KeyValueIndexedValidated(),
       AccessController: IPFSAccessController({ write: ['*'] }),
@@ -112,7 +120,7 @@ export class ChannelsService extends EventEmitter {
       const operation = entry.payload.op
       this.logger.info('public-channels database updated', channelId, operation)
 
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
+      this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
 
       const channels = await this.getChannels()
 
@@ -123,7 +131,11 @@ export class ChannelsService extends EventEmitter {
       //
       // This fixes a bug where joining a community with multiple channels doesn't initialize all channels immediately.
       for (const channel of channels) {
-        if (!this.publicChannelsRepos.has(channel.id) || !this.publicChannelsRepos.get(channel.id)?.eventsAttached) {
+        if (
+          !this.publicChannelsRepos.has(channel.id) ||
+          (!this.publicChannelsRepos.get(channel.id)?.eventsAttached &&
+            !this.publicChannelsRepos.get(channel.id)?.store.isSubscribing)
+        ) {
           await this.subscribeToChannel(channel)
         }
       }
@@ -140,6 +152,31 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
+  public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
+    try {
+      const chain = this.sigchainService.getActiveChain()
+      const encryptedPayload = chain.crypto.encryptAndSign(payload, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+      return encryptedPayload
+    } catch (err) {
+      this.logger.error('Failed to encrypt user entry:', err)
+      throw err
+    }
+  }
+
+  public decryptChannelEntry(payload: EncryptedAndSignedPayload, id?: string): PublicChannel {
+    try {
+      const chain = this.sigchainService.getActiveChain()
+      const decryptedPayload = chain.crypto.decryptAndVerify<PublicChannel>(payload.encrypted, payload.signature)
+      return decryptedPayload.contents
+    } catch (err) {
+      this.logger.error('Failed to decrypt user entry:', err)
+      throw err
+    }
+  }
+
   /**
    * Add a channel to the channels management database
    *
@@ -151,7 +188,8 @@ export class ChannelsService extends EventEmitter {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
-    await this.channels.put(id, channel)
+    const encryptedChannel = this.encryptChannelEntry(channel)
+    await this.channels.put(id, encryptedChannel)
   }
 
   /**
@@ -165,7 +203,13 @@ export class ChannelsService extends EventEmitter {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
-    return await this.channels.get(id)
+    const channelEncrypted = await this.channels.get(id)
+    if (channelEncrypted == null) {
+      return undefined
+    }
+    // need to rehydrate the UInt8Array bc json value encoding in KeyValueIndexedValidated does not maintain type
+    channelEncrypted.encrypted.contents = new Uint8Array(Object.values(channelEncrypted.encrypted.contents))
+    return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
   }
 
   /**
@@ -178,7 +222,15 @@ export class ChannelsService extends EventEmitter {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
-    return (await this.channels.all()).map(x => x.value)
+    return (await this.channels.all())
+      .map(x => {
+        try {
+          return this.decryptChannelEntry(x.value, x.key)
+        } catch (e) {
+          return undefined
+        }
+      })
+      .filter((x): x is PublicChannel => x !== undefined)
   }
 
   /**
@@ -233,6 +285,27 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
+   * Handle create channel event from frontend and create a new channel store
+   *
+   * @param payload Payload containing metadata for new channel
+   * @returns Response containing metadata for new channel
+   */
+  public async handleCreateChannel(payload: CreateChannelPayload): Promise<CreateChannelResponse> {
+    const channelData: PublicChannel = {
+      id: payload.id,
+      name: payload.name,
+      description: payload.description ?? '',
+      owner: this.sigchainService.getActiveChain().user.userId,
+      timestamp: DateTime.utc().valueOf(),
+    }
+    const store = await this.createChannel(channelData)
+    if (!store) {
+      throw new Error('Failed to create channel')
+    }
+    return { channel: channelData }
+  }
+
+  /**
    * Creates a new channel store with the supplied metadata, if it doesn't exist, and subscribes
    * to new events on the store, if it didn't already exist.
    *
@@ -278,7 +351,7 @@ export class ChannelsService extends EventEmitter {
     this.logger.info(`Subscribed to channel ${channelData.id}`)
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
-    })
+    } as ChannelSubscribedPayload)
     return { channel: channelData }
   }
 
@@ -314,36 +387,41 @@ export class ChannelsService extends EventEmitter {
    * @returns Response containing metadata on the channel that was deleted
    * @throws Error
    */
-  public async deleteChannel(payload: { channelId: string; ownerPeerId: string }): Promise<DeleteChannelResponse> {
-    this.logger.info('Deleting channel', payload)
-    const { channelId, ownerPeerId } = payload
+  public async deleteChannel(payload: DeleteChannelPayload): Promise<DeleteChannelResponse> {
+    this.logger.info('Attempting to delete channel', payload)
+    const { channelId } = payload
     const channel = await this.getChannel(channelId)
-    if (!this.peerId) {
-      this.logger.error('deleteChannel - peerId is null')
-      throw new Error('deleteChannel - peerId is null')
+    if (!channel) {
+      this.logger.error(`Channel ${channelId} not found`)
+      return { channelId, deleted: true } as DeleteChannelResponse
     }
-    const isOwner = ownerPeerId === this.peerId.toString()
-    if (channel && isOwner) {
-      if (!this.channels) {
-        throw new Error('Channels have not been initialized!')
-      }
-      await this.channels.del(channelId)
+    const iAmAdmin = this.sigchainService.team.memberIsAdmin(this.sigchainService.getActiveChain().user.userId)
+    const iOwnThisChannel = channel?.owner === this.sigchainService.getActiveChain().user.userId
+    // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
+    // TODO: invalidate removals from non-owners
+    if (iAmAdmin || iOwnThisChannel) {
+      await this.channels!.del(channelId)
+    } else {
+      this.logger.error(`User is not the owner of the channel ${channelId}`)
+      return { channelId, deleted: false } as DeleteChannelResponse
     }
+
     const repo = this.publicChannelsRepos.get(channelId)
     let store = repo?.store
+    // TODO: do we really need to create a temporary store if it doesn't exist?
     if (store == null) {
       const channelData: PublicChannel = channel ?? {
         id: channelId,
         name: 'undefined',
-        owner: ownerPeerId,
+        owner: this.sigchainService.getActiveChain().user.userId,
         description: 'undefined',
-        timestamp: 0,
+        timestamp: DateTime.utc().valueOf(),
       }
       store = await this.createChannelStore(channelData)
     }
     await store.deleteChannel()
     this.publicChannelsRepos.delete(channelId)
-    return { channelId }
+    return { channelId, deleted: true } as DeleteChannelResponse
   }
 
   // Messages
@@ -353,14 +431,15 @@ export class ChannelsService extends EventEmitter {
    *
    * @param message Message to send
    */
-  public async sendMessage(message: ChannelMessage): Promise<void> {
+  public async sendMessage(message: ChannelMessage): Promise<boolean> {
+    this.logger.info('Sending message', message)
     const repo = this.publicChannelsRepos.get(message.channelId)
     if (repo == null) {
       this.logger.error(`Could not send message. No '${message.channelId}' channel in saved public channels`)
-      return
+      return false
     }
 
-    await repo.store.sendMessage(message)
+    return await repo.store.sendMessage(message)
   }
 
   /**
@@ -411,7 +490,7 @@ export class ChannelsService extends EventEmitter {
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    * @emits StorageEvents.MESSAGE_MEDIA_UPDATED
    * @emits StorageEvents.REMOVE_DOWNLOAD_STATUS
-   * @emits StorageEvents.FILE_UPLOADED
+   * @emits StorageEvents.FILE_ATTACHED
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    */
   private attachFileManagerEvents(): void {
@@ -424,8 +503,8 @@ export class ChannelsService extends EventEmitter {
     this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload => {
       this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.filesManager.on(StorageEvents.FILE_UPLOADED, payload => {
-      this.emit(StorageEvents.FILE_UPLOADED, payload)
+    this.filesManager.on(StorageEvents.FILE_ATTACHED, payload => {
+      this.emit(StorageEvents.FILE_ATTACHED, payload)
     })
     this.filesManager.on(StorageEvents.DOWNLOAD_PROGRESS, payload => {
       this.emit(StorageEvents.DOWNLOAD_PROGRESS, payload)
@@ -436,13 +515,13 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
-   * Emit event to trigger file upload on file manager
+   * Emit event to trigger file attachment on file manager
    *
    * @param metadata Metadata of file to be uploaded
-   * @emits IpfsFilesManagerEvents.UPLOAD_FILE
+   * @emits IpfsFilesManagerEvents.ATTACH_FILE
    */
-  public async uploadFile(metadata: FileMetadata): Promise<void> {
-    this.filesManager.emit(IpfsFilesManagerEvents.UPLOAD_FILE, metadata)
+  public async attachFile(metadata: FileMetadata): Promise<void> {
+    this.filesManager.emit(IpfsFilesManagerEvents.ATTACH_FILE, metadata)
   }
 
   /**
@@ -506,7 +585,7 @@ export class ChannelsService extends EventEmitter {
   // Close Logic
 
   /**
-   * Close the channels management database on OrbitDB
+   * Close the channels management database on OrbitDB and each channel's DB
    */
   public async closeChannels(): Promise<void> {
     try {
@@ -515,6 +594,17 @@ export class ChannelsService extends EventEmitter {
       this.logger.info('Closed channels DB')
     } catch (e) {
       this.logger.error('Error closing channels db', e)
+    }
+
+    this.logger.info(`Closing each channel's DB`)
+    for (const [channelId, channel] of this.publicChannelsRepos.entries()) {
+      try {
+        this.logger.info(`Closing ${channelId} DB`)
+        await channel.store.close()
+        this.logger.info(`Close ${channelId} DB`)
+      } catch (e) {
+        this.logger.error(`Error closing ${channelId} DB`, e)
+      }
     }
   }
 
@@ -528,6 +618,14 @@ export class ChannelsService extends EventEmitter {
     } catch (e) {
       this.logger.error('Error stopping IPFS files manager', e)
     }
+  }
+
+  /**
+   * Close the channels service
+   */
+  public async close(): Promise<void> {
+    await this.closeFileManager()
+    await this.closeChannels()
   }
 
   /**

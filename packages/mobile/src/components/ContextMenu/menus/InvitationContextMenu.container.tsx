@@ -25,10 +25,6 @@ export const InvitationContextMenu: FC = () => {
   const inviteLink = useSelector(connection.selectors.invitationUrl)
   const [invitationLink, setInvitationLink] = useState<string>(inviteLink)
   const [invitationReady, setInvitationReady] = useState<boolean>(false)
-  useEffect(() => {
-    dispatch(connection.actions.createInvite({}))
-    setInvitationReady(true)
-  }, [])
 
   useEffect(() => {
     if (invitationReady) {
@@ -37,6 +33,11 @@ export const InvitationContextMenu: FC = () => {
   }, [invitationReady, inviteLink])
 
   const invitationContextMenu = useContextMenu(MenuName.Invitation)
+
+  useEffect(() => {
+    dispatch(connection.actions.createInvite({}))
+    setInvitationReady(true)
+  }, [invitationContextMenu.visible])
 
   const redirect = useCallback(
     (screen: ScreenNames) => {
@@ -50,7 +51,8 @@ export const InvitationContextMenu: FC = () => {
   )
 
   const copyLink = async () => {
-    Clipboard.setString(invitationLink!)
+    if (!invitationLink) return
+    Clipboard.setString(invitationLink)
     await confirmationBox.flash()
   }
 
@@ -90,9 +92,24 @@ export const InvitationContextMenu: FC = () => {
     invitationContextMenu.handleClose()
   }, [screen])
 
+  const title = 'Add members'
+
+  if (!invitationLink) {
+    if (!invitationReady) {
+      return <ContextMenu title={title} items={[]} hint={'Generating invitation link...'} {...invitationContextMenu} />
+    }
+    return (
+      <ContextMenu
+        title={title}
+        items={[]}
+        hint={'Only admins can invite new members to this community. Ask the community creator for a link to share.'}
+        {...invitationContextMenu}
+      />
+    )
+  }
   return (
     <ContextMenu
-      title={'Add members'}
+      title={title}
       items={items}
       hint={'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'}
       link={invitationLink}

@@ -16,6 +16,7 @@ import {
 import { SigChain } from '../../sigchain'
 import { RoleName } from '../roles/roles'
 import { createLogger } from '../../../common/logger'
+import { PermissionsError } from '@quiet/types'
 
 const logger = createLogger('auth:inviteService')
 
@@ -25,8 +26,8 @@ export const DEFAULT_LONG_LIVED_MAX_USES = 0 // no limit
 export const DEFAULT_LONG_LIVED_VALID_FOR_MS = 0 // no limit
 
 class InviteService extends ChainServiceBase {
-  public static init(sigChain: SigChain): InviteService {
-    return new InviteService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
 
   public createUserInvite(
@@ -38,7 +39,12 @@ class InviteService extends ChainServiceBase {
     if (validForMs > 0) {
       expiration = (Date.now() + validForMs) as UnixTimestamp
     }
-
+    if (!this.sigChain.team) {
+      throw new Error('SigChain is not initialized')
+    }
+    if (!this.sigChain.user || !this.sigChain.team!.memberIsAdmin(this.sigChain.user.userId)) {
+      throw new PermissionsError('Only the admin can create invites')
+    }
     const invitation: InviteResult = this.sigChain.team!.inviteMember({
       seed,
       expiration,
@@ -78,6 +84,9 @@ class InviteService extends ChainServiceBase {
   }
 
   public revoke(id: string) {
+    if (!this.sigChain.user || !this.sigChain.team!.memberIsAdmin(this.sigChain.user.userId)) {
+      throw new PermissionsError('Only the admin can revoke invites')
+    }
     this.sigChain.team!.revokeInvitation(id)
   }
 

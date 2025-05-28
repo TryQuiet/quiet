@@ -12,12 +12,12 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { ChannelMessage, DownloadStatus, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/types'
+import { ChannelMessage, DownloadStatus, MessagesDailyGroups, MessageSendingStatus, UserProfile } from '@quiet/types'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 
-import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
 
@@ -34,7 +34,7 @@ const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
 }))
 
 export interface ChannelComponentProps {
-  user: Identity
+  user: UserProfile | undefined
   channelId: string
   channelName: string
   messages: {
@@ -246,7 +246,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             channelId={channelId}
             channelName={channelName}
             // TODO https://github.com/TryQuiet/ZbayLite/issues/443
-            inputPlaceholder={`#${channelName} as @${user?.nickname}`}
+            inputPlaceholder={`#${channelName}${user ? ` as @${user?.nickname}` : ''}`}
             onChange={value => {
               onInputChange(value)
             }}

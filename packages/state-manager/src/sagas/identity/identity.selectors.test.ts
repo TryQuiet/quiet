@@ -4,8 +4,8 @@ import { type identityActions } from './identity.slice'
 import { type Store } from '../store.types'
 import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
-import { prepareStore } from '../../utils/tests/prepareStore'
-import { getFactory } from '../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../utils/tests/factories'
 
 describe('communitiesSelectors will receive correct data', () => {
   let store: Store
@@ -14,7 +14,7 @@ describe('communitiesSelectors will receive correct data', () => {
   beforeAll(async () => {
     setupCrypto()
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   it('select current identity', async () => {
@@ -23,8 +23,8 @@ describe('communitiesSelectors will receive correct data', () => {
       { name: 'alpha', id: 'communityAlpha' }
     )
 
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: communityAlpha.id,
+    const identity = await factory.create('Identity', {
+      communityId: communityAlpha.id,
       nickname: 'john',
     })
 
@@ -35,6 +35,6 @@ describe('communitiesSelectors will receive correct data', () => {
 
     const currentIdentity = identitySelectors.currentIdentity(store.getState())
 
-    expect(currentIdentity?.id).toEqual(communityAlpha.id)
+    expect(currentIdentity?.communityId).toEqual(communityAlpha.id)
   })
 })

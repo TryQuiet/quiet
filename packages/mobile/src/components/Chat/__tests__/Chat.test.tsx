@@ -3,7 +3,7 @@ import { renderComponent } from '../../../utils/functions/renderComponent/render
 import { Chat } from '../Chat.component'
 import { Keyboard } from 'react-native'
 import { ChatProps } from '../Chat.types'
-import { FileActionsProps } from '../../UploadedFile/UploadedFile.types'
+import { FileActionsProps } from '../../FileAttachment/FileAttachment.types'
 
 jest.useFakeTimers()
 
@@ -45,24 +45,24 @@ describe('Chat component', () => {
               id: '1',
               type: 1,
               message: 'Hello',
-              createdAt: 0,
+              createdAt: 1698483600, // Oct 28, 2023, 9:00 AM UTC
               date: '28 Oct, 10:00',
               nickname: 'alice',
+              userId: 'aliceUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '2',
               type: 1,
               message:
                 "How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.",
-              createdAt: 0,
+              createdAt: 1698483660, // Oct 28, 2023, 9:00 AM UTC
               date: '28 Oct, 10:01',
               nickname: 'alice',
+              userId: 'aliceUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -70,12 +70,12 @@ describe('Chat component', () => {
               id: '3',
               type: 1,
               message: 'Great, thanks!',
-              createdAt: 0,
+              createdAt: 1698483720, // Oct 28, 2023, 9:02 AM UTC
               date: '28 Oct, 10:02',
               nickname: 'john',
+              userId: 'johnUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
         ],
@@ -85,34 +85,34 @@ describe('Chat component', () => {
               id: '4',
               type: 1,
               message: 'Luck, I am your father!',
-              createdAt: 0,
+              createdAt: 1714485600, // Apr 30, 2024, 2:00 PM UTC (same day as test)
               date: '12:40',
               nickname: 'chad',
+              userId: 'chadUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '5',
               type: 1,
               message: "That's impossible!",
-              createdAt: 0,
+              createdAt: 1714485660, // Apr 30, 2024, 2:06 PM UTC
               date: '12:41',
               nickname: 'chad',
+              userId: 'chadUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '6',
               type: 1,
               message: 'Nooo!',
-              createdAt: 0,
+              createdAt: 1714485900, // Apr 30, 2024, 2:06 PM UTC
               date: '12:45',
               nickname: 'chad',
+              userId: 'chadUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -120,12 +120,12 @@ describe('Chat component', () => {
               id: '7',
               type: 1,
               message: 'Uhuhu!',
-              createdAt: 0,
+              createdAt: 1714485960, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'anakin',
+              userId: 'anakinUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -133,12 +133,12 @@ describe('Chat component', () => {
               id: '8',
               type: 1,
               message: 'Why?',
-              createdAt: 0,
+              createdAt: 1714485970, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'anakin',
+              userId: 'anakinUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -146,12 +146,12 @@ describe('Chat component', () => {
               id: '9',
               type: 1,
               message: 'Messages more there should be',
-              createdAt: 0,
+              createdAt: 1714485980, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'yoda',
+              userId: 'yodaUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -159,23 +159,23 @@ describe('Chat component', () => {
               id: '11',
               type: 1,
               message: 'I Agree',
-              createdAt: 0,
+              createdAt: 1714485990, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'obi',
+              userId: 'obiUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
             {
               id: '12',
               type: 1,
               message: 'Of course, I Agree',
-              createdAt: 0,
+              createdAt: 1714486000, // Apr 30, 2024, 2:06 PM UTC
               date: '12:46',
               nickname: 'obi',
+              userId: 'obiUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -183,12 +183,12 @@ describe('Chat component', () => {
               id: '13',
               type: 1,
               message: 'Wrough!',
-              createdAt: 0,
+              createdAt: 1714486010, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'wookie',
+              userId: 'wookieUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -196,12 +196,12 @@ describe('Chat component', () => {
               id: '14',
               type: 1,
               message: 'Yeah!',
-              createdAt: 0,
+              createdAt: 1714486020, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'leah',
+              userId: 'leahUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -209,12 +209,12 @@ describe('Chat component', () => {
               id: '15',
               type: 1,
               message: 'The more messages the better',
-              createdAt: 0,
+              createdAt: 1714486030, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'luke',
+              userId: 'lukeUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -222,12 +222,12 @@ describe('Chat component', () => {
               id: '16',
               type: 1,
               message: 'We cannot grant you the rank of messager',
-              createdAt: 0,
+              createdAt: 1714486040, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'windoo',
+              userId: 'windooUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
           [
@@ -236,18 +236,19 @@ describe('Chat component', () => {
               type: 1,
               message:
                 'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
-              createdAt: 0,
+              createdAt: 1714486050, // Apr 30, 2024, 2:07 PM UTC
               date: '12:46',
               nickname: 'vader',
+              userId: 'vaderUserId',
               isDuplicated: false,
               isRegistered: true,
-              pubKey: 'test',
             },
           ],
         ],
       },
     },
-    updateUploadedFiles: jest.fn(),
+    updateFileAttachments: jest.fn(),
+    updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
   }
 

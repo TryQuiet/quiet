@@ -1,20 +1,23 @@
 import { DateTime } from 'luxon'
 
 export const formatMessageDisplayDate = (createdAt: number): string => {
+  // Extract timezone offset from native Date API
+  const tzOffsetHours = -new Date().getTimezoneOffset() / 60
+  const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
+
   const LC = process.env.LC_ALL || 'en_US.UTF-8'
   const locale = LC.split('_')[0]
-  const messageDate = DateTime.fromSeconds(createdAt).setLocale(locale)
-  const now = DateTime.now().setLocale(locale)
-  const check = messageDate.hasSame(now, 'year') && messageDate.hasSame(now, 'day')
-  if (!check) {
-    return DateTime.fromSeconds(createdAt).setLocale(locale).toFormat('LLL dd, t')
-  }
-  return DateTime.fromSeconds(createdAt).setLocale(locale).toFormat('t')
-}
+  const messageDate = DateTime.fromSeconds(createdAt).setZone(formattedOffset).setLocale(locale)
+  const now = DateTime.now().setZone(formattedOffset).setLocale(locale)
+  const diffInDays = now.startOf('day').diff(messageDate.startOf('day'), 'days').days
 
-export const formatMessageDisplayDay = (date: string): string => {
-  if (date.includes(',')) {
-    return date.split(',')[0]
+  if (diffInDays === 0) {
+    return 'Today'
+  } else if (diffInDays === 1) {
+    return 'Yesterday'
+  } else if (diffInDays >= 2 && diffInDays <= 4) {
+    return messageDate.toFormat('cccc') // Full weekday name
+  } else {
+    return messageDate.toFormat('LLL d, y')
   }
-  return 'Today'
 }

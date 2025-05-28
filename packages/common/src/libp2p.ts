@@ -3,7 +3,14 @@ export const PSK_LENGTH = 44 // PSK is 256 bits/8 = 32 bytes which encodes to 44
 
 const ONION = '.onion'
 
-export const createLibp2pAddress = (address: string, peerId: string) => {
+/**
+ * Creates a libp2p multiaddr from an onion address and a peerId
+ * @param address - The onion address
+ * @param peerId - The peerId
+ * @returns The libp2p multiaddr
+ * @throws Error if the address is invalid
+ */
+export const createLibp2pAddress = (address: string, peerId: string): string => {
   if (!address.endsWith(ONION)) address += ONION
   if (address.length !== 56 + ONION.length) {
     if (process.env.NODE_ENV !== 'test')

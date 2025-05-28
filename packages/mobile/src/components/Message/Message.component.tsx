@@ -6,14 +6,15 @@ import { Jdenticon } from '../Jdenticon/Jdenticon.component'
 import { appImages } from '../../assets'
 import { MessageType, DisplayableMessage } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
-import { UploadedImage } from '../UploadedImage/UploadedImage.component'
-import { UploadedFile } from '../UploadedFile/UploadedFile.component'
-import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
+import { FileAttachment } from '../FileAttachment/FileAttachment.component'
+import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
+import { DateTime } from 'luxon'
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -24,11 +25,11 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   return message.photo ? (
     <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
   ) : (
-    <Jdenticon value={message.pubKey} size={37} />
+    <Jdenticon value={message.userId} size={37} />
   )
 }
 
-export const Message: FC<MessageProps & FileActionsProps> = ({
+const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
   downloadFile,
@@ -47,9 +48,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         return (
           <>
             {fileDisplay && message.media ? (
-              <UploadedImage media={message.media} openImagePreview={openImagePreview} />
+              <ImageAttachment media={message.media} openImagePreview={openImagePreview} />
             ) : (
-              <UploadedFile
+              <FileAttachment
                 message={message}
                 downloadStatus={downloadStatus}
                 downloadFile={downloadFile}
@@ -60,7 +61,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         )
       case 4: // MessageType.File
         return (
-          <UploadedFile
+          <FileAttachment
             message={message}
             downloadStatus={downloadStatus}
             downloadFile={downloadFile}
@@ -114,6 +115,19 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   }
 
   const representativeMessage = data[0]
+
+  const formatTime = (createdAt: number): string => {
+    // get timezone offset from native Date, for correct local timezone
+    const tzOffsetHours = -new Date().getTimezoneOffset() / 60
+    const formattedOffset = `UTC${tzOffsetHours >= 0 ? '+' : ''}${tzOffsetHours}`
+
+    const messageTime = DateTime.fromSeconds(createdAt).setZone(formattedOffset)
+
+    // Use DateTime.TIME_SIMPLE to show time while respecting the 12h/24h preference of the locale
+    return messageTime.toLocaleString(DateTime.TIME_SIMPLE)
+  }
+
+  const representativeMessageDateTime = formatTime(representativeMessage.createdAt)
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
@@ -177,7 +191,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               }}
             >
               <Typography fontSize={14} color={'subtitle'}>
-                {representativeMessage.date}
+                {representativeMessageDateTime}
               </Typography>
             </View>
           </View>
@@ -246,3 +260,5 @@ const md = MarkdownIt({
   typographer: false,
   linkify: true,
 })
+
+export const Message = React.memo(MessageInner)

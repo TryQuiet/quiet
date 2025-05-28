@@ -13,7 +13,7 @@ describe('FileComponent', () => {
           type: 2,
           isDuplicated: false,
           isRegistered: true,
-          pubKey: 'string',
+          userId: 'userId',
           media: {
             cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
             message: {

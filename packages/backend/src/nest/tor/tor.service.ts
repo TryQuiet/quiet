@@ -4,7 +4,7 @@ import path from 'path'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
-import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
+import { SocketActions, SocketEvents, SupportedPlatform } from '@quiet/types'
 import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
@@ -12,6 +12,8 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import { createLogger } from '../common/logger'
+import { toString as uint8ArrayToString } from 'uint8arrays'
+import { isUint8Array } from 'util/types'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -59,7 +61,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
-  private async isBootstrappingFinished(): Promise<boolean> {
+  public async isBootstrappingFinished(): Promise<boolean> {
     this.logger.info('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
@@ -119,11 +121,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
             this.logger.info('Checking bootstrap interval')
             const bootstrapDone = await this.isBootstrappingFinished()
             if (bootstrapDone) {
-              this.logger.info(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
-              this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
+              this.logger.info(`Sending ${SocketEvents.TOR_INITIALIZED}`)
+              this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
               // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
               // this.logger.info('Attempting to redial peers (if possible)')
-              // this.emit(SocketActionTypes.REDIAL_PEERS)
+              // this.emit(SocketActions.REDIAL_PEERS)
               clearInterval(this.interval)
             }
           }, 2500)
@@ -264,16 +266,18 @@ export class Tor extends EventEmitter implements OnModuleInit {
         options
       )
 
-      this.process.stderr.on('data', e => {
-        this.logger.error('Tor process. Stderr:', e)
-      })
-
       this.process.on('exit', (code, signal) => {
         this.logger.info(`Tor exited with code ${code} and signal ${signal}`)
       })
 
       this.process.on('error', err => {
-        this.logger.error(`Tor process. Error occurred`, err)
+        // errors come in as byte arrays so we want them to be readable
+        const data = isUint8Array(err)
+          ? uint8ArrayToString(err)
+          : (err as any).type === 'buffer'
+            ? uint8ArrayToString((err as any).data)
+            : err
+        this.logger.error(`Tor process. Error occurred`, data)
       })
 
       this.process.stdout.on('data', (data: any) => {
@@ -284,10 +288,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.spawnHiddenServices()
           resolve()
         }
-      })
-
-      this.process.stderr.on('data', (data: any) => {
-        this.logger.error('ERROR:', data)
       })
     })
   }

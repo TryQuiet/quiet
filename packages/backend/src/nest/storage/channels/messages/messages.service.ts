@@ -1,25 +1,16 @@
 import { Injectable } from '@nestjs/common'
-import { stringToArrayBuffer } from 'pvutils'
 import EventEmitter from 'events'
-import { getCrypto, ICryptoEngine } from 'pkijs'
 
-import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import { ChannelMessage, ConsumedChannelMessage, NoCryptoEngineError } from '@quiet/types'
+import { ChannelMessage, CompoundError, ConsumedChannelMessage, MessageType } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
-import { EncryptedAndSignedPayload, EncryptedPayload } from '../../../auth/services/crypto/types'
-import { SignedEnvelope } from '3rd-party/auth/packages/auth/dist'
+import { EncryptionScopeType } from '../../../auth/services/crypto/types'
 import { SigChainService } from '../../../auth/sigchain.service'
+import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
+import { RoleName } from '../../../auth/services/roles/roles'
 
 @Injectable()
 export class MessagesService extends EventEmitter {
-  /**
-   * Map of signing keys used on messages
-   *
-   * Maps public key string -> CryptoKey
-   */
-  private publicKeysMap: Map<string, CryptoKey> = new Map()
-
   private readonly logger = createLogger(`storage:channels:messagesService`)
 
   constructor(private readonly sigChainService: SigChainService) {
@@ -29,83 +20,83 @@ export class MessagesService extends EventEmitter {
   /**
    * Handle processing of message to be added to OrbitDB and sent to peers
    *
-   * NOTE: This will call the encryption method below (https://github.com/TryQuiet/quiet/issues/2631)
-   *
    * @param message Message to send
    * @returns Processed message
    */
-  public async onSend(message: ChannelMessage): Promise<ChannelMessage> {
-    return message
+  public async onSend(message: ChannelMessage): Promise<EncryptedMessage> {
+    return this._encryptPublicChannelMessage(message)
   }
 
   /**
    * Handle processing of message consumed from OrbitDB
    *
-   * NOTE: This will call the decryption method below (https://github.com/TryQuiet/quiet/issues/2632)
-   *
    * @param message Message consumed from OrbitDB
    * @returns Processed message
    */
-  public async onConsume(message: ChannelMessage, verify: boolean = true): Promise<ConsumedChannelMessage> {
-    const verified = verify ? await this.verifyMessage(message) : true
-    return {
-      ...message,
-      verified,
+  public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | undefined> {
+    try {
+      return this._decryptPublicChannelMessage(message)
+    } catch (e) {
+      this.logger.error(`Failed to process message on consume`, e)
+      return undefined
     }
   }
 
-  /**
-   * Verify signature on message
-   *
-   * @param message Message to verify
-   * @returns True if message is valid
-   */
-  public async verifyMessage(message: ChannelMessage): Promise<boolean> {
-    const crypto = this.getCrypto()
-    const signature = stringToArrayBuffer(message.signature)
-    let cryptoKey = this.publicKeysMap.get(message.pubKey)
-
-    if (!cryptoKey) {
-      cryptoKey = await keyObjectFromString(message.pubKey, crypto)
-      this.publicKeysMap.set(message.pubKey, cryptoKey)
+  private _encryptPublicChannelMessage(rawMessage: ChannelMessage): EncryptedMessage {
+    try {
+      const chain = this.sigChainService.getActiveChain()
+      const encryptable: EncryptableMessageComponents = {
+        id: rawMessage.id,
+        userId: chain.user.userId,
+        type: rawMessage.type,
+        channelId: rawMessage.channelId,
+        message: rawMessage.message,
+        media: rawMessage.media,
+      }
+      const encryptedMessage = chain.crypto.encryptAndSign(encryptable, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+      return {
+        id: rawMessage.id,
+        channelId: rawMessage.channelId,
+        createdAt: rawMessage.createdAt,
+        encSignature: encryptedMessage.signature,
+        contents: encryptedMessage.encrypted,
+      }
+    } catch (e) {
+      throw new CompoundError(`Failed to encrypt message with error`, e)
     }
-
-    return await verifySignature(signature, message.message, cryptoKey)
   }
 
-  // TODO: https://github.com/TryQuiet/quiet/issues/2631
-  // NOTE: the signature here may not be correct
-  private async encryptMessage(message: ChannelMessage): Promise<EncryptedAndSignedPayload> {
-    throw new Error(`MessagesService.encryptMessage is not implemented!`)
-  }
-
-  // TODO: https://github.com/TryQuiet/quiet/issues/2632
-  // NOTE: the signature here may not be correct
-  private async decryptMessage(encrypted: EncryptedPayload, signature: SignedEnvelope): Promise<ChannelMessage> {
-    throw new Error(`MessagesService.decryptMessage is not implemented!`)
-  }
-
-  /**
-   * Get crypto engine that was initialized previously
-   *
-   * @returns Crypto engine
-   * @throws NoCryptoEngineError
-   */
-  private getCrypto(): ICryptoEngine {
-    const crypto = getCrypto()
-    if (crypto == null) {
-      throw new NoCryptoEngineError()
+  private _decryptPublicChannelMessage(encryptedMessage: EncryptedMessage): ConsumedChannelMessage {
+    try {
+      const chain = this.sigChainService.getActiveChain()
+      const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
+        encryptedMessage.contents,
+        encryptedMessage.encSignature,
+        false
+      )
+      return {
+        ...decryptedMessage.contents,
+        userId: decryptedMessage.contents.userId,
+        createdAt: encryptedMessage.createdAt,
+        encSignature: encryptedMessage.encSignature,
+        verified: decryptedMessage.isValid,
+      }
+    } catch (e) {
+      throw new CompoundError(`Failed to decrypt message with error`, e)
     }
-
-    return crypto
   }
 
-  /**
-   * Clean service
-   *
-   * NOTE: Does NOT affect data stored in IPFS
-   */
-  public async clean(): Promise<void> {
-    this.publicKeysMap = new Map()
+  public validateMessage(message: ChannelMessage, encryptedMessage: EncryptedMessage): boolean {
+    if (message.id !== encryptedMessage.id) {
+      this.logger.info(`Message ID mismatch`, message.id, encryptedMessage.id)
+      return false
+    }
+    if (message.type === MessageType.Info) {
+      return true
+    }
+    return true
   }
 }

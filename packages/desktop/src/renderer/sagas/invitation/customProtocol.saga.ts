@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, delay } from 'typed-redux-saga'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
-import { communities } from '@quiet/state-manager'
+import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
+import { communities, identity } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
 import { ModalName } from '../modals/modals.types'
 import { modalsActions } from '../modals/modals.slice'
@@ -11,7 +11,6 @@ import {
   InvalidInvitationLinkError,
   JoiningAnotherCommunityWarning,
 } from '@quiet/common'
-import _ from 'lodash'
 import { createLogger } from '../../logger'
 
 const logger = createLogger('customProtocol')
@@ -48,17 +47,27 @@ export function* customProtocolSaga(
         },
       })
     )
+    logger.warn(`Failed processing ${code}`)
     return
   }
 
   if (data === null) {
-    logger.warn(`Not processing invitation code ${code}`)
+    logger.warn(`Failed (Returned null) ${code}`)
     return
   }
 
+  let isAlreadyConnected = false
+  // TODO: Remove this once multiple communities are supported
+  // Check if the user is already connected to a community
   const community = yield* select(communities.selectors.currentCommunity)
+  if (community) {
+    const currentIdentity = yield* select(identity.selectors.currentIdentity)
+    if (currentIdentity && currentIdentity.communityId === community.id) {
+      isAlreadyConnected = true
+    }
+  }
 
-  const isAlreadyConnected = Boolean(community?.name)
+  logger.info('Checking if user is already connected to a community', isAlreadyConnected)
 
   // User already belongs to a community
   if (isAlreadyConnected) {
@@ -72,27 +81,23 @@ export function* customProtocolSaga(
         },
       })
     )
+    logger.info('Returning because user already belongs to a community')
     return
   }
 
-  let isJoiningAnotherCommunity = false
+  let joiningInProgress = false
 
-  let storedPsk: string | undefined = undefined
-  let currentPsk: string | undefined = undefined
+  const invitationCodes = yield* select(communities.selectors.invitationCodes)
   switch (data.version) {
     case InvitationDataVersion.v1:
-      storedPsk = yield* select(communities.selectors.psk)
-      currentPsk = data.psk
-      isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)
+      joiningInProgress = Boolean(Object.keys(invitationCodes).length !== 0)
       break
     case InvitationDataVersion.v2: // Question: should we also check if the sig chain team name is different or something?  is the psk enough?
-      storedPsk = yield* select(communities.selectors.psk)
-      currentPsk = data.psk
-      isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)
+      joiningInProgress = Boolean(Object.keys(invitationCodes).length !== 0)
       break
   }
 
-  const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
+  const connectingWithAnotherCommunity = joiningInProgress
 
   if (connectingWithAnotherCommunity) {
     logger.warn('Displaying error (user is already connecting to another community).')
@@ -105,14 +110,14 @@ export function* customProtocolSaga(
         },
       })
     )
-
+    logger.info('Returning because user is already connecting to another community')
     return
   }
 
-  const payload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
+  const payload: JoinCommunityPayload = {
     inviteData: data,
   }
 
-  yield* put(communities.actions.createNetwork(payload))
+  logger.info('Dispatching join community action', payload)
+  yield* put(communities.actions.joinCommunity(payload))
 }

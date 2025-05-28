@@ -16,27 +16,33 @@ import { IpfsFileManagerModule } from './ipfs-file-manager.module'
 import { IpfsFileManagerService } from './ipfs-file-manager.service'
 import fs from 'fs'
 import { createLogger } from '../common/logger'
+import { SigChainService } from '../auth/sigchain.service'
+import { SigChainModule } from '../auth/sigchain.service.module'
 
 const logger = createLogger('bigFiles:test')
-const BIG_FILE_SIZE = 2147483000
+const BIG_FILE_SIZE = 2097152000
 
 describe('IpfsFileManagerService', () => {
   let module: TestingModule
   let ipfsFileManagerService: IpfsFileManagerService
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
+  let sigChainService: SigChainService
 
   let tmpDir: DirResult
   let filePath: string
 
   beforeAll(async () => {
     tmpDir = createTmpDir()
-    filePath = new URL('./testUtils/large-file.txt', import.meta.url).pathname
+    filePath = new URL('./testUtils/large-file.bin', import.meta.url).pathname
     // Generate 2.1GB file
     await createArbitraryFile(filePath, BIG_FILE_SIZE)
     module = await Test.createTestingModule({
-      imports: [TestModule, IpfsFileManagerModule, IpfsModule, SocketModule, Libp2pModule],
+      imports: [TestModule, IpfsFileManagerModule, IpfsModule, SocketModule, Libp2pModule, SigChainModule],
     }).compile()
+
+    sigChainService = await module.resolve(SigChainService)
+    await sigChainService.createChain('community', 'username', true)
 
     ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
 
@@ -62,15 +68,15 @@ describe('IpfsFileManagerService', () => {
     await ipfsFileManagerService.stop()
     await module.close()
   })
-  it('uploads large files', async () => {
-    // Uploading
+  it('attaches large files', async () => {
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
     const metadata: FileMetadata = {
       path: filePath,
       name: 'test-large-file',
-      ext: '.txt',
-      cid: 'uploading_id',
+      ext: '.bin',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
@@ -84,12 +90,12 @@ describe('IpfsFileManagerService', () => {
       100
     )
     if (metadata.path) {
-      logger.info(`Uploading file ${metadata.path} of size ${fs.statSync(metadata.path).size}`)
+      logger.info(`Attaching file ${metadata.path} of size ${fs.statSync(metadata.path).size}`)
     } else {
       logger.error('File path is null')
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
     metadata.path = newFilePath as string
@@ -103,7 +109,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           ...metadata,
           cid: expect.stringContaining('bafy'),

@@ -1,16 +1,14 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { sign, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { call, select, apply, put, delay, take } from 'typed-redux-saga'
-import { arrayBufferToString } from 'pvutils'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
+import { type ChannelMessage, MessageType, SendingStatus, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { configCrypto } from '@quiet/identity'
+import { identitySelectors } from '../../identity/identity.selectors'
+import { identityActions } from '../../identity/identity.slice'
 
 const logger = createLogger('sendMessageSaga')
 
@@ -18,17 +16,24 @@ export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
+  const payload = action.payload as ReturnType<typeof messagesActions.sendMessage>['payload']
   const generatedMessageId = yield* call(generateMessageId)
-  const id = action.payload.id || generatedMessageId
-
-  const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) {
-    logger.error(`Failed to send message ${id} - user CSR is missing`)
-    return
+  const id = payload.id || generatedMessageId
+  let identity = yield* select(identitySelectors.currentIdentity)
+  while (!identity || !identity.userId) {
+    logger.info('Identity not present, waiting for identity to be added.', identity)
+    // This will block until the addNewIdentity action is dispatched.
+    const actionIdentity: ReturnType<typeof identityActions.updateIdentity> = yield* take(
+      identityActions.updateIdentity
+    )
+    identity = yield* select(identitySelectors.currentIdentity)
+    logger.info('Identity updated', identity)
   }
 
+  logger.info('Identity present', identity)
+
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  const channelId = action.payload.channelId || currentChannelId
+  const channelId = payload.channelId || currentChannelId
   if (!channelId) {
     logger.error(`Failed to send message ${id} - channel ID is missing`)
     return
@@ -36,21 +41,18 @@ export function* sendMessageSaga(
 
   logger.info(`Sending message ${id} to channel ${channelId}`)
 
-  const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
-  const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, configCrypto.signAlg)
-  const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
-  const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
   const createdAt = yield* call(getCurrentTime)
 
   const message: ChannelMessage = {
     id,
-    type: action.payload.type || MessageType.Basic,
-    message: action.payload.message,
-    media: action.payload.media,
+    userId: identity.userId,
+    type: payload.type || MessageType.Basic,
+    message: payload.message,
     createdAt,
     channelId,
-    signature,
-    pubKey,
+  }
+  if (payload.media) {
+    message.media = payload.media
   }
 
   // Grey out message until saved in db
@@ -65,8 +67,7 @@ export function* sendMessageSaga(
   // Mark own message as properly signed
   yield* put(
     messagesActions.addMessageVerificationStatus({
-      publicKey: message.pubKey,
-      signature: message.signature,
+      id: message.id,
       isVerified: true,
     })
   )
@@ -80,9 +81,9 @@ export function* sendMessageSaga(
     })
   )
 
-  const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
-  if (isUploadingFileMessage) {
-    logger.info(`Failed to send message ${id} - file upload is in progress`)
+  const isAttachingFileMessage = payload.media?.cid?.includes('attaching')
+  if (isAttachingFileMessage) {
+    logger.info(`Waiting to send message ${id} - file attachment is in progress`)
     return // Do not broadcast message until file is uploaded
   }
 
@@ -98,17 +99,12 @@ export function* sendMessageSaga(
       logger.info(`Channel ${channelId} subscribed`)
       break
     }
-    logger.error(`Failed to send message ${id} - channel not subscribed. Waiting...`)
+    logger.error(`Waiting to send message ${id} - channel not subscribed`)
     yield* take(publicChannelsActions.setChannelSubscribed)
+    logger.info('New channel subscribed')
   }
 
-  logger.info('Emitting SEND_MESSAGE', id)
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
-      peerId: identity.peerId.id,
-      message,
-    })
-  )
+  logger.info('Emitting SEND_MESSAGE', message)
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, message))
+  logger.info(`Sent message ${id}`)
 }

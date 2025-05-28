@@ -6,6 +6,30 @@ on:
       [released, prereleased]
 
 jobs:
+  release-start-notification-desktop:
+    runs-on: ubuntu-22.04
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          submodules: 'recursive'
+          
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/desktop
+          
+      - name: Send Release Notificaton
+        uses: ./.github/actions/release-notifier
+        if: always()
+        with:
+          os-name: Desktop
+          version: ${{ steps.extract_version.outputs.version }}
+          status: started
+          slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   run-e2e-tests-linux:
     if: |
@@ -30,7 +54,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.3.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.5.x' || 'test.quiet' }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
@@ -47,7 +71,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
 
       - name: Install libfuse
         run: sudo apt install libfuse2
@@ -92,8 +116,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.current-version}}.AppImage
-          asset_name: Quiet-${{ steps.extract_version.outputs.current-version}}.AppImage
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
+          asset_name: Quiet-${{ steps.extract_version.outputs.version }}.AppImage
           asset_content_type: application/.AppImage
 
       - name: Send Release Notificaton
@@ -101,7 +125,7 @@ jobs:
         if: always()
         with:
           os-name: Linux
-          version: ${{ steps.extract_version.outputs.current-version }}
+          version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
@@ -113,7 +137,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.3.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.5.x' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -139,7 +163,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -186,7 +210,7 @@ jobs:
         if: always()
         with:
           os-name: MacOS
-          version: ${{ steps.extract_version.outputs.current-version }}
+          version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
@@ -198,7 +222,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.3.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.5.x' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -229,7 +253,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -273,6 +297,6 @@ jobs:
         if: always()
         with:
           os-name: Windows
-          version: ${{ steps.extract_version.outputs.current-version }}
+          version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}

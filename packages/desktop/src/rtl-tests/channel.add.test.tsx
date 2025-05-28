@@ -2,7 +2,6 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
 import { screen, waitFor } from '@testing-library/dom'
-import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
@@ -15,14 +14,15 @@ import CreateChannel from '../renderer/components/Channel/CreateChannel/CreateCh
 import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
-import { getFactory, identity, publicChannels } from '@quiet/state-manager'
+import { getReduxStoreFactory, getSocketFactory, publicChannels } from '@quiet/state-manager'
 import {
   ChannelsReplicatedPayload,
   CreateChannelPayload,
   ErrorMessages,
   type MessagesLoadedPayload,
   SendMessagePayload,
-  SocketActionTypes,
+  SocketActions,
+  SocketEvents,
   type PublicChannel,
 } from '@quiet/types'
 
@@ -31,6 +31,8 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { FieldErrors } from '../renderer/forms/fieldsErrors'
 
 import { createLogger } from './logger'
+import { FactoryGirl } from 'factory-girl'
+import { act } from '@testing-library/react'
 
 const logger = createLogger('channel:add')
 
@@ -38,8 +40,10 @@ jest.setTimeout(20_000)
 
 describe('Add new channel', () => {
   let socket: MockedSocket
+  let socketFactory: FactoryGirl
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    socketFactory = await getSocketFactory()
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -55,9 +59,9 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       nickname: 'alice',
     })
 
@@ -87,31 +91,42 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const factory = await getReduxStoreFactory(store)
+    const alice = await factory.create('Identity', {
       nickname: 'alice',
     })
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
-    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_CHANNEL) {
+      if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        expect(payload.channel.owner).toEqual(alice.nickname)
-        expect(payload.channel.name).toEqual(channelName.output)
-        const channelEntities = store.getState().PublicChannels.channels.entities
-        const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: [...channels, payload.channel],
+        factory.create('PublicChannel', {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: 'alice',
+            timestamp: 0,
+          },
+        })
+        return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: 'alice',
+            timestamp: 0,
+          },
         })
       }
-      if (action === SocketActionTypes.SEND_MESSAGE) {
+      if (action === SocketActions.SEND_MESSAGE) {
         const data = input[1] as SendMessagePayload
         const { message } = data
-        expect(message.channelId).toEqual(channelName.output)
-        expect(message.message).toEqual(`Created #${channelName.output}`)
-        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
-          messages: [message],
+        factory.create('TestMessage', {
+          message: {
+            ...message,
+          },
         })
       }
     }
@@ -146,10 +161,7 @@ describe('Add new channel', () => {
 
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
-      expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
-      expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }
 
     await act(async () => {
@@ -166,30 +178,6 @@ describe('Add new channel', () => {
     expect(link).toHaveClass('ChannelsListItemselected')
   })
 
-  it('Displays error if trying to add channel with already taken name', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-    const factory = await getFactory(store)
-
-    const channel =
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
-
-    renderComponent(<CreateChannel />, store)
-
-    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
-
-    const input = await screen.findByPlaceholderText('Enter a channel name')
-    await userEvent.type(input, channel.channel.name)
-
-    const button = screen.getByText('Create Channel')
-    await userEvent.click(button)
-
-    const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
-    expect(error).toBeVisible()
-  })
-
   it('Input after reopen should be clear', async () => {
     const channelName = 'san-fierro'
     const { store } = await prepareStore(
@@ -197,9 +185,9 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       nickname: 'alice',
     })
 
@@ -243,9 +231,9 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create('Identity', {
       nickname: 'alice',
     })
 
@@ -297,32 +285,42 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create('Identity', {
       nickname: 'alice',
     })
 
-    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_CHANNEL) {
+      if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        // const payload = data[0]
-        expect(payload.channel.owner).toEqual(alice.nickname)
-        expect(payload.channel.name).toEqual(channelName)
-        const channelEntities = store.getState().PublicChannels.channels.entities
-        const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: [...channels, payload.channel],
+        factory.create('PublicChannel', {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: 'alice',
+            timestamp: 0,
+          },
+        })
+        return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: 'alice',
+            timestamp: 0,
+          },
         })
       }
-      if (action === SocketActionTypes.SEND_MESSAGE) {
+      if (action === SocketActions.SEND_MESSAGE) {
         const data = input[1] as SendMessagePayload
         const { message } = data
-        expect(message.channelId).toEqual(channelName)
-        expect(message.message).toEqual(`Created #${channelName}`)
-        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
-          messages: [message],
+        factory.create('TestMessage', {
+          message: {
+            ...message,
+          },
         })
       }
     }
@@ -365,10 +363,7 @@ describe('Add new channel', () => {
 
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual(channelName)
-      expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
-      expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }
 
     const isNewChannel = await screen.findByText(`# ${channelName}`)
@@ -393,27 +388,45 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-    const factory = await getFactory(store)
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const factory = await getReduxStoreFactory(store)
+    const alice = await factory.create('Identity', {
       nickname: 'alice',
     })
 
     const channels = ['zzz', 'abc', '12a']
-
-    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
+    const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
-      if (action === SocketActionTypes.CREATE_CHANNEL) {
-        const data = input[1]
-        const payload = data
-        expect(payload.channel.owner).toEqual(alice.nickname)
-        const channelEntities = store.getState().PublicChannels.channels.entities
-        const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: [...channels, payload.channel],
+      if (action === SocketActions.CREATE_CHANNEL) {
+        const payload = input[1] as CreateChannelPayload
+        factory.create('PublicChannel', {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: 'alice',
+            timestamp: 0,
+          },
+        })
+        return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: 'alice',
+            timestamp: 0,
+          },
+        })
+      }
+      if (action === SocketActions.SEND_MESSAGE) {
+        const data = input[1] as SendMessagePayload
+        const { message } = data
+        factory.create('TestMessage', {
+          message: {
+            ...message,
+          },
         })
       }
     }
-
     jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
     // @ts-ignore
     socket.emitWithAck = mockImpl

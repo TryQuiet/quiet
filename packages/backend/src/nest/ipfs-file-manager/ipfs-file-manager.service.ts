@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter, setMaxListeners } from 'events'
-import fs from 'fs'
+import fs, { WriteStream } from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import { AddPinEvents, GetBlockProgressEvents, type Helia } from 'helia'
@@ -8,7 +8,14 @@ import { AddEvents, CatOptions, GetEvents, StatOptions, unixfs, UnixFSStats, typ
 import { promisify } from 'util'
 import sizeOf from 'image-size'
 import { CID } from 'multiformats/cid'
+import { DateTime } from 'luxon'
+import { CustomProgressEvent } from 'progress-events'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+
+import { QuietLogger } from '@quiet/logger'
 import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
+
 import { QUIET_DIR } from '../const'
 import {
   BlockStat,
@@ -23,10 +30,11 @@ import {
 } from './ipfs-file-manager.types'
 import { StorageEvents, UnixFSEvents } from '../storage/storage.types'
 import {
-  DEFAULT_CAT_BLOCK_CHUNK_SIZE,
   MAX_EVENT_LISTENERS,
   TRANSFER_SPEED_SPAN,
   TRANSFER_SPEED_SPAN_MS,
+  UNIXFS_CAT_CHUNK_SIZE,
+  UNIXFS_CHUNK_SIZE,
   UPDATE_STATUS_INTERVAL_MS,
 } from './ipfs-file-manager.const'
 import { sleep } from '../common/sleep'
@@ -34,10 +42,12 @@ const sizeOfPromisified = promisify(sizeOf)
 const { createPaths, compare } = await import('../common/utils')
 import { createLogger } from '../common/logger'
 import { IpfsService } from '../ipfs/ipfs.service'
-import { CustomProgressEvent } from 'progress-events'
-import { DateTime } from 'luxon'
-import { QuietLogger } from '@quiet/logger'
 import { abortableAsyncIterable } from '../common/utils'
+import { SigChainService } from '../auth/sigchain.service'
+import { EncryptionScopeType } from '../auth/services/crypto/types'
+import { SigChain } from '../auth/sigchain'
+import { RoleName } from '../auth/services/roles/roles'
+import { oneToOne } from './unixfs-utils/oneToOneChunker'
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
@@ -55,6 +65,7 @@ export class IpfsFileManagerService extends EventEmitter {
   private readonly logger = createLogger(IpfsFileManagerService.name)
   constructor(
     @Inject(QUIET_DIR) public readonly quietDir: string,
+    private readonly sigChainService: SigChainService,
     private readonly ipfsService: IpfsService
   ) {
     super()
@@ -74,8 +85,8 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   private attachIncomingEvents() {
-    this.on(IpfsFilesManagerEvents.UPLOAD_FILE, async (fileMetadata: FileMetadata) => {
-      await this.uploadFile(fileMetadata)
+    this.on(IpfsFilesManagerEvents.ATTACH_FILE, async (fileMetadata: FileMetadata) => {
+      await this.attachFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
       const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:download:${fileMetadata.cid}`)
@@ -140,9 +151,21 @@ export class IpfsFileManagerService extends EventEmitter {
 
   public async stop() {
     this.logger.info('Stopping IpfsFileManagerService')
-    for await (const cid of this.files.keys()) {
-      await this.cancelDownload(cid)
+    const cancelPromises: Promise<void>[] = []
+    this.logger.info(`Cancelling ${this.files.size} downloads`)
+    for (const cid of this.files.keys()) {
+      cancelPromises.push(
+        (async (): Promise<void> => {
+          try {
+            await this.cancelDownload(cid)
+          } catch (e) {
+            this.logger.error(`Error while cancelling download for CID ${cid}`, e)
+          }
+        })()
+      )
     }
+
+    await Promise.all(cancelPromises)
   }
 
   /**
@@ -183,13 +206,19 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
-  public async uploadFile(metadata: FileMetadata) {
-    const _logger = createLogger(`${IpfsFileManagerService.name}:upload`)
+  public async attachFile(metadata: FileMetadata) {
+    const _logger = createLogger(`${IpfsFileManagerService.name}:attach`)
+    const sigChain = this.sigChainService.getActiveChain()
+    if (sigChain == null) {
+      throw new Error(`Can't attach file because there was no active sigchain`)
+    }
+
     let width: number | undefined
     let height: number | undefined
     if (!metadata.path) {
       throw new Error(`File metadata (cid ${metadata.cid}) does not contain path`)
     }
+
     if (imagesExtensions.includes(metadata.ext)) {
       let imageSize: { width: number | undefined; height: number | undefined } | undefined // ISizeCalculationResult
       try {
@@ -212,31 +241,45 @@ export class IpfsFileManagerService extends EventEmitter {
     const filename = `${uuid}_${metadata.name}${metadata.ext}`
 
     // Save copy to separate directory
+    _logger.info(`Copying ${filename} to uploads directory`)
     const filePath = this.copyFile(metadata.path, filename)
+
     _logger.time(`Writing ${filename} to ipfs`)
 
     const handleUploadProgressEvents = (event: AddEvents): void => {
-      _logger.info(`Upload progress`, event)
+      _logger.trace(`Attachment progress`, event)
     }
 
-    const stream = fs.createReadStream(filePath, { highWaterMark: 64 * 1024 * 10 })
-    const uploadedFileStreamIterable = {
+    const stream = fs.createReadStream(filePath, { highWaterMark: UNIXFS_CHUNK_SIZE })
+    const fileAttachmentStreamIterable = {
       // eslint-disable-next-line prettier/prettier, generator-star-spacing
       async *[Symbol.asyncIterator]() {
         for await (const data of stream) {
+          _logger.trace(`Streaming ${(data as Buffer).byteLength} bytes from ${filename}`)
           yield data
         }
       },
     }
 
-    const fileCid = await this.ufs.addByteStream(uploadedFileStreamIterable, {
+    const { header, recipient, encryptStream } = sigChain.crypto.encryptStream(fileAttachmentStreamIterable, {
+      type: EncryptionScopeType.ROLE,
+      name: RoleName.MEMBER,
+    })
+
+    const fileCid = await this.ufs.addByteStream(encryptStream, {
       wrapWithDirectory: true,
       onProgress: handleUploadProgressEvents,
+      rawLeaves: true,
+      reduceSingleLeafToSelf: true,
+      // NOTE: this is what makes file encryption possible because it ensures that the encrypted chunks generated by the encrypt stream method
+      // in LFA are written as individual blocks vs multiple chunks per block with partial chunks written to a given block
+      chunker: oneToOne(),
     })
 
     _logger.timeEnd(`Writing ${filename} to ipfs`)
 
     this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+
     const fileMetadata: FileMetadata = {
       ...metadata,
       tmpPath: undefined,
@@ -245,9 +288,13 @@ export class IpfsFileManagerService extends EventEmitter {
       size: Number((await this.ufs.stat(fileCid)).fileSize),
       width,
       height,
+      enc: {
+        header: uint8ArrayToString(header, 'base64url'),
+        recipient,
+      },
     }
 
-    this.emit(StorageEvents.FILE_UPLOADED, fileMetadata)
+    this.emit(StorageEvents.FILE_ATTACHED, fileMetadata)
 
     if (metadata.tmpPath) {
       this.deleteFile(metadata.tmpPath)
@@ -366,12 +413,11 @@ export class IpfsFileManagerService extends EventEmitter {
 
       // handler for events where we have found the block on the network and are adding it to our local blockstore
       const handleDownloadBlock = async (event: CustomProgressEvent<ExportProgress>) => {
-        const { bytesRead, totalBytes } = event.detail
         _logger.info(`Block found and downloaded to local blockstore`, event.detail)
 
         const blockStat = {
           fetchTimeMs: DateTime.utc().toMillis(),
-          byteLength: Number(totalBytes) - Number(bytesRead),
+          byteLength: UNIXFS_CHUNK_SIZE,
         }
         blocksStats.push(blockStat)
         downloadedBlocks += 1
@@ -516,7 +562,7 @@ export class IpfsFileManagerService extends EventEmitter {
       return DownloadState.Canceled
     }
 
-    const finishedWriting = await this.writeBlocksToFilesystem(fileCid, writeStream, {
+    const finishedWriting = await this.writeBlocksToFilesystem(fileCid, fileMetadata, writeStream, {
       logger: _logger,
       signal: controller.signal,
       catOptions: baseCatOptions,
@@ -659,7 +705,7 @@ export class IpfsFileManagerService extends EventEmitter {
     options.logger.info(`Pinning all blocks for file`)
     try {
       if (await this.ipfs.pins.isPinned(fileCid, options.addOptions)) {
-        options.logger.warn(`Already pinned - this file has probably already been uploaded/downloaded previously`)
+        options.logger.warn(`Already pinned - this file has probably already been attached/downloaded previously`)
       } else {
         for await (const cid of abortableAsyncIterable(
           this.ipfs.pins.add(fileCid, options.addOptions),
@@ -723,11 +769,11 @@ export class IpfsFileManagerService extends EventEmitter {
       const catOptions: CatOptions = {
         ...options.catOptions,
         offset: downloadedSize,
-        length: DEFAULT_CAT_BLOCK_CHUNK_SIZE,
+        length: UNIXFS_CAT_CHUNK_SIZE,
       }
 
-      options.logger.info(
-        `Getting blocks totalling ${DEFAULT_CAT_BLOCK_CHUNK_SIZE} bytes with offset ${downloadedSize} (total bytes: ${totalSize})`
+      options.logger.trace(
+        `Getting blocks totalling ${UNIXFS_CAT_CHUNK_SIZE} bytes with offset ${downloadedSize} (total bytes: ${totalSize})`
       )
 
       try {
@@ -765,7 +811,7 @@ export class IpfsFileManagerService extends EventEmitter {
         await sleep(500)
         continue
       }
-      offset += DEFAULT_CAT_BLOCK_CHUNK_SIZE
+      offset += UNIXFS_CAT_CHUNK_SIZE
     }
 
     return true
@@ -773,12 +819,19 @@ export class IpfsFileManagerService extends EventEmitter {
 
   private async writeBlocksToFilesystem(
     cid: CID,
+    fileMetadata: FileMetadata,
     writeStream: fs.WriteStream,
     options: GetBlocksOptions
   ): Promise<boolean> {
     options.logger.info(`Writing blocks to filesystem`)
     if (options.signal?.aborted) {
       options.logger.info(`Skipping filesystem write because the download has been cancelled`)
+      return false
+    }
+
+    const sigChain = this.sigChainService.getActiveChain()
+    if (sigChain == null) {
+      options.logger.error(`Cancelling download because initial stat check threw an error`)
       return false
     }
 
@@ -802,19 +855,7 @@ export class IpfsFileManagerService extends EventEmitter {
         return false
       }
 
-      for await (const entry of entries) {
-        options.logger.info(`Writing block with size (in bytes)`, entry.byteLength)
-
-        await new Promise<void>((resolve, reject) => {
-          writeStream.write(entry, err => {
-            if (err) {
-              this.logger.error(`${cid.toString()} writing to file error`, err)
-              reject(err)
-            }
-          })
-          resolve()
-        })
-      }
+      await this._decryptBlockAndWriteToFile(cid, fileMetadata, entries, sigChain, writeStream, options.logger)
     } catch (e) {
       if (options.signal?.aborted) {
         options.logger.warn(`Cancelling download while writing block data to filesystem`, e)
@@ -825,6 +866,35 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     return true
+  }
+
+  private async _decryptBlockAndWriteToFile(
+    cid: CID,
+    fileMetadata: FileMetadata,
+    catStream: AsyncIterable<Uint8Array>,
+    sigChain: SigChain,
+    writeStream: WriteStream,
+    _logger: QuietLogger
+  ) {
+    _logger.info(`Decrypting and writing blocks to file`)
+    if (fileMetadata.enc == null) {
+      throw new Error(`Must include encryption metadata`)
+    }
+
+    const { header, recipient } = fileMetadata.enc
+    const decryptStream = sigChain.crypto.decryptStream(catStream, uint8ArrayFromString(header, 'base64url'), recipient)
+    for await (const decryptedEntry of decryptStream) {
+      _logger.trace(`Writing block with size (in bytes)`, decryptedEntry.byteLength)
+      await new Promise<void>((resolve, reject) => {
+        writeStream.write(decryptedEntry, err => {
+          if (err) {
+            this.logger.error(`${cid.toString()} writing to file error`, err)
+            reject(err)
+          }
+        })
+        resolve()
+      })
+    }
   }
 
   private async validateDownload(

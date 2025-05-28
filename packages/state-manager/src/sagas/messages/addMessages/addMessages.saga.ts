@@ -14,28 +14,10 @@ export function* addMessagesSaga(
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
     // Proceed only for messages from current channel
+    // TODO: do we still need this check?
     const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
     if (incomingMessage.channelId !== currentChannelId) {
       logger.warn(`Skipping message because channel ID is not the current channel ID`, incomingMessage.id)
-      continue
-    }
-
-    // Do not proceed if signature is not verified
-    let isVerified: boolean = false
-    while (true) {
-      const messageVerificationStatus = yield* select(messagesSelectors.messagesVerificationStatus)
-      const status = messageVerificationStatus[incomingMessage.signature]
-      if (status) {
-        if (!status.isVerified) {
-          logger.warn(`Message is not verified`, incomingMessage.id, status)
-        }
-        isVerified = status.isVerified
-        break
-      }
-      yield* delay(50)
-    }
-
-    if (!isVerified) {
       continue
     }
 

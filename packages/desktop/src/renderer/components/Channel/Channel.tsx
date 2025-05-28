@@ -3,14 +3,14 @@ import React, { useCallback, useEffect } from 'react'
 import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { identity, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
+import { users, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
 import { getFilesData } from '@quiet/common'
 
@@ -22,7 +22,7 @@ import { MenuName } from '../../../const/MenuNames.enum'
 const Channel = () => {
   const dispatch = useDispatch()
 
-  const user = useSelector(identity.selectors.currentIdentity)
+  const user = useSelector(users.selectors.myUserProfile)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
@@ -52,7 +52,7 @@ const Channel = () => {
   const { handleOpen: duplicatedUsernameModalHandleOpen } = useModal(ModalName.duplicatedUsernameModal)
   const { handleOpen: unregisteredUsernameModalHandleOpen } = useModal(ModalName.unregisteredUsernameModal)
 
-  const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
+  const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>({})
 
@@ -73,17 +73,17 @@ const Channel = () => {
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach((fileData: FileContent) => {
-        dispatch(files.actions.uploadFile(fileData))
+        dispatch(files.actions.attachFile(fileData))
       })
       // Reset file previews for input state
-      setUploadingFiles({})
+      setAttachingFiles({})
     },
     [dispatch]
   )
 
   React.useEffect(() => {
-    filesRef.current = uploadingFiles
-  }, [uploadingFiles])
+    filesRef.current = attachingFiles
+  }, [attachingFiles])
 
   const lazyLoading = useCallback(
     (load: boolean) => {
@@ -94,7 +94,7 @@ const Channel = () => {
 
   const handleFileDrop = useCallback((item: { files: any[] }) => {
     if (item) {
-      updateUploadingFiles(
+      updateAttachingFiles(
         getFilesData(
           item.files.map(droppedFile => {
             return { path: droppedFile.path }
@@ -105,14 +105,14 @@ const Channel = () => {
   }, [])
 
   const removeFilePreview = (id: string) =>
-    setUploadingFiles(existingFiles => {
+    setAttachingFiles(existingFiles => {
       delete existingFiles[id]
       const updatedExistingFiles = { ...existingFiles }
       return updatedExistingFiles
     })
 
-  const updateUploadingFiles = (filesData: FilePreviewData) => {
-    setUploadingFiles(existingFiles => {
+  const updateAttachingFiles = (filesData: FilePreviewData) => {
+    setAttachingFiles(existingFiles => {
       const updatedFiles = { ...existingFiles, ...filesData }
       return updatedFiles
     })
@@ -135,7 +135,7 @@ const Channel = () => {
 
   useEffect(() => {
     ipcRenderer.on('writeTempFileReply', (_event, arg) => {
-      setUploadingFiles(existingFiles => {
+      setAttachingFiles(existingFiles => {
         const updatedFiles = {
           ...existingFiles,
           [arg.id]: {
@@ -152,7 +152,7 @@ const Channel = () => {
 
   useEffect(() => {
     ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
-      updateUploadingFiles(filesData)
+      updateAttachingFiles(filesData)
     })
   }, [])
 
@@ -191,7 +191,7 @@ const Channel = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
 
-  if (!user || !currentChannelId) return null
+  if (!currentChannelId) return null
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,
@@ -220,7 +220,7 @@ const Channel = () => {
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
-    filesData: uploadingFiles,
+    filesData: attachingFiles,
     removeFile: removeFilePreview,
   }
 

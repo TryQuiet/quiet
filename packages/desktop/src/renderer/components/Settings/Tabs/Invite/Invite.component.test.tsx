@@ -8,7 +8,7 @@ import { InvitationDataVersion } from '@quiet/types'
 describe('CopyLink', () => {
   it('renderComponent - hidden long link', () => {
     const invitationLink = composeInvitationShareUrl({
-      version: InvitationDataVersion.v1,
+      version: InvitationDataVersion.v2,
       pairs: [
         {
           peerId: '12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
@@ -28,7 +28,10 @@ describe('CopyLink', () => {
         },
       ],
       psk: '123435',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
+      authData: {
+        seed: '5ah8uYodiwuwVybT',
+        communityName: 'name',
+      },
     })
     const result = renderComponent(
       <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={false} />
@@ -139,7 +142,6 @@ describe('CopyLink', () => {
         },
       ],
       psk: '12345',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       authData: {
         seed: '5ah8uYodiwuwVybT',
         communityName: 'name',
@@ -197,7 +199,7 @@ describe('CopyLink', () => {
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
                     data-testid="invitation-link"
                   >
-                    https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&o=testOwnerOrbitDbIdentity&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVA
+                    https://tryquiet.org/join#p=12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY%2Cp3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&a=Yz1uYW1lJnM9NWFoOHVZb2Rpd3V3VnliVA
                   </p>
                   <button
                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-8prnfn-MuiButtonBase-root-MuiIconButton-root"
@@ -237,6 +239,40 @@ describe('CopyLink', () => {
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </button>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+  it('renderComponent - not an admin', () => {
+    const invitationLink = ''
+    const result = renderComponent(
+      <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={true} />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-14gz6o9-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+            >
+              <h5
+                class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
+              >
+                Only admins can invite new members
+              </h5>
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+            >
+              <p
+                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+              >
+                Only admins can invite new members to this community. Ask the community creator for a link to share.
+              </p>
             </div>
           </div>
         </div>

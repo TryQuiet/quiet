@@ -78,9 +78,20 @@ jest.mock('socket.io-client', () => ({
   io: jest.fn(),
 }))
 
-// Mocked because of: "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
+// Mocked because of: 
+// 
+// "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
 // could not be found. Verify that a module by this name is registered in the native binary."
 jest.mock('react-native-document-picker', () => { })
+
+// Mocked because of:
+//
+// /Users/isla/Dev/quiet/packages/mobile/node_modules/react-native-image-picker/src/index.ts:1
+// ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){import {Platform} from 'react-native';
+// ^^^^^^
+// 
+// SyntaxError: Cannot use import statement outside a module
+jest.mock('react-native-image-picker', () => { })
 
 jest.mock('react-native-device-info', () => {
   return {
@@ -95,6 +106,60 @@ jest.mock('react-native-safe-area-context', () => ({
     }
   }
 }))
+
+jest.mock('react-native-fs', () => {
+  return {
+    mkdir: jest.fn(),
+    moveFile: jest.fn(),
+    copyFile: jest.fn(),
+    pathForBundle: jest.fn(),
+    pathForGroup: jest.fn(),
+    getFSInfo: jest.fn(),
+    getAllExternalFilesDirs: jest.fn(),
+    unlink: jest.fn(),
+    exists: jest.fn(),
+    stopDownload: jest.fn(),
+    resumeDownload: jest.fn(),
+    isResumable: jest.fn(),
+    stopUpload: jest.fn(),
+    completeHandlerIOS: jest.fn(),
+    readDir: jest.fn(),
+    readDirAssets: jest.fn(),
+    existsAssets: jest.fn(),
+    readdir: jest.fn(),
+    setReadable: jest.fn(),
+    stat: jest.fn(),
+    readFile: jest.fn(),
+    read: jest.fn(),
+    readFileAssets: jest.fn(),
+    hash: jest.fn(),
+    copyFileAssets: jest.fn(),
+    copyFileAssetsIOS: jest.fn(),
+    copyAssetsVideoIOS: jest.fn(),
+    writeFile: jest.fn(),
+    appendFile: jest.fn(),
+    write: jest.fn(),
+    downloadFile: jest.fn(),
+    uploadFiles: jest.fn(),
+    touch: jest.fn(),
+    MainBundlePath: jest.fn(),
+    CachesDirectoryPath: jest.fn(),
+    DocumentDirectoryPath: jest.fn(),
+    ExternalDirectoryPath: jest.fn(),
+    ExternalStorageDirectoryPath: jest.fn(),
+    TemporaryDirectoryPath: jest.fn(),
+    LibraryDirectoryPath: jest.fn(),
+    PicturesDirectoryPath: jest.fn(),
+  }
+})
+
+jest.mock('react-native-file-logger', () => {
+  return {
+    FileLogger: {
+      configure: jest.fn()
+    }
+  }
+})
 
 export const ioMock = io as jest.Mock
 

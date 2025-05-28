@@ -1,17 +1,15 @@
-import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
+import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers, areCertificatesLoaded } from '../users/users.selectors'
 import { peersStatsAdapter } from './connection.adapter'
-import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
-import { type NetworkStats } from './connection.types'
-import { type User } from '../users/users.types'
-import { composeInvitationShareUrl, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
+import { isCurrentCommunityInitialized } from '../network/network.selectors'
+import { composeInvitationShareUrl, createLibp2pAddress, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
-import { InvitationData, InvitationDataVersion } from '@quiet/types'
+import { InvitationData, InvitationDataVersion, type UserProfile, type NetworkStats, type User } from '@quiet/types'
+import { userProfileSelectors } from '../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('connectionSelectors')
 
@@ -38,14 +36,24 @@ const peerStats = createSelector(connectionSlice, reducerState => {
 })
 
 export const peerList = createSelector(
-  communitiesSelectors.currentCommunity,
+  userProfileSelectors.userProfiles,
   identitySelectors.currentPeerAddress,
   peerStats,
-  (community, localPeerAddress, stats) => {
-    if (!community) return []
-
-    const arr = [...(community.peerList || [])]
-    return filterAndSortPeers(arr, stats, localPeerAddress)
+  (userProfiles, localPeerAddress, stats) => {
+    let arr: string[] = []
+    if (userProfiles) {
+      const profiles = Object.values(userProfiles)
+      arr = profiles
+        .map((user: UserProfile) => {
+          if (!user.userData) return null
+          if (!user.userData.onionAddress) return null
+          if (!user.userData.peerId) return null
+          return createLibp2pAddress(user.userData.onionAddress, user.userData.peerId)
+        })
+        .filter((address): address is string => address !== null && address !== undefined)
+    }
+    const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress)
+    return filteredAndSortedPeers
   }
 )
 
@@ -55,70 +63,58 @@ export const longLivedInvite = createSelector(connectionSlice, reducerState => {
 
 export const invitationUrl = createSelector(
   communitiesSelectors.psk,
-  communitiesSelectors.ownerOrbitDbIdentity,
   communitiesSelectors.currentCommunity,
   peerList,
   longLivedInvite,
-  (communityPsk, ownerOrbitDbIdentity, currentCommunity, sortedPeerList, longLivedInvite) => {
-    if (!sortedPeerList || sortedPeerList?.length === 0) return ''
-    if (!communityPsk) return ''
-    if (!ownerOrbitDbIdentity) return ''
+  (communityPsk, currentCommunity, sortedPeerList, longLivedInvite) => {
+    if (!sortedPeerList || sortedPeerList?.length === 0) {
+      logger.warn('invitationUrl: No sorted peer list available or it is empty')
+      return ''
+    }
+    if (!communityPsk) {
+      logger.warn('invitationUrl: Community PSK is not available')
+      return ''
+    }
+    if (!longLivedInvite) {
+      logger.warn('invitationUrl: Long-lived invite is not available')
+      return ''
+    }
+    if (!currentCommunity) {
+      logger.warn('invitationUrl: Current community is not available')
+      return ''
+    }
+    if (!currentCommunity.name) {
+      logger.warn('invitationUrl: Current community name is not available')
+      return ''
+    }
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
-    let inviteData: InvitationData = {
-      pairs,
+    const inviteData: InvitationData = {
       psk: communityPsk,
-      ownerOrbitDbIdentity,
-      version: InvitationDataVersion.v1,
-    }
-    if (currentCommunity != null && currentCommunity.name != null && longLivedInvite != null) {
-      inviteData = {
-        ...inviteData,
-        version: InvitationDataVersion.v2,
-        authData: {
-          communityName: currentCommunity.name,
-          seed: longLivedInvite.seed,
-        },
-      }
-      logger.info('Added V2 invite data to the invite link')
-    } else {
-      logger.warn(
-        `Community and/or LFA invite data is missing, can't create V2 invite link! \nCommunity non-null? ${currentCommunity != null} \nCommunity name non-null? ${currentCommunity?.name != null} \nLFA invite data non-null? ${longLivedInvite != null}`
-      )
+      pairs,
+      version: InvitationDataVersion.v2,
+      authData: {
+        communityName: currentCommunity.name,
+        seed: longLivedInvite.seed,
+      },
     }
     return composeInvitationShareUrl(inviteData)
   }
 )
 
-export const connectedPeersMapping = createSelector(allUsers, connectedPeers, (certificates, peers) => {
-  const usersData = Object.values(certificates)
-  return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
-    for (const user of usersData) {
-      if (peerId === user.peerId) {
-        return {
-          ...peersMapping,
-          [peerId]: user,
-        }
-      }
-    }
-    return peersMapping
-  }, {})
-})
-
 export const isJoiningCompleted = createSelector(
+  isTorInitialized,
   isCurrentCommunityInitialized,
   areMessagesLoaded,
   areChannelsLoaded,
-  areCertificatesLoaded,
-  (isCommunity, areMessages, areChannels, areCertificates) => {
-    logger.info({ isCommunity, areMessages, areChannels, areCertificates })
-    return isCommunity && areMessages && areChannels && areCertificates
+  (isTorInit, isCommunityInitialized, areMessages, areChannels) => {
+    logger.info('isJoiningCompleted', JSON.stringify({ isCommunityInitialized, areMessages, areChannels }, null, 2))
+    return !!(isCommunityInitialized && areChannels && areMessages)
   }
 )
 
 export const connectionSelectors = {
   lastConnectedTime,
-  connectedPeersMapping,
   peerList,
   invitationUrl,
   longLivedInvite,

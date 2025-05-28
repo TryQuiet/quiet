@@ -10,6 +10,7 @@ import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { Asset } from 'react-native-image-picker'
 import { getFilesData } from '@quiet/common'
 
 export const ChannelScreen: FC = () => {
@@ -38,8 +39,6 @@ export const ChannelScreen: FC = () => {
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -50,19 +49,21 @@ export const ChannelScreen: FC = () => {
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
+  const isOwner = useSelector(communities.selectors.isOwner)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!community?.CA || !isWebsocketConnected) {
+  if (!isOwner || !isWebsocketConnected) {
     contextMenu = null
   }
 
   const unregisteredUsernameContextMenu = useContextMenu(MenuName.UnregisteredUsername)
 
-  const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
+  const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
   const filesRef = React.useRef<FilePreviewData>({})
   React.useEffect(() => {
-    filesRef.current = uploadingFiles
-  }, [uploadingFiles])
+    filesRef.current = attachingFiles
+  }, [attachingFiles])
 
   const downloadFile = useCallback(
     (media: FileMetadata) => {
@@ -86,7 +87,7 @@ export const ChannelScreen: FC = () => {
   )
 
   // Files
-  const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
+  const updateFileAttachments = (files: DocumentPickerResponse[]) => {
     const filesData: FilePreviewData = getFilesData(
       files.map(fileObj => {
         return {
@@ -97,14 +98,31 @@ export const ChannelScreen: FC = () => {
     )
 
     // FilePreviewData
-    setUploadingFiles(existingFiles => {
+    setAttachingFiles(existingFiles => {
       const updatedFiles = { ...existingFiles, ...filesData }
       return updatedFiles
     })
   }
 
+  const updateImageAttachments = (assets: Asset[]) => {
+    const assetData: FilePreviewData = getFilesData(
+      assets.map(assetObj => {
+        return {
+          path: assetObj.uri || assetObj.originalPath || '',
+          isTmp: false,
+        }
+      })
+    )
+
+    // FilePreviewData
+    setAttachingFiles(existingFiles => {
+      const updatedFiles = { ...existingFiles, ...assetData }
+      return updatedFiles
+    })
+  }
+
   const removeFilePreview = (id: string) =>
-    setUploadingFiles(existingFiles => {
+    setAttachingFiles(existingFiles => {
       delete existingFiles[id]
       const updatedExistingFiles = { ...existingFiles }
       return updatedExistingFiles
@@ -132,13 +150,13 @@ export const ChannelScreen: FC = () => {
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
-      // Upload files, then send corresponding message (contaning cid) for each of them
+      // Attach files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
         if (!fileData.path) return
-        dispatch(files.actions.uploadFile(fileData))
+        dispatch(files.actions.attachFile(fileData))
       })
       // Reset file previews for input state
-      setUploadingFiles({})
+      setAttachingFiles({})
     },
     [dispatch]
   )
@@ -173,10 +191,11 @@ export const ChannelScreen: FC = () => {
       imagePreview={imagePreview}
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
-      updateUploadedFiles={updateUploadedFiles}
+      updateFileAttachments={updateFileAttachments}
+      updateImageAttachments={updateImageAttachments}
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
-      uploadedFiles={uploadingFiles}
+      uploadedFiles={attachingFiles}
       ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}

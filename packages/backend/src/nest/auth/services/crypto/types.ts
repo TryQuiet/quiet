@@ -1,4 +1,5 @@
-import { Base58, SignedEnvelope } from '@localfirst/auth'
+import { KeyMetadata } from '@localfirst/crdx/'
+import { Base58 } from '@localfirst/auth'
 
 export enum EncryptionScopeType {
   ROLE = 'ROLE',
@@ -12,16 +13,28 @@ export type EncryptionScope = {
   name?: string
 }
 
+export type EncryptionScopeDetail = EncryptionScope & {
+  generation: number
+}
+
 export type EncryptedPayload = {
-  contents: Base58
-  scope: EncryptionScope & {
-    generation: number
-  }
+  contents: Uint8Array
+  scope: EncryptionScopeDetail
 }
 
 export type EncryptedAndSignedPayload = {
   encrypted: EncryptedPayload
-  signature: SignedEnvelope
+  signature: Signature
   ts: number
-  username: string
+  userId: string
+}
+
+export type DecryptedPayload<T> = {
+  contents: T
+  isValid: boolean
+}
+
+export type Signature = {
+  signature: Base58
+  author: KeyMetadata
 }

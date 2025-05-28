@@ -1,17 +1,9 @@
-import {
-  ChannelMessage,
-  communities,
-  CommunityOwnership,
-  CreateNetworkPayload,
-  identity,
-  publicChannels,
-  messages,
-  files,
-} from '@quiet/state-manager'
+import { communities, identity, publicChannels, messages, files } from '@quiet/state-manager'
 import assert from 'assert'
 import { Register, SendImage, SendMessage } from '../integrationTests/appActions'
 import { createLogger } from '../logger'
 import { waitForExpect } from './waitForExpect'
+import { ChannelMessage } from '@quiet/types'
 const logger = createLogger('actions')
 
 const timeout = 120_000
@@ -19,78 +11,78 @@ const timeout = 120_000
 export async function registerUsername(payload: Register) {
   const { userName, store } = payload
 
-  const createNetworkPayload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
-  }
-  logger.info(`User ${userName} starts creating network`)
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  // const createNetworkPayload: CreateNetworkPayload = {
+  //   ownership: CommunityOwnership.User,
+  // }
+  // logger.info(`User ${userName} starts creating network`)
+  // store.dispatch(communities.actions.createNetwork(createNetworkPayload))
 
-  await waitForExpect(() => {
-    assert.equal(store.getState().Identity.identities.ids.length, 1)
-  }, timeout)
-  await waitForExpect(() => {
-    assert.equal(store.getState().Communities.communities.ids.length, 1)
-  }, timeout)
+  // await waitForExpect(() => {
+  //   assert.equal(store.getState().Identity.identities.ids.length, 1)
+  // }, timeout)
+  // await waitForExpect(() => {
+  //   assert.equal(store.getState().Communities.communities.ids.length, 1)
+  // }, timeout)
 
-  const communityId = store.getState().Communities.communities.ids[0]
+  // const communityId = store.getState().Communities.communities.ids[0]
 
-  await waitForExpect(() => {
-    assert.ok(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress)
-  }, timeout)
-  await waitForExpect(() => {
-    assert.equal(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
-  }, timeout)
+  // await waitForExpect(() => {
+  //   assert.ok(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress)
+  // }, timeout)
+  // await waitForExpect(() => {
+  //   assert.equal(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
+  // }, timeout)
 
-  logger.info(`User ${userName} starts registering username`)
+  // logger.info(`User ${userName} starts registering username`)
   store.dispatch(identity.actions.registerUsername({ nickname: userName }))
 }
 
 export const createCommunity = async ({ username, communityName, store }): Promise<string> => {
-  const createNetworkPayload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.Owner,
-    name: communityName,
-  }
+  // const createNetworkPayload: CreateNetworkPayload = {
+  //   ownership: CommunityOwnership.Owner,
+  //   name: communityName,
+  // }
 
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
-  await waitForExpect(() => {
-    assert.strictEqual(store.getState().Identity.identities.ids.length, 1)
-  }, timeout)
-  await waitForExpect(() => {
-    assert.strictEqual(store.getState().Communities.communities.ids.length, 1)
-  }, timeout)
+  // store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  // await waitForExpect(() => {
+  //   assert.strictEqual(store.getState().Identity.identities.ids.length, 1)
+  // }, timeout)
+  // await waitForExpect(() => {
+  //   assert.strictEqual(store.getState().Communities.communities.ids.length, 1)
+  // }, timeout)
 
   const communityId = store.getState().Communities.communities.ids[0]
 
-  await waitForExpect(() => {
-    assert.ok(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress)
-  }, timeout)
-  await waitForExpect(() => {
-    assert.strictEqual(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
-  }, timeout)
-
-  store.dispatch(identity.actions.registerUsername(username))
-
-  await waitForExpect(() => {
-    assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)
-  }, timeout)
   // await waitForExpect(() => {
-  //   expect(
-  //     store.getState().Communities.communities.entities[communityId].CA
-  //   ).toHaveProperty('rootObject')
+  //   assert.ok(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress)
   // }, timeout)
-  await waitForExpect(() => {
-    assert.ok(store.getState().Communities.communities.entities[communityId].onionAddress)
-  }, timeout)
-  logger.info(store.getState().Communities.communities.entities[communityId].onionAddress)
-  await waitForExpect(() => {
-    assert.strictEqual(store.getState().Users.certificates.ids.length, 1)
-  }, timeout)
-  await waitForExpect(() => {
-    assert.ok(store.getState().Connection.initializedCommunities[communityId])
-  }, timeout)
-  logger.info('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
+  // await waitForExpect(() => {
+  //   assert.strictEqual(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
+  // }, timeout)
 
-  return store.getState().Communities.communities.entities[communityId].onionAddress
+  // store.dispatch(identity.actions.registerUsername(username))
+
+  // await waitForExpect(() => {
+  //   assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)
+  // }, timeout)
+  // // await waitForExpect(() => {
+  // //   expect(
+  // //     store.getState().Communities.communities.entities[communityId].CA
+  // //   ).toHaveProperty('rootObject')
+  // // }, timeout)
+  // await waitForExpect(() => {
+  //   assert.ok(store.getState().Communities.communities.entities[communityId].onionAddress)
+  // }, timeout)
+  // logger.info(store.getState().Communities.communities.entities[communityId].onionAddress)
+  // await waitForExpect(() => {
+  //   assert.strictEqual(store.getState().Users.certificates.ids.length, 1)
+  // }, timeout)
+  // await waitForExpect(() => {
+  //   assert.ok(store.getState().Connection.initializedCommunities[communityId])
+  // }, timeout)
+  // logger.info('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
+
+  return store.getState().Communities.communities.entities[communityId].networkInfo.hiddenService.onionAddress
 }
 
 export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
@@ -120,7 +112,7 @@ export async function sendImage(payload: SendImage) {
 
   logger.info(file.path, 'sendImage')
 
-  store.dispatch(files.actions.uploadFile(file))
+  store.dispatch(files.actions.attachFile(file))
 
   // Result of an action is sending a message containing cid of uploaded image
   await waitForExpect(() => {

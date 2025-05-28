@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react'
+import React, { ReactElement, useCallback, useRef, useEffect } from 'react'
 import classNames from 'classnames'
 import Picker, { EmojiStyle, type Theme } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
@@ -6,6 +6,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
+import EmojiDropdown from './EmojiDropdown'
 import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
@@ -13,8 +14,10 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
+import { emojify, findMatchingEmojis, extractPartialEmojiCode, emojiShortcodes } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
+const MAX_EMOJI_SUGGESTIONS = 100
 
 const classes = {
   root: `${PREFIX}root`,
@@ -38,6 +41,7 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
+  portalDropdown: `${PREFIX}portalDropdown`,
 }
 
 const maxHeight = 300
@@ -47,11 +51,14 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     background: theme.palette.background.default,
     height: '100%',
     width: '100%',
+    overflow: 'visible',
+    position: 'relative',
   },
   [`& .${classes.rootContent}`]: {
     background: theme.palette.background.default,
     height: '100%',
     width: '100%',
+    overflow: 'visible',
   },
   '@keyframes blinker': {
     from: { opacity: 0 },
@@ -61,7 +68,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     display: 'block',
     border: 0,
     resize: 'none',
-    fontFamily: 'inherit',
+    fontFamily: '"Rubik", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
     whiteSpace: 'break-spaces',
     width: '100%',
     fontSize: 14,
@@ -71,6 +78,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     height: '48px',
     lineHeight: '24px',
     backgroundColor: theme.palette.background.default,
+    color: theme.palette.colors.contrastText,
     '&:empty': {
       '&:before': {
         content: 'attr(placeholder)',
@@ -89,6 +97,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     border: `1px solid ${theme.palette.colors.border01}`,
     maxHeight: maxHeight,
     overflowY: 'auto',
+    overflowX: 'visible',
     borderRadius: 4,
     display: 'flex',
     flexDirection: 'column',
@@ -105,6 +114,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     width: '100%',
     margin: '0px',
     position: 'relative',
+    overflow: 'visible',
   },
   [`& .${classes.disabledBottomMargin}`]: {
     marginBottom: 0,
@@ -229,7 +239,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleClipboardFiles,
   handleOpenFiles,
 }) => {
-  const textAreaRef = React.createRef<HTMLTextAreaElement>()
+  const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const fileInput = React.useRef<HTMLInputElement>(null)
 
   const [focused, setFocused] = React.useState(false)
@@ -237,6 +247,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
+
+  // State for emoji dropdown
+  const [emojiSuggestions, setEmojiSuggestions] = React.useState<string[]>([])
+  const [partialEmoji, setPartialEmoji] = React.useState<string | null>(null)
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = React.useState(-1)
+
+  // Ref for the textarea container to position the emoji dropdown
+  const textareaContainerRef = useRef<HTMLDivElement>(null)
 
   const [message, setMessage] = React.useState(initialMessage)
 
@@ -265,11 +283,52 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const onChangeCb = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
-        setMessage(e.target.value)
+        // Get cursor position and current input value
+        const cursorPosition = e.target.selectionStart || 0
+        const currentText = e.target.value
+
+        // First, just update the text as typed (without emoji conversion)
+        setMessage(currentText)
+
+        // Check for potential emoji shortcode to provide tab completion suggestions
+        const partialCode = extractPartialEmojiCode(currentText, cursorPosition)
+        if (partialCode && partialCode.partial.length > 1) {
+          // At least ":x"
+          const matches = findMatchingEmojis(partialCode.partial, MAX_EMOJI_SUGGESTIONS)
+          // Use matches as is - if no matches, don't show any fallbacks
+          setEmojiSuggestions(matches)
+          setPartialEmoji(partialCode.partial)
+          // Reset selection to first item when suggestions change
+          setSelectedSuggestionIndex(0)
+        } else {
+          // Clear suggestions if not typing an emoji code
+          setEmojiSuggestions([])
+          setPartialEmoji(null)
+        }
+
+        // Check for emoji conversion at current cursor position
+        const result = emojify(currentText, cursorPosition) as { text: string; cursorOffset: number }
+        const { text: newText, cursorOffset } = result
+
+        // If emoji conversion occurred, update the text and fix cursor position
+        if (newText !== currentText) {
+          setMessage(newText)
+
+          // Set timeout to fix cursor position after React renders
+          setTimeout(() => {
+            if (e.target) {
+              const newPosition = cursorPosition + cursorOffset
+              e.target.selectionStart = newPosition
+              e.target.selectionEnd = newPosition
+            }
+          }, 0)
+        }
+
+        // Update textarea height to fit content
         adjustTextAreaHeight(e.target)
       }
     },
-    [onChange]
+    [inputState, message]
   )
 
   const inputStateRef = React.useRef(inputState)
@@ -277,17 +336,95 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     inputStateRef.current = inputState
   })
 
+  // State to track emoji autocomplete dropdown position
+  const [dropdownPosition, setDropdownPosition] = React.useState({ top: 0, left: 0, width: 0 })
+
+  // Update dropdown position whenever suggestions change or textarea size changes
+  React.useEffect(() => {
+    if (emojiSuggestions.length > 0 && textareaContainerRef.current && textAreaRef.current) {
+      const container = textareaContainerRef.current
+      const textarea = textAreaRef.current
+      const containerRect = container.getBoundingClientRect()
+      const textareaRect = textarea.getBoundingClientRect()
+
+      // Calculate the height of the dropdown (max 5 items)
+      const dropdownHeight = Math.min(emojiSuggestions.length, 5) * 40 + 10 // approx. height per item + padding
+
+      setDropdownPosition({
+        top: textareaRect.top - dropdownHeight - 10, // Position above the textarea with a 10px gap
+        left: textareaRect.left,
+        width: textareaRect.width,
+      })
+    }
+  }, [emojiSuggestions, message])
+
   const onKeyDownCb = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.nativeEvent.key === 'Enter') {
+      const target = e.target as HTMLInputElement
+
+      if (emojiSuggestions.length > 0 && (e.nativeEvent.key === 'ArrowUp' || e.nativeEvent.key === 'ArrowDown')) {
+        // Handle arrow navigation for emoji suggestions
+        e.preventDefault()
+
+        if (e.nativeEvent.key === 'ArrowDown') {
+          // Move selection down
+          setSelectedSuggestionIndex(prev => (prev < emojiSuggestions.length - 1 ? prev + 1 : 0))
+        } else {
+          // Move selection up
+          setSelectedSuggestionIndex(prev => (prev > 0 ? prev - 1 : emojiSuggestions.length - 1))
+        }
+      } else if (e.nativeEvent.key === 'Tab' || (e.nativeEvent.key === 'Enter' && emojiSuggestions.length > 0)) {
+        // Handle Tab or Enter key (when emoji dropdown is visible) for emoji shortcodes
+        e.preventDefault() // Prevent focus change or form submission
+
+        const cursorPos = target.selectionStart || 0
+        const partial = extractPartialEmojiCode(target.value, cursorPos)
+
+        if (partial && emojiSuggestions.length > 0) {
+          // Use the currently selected suggestion
+          const selectedSuggestion = emojiSuggestions[selectedSuggestionIndex]
+
+          // Get the actual emoji character
+          const emoji = emojiShortcodes[selectedSuggestion]
+
+          // Calculate the new text with emoji inserted
+          const beforeText = target.value.substring(0, partial.startPos)
+          const afterText = target.value.substring(cursorPos)
+          const newText = beforeText + emoji + afterText
+
+          // Calculate new cursor position
+          const newCursorPos = partial.startPos + emoji.length
+
+          setMessage(newText)
+          // Reset suggestions and selection index
+          setEmojiSuggestions([])
+          setSelectedSuggestionIndex(0)
+
+          // Set cursor position after the component re-renders
+          setTimeout(() => {
+            if (target) {
+              target.selectionStart = newCursorPos
+              target.selectionEnd = newCursorPos
+            }
+          }, 0)
+
+          // If the key was Enter, we're done - don't proceed to the Enter handling below
+          if (e.nativeEvent.key === 'Enter') {
+            return
+          }
+        }
+      } else if (e.nativeEvent.key === 'Enter') {
         if (e.shiftKey) {
           // Accept this input for additional lines in the message box
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
-          const target = e.target as HTMLInputElement
-          onChange(target.value)
-          onKeyPress(target.value)
+          // On send, replace any remaining emoji shortcodes with actual emojis
+          const messageWithEmojis = emojify(target.value, { finalSend: true }) as string
+          onChange(messageWithEmojis)
+          onKeyPress(messageWithEmojis)
           setMessage('')
+          // Reset any state needed for emoji handling
+          setEmojiSuggestions([])
           target.style.height = ''
         } else {
           e.preventDefault()
@@ -298,7 +435,17 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         }
       }
     },
-    [inputState, message, onChange, onKeyPress, setMessage, infoClass, setInfoClass]
+    [
+      inputState,
+      message,
+      onChange,
+      onKeyPress,
+      setMessage,
+      infoClass,
+      setInfoClass,
+      emojiSuggestions,
+      selectedSuggestionIndex,
+    ]
   )
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -348,6 +495,51 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
+              <div ref={textareaContainerRef} style={{ position: 'relative', width: '100%' }}>
+                {emojiSuggestions.length > 0 && (
+                  <EmojiDropdown
+                    suggestions={emojiSuggestions}
+                    selectedIndex={selectedSuggestionIndex}
+                    position={dropdownPosition}
+                    onClickAway={() => {
+                      setEmojiSuggestions([])
+                      setPartialEmoji(null)
+                      setSelectedSuggestionIndex(-1)
+                    }}
+                    onEmojiSelect={suggestion => {
+                      // Apply this emoji when clicked
+                      const cursorPos = textAreaRef.current?.selectionStart || 0
+                      const partial = extractPartialEmojiCode(message, cursorPos)
+
+                      if (partial) {
+                        // Replace the partial emoji code with the actual emoji
+                        const emoji = emojiShortcodes[suggestion]
+
+                        // Calculate the new text with emoji inserted
+                        const beforeText = message.substring(0, partial.startPos)
+                        const afterText = message.substring(cursorPos)
+                        const newText = beforeText + emoji + afterText
+
+                        // Calculate new cursor position
+                        const newCursorPos = partial.startPos + emoji.length
+
+                        setMessage(newText)
+                        setEmojiSuggestions([])
+                        setSelectedSuggestionIndex(0)
+
+                        // Set cursor position after click
+                        setTimeout(() => {
+                          if (textAreaRef.current) {
+                            textAreaRef.current.selectionStart = newCursorPos
+                            textAreaRef.current.selectionEnd = newCursorPos
+                            textAreaRef.current.focus()
+                          }
+                        }, 0)
+                      }
+                    }}
+                  />
+                )}
+              </div>
               <textarea
                 ref={textAreaRef}
                 placeholder={`Message ${inputPlaceholder}`}
@@ -393,7 +585,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       ref={fileInput}
                       type='file'
                       onChange={handleFileInput}
-                      // Value needs to be cleared otherwise one can't upload same image twice
+                      // Value needs to be cleared otherwise one can't attach same image twice
                       onClick={e => {
                         ;(e.target as HTMLInputElement).value = ''
                       }} // TODO: check

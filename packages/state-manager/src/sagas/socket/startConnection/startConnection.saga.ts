@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery, cancelled, select } from 'typed-redux-saga'
+import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -10,7 +10,7 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
-import { identityActions, identitySlice } from '../../identity/identity.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
 import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
@@ -31,16 +31,16 @@ import {
   type MessagesLoadedPayload,
   type NetworkDataPayload,
   type RemoveDownloadStatus,
-  type SendCertificatesResponse,
   type ChannelSubscribedPayload,
-  type SendCsrsResponse,
   type UserProfilesStoredEvent,
   type Identity,
-  SocketActionTypes,
+  type UsersUpdatedEvent,
+  SocketEvents,
+  AttachFilePayload,
+  LaunchCommunityPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { InviteResult } from '@localfirst/auth'
 
 const logger = createLogger('startConnectionSaga')
@@ -57,11 +57,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
-    | ReturnType<typeof usersActions.responseSendCertificates>
-    | ReturnType<typeof usersActions.storeCsrs>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
-    | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.updateIdentity>
     | ReturnType<typeof identityActions.addNewIdentity>
     | ReturnType<typeof communitiesActions.createCommunity>
@@ -78,115 +75,110 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.onConnectionProcessInfo>
-    | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof connectionActions.createInvite>
     | ReturnType<typeof connectionActions.setLongLivedInvite>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
-    | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
+    | ReturnType<typeof usersActions.setUsers>
+    | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
+    | ReturnType<typeof usersActions.updateUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
     // UPDATE FOR APP
-    socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
+    socket.on(SocketEvents.COMMUNITY_LAUNCHED, (payload: LaunchCommunityPayload) => {
+      logger.info(`${SocketEvents.COMMUNITY_LAUNCHED}`, payload)
+      emit(networkActions.addInitializedCommunity(payload.id))
+    })
+    socket.on(SocketEvents.TOR_INITIALIZED, () => {
+      logger.info(`${SocketEvents.TOR_INITIALIZED}`)
       emit(connectionActions.setTorInitialized())
     })
-    socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
+    socket.on(SocketEvents.CONNECTION_PROCESS_INFO, (payload: string) => {
+      logger.info(`${SocketEvents.CONNECTION_PROCESS_INFO}`, payload)
       emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: NetworkDataPayload) => {
-      logger.info(`${SocketActionTypes.PEER_CONNECTED}`, payload)
+    socket.on(SocketEvents.PEER_CONNECTED, (payload: NetworkDataPayload) => {
+      logger.info(`${SocketEvents.PEER_CONNECTED}`, payload)
       emit(networkActions.addConnectedPeers([payload.peer]))
       emit(connectionActions.setNetworkData(payload))
     })
-    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-      logger.info(`${SocketActionTypes.PEER_DISCONNECTED}`, payload)
+    socket.on(SocketEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      logger.info(`${SocketEvents.PEER_DISCONNECTED}`, payload)
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
     })
-    socket.on(SocketActionTypes.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
+    socket.on(SocketEvents.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
+      logger.info(`${SocketEvents.MIGRATION_DATA_REQUIRED}`, keys)
       emit(appActions.loadMigrationData(keys))
     })
     // Files
-    socket.on(SocketActionTypes.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
+    socket.on(SocketEvents.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
+      logger.info(`${SocketEvents.MESSAGE_MEDIA_UPDATED}`, payload)
       emit(filesActions.updateMessageMedia(payload))
     })
-    socket.on(SocketActionTypes.FILE_UPLOADED, (payload: FileMetadata) => {
+    socket.on(SocketEvents.FILE_ATTACHED, (payload: FileMetadata) => {
+      logger.info(`${SocketEvents.FILE_ATTACHED}`, payload)
       emit(filesActions.broadcastHostedFile(payload))
     })
-    socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
+    socket.on(SocketEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
+      logger.info(`${SocketEvents.DOWNLOAD_PROGRESS}`, payload)
       emit(filesActions.updateDownloadStatus(payload))
     })
-    socket.on(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
+    socket.on(SocketEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
+      logger.info(`${SocketEvents.REMOVE_DOWNLOAD_STATUS}`, payload)
       emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+    socket.on(SocketEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+      logger.info(`${SocketEvents.CHANNELS_STORED}`, payload)
       emit(publicChannelsActions.channelsReplicated(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
+    socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
+      logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     // Messages
-    socket.on(SocketActionTypes.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
+    socket.on(SocketEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
+      logger.info(`${SocketEvents.MESSAGE_IDS_STORED}`, payload)
       emit(messagesActions.checkForMessages(payload))
     })
-    socket.on(SocketActionTypes.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+    socket.on(SocketEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+      logger.info(`${SocketEvents.MESSAGES_STORED}`, payload)
       emit(messagesActions.removePendingMessageStatuses(payload))
       emit(messagesActions.addMessages(payload))
     })
 
-    // Community
-
-    socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      emit(filesActions.checkForMissingFiles(payload.id))
-      emit(networkActions.addInitializedCommunity(payload.id))
-      emit(communitiesActions.clearInvitationCodes())
-    })
-
-    socket.on(SocketActionTypes.COMMUNITY_UPDATED, (payload: Community) => {
-      emit(communitiesActions.updateCommunityData(payload))
-    })
-
     // Local First Auth
 
-    socket.on(SocketActionTypes.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResult) => {
+    socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResult) => {
+      logger.info(`${SocketEvents.CREATED_LONG_LIVED_LFA_INVITE}`, payload)
       emit(connectionActions.setLongLivedInvite(payload))
     })
 
     // Errors
-    socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
-      // FIXME: It doesn't look like log errors have the red error
-      // color in the console, which makes them difficult to find.
-      // Also when only printing the payload, the full trace is not
-      // available.
+    socket.on(SocketEvents.ERROR, (payload: ErrorPayload) => {
       logger.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
-    // Certificates
-    socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      logger.info(`${SocketActionTypes.CSRS_STORED}`)
-      emit(usersActions.storeCsrs(payload))
-    })
-    socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
-      logger.info(`${SocketActionTypes.CERTIFICATES_STORED}`)
-      emit(usersActions.responseSendCertificates(payload))
+
+    // Users
+
+    socket.on(SocketEvents.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
+      logger.info(`${SocketEvents.USERS_UPDATED}`, payload)
+      emit(usersActions.setUsers(payload.users))
     })
 
-    // Identity
-    socket.on(SocketActionTypes.IDENTITY_STORED, (payload: Identity) => {
-      logger.info(`${SocketActionTypes.IDENTITY_STORED}`)
-      emit(identityActions.updateIdentity(payload))
+    socket.on(SocketEvents.USERS_REMOVED, (payload: UsersUpdatedEvent) => {
+      logger.info(`${SocketEvents.USERS_REMOVED}`, payload)
+      emit(usersActions.deleteUsers(payload.users))
     })
 
-    // User Profile
-
-    socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`)
-      emit(usersActions.setUserProfiles(payload.profiles))
+    socket.on(SocketEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
+      emit(usersActions.updateUserProfiles(payload.profiles))
     })
-
     return () => undefined
   })
 }
@@ -196,6 +188,7 @@ export function* handleActions(socket: Socket): Generator {
   try {
     const socketChannel = yield* call(subscribe, socket)
     yield takeEvery(socketChannel, function* (action) {
+      logger.info('Dispatching action', action.type)
       yield put(action)
     })
   } finally {
