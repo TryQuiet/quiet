@@ -26,7 +26,7 @@ declare module '@orbitdb/core' {
     id: string
     open: <T>(address: string, options?: OrbitDBOpenOptions) => Promise<T>
     stop
-    ipfs
+    ipfs: Helia
     directory
     keystore
     identity: Identity

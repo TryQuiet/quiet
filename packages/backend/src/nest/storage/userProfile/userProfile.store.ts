@@ -29,7 +29,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
   public async init() {
     logger.info('Initializing user profiles key/value store')
 
-    this.store = await this.orbitDbService.orbitDb.open<KeyValueType<EncryptedAndSignedPayload>>('user-profiles', {
+    this.store = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('user-profiles', {
       type: 'KeyValueIndexedValidated',
       sync: false,
       Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),

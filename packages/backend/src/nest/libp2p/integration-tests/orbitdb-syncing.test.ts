@@ -54,12 +54,13 @@ class MockOrbitDBStore extends EventStoreBase<any> {
 
   public async init() {
     // Mock initialization logic
-    this.store = await this.orbitDbService.orbitDb.open<any>('mock-store', {
+    this.store = await this.orbitDbService.open<any>('mock-store', {
       type: 'events',
       Database: EventsWithStorage(),
       AccessController: IPFSAccessController({ write: ['*'] }),
       sync: false,
     })
+    logger.info(`Initialized mock store`, JSON.stringify(this.store, null, 2))
   }
 
   public async startSync() {

@@ -110,7 +110,7 @@ export class ChannelsService extends EventEmitter {
    */
   private async createChannelsDb(): Promise<void> {
     this.logger.info('Creating public-channels database')
-    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
+    this.channels = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
       sync: false,
       Database: KeyValueIndexedValidated(),
       AccessController: IPFSAccessController({ write: ['*'] }),
@@ -461,57 +461,6 @@ export class ChannelsService extends EventEmitter {
     }
 
     return await repo.store.getMessages(messageIds)
-  }
-
-  public async ingestEntries(entries: LogEntry<EncryptedMessage>[]) {
-    this.logger.info(`Ingesting ${entries.length} entries`)
-    if (!this.channels) {
-      this.logger.error('Channels have not been initialized!')
-      return
-    }
-    // Find the newest entries for each channel
-    const newHeads: Map<string, LogEntry[]> = new Map()
-    for (const entry of entries) {
-      if (!entry.payload || !entry.payload.value) {
-        this.logger.warn(`Skipping entry with no payload or value`, entry)
-        continue
-      }
-      const channelId = entry.payload.value.channelId
-      const currentEntries = newHeads.get(channelId)
-      if (!currentEntries) {
-        newHeads.set(channelId, [entry])
-        continue
-      }
-      const currentTime = currentEntries[0].clock.time
-      if (entry.clock.time > currentTime) {
-        newHeads.set(channelId, [entry])
-      } else if (entry.clock.time === currentTime) {
-        currentEntries.push(entry)
-      }
-    }
-    // Process all channels in parallel for better performance
-    await Promise.all(
-      Array.from(newHeads.entries()).map(async ([channelId, entries]) => {
-        this.logger.info(`Ingesting entries for channel ${channelId}`, entries.length)
-        const repo = this.publicChannelsRepos.get(channelId)
-        if (repo == null) {
-          // TOOD: we should probably create a store for this channel if it doesn't exist
-          this.logger.error(`Could not ingest entries. No '${channelId}' channel in saved public channels`)
-          return
-        }
-        try {
-          await Promise.all(
-            entries.map(entry => {
-              // Only log hashes for performance
-              this.logger.info(`Ingesting entry`, entry.hash)
-              return repo.store.joinEntry(entry.bytes)
-            })
-          )
-        } catch (e) {
-          this.logger.error(`Error ingesting entries for channel ${channelId}`, e)
-        }
-      })
-    )
   }
 
   // Files

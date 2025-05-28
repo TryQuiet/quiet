@@ -51,7 +51,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
     // know at the time of initialization whether or not someone is
     // the owner.
 
-    this.store = await this.orbitDbService.orbitDb.open<KeyValueType<EncryptedAndSignedPayload>>('community-metadata', {
+    this.store = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('community-metadata', {
       sync: false,
       Database: KeyValueIndexedValidated(
         CommunityMetadataStore.validateCommunityMetadataEntry.bind(

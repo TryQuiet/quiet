@@ -62,15 +62,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger = createLogger(`storage:channels:channelStore:${this.channelData.name}`)
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`)
 
-    this.store = await this.orbitDbService.orbitDb.open<EventsType<EncryptedMessage>>(
-      `channels.${this.channelData.id}`,
-      {
-        type: 'events',
-        Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
-        sync: options.sync,
-      }
-    )
+    this.store = await this.orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${this.channelData.id}`, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: MessagesAccessController({ write: ['*'] }),
+      sync: options.sync,
+    })
 
     this.logger.info('Initialized')
     return this
