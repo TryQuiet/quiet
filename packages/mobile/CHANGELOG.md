@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [5.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@5.0.1...@quiet/mobile@5.1.0-alpha.0) (2025-05-28)
+
+
+### Features
+
+* **1698:** Attachments button on mobile shows photo library ([#2721](https://github.com/TryQuiet/quiet/issues/2721)) ([9907eb4](https://github.com/TryQuiet/quiet/commit/9907eb4c3db726569846bac680988dffdec30ae6))
+
+
+
+
+
 # Changelog
 
 ## [5.0.0]
