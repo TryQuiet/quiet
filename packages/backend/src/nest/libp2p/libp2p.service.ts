@@ -648,22 +648,19 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async closeDatastore(): Promise<void> {
-    if (this._dialQueueInterval) {
-      clearInterval(this._dialQueueInterval)
-      this._dialQueueInterval = null
-    }
     await this.libp2pDatastore?.close()
     this.libp2pDatastore = null
   }
 
   public async close(closeDatastore = true): Promise<void> {
+    this.logger.info('Closing libp2p service')
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
       this._dialQueueInterval = null
     }
-    this.logger.info('Closing libp2p service')
     clearInterval(this._connectedPeersInterval)
 
+    this.redialQueue.stop(true)
     await this.hangUpPeers()
     await this.libp2pInstance?.stop()
     if (closeDatastore) {
@@ -673,6 +670,5 @@ export class Libp2pService extends EventEmitter {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
-    this.redialQueue.stop(true)
   }
 }

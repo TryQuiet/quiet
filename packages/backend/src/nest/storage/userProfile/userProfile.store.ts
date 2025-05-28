@@ -212,8 +212,9 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     return this.nicknameMaps.get(userId)
   }
 
-  clean(): void {
+  public async clean(): Promise<void> {
     logger.info('Cleaning user profiles store')
+    await this.store?.drop()
     this.store = undefined
   }
 }

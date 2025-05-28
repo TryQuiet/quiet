@@ -35,7 +35,7 @@ export class IpfsService {
 
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    private readonly libp2pService: Libp2pService
+    public readonly libp2pService: Libp2pService
   ) {
     this.started = false
   }

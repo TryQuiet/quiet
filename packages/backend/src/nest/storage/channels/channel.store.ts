@@ -80,7 +80,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * Start syncing the OrbitDB database
    */
   public async startSync(): Promise<void> {
-    await this.getStore().sync.start()
+    await this.store?.sync.start()
   }
 
   // Accessors
@@ -311,7 +311,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * Stop syncing the OrbitDB database
    */
   public async stopSync(): Promise<void> {
-    await this.getStore().sync.stop()
+    await this.store?.sync.stop()
   }
 
   /**
@@ -328,14 +328,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async deleteChannel(): Promise<void> {
     this.logger.info(`Deleting channel`)
-    try {
-      await this.stopSync()
-      await this.getStore().drop()
-    } catch (e) {
-      // we expect an error if the database isn't synced
-    }
-
-    this.clean()
+    await this.clean()
   }
 
   /**
@@ -343,8 +336,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    *
    * NOTE: Does NOT affect data stored in IPFS
    */
-  public clean(): void {
+  public async clean(): Promise<void> {
     this.logger.info(`Cleaning channel store`, this.channelData.id, this.channelData.name)
+    await this.store?.drop()
     this.store = undefined
     this._subscribing = false
   }

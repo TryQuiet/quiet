@@ -24,6 +24,9 @@ import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
+import { EncryptedMessage } from './channels/messages/messages.types'
+import { LogEntry } from '@orbitdb/core'
+import { CID } from 'multiformats/cid'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -78,6 +81,15 @@ export class StorageService extends EventEmitter {
     await this.updatePeerStore()
 
     this.logger.info('Initialized storage')
+  }
+
+  public async clean() {
+    this.peerId = null
+
+    await this.channelsService.clean()
+    await this.userProfileStore.clean()
+
+    await this.ipfsService.destoryInstance()
   }
 
   private async startSync() {
@@ -203,16 +215,24 @@ export class StorageService extends EventEmitter {
     await this.localDbService.setPeerStats(peers)
   }
 
-  public async clean() {
-    this.peerId = null
-
-    await this.channelsService.clean()
-
-    // this.certificatesRequestsStore.clean()
-    // this.certificatesStore.clean()
-    // this.communityMetadataStore.clean()
-    this.userProfileStore.clean()
-
-    await this.ipfsService.destoryInstance()
+  public async ingestQSSMessageBlob(entries: LogEntry[]) {
+    if (!this.ipfsService.isStarted()) {
+      this.logger.warn(`IPFS not started. Not ingesting QSS message blob`)
+      return
+    }
+    if (!this.ipfsService.ipfsInstance?.blockstore) {
+      this.logger.warn(`IPFS blockstore not available. Not ingesting QSS message blob`)
+      return
+    }
+    // Ingest the entries into the IPFS blockstore
+    for (const entry of entries) {
+      const cid = CID.parse(entry.hash)
+      await this.ipfsService.ipfsInstance.blockstore.put(cid, entry.bytes)
+    }
+    const messages: LogEntry<EncryptedMessage>[] = entries.filter((entry): entry is LogEntry<EncryptedMessage> => {
+      const value = entry.payload?.value as EncryptedMessage | undefined
+      return !!value && typeof value === 'object' && 'channelId' in value
+    })
+    this.channelsService.ingestEntries(messages)
   }
 }

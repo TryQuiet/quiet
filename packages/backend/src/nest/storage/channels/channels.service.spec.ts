@@ -32,6 +32,7 @@ import { LocalDbService } from '../../local-db/local-db.service'
 import { createLogger } from '../../common/logger'
 import { ChannelsService } from './channels.service'
 import { SigChainService } from '../../auth/sigchain.service'
+import { CID } from 'multiformats/cid'
 
 const logger = createLogger('channelsService:test')
 
@@ -130,6 +131,117 @@ describe('ChannelsService', () => {
 
       const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === channel.id)
       expect(channelFromKeyValueStore).toEqual([])
+    })
+
+    it('creates several channels and only deletes one without affecting others', async () => {
+      logger.info('Creating several channels and deleting one')
+      const channel1 = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+      })
+      const channel2 = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+      })
+
+      await channelsService.subscribeToChannel(channel1)
+      await channelsService.subscribeToChannel(channel2)
+
+      // send a message to channel1
+      const message1 = await factory.build<ChannelMessage>('ChannelMessage', {
+        channelId: channel1.id,
+        userId: aliceUserId,
+        message: 'Hello from channel 1',
+      })
+      const message2 = await factory.build<ChannelMessage>('ChannelMessage', {
+        channelId: channel2.id,
+        userId: aliceUserId,
+        message: 'Hello from channel 2',
+      })
+      await channelsService.sendMessage(message1)
+      await channelsService.sendMessage(message2)
+
+      // Verify both channels have messages
+      const messages1 = await channelsService.getMessages(channel1.id)
+      const messages2 = await channelsService.getMessages(channel2.id)
+      expect(messages1?.messages.length).toBe(1)
+      expect(messages2?.messages.length).toBe(1)
+      expect(messages1?.messages[0].channelId).toBe(channel1.id)
+      expect(messages2?.messages[0].channelId).toBe(channel2.id)
+      expect(messages1?.messages[0].id).toBe(message1.id)
+      expect(messages2?.messages[0].id).toBe(message2.id)
+
+      const channel1DBHead = // eslint-disable-next-line no-unsafe-optional-chaining
+        (await channelsService.publicChannelsRepos.get(channel1.id)?.store.getStore().log.heads())[0]
+      logger.info('Channel 1 DB Head:', channel1DBHead)
+      expect(channel1DBHead).toBeDefined()
+      const channel2DBHead = // eslint-disable-next-line no-unsafe-optional-chaining
+        (await channelsService.publicChannelsRepos.get(channel2.id)?.store.getStore().log.heads())[0]
+      expect(channel2DBHead).toBeDefined()
+      expect(channel1DBHead).not.toEqual(channel2DBHead)
+
+      // expect ipfsblockstore to have both channels data
+      const abortController1 = new AbortController()
+      setTimeout(() => abortController1.abort(), 100)
+      const channel1DBHeadBlock = await ipfsService.ipfsInstance?.blockstore.get(CID.parse(channel1DBHead.hash), {
+        signal: abortController1.signal,
+      })
+      expect(channel1DBHeadBlock).toBeDefined()
+      expect(channel1DBHeadBlock?.byteLength).toBeGreaterThan(0)
+      const abortController2 = new AbortController()
+      setTimeout(() => abortController2.abort(), 100)
+      const channel2DBHeadBlock = await ipfsService.ipfsInstance?.blockstore.get(CID.parse(channel2DBHead.hash), {
+        signal: abortController2.signal,
+      })
+      expect(channel2DBHeadBlock).toBeDefined()
+      expect(channel1DBHeadBlock?.byteLength).toBeGreaterThan(0)
+
+      let channelDBDropped = false
+      // Listen for channel DB drop event
+      channelsService.publicChannelsRepos
+        .get(channel1.id)
+        ?.store.getStore()
+        .events.on('drop', () => {
+          logger.info(`Channel DB for ${channel1.id} dropped`)
+          channelDBDropped = true
+        })
+      // Now delete channel1
+      const success: DeleteChannelResponse = {
+        channelId: channel1.id,
+        deleted: true,
+      }
+
+      logger.info(`Deleting channel ${channel1.id}`)
+      const result = await channelsService.deleteChannel({ channelId: channel1.id })
+      expect(result).toEqual(success)
+      expect(channelDBDropped).toBeTruthy()
+
+      const channelsFromKeyValueStore = await channelsService.getChannels()
+      expect(channelsFromKeyValueStore).toEqual([channel2])
+      const messages2AfterDeletion = await channelsService.getMessages(channel2.id)
+      expect(messages2AfterDeletion?.messages.length).toBe(1)
+      expect(messages2AfterDeletion?.messages[0].channelId).toBe(channel2.id)
+      expect(messages2AfterDeletion?.messages[0].id).toBe(message2.id)
+
+      // SKIPPED: we do not yet have a method implemented for deleting messages from a channel from the IPFS blockstore
+      // expect ipfsblockstore to not have channel1's data
+      // const abortController3 = new AbortController()
+      // setTimeout(() => abortController3.abort(), 100)
+      // const block = await ipfsService.ipfsInstance?.blockstore.get(CID.parse(channel1DBHead.hash), {
+      //   signal: abortController3.signal,
+      // })
+      // expect(block).toBeUndefined()
+
+      // expect ipfsblockstore to still have channel2's data
+      const abortController4 = new AbortController()
+      setTimeout(() => abortController4.abort(), 100)
+      const block2 = await ipfsService.ipfsInstance?.blockstore.get(CID.parse(channel2DBHead.hash), {
+        signal: abortController4.signal,
+      })
+      expect(block2).toBeDefined()
+      expect(block2?.byteLength).toBeGreaterThan(0)
+
+      // reopen channel 1 and verify it is empty
+      logger.info(`Reopening channel ${channel1.id}`)
+      await channelsService.subscribeToChannel(channel1)
     })
 
     // skipping because we don't have a strong way to prevent a user from deleting a channel yet
@@ -251,6 +363,79 @@ describe('ChannelsService', () => {
       }, 2000)
 
       await expect(channelsService.deleteFilesFromChannel(messages)).resolves.not.toThrowError()
+    })
+  })
+
+  describe('Ingest Entries', () => {
+    it('ingests entries into the correct channel', async () => {
+      // Subscribe to a channel
+      await channelsService.subscribeToChannel(channel)
+      const repo = channelsService.publicChannelsRepos.get(channel.id)
+      expect(repo).toBeDefined()
+      const store = repo!.store
+
+      // Create a mock EncryptedMessage and LogEntry
+      const encryptedMessage = {
+        channelId: channel.id,
+        // ...other required EncryptedMessage fields...
+      }
+      const logEntry = {
+        payload: { value: encryptedMessage },
+        clock: { time: Date.now() },
+        hash: 'testhash',
+        bytes: Buffer.from('testbytes'),
+      }
+      // Mock joinEntry to track calls
+      const joinEntrySpy = jest.spyOn(store, 'joinEntry').mockResolvedValue(undefined)
+
+      // Call ingestEntries
+      await channelsService.ingestEntries([logEntry as any])
+
+      // Should call joinEntry with the entry's bytes
+      expect(joinEntrySpy).toHaveBeenCalledWith(logEntry.bytes)
+      joinEntrySpy.mockRestore()
+    })
+
+    it('ingests entries into multiple channels (fanout)', async () => {
+      // Create and subscribe to two channels
+      const channel1 = await factory.build<PublicChannel>('PublicChannel', { owner: aliceUserId })
+      const channel2 = await factory.build<PublicChannel>('PublicChannel', { owner: aliceUserId })
+      await channelsService.subscribeToChannel(channel1)
+      await channelsService.subscribeToChannel(channel2)
+      const repo1 = channelsService.publicChannelsRepos.get(channel1.id)
+      const repo2 = channelsService.publicChannelsRepos.get(channel2.id)
+      expect(repo1).toBeDefined()
+      expect(repo2).toBeDefined()
+      const store1 = repo1!.store
+      const store2 = repo2!.store
+
+      // Create mock EncryptedMessages and LogEntries for each channel
+      const encryptedMessage1 = { channelId: channel1.id }
+      const encryptedMessage2 = { channelId: channel2.id }
+      const logEntry1 = {
+        payload: { value: encryptedMessage1 },
+        clock: { time: Date.now() },
+        hash: 'testhash1',
+        bytes: Buffer.from('testbytes1'),
+      }
+      const logEntry2 = {
+        payload: { value: encryptedMessage2 },
+        clock: { time: Date.now() },
+        hash: 'testhash2',
+        bytes: Buffer.from('testbytes2'),
+      }
+      // Spy on joinEntry for both stores
+      const joinEntrySpy1 = jest.spyOn(store1, 'joinEntry').mockResolvedValue(undefined)
+      const joinEntrySpy2 = jest.spyOn(store2, 'joinEntry').mockResolvedValue(undefined)
+
+      // Call ingestEntries with both entries
+      await channelsService.ingestEntries([logEntry1 as any, logEntry2 as any])
+
+      // Both joinEntry methods should be called with their respective bytes
+      expect(joinEntrySpy1).toHaveBeenCalledWith(logEntry1.bytes)
+      expect(joinEntrySpy2).toHaveBeenCalledWith(logEntry2.bytes)
+      joinEntrySpy1.mockRestore()
+      joinEntrySpy2.mockRestore()
     })
   })
 })
