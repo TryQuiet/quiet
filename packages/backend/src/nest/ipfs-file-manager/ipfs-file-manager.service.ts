@@ -209,7 +209,7 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public async attachFile(metadata: FileMetadata) {
-    const _logger = createLogger(`${IpfsFileManagerService.name}:upload`)
+    const _logger = createLogger(`${IpfsFileManagerService.name}:attach`)
     const sigChain = this.sigChainService.getActiveChain()
     if (sigChain == null) {
       throw new Error(`Can't attach file because there was no active sigchain`)
