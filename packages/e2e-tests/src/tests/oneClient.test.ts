@@ -13,7 +13,7 @@ import { fork } from 'child_process'
 import path from 'path'
 import { createLogger } from '../logger'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
-import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../uploadFile.const'
+import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
 
 const logger = createLogger('oneClient')
 
@@ -189,15 +189,15 @@ describe('One Client', () => {
     })
   })
 
-  describe('Uploading files', () => {
+  describe('Attaching files', () => {
     it('Owner uploads an image', async () => {
       const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_IMAGE_FILE_NAME)
-      await generalChannel.uploadFile(TEST_IMAGE_FILE_NAME, uploadFilePath, FileAttachmentType.IMAGE, ownerUserName)
+      await generalChannel.attachFile(TEST_IMAGE_FILE_NAME, uploadFilePath, FileAttachmentType.IMAGE, ownerUserName)
     })
 
     it('Owner uploads a non-image file', async () => {
       const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_FILE_NAME)
-      await generalChannel.uploadFile(TEST_FILE_NAME, uploadFilePath, FileAttachmentType.FILE, ownerUserName)
+      await generalChannel.attachFile(TEST_FILE_NAME, uploadFilePath, FileAttachmentType.FILE, ownerUserName)
     })
   })
 })

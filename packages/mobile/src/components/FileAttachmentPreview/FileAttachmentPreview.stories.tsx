@@ -4,7 +4,7 @@ import FileAttachmentPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('uploadingPreview:stories')
+const logger = createLogger('attachingPreview:stories')
 
 const pickedFiles: FilePreviewData = {
   '12345': {

@@ -28,9 +28,9 @@ export const FileAttachment: FC<FileAttachmentProps & FileActionsProps> = ({
   useEffect(() => {
     if (!media) return
     switch (downloadState) {
-      case DownloadState.Uploading:
+      case DownloadState.Attaching:
         setFileStatus({
-          label: 'Uploading...',
+          label: 'Attaching...',
         })
         break
       case DownloadState.Hosted:

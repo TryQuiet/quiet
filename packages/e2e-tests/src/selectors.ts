@@ -853,7 +853,7 @@ export class Channel {
     return this.driver.wait(
       this.driver.findElement(By.xpath('//*[@data-testid="uploadFileInput"]')),
       15_000,
-      `File upload button for channel ${this.name} couldn't be found within timeout`,
+      `File attachment button for channel ${this.name} couldn't be found within timeout`,
       500
     )
   }
@@ -865,7 +865,7 @@ export class Channel {
     return this.getMessageIdsByText(message, username)
   }
 
-  async uploadFile(
+  async attachFile(
     filename: string,
     filePath: string,
     fileType: FileAttachmentType,

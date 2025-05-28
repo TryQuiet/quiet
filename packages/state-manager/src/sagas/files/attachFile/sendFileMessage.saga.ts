@@ -11,7 +11,7 @@ import { createLogger } from '../../../utils/logger'
 const logger = createLogger('sendFileMessageSaga')
 
 export function* sendFileMessageSaga(
-  action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
+  action: PayloadAction<ReturnType<typeof filesActions.attachFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
@@ -36,7 +36,7 @@ export function* sendFileMessageSaga(
     ...action.payload,
     path: filePath,
     tmpPath: tmpPath,
-    cid: `uploading_${id}`,
+    cid: `attaching_${id}`,
     message: {
       id,
       channelId: currentChannel,
@@ -63,8 +63,8 @@ export function* sendFileMessageSaga(
   yield* put(
     filesActions.updateDownloadStatus({
       mid: id,
-      cid: `uploading_${id}`,
-      downloadState: DownloadState.Uploading,
+      cid: `attaching_${id}`,
+      downloadState: DownloadState.Attaching,
       downloadProgress: undefined,
     })
   )
