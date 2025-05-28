@@ -9,9 +9,9 @@ import { broadcastHostedFileSaga } from './broadcastHostedFile/broadcastHostedFi
 import { downloadFileSaga } from './downloadFile/downloadFileSaga'
 import { networkActions } from '../network/network.slice'
 import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel/deleteFilesFromChannel.saga'
-import { uploadFileSaga } from './sendFileMessage/uploadFile.saga'
+import { uploadFileSaga } from './sendFileMessage/attachFile.saga'
 import { messagesActions } from '../messages/messages.slice'
-import { sendFileMessageSaga } from './uploadFile/sendFileMessage.saga'
+import { sendFileMessageSaga } from './attachFile/sendFileMessage.saga'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('filesMasterSaga')
@@ -22,7 +22,7 @@ export function* filesMasterSaga(socket: Socket): Generator {
     yield all([
       takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
       takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
-      takeEvery(filesActions.uploadFile.type, sendFileMessageSaga),
+      takeEvery(filesActions.attachFile.type, sendFileMessageSaga),
       takeEvery(messagesActions.addMessagesSendingStatus.type, uploadFileSaga, socket),
       takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
       takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),

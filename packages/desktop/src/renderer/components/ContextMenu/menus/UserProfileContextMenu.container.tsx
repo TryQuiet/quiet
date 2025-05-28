@@ -237,7 +237,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
 }
 
 /**
- * A button that shows a file input dialog for uploading a profile
+ * A button that shows a file input dialog for attaching a profile
  * photo and passes the chosen file to a callback.
  */
 export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onChange }) => {

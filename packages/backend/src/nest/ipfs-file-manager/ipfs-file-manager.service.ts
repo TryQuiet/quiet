@@ -85,8 +85,8 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   private attachIncomingEvents() {
-    this.on(IpfsFilesManagerEvents.UPLOAD_FILE, async (fileMetadata: FileMetadata) => {
-      await this.uploadFile(fileMetadata)
+    this.on(IpfsFilesManagerEvents.ATTACH_FILE, async (fileMetadata: FileMetadata) => {
+      await this.attachFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
       const _logger = createLogger(`${IpfsFileManagerService.name}:eventHandler:download:${fileMetadata.cid}`)
@@ -206,11 +206,11 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
-  public async uploadFile(metadata: FileMetadata) {
-    const _logger = createLogger(`${IpfsFileManagerService.name}:upload`)
+  public async attachFile(metadata: FileMetadata) {
+    const _logger = createLogger(`${IpfsFileManagerService.name}:attach`)
     const sigChain = this.sigChainService.getActiveChain()
     if (sigChain == null) {
-      throw new Error(`Can't upload file because there was no active sigchain`)
+      throw new Error(`Can't attach file because there was no active sigchain`)
     }
 
     let width: number | undefined
@@ -247,11 +247,11 @@ export class IpfsFileManagerService extends EventEmitter {
     _logger.time(`Writing ${filename} to ipfs`)
 
     const handleUploadProgressEvents = (event: AddEvents): void => {
-      _logger.trace(`Upload progress`, event)
+      _logger.trace(`Attachment progress`, event)
     }
 
     const stream = fs.createReadStream(filePath, { highWaterMark: UNIXFS_CHUNK_SIZE })
-    const uploadedFileStreamIterable = {
+    const fileAttachmentStreamIterable = {
       // eslint-disable-next-line prettier/prettier, generator-star-spacing
       async *[Symbol.asyncIterator]() {
         for await (const data of stream) {
@@ -261,7 +261,7 @@ export class IpfsFileManagerService extends EventEmitter {
       },
     }
 
-    const { header, recipient, encryptStream } = sigChain.crypto.encryptStream(uploadedFileStreamIterable, {
+    const { header, recipient, encryptStream } = sigChain.crypto.encryptStream(fileAttachmentStreamIterable, {
       type: EncryptionScopeType.ROLE,
       name: RoleName.MEMBER,
     })
@@ -294,7 +294,7 @@ export class IpfsFileManagerService extends EventEmitter {
       },
     }
 
-    this.emit(StorageEvents.FILE_UPLOADED, fileMetadata)
+    this.emit(StorageEvents.FILE_ATTACHED, fileMetadata)
 
     if (metadata.tmpPath) {
       this.deleteFile(metadata.tmpPath)
@@ -705,7 +705,7 @@ export class IpfsFileManagerService extends EventEmitter {
     options.logger.info(`Pinning all blocks for file`)
     try {
       if (await this.ipfs.pins.isPinned(fileCid, options.addOptions)) {
-        options.logger.warn(`Already pinned - this file has probably already been uploaded/downloaded previously`)
+        options.logger.warn(`Already pinned - this file has probably already been attached/downloaded previously`)
       } else {
         for await (const cid of abortableAsyncIterable(
           this.ipfs.pins.add(fileCid, options.addOptions),

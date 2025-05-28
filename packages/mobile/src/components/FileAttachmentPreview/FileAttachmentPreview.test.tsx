@@ -1,12 +1,12 @@
 import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import UploadingPreview from './UploadingPreview.component'
+import FileAttachmentPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('uploadingPreview:test')
+const logger = createLogger('attachingPreview:test')
 
-describe('UploadingPreview component', () => {
+describe('FileAttachmentPreview component', () => {
   it('renders properly for image and document', () => {
     const pickedFiles: FilePreviewData = {
       '12345': {
@@ -21,7 +21,7 @@ describe('UploadingPreview component', () => {
       },
     }
     const { toJSON } = renderComponent(
-      <UploadingPreview
+      <FileAttachmentPreview
         filesData={pickedFiles}
         removeFile={function (id: string): void {
           logger.info(`removeFile ${id}`)

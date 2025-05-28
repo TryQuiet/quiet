@@ -1,10 +1,10 @@
 import { storiesOf } from '@storybook/react-native'
 import React from 'react'
-import UploadingPreview from './UploadingPreview.component'
+import FileAttachmentPreview from './FileAttachmentPreview.component'
 import { FilePreviewData } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('uploadingPreview:stories')
+const logger = createLogger('attachingPreview:stories')
 
 const pickedFiles: FilePreviewData = {
   '12345': {
@@ -28,8 +28,8 @@ const pickedFiles: FilePreviewData = {
     ext: '.pdf',
   },
 }
-storiesOf('File UploadingPreview', module).add('Default', () => (
-  <UploadingPreview
+storiesOf('File FileAttachmentPreview', module).add('Default', () => (
+  <FileAttachmentPreview
     filesData={pickedFiles}
     removeFile={function (id: string): void {
       logger.info(`removeFile ${id}`)
