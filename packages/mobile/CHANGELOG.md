@@ -1,20 +1,22 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+## [unreleased]
 
-# [5.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@5.0.1...@quiet/mobile@5.1.0-alpha.0) (2025-05-28)
+### Chores
 
+* Rename upload/uploaded terminology to attachment for clarity across codebase
+* Updates Android instructions in `packages/mobile/README.md`
 
 ### Features
 
-* **1698:** Attachments button on mobile shows photo library ([#2721](https://github.com/TryQuiet/quiet/issues/2721)) ([9907eb4](https://github.com/TryQuiet/quiet/commit/9907eb4c3db726569846bac680988dffdec30ae6))
+* Compresses images and user profile photos over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
+* Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
+* Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
 
+### Fixes
 
+* Removes Sentry logger and the associated warning modal, since we aren't using it anymore. ([#2777](https://github.com/TryQuiet/quiet/issues/2777))
 
-
-
-# Changelog
 
 ## [5.0.0]
 
@@ -29,6 +31,12 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
 * Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)
 * Resolved an issue with logger duplication [#2853](https://github.com/TryQuiet/quiet/issues/2853)
+
+### Fixes
+
+* Adds a bunch of missing emoji codes [2824](https://github.com/TryQuiet/quiet/issues/2824)
+
+## [5.0.0]
 
 ### Chores
 
@@ -49,6 +57,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540) (thanks @agiledev24 for your initial work on this!)
 
 ### Fixes
+
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
 * Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
 * Changes close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
