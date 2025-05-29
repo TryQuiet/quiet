@@ -10,8 +10,6 @@ Automates the process of updating Tor binaries across all platforms (Linux, macO
 
 - **Safe workflow**: Step-by-step process with validation at each stage
 - **Multi-platform**: Updates binaries for Linux, macOS (x64/ARM64), and Windows
-- **Automatic backups**: Creates timestamped backups before installing
-- **Validation**: Tests that updated binaries work correctly
 - **Error handling**: Comprehensive error checking and rollback capability
 
 ### Quick Start
@@ -47,14 +45,11 @@ Automates the process of updating Tor binaries across all platforms (Linux, macO
 1. **Check first**: Run `--check-only` to see current vs available versions
 2. **Download safely**: Run `--download` to fetch new binaries
 3. **Review changes**: Check what was downloaded, run manual tests if desired
-4. **Install with backup**: Run `--install` to replace binaries (automatic backup created)
-5. **Validate**: Run `--validate` to ensure everything works
-6. **Test thoroughly**: Run backend tests: `cd packages/backend && npm run test-ci-tor`
+4. **Install**: Run `--install` to replace binaries
+5. **Test thoroughly**: Run backend tests: `cd packages/backend && npm run test-ci-tor`
 
 ### Safety Features
 
-- **Automatic backups**: Creates timestamped backup before installing
-- **Validation**: Tests binaries work before considering update complete
 - **Step-by-step process**: Each stage can be run independently
 - **Error handling**: Fails fast with clear error messages
 - **Cleanup**: Removes temporary files automatically
@@ -117,8 +112,6 @@ git commit -m "Update Tor binaries to latest version"
 ### Security Considerations
 
 - Downloads are fetched from official Tor Project servers
-- Binaries are validated before installation
-- Backups allow quick rollback if issues occur
 - Script requires manual execution (no automatic updates)
 
 For questions or issues, see the main project documentation or create an issue.

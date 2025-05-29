@@ -48,16 +48,6 @@ test_check_only() {
     fi
 }
 
-test_validate() {
-    log_info "Testing --validate..."
-    if timeout 30s "$UPDATE_SCRIPT" --validate >/dev/null 2>&1; then
-        log_success "Validate works"
-        return 0
-    else
-        log_error "Validate failed" 
-        return 1
-    fi
-}
 
 test_invalid_option() {
     log_info "Testing invalid option handling..."
@@ -78,7 +68,7 @@ main() {
     local tests_total=0
     
     # Run tests
-    tests=("test_help" "test_check_only" "test_validate" "test_invalid_option")
+    tests=("test_help" "test_check_only" "test_invalid_option")
     
     for test in "${tests[@]}"; do
         ((tests_total++))

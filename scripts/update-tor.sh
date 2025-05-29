@@ -54,8 +54,7 @@ OPTIONS:
     --check-only        Check for new Tor versions without downloading
     --download          Download and extract new Tor binaries
     --install           Install downloaded binaries (use after --download)
-    --validate          Validate installed binaries work correctly
-    --full              Run complete update process (download + install + validate)
+    --full              Run complete update process (download + install)
     --force             Force update even if versions appear same
     --help, -h          Show this help message
 
@@ -63,7 +62,6 @@ EXAMPLES:
     $0 --check-only     # Check what would be updated
     $0 --download       # Download latest Tor binaries  
     $0 --install        # Install downloaded binaries
-    $0 --validate       # Test that binaries work
     $0 --full           # Complete automated update
 
 WORKFLOW:
@@ -71,7 +69,6 @@ WORKFLOW:
     2. Run --download to fetch new binaries
     3. Review changes, run tests manually if desired
     4. Run --install to replace current binaries
-    5. Run --validate to ensure everything works
     
     Or use --full for automated process (use with caution!)
 EOF
@@ -332,62 +329,6 @@ install_binaries() {
     return 0
 }
 
-# Validate installed binaries
-validate_binaries() {
-    log_info "Validating installed Tor binaries..."
-    
-    # Test Linux binary
-    log_info "Testing Linux binary..."
-    local linux_tor="$TOR_DIR/linux/tor"
-    if [[ -f "$linux_tor" ]]; then
-        local version=""
-        if command -v timeout >/dev/null 2>&1; then
-            version=$(timeout 10s env LD_LIBRARY_PATH="$TOR_DIR/linux" "$linux_tor" --version 2>/dev/null | head -n1 || echo "")
-        else
-            version=$(env LD_LIBRARY_PATH="$TOR_DIR/linux" "$linux_tor" --version 2>/dev/null | head -n1 || echo "")
-        fi
-        
-        if [[ -n "$version" ]]; then
-            log_success "Linux binary works: $version"
-        else
-            log_error "Linux binary validation failed"
-            return 1
-        fi
-    else
-        log_error "Linux binary not found"
-        return 1
-    fi
-    
-    # Test macOS binaries (basic file checks only - can't execute on Linux)
-    local macos_x64_tor="$TOR_DIR/darwin/x64/tor"
-    local macos_arm64_tor="$TOR_DIR/darwin/arm64/tor"
-    
-    if [[ -f "$macos_x64_tor" && -x "$macos_x64_tor" ]]; then
-        log_success "macOS x64 binary exists and is executable"
-    else
-        log_error "macOS x64 binary validation failed"
-        return 1
-    fi
-    
-    if [[ -f "$macos_arm64_tor" && -x "$macos_arm64_tor" ]]; then
-        log_success "macOS ARM64 binary exists and is executable"
-    else
-        log_error "macOS ARM64 binary validation failed"
-        return 1
-    fi
-    
-    # Test Windows binary (basic file check only)
-    local windows_tor="$TOR_DIR/win32/tor.exe"
-    if [[ -f "$windows_tor" ]]; then
-        log_success "Windows binary exists"
-    else
-        log_error "Windows binary validation failed"
-        return 1
-    fi
-    
-    log_success "All binary validations passed"
-    return 0
-}
 
 # Main execution function
 main() {
@@ -407,10 +348,6 @@ main() {
                 ;;
             --install)
                 action="install"
-                shift
-                ;;
-            --validate)
-                action="validate"
                 shift
                 ;;
             --full)
@@ -459,9 +396,6 @@ main() {
         "install")
             install_binaries
             ;;
-        "validate")
-            validate_binaries
-            ;;
         "full")
             log_warning "Running full automated update. Use with caution!"
             log_info "Checking for latest Tor Browser version..."
@@ -469,7 +403,6 @@ main() {
             download_tor_bundles "$latest_version"
             extract_binaries
             install_binaries
-            validate_binaries
             log_success "Full update completed successfully"
             ;;
         *)
