@@ -86,6 +86,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 - [ ] App is promoted and sent for review on a production track in Google Play
 - [ ] App is promoted and sent for review on an external track in App Store (Test Flight) **Note:** this is a separate step *after* the builds become visible in TestFlight!! 
 - [ ] Issues in `Ready for QA` are moved to `Done`
+- [ ] Update Tor binaries to latest version for next release
 
 ## QA
 

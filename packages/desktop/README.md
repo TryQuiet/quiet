@@ -55,6 +55,25 @@ npm run lerna version prerelease
 
 ----
 
+## Updating Tor Binaries
+
+Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory. To update to a newer version of Tor:
+
+1. Visit https://www.torproject.org/download/
+2. Download Tor Browser for the target platform (Windows, macOS, Linux)
+3. Extract the Tor binary from the downloaded browser
+4. Replace the existing binary in the appropriate `3rd-party/tor/` subdirectory:
+   - `3rd-party/tor/linux/tor` for Linux
+   - `3rd-party/tor/darwin/x64/tor` for macOS x64
+   - `3rd-party/tor/darwin/arm64/tor` for macOS ARM64
+   - `3rd-party/tor/win32/tor.exe` for Windows
+5. Ensure the binary has executable permissions (`chmod +x` on Unix-like systems)
+6. Run backend tests to verify the new binary works correctly
+
+**Note**: Tor binaries should be updated after each release to ensure users have the latest security updates.
+
+----
+
 ## Logging
 
 By default logs are output to the console and to files located in the application data directory (this location varies by OS).
