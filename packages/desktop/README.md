@@ -57,7 +57,34 @@ npm run lerna version prerelease
 
 ## Updating Tor Binaries
 
-Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory. To update to a newer version of Tor:
+Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory. 
+
+### Automated Update (Recommended)
+
+Use the provided script for safe, automated updates:
+
+```bash
+# 1. Check what would be updated
+./scripts/update-tor.sh --check-only
+
+# 2. Download latest binaries
+./scripts/update-tor.sh --download
+
+# 3. Install downloaded binaries (creates backup)
+./scripts/update-tor.sh --install
+
+# 4. Validate everything works
+./scripts/update-tor.sh --validate
+
+# 5. Run tests to ensure compatibility
+cd packages/backend && npm run test-ci-tor
+```
+
+See `scripts/README.md` for detailed documentation.
+
+### Manual Update
+
+To update manually:
 
 1. Visit https://www.torproject.org/download/
 2. Download Tor Browser for the target platform (Windows, macOS, Linux)
