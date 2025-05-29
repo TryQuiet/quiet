@@ -13,9 +13,8 @@
  */
 import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
-import { TimeoutController } from 'timeout-abort-controller'
 import drain from 'it-drain'
-import { Helia, HeliaLibp2p } from 'helia'
+import { HeliaLibp2p } from 'helia'
 
 interface IPFSBlockStorageParams {
   ipfs: HeliaLibp2p
@@ -54,7 +53,6 @@ const IPFSBlockStorage = async ({ ipfs, pin, timeout }: IPFSBlockStorageParams =
     const cid = CID.parse(hash, base58btc)
     const abortController = new AbortController()
     await ipfs.blockstore.put(cid, data, abortController)
-
     if (pin && !(await ipfs.pins.isPinned(cid))) {
       await drain(ipfs.pins.add(cid))
     }
@@ -72,22 +70,14 @@ const IPFSBlockStorage = async ({ ipfs, pin, timeout }: IPFSBlockStorageParams =
    */
   const get = async (hash: string): Promise<Uint8Array | undefined> => {
     const cid = CID.parse(hash, base58btc)
-
-    if (await ipfs.blockstore.has(cid)) {
-      return await ipfs.blockstore.get(cid)
-    }
-
     if (ipfs.libp2p.getConnections().length === 0) {
-      throw new Error('Block not found locally and no connections to providers')
-    }
-
-    const abortController = new AbortController()
-    const timer = setTimeout(() => abortController.abort(), timeout ?? DefaultTimeout)
-
-    try {
-      return await ipfs.blockstore.get(cid, abortController)
-    } finally {
+      return await ipfs.blockstore.get(cid, { offline: true })
+    } else {
+      const abortController = new AbortController()
+      const timer = setTimeout(() => abortController.abort(), timeout ?? DefaultTimeout)
+      const block = await ipfs.blockstore.get(cid, abortController)
       clearTimeout(timer)
+      return block
     }
   }
 

@@ -214,25 +214,4 @@ export class StorageService extends EventEmitter {
     // update the local db with the new peers
     await this.localDbService.setPeerStats(peers)
   }
-
-  public async ingestQSSMessageBlob(entries: LogEntry[]) {
-    if (!this.ipfsService.isStarted()) {
-      this.logger.warn(`IPFS not started. Not ingesting QSS message blob`)
-      return
-    }
-    if (!this.ipfsService.ipfsInstance?.blockstore) {
-      this.logger.warn(`IPFS blockstore not available. Not ingesting QSS message blob`)
-      return
-    }
-    // Ingest the entries into the IPFS blockstore
-    for (const entry of entries) {
-      const cid = CID.parse(entry.hash)
-      await this.ipfsService.ipfsInstance.blockstore.put(cid, entry.bytes)
-    }
-    const messages: LogEntry<EncryptedMessage>[] = entries.filter((entry): entry is LogEntry<EncryptedMessage> => {
-      const value = entry.payload?.value as EncryptedMessage | undefined
-      return !!value && typeof value === 'object' && 'channelId' in value
-    })
-    this.channelsService.ingestEntries(messages)
-  }
 }

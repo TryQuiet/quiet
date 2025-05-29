@@ -21,7 +21,7 @@ import {
 import { HeliaLibp2p, type Helia } from 'helia'
 import { OrbitDbStorage } from '../../types'
 import { IdentitiesWithStorage } from './identitiesWithStorage'
-import { base58btc } from 'multiformats/dist/src/bases/base58'
+import { base58btc } from 'multiformats/bases/base58'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 

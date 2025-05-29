@@ -1,5 +1,5 @@
 import { AccessControllerType, IdentitiesType, LogEntry, Events, LogType } from '@orbitdb/core'
-import { type Helia } from 'helia'
+import { HeliaLibp2p, type Helia } from 'helia'
 import { createLogger } from '../../common/logger'
 import { abortableAsyncIterable } from '../../common/utils'
 import { OrbitDbService } from './orbitDb.service'
@@ -20,7 +20,7 @@ export const EventsWithStorage =
     syncAutomatically,
     onUpdate,
   }: {
-    ipfs: Helia
+    ipfs: HeliaLibp2p
     identity: IdentitiesType
     address: string
     name: string
