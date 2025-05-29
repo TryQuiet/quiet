@@ -103,8 +103,6 @@ get_current_tor_version() {
 
 # Get latest Tor Browser version from releases page
 get_latest_tor_version() {
-    log_info "Checking for latest Tor Browser version..."
-    
     # Try to get latest version from Tor Project API/releases
     local latest_version=""
     
@@ -118,7 +116,7 @@ get_latest_tor_version() {
     if [[ -n "$latest_version" ]]; then
         echo "$latest_version"
     else
-        log_error "Could not determine latest Tor Browser version"
+        log_error "Could not determine latest Tor Browser version" >&2
         exit 1
     fi
 }
@@ -149,6 +147,7 @@ check_updates() {
     local current_version=$(get_current_tor_version)
     log_info "Current Tor version: $current_version"
     
+    log_info "Checking for latest Tor Browser version..."
     local latest_version=$(get_latest_tor_version)
     log_info "Latest Tor Browser version: $latest_version"
     
@@ -300,10 +299,6 @@ install_binaries() {
         return 1
     fi
     
-    # Backup current binaries
-    local backup_dir="$TOR_DIR.backup.$(date +%Y%m%d_%H%M%S)"
-    log_info "Creating backup at $backup_dir"
-    cp -r "$TOR_DIR" "$backup_dir"
     
     # Install Linux binaries
     if [[ -d "$extracted_dir/linux" ]]; then
@@ -333,7 +328,7 @@ install_binaries() {
         log_success "Installed Windows binaries"
     fi
     
-    log_success "All binaries installed. Backup created at: $backup_dir"
+    log_success "All binaries installed."
     return 0
 }
 
@@ -456,6 +451,7 @@ main() {
             check_updates
             ;;
         "download")
+            log_info "Checking for latest Tor Browser version..."
             local latest_version=$(get_latest_tor_version)
             download_tor_bundles "$latest_version"
             extract_binaries
@@ -468,6 +464,7 @@ main() {
             ;;
         "full")
             log_warning "Running full automated update. Use with caution!"
+            log_info "Checking for latest Tor Browser version..."
             local latest_version=$(get_latest_tor_version)
             download_tor_bundles "$latest_version"
             extract_binaries
