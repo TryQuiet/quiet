@@ -2,7 +2,7 @@
 
 This directory contains utility scripts for maintaining the Quiet project.
 
-## update-tor.sh
+## update-tor-binaries-desktop.sh
 
 Automates the process of updating Tor binaries across all platforms (Linux, macOS, Windows).
 
@@ -16,16 +16,16 @@ Automates the process of updating Tor binaries across all platforms (Linux, macO
 
 ```bash
 # 1. Check what would be updated
-./scripts/update-tor.sh --check-only
+./scripts/update-tor-binaries-desktop.sh --check-only
 
 # 2. Download latest Tor binaries
-./scripts/update-tor.sh --download
+./scripts/update-tor-binaries-desktop.sh --download
 
 # 3. Install the downloaded binaries
-./scripts/update-tor.sh --install
+./scripts/update-tor-binaries-desktop.sh --install
 
 # 4. Validate everything works
-./scripts/update-tor.sh --validate
+./scripts/update-tor-binaries-desktop.sh --validate
 ```
 
 ### Usage Options
@@ -57,13 +57,13 @@ Automates the process of updating Tor binaries across all platforms (Linux, macO
 ### Example Output
 
 ```bash
-$ ./scripts/update-tor.sh --check-only
+$ ./scripts/update-tor-binaries-desktop.sh --check-only
 [INFO] Checking current Tor version...
 [INFO] Current Tor version: 0.4.8.16
 [INFO] Latest Tor Browser version: 14.5.3
 [INFO] Note: Tor binary version may differ from Tor Browser version
 
-$ ./scripts/update-tor.sh --validate
+$ ./scripts/update-tor-binaries-desktop.sh --validate
 [INFO] Validating installed Tor binaries...
 [INFO] Testing Linux binary...
 [SUCCESS] Linux binary works: Tor version 0.4.8.16
@@ -96,10 +96,10 @@ Add to your release checklist:
 
 ```bash
 # After each release, update Tor binaries
-./scripts/update-tor.sh --check-only
-./scripts/update-tor.sh --download  
-./scripts/update-tor.sh --install
-./scripts/update-tor.sh --validate
+./scripts/update-tor-binaries-desktop.sh --check-only
+./scripts/update-tor-binaries-desktop.sh --download  
+./scripts/update-tor-binaries-desktop.sh --install
+./scripts/update-tor-binaries-desktop.sh --validate
 
 # Run tests to ensure compatibility
 cd packages/backend && npm run test-ci-tor

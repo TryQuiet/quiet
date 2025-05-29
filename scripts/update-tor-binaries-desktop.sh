@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Tor Binary Update Script for Quiet
-# This script helps automate the process of updating Tor binaries across all platforms
+# Tor Binary Update Script for Quiet Desktop
+# This script helps automate the process of updating Tor binaries for desktop platforms (Linux, macOS, Windows)
 
 set -euo pipefail
 
@@ -45,7 +45,7 @@ log_error() {
 # Help function
 show_help() {
     cat << EOF
-Tor Binary Update Script for Quiet
+Tor Binary Update Script for Quiet Desktop
 
 USAGE:
     $0 [OPTIONS]

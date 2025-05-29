@@ -6,7 +6,7 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly UPDATE_SCRIPT="$SCRIPT_DIR/update-tor.sh"
+readonly UPDATE_SCRIPT="$SCRIPT_DIR/update-tor-binaries-desktop.sh"
 
 # Colors
 readonly RED='\033[0;31m'
@@ -61,7 +61,7 @@ test_invalid_option() {
 }
 
 main() {
-    log_info "Running update-tor.sh tests..."
+    log_info "Running update-tor-binaries-desktop.sh tests..."
     echo
     
     local tests_passed=0
