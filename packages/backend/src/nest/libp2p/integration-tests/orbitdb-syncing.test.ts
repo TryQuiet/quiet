@@ -18,6 +18,7 @@ import { IpfsService } from '../../ipfs/ipfs.service'
 import { EventStoreBase } from '../../storage/base.store'
 import { EventsWithStorage } from '../../storage/orbitDb/eventsWithStorage'
 import { IPFSAccessController } from '@orbitdb/core'
+import { ChannelsService } from '../../storage/channels/channels.service'
 
 const logger = createLogger('libp2p:orbitdb-syncing.test')
 
@@ -207,9 +208,11 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
         const ipfsService = module.get(IpfsService)
         const orbitDbService = module.get(OrbitDbService)
         const libp2pService = module.get(Libp2pService)
+        const channelsService = module.get(ChannelsService)
         await ipfsService.createInstance()
         await ipfsService.start()
         await orbitDbService.create(libp2pNodeParams[i].peerId.peerId, ipfsService.ipfsInstance!)
+        await channelsService.init()
         const mockStore = new MockOrbitDBStore(orbitDbService, {
           peerId: libp2pNodeParams[i].peerId.peerId.toString(),
           id: 'peer' + i,

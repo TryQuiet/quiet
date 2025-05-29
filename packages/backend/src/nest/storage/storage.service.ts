@@ -128,7 +128,7 @@ export class StorageService extends EventEmitter {
     await this.userProfileStore.init()
 
     this.logger.info('3/3')
-    await this.channelsService.init(this.peerId!)
+    await this.channelsService.init()
 
     this.logger.timeEnd('Storage.initDatabases')
     this.logger.info('Initialized DBs')

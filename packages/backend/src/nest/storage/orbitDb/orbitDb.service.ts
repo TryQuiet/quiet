@@ -29,6 +29,7 @@ import IPFSBlockStorage from './ipfsBlockStorage'
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | null = null
   private stores: Record<string, any> = {}
+  private pendingHeads: Map<string, LogEntry[]> = new Map()
   public identities: IdentitiesType
   public static readonly events = new EventEmitter()
 
@@ -85,7 +86,46 @@ export class OrbitDbService {
     const store = await this.orbitDbInstance.open<T>(address, options)
     this.stores[address] = store
     this.logger.info(`Opened OrbitDB store at address: ${address}`)
+
+    if (this.pendingHeads.has(address)) {
+      const heads = this.pendingHeads.get(address) || []
+      await this.joinHeads(address, heads)
+    }
     return store
+  }
+
+  private async joinHeads(address: string, heads: LogEntry[]): Promise<void> {
+    if (this.orbitDbInstance == null) {
+      throw new Error('OrbitDB instance is not initialized. Call create() first.')
+    }
+    const store = this.stores[address]
+    if (!store) {
+      this.logger.warn(`No store found for address ${address}, skipping join`)
+      // Keep heads in pendingHeads for later
+      this.pendingHeads.set(address, heads)
+      return
+    }
+    // Map each joinEntry to its promise
+    const joinPromises = heads.map(head =>
+      store
+        .joinEntry(head)
+        .then(() => {
+          this.logger.info(`Successfully joined entry ${head.hash} to store ${address}`)
+          // Remove from pendingHeads if all heads joined
+          const pending = this.pendingHeads.get(address) || []
+          this.pendingHeads.set(
+            address,
+            pending.filter(h => h.hash !== head.hash)
+          )
+          if ((this.pendingHeads.get(address)?.length ?? 0) === 0) {
+            this.pendingHeads.delete(address)
+          }
+        })
+        .catch((err: unknown) => {
+          this.logger.warn(`Failed to join entry ${head.hash} to store ${address}`, err)
+        })
+    )
+    await Promise.all(joinPromises)
   }
 
   public async ingestEntries(entries: LogEntry[]): Promise<void> {
@@ -109,21 +149,10 @@ export class OrbitDbService {
         newHeads.get(entry.id)?.push(entry)
       }
     }
-    // join heads to populate indexes and heads storage
-    for (const [id, heads] of newHeads.entries()) {
-      const store = this.stores[id]
-      if (store) {
-        for (const head of heads) {
-          try {
-            await store.joinEntry(head)
-          } catch (err) {
-            this.logger.error(`Failed to join entry ${head.hash} to store ${id}`, err)
-          }
-        }
-      } else {
-        this.logger.warn(`No store found for address ${id}, skipping join`)
-      }
-    }
+
+    // For each id, try to join heads (async, using joinQueue)
+    const joinAll = Array.from(newHeads.entries()).map(([id, heads]) => this.joinHeads(id, heads))
+    await Promise.all(joinAll)
   }
 
   public static async createDefaultStorage(

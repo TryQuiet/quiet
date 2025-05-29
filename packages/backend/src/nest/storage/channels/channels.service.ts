@@ -40,9 +40,10 @@ import { EncryptedMessage } from './messages/messages.types'
  */
 @Injectable()
 export class ChannelsService extends EventEmitter {
-  private peerId: PeerId | null = null
+  // Map of message stores for each channel where the key is the channel ID
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
+  // Channel metadata store
   private channels: KeyValueType<EncryptedAndSignedPayload> | null
 
   private readonly logger = createLogger(`storage:channels`)
@@ -64,11 +65,9 @@ export class ChannelsService extends EventEmitter {
   /**
    * Initialize the ChannelsService by starting event handles, the file manager, and initializing databases in OrbitDB
    *
-   * @param peerId Peer ID of the current user
    */
-  public async init(peerId: PeerId): Promise<void> {
+  public async init(): Promise<void> {
     this.logger.info(`Initializing ${ChannelsService.name}`)
-    this.peerId = peerId
 
     this.logger.info(`Starting file manager`)
     this.attachFileManagerEvents()
@@ -635,8 +634,6 @@ export class ChannelsService extends EventEmitter {
    * NOTE: Does NOT affect data stored in IPFS
    */
   public async clean(): Promise<void> {
-    this.peerId = null
-
     for (const [channelId, channel] of this.publicChannelsRepos.entries()) {
       try {
         this.logger.info(`Cleaning ${channelId} DB`)
