@@ -1,7 +1,12 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
-import { generateMessageFactoryContentWithId, getFactory, identity, publicChannels } from '@quiet/state-manager'
+import {
+  generateMessageFactoryContentWithId,
+  getReduxStoreFactory,
+  identity,
+  publicChannels,
+} from '@quiet/state-manager'
 import { setupCrypto } from '@quiet/identity'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -27,7 +32,7 @@ describe('redirectionSaga', () => {
   beforeEach(async () => {
     setupCrypto()
     store = (await prepareStore()).store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   test('does nothing if app opened from url', async () => {
@@ -65,7 +70,7 @@ describe('redirectionSaga', () => {
   })
 
   test('redirect if user sees a splash screen being a member of community', async () => {
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
+    const alice = await factory.create('Identity')
 
     const _publicChannels = publicChannels.selectors.publicChannels(store.getState())
     const _generalChannel = _publicChannels.find(c => c.name === 'general')
@@ -80,9 +85,8 @@ describe('redirectionSaga', () => {
     if (!generalChannel.id) return
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(generalChannel.id),
+      await factory.create('TestMessage', {
+        message: generateMessageFactoryContentWithId(generalChannel.id, alice.userId),
         verifyAutomatically: true,
       })
     ).message

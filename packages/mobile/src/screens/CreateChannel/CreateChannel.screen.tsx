@@ -2,7 +2,7 @@ import React, { FC, useState, useCallback, useEffect } from 'react'
 import { CreateChannel } from '../../components/CreateChannel/CreateChannel.component'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities, identity, publicChannels, errors } from '@quiet/state-manager'
-import { ErrorCodes, ErrorMessages, PublicChannel, SocketActionTypes, ChannelStructure } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, PublicChannel, SocketActions, ChannelStructure } from '@quiet/types'
 import { DateTime } from 'luxon'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -23,7 +23,7 @@ export const CreateChannelScreen: FC = () => {
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const error = communityErrors[SocketActionTypes.CREATE_CHANNEL]
+  const error = communityErrors[SocketActions.CREATE_CHANNEL]
 
   const currentScreen = useSelector(navigationSelectors.currentScreen)
 
@@ -63,7 +63,7 @@ export const CreateChannelScreen: FC = () => {
       if (channels.some(channel => channel.name === name)) {
         dispatch(
           errors.actions.addError({
-            type: SocketActionTypes.CREATE_CHANNEL,
+            type: SocketActions.CREATE_CHANNEL,
             code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.CHANNEL_NAME_TAKEN,
             community: community?.id,
@@ -74,7 +74,7 @@ export const CreateChannelScreen: FC = () => {
       if (!user) {
         dispatch(
           errors.actions.addError({
-            type: SocketActionTypes.CREATE_CHANNEL,
+            type: SocketActions.CREATE_CHANNEL,
             code: ErrorCodes.NOT_FOUND,
             message: ErrorMessages.GENERAL,
             community: community?.id,
@@ -82,21 +82,15 @@ export const CreateChannelScreen: FC = () => {
         )
         return
       }
+      const id = generateChannelId(name)
 
-      // Create channel
-      const channel: PublicChannel = {
-        name,
-        description: `Welcome to #${name}`,
-        owner: user.nickname,
-        id: generateChannelId(name),
-        timestamp: DateTime.utc().valueOf(),
-      }
-
-      setChannel({ channelId: channel.id, channelName: channel.name })
+      setChannel({ channelId: id, channelName: name })
 
       dispatch(
         publicChannels.actions.createChannel({
-          channel,
+          name: name,
+          description: `Welcome to #${name}`,
+          id: id,
         })
       )
     },

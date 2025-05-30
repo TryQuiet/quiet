@@ -1,19 +1,17 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { type identityActions } from '../../identity/identity.slice'
-import { createGeneralChannelSaga, getChannelTimestamp } from './createGeneralChannel.saga'
+import { createGeneralChannelSaga } from './createGeneralChannel.saga'
 import { generateChannelId } from '@quiet/common'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type Community, type Identity } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 const logger = createLogger('createGeneralChannelSage-test')
 
@@ -28,39 +26,28 @@ describe('createGeneralChannelSaga', () => {
     setupCrypto()
 
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    alice = await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'alice',
     })
   })
 
   test('create general channel', async () => {
-    const reducer = combineReducers(reducers)
     const generalId = generateChannelId('general')
-    const channel = {
+    const channel: ReturnType<typeof publicChannelsActions.createChannel>['payload'] = {
       name: 'general',
       description: 'Welcome to #general',
-      owner: alice.nickname,
       id: generalId,
-      timestamp: 0,
     }
-    logger.info({ channel })
     await expectSaga(createGeneralChannelSaga)
-      .withReducer(reducer)
+      .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .provide([
-        [call.fn(getChannelTimestamp), 0],
-        [call.fn(generateChannelId), generalId],
-      ])
-      .put(
-        publicChannelsActions.createChannel({
-          channel,
-        })
-      )
+      .provide([[call.fn(generateChannelId), generalId]])
+      .put(publicChannelsActions.createChannel(channel))
       .put(
         publicChannelsActions.setCurrentChannel({
           channelId: generalId,

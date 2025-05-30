@@ -6,7 +6,7 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesActions } from '../files.slice'
 import { applyEmitParams, type Socket } from '../../../types'
-import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
+import { DownloadFilePayload, DownloadState, MessageType, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('autoDownloadFilesSaga')
@@ -25,8 +25,9 @@ export function* autoDownloadFilesSaga(
 
   for (const message of messages) {
     // Proceed for images and files only
-    if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) continue
-
+    if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) {
+      continue
+    }
     const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelId))
 
     const draft = channelMessages[message.id]
@@ -58,10 +59,10 @@ export function* autoDownloadFilesSaga(
     yield* apply(
       socket,
       socket.emit,
-      applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
-        peerId: identity.peerId.id,
+      applyEmitParams(SocketActions.DOWNLOAD_FILE, {
+        peerId: identity.networkInfo.peerId.id,
         metadata: message.media,
-      })
+      } as DownloadFilePayload)
     )
   }
 }

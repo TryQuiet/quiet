@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
 
-import { ChannelMessage, CompoundError, ConsumedChannelMessage } from '@quiet/types'
+import { ChannelMessage, CompoundError, ConsumedChannelMessage, MessageType } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
@@ -46,17 +46,17 @@ export class MessagesService extends EventEmitter {
     try {
       const chain = this.sigChainService.getActiveChain()
       const encryptable: EncryptableMessageComponents = {
+        id: rawMessage.id,
+        userId: chain.user.userId,
         type: rawMessage.type,
+        channelId: rawMessage.channelId,
         message: rawMessage.message,
-        signature: rawMessage.signature,
-        pubKey: rawMessage.pubKey,
         media: rawMessage.media,
       }
-      const encryptedMessage = chain.crypto.encryptAndSign(
-        encryptable,
-        { type: EncryptionScopeType.ROLE, name: RoleName.MEMBER },
-        chain.localUserContext
-      )
+      const encryptedMessage = chain.crypto.encryptAndSign(encryptable, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
       return {
         id: rawMessage.id,
         channelId: rawMessage.channelId,
@@ -75,13 +75,11 @@ export class MessagesService extends EventEmitter {
       const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
         encryptedMessage.contents,
         encryptedMessage.encSignature,
-        chain.localUserContext,
         false
       )
       return {
         ...decryptedMessage.contents,
-        id: encryptedMessage.id,
-        channelId: encryptedMessage.channelId,
+        userId: decryptedMessage.contents.userId,
         createdAt: encryptedMessage.createdAt,
         encSignature: encryptedMessage.encSignature,
         verified: decryptedMessage.isValid,
@@ -89,5 +87,16 @@ export class MessagesService extends EventEmitter {
     } catch (e) {
       throw new CompoundError(`Failed to decrypt message with error`, e)
     }
+  }
+
+  public validateMessage(message: ChannelMessage, encryptedMessage: EncryptedMessage): boolean {
+    if (message.id !== encryptedMessage.id) {
+      this.logger.info(`Message ID mismatch`, message.id, encryptedMessage.id)
+      return false
+    }
+    if (message.type === MessageType.Info) {
+      return true
+    }
+    return true
   }
 }

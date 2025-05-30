@@ -28,6 +28,7 @@ import {
   type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
+  User,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -86,6 +87,7 @@ export const publicChannelsSlice = createSlice({
     createGeneralChannel: state => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
+      logger.info('addChannel', action.payload)
       const { channel } = action.payload
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
@@ -99,6 +101,7 @@ export const publicChannelsSlice = createSlice({
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
       const { channelId } = action.payload
+      logger.info('setChannelSubscribed', channelId)
       publicChannelsSubscriptionsAdapter.upsertOne(state.channelsSubscriptions, {
         id: channelId,
         subscribed: true,
@@ -147,9 +150,7 @@ export const publicChannelsSlice = createSlice({
     test_message: (
       state,
       action: PayloadAction<{
-        // [x: string]: ChannelMessage
         message: ChannelMessage
-        identity: Identity
         verifyAutomatically: boolean
       }>
     ) => {

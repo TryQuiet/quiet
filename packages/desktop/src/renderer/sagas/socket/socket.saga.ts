@@ -7,7 +7,7 @@ import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
 import { createLogger } from '../../logger'
 import { encodeSecret } from '@quiet/common'
-import { SocketActionTypes } from '@quiet/types'
+import { SocketActions } from '@quiet/types'
 
 const logger = createLogger('socket')
 
@@ -32,8 +32,11 @@ export function* startConnectionSaga(
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
+    upgrade: true,
     extraHeaders: {
       authorization: `Basic ${token}`,
+      Connection: 'Upgrade',
+      Upgrade: 'websocket',
     },
   })
   yield* fork(handleSocketLifecycleActions, socket)
@@ -47,7 +50,7 @@ function* setConnectedSaga(socket: Socket): Generator {
   const observers = yield* fork(initObservers)
 
   logger.info('Frontend is ready. Starting backend...')
-  yield* apply(socket, socket.emit, [SocketActionTypes.START])
+  yield* apply(socket, socket.emit, [SocketActions.START])
 
   // Handle suspending current connection
   yield all([
@@ -71,8 +74,8 @@ function subscribeSocketLifecycle(socket?: Socket) {
       logger.info('websocket connected')
       emit(socketActions.setConnected())
     })
-    socket?.on('disconnect', () => {
-      logger.info('closing socket connection')
+    socket?.on('disconnect', reason => {
+      logger.info('closing socket connection', reason)
       emit(socketActions.suspendConnection())
     })
     return () => {}

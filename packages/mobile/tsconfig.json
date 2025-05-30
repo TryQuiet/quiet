@@ -9,7 +9,8 @@
     "jsx": "react-native",
     "typeRoots": [
       "../@types",
-      "./node_modules/@types"
+      "./node_modules/@types",
+      "../../3rd-party/auth/packages/auth/dist",
     ],
     "declaration": false
   },

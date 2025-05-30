@@ -1,23 +1,31 @@
 import { combineReducers, Store } from '@reduxjs/toolkit'
-import { prepareStore } from '../../testUtils/prepareStore'
-import { reducers } from '../../store/reducers'
+import { prepareStore, testReducers } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import {
-  getFactory,
+  getReduxStoreFactory,
   connection,
-  communities,
-  identity,
   messages,
   NotificationsOptions,
   NotificationsSounds,
   publicChannels,
   settings,
 } from '@quiet/state-manager'
-import { Community, Identity, ChannelMessage, MessagesLoadedPayload, PublicChannel, MessageType } from '@quiet/types'
+import {
+  Community,
+  Identity,
+  ChannelMessage,
+  MessagesLoadedPayload,
+  PublicChannel,
+  MessageType,
+  UserProfile,
+} from '@quiet/types'
 import { createNotification, displayMessageNotificationSaga, isWindowFocused } from './notifications.saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('notifications.test')
 
 const originalNotification = window.Notification
 
@@ -69,7 +77,7 @@ let store: Store
 let community: Community
 
 let alice: Identity
-let bob: Identity
+let bob: UserProfile
 
 let sailingChannel: PublicChannel
 
@@ -83,9 +91,9 @@ beforeAll(async () => {
 
   store = (await prepareStore()).store
 
-  const factory = await getFactory(store)
+  const factory = await getReduxStoreFactory(store)
 
-  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+  community = await factory.create('Community')
   const generalChannel = publicChannels.selectors.generalChannel(store.getState())
   expect(generalChannel).not.toBeUndefined()
   store.dispatch(
@@ -94,50 +102,38 @@ beforeAll(async () => {
       channelId: generalChannel.id,
     })
   )
-  sailingChannel = (
-    await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
-  ).channel
+  sailingChannel = (await factory.create('PublicChannel')).channel
 
-  alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-    id: community.id,
-    nickname: 'alice',
+  alice = await factory.create('Identity', {
+    communityId: community.id,
   })
 
   store.dispatch(connection.actions.setLastConnectedTime(lastConnectedTime))
 
-  bob = (
-    await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-      id: community.id,
-      nickname: 'bob',
-    })
-  ).payload
+  bob = await factory.create('UserProfile', { nickname: 'bob' })
 
   message = (
-    await factory.build<typeof publicChannels.actions.test_message>('Message', {
-      identity: bob,
+    await factory.build('TestMessage', {
       message: {
         id: Math.random().toString(36).substr(2.9),
         type: MessageType.Basic,
         message: 'hello there!',
         createdAt: lastConnectedTime + 1,
         channelId: sailingChannel.id,
-        signature: '',
-        pubKey: '',
+        userId: bob.userId,
       },
     })
   ).payload.message
 
   aliceMessage = (
-    await factory.build<typeof publicChannels.actions.test_message>('Message', {
-      identity: alice,
+    await factory.build('TestMessage', {
       message: {
         id: Math.random().toString(36).substr(2.9),
         type: MessageType.Basic,
         message: 'how are you?',
         createdAt: lastConnectedTime + 1,
         channelId: sailingChannel.id,
-        signature: '',
-        pubKey: '',
+        userId: alice.userId,
       },
     })
   ).payload.message
@@ -161,7 +157,8 @@ afterEach(() => {
 
 describe('displayNotificationsSaga', () => {
   test('display notification', async () => {
-    const reducer = combineReducers(reducers)
+    logger.info('display notification')
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -188,7 +185,8 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification if message is not verified', async () => {
-    const reducer = combineReducers(reducers)
+    logger.info('do not display notification if message is not verified')
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -206,7 +204,8 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('clicking in notification foregrounds the app', async () => {
-    const reducer = combineReducers(reducers)
+    logger.info('clicking in notification foregrounds the app')
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -227,7 +226,8 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('play a sound when the notification is displayed', async () => {
-    const reducer = combineReducers(reducers)
+    logger.info('play a sound when the notification is displayed')
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -244,9 +244,10 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification when the user is on the active channel', async () => {
+    logger.info('do not display notification when the user is on the active channel')
     store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: sailingChannel.id }))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -264,9 +265,10 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('notification shows for message in current channel when app window does not have focus', async () => {
+    logger.info('notification shows for message in current channel when app window does not have focus')
     store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: sailingChannel.id }))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -293,9 +295,10 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('notification shows for message in non-active channel when app window has focus', async () => {
+    logger.info('notification shows for message in non-active channel when app window has focus')
     store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: 'general' }))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -322,6 +325,7 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification when the message was sent before last connection app time', async () => {
+    logger.info('do not display notification when the message was sent before last connection app time')
     // Mock messages sent before last connection time
     const payload: MessagesLoadedPayload = {
       messages: [
@@ -333,7 +337,7 @@ describe('displayNotificationsSaga', () => {
       isVerified: true,
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
@@ -345,18 +349,19 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification when there is no sender info', async () => {
+    logger.info('do not display notification when there is no sender info')
     // Mock messages missing the author
     const payload: MessagesLoadedPayload = {
       messages: [
         {
           ...message,
-          pubKey: 'fake',
+          userId: 'fake',
         },
       ],
       isVerified: true,
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
@@ -368,12 +373,13 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification for own messages', async () => {
+    logger.info('do not display notification for own messages')
     const payload: MessagesLoadedPayload = {
       messages: [aliceMessage],
       isVerified: true,
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
@@ -385,9 +391,10 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not play sounds if turned off in settings', async () => {
+    logger.info('do not play sounds if turned off in settings')
     store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.none))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -413,9 +420,10 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notifications if turned off in settings', async () => {
+    logger.info('do not display notifications if turned off in settings')
     store.dispatch(settings.actions.setNotificationsOption(NotificationsOptions.doNotNotifyOfAnyMessages))
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.addMessages({
@@ -433,6 +441,7 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('display notification for incoming image', async () => {
+    logger.info('display notification for incoming image')
     const payload: MessagesLoadedPayload = {
       messages: [
         {
@@ -453,7 +462,7 @@ describe('displayNotificationsSaga', () => {
       isVerified: true,
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
@@ -474,6 +483,7 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('display notification for incoming file', async () => {
+    logger.info('display notification for incoming file')
     const payload: MessagesLoadedPayload = {
       messages: [
         {
@@ -494,7 +504,7 @@ describe('displayNotificationsSaga', () => {
       isVerified: true,
     }
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())

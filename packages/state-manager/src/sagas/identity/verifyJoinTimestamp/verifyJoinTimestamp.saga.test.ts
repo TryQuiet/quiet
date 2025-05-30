@@ -5,8 +5,8 @@ import { type communitiesActions } from '../../communities/communities.slice'
 import { type Store } from '../../store.types'
 import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
-import { getFactory } from '../../../utils/tests/factories'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
 import { verifyJoinTimestampSaga } from './verifyJoinTimestamp.saga'
 import { identityActions } from '../identity.slice'
 
@@ -17,19 +17,19 @@ describe('verifyJoinTimestampSaga', () => {
   beforeEach(async () => {
     setupCrypto()
     store = prepareStore().store
-    factory = await getFactory(store)
+    factory = await getReduxStoreFactory(store)
   })
 
   it('user has valid timestamp', async () => {
     const community =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'john',
     })
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(verifyJoinTimestampSaga).withReducer(reducer).withState(store.getState()).run()
   })
 
@@ -37,13 +37,13 @@ describe('verifyJoinTimestampSaga', () => {
     const community =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
+    await factory.create('Identity', {
+      communityId: community.id,
       nickname: 'john',
       joinTimestamp: null,
     })
 
-    const reducer = combineReducers(reducers)
+    const reducer = combineReducers(testReducers)
     await expectSaga(verifyJoinTimestampSaga)
       .withReducer(reducer)
       .withState(store.getState())

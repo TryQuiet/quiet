@@ -1,8 +1,8 @@
 import React from 'react'
-import { getFactory, communities } from '@quiet/state-manager'
+import { getReduxStoreFactory, communities } from '@quiet/state-manager'
 
 import { IdentityPanel } from './IdentityPanel'
-import { prepareStore } from '../../../testUtils/prepareStore'
+import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { Community } from '@quiet/types'
 
@@ -10,10 +10,9 @@ describe('IdentityPanel', () => {
   it('renders component with username', async () => {
     const { store } = await prepareStore()
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community: Community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    const community: Community = await factory.create('Community')
 
     const result = renderComponent(
       <IdentityPanel
@@ -116,9 +115,9 @@ describe('IdentityPanel', () => {
   it("doesn't break if there's a community without a name", async () => {
     const { store } = await prepareStore()
 
-    const factory = await getFactory(store)
+    const factory = await getReduxStoreFactory(store)
 
-    const community: Community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+    const community: Community = (await factory.build('Community')).payload
 
     community.name = undefined
 

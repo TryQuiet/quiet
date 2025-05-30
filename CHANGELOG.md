@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## [unreleased]
+
+### Chores
+
+* Targets iOS 18 SDK as required by Apple
+* Disabled automatic desktop updates from v4.x to v5.x by changing the update bucket [#2832](https://github.com/TryQuiet/quiet/issues/2832)
+* Specifies timezone in mobile snapshot tests
+* Removed deprecated identity systems not based on LFA [#2762](https://github.com/TryQuiet/quiet/issues/2762)
+* Updates storage location on desktop from "Quiet4" to "Quiet5" so users can run both at once
+* Updates file storage locations on iOS and Android
+
+## [4.1.0]
 
 ### New Features
 
@@ -11,16 +22,13 @@
 ### Fixes
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
 * Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
+* Changes close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
+* Changes the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 * Fixes an issue on Android where the app was not correctly displaying times in the local timezone [#2766](https://github.com/TryQuiet/quiet/issues/2766) (thanks for the bug report, anon!)
 
 ### Chores
 
 * Improves speed, reliability, and documentation for Cypress tests
-### Fixes
-
-* Fixes back button navigation issues in user profile/edit screens ([#2570]https://github.com/TryQuiet/quiet/issues/2570)
-* Change close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)
-* Changing the Leave Community modal to match the rest of the Settings ([2569]https://github.com/TryQuiet/quiet/issues/2569)
 
 ## [4.0.3]
 
@@ -49,7 +57,7 @@
 
 * Add `trace` level logs to `@quiet/logger` ([#2716](https://github.com/TryQuiet/quiet/issues/2716))
 * Add slack notifications to release workflows ([#2722](https://github.com/TryQuiet/quiet/issues/2722))
-* Refactor the `StorageService` and create `ChannelService`, `MessageService` and `ChannelStore` for handling channel-related persistence ([#2631](https://github.com/TryQuiet/quiet/issues/2631)) 
+* Refactor the `StorageService` and create `ChannelService`, `MessageService` and `ChannelStore` for handling channel-related persistence ([#2631](https://github.com/TryQuiet/quiet/issues/2631))
 
 ## [3.0.0]
 

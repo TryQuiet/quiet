@@ -131,7 +131,7 @@ export const applyDevTools = async () => {
       try {
         await installer.default(extension.name)
       } catch (error) {
-        logger.error(`Failed to install ${extension.name}:${extension.path}:`, error)
+        logger.info(`Failed to install ${extension.name}:${extension.path}:`, error)
       }
     })
   )
