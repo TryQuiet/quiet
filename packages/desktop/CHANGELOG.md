@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.0.0]
+
+### Features
+
+* Users can now enter the channel view before Tor has fully initialized which means much less waiting time when opening the app. Actions will be queued to be sent when the connection is established. [#2837](https://github.com/TryQuiet/quiet/issues/2837)
+
+### Fixes
+
+* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858) 
+* Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
+* Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
+* Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)
+* Resolved an issue with logger duplication [#2853](https://github.com/TryQuiet/quiet/issues/2853)
+
+### Chores
+
+* Disables bitcode creation and strips bitcode from Tor.framework for xcode 16 compatibility
+* Targets iOS 18 SDK as required by Apple
+* Disabled automatic desktop updates from v4.x to v5.x by changing the update bucket [#2832](https://github.com/TryQuiet/quiet/issues/2832)
+* Specifies timezone in mobile snapshot tests
+* Removed deprecated identity systems not based on LFA [#2762](https://github.com/TryQuiet/quiet/issues/2762)
+* Updates storage location on desktop from "Quiet4" to "Quiet5" so users can run both at once
+* Updates file storage locations on iOS and Android
+
 ## [4.1.0]
 
 ### New Features

@@ -13,24 +13,34 @@ import {
   LogFormatters,
 } from '@quiet/logger'
 
+// Singleton instance for winston logger
+let _winstonLogger: Logger | undefined = undefined
+
 const initWinstonLogger = (): Logger | undefined => {
-  const baseFormat = format.combine(
+  if (_winstonLogger) return _winstonLogger
+  // Add a non-colorized format for file logs
+  const formats: winston.Logform.Format[] = [
     format.splat(),
     format.timestamp(),
     format.errors(),
-    format.printf(info => info.message as string)
-  )
+    format.printf(info => info.message as string),
+  ]
+  if (process.env.COLORIZE_LOG_FILES !== 'true') {
+    // Remove ANSI color codes
+    formats.push(format.uncolorize())
+  }
+  const fileFormat = format.combine(...formats)
   const logDir = process.env.LOG_DIR
   const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
   if (logToFile && logDir != null) {
-    return winston.createLogger({
+    _winstonLogger = winston.createLogger({
       level: 'silly', // this is just because we are doing the log level checking via debug
       transports: [
         new transports.DailyRotateFile({
           // %DATE will be replaced by the current date
           filename: path.join(logDir, `error_%DATE%.log`),
           level: 'error',
-          format: baseFormat,
+          format: fileFormat, // Use non-colorized format for file
           datePattern: 'YYYY-MM-DD',
           zippedArchive: false, // don't want to zip our logs
           maxFiles: '3d', // will keep log until they are older than 7 days
@@ -38,15 +48,15 @@ const initWinstonLogger = (): Logger | undefined => {
         // same for all levels
         new transports.DailyRotateFile({
           filename: path.join(logDir, `log_%DATE%.log`),
-          format: baseFormat,
+          format: fileFormat, // Use non-colorized format for file
           datePattern: 'YYYY-MM-DD',
           zippedArchive: false,
           maxFiles: '3d',
         }),
       ],
     })
+    return _winstonLogger
   }
-
   return undefined
 }
 

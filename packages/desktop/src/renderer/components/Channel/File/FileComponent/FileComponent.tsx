@@ -150,7 +150,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   const renderIcon = () => {
     switch (downloadState) {
-      case DownloadState.Uploading:
+      case DownloadState.Attaching:
         return (
           <CircularProgress
             variant='indeterminate'
@@ -204,11 +204,11 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   const renderActionIndicator = () => {
     switch (downloadState) {
-      case DownloadState.Uploading:
+      case DownloadState.Attaching:
         return (
           <ActionIndicator
             regular={{
-              label: 'Uploading...',
+              label: 'Attaching...',
               color: theme.palette.colors.darkGray,
               icon: downloadIconGray,
             }}

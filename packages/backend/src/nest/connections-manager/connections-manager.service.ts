@@ -32,7 +32,7 @@ import {
   SendMessagePayload,
   SocketActions,
   SocketEvents,
-  UploadFilePayload,
+  AttachFilePayload,
   type DeleteChannelResponse,
   type UserProfile,
   type UserProfilesStoredEvent,
@@ -257,11 +257,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(
-    options: { saveTor: boolean; closeDatastore: boolean } = { saveTor: false, closeDatastore: true }
+    options: { saveTor: boolean; closeDatastore: boolean; deleteChainFromDisk: boolean } = {
+      saveTor: false,
+      closeDatastore: true,
+      deleteChainFromDisk: false,
+    }
   ) {
-    this.logger.info('Saving active sigchain')
-    await this.saveActiveChain()
-    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, false)
+    if (!options.deleteChainFromDisk) {
+      this.logger.info('Saving active sigchain')
+      try {
+        await this.saveActiveChain()
+      } catch (e) {
+        this.logger.error('Error while saving active sigchain', e)
+      }
+    }
+    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
 
     this.logger.info('Closing services', options)
 
@@ -290,7 +300,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
-    await this.closeAllServices({ saveTor: true, closeDatastore: false })
+    await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
     this.logger.info('Resetting StorageService')
     await this.storageService.clean()
@@ -327,6 +337,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async purgeData() {
     this.logger.info('Purging community data')
+    await this._purgeDataDirectories()
+    await this._purgeFiles()
+  }
+
+  private async _purgeDataDirectories() {
     const dirsToRemove = fs
       .readdirSync(this.quietDir)
       .filter(
@@ -336,12 +351,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           i.startsWith('backendDB') ||
           i.startsWith('Local Storage') ||
           i.startsWith('libp2pDatastore') ||
-          i.startsWith('databases')
+          i.startsWith('databases') ||
+          i.startsWith('TorDataDirectory')
       )
     for (const dir of dirsToRemove) {
       const dirPath = path.join(this.quietDir, dir)
       this.logger.info(`Removing dir: ${dirPath}`)
       removeFilesFromDir(dirPath)
+    }
+  }
+
+  private async _purgeFiles() {
+    const filesToRemove = ['Network Persistent State']
+    for (const filePath of filesToRemove) {
+      this.logger.info(`Removing file ${filePath}`)
+      try {
+        fs.rmSync(path.join(this.quietDir, filePath))
+      } catch (e) {
+        this.logger.warn('Failed to delete file on purge', filePath)
+      }
     }
   }
 
@@ -460,8 +488,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const bootstrapPeerStats: Record<string, NetworkStats> = {}
     for (const pair of inviteData.pairs) {
       const multiaddr = createLibp2pAddress(pair.onionAddress, pair.peerId)
-      bootstrapPeerStats[multiaddr] = {
+      bootstrapPeerStats[pair.peerId] = {
         peerId: pair.peerId,
+        address: multiaddr,
         connectionTime: 0,
         lastSeen: DateTime.utc().toSeconds(),
       } as NetworkStats
@@ -577,7 +606,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),
       noiseKey: Buffer.from(identity.networkInfo.peerId.noiseKey, 'base64'),
     }
-    this.logger.info(peerIdData.peerId.toString())
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
     const params: Libp2pNodeParams = {
@@ -726,11 +754,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
       await this.storageService?.channels.downloadFile(payload.metadata)
     })
-    this.socketService.on(SocketActions.UPLOAD_FILE, async (metadata: FileMetadata) => {
-      await this.storageService?.channels.uploadFile(metadata)
+    this.socketService.on(SocketActions.ATTACH_FILE, async (metadata: FileMetadata) => {
+      await this.storageService?.channels.attachFile(metadata)
     })
-    this.socketService.on(SocketEvents.FILE_UPLOADED, async (args: FileMetadata) => {
-      await this.storageService?.channels.uploadFile(args)
+    this.socketService.on(SocketEvents.FILE_ATTACHED, async (args: FileMetadata) => {
+      await this.storageService?.channels.attachFile(args)
     })
     this.socketService.on(SocketActions.CANCEL_DOWNLOAD, mid => {
       this.storageService?.channels.cancelDownload(mid)
@@ -776,8 +804,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.channels.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.serverIoProvider.io.emit(SocketEvents.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.storageService.channels.on(StorageEvents.FILE_UPLOADED, (payload: UploadFilePayload) => {
-      this.serverIoProvider.io.emit(SocketEvents.FILE_UPLOADED, payload)
+    this.storageService.channels.on(StorageEvents.FILE_ATTACHED, (payload: AttachFilePayload) => {
+      this.serverIoProvider.io.emit(SocketEvents.FILE_ATTACHED, payload)
     })
     this.storageService.channels.on(StorageEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       this.serverIoProvider.io.emit(SocketEvents.DOWNLOAD_PROGRESS, payload)
@@ -794,6 +822,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.storageService.updatePeerStore()
+      this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)
     })
   }

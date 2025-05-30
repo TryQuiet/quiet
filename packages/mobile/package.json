@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "4.1.2",
+  "version": "5.0.1",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --mode=storybookDebug --appIdSuffix=storybook.debug",
@@ -60,6 +60,7 @@
     "react-native-file-logger": "0.5.6",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.14.1",
+    "react-native-image-picker": "8.0.0",
     "react-native-level-fs": "^3.0.1",
     "react-native-mathjax-html-to-svg": "^1.1.0",
     "react-native-popup-menu": "^0.16.1",
@@ -92,10 +93,10 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-flow-strip-types": "^7.24.1",
-    "@localfirst/auth": "file:../../3rd-party/auth/packages/auth/dist",
     "@babel/plugin-transform-private-methods": "^7.24.1",
     "@babel/preset-env": "^7.24.5",
     "@babel/runtime": "^7.24.5",
+    "@localfirst/auth": "file:../../3rd-party/auth/packages/auth/dist",
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@react-native-async-storage/async-storage": "^1.21.0",
     "@react-native-community/cli-platform-android": "^12.3.4",

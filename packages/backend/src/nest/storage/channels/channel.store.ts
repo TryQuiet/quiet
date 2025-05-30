@@ -101,7 +101,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this._subscribing = true
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
-      this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
+      this.logger.info(
+        `${this.channelData.id} database updated`,
+        entry.hash,
+        entry.payload.value?.channelId,
+        entry.payload
+      )
       let message: ChannelMessage | undefined = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
@@ -211,15 +216,23 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * @emits StorageEvents.MESSAGE_IDS_STORED
    */
   private async refreshMessageIds(): Promise<void> {
-    const ids = (await this.getEntries()).map(msg => msg.id)
-    const community = await this.localDbService.getCurrentCommunity()
+    try {
+      const ids = (await this.getEntries()).map(msg => msg.id)
+      const community = await this.localDbService.getCurrentCommunity()
 
-    if (community) {
-      this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-        ids,
-        channelId: this.channelData.id,
-        communityId: community.id,
-      })
+      if (community) {
+        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+          ids,
+          channelId: this.channelData.id,
+          communityId: community.id,
+        })
+      }
+    } catch (e) {
+      if (e.message.includes('Store not initialized')) {
+        this.logger.warn(`Attempted to refresh message IDs for store that isn't open`)
+      } else {
+        throw e
+      }
     }
   }
 

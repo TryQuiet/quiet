@@ -137,7 +137,7 @@ describe('sendMessageSaga', () => {
 
     const media: FileMetadata = {
       cid: 'cid',
-      path: `uploading_${messageId}`,
+      path: `attaching_${messageId}`,
       name: 'file',
       ext: 'ext',
       message: {

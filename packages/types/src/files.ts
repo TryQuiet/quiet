@@ -27,7 +27,7 @@ export interface FileMetadata extends FileContent {
   }
 }
 
-export interface UploadFilePayload {
+export interface AttachFilePayload {
   file: FileMetadata
   peerId: string
 }
@@ -80,7 +80,7 @@ export interface DeleteFilesFromChannelSocketPayload {
 
 export enum DownloadState {
   None = '',
-  Uploading = 'uploading',
+  Attaching = 'attaching',
   Hosted = 'hosted',
   Ready = 'ready',
   Queued = 'queued',
