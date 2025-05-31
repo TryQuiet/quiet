@@ -5,7 +5,6 @@ import { CompoundError } from '@quiet/types'
  * Quiet-specific websocket event types
  */
 export enum WebsocketEvents {
-  HANDSHAKE = 'handshake',
   CREATE_COMMUNITY = 'create-community',
   UPDATE_COMMUNITY = 'update-community',
   GET_COMMUNITY = 'get-community',
@@ -32,31 +31,8 @@ export interface BaseStatusPayload<T extends object | undefined> {
   payload?: T
 }
 
-export enum HandshakeStatus {
-  ERROR = 'error',
-  ACTIVE = 'active',
-  SUCCESS = 'success',
-}
-
-export interface InnerHandshakePayload {
-  publicKey: string
-}
-export interface HandshakePayload extends BaseStatusPayload<InnerHandshakePayload> {
-  status: HandshakeStatus
-  reason?: string
-  payload?: InnerHandshakePayload
-}
-
-export interface HandshakeMessage extends BaseWebsocketMessage<HandshakePayload> {
-  ts: number
-  payload: HandshakePayload
-}
-
 export interface QSSCommunity {
   teamId: string
-  name: string
-  peerList: string[]
-  psk: string
   sigChain: string
 }
 

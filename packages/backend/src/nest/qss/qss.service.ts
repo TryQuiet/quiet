@@ -1,6 +1,6 @@
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
@@ -25,7 +25,7 @@ import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 
 @Injectable()
-export class QSSService extends EventEmitter implements OnModuleInit {
+export class QSSService extends EventEmitter {
   private _connecting = false
 
   private readonly logger = createLogger(`qss:service`)
@@ -37,11 +37,6 @@ export class QSSService extends EventEmitter implements OnModuleInit {
     private readonly qssAuthConnManager: QSSAuthConnectionManager
   ) {
     super({ captureRejections: true })
-  }
-
-  public async onModuleInit() {
-    this.logger.trace('Attempting to connect to QSS')
-    await this.connect(this.qssEnabled, this.qssEndpoint)
   }
 
   public get connected(): boolean {
@@ -152,9 +147,6 @@ export class QSSService extends EventEmitter implements OnModuleInit {
         userId: (sigChain.context as MemberContext).user.userId,
         community: {
           teamId: sigChain.team.id,
-          psk: community.psk!,
-          name: community.name!,
-          peerList: community.peerList ?? [],
           sigChain: uint8arrays.toString(serializedSigChain, 'hex'),
         },
         teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),

@@ -421,6 +421,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  private async createCommunityOnQss(community: Community, sigchain: SigChain): Promise<void> {
+    const connected = await this.qssService.connect(this.qssEnabled, this.qssEndpoint)
+    if (connected) {
+      await this.qssService.createCommunity(community, sigchain)
+    }
+  }
+
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
 
@@ -441,30 +448,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity.networkInfo.peerId.id
     )
 
-    let community: Community = {
+    const community: Community = {
       id: payload.id,
       name: payload.name,
       peerList: [localAddress],
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.team!.id,
+      qssEnabled: this.qssEnabled,
+      qssEndpoint: this.qssEndpoint,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    const connected = await this.qssService.connect(this.qssEnabled, this.qssEndpoint)
-    let qssEnabled: boolean = false
-    if (connected) {
-      qssEnabled = await this.qssService.createCommunity(community, sigchain)
-    }
-
-    community = {
-      ...community,
-      qssEnabled,
-      qssEndpoint: this.qssEndpoint,
-    }
-    await this.localDbService.setCommunity(community)
+    // purposely don't await
+    this.createCommunityOnQss(community, sigchain)
 
     await this.launchCommunity(community)
 
@@ -485,24 +484,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       profile: userProfile,
     } as ResponseCreateCommunityPayload
   }
-
-  // TODO: add back when QSS is implemented
-  // public async downloadCommunityData(inviteData: InvitationDataV2) {
-  //   this.logger.info('Downloading invite data', inviteData)
-  //   this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
-  //   let downloadedData: ServerStoredCommunityMetadata
-  //   try {
-  //     downloadedData = await this.storageServerProxyService.downloadData(inviteData.cid)
-  //   } catch (e) {
-  //     this.logger.error(`Downloading community data failed`, e)
-  //     return
-  //   }
-  //   return {
-  //     psk: downloadedData.psk,
-  //     peers: downloadedData.peerList,
-  //     ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
-  //   }
-  // }
 
   private async signInToQSS(inviteData: InvitationData, sigChain: SigChain) {
     if (

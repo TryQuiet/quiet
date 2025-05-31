@@ -1,34 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common'
-import type { CryptoKX, KeyPair } from 'libsodium-wrappers-sumo'
 import { connect, type Socket as ClientSocket } from 'socket.io-client'
-import { DateTime } from 'luxon'
 
 import { createLogger } from '../common/logger'
 import { QSS_ENABLED, QSS_ENDPOINT } from '../const'
-import { QSSKXEncryptionService } from './encryption/qss-enc.service'
-import {
-  HandshakeMessage,
-  HandshakeStatus,
-  QSSConnectionError,
-  QSSHandshakeError,
-  QSSNotInitializedError,
-  WebsocketEvents,
-} from './qss.types'
+import { QSSConnectionError, QSSNotInitializedError, WebsocketEvents } from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
 
 @Injectable()
 export class QSSClient {
   public clientSocket: ClientSocket | undefined = undefined
-  private keyPair: KeyPair | undefined = undefined
-  private sessionKey: CryptoKX | undefined = undefined
 
   private readonly logger = createLogger(`qss:client`)
 
   constructor(
     @Inject(QSS_ENABLED) private qssEnabled: boolean,
-    @Inject(QSS_ENDPOINT) private qssEndpoint: string,
-    private readonly qssKxEncryptionService: QSSKXEncryptionService
+    @Inject(QSS_ENDPOINT) private qssEndpoint: string
   ) {}
 
   public async createSocket(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<ClientSocket> {
@@ -41,14 +28,10 @@ export class QSSClient {
 
     this.logger.info(`Creating client socket`)
 
-    this.keyPair = this.qssKxEncryptionService.generateKeyPair()
     this.clientSocket = connect(this.qssEndpoint, {
       autoConnect: false,
       forceNew: true,
       transports: CLIENT_TRANSPORTS,
-      auth: {
-        publicKey: this.qssKxEncryptionService.sodiumHelper.toBase64(this.keyPair.publicKey),
-      },
     })
     await this._waitForConnect()
 
@@ -56,36 +39,16 @@ export class QSSClient {
   }
 
   private async _waitForConnect(): Promise<void> {
-    if (this.clientSocket == null || this.keyPair == null) {
+    if (this.clientSocket == null) {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
-
-    this.clientSocket.on(
-      WebsocketEvents.HANDSHAKE,
-      (handshake: HandshakeMessage, callback: (...args: unknown[]) => void) => {
-        if (handshake.payload.status === HandshakeStatus.ERROR) {
-          throw new QSSHandshakeError(handshake.payload.reason ?? `Unknown error`)
-        }
-
-        if (handshake.payload.payload == null) {
-          throw new QSSHandshakeError(`Payload was empty`)
-        }
-
-        this.sessionKey = this.qssKxEncryptionService.generateSharedSessionKeyPair(
-          this.keyPair!,
-          this.qssKxEncryptionService.sodiumHelper.fromBase64(handshake.payload.payload.publicKey)
-        )
-        callback({
-          ts: DateTime.utc().toMillis(),
-          payload: { status: HandshakeStatus.SUCCESS },
-        })
-      }
-    )
 
     this.clientSocket.connect()
     let count = 20
     while (!this.clientSocket.connected) {
       if (count < 0) {
+        this.logger.error('QSS client failed to connect within timeout, closing socket')
+        this.close()
         throw new QSSConnectionError(`Client didn't connect in time!`)
       }
 
@@ -97,34 +60,16 @@ export class QSSClient {
 
   public async sendMessage<T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> {
     this.logger.debug(`Sending message`, event)
-    if (this.clientSocket == null || this.sessionKey == null) {
+    if (this.clientSocket == null) {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
 
-    const encryptedPayload = this.encryptPayload(payload)
     if (withAck) {
-      const encryptedResponse = (await this.clientSocket.emitWithAck(event, encryptedPayload)) as string
-      return this.decryptPayload(encryptedResponse) as T
+      return (await this.clientSocket.emitWithAck(event, payload)) as T
     }
 
-    this.clientSocket.emit(event, encryptedPayload)
+    this.clientSocket.emit(event, payload)
     return undefined
-  }
-
-  public encryptPayload(payload: unknown): string {
-    if (this.clientSocket == null || this.sessionKey == null) {
-      throw new QSSNotInitializedError(`Must run createSocket first!`)
-    }
-
-    return this.qssKxEncryptionService.encrypt(payload, this.sessionKey)
-  }
-
-  public decryptPayload(encryptedPayload: string): unknown {
-    if (this.clientSocket == null || this.sessionKey == null) {
-      throw new QSSNotInitializedError(`Must run createSocket first!`)
-    }
-
-    return this.qssKxEncryptionService.decrypt(encryptedPayload, this.sessionKey)
   }
 
   public close(): void {

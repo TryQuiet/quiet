@@ -94,13 +94,12 @@ export class QSSAuthConnection extends EventEmitter {
       this._joinStatus = JoinStatus.JOINED
     }
 
-    this.qssClient.clientSocket!.on(WebsocketEvents.AUTH_SYNC, async (encryptedMessage: string): Promise<void> => {
+    this.qssClient.clientSocket!.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
       try {
-        const decryptedMessage = this.qssClient.decryptPayload(encryptedMessage) as AuthSyncMessage
-        if (decryptedMessage.payload.payload?.message == null) {
+        if (message.payload.payload?.message == null) {
           throw new Error(`Missing message`)
         }
-        this.authConnection.deliver(uint8arrays.fromString(decryptedMessage.payload.payload.message, 'base64'))
+        this.authConnection.deliver(uint8arrays.fromString(message.payload.payload.message, 'base64'))
       } catch (e) {
         this.logger.error(`Error handling auth sync message`, e)
         this.authConnection.emit('localError', {
