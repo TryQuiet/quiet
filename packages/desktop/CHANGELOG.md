@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Features
+
+* Add support for QSS sigchain syncing and QSS-enabled invitation links [#2759](https://github.com/TryQuiet/quiet/issues/2759)
+
 ## [5.0.0]
 
 ### Features
