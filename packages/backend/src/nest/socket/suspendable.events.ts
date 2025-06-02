@@ -6,7 +6,7 @@ export const suspendableSocketEvents: string[] = [
   SocketActions.DELETE_CHANNEL.valueOf(),
 
   // Files
-  SocketActions.UPLOAD_FILE.valueOf(),
+  SocketActions.ATTACH_FILE.valueOf(),
   SocketActions.DOWNLOAD_FILE.valueOf(),
   SocketActions.CANCEL_DOWNLOAD.valueOf(),
   SocketActions.DELETE_FILES_FROM_CHANNEL.valueOf(),

@@ -17,7 +17,7 @@ import { ChannelMessage, DownloadStatus, MessagesDailyGroups, MessageSendingStat
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 
-import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
 

@@ -22,7 +22,7 @@ import {
   type CancelDownloadPayload,
   type DeleteFilesFromChannelSocketPayload,
   type DownloadFilePayload,
-  type UploadFilePayload,
+  type AttachFilePayload,
 } from './files'
 import {
   type SendMessagePayload,
@@ -87,7 +87,7 @@ export enum SocketActions {
 
   CANCEL_DOWNLOAD = 'cancelDownload',
   DOWNLOAD_FILE = 'downloadFile',
-  UPLOAD_FILE = 'uploadFile',
+  ATTACH_FILE = 'attachFile',
 
   // ====== Local First Auth ======
 
@@ -129,7 +129,7 @@ export enum SocketEvents {
   USER_PROFILES_STORED = 'userProfilesStored',
 
   // ====== Files ======
-  FILE_UPLOADED = 'fileUploaded',
+  FILE_ATTACHED = 'fileUploaded',
   DOWNLOAD_PROGRESS = 'downloadProgress',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
 
@@ -176,7 +176,7 @@ export interface SocketActionsMap {
   [SocketActions.DOWNLOAD_FILE]: EmitEvent<DownloadFilePayload>
   [SocketActions.SEND_MESSAGE]: EmitEvent<ChannelMessage>
   [SocketActions.CANCEL_DOWNLOAD]: EmitEvent<CancelDownloadPayload>
-  [SocketActions.UPLOAD_FILE]: EmitEvent<UploadFilePayload>
+  [SocketActions.ATTACH_FILE]: EmitEvent<AttachFilePayload>
   [SocketActions.GET_MESSAGES]: EmitEvent<GetMessagesPayload, (response?: MessagesLoadedPayload) => void>
 
   // ====== User Profiles ======
@@ -218,7 +218,7 @@ export interface SocketEventsMap {
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
 
   // ====== Files ======
-  [SocketEvents.FILE_UPLOADED]: EmitEvent<FileMetadata>
+  [SocketEvents.FILE_ATTACHED]: EmitEvent<FileMetadata>
   [SocketEvents.DOWNLOAD_PROGRESS]: EmitEvent<DownloadStatus>
   [SocketEvents.REMOVE_DOWNLOAD_STATUS]: EmitEvent<RemoveDownloadStatus>
 

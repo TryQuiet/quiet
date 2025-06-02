@@ -1,5 +1,7 @@
 import { isPng, base64DataURLToByteArray, isGif, isJpeg, validatePhoto } from './userProfile.utils'
-import { LARGE_IMG_URI, VALID_GIF_URI, VALID_JPEG_URI, VALID_PNG_URI } from './userProfile.utils.spec.const'
+import { VALID_GIF_URI, VALID_JPEG_URI, VALID_PNG_URI, VALID_LARGE_JPG_URI } from './userProfile.utils.spec.const'
+import * as fs from 'fs'
+import * as path from 'path'
 
 describe('isPng', () => {
   test('returns true for a valid PNG', () => {
@@ -122,7 +124,44 @@ describe('validatePhoto', () => {
     expect(validatePhoto(VALID_GIF_URI, 'abc123')).toEqual(true)
   })
 
-  test('returns false when the photo is larger than 200KB', () => {
-    expect(validatePhoto(LARGE_IMG_URI, 'abc123')).toEqual(false)
+  test('returns true when the photo is a <15MB valid JPEG string', () => {
+    expect(validatePhoto(VALID_LARGE_JPG_URI, 'abc123')).toEqual(true)
+  })
+
+  test('rejects PNG images larger than 200KB', () => {
+    // Create a large PNG that exceeds 200KB
+    const pngHeader = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+    const extraData = Array.from({ length: 204800 }, () => Math.floor(Math.random() * (255 - 1) + 1))
+    const pngByteArray = new Uint8Array([...pngHeader, ...extraData])
+
+    // Get the file size in KB
+    const fileSizeKB = (pngByteArray.length / 1024).toFixed(2)
+    console.log(`PNG test image size: ${fileSizeKB}KB (should be rejected since > 200KB)`)
+
+    // Convert to base64 data URL for validation
+    const base64Image = Buffer.from(pngByteArray).toString('base64')
+    const dataUrl = `data:image/png;base64,${base64Image}`
+
+    // Should be rejected since it's over 200KB and is a PNG
+    expect(validatePhoto(dataUrl, 'abc123')).toEqual(false)
+  })
+
+  test('rejects JPEG images larger than 15MB', () => {
+    // Create a large JPEG that exceeds 15MB
+    const jpegHeader = [0xff, 0xd8, 0xff, 0xe0]
+    // 16MB of random data
+    const extraData = Array.from({ length: 16 * 1024 * 1024 }, () => Math.floor(Math.random() * (255 - 1) + 1))
+    const jpegByteArray = new Uint8Array([...jpegHeader, ...extraData])
+
+    // Get the file size in MB
+    const fileSizeMB = (jpegByteArray.length / (1024 * 1024)).toFixed(2)
+    console.log(`JPEG test image size: ${fileSizeMB}MB (should be rejected since > 15MB)`)
+
+    // Convert to base64 data URL for validation
+    const base64Image = Buffer.from(jpegByteArray).toString('base64')
+    const dataUrl = `data:image/jpeg;base64,${base64Image}`
+
+    // Should be rejected as it's > 15MB
+    expect(validatePhoto(dataUrl, 'abc123')).toEqual(false)
   })
 })

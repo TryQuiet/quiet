@@ -6,7 +6,7 @@ import { ChannelInputComponent } from './ChannelInput'
 import { INPUT_STATE } from './InputState.enum'
 import { getReduxStoreFactory } from '@quiet/state-manager'
 import { FileContent } from '@quiet/types'
-import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
+import UploadFilesPreviewsComponent from '../../../Channel/File/FileAttachmentPreview'
 
 describe('ChannelInput', () => {
   it('renders component input available ', () => {

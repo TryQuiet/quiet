@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { Grid, useTheme } from '@mui/material'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
-import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
+import ImageAttachment from '../../Channel/File/ImageAttachment/ImageAttachment'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { displayMathRegex } from '../../../../utils/functions/splitByTex'
 import { TextMessageComponent } from './TextMessage'
@@ -77,7 +77,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             data-testid={`messagesGroupContent-${message.id}`}
           >
             {fileDisplay && message.media ? (
-              <UploadedImage
+              <ImageAttachment
                 media={message.media}
                 uploadedFileModal={uploadedFileModal}
                 downloadStatus={downloadStatus}
