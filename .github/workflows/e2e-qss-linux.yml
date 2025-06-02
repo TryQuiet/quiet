@@ -1,4 +1,4 @@
-name: E2E linux
+name: E2E with QSS linux
 
 on: [workflow_call]
 jobs:
@@ -16,7 +16,6 @@ jobs:
       DISPLAY: ":99.0"
       TEST_MODE: true
       IS_CI: true
-      SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -50,9 +49,13 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "e2e-crossplatform-linux"
+          install-docker: true
+          cachePrefix: "e2e-crossplatform-linux-qss"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
-      
+
+      - name: Start QSS docker
+        run: npm run start:qss
+        
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
@@ -67,40 +70,13 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
-      - name: Run one client test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test oneClient.test.ts
-
-      - name: Run user profile test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test userProfile.test.ts
-
-      - name: Run multiple clients test
+      - name: Run multiple clients with QSS test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
+          command: cd packages/e2e-tests && npm run test multipleClients.qss.test.ts
 
-      - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 1
-          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
-
-      - name: Run Backwards Compatibility test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        if: ${{ steps.major-ver.outputs.match == 'false' }}
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          command: |
-            echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
-            cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
+      - name: Stop QSS docker
+        if: always()
+        run: npm run stop:qss

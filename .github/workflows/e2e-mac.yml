@@ -18,11 +18,9 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
+          install-docker: true
           cachePrefix: "e2e-crossplatform-mac"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
-
-      - name: Start QSS docker
-        run: npm run start:qss
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -90,7 +88,3 @@ jobs:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
-
-      - name: Stop QSS docker
-        if: always()
-        run: npm run stop:qss
