@@ -158,7 +158,6 @@ describe('communitiesSelectors', () => {
         onionAddress: identity.networkInfo.hiddenService.onionAddress.split('.')[0],
       },
     ]
-    logger.info('pairs', { pairs })
     expect(pairs).toHaveLength(1)
     const expectedUrl = composeInvitationShareUrl({
       pairs,
@@ -174,24 +173,23 @@ describe('communitiesSelectors', () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)
 
-    const peerList = [
-      createLibp2pAddress(
-        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
-        '12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL'
-      ),
-    ]
     const psk = '12345'
     const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
     const teamId = '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3'
     const qssEndpoint = 'ws://localhost:3000'
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      peerList,
       psk,
       ownerOrbitDbIdentity,
       teamId,
       qssEnabled: true,
       qssEndpoint,
     })
+    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      communityId: communitiesSelectors.currentCommunity(store.getState())!.id,
+    })
+    expect(identitySelectors.currentPeerAddress(store.getState())).toEqual(
+      createLibp2pAddress(identity.networkInfo.hiddenService.onionAddress, identity.networkInfo.peerId.id)
+    )
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
@@ -206,7 +204,13 @@ describe('communitiesSelectors', () => {
       communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
       teamId,
     }
-    const pairs = p2pAddressesToPairs(peerList)
+    const pairs: InvitationPair[] = [
+      {
+        peerId: identity.networkInfo.peerId.id,
+        onionAddress: identity.networkInfo.hiddenService.onionAddress.split('.')[0],
+      },
+    ]
+    expect(pairs).toHaveLength(1)
     const expectedUrl = composeInvitationShareUrl({
       pairs,
       psk,
