@@ -22,6 +22,9 @@ runs:
       with:
         python-version: 3.12
 
+    - name: Set up Docker
+      uses: docker/setup-docker-action@v4
+
     - name: Print python version
       run: which python3
       if: runner.os == 'macOS'

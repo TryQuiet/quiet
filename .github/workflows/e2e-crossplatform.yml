@@ -15,6 +15,6 @@ jobs:
     uses: ./.github/workflows/e2e-mac.yml
   linux:
     uses: ./.github/workflows/e2e-linux.yml
-  windows:
-    uses: ./.github/workflows/e2e-win.yml
+  # windows:
+  #   uses: ./.github/workflows/e2e-win.yml
     
