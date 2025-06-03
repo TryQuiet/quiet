@@ -113,7 +113,7 @@ describe('Backwards Compatibility', () => {
       expect(await settingsModal.isReady()).toBeTruthy()
       const settingVersion = await settingsModal.getVersion()
       expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
 
     itif(process.platform == 'linux')('Owner sends a message in the general channel', async () => {
