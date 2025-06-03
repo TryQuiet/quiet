@@ -51,59 +51,26 @@ USAGE:
     $0 [OPTIONS]
 
 OPTIONS:
-    --check-only        Check for new Tor versions without downloading
-    --download          Download and extract new Tor binaries
-    --install           Install downloaded binaries (use after --download)
-    --full              Run complete update process (download + install)
-    --force             Force update even if versions appear same
+    --force             Force update even if recent download exists
     --help, -h          Show this help message
 
-EXAMPLES:
-    $0 --check-only     # Check what would be updated
-    $0 --download       # Download latest Tor binaries  
-    $0 --install        # Install downloaded binaries
-    $0 --full           # Complete automated update
+DESCRIPTION:
+    Downloads and installs the latest Tor binaries for all desktop platforms
+    (Linux, macOS x64, macOS ARM64, Windows)
 
-WORKFLOW:
-    1. Run --check-only to see what would change
-    2. Run --download to fetch new binaries
-    3. Review changes, run tests manually if desired
-    4. Run --install to replace current binaries
-    
-    Or use --full for automated process (use with caution!)
+EXAMPLES:
+    $0                  # Update Tor binaries to latest version
+    $0 --force          # Force update even if recently downloaded
 EOF
 }
 
-# Get current Tor version
-get_current_tor_version() {
-    local tor_binary="$TOR_DIR/linux/tor"
-    
-    if [[ ! -f "$tor_binary" ]]; then
-        echo "unknown"
-        return
-    fi
-    
-    # Try to get version with library path
-    local version=""
-    if command -v timeout >/dev/null 2>&1; then
-        version=$(timeout 10s env LD_LIBRARY_PATH="$TOR_DIR/linux" "$tor_binary" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
-    else
-        version=$(env LD_LIBRARY_PATH="$TOR_DIR/linux" "$tor_binary" --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "")
-    fi
-    
-    if [[ -n "$version" ]]; then
-        echo "$version"
-    else
-        echo "unknown"
-    fi
-}
 
 # Get latest Tor Browser version from releases page
 get_latest_tor_version() {
-    # Try to get latest version from Tor Project API/releases
+    log_info "Checking for latest Tor Browser version..."
     local latest_version=""
     
-    # Method 1: Check the dist server directory listing
+    # Check the dist server directory listing
     if command -v curl >/dev/null 2>&1; then
         latest_version=$(curl -s "$TOR_PROJECT_BASE_URL/" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1 || echo "")
     elif command -v wget >/dev/null 2>&1; then
@@ -111,56 +78,15 @@ get_latest_tor_version() {
     fi
     
     if [[ -n "$latest_version" ]]; then
+        log_info "Latest Tor Browser version: $latest_version"
         echo "$latest_version"
     else
-        log_error "Could not determine latest Tor Browser version" >&2
+        log_error "Could not determine latest Tor Browser version"
         exit 1
     fi
 }
 
-# Compare version strings (returns 0 if first > second, 1 if equal, 2 if first < second)
-compare_versions() {
-    local version1="$1"
-    local version2="$2"
-    
-    if [[ "$version1" == "$version2" ]]; then
-        return 1
-    fi
-    
-    # Use sort -V for version comparison
-    local sorted=$(printf '%s\n%s\n' "$version1" "$version2" | sort -V)
-    local first_line=$(echo "$sorted" | head -n1)
-    
-    if [[ "$first_line" == "$version1" ]]; then
-        return 2  # version1 < version2
-    else
-        return 0  # version1 > version2
-    fi
-}
 
-# Check for updates
-check_updates() {
-    log_info "Checking current Tor version..."
-    local current_version=$(get_current_tor_version)
-    log_info "Current Tor version: $current_version"
-    
-    log_info "Checking for latest Tor Browser version..."
-    local latest_version=$(get_latest_tor_version)
-    log_info "Latest Tor Browser version: $latest_version"
-    
-    if [[ "$current_version" == "unknown" ]]; then
-        log_warning "Cannot determine current Tor version"
-        log_info "Latest available: $latest_version"
-        return 0
-    fi
-    
-    # Note: We can't directly compare Tor binary version to Tor Browser version
-    # This is a limitation - we should enhance this later
-    log_info "Available Tor Browser version: $latest_version"
-    log_info "Note: Tor binary version may differ from Tor Browser version"
-    
-    return 0
-}
 
 # Download platform-specific Tor Browser bundles
 download_tor_bundles() {
@@ -332,28 +258,11 @@ install_binaries() {
 
 # Main execution function
 main() {
-    local action=""
     local force_update=false
     
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --check-only)
-                action="check"
-                shift
-                ;;
-            --download)
-                action="download"
-                shift
-                ;;
-            --install)
-                action="install"
-                shift
-                ;;
-            --full)
-                action="full"
-                shift
-                ;;
             --force)
                 force_update=true
                 shift
@@ -370,12 +279,6 @@ main() {
         esac
     done
     
-    if [[ -z "$action" ]]; then
-        log_error "No action specified"
-        show_help
-        exit 1
-    fi
-    
     # Verify we're in the right directory
     if [[ ! -d "$TOR_DIR" ]]; then
         log_error "Tor directory not found: $TOR_DIR"
@@ -383,33 +286,13 @@ main() {
         exit 1
     fi
     
-    case "$action" in
-        "check")
-            check_updates
-            ;;
-        "download")
-            log_info "Checking for latest Tor Browser version..."
-            local latest_version=$(get_latest_tor_version)
-            download_tor_bundles "$latest_version"
-            extract_binaries
-            ;;
-        "install")
-            install_binaries
-            ;;
-        "full")
-            log_warning "Running full automated update. Use with caution!"
-            log_info "Checking for latest Tor Browser version..."
-            local latest_version=$(get_latest_tor_version)
-            download_tor_bundles "$latest_version"
-            extract_binaries
-            install_binaries
-            log_success "Full update completed successfully"
-            ;;
-        *)
-            log_error "Invalid action: $action"
-            exit 1
-            ;;
-    esac
+    # Download and install Tor binaries
+    log_info "Updating Tor binaries to latest version..."
+    local latest_version=$(get_latest_tor_version)
+    download_tor_bundles "$latest_version"
+    extract_binaries
+    install_binaries
+    log_success "Tor binaries updated successfully to version $latest_version"
 }
 
 # Run main function with all arguments
