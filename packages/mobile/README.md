@@ -2,44 +2,54 @@
 
 Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and a JavaScript/Redux [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager) with [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop).
 
-## Setting up Android environment
+## Android development
 
-### Prerequisites
+1. Follow the instructions for running [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop) and confirm it runs
+1. If not on Mac, which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
+1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
+1. Install the [Temurin 17 JDK](https://adoptium.net/temurin) for [Mac](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=mac) (.pkg) or [Linux](https://adoptium.net/installation/linux/)
+1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:  
+    - Mac: `export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"`
+    - Linux: `export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/`
+1. Install [Android Studio](https://developer.android.com/studio), ensuring that all of the following items in the installation wizard are checked
+    - Android SDK
+    - Android SDK Platform
+1. Point the $ANDROID_HOME environment variable in your `.bashrc` or `.zshrc` to your Android install
+    You can find it here:
+      - macOS: `~/Library/Android/sdk/`
+      - Linux: `~/Android/Sdk/`
 
-1. If not on Mac (which comes preinstalled with `patch`), install `patch` (e.g. via your Linux package manager).
-
-1. Install python3 and setuptools through your preferred method. (used by node-gyp)
-
-1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
-
+1. Ensure Android Studio's `platform-tools` directories are added to your `PATH`. 
+    
+    Your `.bashrc` or `.zshrc` should now include something like:
     ```bash
-    npm install
-    npm run bootstrap
+    export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/"
+    export ANDROID_HOME=$HOME/Android/Sdk
+    export PATH=$PATH:$ANDROID_HOME/emulator
+    export PATH=$PATH:$ANDROID_HOME/platform-tools
     ```
 
-1. On your host, install [adb](https://developer.android.com/studio/command-line/adb) (Android Debug Bridge) to communicate with your Android device.
-
-1. If running on a physical device, enable USB debugging on your device and connect it to your computer via USB. If running on an emulator, start the emulator.
-
-      [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
-      [Android Developers: Configure Developer Options](https://developer.android.com/studio/debug/dev-options)
-
-1. Add the path to the java binary installed by Android Studio JAVA_HOME to your environment variables. Ensure that you have followed the SDK installation instructions in the [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) guide.
-
-    For example, on macOS with Android Studio installed in the default location,
-    Add the following line to your `~/.bash_profile` or `~/.zprofile` file,
+1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35")
 
     ```bash
-    export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+    ls $ANDROID_HOME/platforms
     ```
+    You should see `android-35`. You may also need to select specific versions of the SDK or tools, but currently the default install is sufficient (see: [React Native setup instructions](https://reactnative.dev/docs/set-up-your-environment))
 
-### Local development
+1. Enable [Developer options](https://developer.android.com/studio/debug/dev-options#enable) and [USB debugging](https://developer.android.com/studio/debug/dev-options#Enable-debugging) on your Android phone and restart it
+1. Connect your phone to your dev machine via USB
+1. On Linux, follow [these instructions](https://reactnative.dev/docs/running-on-device?platform=android&os=linux#2-plug-in-your-device-via-usb-2) for authorizing your phone as a USB device (skip this step on Mac)
+1. Accept any "USB Debugging" prompt on your phone
+1. Confirm you can run [adb](https://developer.android.com/studio/command-line/adb) (Android Debug Bridge, installed with Android Studio) and that it can connect to your phone
+    
+    ```bash
+    adb devices
+    ```
+    You should see your phone under "List of Devices Attached". If you do not, try `adb kill-server` or restarting your phone and your dev machine. You device should not appear as "Unauthorized". If it does, make sure you have accepted any "USB Debugging" prompts on your device.
 
-Follow the steps in [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) to set up your development environment.
+1. Run Quiet
 
-#### Running Android App from Command Line
-
-1. After following the React Native Development Environment instructions, navigate to the `packages/mobile` directory and run the application,
+    From the `packages/mobile` directory
 
     ```bash
     npm run android
@@ -47,84 +57,30 @@ Follow the steps in [React Native Development Environment](https://reactnative.d
 
     The application should now be running on your device.
 
-#### Running from Android Studio
+1. On Mac, Metro will launch automatically in a new terminal window, but on Linux you may need a separate step
 
-1. Open the `android` directory in Android Studio.
-1. If necessary, sync the Gradle files by hitting the "Sync Project with Gradle Files" button in the top right corner.
-1. Select the target device or emulator and press the play button.
-
-### Docker container
-
-Docker container with Android development environment can be found in `packages/mobile/android-environment`.
-
-1. Build the image,
-
-    ```bash
-    # From packages/mobile/android-environment
-    docker build -t quiet-mobile-dev -f Dockerfile .
-    ```
-
-1. Export an environment variable with the path to the root of the repository,
-
-    For bash,
-
-    ```bash
-    # From the root of the repository
-    echo "export QUIET_REPO_ROOT=$(pwd)" >> ~/.bash_profile
-    source ~/.bash_profile
-    ```
-
-    or for zsh
-
-    ```bash
-    # From the root of the repository
-    echo "export QUIET_REPO_ROOT=$(pwd)" >> ~/.zprofile
-    source ~/.zprofile
-    ```
-
-1. Then start a container and attach to it,
-
-    ```bash
-    docker run -it --rm --name quiet-mobile-debug -u node --network host --entrypoint bash --privileged -v /dev/bus/usb:/dev/bus/usb -v $QUIET_REPO_ROOT:/app quiet-mobile-dev
-    ```
-
-    Your command line should now look like `node@docker-desktop:/app/packages/mobile$`
-
-1. Once attached to the container, start Metro, a JavaScript bundler for React Native,
-
+    From the `packages/mobile` directory
+    
     ```bash
     npm run start
     ```
+    Connecting to Metro can be fiddly. To get it working, once Metro is fully up and running, shake the Android device twice to access React Native's dev menu, then tap "Reload".  
 
-    Warning: Do not select any options in the Metro terminal window.
+#### Running from Android Studio
 
-1. Open another terminal window and start building the application,
+It may be convenient to run the app from Android studio, for example if you are working on Android native pieces 
 
-    ```bash
-    docker exec -it quiet-mobile-debug /usr/local/bin/npm run android
+1. Open Android Studio
+    
+    If using nvm to manage node versions, you may need to open Android studio from a terminal which has the correct node version set. This is because Android Studio may not be able to find the correct node version if it is not set in the terminal.
     ```
-
-    The application should now be running on your device.
-
-### Wireless debugging (optional)
-
-**These instructions are included for convenience and may help if you're having a problem with wired debugging. Be mindful of your local network when using this option.**
-
-To connect your debugging device wirelessly, make sure it runs on Android 11 or above.  Enable wireless debugging in the Developer Options and plug it in to your machine via USB.
-
-Open a terminal window and tell the adb daemon to use port 5555,
-
-```bash
-adb tcpip 5555
-```
-
-Then check your phone's IP address and connect to it
-
-```bash
-adb connect <phone-ip>:5555
-```
-
-Unplug your phone and repeat the last command in the Docker container section to build the application with the new port.
+    nvm install 18.20.4
+    nvm use 18.20.4
+    open -a "Android Studio"
+    ```
+1. Open the `android` directory in Android Studio.
+1. If necessary, sync the Gradle files by hitting the "Sync Project with Gradle Files" button in the top right corner.
+1. Select the target device or emulator and press the play button.
 
 ### Access Android application logs
 
@@ -153,9 +109,9 @@ const watchFolders = [
 ]
 ```
 
-## Setting up iOS environment
+## iOS Development
 
-### Prerequisites for iOS development
+### Local Environment Setup
 
 1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
 1. Follow the [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) instructions to set up your development environment.
@@ -192,17 +148,13 @@ const watchFolders = [
 
 1. If planning to run on device, setup the signing certificate and provisioning profile in Xcode.
 
-    [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
+    - [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
 
-### Running iOS App With Command Line
+### Building the iOS App
 
-1. Start the Metro bundler,
+The iOS app can be built and run in two ways: from the command line or from Xcode. The command line is preferred as it is faster and more reliable especially when using nvm to manage node versions.
 
-    From the `packages/mobile` directory,
-
-    ```bash
-    npm run start
-    ```
+#### Command Line (preferred)
 
 1. Build and run the application,
 
@@ -212,11 +164,9 @@ const watchFolders = [
       npm run ios
       ```
 
-      or from Xcode, select the target device and press the play button.
+      The application should now be installed on your device, and a new terminal window will open with the Metro bundler running.
 
-      The application should now be running on your device.
-
-### Xcode
+#### Xcode (alternative)
 
 1. Start the metro bundler,
 
@@ -301,7 +251,7 @@ Altough if you plan to modify the native code, Android Studio is recommended as 
 ### When to rebuild the project?
 
 Both Android and iOS manages their own dependencies with the help of `gradle` (Android) and `cocoapods` (iOS). They work similar to `npm`.
-Whenewer there're changes to the dependencies in the native projects (`build.gradle` or `podfile`) there's a need to sync gradle files (it's fairly easy to do with Android Studio) or to run `pod install` command from the `/ios` directory. It doesn't happen very often but may be a case while attaching react-native modules getting use of the native methods (eg. for file management).
+Whenever there are changes to the dependencies in the native projects (`build.gradle` or `podfile`) there's a need to sync gradle files (it's fairly easy to do with Android Studio) or to run `pod install` command from the `/ios` directory. It doesn't happen very often but may be a case while attaching react-native modules getting use of the native methods (eg. for file management).
 
 If changes are made to the native part of the project (java, kotlin, objc or swift) it's neccessary to rebuild the project (`npm run android`, `npm run ios`)
 
@@ -317,6 +267,8 @@ xcrun simctl get_app_container booted com.quietmobile data
 
 enter it and find directory data within `/Documents` folder
 
+## Troubleshooting
+
 ### The app is stuck on splash screen
 
 Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server
@@ -331,8 +283,6 @@ The easiest solution is to close the app and open it again by tapping it's icon 
 or to follow `Product -> Perform Action -> Run Without Building` in Xcode. (iOS)
 
 If it's not enough, you can locally increase the `WEBSOCKET_CONNECTION_DELAY` for emitting the event at `mobile/android/app/src/main/java/com/quietmobile/Utils/Const.kt` (Android)
-
-## Troubleshooting
 
 ### Could not set file mode 644 on
 
@@ -353,19 +303,3 @@ Usage of native methods (like the ones for file management) must be adapted for 
 1. Shim packages with `rn-dodeify` <https://www.npmjs.com/package/rn-nodeify>
 2. Blacklist certain files in `metro.config.js:30`
 3. Use diff & patch <https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/>
-
-### Process already running on :8081
-
-If you encounter a problem with metro bundler, make sure there's no other process running on the same port. If it's the case, kill the process and try again.
-
-Get the PID of the process:
-
-```bash
-lsof -i :8081
-```
-
-Kill the process:
-
-```bash
-kill -9 <PID>
-```

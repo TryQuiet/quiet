@@ -17,7 +17,7 @@ jest.setTimeout(9000000)
 
 const blacklist = [
   'ConnectionProcess',
-  'UploadingPreview'
+  'AttachingPreview'
 ]
 
 /* eslint-disable no-undef */

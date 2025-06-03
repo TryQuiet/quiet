@@ -68,15 +68,15 @@ describe('IpfsFileManagerService', () => {
     await ipfsFileManagerService.stop()
     await module.close()
   })
-  it('uploads large files', async () => {
-    // Uploading
+  it('attaches large files', async () => {
+    // Attaching
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
     const metadata: FileMetadata = {
       path: filePath,
       name: 'test-large-file',
       ext: '.bin',
-      cid: 'uploading_id',
+      cid: 'attachment_id',
       message: {
         id: 'id',
         channelId: 'channelId',
@@ -90,12 +90,12 @@ describe('IpfsFileManagerService', () => {
       100
     )
     if (metadata.path) {
-      logger.info(`Uploading file ${metadata.path} of size ${fs.statSync(metadata.path).size}`)
+      logger.info(`Attaching file ${metadata.path} of size ${fs.statSync(metadata.path).size}`)
     } else {
       logger.error('File path is null')
     }
 
-    await ipfsFileManagerService.uploadFile(metadata)
+    await ipfsFileManagerService.attachFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
     metadata.path = newFilePath as string
@@ -109,7 +109,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.FILE_UPLOADED,
+        StorageEvents.FILE_ATTACHED,
         expect.objectContaining({
           ...metadata,
           cid: expect.stringContaining('bafy'),

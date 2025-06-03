@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common'
 import { SocketModule } from './socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager/connections-manager.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
+import { ImageCompressionModule } from './image-compression/image-compression.module'
 import path from 'path'
 import fs from 'fs'
 
@@ -46,6 +47,7 @@ const logger = createLogger('appModule')
     LocalDbModule,
     Libp2pModule,
     IpfsModule,
+    ImageCompressionModule,
     IpfsFileManagerModule,
     StorageModule,
     ConnectionsManagerModule,

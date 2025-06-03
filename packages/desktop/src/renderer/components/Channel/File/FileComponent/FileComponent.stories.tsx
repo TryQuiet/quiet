@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof FileComponent> = args => {
   )
 }
 
-export const Uploading = Template.bind({})
+export const Attaching = Template.bind({})
 export const Hosted = Template.bind({})
 export const Queued = Template.bind({})
 export const Ready = Template.bind({})
@@ -61,7 +61,7 @@ const args: FileComponentProps = {
   },
 }
 
-Uploading.args = {
+Attaching.args = {
   ...args,
   message: {
     ...args.message,
@@ -73,7 +73,7 @@ Uploading.args = {
   downloadStatus: {
     mid: mid,
     cid: cid,
-    downloadState: DownloadState.Uploading,
+    downloadState: DownloadState.Attaching,
     downloadProgress: undefined,
   },
 }

@@ -300,8 +300,22 @@ export async function createPeerId(): Promise<CreatedLibp2pPeerId> {
 export const createArbitraryFile = async (filePath: string, sizeBytes: number) => {
   const maxChunkSize = 1048576 // 1MB
 
+  // Delete the file if it already exists, to ensure we start fresh
+  if (fs.existsSync(filePath)) {
+    await fsAsync.unlink(filePath)
+  }
+
   let remainingSize = sizeBytes
 
+  // Create initial file (first chunk)
+  if (remainingSize > 0) {
+    const chunkSize = Math.min(maxChunkSize, remainingSize)
+    // Use writeFile for the first chunk to create a new file
+    await fsAsync.writeFile(filePath, crypto.randomBytes(chunkSize))
+    remainingSize -= chunkSize
+  }
+
+  // Append remaining chunks
   while (remainingSize > 0) {
     const chunkSize = Math.min(maxChunkSize, remainingSize)
     await fsAsync.appendFile(filePath, crypto.randomBytes(chunkSize))

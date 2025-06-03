@@ -497,7 +497,7 @@ export class ChannelsService extends EventEmitter {
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    * @emits StorageEvents.MESSAGE_MEDIA_UPDATED
    * @emits StorageEvents.REMOVE_DOWNLOAD_STATUS
-   * @emits StorageEvents.FILE_UPLOADED
+   * @emits StorageEvents.FILE_ATTACHED
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    */
   private attachFileManagerEvents(): void {
@@ -510,8 +510,8 @@ export class ChannelsService extends EventEmitter {
     this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload => {
       this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.filesManager.on(StorageEvents.FILE_UPLOADED, payload => {
-      this.emit(StorageEvents.FILE_UPLOADED, payload)
+    this.filesManager.on(StorageEvents.FILE_ATTACHED, payload => {
+      this.emit(StorageEvents.FILE_ATTACHED, payload)
     })
     this.filesManager.on(StorageEvents.DOWNLOAD_PROGRESS, payload => {
       this.emit(StorageEvents.DOWNLOAD_PROGRESS, payload)
@@ -522,13 +522,13 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
-   * Emit event to trigger file upload on file manager
+   * Emit event to trigger file attachment on file manager
    *
    * @param metadata Metadata of file to be uploaded
-   * @emits IpfsFilesManagerEvents.UPLOAD_FILE
+   * @emits IpfsFilesManagerEvents.ATTACH_FILE
    */
-  public async uploadFile(metadata: FileMetadata): Promise<void> {
-    this.filesManager.emit(IpfsFilesManagerEvents.UPLOAD_FILE, metadata)
+  public async attachFile(metadata: FileMetadata): Promise<void> {
+    this.filesManager.emit(IpfsFilesManagerEvents.ATTACH_FILE, metadata)
   }
 
   /**

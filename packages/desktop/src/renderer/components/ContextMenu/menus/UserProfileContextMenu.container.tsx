@@ -237,7 +237,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
 }
 
 /**
- * A button that shows a file input dialog for uploading a profile
+ * A button that shows a file input dialog for attaching a profile
  * photo and passes the chosen file to a callback.
  */
 export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onChange }) => {
@@ -369,20 +369,9 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
       return
     }
 
-    if (width > 200 || height > 200) {
-      const msg = 'Image dimensions must be less than or equal to 200px by 200px'
-      logger.error(msg)
-      setError(msg)
-      return
-    }
+    // No size limit needed as backend now compresses images
 
-    // 200 KB = 204800 B limit
-    if (photo.size > 204800) {
-      const msg = 'Image size must be less than or equal to 200KB'
-      logger.error(msg)
-      setError(msg)
-      return
-    }
+    // Removed dimension and size check as backend handles image compression now
 
     setError('')
     onSaveUserProfile({ photo })
