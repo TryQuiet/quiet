@@ -12,6 +12,59 @@ readonly TOR_DIR="$PROJECT_ROOT/3rd-party/tor"
 readonly TEMP_DIR="$(mktemp -d)"
 readonly TOR_PROJECT_BASE_URL="https://dist.torproject.org/torbrowser"
 
+# Tor Project GPG public key
+readonly TOR_GPG_KEY='-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=V+v6
+-----END PGP PUBLIC KEY BLOCK-----'
+
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -42,6 +95,60 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
+# Initialize GPG for signature verification
+init_gpg() {
+    log_info "Initializing GPG for signature verification..."
+    
+    # Create temporary GPG home directory
+    export GNUPGHOME="$TEMP_DIR/.gnupg"
+    mkdir -p "$GNUPGHOME"
+    chmod 700 "$GNUPGHOME"
+    
+    # Import Tor Project public key
+    if echo "$TOR_GPG_KEY" | gpg --batch --import 2>&1; then
+        log_success "Imported Tor Project GPG public key"
+        
+        # Display fingerprint for verification
+        local fingerprint=$(gpg --list-keys --with-colons 2>/dev/null | grep "^fpr" | cut -d: -f10)
+        log_info "GPG key fingerprint: $fingerprint"
+        
+        # Verify it matches expected fingerprint
+        if [[ "$fingerprint" != "EF6E286DDA85EA2A4BA7DE684E2C6E8793298290" ]]; then
+            log_error "GPG key fingerprint mismatch! Expected: EF6E286DDA85EA2A4BA7DE684E2C6E8793298290"
+            return 1
+        fi
+    else
+        log_error "Failed to import Tor Project GPG public key"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Verify GPG signature of a file
+verify_signature() {
+    local file="$1"
+    local sig_file="${file}.asc"
+    
+    if [[ ! -f "$sig_file" ]]; then
+        log_error "Signature file not found: $sig_file"
+        return 1
+    fi
+    
+    log_info "Verifying signature for $(basename "$file")..."
+    
+    # Verify signature
+    if gpg --batch --quiet --verify "$sig_file" "$file" 2>/dev/null; then
+        log_success "Signature verified for $(basename "$file")"
+        return 0
+    else
+        log_error "Signature verification failed for $(basename "$file")"
+        # Show detailed error for debugging
+        gpg --verify "$sig_file" "$file" 2>&1 | sed 's/^/  /'
+        return 1
+    fi
+}
+
 # Help function
 show_help() {
     cat << EOF
@@ -52,11 +159,15 @@ USAGE:
 
 OPTIONS:
     --force             Force update even if recent download exists
+    --test-verify       Run GPG verification tests
     --help, -h          Show this help message
 
 DESCRIPTION:
     Downloads and installs the latest Tor binaries for all desktop platforms
     (Linux, macOS x64, macOS ARM64, Windows)
+    
+    All downloads are verified using GPG signatures from the Tor Project
+    to ensure authenticity and integrity.
 
 EXAMPLES:
     $0                  # Update Tor binaries to latest version
@@ -105,8 +216,17 @@ download_tor_bundles() {
     
     cd "$TEMP_DIR"
     
+    # Initialize GPG before downloading
+    if ! init_gpg; then
+        log_error "Failed to initialize GPG"
+        return 1
+    fi
+    
     for download in "${downloads[@]}"; do
         local url="$base_url/$download"
+        local sig_url="${url}.asc"
+        
+        # Download the file
         log_info "Downloading $download..."
         
         if command -v curl >/dev/null 2>&1; then
@@ -124,16 +244,38 @@ download_tor_bundles() {
             return 1
         fi
         
-        # Verify download
+        # Download the signature file
+        log_info "Downloading signature for $download..."
+        
+        if command -v curl >/dev/null 2>&1; then
+            if ! curl -L -o "${download}.asc" "$sig_url"; then
+                log_error "Failed to download signature for $download"
+                return 1
+            fi
+        elif command -v wget >/dev/null 2>&1; then
+            if ! wget -O "${download}.asc" "$sig_url"; then
+                log_error "Failed to download signature for $download"
+                return 1
+            fi
+        fi
+        
+        # Verify download exists and is not empty
         if [[ ! -f "$download" ]] || [[ ! -s "$download" ]]; then
             log_error "Download verification failed for $download"
             return 1
         fi
         
-        log_success "Downloaded $download"
+        # Verify GPG signature
+        if ! verify_signature "$download"; then
+            log_error "GPG signature verification failed for $download"
+            log_error "This could indicate a compromised download. Aborting."
+            return 1
+        fi
+        
+        log_success "Downloaded and verified $download"
     done
     
-    log_success "All downloads completed"
+    log_success "All downloads completed and verified"
     return 0
 }
 
@@ -256,15 +398,91 @@ install_binaries() {
 }
 
 
+# Test GPG verification functionality
+test_gpg_verification() {
+    log_info "Running GPG verification tests..."
+    
+    local test_dir="$TEMP_DIR/gpg-test"
+    mkdir -p "$test_dir"
+    cd "$test_dir"
+    
+    # Initialize GPG
+    if ! init_gpg; then
+        log_error "Failed to initialize GPG for testing"
+        return 1
+    fi
+    
+    # Test 1: Valid signature (using a real small file from Tor Project)
+    log_info "Test 1: Downloading and verifying a real Tor Project file..."
+    local test_file="sha256sums-signed-build.txt"
+    local test_url="https://dist.torproject.org/torbrowser/14.0.3/${test_file}"
+    
+    if command -v curl >/dev/null 2>&1; then
+        curl -sL -o "$test_file" "$test_url" || { log_error "Failed to download test file"; return 1; }
+        curl -sL -o "${test_file}.asc" "${test_url}.asc" || { log_error "Failed to download test signature"; return 1; }
+    else
+        wget -q -O "$test_file" "$test_url" || { log_error "Failed to download test file"; return 1; }
+        wget -q -O "${test_file}.asc" "${test_url}.asc" || { log_error "Failed to download test signature"; return 1; }
+    fi
+    
+    if verify_signature "$test_file"; then
+        log_success "Test 1 PASSED: Valid signature verified correctly"
+    else
+        log_error "Test 1 FAILED: Could not verify valid signature"
+        return 1
+    fi
+    
+    # Test 2: Tampered file
+    log_info "Test 2: Testing tampered file detection..."
+    echo "tampered" >> "$test_file"
+    
+    if verify_signature "$test_file"; then
+        log_error "Test 2 FAILED: Tampered file passed verification!"
+        return 1
+    else
+        log_success "Test 2 PASSED: Tampered file correctly rejected"
+    fi
+    
+    # Test 3: Missing signature file
+    log_info "Test 3: Testing missing signature file..."
+    rm -f "${test_file}.asc"
+    
+    if verify_signature "$test_file"; then
+        log_error "Test 3 FAILED: Verification passed without signature file!"
+        return 1
+    else
+        log_success "Test 3 PASSED: Missing signature correctly detected"
+    fi
+    
+    # Test 4: Invalid signature file
+    log_info "Test 4: Testing invalid signature file..."
+    echo "INVALID SIGNATURE" > "${test_file}.asc"
+    
+    if verify_signature "$test_file"; then
+        log_error "Test 4 FAILED: Invalid signature passed verification!"
+        return 1
+    else
+        log_success "Test 4 PASSED: Invalid signature correctly rejected"
+    fi
+    
+    log_success "All GPG verification tests passed!"
+    return 0
+}
+
 # Main execution function
 main() {
     local force_update=false
+    local test_verify=false
     
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
             --force)
                 force_update=true
+                shift
+                ;;
+            --test-verify)
+                test_verify=true
                 shift
                 ;;
             --help|-h)
@@ -284,6 +502,12 @@ main() {
         log_error "Tor directory not found: $TOR_DIR"
         log_error "Make sure you're running this from the Quiet project root"
         exit 1
+    fi
+    
+    # Run tests if requested
+    if [[ "$test_verify" == true ]]; then
+        test_gpg_verification
+        exit $?
     fi
     
     # Download and install Tor binaries
