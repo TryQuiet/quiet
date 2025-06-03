@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.1.1]
+
+### Chores
+
+* Updates windows github runner to windows-2022
+
 ## [5.1.0]
 
 ### Chores
