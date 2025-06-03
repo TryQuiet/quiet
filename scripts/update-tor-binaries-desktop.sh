@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Tor Binary Update Script for Quiet Desktop
-# This script helps automate the process of updating Tor binaries for desktop platforms (Linux, macOS, Windows)
+# Tor Binary Update Script for Quiet
+# This script helps automate the process of updating Tor binaries for desktop platforms and Android.
 
 set -euo pipefail
 
@@ -9,6 +9,7 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly TOR_DIR="$PROJECT_ROOT/3rd-party/tor"
+readonly ANDROID_TOR_DIR="$PROJECT_ROOT/packages/mobile/android/app/src/main/jniLibs/arm64-v8a"
 readonly TEMP_DIR="$(mktemp -d)"
 readonly TOR_PROJECT_BASE_URL="https://dist.torproject.org/torbrowser"
 
@@ -113,14 +114,15 @@ OPTIONS:
     --help, -h          Show this help message
 
 DESCRIPTION:
-    Downloads and installs the latest Tor binaries for all desktop platforms
-    (Linux, macOS x64, macOS ARM64, Windows)
+    Downloads and installs the latest Tor binaries for desktop and Android platforms
+    - Desktop: Linux, macOS x64, macOS ARM64, Windows
+    - Android: ARM64 libtor.so extracted from Tor Browser APK
     
     All downloads are verified using GPG signatures from the Tor Project
     to ensure authenticity and integrity.
 
 EXAMPLES:
-    $0                  # Update Tor binaries to latest version
+    $0                  # Update all Tor binaries (desktop + Android)
     $0 --test-verify    # Run GPG verification tests
 EOF
 }
@@ -149,10 +151,10 @@ get_latest_tor_version() {
 
 
 
-# Download platform-specific Tor Browser bundles
-download_tor_bundles() {
+# Download desktop Tor Browser bundles
+download_desktop_bundles() {
     local browser_version="$1"
-    log_info "Downloading Tor Browser $browser_version for all platforms..."
+    log_info "Downloading Tor Browser $browser_version for desktop platforms..."
     
     local base_url="$TOR_PROJECT_BASE_URL/$browser_version"
     
@@ -225,13 +227,82 @@ download_tor_bundles() {
         log_success "Downloaded and verified $download"
     done
     
-    log_success "All downloads completed and verified"
+    log_success "All desktop downloads completed and verified"
     return 0
 }
 
-# Extract binaries from downloaded bundles
-extract_binaries() {
-    log_info "Extracting Tor binaries from downloaded bundles..."
+# Download Android Tor Browser APK
+download_android_apk() {
+    local browser_version="$1"
+    log_info "Downloading Tor Browser $browser_version for Android..."
+    
+    local base_url="$TOR_PROJECT_BASE_URL/$browser_version"
+    local apk_file="tor-browser-android-aarch64-${browser_version}.apk"
+    
+    cd "$TEMP_DIR"
+    
+    # Initialize GPG before downloading
+    if ! init_gpg; then
+        log_error "Failed to initialize GPG"
+        return 1
+    fi
+    
+    local url="$base_url/$apk_file"
+    local sig_url="${url}.asc"
+    
+    # Download the APK file
+    log_info "Downloading $apk_file..."
+    
+    if command -v curl >/dev/null 2>&1; then
+        if ! curl -L -o "$apk_file" "$url"; then
+            log_error "Failed to download $apk_file"
+            return 1
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if ! wget -O "$apk_file" "$url"; then
+            log_error "Failed to download $apk_file"
+            return 1
+        fi
+    else
+        log_error "Neither curl nor wget available for downloading"
+        return 1
+    fi
+    
+    # Download the signature file
+    log_info "Downloading signature for $apk_file..."
+    
+    if command -v curl >/dev/null 2>&1; then
+        if ! curl -L -o "${apk_file}.asc" "$sig_url"; then
+            log_error "Failed to download signature for $apk_file"
+            return 1
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if ! wget -O "${apk_file}.asc" "$sig_url"; then
+            log_error "Failed to download signature for $apk_file"
+            return 1
+        fi
+    fi
+    
+    # Verify download exists and is not empty
+    if [[ ! -f "$apk_file" ]] || [[ ! -s "$apk_file" ]]; then
+        log_error "Download verification failed for $apk_file"
+        return 1
+    fi
+    
+    # Verify GPG signature
+    if ! verify_signature "$apk_file"; then
+        log_error "GPG signature verification failed for $apk_file"
+        log_error "This could indicate a compromised download. Aborting."
+        return 1
+    fi
+    
+    log_success "Downloaded and verified $apk_file"
+    return 0
+}
+
+# Extract desktop binaries from downloaded bundles
+extract_desktop_binaries() {
+    log_info "Extracting Tor binaries from downloaded desktop bundles..."
     
     cd "$TEMP_DIR"
     
@@ -300,13 +371,60 @@ extract_binaries() {
         return 1
     fi
     
-    log_success "All binaries extracted successfully"
+    log_success "All desktop binaries extracted successfully"
     return 0
 }
 
-# Install extracted binaries
-install_binaries() {
-    log_info "Installing extracted Tor binaries..."
+# Extract Android libtor.so from APK
+extract_android_binaries() {
+    log_info "Extracting libtor.so from Android APK..."
+    
+    cd "$TEMP_DIR"
+    
+    # Check if unzip is available
+    if ! command -v unzip >/dev/null 2>&1; then
+        log_error "unzip command not found. Please install unzip."
+        return 1
+    fi
+    
+    # Find the Android APK file
+    local apk_file=$(find . -name "tor-browser-android-aarch64-*.apk" | head -n1)
+    if [[ -z "$apk_file" ]]; then
+        log_error "Android APK file not found"
+        return 1
+    fi
+    
+    log_info "Extracting from $(basename "$apk_file")..."
+    
+    # Create extraction directory
+    mkdir -p extracted/android
+    
+    # Extract the APK (which is just a ZIP file)
+    if ! unzip -q "$apk_file" -d apk_extract/; then
+        log_error "Failed to extract APK file"
+        return 1
+    fi
+    
+    # Find and copy libtor.so for arm64-v8a
+    local libtor_path="apk_extract/lib/arm64-v8a/libTor.so"
+    if [[ -f "$libtor_path" ]]; then
+        cp "$libtor_path" extracted/android/libtor.so
+        log_success "Extracted libtor.so from Android APK"
+    else
+        log_error "Could not find libTor.so in APK at $libtor_path"
+        return 1
+    fi
+    
+    # Clean up APK extraction
+    rm -rf apk_extract/ 2>/dev/null || true
+    
+    log_success "Android binary extracted successfully"
+    return 0
+}
+
+# Install extracted desktop binaries
+install_desktop_binaries() {
+    log_info "Installing extracted desktop Tor binaries..."
     
     local extracted_dir="$TEMP_DIR/extracted"
     if [[ ! -d "$extracted_dir" ]]; then
@@ -343,7 +461,34 @@ install_binaries() {
         log_success "Installed Windows binaries"
     fi
     
-    log_success "All binaries installed."
+    log_success "All desktop binaries installed."
+    return 0
+}
+
+# Install extracted Android binaries
+install_android_binaries() {
+    log_info "Installing extracted Android Tor binaries..."
+    
+    local extracted_dir="$TEMP_DIR/extracted"
+    if [[ ! -d "$extracted_dir" ]]; then
+        log_error "No extracted binaries found. Run extraction first."
+        return 1
+    fi
+    
+    # Create Android directory if it doesn't exist
+    mkdir -p "$ANDROID_TOR_DIR"
+    
+    # Install Android libtor.so
+    if [[ -f "$extracted_dir/android/libtor.so" ]]; then
+        log_info "Installing Android libtor.so..."
+        cp "$extracted_dir/android/libtor.so" "$ANDROID_TOR_DIR/"
+        log_success "Installed Android libtor.so"
+    else
+        log_error "No Android libtor.so found to install"
+        return 1
+    fi
+    
+    log_success "Android binaries installed."
     return 0
 }
 
@@ -459,12 +604,17 @@ main() {
     fi
     
     # Download and install Tor binaries
-    log_info "Updating Tor binaries to latest version..."
     local latest_version=$(get_latest_tor_version)
-    download_tor_bundles "$latest_version"
-    extract_binaries
-    install_binaries
-    log_success "Tor binaries updated successfully to version $latest_version"
+    log_info "Updating all Tor binaries to version $latest_version..."
+    
+    download_desktop_bundles "$latest_version"
+    download_android_apk "$latest_version"
+    extract_desktop_binaries
+    extract_android_binaries
+    install_desktop_binaries
+    install_android_binaries
+    
+    log_success "All Tor binaries updated successfully to version $latest_version"
 }
 
 # Run main function with all arguments
