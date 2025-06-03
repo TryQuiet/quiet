@@ -17,13 +17,10 @@ import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { ChannelsService } from '../../storage/channels/channels.service'
 import { ChannelStore } from '../../storage/channels/channel.store'
-import { ChannelsReplicatedPayload, ChannelSubscribedPayload, PublicChannel } from '@quiet/types'
+import { ChannelSubscribedPayload, PublicChannel } from '@quiet/types'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
-import { ConnectionsManagerService } from '../../connections-manager/connections-manager.service'
-import drain from 'it-drain'
 import waitForExpect from 'wait-for-expect'
-import { time } from 'console'
 import { StorageEvents } from '../../storage/storage.types'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
@@ -487,14 +484,29 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     )
   })
 
-  it('stops syncing channels for all peers', async () => {
-    logger.info('stops syncing channels for all peers')
-    await Promise.all(
-      modules.map(async module => {
-        const channelsService = module.get(ChannelsService)
-        await channelsService.stopSync()
-      })
-    )
+  it('hangs up all peers', async () => {
+    logger.info('hangs up all peers')
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('PEER_DISCONNECTED events did not occur within expected time.'))
+      }, 10_000)
+      const allDisconnected = async () => {
+        if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.PEER_DISCONNECTED)) {
+          clearTimeout(timeout)
+          resolve()
+        }
+      }
+      for (const libp2pService of modules.map(module => module.get(Libp2pService))) {
+        libp2pService.once(Libp2pEvents.PEER_DISCONNECTED, () => {
+          allDisconnected()
+        })
+      }
+      modules[0].get(Libp2pService).hangUpPeers()
+    })
+    for (const module of modules) {
+      const libp2pService = module.get(Libp2pService)
+      expect(libp2pService.connectedPeers.size).toBe(0)
+    }
   })
 
   it('creates a new channel and sends a message on the first peer', async () => {
@@ -541,31 +553,6 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       const channels = await channelsService.getChannels()
       expect(channels.length).toBe(1) // Only the first channel should be present
       expect(channels[0].id).toBe(publicChannels[0].id)
-    }
-  })
-
-  it('hangs up all peers', async () => {
-    logger.info('hangs up all peers')
-    await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('PEER_DISCONNECTED events did not occur within expected time.'))
-      }, 10_000)
-      const allDisconnected = async () => {
-        if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.PEER_DISCONNECTED)) {
-          clearTimeout(timeout)
-          resolve()
-        }
-      }
-      for (const libp2pService of modules.map(module => module.get(Libp2pService))) {
-        libp2pService.once(Libp2pEvents.PEER_DISCONNECTED, () => {
-          allDisconnected()
-        })
-      }
-      modules[0].get(Libp2pService).hangUpPeers()
-    })
-    for (const module of modules) {
-      const libp2pService = module.get(Libp2pService)
-      expect(libp2pService.connectedPeers.size).toBe(0)
     }
   })
 

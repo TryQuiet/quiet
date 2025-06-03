@@ -19,10 +19,6 @@ abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends E
     return this.getStore().address
   }
 
-  async joinEntry(entry: Uint8Array): Promise<boolean | void> {
-    return await this.getStore().log.joinEntry(entry)
-  }
-
   async close(): Promise<void> {
     logger.info('Closing', this.getAddress())
     await this.getStore().close()

@@ -44,7 +44,7 @@ export class ChannelsService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
   // Channel metadata store
-  private channels: KeyValueType<EncryptedAndSignedPayload> | null
+  public channels: KeyValueType<EncryptedAndSignedPayload> | null
 
   private readonly logger = createLogger(`storage:channels`)
 
@@ -99,6 +99,13 @@ export class ChannelsService extends EventEmitter {
     await this.channels?.sync.start()
   }
 
+  /**
+   * Stop syncing the channels management database in OrbitDB
+   */
+  public async stopSync(): Promise<void> {
+    await this.channels?.sync.stop()
+  }
+
   // Channels Database Management
 
   /**
@@ -107,7 +114,7 @@ export class ChannelsService extends EventEmitter {
    * NOTE: This also subscribes to all known channel stores and handles update events on the channels management database for
    * subscribing to newly created channel stores.
    */
-  private async createChannelsDb(): Promise<void> {
+  public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating public-channels database')
     this.channels = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
       sync: false,
@@ -253,7 +260,7 @@ export class ChannelsService extends EventEmitter {
    * @param channelData Channel metadata for new channel
    * @returns Newly created ChannelStore
    */
-  private async createChannel(channelData: PublicChannel): Promise<ChannelStore> {
+  public async createChannel(channelData: PublicChannel): Promise<ChannelStore> {
     this.logger.info(`Creating channel`, channelData.id, channelData.name)
 
     const channelId = channelData.id
