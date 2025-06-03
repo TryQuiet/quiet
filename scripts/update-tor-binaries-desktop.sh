@@ -12,58 +12,8 @@ readonly TOR_DIR="$PROJECT_ROOT/3rd-party/tor"
 readonly TEMP_DIR="$(mktemp -d)"
 readonly TOR_PROJECT_BASE_URL="https://dist.torproject.org/torbrowser"
 
-# Tor Project GPG public key
-readonly TOR_GPG_KEY='-----BEGIN PGP PUBLIC KEY BLOCK-----
-
-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
-=V+v6
------END PGP PUBLIC KEY BLOCK-----'
+# Tor Project GPG key file path
+readonly TOR_GPG_KEY_FILE="$SCRIPT_DIR/tor-signing-key.asc"
 
 # Colors for output
 readonly RED='\033[0;31m'
@@ -104,12 +54,18 @@ init_gpg() {
     mkdir -p "$GNUPGHOME"
     chmod 700 "$GNUPGHOME"
     
+    # Check if key file exists
+    if [[ ! -f "$TOR_GPG_KEY_FILE" ]]; then
+        log_error "Tor GPG key file not found: $TOR_GPG_KEY_FILE"
+        return 1
+    fi
+    
     # Import Tor Project public key
-    if echo "$TOR_GPG_KEY" | gpg --batch --import 2>&1; then
+    if gpg --batch --quiet --import "$TOR_GPG_KEY_FILE" 2>/dev/null; then
         log_success "Imported Tor Project GPG public key"
         
-        # Display fingerprint for verification
-        local fingerprint=$(gpg --list-keys --with-colons 2>/dev/null | grep "^fpr" | cut -d: -f10)
+        # Display fingerprint for verification  
+        local fingerprint=$(gpg --list-keys --with-colons 2>/dev/null | grep -B1 "Tor Browser Developers" | grep "^fpr" | cut -d: -f10)
         log_info "GPG key fingerprint: $fingerprint"
         
         # Verify it matches expected fingerprint
@@ -178,7 +134,7 @@ EOF
 
 # Get latest Tor Browser version from releases page
 get_latest_tor_version() {
-    log_info "Checking for latest Tor Browser version..."
+    log_info "Checking for latest Tor Browser version..." >&2
     local latest_version=""
     
     # Check the dist server directory listing
@@ -189,7 +145,7 @@ get_latest_tor_version() {
     fi
     
     if [[ -n "$latest_version" ]]; then
-        log_info "Latest Tor Browser version: $latest_version"
+        log_info "Latest Tor Browser version: $latest_version" >&2
         echo "$latest_version"
     else
         log_error "Could not determine latest Tor Browser version"
@@ -415,7 +371,7 @@ test_gpg_verification() {
     # Test 1: Valid signature (using a real small file from Tor Project)
     log_info "Test 1: Downloading and verifying a real Tor Project file..."
     local test_file="sha256sums-signed-build.txt"
-    local test_url="https://dist.torproject.org/torbrowser/14.0.3/${test_file}"
+    local test_url="https://dist.torproject.org/torbrowser/14.5.3/${test_file}"
     
     if command -v curl >/dev/null 2>&1; then
         curl -sL -o "$test_file" "$test_url" || { log_error "Failed to download test file"; return 1; }
