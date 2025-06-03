@@ -84,12 +84,13 @@ export class OrbitDbService {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
     const store = await this.orbitDbInstance.open<T>(address, options)
-    this.stores[address] = store
-    this.logger.info(`Opened OrbitDB store at address: ${address}`)
+    const storeAddress = (store as { address: string }).address
+    this.stores[storeAddress] = store
+    this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
 
-    if (this.pendingHeads.has(address)) {
-      const heads = this.pendingHeads.get(address) || []
-      await this.joinHeads(address, heads)
+    if (this.pendingHeads.has(storeAddress)) {
+      const heads = this.pendingHeads.get(storeAddress) || []
+      await this.joinHeads(storeAddress, heads)
     }
     return store
   }
@@ -108,7 +109,7 @@ export class OrbitDbService {
     // Map each joinEntry to its promise
     const joinPromises = heads.map(head =>
       store
-        .joinEntry(head)
+        .applyOperation(head.bytes)
         .then(() => {
           this.logger.info(`Successfully joined entry ${head.hash} to store ${address}`)
           // Remove from pendingHeads if all heads joined
@@ -136,7 +137,13 @@ export class OrbitDbService {
     for (const entry of entries) {
       const cid = CID.parse(entry.hash, base58btc)
       await this.orbitDbInstance.ipfs.blockstore.put(cid, entry.bytes)
-      await drain(this.orbitDbInstance.ipfs.pins.add(cid))
+      try {
+        await drain(this.orbitDbInstance.ipfs.pins.add(cid))
+      } catch (err) {
+        if (err instanceof Error && !err.message.includes('Already pinned')) {
+          this.logger.error(`Failed to pin entry ${entry.hash} in IPFS`, err)
+        }
+      }
 
       if (!newHeads.has(entry.id)) {
         newHeads.set(entry.id, [entry])
