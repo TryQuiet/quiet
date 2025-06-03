@@ -16,12 +16,15 @@ import { JoinStatus } from '../libp2p/libp2p.auth'
 import EventEmitter from 'events'
 import { RoleName } from '../auth/services/roles/roles'
 import { Injectable } from '@nestjs/common'
+import { randomUUID } from 'crypto'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
   private authConnection: AuthConnection
   private _joinStatus: JoinStatus = JoinStatus.NOT_STARTED
   private _teamId: string | undefined = undefined
+  private _active: boolean = false
+  private _id: string
 
   private logger = createLogger('qss:auth:conn')
   private readonly createLfaLogger = createWinstonQuietLogger('localfirst:qss')
@@ -31,6 +34,7 @@ export class QSSAuthConnection extends EventEmitter {
     private readonly qssClient: QSSClient
   ) {
     super()
+    this._id = randomUUID()
   }
 
   public get teamId(): string | undefined {
@@ -51,6 +55,14 @@ export class QSSAuthConnection extends EventEmitter {
     return this._joinStatus
   }
 
+  public get active(): boolean {
+    return this._active
+  }
+
+  public get id(): string {
+    return this._id
+  }
+
   public async start(): Promise<void> {
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
@@ -58,7 +70,7 @@ export class QSSAuthConnection extends EventEmitter {
 
     const sigChain = this.sigChainService.getActiveChain()
     if (this.authConnection != null) {
-      if (this.authConnection._started) {
+      if (this.authConnection._started && this._active) {
         this.logger.error(`Auth connection already started with QSS for this team`, this.teamId)
         return
       }
@@ -111,6 +123,7 @@ export class QSSAuthConnection extends EventEmitter {
 
     // Set up auth connection event handlers.
     this.authConnection.on('connected', () => {
+      this._active = true
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
@@ -123,6 +136,7 @@ export class QSSAuthConnection extends EventEmitter {
 
     this.authConnection.on('disconnected', event => {
       this.logger.info(`LFA Disconnected!`, event)
+      this._active = false
     })
 
     this.authConnection.on('joined', async payload => {
@@ -167,13 +181,20 @@ export class QSSAuthConnection extends EventEmitter {
 
     this.logger.info(`Auth connection established with QSS`)
     this.authConnection.start()
+    this._active = true
   }
 
-  public stop(sendPeerDisconnect = false): void {
+  public stop(sendDisconnectToQSS = false): void {
     if (this.authConnection == null) {
       this.logger.warn(`Auth connection not open with QSS for this team`, this.teamId)
       return
     }
-    this.authConnection.stop(sendPeerDisconnect)
+    try {
+      this.authConnection.stop(sendDisconnectToQSS)
+    } catch (e) {
+      this.logger.error(`Error while stopping auth connection with QSS for team ID ${this.teamId}`, e)
+    } finally {
+      this._active = false
+    }
   }
 }

@@ -26,6 +26,11 @@ export class QSSClient {
       throw new QSSNotInitializedError(`QSS is not enabled`)
     }
 
+    if (this.clientSocket != null && this.clientSocket.active) {
+      this.logger.warn('createSocket was already called and the socket is active!')
+      return this.clientSocket
+    }
+
     this.logger.info(`Creating client socket`)
 
     this.clientSocket = connect(this.qssEndpoint, {

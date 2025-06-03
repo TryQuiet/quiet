@@ -1,6 +1,6 @@
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
@@ -25,7 +25,7 @@ import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 
 @Injectable()
-export class QSSService extends EventEmitter {
+export class QSSService extends EventEmitter implements OnModuleDestroy {
   private _connecting = false
 
   private readonly logger = createLogger(`qss:service`)
@@ -37,6 +37,10 @@ export class QSSService extends EventEmitter {
     private readonly qssAuthConnManager: QSSAuthConnectionManager
   ) {
     super({ captureRejections: true })
+  }
+
+  public onModuleDestroy() {
+    this.close()
   }
 
   public get connected(): boolean {
@@ -173,12 +177,12 @@ export class QSSService extends EventEmitter {
 
   public async signInToCommunity(teamId: string, sigChain: SigChain): Promise<void> {
     if (!this.enabled) {
-      this.logger.trace(`Can't sign in to community on QSS because QSS is not enabled for this community`)
+      this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
       return
     }
 
     if (!this.connected) {
-      this.logger.trace(`Can't sign in to community on QSS because the client hasn't connected`)
+      this.logger.info(`Can't sign in to community on QSS because the client hasn't connected`)
       return
     }
 
