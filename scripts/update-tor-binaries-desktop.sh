@@ -114,7 +114,6 @@ USAGE:
     $0 [OPTIONS]
 
 OPTIONS:
-    --force             Force update even if recent download exists
     --test-verify       Run GPG verification tests
     --help, -h          Show this help message
 
@@ -127,7 +126,7 @@ DESCRIPTION:
 
 EXAMPLES:
     $0                  # Update Tor binaries to latest version
-    $0 --force          # Force update even if recently downloaded
+    $0 --test-verify    # Run GPG verification tests
 EOF
 }
 
@@ -430,16 +429,11 @@ test_gpg_verification() {
 
 # Main execution function
 main() {
-    local force_update=false
     local test_verify=false
     
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --force)
-                force_update=true
-                shift
-                ;;
             --test-verify)
                 test_verify=true
                 shift
