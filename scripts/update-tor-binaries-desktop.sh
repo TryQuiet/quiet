@@ -371,7 +371,10 @@ test_gpg_verification() {
     # Test 1: Valid signature (using a real small file from Tor Project)
     log_info "Test 1: Downloading and verifying a real Tor Project file..."
     local test_file="sha256sums-signed-build.txt"
-    local test_url="https://dist.torproject.org/torbrowser/14.5.3/${test_file}"
+    
+    # Get the latest version for testing
+    local latest_version=$(get_latest_tor_version)
+    local test_url="https://dist.torproject.org/torbrowser/${latest_version}/${test_file}"
     
     if command -v curl >/dev/null 2>&1; then
         curl -sL -o "$test_file" "$test_url" || { log_error "Failed to download test file"; return 1; }
