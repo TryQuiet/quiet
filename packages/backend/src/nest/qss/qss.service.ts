@@ -1,3 +1,6 @@
+/**
+ * Abstraction layer for interacting with QSS
+ */
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
@@ -26,6 +29,9 @@ import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy {
+  /**
+   * True while waiting for websocket connection to finish connecting
+   */
   private _connecting = false
 
   private readonly logger = createLogger(`qss:service`)
@@ -43,20 +49,40 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.close()
   }
 
+  /**
+   * Check if QSS is enabled and our websocket connection is active
+   */
   public get connected(): boolean {
     return this.enabled && !!this.qssClient.clientSocket?.connected
   }
 
+  /**
+   * Check if QSS is enabled and we have a valid endpoint string
+   */
   public get enabled(): boolean {
     return this.qssEnabled && this.qssEndpoint !== '' && this.qssEndpoint != null
   }
 
+  /**
+   * Check the sigchain join status for a given team
+   *
+   * @param teamId Team ID we want to check LFA chain join status for
+   * @returns JoinStatus for this team
+   */
   public joinStatus(teamId: string): JoinStatus {
     const authConnection = this.qssAuthConnManager.getConnection(teamId)
     return authConnection?.joinStatus ?? JoinStatus.NOT_STARTED
   }
 
+  /**
+   * Connect the QSS client if enabled
+   *
+   * @param qssEnabled Determined by the QSS_ENABLED env variable and data stored in community metadata and V3 invites
+   * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
+   * @returns True if connection was successful
+   */
   public async connect(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<boolean> {
+    // wait for existing socket to finish connecting, if present
     if (this._connecting) {
       this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
       const waitTime = DateTime.utc().toMillis() + 15_000
@@ -65,6 +91,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       }
     }
 
+    // if we are already connected return true and move on
     if (this.connected) {
       return true
     }
@@ -78,6 +105,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return false
     }
 
+    // wait for our socket to finish connecting
     let connected = false
     try {
       this.logger.info(`Establishing connection with QSS`)
@@ -93,6 +121,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return connected
   }
 
+  /**
+   * Add a community to QSS and start syncing our chain with QSS
+   *
+   * @param community Metadata for community we are adding to QSS
+   * @param sigChain Sigchain for this community
+   * @returns True if successfully created
+   */
   public async createCommunity(community: Community, sigChain: SigChain): Promise<boolean> {
     if (!this.enabled) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
@@ -103,6 +138,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       throw new Error(`Team on this sigchain is nullish!`)
     }
 
+    // Generating the QSS LFA keyset for this community
     this.logger.info(`Getting server keys for this team`)
     const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
       ts: DateTime.utc().toMillis(),
@@ -116,6 +152,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       true
     )
 
+    // if we couldn't create QSS' LFA keys for this community we should eject
     if (
       generateKeysResponse == null ||
       generateKeysResponse.payload.status !== CommunityOperationStatus.SUCCESS ||
@@ -129,6 +166,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return false
     }
 
+    // we need to normalize the hostname for QSS when running locally before adding the server to the chain
     let host = url.parse(this.qssEndpoint).hostname!
     if (host === '127.0.0.1') {
       host = 'localhost'
@@ -139,12 +177,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       keys: generateKeysResponse.payload.payload.keys,
     }
 
+    // add this QSS server/cluster to our chain using the keys we generated earlier
     this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
     sigChain.server.addServer(lfaServer)
 
     const serializedSigChain: Uint8Array = sigChain.save()
     const serializedKeyring: Uint8Array = uint8arrays.fromString(JSON.stringify(sigChain.team.teamKeyring()), 'utf8')
 
+    // send the serialized chain and team keys to QSS
     const qssCreateCommunityMessage: CreateCommunity = {
       ts: DateTime.utc().toMillis(),
       payload: {
@@ -163,6 +203,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       true
     )
 
+    // if we didn't get a successful response from QSS when adding the community we should eject
     if (createCommunityResponse == null || createCommunityResponse.payload.status !== CreateCommunityStatus.SUCCESS) {
       this.logger.error(
         `Failed to create a community!`,
@@ -171,10 +212,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return false
     }
 
+    // start the auth sync connection with QSS now that we've successfully added the community
     await this.qssAuthConnManager.startNewConnection(sigChain.team.id)
     return true
   }
 
+  /**
+   * Send a sign in message to QSS and start the auth sync connection with QSS for this community
+   *
+   * @param teamId ID of the team we are signing in to
+   * @param sigChain Sigchain for this team
+   */
   public async signInToCommunity(teamId: string, sigChain: SigChain): Promise<void> {
     if (!this.enabled) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
@@ -186,6 +234,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
+    // send a sign in message to QSS for this community and check for a successful response
     this.logger.info(`Signing in to community`, teamId)
     const qssSignInMessage: CommunitySignInMessage = {
       ts: DateTime.utc().toMillis(),
@@ -213,10 +262,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       )
     }
 
+    // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
     this.qssAuthConnManager.startNewConnection(teamId)
   }
 
+  /**
+   * Close all open auth sync connections and the QSS websocket connection
+   */
   public close(): void {
     this.logger.info(`Closing QSS service`)
     this.qssAuthConnManager.close()

@@ -6,6 +6,7 @@ import { Libp2pEvents } from '../libp2p.types'
 import { createLogger } from '../../common/logger'
 import { spawnLibp2pInstances, spawnTestModules, attachEventListeners, timelinesInclude } from './test-utils'
 import { headsAreEqual, Hash } from '@localfirst/crdx'
+import { InviteResult } from '3rd-party/auth/packages/auth/dist'
 
 const logger = createLogger('libp2p:multiple-peers.spec')
 
@@ -23,13 +24,19 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
 
     // Create sigChain that all other peers will join
     await sigchainServiceA.createChain(teamName, 'user0', true)
-    const inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
+    const inviteResult: InviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
     for (let i = 1; i < modules.length; i++) {
       // Create invitation from A -> B
       const sigchainService = await modules[i].resolve(SigChainService)
-      await sigchainService.createChainFromInvite(`user${i}`, teamName, inviteResult.seed, true)
+      await sigchainService.createChainFromInvite(
+        `user${i}`,
+        teamName,
+        inviteResult.seed,
+        sigchainServiceA.activeChain.team?.id,
+        true
+      )
     }
 
     // Create libp2p instances

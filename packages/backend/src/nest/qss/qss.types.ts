@@ -6,7 +6,6 @@ import { CompoundError } from '@quiet/types'
  */
 export enum WebsocketEvents {
   CREATE_COMMUNITY = 'create-community',
-  UPDATE_COMMUNITY = 'update-community',
   GET_COMMUNITY = 'get-community',
   AUTH_SYNC = 'auth-sync',
   GEN_PUB_KEYS = 'generate-public-keys',

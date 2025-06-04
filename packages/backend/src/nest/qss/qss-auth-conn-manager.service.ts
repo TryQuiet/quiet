@@ -1,3 +1,6 @@
+/**
+ * Manages auth sync connections with QSS
+ */
 import { Injectable, OnModuleDestroy } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { randomInt } from 'crypto'
@@ -8,34 +11,56 @@ import { QSSAuthConnection } from './qss-auth-conn'
 
 @Injectable()
 export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDestroy {
-  private readonly logger = createLogger('qss:auth:conn:manager')
+  /**
+   * Map of team IDs to QSS auth sync connections
+   */
   private readonly authConnMap: Map<string, QSSAuthConnection> = new Map()
+
+  private readonly logger = createLogger('qss:auth:conn:manager')
 
   constructor(private readonly moduleRef: ModuleRef) {
     super()
   }
 
+  /**
+   * Close all open auth sync connections with QSS
+   */
   public onModuleDestroy() {
-    this.close()
+    this.close(true)
   }
 
+  /**
+   * Get an existing auth sync connection with QSS, if present
+   *
+   * @param teamId Team ID to get the QSS auth sync connection for
+   * @returns Existing QSS auth connection for this team, if present
+   */
   public getConnection(teamId: string): QSSAuthConnection | undefined {
     return this.authConnMap.get(teamId)
   }
 
+  /**
+   * Start an auth sync connection with QSS for a given team
+   *
+   * @param teamId Team ID to start a new auth sync connection with QSS for
+   */
   public async startNewConnection(teamId: string): Promise<void> {
+    // check for an existing connection for this team
     const existingAuthConnection = this.authConnMap.get(teamId)
+    // if we have an existing auth connection with QSS for this team and it is active, do nothing
     if (existingAuthConnection != null) {
       if (existingAuthConnection.active) {
         this.logger.warn('Existing active auth connection with QSS found for this team ID', teamId)
         return
       }
 
+      // if we have an existing auth connection with QSS for this team but it is inactive, restart the connection
       this.logger.warn('Existing inactive auth connection with QSS found for this team ID, attempting to start', teamId)
       await existingAuthConnection.start()
       return
     }
 
+    // create a new auth sync connection with QSS and start it
     const authConnection = await this.moduleRef.create<QSSAuthConnection>(QSSAuthConnection, {
       id: randomInt(1_000_000),
     })
@@ -44,6 +69,12 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     this.authConnMap.set(teamId, authConnection)
   }
 
+  /**
+   * Stop an auth sync connection with QSS for a given team
+   *
+   * @param teamId ID of the team whose auth sync connection we want to stop
+   * @param sendDisconnectToQSS If true send a disconnect message to QSS on closure
+   */
   public stopConnection(teamId: string, sendDisconnectToQSS = true): void {
     const existingAuthConnection = this.authConnMap.get(teamId)
     if (existingAuthConnection == null) {
@@ -54,6 +85,11 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     this.authConnMap.delete(teamId)
   }
 
+  /**
+   * Close all open auth sync connections with QSS and clear out the local cache of connections
+   *
+   * @param sendDisconnectToQSS If true send a disconnect message to QSS on closure of each auth sync connection
+   */
   public close(sendDisconnectToQSS = false): void {
     this.logger.trace('Closing all QSS auth connections')
     for (const teamId of this.authConnMap.keys()) {

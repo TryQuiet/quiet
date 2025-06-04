@@ -520,6 +520,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         payload.username,
         communityName,
         inviteData.authData.seed,
+        inviteData.authData.teamId,
         true
       )
 

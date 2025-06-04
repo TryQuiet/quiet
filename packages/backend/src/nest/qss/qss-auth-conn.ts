@@ -1,3 +1,6 @@
+/**
+ * Abstraction of LFA auth sync connection logic for QSS
+ */
 import { Connection as AuthConnection } from '../../../../../3rd-party/auth/packages/auth/dist'
 import {
   ConnectionParams as AuthConnectionParams,
@@ -20,10 +23,25 @@ import { randomUUID } from 'crypto'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
+  /**
+   * LFA auth sync connection instance
+   */
   private authConnection: AuthConnection
+  /**
+   * Status of joining via QSS
+   */
   private _joinStatus: JoinStatus = JoinStatus.NOT_STARTED
+  /**
+   * ID of the team this connection is associated with
+   */
   private _teamId: string | undefined = undefined
+  /**
+   * True when connected and operational
+   */
   private _active: boolean = false
+  /**
+   * Random ID for this connection
+   */
   private _id: string
 
   private logger = createLogger('qss:auth:conn')
@@ -41,6 +59,12 @@ export class QSSAuthConnection extends EventEmitter {
     return this._teamId
   }
 
+  /**
+   * Set the team ID if not yet set
+   *
+   * NOTE: This is necessary because we generate the QSSAuthConnection instances via the Nest app
+   * and can't inject on generation.
+   */
   public set teamId(newTeamId: string | undefined) {
     if (this._teamId != null) {
       throw new Error('Team ID already set!')
@@ -63,23 +87,30 @@ export class QSSAuthConnection extends EventEmitter {
     return this._id
   }
 
+  /**
+   * Starts this auth sync connection with QSS
+   */
   public async start(): Promise<void> {
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
     }
 
-    const sigChain = this.sigChainService.getActiveChain()
+    // get the chain by ID and check for an existing auth connection
+    const sigChain = this.sigChainService.getChain({ teamId: this._teamId })
     if (this.authConnection != null) {
+      // if we have an existing auth connection for this team check if it has been started and is active, if so
+      // do nothing
       if (this.authConnection._started && this._active) {
         this.logger.error(`Auth connection already started with QSS for this team`, this.teamId)
         return
       }
+      // if the existing connection is inactive just start it later in this method
       this.logger.warn(
         `Existing auth connection with QSS for this team was found but the connection wasn't started, startin now`,
         this.teamId
       )
     } else {
-      // Create an auth connection using an ephemeral sendMessage callback.
+      // create a new auth connection backed by the existing QSS websocket connection
       this.authConnection = new AuthConnection({
         context: sigChain.context,
         sendMessage: (message: Uint8Array) => {
@@ -102,10 +133,12 @@ export class QSSAuthConnection extends EventEmitter {
 
     this.logger.info(`Starting auth connection with QSS for syncing`)
 
+    // check if we already have a team and have the member role to determine if we've already fully joined
     if (sigChain.team != null && sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
       this._joinStatus = JoinStatus.JOINED
     }
 
+    // pass auth sync messages received on the websocket to the auth connection
     this.qssClient.clientSocket!.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
       try {
         if (message.payload.payload?.message == null) {
@@ -121,7 +154,7 @@ export class QSSAuthConnection extends EventEmitter {
       }
     })
 
-    // Set up auth connection event handlers.
+    // handle connected events and update the sigchain/join status
     this.authConnection.on('connected', () => {
       this._active = true
       if (this.sigChainService.activeChainTeamName != null) {
@@ -134,15 +167,19 @@ export class QSSAuthConnection extends EventEmitter {
       }
     })
 
+    // set the connection to inactive when disconnecting
     this.authConnection.on('disconnected', event => {
       this.logger.info(`LFA Disconnected!`, event)
       this._active = false
     })
 
+    // handle joined events
     this.authConnection.on('joined', async payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
       this.logger.info(`${sigChain.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`)
+      // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
+      // and thus don't have the member role so our joining is still pending
       if (sigChain.team == null) {
         this.logger.info(
           `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
@@ -162,13 +199,11 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     this.authConnection.on('change', payload => {
-      this.logger.info(`Auth state change`, payload)
+      this.logger.trace(`Auth state change`, payload)
     })
 
     this.authConnection.on('updated', async head => {
-      this.logger.info('Received sync message, team graph updated', head)
-      const sigChain = this.sigChainService.getActiveChain()
-      await this.sigChainService.saveChain(sigChain.team!.teamName)
+      this.logger.trace('Received sync message, team graph updated', head)
     })
 
     // Handle errors from local or remote sources.
@@ -184,6 +219,11 @@ export class QSSAuthConnection extends EventEmitter {
     this._active = true
   }
 
+  /**
+   * Stop this QSS auth connection and set to inactive
+   *
+   * @param sendDisconnectToQSS If true send a disconnect message to QSS on closure
+   */
   public stop(sendDisconnectToQSS = false): void {
     if (this.authConnection == null) {
       this.logger.warn(`Auth connection not open with QSS for this team`, this.teamId)
