@@ -1,5 +1,6 @@
 import { CID } from 'multiformats/cid'
-import { Inject, Injectable } from '@nestjs/common'
+import { base58btc } from 'multiformats/bases/base58'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { type PeerId } from '@libp2p/interface'
 import EventEmitter from 'events'
 
@@ -17,25 +18,28 @@ import {
   LevelStorage,
   OrbitDBOpenOptions,
   LogEntry,
+  Entry,
 } from '@orbitdb/core'
 import { HeliaLibp2p, type Helia } from 'helia'
 import { OrbitDbStorage } from '../../types'
 import { IdentitiesWithStorage } from './identitiesWithStorage'
-import { base58btc } from 'multiformats/bases/base58'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
+import { LocalDbService } from '../../local-db/local-db.service'
 
 @Injectable()
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | null = null
   private stores: Record<string, any> = {}
-  private pendingHeads: Map<string, LogEntry[]> = new Map()
   public identities: IdentitiesType
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
 
-  constructor(@Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string) {}
+  constructor(
+    @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
+    private readonly localDbService: LocalDbService
+  ) {}
 
   get orbitDb() {
     if (this.orbitDbInstance == null) {
@@ -88,45 +92,65 @@ export class OrbitDbService {
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
 
-    if (this.pendingHeads.has(storeAddress)) {
-      const heads = this.pendingHeads.get(storeAddress) || []
-      await this.joinHeads(storeAddress, heads)
-    }
+    await this.joinPendingHeads(storeAddress)
     return store
   }
 
-  private async joinHeads(address: string, heads: LogEntry[]): Promise<void> {
-    if (this.orbitDbInstance == null) {
-      throw new Error('OrbitDB instance is not initialized. Call create() first.')
+  private async joinPendingHeads(address?: string): Promise<void> {
+    if (this.orbitDbInstance == null) return
+
+    const pendingHeads = await this.localDbService.getPendingHeads()
+    this.logger.info(`Joining pending heads for address ${address || 'all'}`, JSON.stringify(pendingHeads))
+    if (!pendingHeads) return
+    for (const [addr, cids] of Object.entries(pendingHeads as Record<string, CID[]>)) {
+      if (address && addr !== address) continue
+      const heads: LogEntry[] = []
+      for await (const block of this.orbitDbInstance.ipfs.blockstore.getMany(cids)) {
+        try {
+          const logEntry = await Entry.decode(block.block)
+          heads.push(logEntry)
+        } catch (err) {
+          this.logger.warn(`Failed to get block for pending head ${block.cid}`, err)
+        }
+      }
+      await this.joinHeads(addr, heads)
     }
-    const store = this.stores[address]
-    if (!store) {
-      this.logger.warn(`No store found for address ${address}, skipping join`)
-      // Keep heads in pendingHeads for later
-      this.pendingHeads.set(address, heads)
+  }
+
+  private async joinHeads(address: string, heads: LogEntry[]): Promise<void> {
+    await this.localDbService.addPendingHead(
+      address,
+      heads.map(head => CID.parse(head.hash, base58btc))
+    )
+
+    if (this.orbitDbInstance == null) {
       return
     }
-    // Map each joinEntry to its promise
-    const joinPromises = heads.map(head =>
-      store
-        .applyOperation(head.bytes)
-        .then(() => {
-          this.logger.info(`Successfully joined entry ${head.hash} to store ${address}`)
-          // Remove from pendingHeads if all heads joined
-          const pending = this.pendingHeads.get(address) || []
-          this.pendingHeads.set(
-            address,
-            pending.filter(h => h.hash !== head.hash)
-          )
-          if ((this.pendingHeads.get(address)?.length ?? 0) === 0) {
-            this.pendingHeads.delete(address)
-          }
-        })
-        .catch((err: unknown) => {
+
+    const store = this.stores[address]
+    if (!store) {
+      return
+    }
+
+    const joinResults = await Promise.all(
+      heads.map(async head => {
+        try {
+          await store.applyOperation(head.bytes)
+          return head.hash
+        } catch (err) {
           this.logger.warn(`Failed to join entry ${head.hash} to store ${address}`, err)
-        })
+          return null
+        }
+      })
     )
-    await Promise.all(joinPromises)
+    // Batch remove all successfully joined heads from pending heads
+    const successfullyJoined = joinResults.filter((hash): hash is string => !!hash)
+    if (successfullyJoined.length > 0) {
+      await this.localDbService.removePendingHead(
+        address,
+        successfullyJoined.map(hash => CID.parse(hash, base58btc))
+      )
+    }
   }
 
   public async ingestEntries(entries: LogEntry[]): Promise<void> {

@@ -1,4 +1,8 @@
+import { CID } from 'multiformats/cid'
+import * as raw from 'multiformats/codecs/raw'
+import { sha256 } from 'multiformats/hashes/sha2'
 import { Test, TestingModule } from '@nestjs/testing'
+
 import { LocalDbModule } from './local-db.module'
 import { LocalDbService } from './local-db.service'
 import { LocalDBKeys } from './local-db.types'
@@ -293,6 +297,90 @@ describe('LocalDbService', () => {
       await service.deleteSigChain(teamName)
       const afterDelete = await service.getSigChain(teamName)
       expect(afterDelete).toBeUndefined()
+    })
+  })
+
+  describe('pending heads', () => {
+    // Helper to create a valid CID from data
+    async function createTestCid(data: Uint8Array | string): Promise<CID> {
+      const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data
+      const hash = await sha256.digest(bytes)
+      return CID.create(1, raw.code, hash)
+    }
+
+    afterEach(async () => {
+      await service.purge()
+    })
+
+    it('add / get / remove pending heads', async () => {
+      const address = '/orbitdb/addr1'
+      const cid1 = await createTestCid('test-data-1')
+      const cid2 = await createTestCid('test-data-2')
+
+      // Add one, then another, then check both
+      await service.addPendingHead(address, [cid1])
+      expect(await service.getPendingHeads()).toEqual({ [address]: [cid1] })
+      await service.addPendingHead(address, [cid2])
+      expect(await service.getPendingHeads()).toEqual({ [address]: [cid1, cid2] })
+
+      // Remove one, should leave the other
+      await service.removePendingHead(address, [cid1])
+      expect(await service.getPendingHeads()).toEqual({ [address]: [cid2] })
+
+      // Remove the last, should be empty
+      await service.removePendingHead(address, [cid2])
+      expect(await service.getPendingHeads()).toEqual({})
+    })
+
+    it('handles multiple addresses independently', async () => {
+      const address1 = '/orbitdb/addr1'
+      const address2 = '/orbitdb/addr2'
+      const cid1 = await createTestCid('test-data-1')
+      const cid2 = await createTestCid('test-data-2')
+      await service.addPendingHead(address1, [cid1])
+      await service.addPendingHead(address2, [cid2])
+      expect(await service.getPendingHeads()).toEqual({ [address1]: [cid1], [address2]: [cid2] })
+      // Remove from one address only
+      await service.removePendingHead(address1, [cid1])
+      expect(await service.getPendingHeads()).toEqual({ [address2]: [cid2] })
+    })
+
+    it('does not add duplicate CIDs', async () => {
+      const address = '/orbitdb/addr1'
+      const cid = await createTestCid('test-data-1')
+      await service.addPendingHead(address, [cid, cid])
+      expect(await service.getPendingHeads()).toEqual({ [address]: [cid] })
+      // Add again, still only one
+      await service.addPendingHead(address, [cid])
+      expect(await service.getPendingHeads()).toEqual({ [address]: [cid] })
+    })
+
+    it('getPendingHeads(address) returns only for that address', async () => {
+      const address1 = '/orbitdb/addr1'
+      const address2 = '/orbitdb/addr2'
+      const cid1 = await createTestCid('test-data-1')
+      const cid2 = await createTestCid('test-data-2')
+      await service.addPendingHead(address1, [cid1])
+      await service.addPendingHead(address2, [cid2])
+      expect(await service.getPendingHeads(address1)).toEqual([cid1])
+      expect(await service.getPendingHeads(address2)).toEqual([cid2])
+    })
+
+    it('getPendingHeads returns {} if no pending heads', async () => {
+      expect(await service.getPendingHeads()).toEqual({})
+    })
+
+    it('removePendingHead is idempotent and safe for missing CIDs', async () => {
+      const address = '/orbitdb/addr1'
+      const cid1 = await createTestCid('test-data-1')
+      const cid2 = await createTestCid('test-data-2')
+      await service.addPendingHead(address, [cid1])
+      // Remove a CID that isn't present
+      await service.removePendingHead(address, [cid2])
+      expect(await service.getPendingHeads()).toEqual({ [address]: [cid1] })
+      // Remove the real one
+      await service.removePendingHead(address, [cid1])
+      expect(await service.getPendingHeads()).toEqual({})
     })
   })
 })

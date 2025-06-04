@@ -101,7 +101,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public emit(event: string | symbol, ...args: any[]): boolean {
-    // this.logger.info(`Emitting event: ${event.toString()}`, args)
+    this.logger.trace(`Emitting event: ${event.toString()}`, args)
     if (
       event === Libp2pEvents.AUTH_DISCONNECTED &&
       args[0].event != null &&

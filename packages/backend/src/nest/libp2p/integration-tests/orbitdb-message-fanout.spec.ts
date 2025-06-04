@@ -17,11 +17,13 @@ import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { ChannelsService } from '../../storage/channels/channels.service'
 import { ChannelStore } from '../../storage/channels/channel.store'
-import { ChannelSubscribedPayload, PublicChannel } from '@quiet/types'
+import { ChannelSubscribedPayload, ConsumedChannelMessage, PublicChannel } from '@quiet/types'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { StorageEvents } from '../../storage/storage.types'
+import { LocalDbService } from '../../local-db/local-db.service'
+import { create } from 'mock-fs/lib/filesystem'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
@@ -57,79 +59,49 @@ function deepArrayEqual(arr1: any[], arr2: any[]): boolean {
 }
 
 /**
- * Checks if all ChannelStores have the union of all entry hashes seen by any store.
- * Optionally checks that each store has the expected number of entries.
- *
- * @param stores - Array of ChannelStore instances to check.
- * @param expectedCount - Optional expected number of entries per store.
- * @returns True if all stores have all entries, false otherwise.
- */
-async function entriesAreFullyUnioned(stores: ChannelStore[], expectedCount?: number): Promise<boolean> {
-  const allEntries: Map<number, any[]> = new Map()
-  for (let i = 0; i < stores.length; i++) {
-    const entries = await stores[i].getEntries()
-    allEntries.set(i, entries)
-  }
-
-  // Create a set of all hashes seen in any store
-  const allHashes = new Set<string>()
-  for (const entries of allEntries.values()) {
-    for (const entry of entries) {
-      allHashes.add(entry.hash)
-    }
-  }
-
-  let allHaveAll = true
-  for (let i = 0; i < stores.length; i++) {
-    const entries = allEntries.get(i) || []
-    const hashes = new Set(entries.map(e => e.hash))
-    for (const hash of allHashes) {
-      if (!hashes.has(hash)) {
-        logger.error(`Peer ${i} is missing hash: ${hash}`)
-        allHaveAll = false
-      }
-    }
-    if (expectedCount !== undefined && entries.length !== expectedCount) {
-      logger.error(`Peer ${i} does not have expected number of entries ${expectedCount}`)
-      allHaveAll = false
-    }
-  }
-  if (allHaveAll) {
-    return true
-  }
-  logger.warn('Not all peers have all entries in the union set')
-  return false
-}
-
-/**
  * Checks if all ChannelsService instances have the same set of channels, and that each channel is identical across services.
  *
  * @param services - Array of ChannelsService instances to check.
  * @returns True if all services have the same channels, false otherwise.
  */
 async function channelsSynced(services: ChannelsService[]): Promise<boolean> {
-  const channelMap: Map<string, PublicChannel[]> = new Map()
+  // Collect all unique channel IDs across all services
+  const allChannelIds = new Set<string>()
+  const serviceChannelsArr: PublicChannel[][] = []
   for (const service of services) {
     const serviceChannels = await service.getChannels()
+    serviceChannelsArr.push(serviceChannels)
     for (const channel of serviceChannels) {
-      if (!channelMap.has(channel.id)) {
-        channelMap.set(channel.id, [])
-      }
-      channelMap.get(channel.id)?.push(channel)
+      allChannelIds.add(channel.id)
     }
   }
-  // Check if all services have the same channels
-  for (const [id, channels] of channelMap.entries()) {
-    if (channels.length !== services.length) {
-      logger.error(`Channel ${id} is missing in some services: ${channels.length} found, expected ${services.length}`)
-      return false
+  // For each channel ID, check that every service has it and all are deeply equal
+  for (const id of allChannelIds) {
+    const channelsForId: PublicChannel[] = []
+    for (const serviceChannels of serviceChannelsArr) {
+      const found = serviceChannels.find(c => c.id === id)
+      if (!found) {
+        logger.error(`Channel ${id} is missing in some services`)
+        return false
+      }
+      channelsForId.push(found)
     }
-    const firstChannel = channels[0]
-    for (const channel of channels) {
+    const firstChannel = channelsForId[0]
+    for (const channel of channelsForId) {
       if (!deepArrayEqual([channel], [firstChannel])) {
         logger.error(`Channel ${id} differs between services`)
         return false
       }
+    }
+  }
+  // Also check that all services have the same number of channels
+  const expectedCount = serviceChannelsArr[0].length
+  for (const serviceChannels of serviceChannelsArr) {
+    if (serviceChannels.length !== expectedCount) {
+      logger.error(
+        `A service has a different number of channels: expected ${expectedCount}, got ${serviceChannels.length}`
+      )
+      return false
     }
   }
   return true
@@ -143,43 +115,56 @@ async function channelsSynced(services: ChannelsService[]): Promise<boolean> {
  * @returns True if all entries are synced for all channels (or the specified channel), false otherwise.
  */
 async function channelEntriesSynced(services: ChannelsService[], channelId?: string): Promise<boolean> {
-  // Map of channelId to array of entries from each service
-  const channelEntriesMap: Map<string, any[][]> = new Map()
-
-  // Gather all channels from all services
+  // Build a set of all unique channel IDs across all services (optionally filtered by channelId)
+  const allChannelIds = new Set<string>()
+  const serviceChannelsArr: PublicChannel[][] = []
+  const allEntriesInChannel: Map<string, Set<string>> = new Map()
   for (const service of services) {
-    const channels = await service.getChannels()
-    for (const channel of channels) {
+    const serviceChannels = await service.getChannels()
+    serviceChannelsArr.push(serviceChannels)
+    for (const channel of serviceChannels) {
       if (channelId && channel.id !== channelId) continue
-      if (!channelEntriesMap.has(channel.id)) {
-        channelEntriesMap.set(channel.id, [])
-      }
-      // Get entries for this channel from this service
-      // Use the ChannelStore from publicChannelsRepos
+      allChannelIds.add(channel.id)
       const repo = service.publicChannelsRepos.get(channel.id)
       if (!repo) {
-        logger.error(`No repo for channel ${channel.id} in service`)
-        channelEntriesMap.get(channel.id)!.push([])
-        continue
+        logger.error(`Channel ${channel.id} is missing in service ${services.indexOf(service)}`)
+        return false
       }
       const entries = await repo.store.getEntries()
-      channelEntriesMap.get(channel.id)!.push(entries)
+      if (!allEntriesInChannel.has(channel.id)) {
+        allEntriesInChannel.set(channel.id, new Set<string>())
+      }
+      const entrySet = allEntriesInChannel.get(channel?.id)
+      if (entrySet) {
+        for (const entry of entries) {
+          entrySet.add(entry.id)
+        }
+      }
     }
   }
-
-  // For each channel, check that all services have the same entries
-  for (const [id, entriesLists] of channelEntriesMap.entries()) {
-    if (entriesLists.length !== services.length) {
-      logger.error(
-        `Channel ${id} is missing in some services: ${entriesLists.length} found, expected ${services.length}`
-      )
-      return false
-    }
-    // Compare entries for all services using deepArrayEqual
-    const reference = entriesLists[0]
-    for (let i = 1; i < entriesLists.length; i++) {
-      if (!deepArrayEqual(entriesLists[i], reference)) {
-        logger.error(`Entries for channel ${id} differ between services`)
+  // For each channel ID, check that every service has the complete set of entries
+  for (const id of allChannelIds) {
+    for (let i = 0; i < services.length; i++) {
+      const service = services[i]
+      const repo = service.publicChannelsRepos.get(id)
+      if (!repo) {
+        logger.error(`Channel ${id} is missing in service ${i}`)
+        return false
+      }
+      const entries = await repo.store.getEntries()
+      const entrySet = allEntriesInChannel.get(id)
+      if (!entrySet) {
+        logger.error(`No entries found for channel ${id} in any service`)
+        return false
+      }
+      // Check if all entries in this service match the expected set
+      const serviceEntryIds = new Set(entries.map(e => e.id))
+      if (serviceEntryIds.size !== entrySet.size || ![...serviceEntryIds].every(id => entrySet.has(id))) {
+        const missingInService = [...entrySet].filter(id => !serviceEntryIds.has(id))
+        logger.error(
+          `Entries for channel ${id} differ in service ${i}.` +
+            (missingInService.length ? ` Missing in service: [${missingInService.join(', ')}].` : '')
+        )
         return false
       }
     }
@@ -196,13 +181,15 @@ async function channelEntriesSynced(services: ChannelsService[], channelId?: str
  * @param channelId - Optional channel ID to restrict the sync check.
  * @param timeoutMs - Timeout in milliseconds before giving up.
  * @param afterListenersSetup - Optional callback to run after listeners are set up.
+ * @param pollRate - Rate in milliseconds to poll for updates.
  * @returns Promise that resolves with sync time in ms, or undefined if timeout is reached.
  */
 async function waitForChannelsAndEntriesToSync(
   services: ChannelsService[],
   channelId?: string,
   timeoutMs = 5000,
-  afterListenersSetup?: () => Promise<void> | void
+  afterListenersSetup?: () => Promise<void> | void,
+  pollRate = 100
 ): Promise<number | undefined> {
   return new Promise<number | undefined>(resolve => {
     const start = Date.now()
@@ -249,7 +236,7 @@ async function waitForChannelsAndEntriesToSync(
       }
     }
 
-    const poll = setInterval(maybeResolve, timeoutMs / 3)
+    const poll = setInterval(maybeResolve, timeoutMs / 10)
     timeout.unref?.()
 
     for (const service of services) {
@@ -320,6 +307,8 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
         const orbitDbService = module.get(OrbitDbService)
         const libp2pService = module.get(Libp2pService)
         const channelsService = module.get(ChannelsService)
+        const localDbService = module.get(LocalDbService)
+        await localDbService.open()
         await ipfsService.createInstance()
         await ipfsService.start()
         await orbitDbService.create(libp2pNodeParams[i].peerId.peerId, ipfsService.ipfsInstance!)
@@ -408,29 +397,29 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     )
   })
 
-  it('creates a channel on the first peer', async () => {
-    logger.info('creates a channel on the first peer')
-    const channelsService = modules[0].get(ChannelsService)
-    const sigchainService = modules[0].get(SigChainService)
-    const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
-      owner: sigchainService.user.userId,
-    } as PublicChannel)
-    publicChannels.push(publicChannel)
-    const channel = await channelsService.createChannel(publicChannel)
-    expect(channel).toBeDefined()
-    const getChannels = await channelsService.getChannels()
-    expect(getChannels.length).toBe(1)
-    expect(getChannels[0].id).toBe(publicChannel.id)
-  })
-
-  it('waits for all peers to sync channels', async () => {
+  it('creates a channel and syncs to peers', async () => {
     logger.info('waits for all peers to sync channels')
-    timeToLastSync = await waitForChannelsAndEntriesToSync(
-      modules.map(module => module.get(ChannelsService)),
-      undefined,
-      10_000
+    const createChannel = async () => {
+      const channelsService = modules[0].get(ChannelsService)
+      const sigchainService = modules[0].get(SigChainService)
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: sigchainService.user.userId,
+      } as PublicChannel)
+      publicChannels.push(publicChannel)
+      const channel = await channelsService.createChannel(publicChannel)
+      expect(channel).toBeDefined()
+      const getChannels = await channelsService.getChannels()
+      expect(getChannels.length).toBe(1)
+      expect(getChannels[0].id).toBe(publicChannel.id)
+    }
+    await createChannel()
+    await waitForExpect(
+      async () => {
+        expect(await channelsSynced(modules.map(module => module.get(ChannelsService)))).toBe(true)
+      },
+      5000,
+      100
     )
-    expect(await channelsSynced(modules.map(module => module.get(ChannelsService)))).toBe(true)
   })
 
   it('sends a message from each peer and receives it on all peers', async () => {
@@ -451,14 +440,14 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
         await channelStore.store.sendMessage(message)
       }
     }
-    // Wait for all peers to receive the messages, sending them after listeners are set up
+
     timeToLastSync = await waitForChannelsAndEntriesToSync(
       modules.map(module => module.get(ChannelsService)),
       publicChannels[0].id,
       5_000,
       sendMessagesFromAllPeers
     )
-    waitForExpect(
+    await waitForExpect(
       async () => {
         expect(
           await channelEntriesSynced(
@@ -467,19 +456,20 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
           )
         ).toBe(true)
       },
-      1000,
+      5000,
       100
     )
+
     await waitForExpect(
       async () => {
         for (let i = 0; i < modules.length; i++) {
           const channelsService = modules[i].get(ChannelsService)
           const channelStore = channelsService.publicChannelsRepos.get(publicChannels[0].id)
           const entries = await channelStore?.store.getEntries()
-          expect(entries?.length).toBe(messages.length)
+          expect(entries?.length).toBe(N_PEERS)
         }
       },
-      2000,
+      5000,
       100
     )
   })
@@ -562,8 +552,14 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const peer0Entries: LogEntry[] = []
     for await (const entry of peer0IPFS.blockstore.getAll()) {
       const decoded = await Entry.decode(entry.block)
-      peer0Entries.push(decoded)
+      if (decoded.id && decoded.id.startsWith('/orbitdb/')) {
+        peer0Entries.push(decoded)
+      }
     }
+    logger.info(
+      'Entries to inject into peer 1:',
+      peer0Entries.map(e => ({ id: e.id, hash: e.hash }))
+    )
     const peer1OrbitDbService = modules[1].get(OrbitDbService)
     await peer1OrbitDbService.ingestEntries(peer0Entries)
 

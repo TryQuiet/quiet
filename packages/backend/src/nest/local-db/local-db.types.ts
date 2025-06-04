@@ -21,5 +21,6 @@ export enum LocalDBKeys {
   SIGCHAINS = 'sigchains:',
   USER_CONTEXTS = 'userContexts',
   KEYRINGS = 'keyrings',
+  PENDING_HEADS = 'pendingHeads',
 }
 export type LocalDbStatus = 'opening' | 'open' | 'closing' | 'closed'
