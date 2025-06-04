@@ -6,7 +6,7 @@
 
 * Quiet Desktop now uses Tor 0.4.8.16
 * The process for updating Tor on desktop is now mostly automated and part of our release checklist
-* Quiet Android now uses Tor 0.4.8.16
+* Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 
 ## [5.1.0]
