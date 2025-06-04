@@ -44,6 +44,16 @@ log_error() {
 init_gpg() {
     log_info "Initializing GPG for signature verification..."
 
+    # Check if GPG is available
+    if ! command -v gpg >/dev/null 2>&1; then
+        log_error "GPG is not installed. GPG is REQUIRED to verify download signatures."
+        log_error "This is a security requirement to ensure download integrity."
+        log_info "On macOS, install GPG with: brew install gnupg"
+        log_info "On Ubuntu/Debian, install GPG with: sudo apt install gnupg"
+        log_info "On Red Hat/Fedora, install GPG with: sudo dnf install gnupg2"
+        return 1  # Hard failure - GPG is required
+    fi
+
     # Create temporary GPG home directory
     export GNUPGHOME="$TEMP_DIR/.gnupg"
     mkdir -p "$GNUPGHOME"
@@ -159,10 +169,13 @@ download_tor_bundles() {
     local base_url="$TOR_PROJECT_BASE_URL/$browser_version"
 
     # Define download URLs for each platform
+    # Note: We use Tor Browser Bundle for macOS instead of Expert Bundle because:
+    # - Expert Bundle binaries are not notarized by Apple
+    # - This causes macOS Gatekeeper to block execution with security warnings
+    # - Tor Browser Bundle contains the same binaries but properly signed/notarized
     local downloads=(
         "tor-browser-linux-x86_64-${browser_version}.tar.xz"
-        "tor-expert-bundle-macos-x86_64-${browser_version}.tar.gz"
-        "tor-expert-bundle-macos-aarch64-${browser_version}.tar.gz"
+        "tor-browser-macos-${browser_version}.dmg"
         "tor-expert-bundle-windows-x86_64-${browser_version}.tar.gz"
     )
 
@@ -170,7 +183,7 @@ download_tor_bundles() {
 
     # Initialize GPG before downloading
     if ! init_gpg; then
-        log_error "Failed to initialize GPG"
+        log_error "Failed to initialize GPG - cannot proceed without signature verification"
         return 1
     fi
 
@@ -262,33 +275,61 @@ extract_binaries() {
         return 1
     fi
 
-    # Extract macOS x64 bundle
-    log_info "Extracting macOS x64 bundle..."
-    tar -xf tor-expert-bundle-macos-x86_64-*.tar.gz
-    if [[ -f "tor/tor" ]]; then
-        cp tor/tor extracted/darwin-x64/
-        cp tor/*.dylib extracted/darwin-x64/ 2>/dev/null || true
-        chmod +x extracted/darwin-x64/tor
-        log_success "Extracted macOS x64 binaries"
-        rm -rf tor/ data/ docs/ 2>/dev/null || true
-    else
-        log_error "Could not find macOS x64 Tor binary"
+    # Extract macOS bundle from DMG
+    log_info "Extracting macOS bundle..."
+    local dmg_file=$(find . -name "tor-browser-macos-*.dmg" | head -n1)
+    if [[ -z "$dmg_file" ]]; then
+        log_error "Could not find macOS DMG file"
         return 1
     fi
 
-    # Extract macOS ARM64 bundle
-    log_info "Extracting macOS ARM64 bundle..."
-    tar -xf tor-expert-bundle-macos-aarch64-*.tar.gz
-    if [[ -f "tor/tor" ]]; then
-        cp tor/tor extracted/darwin-arm64/
-        cp tor/*.dylib extracted/darwin-arm64/ 2>/dev/null || true
-        chmod +x extracted/darwin-arm64/tor
-        log_success "Extracted macOS ARM64 binaries"
-        rm -rf tor/ data/ docs/ 2>/dev/null || true
+    # Mount the DMG
+    local mount_point=$(mktemp -d)
+    hdiutil attach -quiet -nobrowse -mountpoint "$mount_point" "$dmg_file" || {
+        log_error "Failed to mount macOS DMG"
+        return 1
+    }
+
+    # Extract binaries from Tor Browser.app
+    local tor_app="$mount_point/Tor Browser.app"
+    if [[ -d "$tor_app" ]]; then
+        # macOS Tor Browser stores tor binaries in the MacOS directory
+        local tor_resources="$tor_app/Contents/MacOS/Tor"
+        
+        # Check if tor binary exists
+        if [[ -f "$tor_resources/tor" ]]; then
+            # Check if it's a universal binary
+            local archs=$(lipo -archs "$tor_resources/tor" 2>/dev/null || echo "unknown")
+            log_info "Found tor binary with architectures: $archs"
+            
+            # Extract x86_64 binary
+            if [[ "$archs" == *"x86_64"* ]]; then
+                lipo -extract x86_64 "$tor_resources/tor" -output extracted/darwin-x64/tor || cp "$tor_resources/tor" extracted/darwin-x64/tor
+                cp "$tor_resources"/*.dylib extracted/darwin-x64/ 2>/dev/null || true
+                chmod +x extracted/darwin-x64/tor
+                log_success "Extracted macOS x64 binaries"
+            fi
+            
+            # Extract arm64 binary
+            if [[ "$archs" == *"arm64"* ]]; then
+                lipo -extract arm64 "$tor_resources/tor" -output extracted/darwin-arm64/tor || cp "$tor_resources/tor" extracted/darwin-arm64/tor
+                cp "$tor_resources"/*.dylib extracted/darwin-arm64/ 2>/dev/null || true
+                chmod +x extracted/darwin-arm64/tor
+                log_success "Extracted macOS ARM64 binaries"
+            fi
+        else
+            log_error "Could not find tor binary in macOS bundle"
+            hdiutil detach "$mount_point" -quiet
+            return 1
+        fi
     else
-        log_error "Could not find macOS ARM64 Tor binary"
+        log_error "Could not find Tor Browser.app in DMG"
+        hdiutil detach "$mount_point" -quiet
         return 1
     fi
+
+    # Unmount the DMG
+    hdiutil detach "$mount_point" -quiet
 
     # Extract Windows bundle
     log_info "Extracting Windows bundle..."
