@@ -1,5 +1,12 @@
 # Changelog
 
+## [unreleased]
+
+### Chores
+
+* Quiet Desktop now uses Tor 0.4.8.16
+* The process for updating Tor on desktop is now mostly automated and part of our release checklist  
+
 ## [5.1.0]
 
 ### Chores

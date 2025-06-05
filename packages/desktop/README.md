@@ -55,6 +55,12 @@ npm run lerna version prerelease
 
 ----
 
+## Updating Tor Binaries
+
+Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory. Use `./scripts/update-tor-binaries-desktop.sh` to update them.
+
+----
+
 ## Logging
 
 By default logs are output to the console and to files located in the application data directory (this location varies by OS).
