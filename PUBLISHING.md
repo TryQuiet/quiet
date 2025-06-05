@@ -4,7 +4,7 @@
   </h1>
 
   <h3 align="center">
-    Current release owner ✨<a href='https://github.com/adrastaea'>@adrastaea</a>✨ (September 2024)
+    Current release owner ✨<a href='https://github.com/adrastaea'>@holmesworcester</a>✨ (September 2024)
   </h3>
 
   <br />
