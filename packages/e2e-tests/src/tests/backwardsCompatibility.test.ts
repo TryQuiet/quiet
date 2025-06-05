@@ -189,7 +189,6 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')('Confirm that the opened app is the latest version', async () => {
-        logger.info('New version', 4)
         const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
         expect(await settingsModal.isReady()).toBeTruthy()
         const settingVersion = await settingsModal.getVersion()
@@ -200,8 +199,7 @@ describe('Backwards Compatibility', () => {
     })
 
     describe('Verify channels', () => {
-      itif(process.platform == 'linux')('Owener sees general channel', async () => {
-        logger.info('New version', 3)
+      itif(process.platform == 'linux')('Owner sees general channel', async () => {
         generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
         expect(await generalChannel.isReady()).toBeTruthy()
 
@@ -210,7 +208,6 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')('Check number of messages on second channel', async () => {
-        logger.info('New version', 5)
         sidebar = new Sidebar(ownerAppNewVersion.driver)
         await sidebar.switchChannel(newChannelName)
         secondChannel = new Channel(ownerAppNewVersion.driver, newChannelName)

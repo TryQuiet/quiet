@@ -93,4 +93,4 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 1
-          command: cd packages/e2e-tests && npm run test invitationLink.test.tsas
+          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
