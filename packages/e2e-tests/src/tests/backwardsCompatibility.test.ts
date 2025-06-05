@@ -146,7 +146,7 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')('Owner sends a message in second channel', async () => {
         secondChannel = new Channel(ownerAppOldVersion.driver, newChannelName)
         expect(await secondChannel.isMessageInputReady()).toBeTruthy()
-        secondChannelMessageIds = await secondChannel.sendMessage(ownerMessages[1], ownerUsername)
+        await secondChannel.sendMessage(ownerMessages[1], ownerUsername)
       })
 
       itif(process.platform == 'linux')('Message is visible in second channel', async () => {
