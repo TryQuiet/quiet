@@ -117,7 +117,7 @@ OPTIONS:
 
 DESCRIPTION:
     Downloads and installs the latest Tor binaries for desktop and Android platforms
-    - Desktop: Linux, macOS x64, macOS ARM64, Windows
+    - Desktop: Linux, macOS universal binary, Windows
     - Android: ARM64 libtor.so extracted from Tor Browser APK
     
     All downloads are verified using GPG signatures from the Tor Project
@@ -316,7 +316,7 @@ extract_desktop_binaries() {
     fi
     
     # Create extraction directories
-    mkdir -p extracted/{linux,darwin-x64,darwin-arm64,win32}
+    mkdir -p extracted/{linux,darwin,win32}
     
     # Copy Linux binaries
     local tor_path="$linux_tor_dir/Browser/TorBrowser/Tor"
@@ -376,42 +376,12 @@ extract_desktop_binaries() {
         
         # Check if tor binary exists
         if [[ -f "$tor_resources/tor" ]]; then
-            if [[ "$(uname)" == "Darwin" ]]; then
-                # macOS: Use lipo to extract architecture-specific binaries
-                local archs=$(lipo -archs "$tor_resources/tor" 2>/dev/null || echo "unknown")
-                log_info "Found tor binary with architectures: $archs"
-                
-                # Extract x86_64 binary
-                if [[ "$archs" == *"x86_64"* ]]; then
-                    lipo -extract x86_64 "$tor_resources/tor" -output extracted/darwin-x64/tor || cp "$tor_resources/tor" extracted/darwin-x64/tor
-                    cp "$tor_resources"/*.dylib extracted/darwin-x64/ 2>/dev/null || true
-                    chmod +x extracted/darwin-x64/tor
-                    log_success "Extracted macOS x64 binaries"
-                fi
-                
-                # Extract arm64 binary
-                if [[ "$archs" == *"arm64"* ]]; then
-                    lipo -extract arm64 "$tor_resources/tor" -output extracted/darwin-arm64/tor || cp "$tor_resources/tor" extracted/darwin-arm64/tor
-                    cp "$tor_resources"/*.dylib extracted/darwin-arm64/ 2>/dev/null || true
-                    chmod +x extracted/darwin-arm64/tor
-                    log_success "Extracted macOS ARM64 binaries"
-                fi
-            else
-                # Linux: Copy universal binary to both architectures (macOS can handle universal binaries)
-                log_info "Found universal tor binary, copying to both architectures"
-                
-                # Copy to x64 directory
-                cp "$tor_resources/tor" extracted/darwin-x64/tor
-                cp "$tor_resources"/*.dylib extracted/darwin-x64/ 2>/dev/null || true
-                chmod +x extracted/darwin-x64/tor
-                log_success "Copied macOS x64 binaries"
-                
-                # Copy to arm64 directory  
-                cp "$tor_resources/tor" extracted/darwin-arm64/tor
-                cp "$tor_resources"/*.dylib extracted/darwin-arm64/ 2>/dev/null || true
-                chmod +x extracted/darwin-arm64/tor
-                log_success "Copied macOS ARM64 binaries"
-            fi
+            # macOS: Copy universal binary to single darwin directory
+            log_info "Copying macOS universal binaries..."
+            cp "$tor_resources/tor" extracted/darwin/tor
+            cp "$tor_resources"/*.dylib extracted/darwin/ 2>/dev/null || true
+            chmod +x extracted/darwin/tor
+            log_success "Extracted macOS universal binaries"
         else
             log_error "Could not find tor binary in macOS bundle"
             if [[ "$(uname)" == "Darwin" ]]; then
@@ -514,18 +484,11 @@ install_desktop_binaries() {
         log_success "Installed Linux binaries"
     fi
     
-    # Install macOS x64 binaries
-    if [[ -d "$extracted_dir/darwin-x64" ]]; then
-        log_info "Installing macOS x64 binaries..."
-        cp "$extracted_dir/darwin-x64"/* "$TOR_DIR/darwin/x64/"
-        log_success "Installed macOS x64 binaries"
-    fi
-    
-    # Install macOS ARM64 binaries
-    if [[ -d "$extracted_dir/darwin-arm64" ]]; then
-        log_info "Installing macOS ARM64 binaries..."
-        cp "$extracted_dir/darwin-arm64"/* "$TOR_DIR/darwin/arm64/"
-        log_success "Installed macOS ARM64 binaries"
+    # Install macOS universal binaries
+    if [[ -d "$extracted_dir/darwin" ]]; then
+        log_info "Installing macOS universal binaries..."
+        cp "$extracted_dir/darwin"/* "$TOR_DIR/darwin/"
+        log_success "Installed macOS universal binaries"
     fi
     
     # Install Windows binaries
