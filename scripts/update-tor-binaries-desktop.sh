@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Tor Binary Update Script for Quiet Desktop
-# This script helps automate the process of updating Tor binaries for desktop platforms (Linux, macOS, Windows)
+# Tor Binary Update Script for Quiet
+# This script helps automate the process of updating Tor binaries for desktop platforms and Android.
 
 set -euo pipefail
 
@@ -9,6 +9,7 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly TOR_DIR="$PROJECT_ROOT/3rd-party/tor"
+readonly ANDROID_TOR_DIR="$PROJECT_ROOT/packages/mobile/android/app/src/main/jniLibs/arm64-v8a"
 readonly TEMP_DIR="$(mktemp -d)"
 readonly TOR_PROJECT_BASE_URL="https://dist.torproject.org/torbrowser"
 
@@ -44,21 +45,12 @@ log_error() {
 init_gpg() {
     log_info "Initializing GPG for signature verification..."
 
-    # Check if GPG is available
-    if ! command -v gpg >/dev/null 2>&1; then
-        log_error "GPG is not installed. GPG is REQUIRED to verify download signatures."
-        log_error "This is a security requirement to ensure download integrity."
-        log_info "On macOS, install GPG with: brew install gnupg"
-        log_info "On Ubuntu/Debian, install GPG with: sudo apt install gnupg"
-        log_info "On Red Hat/Fedora, install GPG with: sudo dnf install gnupg2"
-        return 1  # Hard failure - GPG is required
-    fi
+    # GPG availability already checked in check_dependencies()
 
     # Create temporary GPG home directory
     export GNUPGHOME="$TEMP_DIR/.gnupg"
     mkdir -p "$GNUPGHOME"
     chmod 700 "$GNUPGHOME"
-
     # Check if key file exists
     if [[ ! -f "$TOR_GPG_KEY_FILE" ]]; then
         log_error "Tor GPG key file not found: $TOR_GPG_KEY_FILE"
@@ -92,7 +84,6 @@ init_gpg() {
 verify_signature() {
     local file="$1"
     local sig_file="${file}.asc"
-
     if [[ ! -f "$sig_file" ]]; then
         log_error "Signature file not found: $sig_file"
         return 1
@@ -125,14 +116,15 @@ OPTIONS:
     --help, -h          Show this help message
 
 DESCRIPTION:
-    Downloads and installs the latest Tor binaries for all desktop platforms
-    (Linux, macOS x64, macOS ARM64, Windows)
-
+    Downloads and installs the latest Tor binaries for desktop and Android platforms
+    - Desktop: Linux, macOS universal binary, Windows
+    - Android: ARM64 libtor.so extracted from Tor Browser APK
+    
     All downloads are verified using GPG signatures from the Tor Project
     to ensure authenticity and integrity.
 
 EXAMPLES:
-    $0                  # Update Tor binaries to latest version
+    $0                  # Update all Tor binaries (desktop + Android)
     $0 --test-verify    # Run GPG verification tests
 EOF
 }
@@ -142,14 +134,12 @@ EOF
 get_latest_tor_version() {
     log_info "Checking for latest Tor Browser version..." >&2
     local latest_version=""
-
     # Check the dist server directory listing
     if command -v curl >/dev/null 2>&1; then
         latest_version=$(curl -s "$TOR_PROJECT_BASE_URL/" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1 || echo "")
     elif command -v wget >/dev/null 2>&1; then
         latest_version=$(wget -qO- "$TOR_PROJECT_BASE_URL/" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1 || echo "")
     fi
-
     if [[ -n "$latest_version" ]]; then
         log_info "Latest Tor Browser version: $latest_version" >&2
         echo "$latest_version"
@@ -161,39 +151,35 @@ get_latest_tor_version() {
 
 
 
-# Download platform-specific Tor Browser bundles
-download_tor_bundles() {
+# Download desktop Tor Browser bundles
+download_desktop_bundles() {
     local browser_version="$1"
-    log_info "Downloading Tor Browser $browser_version for all platforms..."
-
+    log_info "Downloading Tor Browser $browser_version for desktop platforms..."
+    
     local base_url="$TOR_PROJECT_BASE_URL/$browser_version"
-
+    
     # Define download URLs for each platform
-    # Note: We use Tor Browser Bundle for macOS instead of Expert Bundle because:
-    # - Expert Bundle binaries are not notarized by Apple
-    # - This causes macOS Gatekeeper to block execution with security warnings
-    # - Tor Browser Bundle contains the same binaries but properly signed/notarized
     local downloads=(
         "tor-browser-linux-x86_64-${browser_version}.tar.xz"
         "tor-browser-macos-${browser_version}.dmg"
         "tor-expert-bundle-windows-x86_64-${browser_version}.tar.gz"
     )
-
+    
     cd "$TEMP_DIR"
-
+    
     # Initialize GPG before downloading
     if ! init_gpg; then
-        log_error "Failed to initialize GPG - cannot proceed without signature verification"
+        log_error "Failed to initialize GPG"
         return 1
     fi
-
+    
     for download in "${downloads[@]}"; do
         local url="$base_url/$download"
         local sig_url="${url}.asc"
-
+        
         # Download the file
         log_info "Downloading $download..."
-
+        
         if command -v curl >/dev/null 2>&1; then
             if ! curl -L -o "$download" "$url"; then
                 log_error "Failed to download $download"
@@ -208,10 +194,10 @@ download_tor_bundles() {
             log_error "Neither curl nor wget available for downloading"
             return 1
         fi
-
+        
         # Download the signature file
         log_info "Downloading signature for $download..."
-
+        
         if command -v curl >/dev/null 2>&1; then
             if ! curl -L -o "${download}.asc" "$sig_url"; then
                 log_error "Failed to download signature for $download"
@@ -223,46 +209,115 @@ download_tor_bundles() {
                 return 1
             fi
         fi
-
+        
         # Verify download exists and is not empty
         if [[ ! -f "$download" ]] || [[ ! -s "$download" ]]; then
             log_error "Download verification failed for $download"
             return 1
         fi
-
+        
         # Verify GPG signature
         if ! verify_signature "$download"; then
             log_error "GPG signature verification failed for $download"
             log_error "This could indicate a compromised download. Aborting."
             return 1
         fi
-
+        
         log_success "Downloaded and verified $download"
     done
-
-    log_success "All downloads completed and verified"
+    
+    log_success "All desktop downloads completed and verified"
     return 0
 }
 
-# Extract binaries from downloaded bundles
-extract_binaries() {
-    log_info "Extracting Tor binaries from downloaded bundles..."
-
+# Download Android Tor Browser APK
+download_android_apk() {
+    local browser_version="$1"
+    log_info "Downloading Tor Browser $browser_version for Android..."
+    
+    local base_url="$TOR_PROJECT_BASE_URL/$browser_version"
+    local apk_file="tor-browser-android-aarch64-${browser_version}.apk"
+    
     cd "$TEMP_DIR"
+    
+    # Initialize GPG before downloading
+    if ! init_gpg; then
+        log_error "Failed to initialize GPG"
+        return 1
+    fi
+    
+    local url="$base_url/$apk_file"
+    local sig_url="${url}.asc"
+    
+    # Download the APK file
+    log_info "Downloading $apk_file..."
+    
+    if command -v curl >/dev/null 2>&1; then
+        if ! curl -L -o "$apk_file" "$url"; then
+            log_error "Failed to download $apk_file"
+            return 1
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if ! wget -O "$apk_file" "$url"; then
+            log_error "Failed to download $apk_file"
+            return 1
+        fi
+    else
+        log_error "Neither curl nor wget available for downloading"
+        return 1
+    fi
+    
+    # Download the signature file
+    log_info "Downloading signature for $apk_file..."
+    
+    if command -v curl >/dev/null 2>&1; then
+        if ! curl -L -o "${apk_file}.asc" "$sig_url"; then
+            log_error "Failed to download signature for $apk_file"
+            return 1
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if ! wget -O "${apk_file}.asc" "$sig_url"; then
+            log_error "Failed to download signature for $apk_file"
+            return 1
+        fi
+    fi
+    
+    # Verify download exists and is not empty
+    if [[ ! -f "$apk_file" ]] || [[ ! -s "$apk_file" ]]; then
+        log_error "Download verification failed for $apk_file"
+        return 1
+    fi
+    
+    # Verify GPG signature
+    if ! verify_signature "$apk_file"; then
+        log_error "GPG signature verification failed for $apk_file"
+        log_error "This could indicate a compromised download. Aborting."
+        return 1
+    fi
+    
+    log_success "Downloaded and verified $apk_file"
+    return 0
+}
 
+# Extract desktop binaries from downloaded bundles
+extract_desktop_binaries() {
+    log_info "Extracting Tor binaries from downloaded desktop bundles..."
+    
+    cd "$TEMP_DIR"
+    
     # Extract Linux bundle and get tor binary + libraries
     log_info "Extracting Linux bundle..."
     tar -xf tor-browser-linux-x86_64-*.tar.xz
-
+    
     local linux_tor_dir=$(find . -name "tor-browser*" -type d | head -n1)
     if [[ -z "$linux_tor_dir" ]]; then
         log_error "Could not find extracted Linux Tor Browser directory"
         return 1
     fi
-
+    
     # Create extraction directories
-    mkdir -p extracted/{linux,darwin-x64,darwin-arm64,win32}
-
+    mkdir -p extracted/{linux,darwin,win32}
+    
     # Copy Linux binaries
     local tor_path="$linux_tor_dir/Browser/TorBrowser/Tor"
     if [[ -d "$tor_path" ]]; then
@@ -283,53 +338,74 @@ extract_binaries() {
         return 1
     fi
 
-    # Mount the DMG
-    local mount_point=$(mktemp -d)
-    hdiutil attach -quiet -nobrowse -mountpoint "$mount_point" "$dmg_file" || {
-        log_error "Failed to mount macOS DMG"
-        return 1
-    }
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS: Use hdiutil
+        local mount_point=$(mktemp -d)
+        hdiutil attach -quiet -nobrowse -mountpoint "$mount_point" "$dmg_file" || {
+            log_error "Failed to mount macOS DMG"
+            return 1
+        }
+    else
+        # Linux: Use dmg2img + 7z (dependencies already checked)
+        # Convert DMG to IMG, then extract with 7z
+        log_info "Converting DMG to IMG format..."
+        dmg2img "$dmg_file" tor-browser.img || {
+            log_error "Failed to convert DMG to IMG"
+            return 1
+        }
+        
+        log_info "Extracting from IMG file..."
+        local mount_point="tor_browser_extracted"
+        mkdir -p "$mount_point"
+        7z x -o"$mount_point" tor-browser.img >/dev/null || {
+            log_error "Failed to extract IMG file"
+            return 1
+        }
+    fi
 
     # Extract binaries from Tor Browser.app
-    local tor_app="$mount_point/Tor Browser.app"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        local tor_app="$mount_point/Tor Browser.app"
+    else
+        # On Linux, 7z extracts with the full path structure
+        local tor_app="$mount_point/Tor Browser/Tor Browser.app"
+    fi
     if [[ -d "$tor_app" ]]; then
         # macOS Tor Browser stores tor binaries in the MacOS directory
         local tor_resources="$tor_app/Contents/MacOS/Tor"
         
         # Check if tor binary exists
         if [[ -f "$tor_resources/tor" ]]; then
-            # Check if it's a universal binary
-            local archs=$(lipo -archs "$tor_resources/tor" 2>/dev/null || echo "unknown")
-            log_info "Found tor binary with architectures: $archs"
-            
-            # Extract x86_64 binary
-            if [[ "$archs" == *"x86_64"* ]]; then
-                lipo -extract x86_64 "$tor_resources/tor" -output extracted/darwin-x64/tor || cp "$tor_resources/tor" extracted/darwin-x64/tor
-                cp "$tor_resources"/*.dylib extracted/darwin-x64/ 2>/dev/null || true
-                chmod +x extracted/darwin-x64/tor
-                log_success "Extracted macOS x64 binaries"
-            fi
-            
-            # Extract arm64 binary
-            if [[ "$archs" == *"arm64"* ]]; then
-                lipo -extract arm64 "$tor_resources/tor" -output extracted/darwin-arm64/tor || cp "$tor_resources/tor" extracted/darwin-arm64/tor
-                cp "$tor_resources"/*.dylib extracted/darwin-arm64/ 2>/dev/null || true
-                chmod +x extracted/darwin-arm64/tor
-                log_success "Extracted macOS ARM64 binaries"
-            fi
+            # macOS: Copy universal binary to single darwin directory
+            log_info "Copying macOS universal binaries..."
+            cp "$tor_resources/tor" extracted/darwin/tor
+            cp "$tor_resources"/*.dylib extracted/darwin/ 2>/dev/null || true
+            chmod +x extracted/darwin/tor
+            log_success "Extracted macOS universal binaries"
         else
             log_error "Could not find tor binary in macOS bundle"
-            hdiutil detach "$mount_point" -quiet
+            if [[ "$(uname)" == "Darwin" ]]; then
+                hdiutil detach "$mount_point" -quiet
+            fi
             return 1
         fi
     else
         log_error "Could not find Tor Browser.app in DMG"
-        hdiutil detach "$mount_point" -quiet
+        if [[ "$(uname)" == "Darwin" ]]; then
+            hdiutil detach "$mount_point" -quiet
+        fi
         return 1
     fi
 
-    # Unmount the DMG
-    hdiutil detach "$mount_point" -quiet
+    # Cleanup extraction
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # Unmount the DMG on macOS
+        hdiutil detach "$mount_point" -quiet
+    else
+        # Clean up temporary files on Linux
+        rm -f tor-browser.img
+        rm -rf "$mount_point"
+    fi
 
     # Extract Windows bundle
     log_info "Extracting Windows bundle..."
@@ -342,63 +418,178 @@ extract_binaries() {
         log_error "Could not find Windows Tor binary"
         return 1
     fi
-
-    log_success "All binaries extracted successfully"
+    
+    log_success "All desktop binaries extracted successfully"
     return 0
 }
 
-# Install extracted binaries
-install_binaries() {
-    log_info "Installing extracted Tor binaries..."
+# Extract Android libtor.so from APK
+extract_android_binaries() {
+    log_info "Extracting libtor.so from Android APK..."
+    
+    cd "$TEMP_DIR"
+    
+    # unzip availability already checked in check_dependencies()
+    
+    # Find the Android APK file
+    local apk_file=$(find . -name "tor-browser-android-aarch64-*.apk" | head -n1)
+    if [[ -z "$apk_file" ]]; then
+        log_error "Android APK file not found"
+        return 1
+    fi
+    
+    log_info "Extracting from $(basename "$apk_file")..."
+    
+    # Create extraction directory
+    mkdir -p extracted/android
+    
+    # Extract the APK (which is just a ZIP file)
+    if ! unzip -q "$apk_file" -d apk_extract/; then
+        log_error "Failed to extract APK file"
+        return 1
+    fi
+    
+    # Find and copy libtor.so for arm64-v8a
+    local libtor_path="apk_extract/lib/arm64-v8a/libTor.so"
+    if [[ -f "$libtor_path" ]]; then
+        cp "$libtor_path" extracted/android/libtor.so
+        log_success "Extracted libtor.so from Android APK"
+    else
+        log_error "Could not find libTor.so in APK at $libtor_path"
+        return 1
+    fi
+    
+    # Clean up APK extraction
+    rm -rf apk_extract/ 2>/dev/null || true
+    
+    log_success "Android binary extracted successfully"
+    return 0
+}
 
+# Install extracted desktop binaries
+install_desktop_binaries() {
+    log_info "Installing extracted desktop Tor binaries..."
+    
     local extracted_dir="$TEMP_DIR/extracted"
     if [[ ! -d "$extracted_dir" ]]; then
         log_error "No extracted binaries found. Run --download first."
         return 1
     fi
-
-
+    
+    
     # Install Linux binaries
     if [[ -d "$extracted_dir/linux" ]]; then
         log_info "Installing Linux binaries..."
         cp "$extracted_dir/linux"/* "$TOR_DIR/linux/"
         log_success "Installed Linux binaries"
     fi
-
-    # Install macOS x64 binaries
-    if [[ -d "$extracted_dir/darwin-x64" ]]; then
-        log_info "Installing macOS x64 binaries..."
-        cp "$extracted_dir/darwin-x64"/* "$TOR_DIR/darwin/x64/"
-        log_success "Installed macOS x64 binaries"
+    
+    # Install macOS universal binaries
+    if [[ -d "$extracted_dir/darwin" ]]; then
+        log_info "Installing macOS universal binaries..."
+        cp "$extracted_dir/darwin"/* "$TOR_DIR/darwin/"
+        log_success "Installed macOS universal binaries"
     fi
-
-    # Install macOS ARM64 binaries
-    if [[ -d "$extracted_dir/darwin-arm64" ]]; then
-        log_info "Installing macOS ARM64 binaries..."
-        cp "$extracted_dir/darwin-arm64"/* "$TOR_DIR/darwin/arm64/"
-        log_success "Installed macOS ARM64 binaries"
-    fi
-
+    
     # Install Windows binaries
     if [[ -d "$extracted_dir/win32" ]]; then
         log_info "Installing Windows binaries..."
         cp "$extracted_dir/win32"/* "$TOR_DIR/win32/"
         log_success "Installed Windows binaries"
     fi
+    
+    log_success "All desktop binaries installed."
+    return 0
+}
 
-    log_success "All binaries installed."
+# Install extracted Android binaries
+install_android_binaries() {
+    log_info "Installing extracted Android Tor binaries..."
+    
+    local extracted_dir="$TEMP_DIR/extracted"
+    if [[ ! -d "$extracted_dir" ]]; then
+        log_error "No extracted binaries found. Run extraction first."
+        return 1
+    fi
+    
+    # Create Android directory if it doesn't exist
+    mkdir -p "$ANDROID_TOR_DIR"
+    
+    # Install Android libtor.so
+    if [[ -f "$extracted_dir/android/libtor.so" ]]; then
+        log_info "Installing Android libtor.so..."
+        cp "$extracted_dir/android/libtor.so" "$ANDROID_TOR_DIR/"
+        log_success "Installed Android libtor.so"
+    else
+        log_error "No Android libtor.so found to install"
+        return 1
+    fi
+    
+    log_success "Android binaries installed."
     return 0
 }
 
 
+# Check all required dependencies before starting
+check_dependencies() {
+    log_info "Checking required dependencies..."
+    
+    # Check for GPG (required for signature verification)
+    if ! command -v gpg >/dev/null 2>&1; then
+        log_error "GPG is not installed. GPG is REQUIRED to verify download signatures."
+        log_error "This is a security requirement to ensure download integrity."
+        log_error "On macOS, install GPG with: brew install gnupg"
+        log_error "On Ubuntu/Debian, install GPG with: sudo apt install gnupg"
+        log_error "On Red Hat/Fedora, install GPG with: sudo dnf install gnupg2"
+        return 1
+    fi
+    
+    # Check for download tools
+    if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+        log_error "Neither curl nor wget is available for downloading"
+        log_error "Install with: sudo apt install curl (Debian/Ubuntu)"
+        log_error "          or: sudo dnf install curl (Red Hat/Fedora)"
+        return 1
+    fi
+    
+    # Check for unzip (required for Android APK extraction)
+    if ! command -v unzip >/dev/null 2>&1; then
+        log_error "unzip command not found. Required for Android APK extraction."
+        log_error "Install with: sudo apt install unzip (Debian/Ubuntu)"
+        log_error "          or: sudo dnf install unzip (Red Hat/Fedora)"
+        return 1
+    fi
+    
+    # Platform-specific dependency checks
+    if [[ "$(uname)" != "Darwin" ]]; then
+        # Linux: Check for DMG extraction tools
+        if ! command -v dmg2img >/dev/null 2>&1; then
+            log_error "dmg2img is required to extract macOS DMG files on Linux"
+            log_error "Install with: sudo apt install dmg2img (Debian/Ubuntu)"
+            log_error "            or: sudo dnf install dmg2img (Red Hat/Fedora)"
+            return 1
+        fi
+        
+        if ! command -v 7z >/dev/null 2>&1; then
+            log_error "7z is required to extract macOS DMG files on Linux"
+            log_error "Install with: sudo apt install p7zip-full (Debian/Ubuntu)"
+            log_error "            or: sudo dnf install p7zip-plugins (Red Hat/Fedora)"
+            return 1
+        fi
+    fi
+    
+    log_success "All required dependencies are available"
+    return 0
+}
+
 # Test GPG verification functionality
 test_gpg_verification() {
     log_info "Running GPG verification tests..."
-
+    
     local test_dir="$TEMP_DIR/gpg-test"
     mkdir -p "$test_dir"
     cd "$test_dir"
-
+    
     # Initialize GPG
     if ! init_gpg; then
         log_error "Failed to initialize GPG for testing"
@@ -420,7 +611,6 @@ test_gpg_verification() {
         wget -q -O "$test_file" "$test_url" || { log_error "Failed to download test file"; return 1; }
         wget -q -O "${test_file}.asc" "${test_url}.asc" || { log_error "Failed to download test signature"; return 1; }
     fi
-
     if verify_signature "$test_file"; then
         log_success "Test 1 PASSED: Valid signature verified correctly"
     else
@@ -460,7 +650,6 @@ test_gpg_verification() {
     else
         log_success "Test 4 PASSED: Invalid signature correctly rejected"
     fi
-
     log_success "All GPG verification tests passed!"
     return 0
 }
@@ -468,7 +657,6 @@ test_gpg_verification() {
 # Main execution function
 main() {
     local test_verify=false
-
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -487,27 +675,37 @@ main() {
                 ;;
         esac
     done
-
     # Verify we're in the right directory
     if [[ ! -d "$TOR_DIR" ]]; then
         log_error "Tor directory not found: $TOR_DIR"
         log_error "Make sure you're running this from the Quiet project root"
         exit 1
     fi
-
+    
+    # Check all dependencies before starting
+    if ! check_dependencies; then
+        log_error "Missing required dependencies. Please install them before running this script."
+        exit 1
+    fi
+    
     # Run tests if requested
     if [[ "$test_verify" == true ]]; then
         test_gpg_verification
         exit $?
     fi
-
+    
     # Download and install Tor binaries
-    log_info "Updating Tor binaries to latest version..."
     local latest_version=$(get_latest_tor_version)
-    download_tor_bundles "$latest_version"
-    extract_binaries
-    install_binaries
-    log_success "Tor binaries updated successfully to version $latest_version"
+    log_info "Updating all Tor binaries to version $latest_version..."
+    
+    download_desktop_bundles "$latest_version"
+    download_android_apk "$latest_version"
+    extract_desktop_binaries
+    extract_android_binaries
+    install_desktop_binaries
+    install_android_binaries
+    
+    log_success "All Tor binaries updated successfully to version $latest_version"
 }
 
 # Run main function with all arguments
