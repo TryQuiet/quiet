@@ -195,9 +195,6 @@ describe('Backwards Compatibility', () => {
 
       itif(process.platform == 'linux')('Take a screenshot', async () => {
         const imgContent = await ownerAppNewVersion.driver.takeScreenshot()
-        await fs.writeFile(path.join(ownerAppNewVersion.buildSetup.dataDir!, 'screenshot.png'), imgContent, {
-          encoding: 'base64',
-        })
         logger.info('img content', imgContent)
       })
 
