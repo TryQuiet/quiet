@@ -1,4 +1,7 @@
 import { WebElement } from 'selenium-webdriver'
+import { promises as fs } from 'fs'
+import * as path from 'path'
+
 import {
   App,
   Channel,
@@ -8,7 +11,6 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  UpdateModal,
 } from '../selectors'
 import { MessageIds } from '../types'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller } from '../utils'
@@ -28,9 +30,7 @@ describe('Backwards Compatibility', () => {
   let messagesToCompare: WebElement[]
   let sidebar: Sidebar
   let generalChannelMessageIds: MessageIds
-  let secondChannelMessageIds: MessageIds
 
-  const dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const ownerMessages = ['Hi', 'Hello', 'After guest leave app']
@@ -43,7 +43,9 @@ describe('Backwards Compatibility', () => {
     // download the old version of the app
     const appFilename = downloadInstaller()
     const copiedFilename = copyInstallerFile(appFilename)
+    const dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename })
+    ownerAppNewVersion = new App({ dataDir })
   })
 
   beforeEach(async () => {
@@ -173,7 +175,6 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')('Owner opens the app in new version', async () => {
-        ownerAppNewVersion = new App({ dataDir })
         await ownerAppNewVersion.openWithRetries({ timeoutMs: 60_000, attempts: 3 })
       })
 
@@ -185,7 +186,19 @@ describe('Backwards Compatibility', () => {
       }
 
       itif(process.platform == 'linux')('Owner closes update modal if opened', async () => {
-        await ownerAppNewVersion.closeUpdateModalIfPresent()
+        try {
+          await ownerAppNewVersion.closeUpdateModalIfPresent()
+        } catch (e) {
+          // do nothing
+        }
+      })
+
+      itif(process.platform == 'linux')('Take a screenshot', async () => {
+        const imgContent = await ownerAppNewVersion.driver.takeScreenshot()
+        await fs.writeFile(path.join(ownerAppNewVersion.buildSetup.dataDir!, 'screenshot.png'), imgContent, {
+          encoding: 'base64',
+        })
+        logger.info('img content', imgContent)
       })
 
       itif(process.platform == 'linux')('Confirm that the opened app is the latest version', async () => {
