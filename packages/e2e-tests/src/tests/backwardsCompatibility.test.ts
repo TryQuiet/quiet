@@ -13,7 +13,7 @@ import {
   Sidebar,
 } from '../selectors'
 import { MessageIds } from '../types'
-import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller } from '../utils'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller, sleep } from '../utils'
 import { createLogger } from '../logger'
 
 const logger = createLogger('backwardsCompatibility')
@@ -182,6 +182,7 @@ describe('Backwards Compatibility', () => {
         itif(process.platform == 'linux')('Owner closes debug modal if opened', async () => {
           const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
           await debugModal.close()
+          await sleep(30_000)
         })
       }
 
@@ -191,6 +192,13 @@ describe('Backwards Compatibility', () => {
         } catch (e) {
           // do nothing
         }
+      })
+
+      itif(process.platform == 'linux')('Owner waits for app to finish loading', async () => {
+        generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
+        expect(await generalChannel.isReady()).toBeTruthy()
+        expect(await generalChannel.isOpen()).toBeTruthy()
+        expect(await generalChannel.isMessageInputReady()).toBeTruthy()
       })
 
       itif(process.platform == 'linux')('Take a screenshot', async () => {
@@ -212,6 +220,8 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')('Owner sees general channel', async () => {
         generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
         expect(await generalChannel.isReady()).toBeTruthy()
+        expect(await generalChannel.isOpen()).toBeTruthy()
+        expect(await generalChannel.isMessageInputReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
         expect(generalChannelText).toEqual('# general')
