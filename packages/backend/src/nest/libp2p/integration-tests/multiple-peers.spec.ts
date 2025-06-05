@@ -48,13 +48,13 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     }
   })
 
-  afterEach(async () => {
-    // Clear event timelines
-    eventTimeline.length = 0
-    for (let i = 0; i < eventTimelines.length; i++) {
-      eventTimelines[i].length = 0
-    }
-  })
+  // afterEach(async () => {
+  //   // Clear event timelines
+  //   eventTimeline.length = 0
+  //   for (let i = 0; i < eventTimelines.length; i++) {
+  //     eventTimelines[i].length = 0
+  //   }
+  // })
 
   afterAll(async () => {
     // Stop all instances and close modules
@@ -66,34 +66,34 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
   })
 
   it('joins with an invitation', async () => {
+    logger.info('joins with an invitation')
     const libp2pService = modules[0].get(Libp2pService)
-    await new Promise<void>((resolve, reject) => {
-      const resolveIfMet = async () => {
-        if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.AUTH_JOINED)) {
+    // Sequentially dial and wait for each peer to join
+    for (let i = 1; i < modules.length; i++) {
+      const peerLibp2pService = await modules[i].resolve(Libp2pService)
+      await peerLibp2pService.dialPeer(libp2pService.localAddress)
+      logger.info(`dialed peer ${i}`)
+      // Wait for the peer to be connected (AUTH_JOINED)
+      await new Promise<void>(resolve => {
+        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+          logger.info(`peer ${i} connected`)
           resolve()
-        }
-      }
-
-      for (const libp2pService of modules.slice(1).map(module => module.get(Libp2pService))) {
-        libp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
-          resolveIfMet()
         })
-      }
-      for (let i = 1; i < modules.length; i++) {
-        modules[i].get(Libp2pService).dialPeer(libp2pService.localAddress)
-        logger.info(`dialed peer ${i}`)
-      }
-    })
+      })
+    }
   })
 
   it('emits connected after syncing', async () => {
     logger.info('emits connected after syncing')
     await new Promise<void>((resolve, reject) => {
-      const resolveIfMet = async () => {
+      async function resolveIfMet() {
+        logger.info('Event timelines:', eventTimelines)
         if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.AUTH_CONNECTED)) {
+          clearInterval(interval)
           resolve()
         }
       }
+      const interval = setInterval(resolveIfMet, 100)
       for (const libp2pService of modules.slice(1).map(module => module.get(Libp2pService))) {
         libp2pService.once(Libp2pEvents.AUTH_CONNECTED, () => {
           resolveIfMet()
