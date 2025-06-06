@@ -11,6 +11,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [5.1.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@5.1.2-alpha.1...@quiet/desktop@5.1.2) (2025-06-06)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 # Changelog
 
 ## [unreleased]
