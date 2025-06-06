@@ -4,6 +4,16 @@
 
 ### Chores
 
+* Quiet Desktop now uses Tor 0.4.8.16
+* The process for updating Tor on desktop is now mostly automated and part of our release checklist
+* Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
+* The process for updating Tor on Android is now also mostly automated and part of our release checklist
+* Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
+
+## [5.1.0]
+
+### Chores
+
 * Rename upload/uploaded terminology to attachment for clarity across codebase
 * Updates Android instructions in `packages/mobile/README.md`
 
