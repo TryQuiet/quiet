@@ -1,24 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [5.1.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@5.1.2-alpha.1...@quiet/mobile@5.1.2) (2025-06-06)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
-## [5.1.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@5.1.2-alpha.1...@quiet/mobile@5.1.2) (2025-06-06)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 ## [unreleased]
