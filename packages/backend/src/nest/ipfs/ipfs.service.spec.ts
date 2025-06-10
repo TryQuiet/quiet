@@ -28,8 +28,8 @@ describe('IpfsService', () => {
   })
 
   afterEach(async () => {
-    await libp2pService.close()
     await ipfsService.stop()
+    await libp2pService.close()
     await module.close()
   })
 

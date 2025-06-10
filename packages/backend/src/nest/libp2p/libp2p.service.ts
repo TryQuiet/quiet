@@ -660,7 +660,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async close(closeDatastore = true): Promise<void> {
-    this.logger.info('Closing libp2p service')
+    this.logger.info('Closing libp2p service:', this.localAddress)
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
       this._dialQueueInterval = null
@@ -670,10 +670,13 @@ export class Libp2pService extends EventEmitter {
     this.redialQueue.stop(true)
     await this.hangUpPeers()
     await this.libp2pInstance?.stop()
+
+    // gives libp2p a tick to close its services
+    await new Promise<void>(r => setImmediate(r))
+
     if (closeDatastore) {
       await this.closeDatastore()
     }
-
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()

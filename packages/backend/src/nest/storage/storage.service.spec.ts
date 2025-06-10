@@ -25,7 +25,6 @@ import { createLogger } from '../common/logger'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
-import { Network } from '@libp2p/kad-dht/dist/src/network'
 
 const logger = createLogger('storageService:test')
 
@@ -111,8 +110,8 @@ describe('StorageService', () => {
 
   afterEach(async () => {
     await ipfsService.stop()
-    await libp2pService.close()
     await storageService.stop()
+    await libp2pService.close()
     await sigchainService.deleteChain('team', true)
     await localDbService.close()
     if (fs.existsSync(filePath)) {
@@ -229,5 +228,11 @@ describe('StorageService', () => {
       expect(arg['peer1'].peerId).toEqual('peer1')
       expect(arg['peer1'].address).toEqual(expectedMultiaddr)
     })
+  })
+
+  it('should clean stores and reinitialize', async () => {
+    await storageService.init(peerId)
+    await storageService.clean()
+    await storageService.init(peerId)
   })
 })

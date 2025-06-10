@@ -107,9 +107,8 @@ describe('ChannelsService', () => {
   })
 
   afterEach(async () => {
-    await libp2pService.close()
-    await ipfsService.stop()
     await storageService.stop()
+    await libp2pService.close()
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }

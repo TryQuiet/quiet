@@ -50,6 +50,14 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
     // OrbitDB identity when creating the store. For this we need to
     // know at the time of initialization whether or not someone is
     // the owner.
+    if (this.orbitDbService.orbitDb == undefined) {
+      logger.error('OrbitDB instance is not initialized')
+      throw new Error('OrbitDB instance is not initialized')
+    }
+    if (this.orbitDbService.identities == undefined) {
+      logger.error('OrbitDB identities are not initialized')
+      throw new Error('OrbitDB identities are not initialized')
+    }
 
     this.store = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('community-metadata', {
       sync: false,

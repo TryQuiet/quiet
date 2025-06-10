@@ -29,9 +29,9 @@ import { LocalDbService } from '../../local-db/local-db.service'
 
 @Injectable()
 export class OrbitDbService {
-  private orbitDbInstance: OrbitDBType | null = null
+  private orbitDbInstance: OrbitDBType | undefined = undefined
   private stores: Record<string, any> = {}
-  public identities: IdentitiesType
+  public identities: IdentitiesType | undefined = undefined
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
@@ -42,7 +42,7 @@ export class OrbitDbService {
   ) {}
 
   get orbitDb() {
-    if (this.orbitDbInstance == null) {
+    if (this.orbitDbInstance == undefined) {
       this.logger.error('[get orbitDb]:no orbitDbInstance')
       throw new Error('[get orbitDb]:no orbitDbInstance')
     }
@@ -51,7 +51,7 @@ export class OrbitDbService {
 
   public async create(peerId: PeerId, ipfs: Helia) {
     this.logger.info('Creating OrbitDB')
-    if (this.orbitDbInstance != null) {
+    if (this.orbitDbInstance != undefined) {
       this.logger.warn(`Already had an instance of OrbitDB, returning...`)
       return
     }
@@ -71,20 +71,26 @@ export class OrbitDbService {
   }
 
   public async stop() {
-    if (this.orbitDbInstance != null) {
+    if (this.orbitDbInstance != undefined) {
       this.logger.info('Stopping OrbitDB')
       try {
+        // Remove all event listeners from stores
+        for (const store of Object.values(this.stores)) {
+          store.events?.removeAllListeners?.()
+          await store.close?.()
+        }
+        this.stores = {}
         await this.orbitDbInstance.stop()
       } catch (err) {
-        this.logger.error(`Following error occured during closing orbitdb database`, err)
+        this.logger.error(`Error during closing orbitdb database`, err)
       }
     }
-
-    this.orbitDbInstance = null
+    this.orbitDbInstance = undefined
+    this.identities = undefined
   }
 
   public async open<T>(address: string, options?: OrbitDBOpenOptions): Promise<T> {
-    if (this.orbitDbInstance == null) {
+    if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
     const store = await this.orbitDbInstance.open<T>(address, options)
@@ -97,7 +103,7 @@ export class OrbitDbService {
   }
 
   private async joinPendingHeads(address?: string): Promise<void> {
-    if (this.orbitDbInstance == null) return
+    if (this.orbitDbInstance == undefined) return
 
     const pendingHeads = await this.localDbService.getPendingHeads()
     this.logger.info(`Joining pending heads for address ${address || 'all'}`, JSON.stringify(pendingHeads))
@@ -123,7 +129,7 @@ export class OrbitDbService {
       heads.map(head => CID.parse(head.hash, base58btc))
     )
 
-    if (this.orbitDbInstance == null) {
+    if (this.orbitDbInstance == undefined) {
       return
     }
 
@@ -139,7 +145,7 @@ export class OrbitDbService {
           return head.hash
         } catch (err) {
           this.logger.warn(`Failed to join entry ${head.hash} to store ${address}`, err)
-          return null
+          return undefined
         }
       })
     )
@@ -154,7 +160,7 @@ export class OrbitDbService {
   }
 
   public async ingestEntries(entries: LogEntry[]): Promise<void> {
-    if (this.orbitDbInstance == null) {
+    if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
     const newHeads: Map<string, LogEntry[]> = new Map()

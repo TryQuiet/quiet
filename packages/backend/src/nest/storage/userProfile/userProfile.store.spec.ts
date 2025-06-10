@@ -72,10 +72,10 @@ describe('UserProfileStore', () => {
 
   afterEach(async () => {
     await userProfileStore.close()
-    await localDbService.close()
     await orbitDbService.stop()
     await ipfsService.stop()
     await libp2pService.close()
+    await localDbService.close()
     if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
       fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
     }

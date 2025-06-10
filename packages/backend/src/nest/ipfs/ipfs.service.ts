@@ -184,6 +184,9 @@ export class IpfsService {
       }
     }
 
+    // gives libp2p a tick to close its services
+    await new Promise<void>(r => setImmediate(r))
+
     try {
       await this.blockstore?.db.close()
       await this.blockstore?.store.close()

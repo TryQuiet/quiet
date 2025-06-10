@@ -57,10 +57,14 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
   // })
 
   afterAll(async () => {
+    logger.info('Cleaning up modules')
     // Stop all instances and close modules
     for (const module of modules) {
       const libp2pService = await module.resolve(Libp2pService)
       await libp2pService.close()
+    }
+    logger.info('Closing modules')
+    for (const module of modules) {
       await module.close()
     }
   })
