@@ -73,20 +73,11 @@ export class OrbitDbService {
   public async stop() {
     if (this.orbitDbInstance != undefined) {
       this.logger.info('Stopping OrbitDB')
-      try {
-        // Remove all event listeners from stores
-        for (const store of Object.values(this.stores)) {
-          store.events?.removeAllListeners?.()
-          await store.close?.()
-        }
-        this.stores = {}
-        await this.orbitDbInstance.stop()
-      } catch (err) {
-        this.logger.error(`Error during closing orbitdb database`, err)
-      }
+      await this.orbitDbInstance.stop()
+      this.stores = {}
+      this.orbitDbInstance = undefined
+      this.identities = undefined
     }
-    this.orbitDbInstance = undefined
-    this.identities = undefined
   }
 
   public async open<T>(address: string, options?: OrbitDBOpenOptions): Promise<T> {

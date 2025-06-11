@@ -24,9 +24,6 @@ import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
-import { EncryptedMessage } from './channels/messages/messages.types'
-import { LogEntry } from '@orbitdb/core'
-import { CID } from 'multiformats/cid'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -84,8 +81,6 @@ export class StorageService extends EventEmitter {
   }
 
   public async clean() {
-    this.peerId = null
-
     await this.channelsService.clean()
     await this.userProfileStore.clean()
 
