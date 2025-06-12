@@ -77,7 +77,7 @@ describe('OrbitDbService', () => {
   })
 
   it('creates an orbitDb instance', async () => {
-    await orbitDbService.create(libp2pParams.peerId.peerId, ipfsService.ipfsInstance!)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
     expect(orbitDbService.orbitDb).toBeDefined()
     expect(orbitDbService.identities).toBeDefined()
   })
@@ -93,7 +93,7 @@ describe('OrbitDbService', () => {
   })
 
   it('starts the orbitDb instance again after stopping', async () => {
-    await orbitDbService.create(libp2pParams.peerId.peerId, ipfsService.ipfsInstance!)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
     expect(orbitDbService.orbitDb).toBeDefined()
     expect(orbitDbService.identities).toBeDefined()
   })

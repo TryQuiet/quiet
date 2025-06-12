@@ -53,7 +53,7 @@ import {
   DeleteChannelPayload,
   SetUserProfilePayload,
 } from '@quiet/types'
-import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { CONFIG_OPTIONS, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -86,7 +86,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
-    @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     public readonly libp2pService: Libp2pService,
@@ -248,7 +247,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async resume() {
     this.logger.info('Resuming!')
     await this.openSocket()
-    this.libp2pService?.resume(await this.localDbService.getSortedPeers())
+    this.libp2pService?.resume()
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -312,7 +311,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.closeDatastore()
 
     this.logger.info('Purging data')
-    await this.purgeData()
+    this.storageService.purgeData()
 
     this.logger.info('Resetting Tor')
     this.tor.resetHiddenServices()
@@ -333,44 +332,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityId = ''
     this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
     this.communityState = ServiceState.DEFAULT
-  }
-
-  public async purgeData() {
-    this.logger.info('Purging community data')
-    await this._purgeDataDirectories()
-    await this._purgeFiles()
-  }
-
-  private async _purgeDataDirectories() {
-    const dirsToRemove = fs
-      .readdirSync(this.quietDir)
-      .filter(
-        i =>
-          i.startsWith('Ipfs') ||
-          i.startsWith('OrbitDB') ||
-          i.startsWith('backendDB') ||
-          i.startsWith('Local Storage') ||
-          i.startsWith('libp2pDatastore') ||
-          i.startsWith('databases') ||
-          i.startsWith('TorDataDirectory')
-      )
-    for (const dir of dirsToRemove) {
-      const dirPath = path.join(this.quietDir, dir)
-      this.logger.info(`Removing dir: ${dirPath}`)
-      removeFilesFromDir(dirPath)
-    }
-  }
-
-  private async _purgeFiles() {
-    const filesToRemove = ['Network Persistent State']
-    for (const filePath of filesToRemove) {
-      this.logger.info(`Removing file ${filePath}`)
-      try {
-        fs.rmSync(path.join(this.quietDir, filePath))
-      } catch (e) {
-        this.logger.warn('Failed to delete file on purge', filePath)
-      }
-    }
   }
 
   public async getNetworkInfo(): Promise<NetworkInfo> {
@@ -620,7 +581,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const setupStorage = async () => {
       this.logger.info('Setting up storage')
-      await this.storageService.init(peerIdData.peerId)
+      await this.storageService.init()
     }
 
     if (this.sigChainService.getActiveChain().team != null) {

@@ -94,7 +94,7 @@ describe('ChannelsService', () => {
     await sigChainService.createChain(community.name!, 'alice', true)
     aliceUserId = sigChainService.getActiveChain().user.userId
 
-    await storageService.init(peerId)
+    await storageService.init()
 
     channel = await factory.build<PublicChannel>('PublicChannel', {
       owner: aliceUserId,

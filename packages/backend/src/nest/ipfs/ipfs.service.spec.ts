@@ -41,7 +41,7 @@ describe('IpfsService', () => {
 
   it('destory instance IPFS', async () => {
     await ipfsService.createInstance()
-    await ipfsService.destoryInstance()
+    await ipfsService.destroyInstance()
     expect(ipfsService.ipfsInstance).toBeNull()
   })
 })

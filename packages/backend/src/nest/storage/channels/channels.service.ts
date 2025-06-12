@@ -44,12 +44,11 @@ export class ChannelsService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
   // Channel metadata store
-  public channels: KeyValueType<EncryptedAndSignedPayload> | null
+  public channels: KeyValueType<EncryptedAndSignedPayload> | undefined
 
   private readonly logger = createLogger(`storage:channels`)
 
   constructor(
-    @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly filesManager: IpfsFileManagerService,
@@ -641,6 +640,17 @@ export class ChannelsService extends EventEmitter {
    * NOTE: Does NOT affect data stored in IPFS
    */
   public async clean(): Promise<void> {
+    this.logger.info('Cleaning channels DB')
+    try {
+      await this.channels?.sync?.stop?.()
+    } catch (e) {
+      // If the sync is not started, this will throw an error
+    }
+    try {
+      await this.channels?.drop?.()
+    } catch (e) {
+      this.logger.error('Error dropping channels DB', e)
+    }
     for (const [channelId, channel] of this.publicChannelsRepos.entries()) {
       try {
         this.logger.info(`Cleaning ${channelId} DB`)
@@ -649,13 +659,9 @@ export class ChannelsService extends EventEmitter {
         this.logger.error(`Error cleaning ${channelId} DB`, e)
       }
     }
-    // @ts-ignore
     this.channels = undefined
-    // @ts-ignore
-    this.messageThreads = undefined
-    // @ts-ignore
     this.publicChannelsRepos = new Map()
 
-    this.channels = null
+    this.channels = undefined
   }
 }

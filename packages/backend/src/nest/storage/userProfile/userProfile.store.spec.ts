@@ -57,7 +57,7 @@ describe('UserProfileStore', () => {
     await ipfsService.createInstance()
 
     orbitDbService = await module.resolve(OrbitDbService)
-    await orbitDbService.create(libp2pParams.peerId.peerId, ipfsService.ipfsInstance!)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
     localDbService = await module.resolve(LocalDbService)
 
     userProfile = await factory.build('UserProfile', {

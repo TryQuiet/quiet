@@ -49,7 +49,7 @@ export class OrbitDbService {
     return this.orbitDbInstance
   }
 
-  public async create(peerId: PeerId, ipfs: Helia) {
+  public async create(ipfs: HeliaLibp2p) {
     this.logger.info('Creating OrbitDB')
     if (this.orbitDbInstance != undefined) {
       this.logger.warn(`Already had an instance of OrbitDB, returning...`)
@@ -60,6 +60,7 @@ export class OrbitDbService {
 
     this.identities = await IdentitiesWithStorage(this.orbitDbDir, ipfs)
 
+    const peerId = ipfs.libp2p.peerId
     const orbitDb = await createOrbitDB({
       ipfs,
       id: peerId.toString(),
@@ -70,14 +71,50 @@ export class OrbitDbService {
     this.orbitDbInstance = orbitDb
   }
 
+  public async startSync(address?: string) {
+    if (this.orbitDbInstance == undefined) {
+      throw new Error('OrbitDB instance is not initialized. Call create() first.')
+    }
+    if (address && !this.stores[address]) {
+      throw new Error(`No store found for address ${address}. Cannot start sync.`)
+    }
+    for (const store of Object.values(this.stores)) {
+      if (address && store.address !== address) {
+        continue
+      }
+      await store.sync?.start?.()
+      this.logger.info(`Started sync for store ${store.address}`)
+    }
+  }
+
+  public async stopSync(address?: string) {
+    if (this.orbitDbInstance == undefined) {
+      throw new Error('OrbitDB instance is not initialized. Call create() first.')
+    }
+    if (address && !this.stores[address]) {
+      throw new Error(`No store found for address ${address}. Cannot stop sync.`)
+    }
+    for (const store of Object.values(this.stores)) {
+      if (address && store.address !== address) {
+        continue
+      }
+      await store.sync?.stop?.()
+      this.logger.info(`Stopped sync for store ${store.address}`)
+    }
+  }
+
   public async stop() {
     if (this.orbitDbInstance != undefined) {
       this.logger.info('Stopping OrbitDB')
-      await this.orbitDbInstance.stop()
-      this.stores = {}
-      this.orbitDbInstance = undefined
-      this.identities = undefined
+      try {
+        await this.orbitDbInstance.stop()
+      } catch (err) {
+        this.logger.error(`Error during closing orbitdb database`, err)
+      }
     }
+    this.stores = {}
+    this.orbitDbInstance = undefined
+    this.identities = undefined
   }
 
   public async open<T>(address: string, options?: OrbitDBOpenOptions): Promise<T> {
@@ -97,7 +134,6 @@ export class OrbitDbService {
     if (this.orbitDbInstance == undefined) return
 
     const pendingHeads = await this.localDbService.getPendingHeads()
-    this.logger.info(`Joining pending heads for address ${address || 'all'}`, JSON.stringify(pendingHeads))
     if (!pendingHeads) return
     for (const [addr, cids] of Object.entries(pendingHeads as Record<string, CID[]>)) {
       if (address && addr !== address) continue

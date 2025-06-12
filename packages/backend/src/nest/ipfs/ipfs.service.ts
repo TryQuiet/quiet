@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { createHelia, type Helia } from 'helia'
+import { createHelia, HeliaLibp2p, type Helia } from 'helia'
 import { bitswap } from '@helia/block-brokers'
 import { IPFS_REPO_PATCH } from '../const'
 import { createLogger } from '../common/logger'
@@ -26,7 +26,7 @@ type Datastore = {
 
 @Injectable()
 export class IpfsService {
-  public ipfsInstance: Helia | null
+  public ipfsInstance: HeliaLibp2p | null
   private blockstore: Blockstore | null
   private datastore: Datastore | null
 
@@ -40,10 +40,10 @@ export class IpfsService {
     this.started = false
   }
 
-  public async createInstance(): Promise<Helia> {
+  public async createInstance(): Promise<HeliaLibp2p> {
     const libp2pInstance = this.libp2pService?.libp2pInstance
 
-    let ipfs: Helia
+    let ipfs: HeliaLibp2p
     try {
       if (!libp2pInstance) {
         this.logger.error('Libp2p instance required')
@@ -168,7 +168,7 @@ export class IpfsService {
     this.logger.info(`IPFS Service has started`)
   }
 
-  public async isStarted() {
+  public isStarted() {
     return this.started
   }
 
@@ -209,7 +209,7 @@ export class IpfsService {
     this.started = false
   }
 
-  public async destoryInstance() {
+  public async destroyInstance() {
     try {
       await this.stop()
     } catch (error) {
