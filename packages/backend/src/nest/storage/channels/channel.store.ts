@@ -335,6 +335,20 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async clean(): Promise<void> {
     this.logger.info(`Cleaning channel store`, this.channelData.id, this.channelData.name)
+    try {
+      await this.stopSync()
+    } catch (e) {
+      // If we are not subscribed, this will throw an error
+    }
+    try {
+      if (!this.store) {
+        this.logger.warn(`Store is already undefined, nothing to drop`)
+        return
+      }
+      await this.getStore().drop()
+    } catch (e) {
+      this.logger.error(`Failed to drop store`, e)
+    }
     this.store = undefined
     this._subscribing = false
   }
