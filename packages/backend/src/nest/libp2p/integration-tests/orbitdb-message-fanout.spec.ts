@@ -25,34 +25,36 @@ import { LocalDbService } from '../../local-db/local-db.service'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
-const logHeads = async (store: any) => {
-  const heads = await store.log.heads()
-  // log everything but "bytes"
-  logger.info(
-    `Heads for ${store.id}:`,
-    heads.map((h: any) => ({ ...h, bytes: undefined }))
+/* ------------------------------------------------------------------ *
+ *  deepArrayEqual – multiplicity aware + stable stringify            *
+ * ------------------------------------------------------------------ */
+function stableStringify(obj: unknown): string {
+  if (obj === null || typeof obj !== 'object') return JSON.stringify(obj)
+  return (
+    '{' +
+    Object.keys(obj as Record<string, unknown>)
+      .sort()
+      .map(k => `${k}:${stableStringify((obj as Record<string, unknown>)[k])}`)
+      .join(',') +
+    '}'
   )
-  return heads
 }
 
-/**
- * Performs a deep, order-insensitive equality check between two arrays.
- * If an item has a 'hash' property, uses that as the comparison key; otherwise, uses JSON stringification.
- *
- * @param arr1 - The first array to compare.
- * @param arr2 - The second array to compare.
- * @returns True if arrays are deeply equal (order-insensitive), false otherwise.
- */
-function deepArrayEqual(arr1: any[], arr2: any[]): boolean {
+function deepArrayEqual(arr1: unknown[], arr2: unknown[]): boolean {
   if (arr1.length !== arr2.length) return false
-  // Prefer hash if present, else use JSON
-  const getKey = (item: any) => (item && typeof item === 'object' && 'hash' in item ? item.hash : JSON.stringify(item))
-  const set1 = new Set(arr1.map(getKey))
-  const set2 = new Set(arr2.map(getKey))
-  if (set1.size !== set2.size) return false
-  for (const key of set1) {
-    if (!set2.has(key)) return false
+  const key = (it: unknown) =>
+    it && typeof it === 'object' && 'hash' in (it as any) ? (it as any).hash : stableStringify(it)
+
+  const tally = (arr: unknown[]) => {
+    const m = new Map<string, number>()
+    for (const k of arr.map(key)) m.set(k, (m.get(k) ?? 0) + 1)
+    return m
   }
+
+  const m1 = tally(arr1)
+  const m2 = tally(arr2)
+  if (m1.size !== m2.size) return false
+  for (const [k, n] of m1) if (m2.get(k) !== n) return false
   return true
 }
 
@@ -63,44 +65,20 @@ function deepArrayEqual(arr1: any[], arr2: any[]): boolean {
  * @returns True if all services have the same channels, false otherwise.
  */
 async function channelsSynced(services: ChannelsService[]): Promise<boolean> {
-  // Collect all unique channel IDs across all services
-  const allChannelIds = new Set<string>()
-  const serviceChannelsArr: PublicChannel[][] = []
-  for (const service of services) {
-    const serviceChannels = await service.getChannels()
-    serviceChannelsArr.push(serviceChannels)
-    for (const channel of serviceChannels) {
-      allChannelIds.add(channel.id)
-    }
+  const idSet = new Set<string>()
+  const lists: PublicChannel[][] = []
+  for (const svc of services) {
+    const l = await svc.getChannels()
+    lists.push(l)
+    l.forEach(ch => idSet.add(ch.id))
   }
-  // For each channel ID, check that every service has it and all are deeply equal
-  for (const id of allChannelIds) {
-    const channelsForId: PublicChannel[] = []
-    for (const serviceChannels of serviceChannelsArr) {
-      const found = serviceChannels.find(c => c.id === id)
-      if (!found) {
-        logger.error(`Channel ${id} is missing in some services`)
-        return false
-      }
-      channelsForId.push(found)
-    }
-    const firstChannel = channelsForId[0]
-    for (const channel of channelsForId) {
-      if (!deepArrayEqual([channel], [firstChannel])) {
-        logger.error(`Channel ${id} differs between services`)
-        return false
-      }
-    }
-  }
-  // Also check that all services have the same number of channels
-  const expectedCount = serviceChannelsArr[0].length
-  for (const serviceChannels of serviceChannelsArr) {
-    if (serviceChannels.length !== expectedCount) {
-      logger.error(
-        `A service has a different number of channels: expected ${expectedCount}, got ${serviceChannels.length}`
-      )
-      return false
-    }
+  const len0 = lists[0].length
+  if (lists.some(l => l.length !== len0)) return false
+
+  for (const id of idSet) {
+    const refs = lists.map(l => l.find(c => c.id === id))
+    if (refs.some(r => !r)) return false
+    if (!refs.every(r => deepArrayEqual([refs[0]], [r!]))) return false
   }
   return true
 }
@@ -113,158 +91,127 @@ async function channelsSynced(services: ChannelsService[]): Promise<boolean> {
  * @returns True if all entries are synced for all channels (or the specified channel), false otherwise.
  */
 async function channelEntriesSynced(services: ChannelsService[], channelId?: string): Promise<boolean> {
-  // Build a set of all unique channel IDs across all services (optionally filtered by channelId)
-  const allChannelIds = new Set<string>()
-  const serviceChannelsArr: PublicChannel[][] = []
-  const allEntriesInChannel: Map<string, Set<string>> = new Map()
-  for (const service of services) {
-    const serviceChannels = await service.getChannels()
-    serviceChannelsArr.push(serviceChannels)
-    for (const channel of serviceChannels) {
-      if (channelId && channel.id !== channelId) continue
-      allChannelIds.add(channel.id)
-      const repo = service.publicChannelsRepos.get(channel.id)
-      if (!repo) {
-        logger.error(`Channel ${channel.id} is missing in service ${services.indexOf(service)}`)
-        return false
-      }
-      const entries = await repo.store.getEntries()
-      if (!allEntriesInChannel.has(channel.id)) {
-        allEntriesInChannel.set(channel.id, new Set<string>())
-      }
-      const entrySet = allEntriesInChannel.get(channel?.id)
-      if (entrySet) {
-        for (const entry of entries) {
-          entrySet.add(entry.id)
-        }
-      }
+  const union = new Map<string, Set<string>>() // channelId → ids
+  const chanIds = new Set<string>()
+
+  for (const svc of services) {
+    for (const ch of await svc.getChannels()) {
+      if (channelId && ch.id !== channelId) continue
+      chanIds.add(ch.id)
+      const repo = svc.publicChannelsRepos.get(ch.id)
+      if (!repo) return false
+      const ids = new Set((await repo.store.getEntries()).map(e => e.id))
+      const bag = union.get(ch.id) ?? new Set<string>()
+      ids.forEach(id => bag.add(id))
+      union.set(ch.id, bag)
     }
   }
-  // For each channel ID, check that every service has the complete set of entries
-  for (const id of allChannelIds) {
-    for (let i = 0; i < services.length; i++) {
-      const service = services[i]
-      const repo = service.publicChannelsRepos.get(id)
-      if (!repo) {
-        logger.error(`Channel ${id} is missing in service ${i}`)
-        return false
-      }
-      const entries = await repo.store.getEntries()
-      const entrySet = allEntriesInChannel.get(id)
-      if (!entrySet) {
-        logger.error(`No entries found for channel ${id} in any service`)
-        return false
-      }
-      // Check if all entries in this service match the expected set
-      const serviceEntryIds = new Set(entries.map(e => e.id))
-      if (serviceEntryIds.size !== entrySet.size || ![...serviceEntryIds].every(id => entrySet.has(id))) {
-        const missingInService = [...entrySet].filter(id => !serviceEntryIds.has(id))
-        logger.error(
-          `Entries for channel ${id} differ in service ${i}.` +
-            (missingInService.length ? ` Missing in service: [${missingInService.join(', ')}].` : '')
-        )
-        return false
-      }
+
+  for (const id of chanIds) {
+    for (const svc of services) {
+      const repo = svc.publicChannelsRepos.get(id)
+      if (!repo) return false
+      const ids = new Set((await repo.store.getEntries()).map(e => e.id))
+      const bag = union.get(id)!
+      if (ids.size !== bag.size) return false
+      for (const x of bag) if (!ids.has(x)) return false
     }
   }
   return true
 }
 
-/**
- * Waits for all channels and their entries to sync across all services (optionally for a specific channel).
- * Resolves with the time (ms) it took to sync, or undefined if timed out.
- * Optionally takes a callback to run after setting up the update listeners.
- *
- * @param services - Array of ChannelsService instances to monitor.
- * @param channelId - Optional channel ID to restrict the sync check.
- * @param timeoutMs - Timeout in milliseconds before giving up.
- * @param afterListenersSetup - Optional callback to run after listeners are set up.
- * @param pollRate - Rate in milliseconds to poll for updates.
- * @returns Promise that resolves with sync time in ms, or undefined if timeout is reached.
- */
-async function waitForChannelsAndEntriesToSync(
+/* ------------------------------------------------------------------ *
+ *  waitForSync – one‑phase helper (no callback)                      *
+ * ------------------------------------------------------------------ */
+async function waitForSync(
   services: ChannelsService[],
   channelId?: string,
-  timeoutMs = 5000,
-  afterListenersSetup?: () => Promise<void> | void,
+  timeoutMs = 5_000,
   pollRate = 100
 ): Promise<number | undefined> {
-  return new Promise<number | undefined>(resolve => {
+  return new Promise(resolve => {
     const start = Date.now()
+    const finishIf = async () => {
+      if ((await channelsSynced(services)) && (await channelEntriesSynced(services, channelId))) {
+        clearInterval(tick)
+        clearTimeout(expire)
+        resolve(Date.now() - start)
+      }
+    }
+    const tick = setInterval(finishIf, pollRate)
+    const expire = setTimeout(() => {
+      clearInterval(tick)
+      resolve(undefined)
+    }, timeoutMs)
+    services.forEach(svc => {
+      svc.channels?.events.on('update', finishIf)
+      svc.on(StorageEvents.CHANNEL_SUBSCRIBED, p => {
+        if (!channelId || p.channelId === channelId) {
+          svc.publicChannelsRepos.get(p.channelId)?.store.getStore().events.on('update', finishIf)
+        }
+      })
+      for (const [id, repo] of svc.publicChannelsRepos) {
+        if (!channelId || id === channelId) {
+          repo.store.getStore().events.on('update', finishIf)
+        }
+      }
+    })
+  })
+}
+
+/* ------------------------------------------------------------------ *
+ *  waitForSyncAndRun – callback‑safe two‑phase helper                *
+ * ------------------------------------------------------------------ */
+async function waitForSyncAndRun(
+  services: ChannelsService[],
+  performAction: () => void | Promise<void>,
+  channelId?: string,
+  timeoutMs = 5_000,
+  pollRate = 100
+): Promise<number | undefined> {
+  return new Promise(resolve => {
+    const start = Date.now()
+    let phase: 'pre' | 'post' = 'pre'
+
+    const maybeAdvance = async () => {
+      const synced = (await channelsSynced(services)) && (await channelEntriesSynced(services, channelId))
+
+      if (phase === 'pre' && synced) {
+        phase = 'post'
+        await performAction()
+        return
+      }
+      if (phase === 'post' && synced) {
+        cleanup()
+        resolve(Date.now() - start)
+      }
+    }
+
+    const poll = setInterval(maybeAdvance, pollRate)
     const timeout = setTimeout(() => {
-      logger.error('Channel/entry syncing timed out')
       cleanup()
       resolve(undefined)
     }, timeoutMs)
 
-    let resolved = false
     function cleanup() {
-      clearTimeout(timeout)
       clearInterval(poll)
+      clearTimeout(timeout)
     }
 
-    const maybeResolve = async () => {
-      logger.info('A channel or entry updated, checking if all channels and entries are synced...')
-      if (resolved) return
-      // Check if all channels are synced
-      if (await channelsSynced(services)) {
-        // Check if all entries are synced for all channels (or just the specified one)
-        if (await channelEntriesSynced(services, channelId)) {
-          resolved = true
-          cleanup()
-          resolve(Date.now() - start)
-        } else {
-          logger.info('Entries are not synced yet, waiting for updates...')
-          for (let i = 0; i < services.length; i++) {
-            const service = services[i]
-            for (const [id, repo] of service.publicChannelsRepos.entries()) {
-              if (channelId && id !== channelId) continue
-              const entries = await repo.store.getEntries()
-              logger.warn(`Peer ${i} channel ${id} has ${entries.length} entries`)
-            }
-          }
-        }
-      } else {
-        logger.info('Channels are not synced yet, waiting for updates...')
-        for (let i = 0; i < services.length; i++) {
-          const service = services[i]
-          const channels = await service.getChannels()
-          logger.warn(`Peer ${i} has ${channels.length} channels`)
-        }
-      }
-    }
-
-    const poll = setInterval(maybeResolve, timeoutMs / 10)
-    timeout.unref?.()
-
-    for (const service of services) {
-      // Attach update listeners to all ChannelServices.channels
-      service.channels?.events.on('update', maybeResolve)
-      service.on(StorageEvents.CHANNEL_SUBSCRIBED, async (payload: ChannelSubscribedPayload) => {
-        logger.info(`Channel subscribed: ${payload.channelId}`)
-        // Attach update listeners to the specific channel store
-        const repo = service.publicChannelsRepos.get(payload.channelId)
-        if (repo) {
-          repo.store.getStore().events.on('update', maybeResolve)
-        } else {
-          logger.warn(`No channel store found for channel ${payload.channelId}`)
+    // listeners
+    services.forEach(svc => {
+      svc.channels?.events.on('update', maybeAdvance)
+      svc.on(StorageEvents.CHANNEL_SUBSCRIBED, p => {
+        if (!channelId || p.channelId === channelId) {
+          svc.publicChannelsRepos.get(p.channelId)?.store.getStore().events.on('update', maybeAdvance)
         }
       })
-    }
-
-    // Listen for 'update' events on all ChannelStores in all services
-    for (const service of services) {
-      const channels = service.publicChannelsRepos
-      for (const [id, repo] of channels.entries()) {
-        if (channelId && id !== channelId) continue
-        repo.store.getStore().events.on('update', maybeResolve)
+      for (const [id, repo] of svc.publicChannelsRepos) {
+        if (!channelId || id === channelId) {
+          repo.store.getStore().events.on('update', maybeAdvance)
+        }
       }
-    }
-
-    // Optionally run the callback after listeners are set up
-    if (afterListenersSetup) {
-      Promise.resolve(afterListenersSetup()).catch(err => logger.error('Error in afterListenersSetup:', err))
-    }
+    })
   })
 }
 
@@ -309,7 +256,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
         await localDbService.open()
         await ipfsService.createInstance()
         await ipfsService.start()
-        await orbitDbService.create(libp2pNodeParams[i].peerId.peerId, ipfsService.ipfsInstance!)
+        await orbitDbService.create(ipfsService.ipfsInstance!)
         await channelsService.init()
         libp2pService.pauseDialQueue()
       })
@@ -413,7 +360,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     await createChannel()
     await waitForExpect(
       async () => {
-        expect(await channelsSynced(modules.map(module => module.get(ChannelsService)))).toBe(true)
+        expect(await channelsSynced(modules.map(module => module.get(ChannelsService)))).toBeTruthy()
       },
       5000,
       100
@@ -439,11 +386,11 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       }
     }
 
-    timeToLastSync = await waitForChannelsAndEntriesToSync(
-      modules.map(module => module.get(ChannelsService)),
+    timeToLastSync = await waitForSyncAndRun(
+      modules.map(m => m.get(ChannelsService)),
+      sendMessagesFromAllPeers,
       publicChannels[0].id,
-      5_000,
-      sendMessagesFromAllPeers
+      5_000
     )
     await waitForExpect(
       async () => {
@@ -531,10 +478,10 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
   it('does not sync the new channel to other peers', async () => {
     logger.info('does not sync the new channel to other peers')
     // Wait for a short time to ensure no syncing happens
-    await waitForChannelsAndEntriesToSync(
-      modules.map(module => module.get(ChannelsService)),
+    await waitForSync(
+      modules.map(m => m.get(ChannelsService)),
       undefined,
-      timeToLastSync ? timeToLastSync : 5000
+      timeToLastSync ?? 5_000
     )
     for (let i = 1; i < modules.length; i++) {
       const channelsService = modules[i].get(ChannelsService)
