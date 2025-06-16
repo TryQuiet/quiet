@@ -24,7 +24,7 @@ jobs:
             source_path: darwin
             build_cmd: "--mac"
             artifact_glob: "packages/desktop/dist/*.dmg"
-          - os: windows-2025
+          - os: windows-2022
             target: win
             source_path: win32
             build_cmd: "--win"
@@ -302,7 +302,7 @@ jobs:
 
   build-windows-prod:
     # needs: run-e2e-tests-win
-    runs-on: windows-2025
+    runs-on: windows-2022
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
