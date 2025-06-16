@@ -587,7 +587,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.sigChainService.getActiveChain().team != null) {
       await setupStorage()
     } else {
-      this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
+      this.libp2pService.once(Libp2pEvents.AUTH_CONNECTED, async (payload: { peer: string }) => {
         this.logger.info('Handling AUTH_JOINED event', payload)
         await setupStorage()
       })

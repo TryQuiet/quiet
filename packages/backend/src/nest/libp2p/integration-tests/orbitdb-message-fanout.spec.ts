@@ -25,9 +25,6 @@ import { LocalDbService } from '../../local-db/local-db.service'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
-/* ------------------------------------------------------------------ *
- *  deepArrayEqual – multiplicity aware + stable stringify            *
- * ------------------------------------------------------------------ */
 function stableStringify(obj: unknown): string {
   if (obj === null || typeof obj !== 'object') return JSON.stringify(obj)
   return (
@@ -120,9 +117,6 @@ async function channelEntriesSynced(services: ChannelsService[], channelId?: str
   return true
 }
 
-/* ------------------------------------------------------------------ *
- *  waitForSync – one‑phase helper (no callback)                      *
- * ------------------------------------------------------------------ */
 async function waitForSync(
   services: ChannelsService[],
   channelId?: string,
@@ -159,9 +153,6 @@ async function waitForSync(
   })
 }
 
-/* ------------------------------------------------------------------ *
- *  waitForSyncAndRun – callback‑safe two‑phase helper                *
- * ------------------------------------------------------------------ */
 async function waitForSyncAndRun(
   services: ChannelsService[],
   performAction: () => void | Promise<void>,

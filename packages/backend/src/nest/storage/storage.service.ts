@@ -130,11 +130,11 @@ export class StorageService extends EventEmitter {
   }
 
   public async startSync() {
-    this.orbitDbService.startSync()
+    await this.orbitDbService.startSync()
   }
 
   public async stopSync() {
-    this.orbitDbService.stopSync()
+    await this.orbitDbService.stopSync()
   }
 
   static dbAddress = (db: { root: string; path: string }) => {
