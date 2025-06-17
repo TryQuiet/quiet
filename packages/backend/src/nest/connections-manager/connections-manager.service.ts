@@ -485,7 +485,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
-  private async signInToQSS(inviteData: InvitationData, sigChain: SigChain) {
+  private async joinViaQSS(inviteData: InvitationData, sigChain: SigChain) {
     if (
       inviteData.version === InvitationDataVersion.v3 &&
       inviteData.qssEnabled &&
@@ -494,7 +494,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     ) {
       const connected = await this.qssService.connect(true, inviteData.qssEndpoint)
       if (connected) {
-        await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain)
+        await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
       }
     }
   }
@@ -524,7 +524,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         true
       )
 
-      this.signInToQSS(inviteData, joiningSigchain)
+      this.joinViaQSS(inviteData, joiningSigchain)
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {

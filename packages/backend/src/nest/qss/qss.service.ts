@@ -222,8 +222,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    *
    * @param teamId ID of the team we are signing in to
    * @param sigChain Sigchain for this team
+   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async signInToCommunity(teamId: string, sigChain: SigChain): Promise<void> {
+  public async signInToCommunity(teamId: string, sigChain: SigChain, teamName?: string): Promise<void> {
     if (!this.enabled) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
       return
@@ -264,7 +265,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    this.qssAuthConnManager.startNewConnection(teamId)
+    this.qssAuthConnManager.startNewConnection(teamId, teamName)
   }
 
   /**

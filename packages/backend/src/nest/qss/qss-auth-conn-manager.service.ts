@@ -43,8 +43,9 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * Start an auth sync connection with QSS for a given team
    *
    * @param teamId Team ID to start a new auth sync connection with QSS for
+   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async startNewConnection(teamId: string): Promise<void> {
+  public async startNewConnection(teamId: string, teamName?: string): Promise<void> {
     // check for an existing connection for this team
     const existingAuthConnection = this.authConnMap.get(teamId)
     // if we have an existing auth connection with QSS for this team and it is active, do nothing
@@ -65,7 +66,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       id: randomInt(1_000_000),
     })
     authConnection.teamId = teamId
-    await authConnection.start()
+    await authConnection.start(teamName)
     this.authConnMap.set(teamId, authConnection)
   }
 

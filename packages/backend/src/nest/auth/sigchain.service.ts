@@ -22,7 +22,6 @@ export class SigChainService extends EventEmitter {
   public activeChainTeamName: string | undefined
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
-  private teamIdsToNames: Map<string, string> = new Map()
   public connections: Map<string, Connection> = new Map()
 
   constructor(
@@ -83,27 +82,33 @@ export class SigChainService extends EventEmitter {
   /**
    * Gets a chain by team name or ID
    * @param filter Filter query with either team name or team ID
-   * @returns The chain for the team
-   * @throws Error if the chain doesn't exist
+   * @returns The chain for the team name or ID specified
+   * @throws Error if the chain doesn't exist, if ID and name in filter, or no filter criteria provided
    */
   getChain(filter: GetChainFilter): SigChain {
     // reject filters with both team name and ID
     if (filter.teamName != null && filter.teamId != null) {
-      throw new Error('Must provide one of `teamName` or `teamId` in filter query, not both!')
+      throw new Error('Must provide only one of `teamName` or `teamId` in filter query, not both!')
     }
 
-    let teamName: string | undefined = filter.teamName
-    // get the team name associated with the ID, if non-null, and reject if not found
+    // reject filters without ID or name
+    if (filter.teamName == null && filter.teamId == null) {
+      throw new Error('Must provide one of `teamName` or `teamId` in filter query!')
+    }
+
     if (filter.teamId != null) {
-      if (!this.teamIdsToNames.has(filter.teamId)) {
-        throw new Error(`No mapping of team ID ${filter.teamId} to its team name`)
+      for (const potentialChain of this.chains.values()) {
+        if (potentialChain.team != null && potentialChain.team.id === filter.teamId) {
+          return potentialChain
+        }
       }
-      teamName = this.teamIdsToNames.get(filter.teamId)!
+      throw new Error(`No chain found for team ID ${filter.teamId}`)
     }
-    if (!this.chains.has(teamName!)) {
-      throw new Error(`No chain found for team ${teamName}`)
+
+    if (!this.chains.has(filter.teamName!)) {
+      throw new Error(`No chain found for team ${filter.teamName}`)
     }
-    return this.chains.get(teamName!)!
+    return this.chains.get(filter.teamName!)!
   }
 
   setActiveChain(teamName: string): void {
@@ -155,11 +160,6 @@ export class SigChainService extends EventEmitter {
       throw new Error(`Chain for team ${teamName} already exists`)
     }
     this.chains.set(teamName, chain)
-    // if we have a team ID on either the team or passed into the method call we can add it to the
-    // id->name mapping
-    if (teamId != null || chain.team != null) {
-      this.teamIdsToNames.set((teamId ?? chain.team?.id)!, teamName)
-    }
     if (setActive) {
       this.setActiveChain(teamName)
       return true

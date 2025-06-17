@@ -20,6 +20,7 @@ import EventEmitter from 'events'
 import { RoleName } from '../auth/services/roles/roles'
 import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
+import { SigChain } from '../auth/sigchain'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
@@ -89,14 +90,24 @@ export class QSSAuthConnection extends EventEmitter {
 
   /**
    * Starts this auth sync connection with QSS
+   *
+   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async start(): Promise<void> {
+  public async start(teamName?: string): Promise<void> {
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
     }
 
     // get the chain by ID and check for an existing auth connection
-    const sigChain = this.sigChainService.getChain({ teamId: this._teamId })
+    let sigChain: SigChain | undefined = undefined
+    try {
+      sigChain = this.sigChainService.getChain({ teamId: this._teamId })
+    } catch (e) {
+      if (!(e as Error).message.includes('No chain found') || teamName == null) {
+        throw e
+      }
+      sigChain = this.sigChainService.getChain({ teamName })
+    }
     if (this.authConnection != null) {
       // if we have an existing auth connection for this team check if it has been started and is active, if so
       // do nothing
@@ -119,7 +130,7 @@ export class QSSAuthConnection extends EventEmitter {
             payload: {
               status: CommunityOperationStatus.SUCCESS,
               payload: {
-                userId: (sigChain.context as MemberContext).user.userId,
+                userId: (sigChain!.context as MemberContext).user.userId,
                 teamId: this.teamId!,
                 message: uint8arrays.toString(message, 'base64'),
               },
