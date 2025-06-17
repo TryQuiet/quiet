@@ -219,7 +219,7 @@ describe('Create JoiningPanelComponent', () => {
                     <h2
                       class="MuiTypography-root MuiTypography-h2 JoiningPanelComponentheading2 css-qahk46-MuiTypography-root"
                     >
-                      Joining now!
+                      Creating your community!
                     </h2>
                     <div
                       class="JoiningPanelComponentprogressBarWrapper"
@@ -240,29 +240,6 @@ describe('Create JoiningPanelComponent', () => {
                         Initializing backend
                       </p>
                     </div>
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 JoiningPanelComponenttext css-16d47hw-MuiTypography-root"
-                    >
-                      <strong>
-                        Please leave the app open. 
-                        <br />
-                         Joining the first time can take a few minutes or more.
-                      </strong>
-                      <br />
-                      <br />
-                      Quiet stores data on 
-                      <i>
-                        your
-                      </i>
-                       community’s devices (not Big Tech’s servers!) using the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and closing this window will stop the process of joining.
-                    </p>
-                    <a>
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 JoiningPanelComponentlink css-16d47hw-MuiTypography-root"
-                      >
-                        Learn more about Tor and Quiet
-                      </p>
-                    </a>
                   </div>
                 </div>
               </div>
