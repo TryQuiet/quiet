@@ -130,9 +130,8 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
         >
           <img className={isOwner ? classes.image : classes.animatedImage} src={JoinCommunityImg} />
           <Typography className={classes.heading2} variant='h2'>
-            Joining now!
+            {isOwner ? 'Creating your community!' : 'Joining now!'}
           </Typography>
-
           <div className={classes.progressBarWrapper}>
             <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
               <div className={classes.progress}></div>
@@ -146,21 +145,25 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
             <Typography variant='body2'>{connectionInfo.text}</Typography>
           </div>
 
-          <Typography variant='body2' className={classes.text}>
-            <strong>
-              Please leave the app open. <br /> Joining the first time can take a few minutes or more.
-            </strong>
-            <br />
-            <br />
-            Quiet stores data on <i>your</i> community’s devices (not Big Tech’s servers!) using the battle-tested
-            privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and
-            closing this window will stop the process of joining.
-          </Typography>
-          <a onClick={() => openUrl(Site.MAIN_PAGE)}>
-            <Typography className={classes.link} variant='body2'>
-              Learn more about Tor and Quiet
+          {!isOwner && (
+            <Typography variant='body2' className={classes.text}>
+              <strong>
+                Please leave the app open. <br /> Joining the first time can take a few minutes or more.
+              </strong>
+              <br />
+              <br />
+              Quiet stores data on <i>your</i> community’s devices (not Big Tech’s servers!) using the battle-tested
+              privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and
+              closing this window will stop the process of joining.
             </Typography>
-          </a>
+          )}
+          {!isOwner && (
+            <a onClick={() => openUrl(Site.MAIN_PAGE)}>
+              <Typography className={classes.link} variant='body2'>
+                Learn more about Tor and Quiet
+              </Typography>
+            </a>
+          )}
         </Grid>
       </StyledGrid>
     </Modal>
