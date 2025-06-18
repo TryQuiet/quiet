@@ -47,6 +47,7 @@ export class BuildSetup {
       this.dataDir = `e2e_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
+    logger.info('Running app from directory', this.dataDirPath)
   }
 
   async initPorts() {
