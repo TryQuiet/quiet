@@ -47,7 +47,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         profiles: await this.getUserProfiles(),
       })
     })
-
+    this.flushDeferredEntries()
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
     })
@@ -59,11 +59,19 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
   }
 
   public async flushDeferredEntries() {
-    if (!this.auth.team || this.deferredProfiles.length === 0) return
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
-      logger.error('User does not have permission to write to the user profiles store')
+    if (this.deferredProfiles.length === 0) {
+      logger.info('No deferred user profiles to flush')
       return
     }
+    if (!this.auth.team) {
+      logger.info('No team found, cannot flush deferred user profiles')
+      return
+    }
+    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+      logger.warn('User does not have permission to write to the user profiles store')
+      return
+    }
+    logger.info('Flushing deferred user profiles:', this.deferredProfiles.length)
 
     for (const profile of this.deferredProfiles) {
       try {
