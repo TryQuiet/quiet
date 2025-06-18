@@ -36,22 +36,15 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
-    // Try to post entries that were deferred when team state changes
-    this.auth.on('update', async payload => {
-      this.flushDeferredEntries()
-    })
-
     this.store.events.on('update', async (entry: LogEntry) => {
       logger.info('Database update')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: await this.getUserProfiles(),
       })
     })
-
-    this.emit(StorageEvents.USER_PROFILES_STORED, {
-      profiles: await this.getUserProfiles(),
+    this.auth.on('update', async payload => {
+      this.flushDeferredEntries()
     })
-    this.flushDeferredEntries()
   }
 
   public async startSync() {
