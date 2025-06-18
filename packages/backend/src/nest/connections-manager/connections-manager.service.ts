@@ -70,6 +70,7 @@ import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
+import { RoleName } from '../auth/services/roles/roles'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -623,11 +624,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService.init(peerIdData.peerId)
     }
 
-    if (this.sigChainService.getActiveChain().team != null) {
+    const activeChain = this.sigChainService.getActiveChain()
+    if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
       await setupStorage()
     } else {
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
-        this.logger.info('Handling AUTH_JOINED event', payload)
+        this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
         await setupStorage()
       })
     }
