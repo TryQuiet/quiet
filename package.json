@@ -20,7 +20,7 @@
     "build:orbitdb": "cd ./3rd-party/orbitdb && npm i && npm run build:dist && npm run build:debug",
     "applyPatches:qss": "patch -f -p0 < ./patch/qss.npmrc.patch || true",
     "build:qss": "npm run applyPatches:qss && cd ./3rd-party/qss && pnpm run bootstrap",
-    "build:submodules": "npm run pull:submodules && npm run build:auth && npm run build:noise && npm run build:orbitdb && npm run build:qss",
+    "build:submodules": "npm run build:auth && npm run build:noise && npm run build:orbitdb && npm run build:qss",
     "bootstrap": "npm run build:submodules && lerna bootstrap",
     "watch": "lerna watch -- lerna run build --since",
     "start:qss": "cd ./3rd-party/qss && pnpm run run:app docker:up:complete && MIKRO_ORM_HOST=0.0.0.0 pnpm run run:app migrate:up:docker",
