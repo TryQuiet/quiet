@@ -1,0 +1,60 @@
+name: 'E2E Build Mac'
+
+inputs:
+  is-arm:
+    description: 'Set to true when running on an M1 mac runner'
+    required: false
+    default: true
+    type: boolean
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        submodules: 'recursive'
+        
+    - name: "Setup environment"
+      uses: ./.github/actions/setup-env
+      with:
+        install-docker: ${{ inputs.is-arm == false || inputs.is-arm == 'false' }}
+        cachePrefix: "e2e-crossplatform-mac"
+        bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
+
+    - name: Before build
+      uses: ./.github/actions/before-build
+      with:
+        source-path: darwin
+
+    - name: Build App Image
+      working-directory: ./packages/desktop
+      run: node_modules/.bin/electron-builder --mac
+
+    - name: VERSION env
+      working-directory: ./packages/desktop
+      run: echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV
+
+    - name: FILE_SUFFIX env
+      working-directory: ./packages/desktop
+      run: |
+        [[ ${{ inputs.is-arm == 'true' || inputs.is-arm == true }} ]] && SUFFIX_MODIFIER="-arm64" || SUFFIX_MODIFIER=""
+        echo "FILE_SUFFIX="$VERSION$SUFFIX_MODIFIER"" >> $GITHUB_ENV
+
+    - name: FILE_NAME env
+      working-directory: ./packages/desktop/dist
+      run: echo "FILE_NAME="Quiet-$FILE_SUFFIX.dmg"" >> $GITHUB_ENV
+
+    - name: List dist dir content
+      working-directory: ./packages/desktop/dist
+      run: ls -al
+
+    - name: Chmod
+      working-directory: ./packages/desktop/dist
+      run: chmod +x $FILE_NAME
+
+    - name: Mount installer file in volume on system
+      working-directory: ./packages/desktop/dist
+      run: hdiutil mount $FILE_NAME
+
+    - name: Add App file to applications
+      run: cd ~ && cp -R "/Volumes/Quiet $FILE_SUFFIX/Quiet.app" /Applications
