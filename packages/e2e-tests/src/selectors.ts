@@ -828,7 +828,7 @@ export class Channel {
     return undefined
   }
 
-  get getAllMessages() {
+  public async getAllMessages() {
     return this.driver.wait(
       until.elementsLocated(By.xpath('//*[contains(@data-testid, "userMessages-")]')),
       15_000,
@@ -1450,7 +1450,7 @@ export class UpdateModal {
     logger.info('Waiting for update modal root element')
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]")),
-      15_000,
+      20_000,
       `Update modal couldn't be found within timeout`,
       500
     )
@@ -1611,6 +1611,7 @@ export class Settings {
 
   async closeTabThenModal() {
     await this.closeTab()
+    await sleep(1_000)
     await this.close()
   }
 

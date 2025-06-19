@@ -656,7 +656,8 @@ describe('Multiple Clients', () => {
 
     describe('Guest Closes App', () => {
       it('Owner closes app', async () => {
-        await users.owner.app.close({ forceSaveState: true })
+        const forceSaveState = process.platform !== 'darwin'
+        await users.owner.app.close({ forceSaveState })
       })
 
       it('Guest closes app', async () => {

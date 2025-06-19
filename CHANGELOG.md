@@ -2,6 +2,9 @@
 
 ## [unreleased]
 
+### Fixes
+* Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
+
 ### Chores
 
 * Quiet Desktop now uses Tor 0.4.8.16
@@ -9,6 +12,10 @@
 * Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 * Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
+
+### Fixes
+
+* Changing the text on the loading screen when the user creates a community. [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
 
 ## [5.1.0]
 
@@ -36,7 +43,7 @@
 
 ### Fixes
 
-* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858) 
+* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858)
 * Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
 * Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
 * Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)

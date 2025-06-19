@@ -13,7 +13,7 @@ import { createLogger } from './logger'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '5.0.0' // Pre-latest production version
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '5.0.0' // version to test against
 const appImagesPath = `${__dirname}/../Quiet`
 
 export interface BuildSetupInit {
@@ -47,6 +47,7 @@ export class BuildSetup {
       this.dataDir = `e2e_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
+    logger.info('Running app from directory', this.dataDirPath)
   }
 
   async initPorts() {
@@ -61,18 +62,25 @@ export class BuildSetup {
     return process.env.FILE_NAME
   }
 
-  private getBinaryLocation() {
+  private getBinaryLocation(): string {
+    let binaryPath: string | undefined = undefined
     switch (process.platform) {
       case 'linux':
         logger.info('filename', this.fileName)
-        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
+        binaryPath = `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
+        break
       case 'win32':
-        return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
+        binaryPath = `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
+        break
       case 'darwin':
-        return this.getMacBinaryDir()
+        binaryPath = this.getMacBinaryDir()
+        break
       default:
-        throw new Error('wrong SYSTEM env')
+        throw new Error(`Running on unsupported platform ${process.platform}`)
     }
+
+    logger.info('Found binary path', binaryPath, process.platform, this.fileName)
+    return binaryPath
   }
 
   private getMacBinaryDir(): string {

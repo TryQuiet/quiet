@@ -132,13 +132,13 @@ export class SigChainService extends EventEmitter {
         isDuplicated: false,
       })) as User[]
     this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+    this.emit('updated')
     this.saveChain(this.activeChainTeamName!)
   }
 
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
     chain.on('updated', this.handleChainUpdate)
-    this.emit('updated')
   }
 
   private detachSocketListeners(chain: SigChain): void {

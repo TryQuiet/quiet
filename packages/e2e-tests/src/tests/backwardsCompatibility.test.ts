@@ -27,14 +27,16 @@ describe('Backwards Compatibility', () => {
   let ownerAppNewVersion: App
   let generalChannel: Channel
   let secondChannel: Channel
-  let messagesToCompare: WebElement[]
+  const messagesToCompare: Map<string, WebElement[]> = new Map()
   let sidebar: Sidebar
   let generalChannelMessageIds: MessageIds
+  let dataDir: string
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const ownerMessages = ['Hi', 'Hello', 'After guest leave app']
   const loopMessages = 'ąbc'.split('')
+  const generalChannelName = 'general'
   const newChannelName = 'mid-night-club'
 
   const isAlpha = BuildSetup.getEnvFileName()?.toString().includes('alpha')
@@ -43,9 +45,8 @@ describe('Backwards Compatibility', () => {
     // download the old version of the app
     const appFilename = downloadInstaller()
     const copiedFilename = copyInstallerFile(appFilename)
-    const dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
+    dataDir = `e2e_back_compat_${(Math.random() * 10 ** 18).toString(36)}`
     ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename })
-    ownerAppNewVersion = new App({ dataDir })
   })
 
   beforeEach(async () => {
@@ -54,9 +55,9 @@ describe('Backwards Compatibility', () => {
 
   afterAll(async () => {
     await ownerAppNewVersion?.close()
-    await ownerAppNewVersion?.cleanup()
+    await ownerAppNewVersion?.cleanup(true)
     await ownerAppOldVersion?.close()
-    await ownerAppOldVersion?.cleanup()
+    await ownerAppOldVersion?.cleanup(true)
   })
 
   describe(`Old version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, () => {
@@ -66,14 +67,12 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')('Owner closes "update available" modal if present', async () => {
-        ownerAppOldVersion
-          .closeUpdateModalIfPresent()
-          .then(async () => {
-            console.log('Closed update modal')
-          })
-          .catch(err => {
-            console.log('Could not close update modal', err)
-          })
+        try {
+          await ownerAppOldVersion.closeUpdateModalIfPresent()
+          logger.info('Closed update modal')
+        } catch (e) {
+          logger.warn('Could not close update modal', e)
+        }
       })
 
       itif(process.platform == 'linux')(
@@ -102,6 +101,12 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')('Owner waits for join to complete', async () => {
         const joinPanel = new JoiningLoadingPanel(ownerAppOldVersion.driver)
         await joinPanel.waitForJoinToComplete()
+        try {
+          await ownerAppOldVersion.closeUpdateModalIfPresent()
+          logger.info('Closed update modal')
+        } catch (e) {
+          logger.warn('Could not close update modal', e)
+        }
       })
 
       itif(process.platform == 'linux')('Owner registers successfully and sees general channel', async () => {
@@ -131,6 +136,8 @@ describe('Backwards Compatibility', () => {
         const messages = await generalChannel.getUserMessages(ownerUsername)
         const text = await messages[1].getText()
         expect(text).toEqual(ownerMessages[0])
+        expect(messages.length).toBe(2)
+        messagesToCompare.set(generalChannelName, messages)
       })
     })
 
@@ -162,7 +169,7 @@ describe('Backwards Compatibility', () => {
             await secondChannel.sendMessage(message, ownerUsername)
           }
 
-          messagesToCompare = await secondChannel.getUserMessages(ownerUsername)
+          messagesToCompare.set(newChannelName, await secondChannel.getUserMessages(ownerUsername))
         }
       )
     })
@@ -171,24 +178,24 @@ describe('Backwards Compatibility', () => {
   describe('New version', () => {
     describe('Owner opens new version', () => {
       itif(process.platform == 'linux')('Owner closes the old app', async () => {
-        await ownerAppOldVersion.close()
+        await ownerAppOldVersion.close({ forceSaveState: true })
       })
 
       itif(process.platform == 'linux')('Owner opens the app in new version', async () => {
+        ownerAppNewVersion = new App({ dataDir })
         await ownerAppNewVersion.openWithRetries({ timeoutMs: 60_000, attempts: 3 })
       })
 
-      if (isAlpha) {
-        itif(process.platform == 'linux')('Owner closes debug modal if opened', async () => {
-          const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
-          await debugModal.close()
-          await sleep(30_000)
-        })
-      }
+      itif(process.platform == 'linux')('Owner closes debug modal if opened', async () => {
+        const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
+        await debugModal.close()
+        await sleep(30_000)
+      })
 
       itif(process.platform == 'linux')('Owner closes update modal if opened', async () => {
         try {
           await ownerAppNewVersion.closeUpdateModalIfPresent()
+          logger.info('Closed update modal')
         } catch (e) {
           // do nothing
         }
@@ -201,23 +208,18 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isMessageInputReady()).toBeTruthy()
       })
 
-      itif(process.platform == 'linux')('Take a screenshot', async () => {
-        const imgContent = await ownerAppNewVersion.driver.takeScreenshot()
-        logger.info('img content', imgContent)
-      })
-
       itif(process.platform == 'linux')('Confirm that the opened app is the latest version', async () => {
         const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
         expect(await settingsModal.isReady()).toBeTruthy()
         const settingVersion = await settingsModal.getVersion()
         const envVersion = ownerAppNewVersion.buildSetup.getVersionFromEnv()
         expect(settingVersion).toEqual(envVersion)
-        await settingsModal.close()
+        await settingsModal.closeTabThenModal()
       })
     })
 
     describe('Verify channels', () => {
-      itif(process.platform == 'linux')('Owner sees general channel', async () => {
+      itif(process.platform == 'linux')('Owner sees general channel on new version', async () => {
         generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
         expect(await generalChannel.isReady()).toBeTruthy()
         expect(await generalChannel.isOpen()).toBeTruthy()
@@ -227,14 +229,31 @@ describe('Backwards Compatibility', () => {
         expect(generalChannelText).toEqual('# general')
       })
 
-      itif(process.platform == 'linux')('Check number of messages on second channel', async () => {
+      itif(process.platform == 'linux')('Sent message is visible on general channel on new version', async () => {
+        const messages = await generalChannel.getUserMessages(ownerUsername)
+        const text = await messages[1].getText()
+        expect(text).toEqual(ownerMessages[0])
+        expect(messages.length).toEqual(messagesToCompare.get(generalChannelName)!.length)
+      })
+
+      itif(process.platform == 'linux')('Verify number of channels', async () => {
+        sidebar = new Sidebar(ownerAppNewVersion.driver)
+        const channels = await sidebar.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      itif(process.platform == 'linux')('Switch to second channel', async () => {
         sidebar = new Sidebar(ownerAppNewVersion.driver)
         await sidebar.switchChannel(newChannelName)
         secondChannel = new Channel(ownerAppNewVersion.driver, newChannelName)
         expect(await secondChannel.isReady()).toBeTruthy()
+        expect(await secondChannel.isOpen()).toBeTruthy()
+        expect(await secondChannel.isMessageInputReady()).toBeTruthy()
+      })
 
-        const currentMessages = await secondChannel.getUserMessages(ownerUsername)
-        expect(currentMessages.length).toEqual(messagesToCompare.length)
+      itif(process.platform == 'linux')('Check number of messages on second channel', async () => {
+        const messagesOnNewVersion = await secondChannel.getUserMessages(ownerUsername)
+        expect(messagesOnNewVersion.length).toEqual(messagesToCompare.get(newChannelName)!.length)
       })
     })
   })
