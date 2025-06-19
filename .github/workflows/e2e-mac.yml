@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: "Setup and build app image"
         uses: ./.github/actions/e2e-build-mac
-        with:
-          is-arm: ${{ runner.arch == 'ARM' || runner.arch == 'ARM64' }}
 
       - name: Run one client test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0

@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: "Setup and build app image"
         uses: ./.github/actions/e2e-build-mac
-        with:
-          is-arm: ${{ runner.arch == 'ARM' || runner.arch == 'ARM64' }}
 
       - name: Start QSS docker
         run: npm run start:qss
