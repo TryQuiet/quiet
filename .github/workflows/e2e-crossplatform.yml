@@ -13,8 +13,10 @@ on:
 jobs:
   mac:
     uses: ./.github/workflows/e2e-mac.yml
-  mac-qss:
-    uses: ./.github/workflows/e2e-qss-mac.yml
+  # uncomment once docker support is enabled in arm64 macos runners
+  # Reference: https://github.com/douglascamata/setup-docker-macos-action/issues/35 (this is a different action than the one used but the same problem)
+  # mac-qss:
+  #   uses: ./.github/workflows/e2e-qss-mac.yml
   linux:
     uses: ./.github/workflows/e2e-linux.yml
   linux-qss:
