@@ -36,16 +36,15 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
-    // Try to post entries that were deferred when team state changes
-    this.auth.on('update', async payload => {
-      this.flushDeferredEntries()
-    })
-
     this.store.events.on('update', async (entry: LogEntry) => {
       logger.info('Database update')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: await this.getUserProfiles(),
       })
+    })
+
+    this.auth.on('updated', async payload => {
+      this.flushDeferredEntries()
     })
 
     this.emit(StorageEvents.USER_PROFILES_STORED, {
@@ -59,11 +58,19 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
   }
 
   public async flushDeferredEntries() {
-    if (!this.auth.team || this.deferredProfiles.length === 0) return
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
-      logger.error('User does not have permission to write to the user profiles store')
+    if (this.deferredProfiles.length === 0) {
+      logger.info('No deferred user profiles to flush')
       return
     }
+    if (!this.auth.team) {
+      logger.info('No team found, cannot flush deferred user profiles')
+      return
+    }
+    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+      logger.warn('User does not have permission to write to the user profiles store')
+      return
+    }
+    logger.info('Flushing deferred user profiles:', this.deferredProfiles.length)
 
     for (const profile of this.deferredProfiles) {
       try {
