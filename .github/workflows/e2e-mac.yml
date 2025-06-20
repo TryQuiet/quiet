@@ -1,9 +1,14 @@
 name: E2E Mac
 
 on: [workflow_call]
+
 jobs:
   mac:
-    runs-on: [macos-13, macos-15]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-13, macos-15]
+
     timeout-minutes: 180
     env:
       TEST_MODE: true
@@ -14,7 +19,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: 'recursive'
-          
+
       - name: "Setup and build app image"
         uses: ./.github/actions/e2e-build-mac
 
