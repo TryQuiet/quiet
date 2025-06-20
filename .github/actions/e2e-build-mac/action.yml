@@ -1,13 +1,19 @@
 name: 'E2E Build Mac'
 
+inputs:
+  install-docker:
+    description: 'Install and setup docker/docker compose'
+    required: false
+    default: false
+
 runs:
   using: "composite"
   steps:
     - name: "Setup environment"
       uses: ./.github/actions/setup-env
       with:
-        install-docker: ${{ runner.arch != 'ARM' && runner.arch != 'ARM64' }}
-        cachePrefix: "e2e-crossplatform-mac"
+        install-docker: ${{ inputs.install-docker }}
+        cachePrefix: "e2e-crossplatform-mac-${{ runner.arch }}"
         bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
 
     - name: Before build
