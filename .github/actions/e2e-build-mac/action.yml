@@ -17,33 +17,41 @@ runs:
 
     - name: Build App Image
       working-directory: ./packages/desktop
+      shell: bash
       run: node_modules/.bin/electron-builder --mac
 
     - name: VERSION env
       working-directory: ./packages/desktop
+      shell: bash
       run: echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV
 
     - name: FILE_SUFFIX env
       working-directory: ./packages/desktop
+      shell: bash
       run: |
         [[ ${{ runner.arch == 'ARM' || runner.arch == 'ARM64' }} ]] && SUFFIX_MODIFIER="-arm64" || SUFFIX_MODIFIER=""
         echo "FILE_SUFFIX="$VERSION$SUFFIX_MODIFIER"" >> $GITHUB_ENV
 
     - name: FILE_NAME env
       working-directory: ./packages/desktop/dist
+      shell: bash
       run: echo "FILE_NAME="Quiet-$FILE_SUFFIX.dmg"" >> $GITHUB_ENV
 
     - name: List dist dir content
       working-directory: ./packages/desktop/dist
+      shell: bash
       run: ls -al
 
     - name: Chmod
       working-directory: ./packages/desktop/dist
+      shell: bash
       run: chmod +x $FILE_NAME
 
     - name: Mount installer file in volume on system
       working-directory: ./packages/desktop/dist
+      shell: bash
       run: hdiutil mount $FILE_NAME
 
     - name: Add App file to applications
+      shell: bash
       run: cd ~ && cp -R "/Volumes/Quiet $FILE_SUFFIX/Quiet.app" /Applications
