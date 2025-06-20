@@ -42,7 +42,9 @@ runs:
       shell: bash
 
     - name: Print OS name
-      run: echo ${{ runner.os }}
+      run: |
+        echo ${{ runner.os }}
+        echo ${{ runner.arch }}
       shell: bash
 
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
