@@ -42,8 +42,13 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         profiles: await this.getUserProfiles(),
       })
     })
-    this.auth.on('update', async payload => {
+
+    this.auth.on('updated', async payload => {
       this.flushDeferredEntries()
+    })
+
+    this.emit(StorageEvents.USER_PROFILES_STORED, {
+      profiles: await this.getUserProfiles(),
     })
   }
 
