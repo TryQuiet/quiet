@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "@jest/globals": "29.7.0",
+    "@libp2p/memory": "^1.1.6",
     "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.10",

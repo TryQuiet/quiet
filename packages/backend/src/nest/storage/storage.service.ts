@@ -13,7 +13,7 @@ import {
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
-import { removeFiles, removeDirs, createPaths } from '../common/utils'
+import { removeFiles, removeDirs, createPaths, removeFilesFromDir } from '../common/utils'
 import { StorageEvents } from './storage.types'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
@@ -24,11 +24,11 @@ import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
+import { readdirSync, rmSync } from 'fs'
+import path from 'path'
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  private peerId: PeerId | null = null
-
   private readonly logger = createLogger(StorageService.name)
 
   constructor(
@@ -50,23 +50,26 @@ export class StorageService extends EventEmitter {
     removeDirs(this.quietDir, 'repo.lock')
 
     if (!['android', 'ios'].includes(process.platform)) {
-      createPaths([this.ipfsRepoPath, this.orbitDbDir])
+      createPaths([this.ipfsRepoPath, this.orbitDbDir, this.quietDir])
     }
   }
 
-  public async init(peerId: PeerId) {
+  public async init() {
     this.logger.info('Initializing storage')
     this.prepare()
-    this.peerId = peerId
 
     this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
+
+    if (this.localDbService.getStatus() === 'closed') {
+      await this.localDbService.open()
+    }
 
     this.logger.info(`Starting IPFS`)
     await this.ipfsService.createInstance()
     await this.ipfsService.start()
 
     this.logger.info(`Creating OrbitDB service`)
-    await this.orbitDbService.create(peerId, this.ipfsService.ipfsInstance!)
+    await this.orbitDbService.create(this.ipfsService.ipfsInstance!)
 
     this.logger.info(`Initializing Databases`)
     await this.initDatabases()
@@ -80,14 +83,60 @@ export class StorageService extends EventEmitter {
     this.logger.info('Initialized storage')
   }
 
-  private async startSync() {
-    if (!this.ipfsService.isStarted()) {
-      this.logger.warn(`IPFS not started. Not starting database sync`)
-      return
+  public async clean() {
+    try {
+      await this.orbitDbService.stopSync()
+    } catch (e) {
+      // If the sync was not started, this is fine
     }
 
+    await this.channelsService.clean()
+    await this.userProfileStore.clean()
+    await this.ipfsService.destroyInstance()
+  }
+
+  public purgeData() {
+    this.logger.info('Purging data directories and files')
+    this._purgeDataDirectories()
+    this._purgeFiles()
+  }
+  private _purgeDataDirectories() {
+    const dirsToRemove = readdirSync(this.quietDir).filter(
+      i =>
+        i.startsWith('Ipfs') ||
+        i.startsWith('OrbitDB') ||
+        i.startsWith('backendDB') ||
+        i.startsWith('Local Storage') ||
+        i.startsWith('libp2pDatastore') ||
+        i.startsWith('databases') ||
+        i.startsWith('TorDataDirectory')
+    )
+    for (const dir of dirsToRemove) {
+      const dirPath = path.join(this.quietDir, dir)
+      this.logger.info(`Removing dir: ${dirPath}`)
+      removeFilesFromDir(dirPath)
+    }
+  }
+
+  private _purgeFiles() {
+    const filesToRemove = ['Network Persistent State']
+    for (const filePath of filesToRemove) {
+      this.logger.info(`Removing file ${filePath}`)
+      try {
+        rmSync(path.join(this.quietDir, filePath))
+      } catch (e) {
+        this.logger.warn('Failed to delete file on purge', filePath)
+      }
+    }
+  }
+
+  public async startSync() {
     await this.userProfileStore.startSync()
     await this.channelsService.startSync()
+  }
+
+  public async stopSync() {
+    await this.orbitDbService.stopSync()
   }
 
   static dbAddress = (db: { root: string; path: string }) => {
@@ -116,7 +165,7 @@ export class StorageService extends EventEmitter {
     await this.userProfileStore.init()
 
     this.logger.info('3/3')
-    await this.channelsService.init(this.peerId!)
+    await this.channelsService.init()
 
     this.logger.timeEnd('Storage.initDatabases')
     this.logger.info('Initialized DBs')
@@ -125,7 +174,11 @@ export class StorageService extends EventEmitter {
   }
 
   public async stop() {
-    await this.channelsService.close()
+    try {
+      await this.channelsService.close()
+    } catch (e) {
+      this.logger.error('Error closing channels service', e)
+    }
 
     try {
       await this.userProfileStore?.close()
@@ -133,7 +186,11 @@ export class StorageService extends EventEmitter {
       this.logger.error('Error closing user profiles db', e)
     }
 
-    await this.orbitDbService.stop()
+    try {
+      await this.orbitDbService.stop()
+    } catch (e) {
+      this.logger.error('Error stopping OrbitDB service', e)
+    }
 
     try {
       await this.ipfsService.stop()
@@ -201,18 +258,5 @@ export class StorageService extends EventEmitter {
     }
     // update the local db with the new peers
     await this.localDbService.setPeerStats(peers)
-  }
-
-  public async clean() {
-    this.peerId = null
-
-    await this.channelsService.clean()
-
-    // this.certificatesRequestsStore.clean()
-    // this.certificatesStore.clean()
-    // this.communityMetadataStore.clean()
-    this.userProfileStore.clean()
-
-    await this.ipfsService.destoryInstance()
   }
 }

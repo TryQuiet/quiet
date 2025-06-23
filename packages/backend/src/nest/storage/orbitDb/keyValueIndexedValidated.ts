@@ -29,7 +29,7 @@
  * @augments module:Databases.Databases-KeyValue
  */
 import { AccessControllerType, LevelStorage, IdentitiesType, LogEntry, KeyValueType, LogType } from '@orbitdb/core'
-import { type Helia } from 'helia'
+import { HeliaLibp2p, type Helia } from 'helia'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { createLogger } from '../../common/logger'
 import { abortableAsyncIterable } from '../../common/utils'
@@ -168,7 +168,7 @@ export const KeyValueIndexedValidated =
     syncAutomatically,
     onUpdate,
   }: {
-    ipfs: Helia
+    ipfs: HeliaLibp2p
     identity: IdentitiesType
     address: string
     name: string

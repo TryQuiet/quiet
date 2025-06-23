@@ -57,7 +57,7 @@ describe('UserProfileStore', () => {
     await ipfsService.createInstance()
 
     orbitDbService = await module.resolve(OrbitDbService)
-    await orbitDbService.create(libp2pParams.peerId.peerId, ipfsService.ipfsInstance!)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
     localDbService = await module.resolve(LocalDbService)
 
     userProfile = await factory.build('UserProfile', {
@@ -72,10 +72,10 @@ describe('UserProfileStore', () => {
 
   afterEach(async () => {
     await userProfileStore.close()
-    await localDbService.close()
     await orbitDbService.stop()
     await ipfsService.stop()
     await libp2pService.close()
+    await localDbService.close()
     if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
       fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
     }

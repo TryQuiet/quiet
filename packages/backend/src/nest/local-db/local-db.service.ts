@@ -1,6 +1,9 @@
 import { Buffer } from 'buffer'
 import { Inject, Injectable } from '@nestjs/common'
+import { CID } from 'multiformats/cid'
+import { base58btc } from 'multiformats/bases/base58'
 import { Level } from 'level'
+
 import { type Community, type NetworkInfo, NetworkStats, Identity, IdentityUpdatePayload } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
@@ -9,7 +12,6 @@ import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
-import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
 
 @Injectable()
 export class LocalDbService {
@@ -101,7 +103,7 @@ export class LocalDbService {
    */
   public async setPeerStats(stats: Record<string, NetworkStats>) {
     this.logger.debug('Setting peer stats', stats)
-    this.put(LocalDBKeys.PEERS, stats)
+    await this.put(LocalDBKeys.PEERS, stats)
   }
 
   /**
@@ -112,11 +114,11 @@ export class LocalDbService {
     this.logger.debug('Updating peer stats', JSON.stringify(stats, null, 2))
     const existingStats = await this.get(LocalDBKeys.PEERS)
     if (!existingStats) {
-      this.put(LocalDBKeys.PEERS, stats)
+      await this.put(LocalDBKeys.PEERS, stats)
       return
     }
     const updatedStats = { ...existingStats, ...stats }
-    this.put(LocalDBKeys.PEERS, updatedStats)
+    await this.put(LocalDBKeys.PEERS, updatedStats)
   }
 
   /**
@@ -265,5 +267,81 @@ export class LocalDbService {
   public async deleteSigChain(teamName: string) {
     const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
     await this.delete(key)
+  }
+
+  /**
+   * Pending heads helpers for OrbitDbService (per-address key version)
+   */
+  public async getPendingHeads(address?: string): Promise<Record<string, CID[]> | CID[]> {
+    if (address) {
+      let arr = (await this.get(`${LocalDBKeys.PENDING_HEADS}:${address}`)) || []
+      if (typeof arr === 'string') {
+        try {
+          arr = JSON.parse(arr)
+        } catch {
+          arr = []
+        }
+      }
+      return arr.map((cid: string) => CID.parse(cid, base58btc))
+    }
+    // Get all keys with the PENDING_HEADS: prefix
+    const result: Record<string, CID[]> = {}
+    for await (const [key, value] of this.db.iterator({
+      gte: `${LocalDBKeys.PENDING_HEADS}:`,
+      lte: `${LocalDBKeys.PENDING_HEADS}:~`,
+    })) {
+      let arr: string[] = []
+      if (typeof value === 'string') {
+        try {
+          arr = JSON.parse(value)
+        } catch {
+          arr = []
+        }
+      } else {
+        arr = value
+      }
+      const addr = key.slice(`${LocalDBKeys.PENDING_HEADS}:`.length)
+      result[addr] = Array.isArray(arr) ? arr.map((cid: string) => CID.parse(cid, base58btc)) : []
+    }
+    return result
+  }
+
+  public async addPendingHead(address: string, heads: CID[]): Promise<void> {
+    const key = `${LocalDBKeys.PENDING_HEADS}:${address}`
+    let arr: string[] = (await this.get(key)) || []
+    if (typeof arr === 'string') {
+      try {
+        arr = JSON.parse(arr)
+      } catch {
+        arr = []
+      }
+    }
+    const newCids = heads.map(cid => cid.toString(base58btc))
+    for (const headStr of newCids) {
+      if (!arr.includes(headStr)) {
+        arr.push(headStr)
+      }
+    }
+    await this.put(key, arr)
+  }
+
+  public async removePendingHead(address: string, heads: CID[]): Promise<void> {
+    const key = `${LocalDBKeys.PENDING_HEADS}:${address}`
+    let arr: string[] = (await this.get(key)) || []
+    if (typeof arr === 'string') {
+      try {
+        arr = JSON.parse(arr)
+      } catch {
+        arr = []
+      }
+    }
+    for (const head of heads) {
+      arr = arr.filter(cidStr => !CID.parse(cidStr, base58btc).equals(head))
+    }
+    if (arr.length === 0) {
+      await this.delete(key)
+    } else {
+      await this.put(key, arr)
+    }
   }
 }
