@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { TestModule } from '../../common/test.module'
-import { getLocalLibp2pInstanceParams } from '../../common/utils'
-import { Libp2pModule } from '../libp2p.module'
-import { SigChainModule } from '../../auth/sigchain.service.module'
-import { Libp2pEvents, Libp2pNodeParams } from '../libp2p.types'
-import { createLogger } from '../../common/logger'
-import { Libp2pService } from '../libp2p.service'
+import { TestModule } from './test.module'
+import { getLocalLibp2pInstanceParams, getInMemoryLibp2pInstanceParams, libp2pInstanceParams } from './utils'
+import { Libp2pModule } from '../libp2p/libp2p.module'
+import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { createLogger } from './logger'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { ConnectionsManagerModule } from '../connections-manager/connections-manager.module'
+import { StorageModule } from '../storage/storage.module'
+import { IpfsModule } from '../ipfs/ipfs.module'
 
 const logger = createLogger('libp2p:test-utils')
 
@@ -28,7 +30,7 @@ export const spawnTestModules = async (number: number) => {
   const modules = []
   for (let i = 0; i < number; i++) {
     const module = await Test.createTestingModule({
-      imports: [TestModule, Libp2pModule, SigChainModule],
+      imports: [TestModule, Libp2pModule, StorageModule, ConnectionsManagerModule, IpfsModule],
     }).compile()
     modules.push(module)
   }
@@ -61,6 +63,35 @@ export const spawnLibp2pInstances = async (
   }
   logger.info(`created ${libp2pServices.length} libp2p instances`)
   return libp2pServices
+}
+
+export const spawnLibp2pInstancesInMemory = async (
+  modules: TestingModule[],
+  customLibp2pInstanceParams?: Libp2pNodeParams,
+  sharePsk: boolean = true
+): Promise<Libp2pNodeParams[]> => {
+  logger.info(`creating ${modules.length} in-memory libp2p instances`)
+  const singlePSK = Libp2pService.generateLibp2pPSK().fullKey
+  const libp2pServices = []
+  const params: Libp2pNodeParams[] = []
+  for (let i = 0; i < modules.length; i++) {
+    logger.info(`creating in-memory libp2p instance ${i}`)
+    const libp2pService = await modules[i].resolve(Libp2pService)
+    const instanceParams = {
+      ...(await getInMemoryLibp2pInstanceParams()),
+      ...customLibp2pInstanceParams,
+      instanceName: `instance${i}`,
+    }
+    if (sharePsk) {
+      instanceParams.psk = singlePSK
+    }
+    logger.info(`creating in-memory libp2p instance with params:`, instanceParams)
+    await libp2pService.createInstance(instanceParams)
+    libp2pServices.push(libp2pService)
+    params.push(instanceParams)
+  }
+  logger.info(`created ${libp2pServices.length} in-memory libp2p instances`)
+  return params
 }
 
 export const timelinesInclude = (timelines: string[][], event: string): boolean => {

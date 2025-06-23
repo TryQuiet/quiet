@@ -62,15 +62,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger = createLogger(`storage:channels:channelStore:${this.channelData.name}`)
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`)
 
-    this.store = await this.orbitDbService.orbitDb.open<EventsType<EncryptedMessage>>(
-      `channels.${this.channelData.id}`,
-      {
-        type: 'events',
-        Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
-        sync: options.sync,
-      }
-    )
+    this.store = await this.orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${this.channelData.id}`, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: MessagesAccessController({ write: ['*'] }),
+      sync: options.sync,
+    })
 
     this.logger.info('Initialized')
     return this
@@ -80,7 +77,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * Start syncing the OrbitDB database
    */
   public async startSync(): Promise<void> {
-    await this.getStore().sync.start()
+    await this.store?.sync.start()
   }
 
   // Accessors
@@ -311,7 +308,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * Stop syncing the OrbitDB database
    */
   public async stopSync(): Promise<void> {
-    await this.getStore().sync.stop()
+    await this.store?.sync.stop()
   }
 
   /**
@@ -328,14 +325,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async deleteChannel(): Promise<void> {
     this.logger.info(`Deleting channel`)
-    try {
-      await this.stopSync()
-      await this.getStore().drop()
-    } catch (e) {
-      // we expect an error if the database isn't synced
-    }
-
-    this.clean()
+    await this.clean()
   }
 
   /**
@@ -343,8 +333,22 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    *
    * NOTE: Does NOT affect data stored in IPFS
    */
-  public clean(): void {
+  public async clean(): Promise<void> {
     this.logger.info(`Cleaning channel store`, this.channelData.id, this.channelData.name)
+    try {
+      await this.stopSync()
+    } catch (e) {
+      // If we are not subscribed, this will throw an error
+    }
+    try {
+      if (!this.store) {
+        this.logger.warn(`Store is already undefined, nothing to drop`)
+        return
+      }
+      await this.getStore().drop()
+    } catch (e) {
+      this.logger.error(`Failed to drop store`, e)
+    }
     this.store = undefined
     this._subscribing = false
   }

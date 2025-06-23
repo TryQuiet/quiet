@@ -98,8 +98,6 @@ export class Libp2pService extends EventEmitter {
       )
       this.serverIoProvider.io.on('connection', async socket => {
         this.logger.warn('Redialing all known peers due to a server IO reconnect')
-        await this.hangUpPeers()
-        this.ensureDialQueueInterval()
       })
     })
   }
@@ -247,12 +245,22 @@ export class Libp2pService extends EventEmitter {
     }
   }
 
-  public pause = async (): Promise<Libp2pPeerInfo> => {
+  public pauseDialQueue = () => {
     this.redialQueue.stop(true)
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
       this._dialQueueInterval = null
     }
+  }
+
+  public resumeDialQueue = () => {
+    this.redialQueue.start()
+    this.ensureDialQueueInterval()
+  }
+
+  public pause = async (): Promise<Libp2pPeerInfo> => {
+    this.logger.info('Pausing libp2p')
+    this.pauseDialQueue()
     const peerInfo = this.getCurrentPeerInfo()
     await this.hangUpPeers()
     this.dialedPeers.clear()
@@ -263,15 +271,13 @@ export class Libp2pService extends EventEmitter {
   }
 
   public resume = async (peersToDial?: string[]): Promise<void> => {
-    this.ensureDialQueueInterval()
-    await this.addPeersToDialQueue()
+    this.logger.info('Resuming libp2p')
     // await this.libp2pInstance?.start()
     if (peersToDial && peersToDial.length > 0) {
       this.logger.info(`Redialing ${peersToDial.length} peers`)
       await this.redialPeers(peersToDial)
     }
-
-    this.redialQueue.start()
+    this.resumeDialQueue()
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -651,31 +657,30 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async closeDatastore(): Promise<void> {
-    if (this._dialQueueInterval) {
-      clearInterval(this._dialQueueInterval)
-      this._dialQueueInterval = null
-    }
     await this.libp2pDatastore?.close()
     this.libp2pDatastore = null
   }
 
   public async close(closeDatastore = true): Promise<void> {
+    this.logger.info('Closing libp2p service:', this.localAddress)
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
       this._dialQueueInterval = null
     }
-    this.logger.info('Closing libp2p service')
     clearInterval(this._connectedPeersInterval)
 
+    this.redialQueue.stop(true)
     await this.hangUpPeers()
     await this.libp2pInstance?.stop()
+
+    // gives libp2p a tick to close its services
+    await new Promise<void>(r => setImmediate(r))
+
     if (closeDatastore) {
       await this.closeDatastore()
     }
-
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
-    this.redialQueue.stop(true)
   }
 }

@@ -33,21 +33,22 @@ import { SigChainService } from '../../auth/sigchain.service'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
+import { EncryptedMessage } from './messages/messages.types'
 
 /**
  * Manages storage-level logic for all channels in Quiet
  */
 @Injectable()
 export class ChannelsService extends EventEmitter {
-  private peerId: PeerId | null = null
+  // Map of message stores for each channel where the key is the channel ID
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
-  private channels: KeyValueType<EncryptedAndSignedPayload> | null
+  // Channel metadata store
+  public channels: KeyValueType<EncryptedAndSignedPayload> | undefined
 
   private readonly logger = createLogger(`storage:channels`)
 
   constructor(
-    @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly filesManager: IpfsFileManagerService,
@@ -63,11 +64,9 @@ export class ChannelsService extends EventEmitter {
   /**
    * Initialize the ChannelsService by starting event handles, the file manager, and initializing databases in OrbitDB
    *
-   * @param peerId Peer ID of the current user
    */
-  public async init(peerId: PeerId): Promise<void> {
+  public async init(): Promise<void> {
     this.logger.info(`Initializing ${ChannelsService.name}`)
-    this.peerId = peerId
 
     this.logger.info(`Starting file manager`)
     this.attachFileManagerEvents()
@@ -99,6 +98,13 @@ export class ChannelsService extends EventEmitter {
     await this.channels?.sync.start()
   }
 
+  /**
+   * Stop syncing the channels management database in OrbitDB
+   */
+  public async stopSync(): Promise<void> {
+    await this.channels?.sync.stop()
+  }
+
   // Channels Database Management
 
   /**
@@ -107,9 +113,9 @@ export class ChannelsService extends EventEmitter {
    * NOTE: This also subscribes to all known channel stores and handles update events on the channels management database for
    * subscribing to newly created channel stores.
    */
-  private async createChannelsDb(): Promise<void> {
+  public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating public-channels database')
-    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
+    this.channels = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
       sync: false,
       Database: KeyValueIndexedValidated(),
       AccessController: IPFSAccessController({ write: ['*'] }),
@@ -253,7 +259,7 @@ export class ChannelsService extends EventEmitter {
    * @param channelData Channel metadata for new channel
    * @returns Newly created ChannelStore
    */
-  private async createChannel(channelData: PublicChannel): Promise<ChannelStore> {
+  public async createChannel(channelData: PublicChannel): Promise<ChannelStore> {
     this.logger.info(`Creating channel`, channelData.id, channelData.name)
 
     const channelId = channelData.id
@@ -634,15 +640,28 @@ export class ChannelsService extends EventEmitter {
    * NOTE: Does NOT affect data stored in IPFS
    */
   public async clean(): Promise<void> {
-    this.peerId = null
-
-    // @ts-ignore
+    this.logger.info('Cleaning channels DB')
+    try {
+      await this.channels?.sync?.stop?.()
+    } catch (e) {
+      // If the sync is not started, this will throw an error
+    }
+    try {
+      await this.channels?.drop?.()
+    } catch (e) {
+      this.logger.error('Error dropping channels DB', e)
+    }
+    for (const [channelId, channel] of this.publicChannelsRepos.entries()) {
+      try {
+        this.logger.info(`Cleaning ${channelId} DB`)
+        await channel.store.clean()
+      } catch (e) {
+        this.logger.error(`Error cleaning ${channelId} DB`, e)
+      }
+    }
     this.channels = undefined
-    // @ts-ignore
-    this.messageThreads = undefined
-    // @ts-ignore
     this.publicChannelsRepos = new Map()
 
-    this.channels = null
+    this.channels = undefined
   }
 }

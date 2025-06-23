@@ -17,7 +17,8 @@ import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attach
 
 const logger = createLogger('oneClient')
 
-jest.setTimeout(450000)
+jest.setTimeout(1.5 * 60 * 1000)
+
 describe('One Client', () => {
   let app: App
   let dataDirPath: string
