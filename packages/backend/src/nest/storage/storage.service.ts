@@ -92,6 +92,7 @@ export class StorageService extends EventEmitter {
 
     await this.channelsService.clean()
     await this.userProfileStore.clean()
+    await this.ipfsService.destroyInstance()
   }
 
   public purgeData() {
@@ -130,7 +131,8 @@ export class StorageService extends EventEmitter {
   }
 
   public async startSync() {
-    await this.orbitDbService.startSync()
+    await this.userProfileStore.startSync()
+    await this.channelsService.startSync()
   }
 
   public async stopSync() {
