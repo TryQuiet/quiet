@@ -4,7 +4,7 @@
 
 ### Features
 
-* Adds a hook for QSS to inject entries into OrbitDB [[#2807](https://github.com/TryQuiet/quiet/issues/2807)
+* Adds a hook for QSS to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
 
 ### Fixes
 
