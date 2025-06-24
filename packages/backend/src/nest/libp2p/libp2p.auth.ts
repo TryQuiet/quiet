@@ -53,6 +53,7 @@ const createLFALogger = createWinstonQuietLogger('localfirst')
 export class Libp2pAuth {
   private readonly protocol: string
   private readonly components: Libp2pAuthComponents
+  private registrarId: string
   private sigChainService: SigChainService
   private libp2pService: Libp2pService
   private qssService: QSSService
@@ -148,7 +149,7 @@ export class Libp2pAuth {
     }
 
     const registrar = this.components.registrar
-    await registrar.register(this.protocol, topology)
+    this.registrarId = await registrar.register(this.protocol, topology)
     await registrar.handle(this.protocol, this.onIncomingStream, {
       runOnLimitedConnection: false,
     })
@@ -168,6 +169,9 @@ export class Libp2pAuth {
     for (const peerId of this.authConnections.keys()) {
       this.closeAuthConnection(peerId)
     }
+
+    await this.components.registrar.unhandle(this.protocol)
+    this.components.registrar.unregister(this.registrarId)
 
     this.logger.info('Libp2pAuth service stopped')
   }
@@ -325,7 +329,6 @@ export class Libp2pAuth {
           this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
         })
       },
-      createLogger: createLFALogger,
     } as ConnectionParams)
 
     // Set up auth connection event handlers.
@@ -385,11 +388,8 @@ export class Libp2pAuth {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
     })
 
-    authConnection.on('updated', async head => {
-      this.logger.info('Received sync message, team graph updated', head)
-      this.emit(Libp2pEvents.AUTH_UPDATED, head)
-      const sigChain = this.sigChainService.getActiveChain()
-      await this.sigChainService.saveChain(sigChain.team!.teamName)
+    authConnection.on('updated', async payload => {
+      this.emit(Libp2pEvents.AUTH_UPDATED, payload)
       await this.handleJoinViaQSS()
     })
 

@@ -63,9 +63,9 @@ describe('IpfsFileManagerService', () => {
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }
-    await libp2pService.close()
     await ipfsService.stop()
     await ipfsFileManagerService.stop()
+    await libp2pService.close()
     await module.close()
   })
   it('attaches large files', async () => {

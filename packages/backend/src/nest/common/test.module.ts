@@ -28,6 +28,7 @@ import { createTmpDir, getCors, torBinForPlatform, torDirForPlatform } from './u
 
 const torPath = torBinForPlatform()
 const libPath = torDirForPlatform()
+const tmpDir = createTmpDir().name // Ensure a single temp dir is used for all providers
 export const defaultConfigForTest = {
   socketIOPort: TEST_DATA_PORT,
   torBinaryPath: torPath,
@@ -55,16 +56,19 @@ export const defaultConfigForTest = {
     },
     {
       provide: QUIET_DIR,
-      useFactory: () => path.join(createTmpDir().name, TestConfig.QUIET_DIR),
+      useFactory: () => {
+        // Create a new tmp dir for each module instance
+        return path.join(createTmpDir().name, TestConfig.QUIET_DIR)
+      },
     },
     {
       provide: ORBIT_DB_DIR,
-      useFactory: (_quietDir: string) => path.join(createTmpDir().name, TestConfig.ORBIT_DB_DIR),
+      useFactory: (quietDir: string) => path.join(path.dirname(quietDir), TestConfig.ORBIT_DB_DIR),
       inject: [QUIET_DIR],
     },
     {
       provide: IPFS_REPO_PATCH,
-      useFactory: (_quietDir: string) => path.join(createTmpDir().name, TestConfig.IPFS_REPO_PATH),
+      useFactory: (quietDir: string) => path.join(path.dirname(quietDir), TestConfig.IPFS_REPO_PATH),
       inject: [QUIET_DIR],
     },
 
@@ -103,7 +107,13 @@ export const defaultConfigForTest = {
     },
     {
       provide: LEVEL_DB,
-      useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
+      useFactory: (dbPath: string) =>
+        new Level<string, any>(dbPath, {
+          valueEncoding: 'json',
+          createIfMissing: true,
+          errorIfExists: false,
+          keyEncoding: 'utf-8',
+        }),
       inject: [DB_PATH],
     },
     {

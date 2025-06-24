@@ -2,7 +2,12 @@
 
 ## [unreleased]
 
+### Features
+
+* Adds a hook for QSS to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
+
 ### Fixes
+
 * Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
 
 ### Chores
