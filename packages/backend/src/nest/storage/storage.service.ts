@@ -56,7 +56,7 @@ export class StorageService extends EventEmitter {
     }
   }
 
-  public async init(peerId: PeerId) {
+  public async init() {
     if (this.initialized === true) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
       return
