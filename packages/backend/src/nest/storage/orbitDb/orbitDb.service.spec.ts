@@ -2,25 +2,22 @@ import { getCrypto } from 'pkijs'
 import { jest } from '@jest/globals'
 import fs from 'fs'
 
-import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { createLogger } from '../../common/logger'
-import { SigChainService } from '../../auth/sigchain.service'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
 import { Libp2pModule } from '../../libp2p/libp2p.module'
 import { IpfsModule } from '../../ipfs/ipfs.module'
-import { SigChainModule } from '../../auth/sigchain.service.module'
 import { Libp2pService } from '../../libp2p/libp2p.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { libp2pInstanceParams } from '../../common/utils'
 import { TestConfig } from '../../const'
 import { spawnLibp2pInstancesInMemory } from '../../common/test-utils'
 import { Libp2pNodeParams } from '../../libp2p/libp2p.types'
+import { EventsType, IPFSAccessController, LogEntry } from '@orbitdb/core'
 
 const logger = createLogger('messagesService:test')
 
@@ -96,5 +93,23 @@ describe('OrbitDbService', () => {
     await orbitDbService.create(ipfsService.ipfsInstance!)
     expect(orbitDbService.orbitDb).toBeDefined()
     expect(orbitDbService.identities).toBeDefined()
+  })
+
+  it('emits put event when an update to a store is made by the client user', async () => {
+    const store = await orbitDbService.open<EventsType<{ content: string }>>('test-store', {
+      type: 'events',
+      AccessController: IPFSAccessController({ write: ['*'] }),
+      sync: false,
+    })
+    let putEventEmitted = false
+    OrbitDbService.events.on('put', (entry: unknown) => {
+      putEventEmitted = true
+      expect(entry).toBeDefined()
+      expect((entry as LogEntry).payload.value).toStrictEqual({ content: 'test content' })
+      expect((entry as LogEntry).identity).toEqual(orbitDbService.orbitDb.identity.hash)
+    })
+
+    await store.add({ content: 'test content' })
+    expect(putEventEmitted).toBeTruthy()
   })
 })
