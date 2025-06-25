@@ -30,7 +30,7 @@ describe('New user joins using invitation link while having app opened', () => {
 
   beforeAll(async () => {
     ownerApp = new App()
-    guestApp = new App()
+    guestApp = new App({ defaultDataDir: true })
     if (process.platform === 'win32') {
       await guestApp.cleanup(true)
     }
@@ -177,6 +177,8 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Guest waits to join the community', async () => {
       const joinPanel = new JoiningLoadingPanel(guestApp.driver)
       await joinPanel.waitForJoinToComplete()
+      const debugModal = new DebugModeModal(guestApp.driver)
+      await debugModal.close()
     })
 
     it('Guest joined a community and sees general channel', async () => {
