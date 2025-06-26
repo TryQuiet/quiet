@@ -21,6 +21,8 @@ import {
   LEVEL_DB,
   DB_PATH,
   LIBP2P_DB_PATH,
+  QSS_ENABLED,
+  QSS_ENDPOINT,
 } from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
@@ -37,6 +39,7 @@ import { Level } from 'level'
 import { verifyToken } from '@quiet/common'
 import { createLogger } from './common/logger'
 import { SocketActionsMap, SocketEventsMap } from '@quiet/types'
+import { QSSModule } from './qss/qss.module'
 
 const logger = createLogger('appModule')
 
@@ -52,6 +55,7 @@ const logger = createLogger('appModule')
     StorageModule,
     ConnectionsManagerModule,
     TorModule,
+    QSSModule,
   ],
   providers: [
     {
@@ -193,6 +197,14 @@ export class AppModule {
             }),
           inject: [DB_PATH],
         },
+        {
+          provide: QSS_ENABLED,
+          useValue: process.env.QSS_ENABLED === 'true',
+        },
+        {
+          provide: QSS_ENDPOINT,
+          useValue: process.env.QSS_ENDPOINT,
+        },
       ],
       exports: [
         CONFIG_OPTIONS,
@@ -203,6 +215,8 @@ export class AppModule {
         SERVER_IO_PROVIDER,
         SOCKS_PROXY_AGENT,
         LEVEL_DB,
+        QSS_ENABLED,
+        QSS_ENDPOINT,
       ],
     }
   }

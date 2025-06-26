@@ -231,7 +231,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     for (let i = 1; i < modules.length; i++) {
       // Create invitation from A -> B
       const sigchainService = await modules[i].resolve(SigChainService)
-      await sigchainService.createChainFromInvite(`user${i}`, teamName, inviteResult.seed, true)
+      await sigchainService.createChainFromInvite(`user${i}`, teamName, inviteResult.seed, undefined, true)
     }
 
     // Create libp2p instances (in-memory transport)

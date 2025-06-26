@@ -29,6 +29,8 @@ import path from 'path'
 
 @Injectable()
 export class StorageService extends EventEmitter {
+  private initialized: boolean = false
+
   private readonly logger = createLogger(StorageService.name)
 
   constructor(
@@ -55,6 +57,11 @@ export class StorageService extends EventEmitter {
   }
 
   public async init() {
+    if (this.initialized === true) {
+      this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
+      return
+    }
+
     this.logger.info('Initializing storage')
     this.prepare()
 
@@ -81,6 +88,7 @@ export class StorageService extends EventEmitter {
     await this.updatePeerStore()
 
     this.logger.info('Initialized storage')
+    this.initialized = true
   }
 
   public async clean() {
@@ -197,6 +205,7 @@ export class StorageService extends EventEmitter {
     } catch (e) {
       this.logger.error('Error stopping IPFS service', e)
     }
+    this.initialized = false
   }
 
   public attachStoreListeners() {

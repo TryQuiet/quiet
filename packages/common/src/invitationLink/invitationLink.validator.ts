@@ -3,6 +3,7 @@ import {
   InvitationData,
   InvitationDataV1,
   InvitationDataV2,
+  InvitationDataV3,
   InvitationDataVersion,
   InvitationLinkUrlNamedParamConfig,
   InvitationLinkUrlNamedParamConfigMap,
@@ -20,6 +21,9 @@ import {
   OWNER_ORBIT_DB_IDENTITY_PARAM_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
+  QSS_ENABLED_KEY,
+  QSS_ENDPOINT_KEY,
+  TEAM_ID_KEY,
 } from './invitationLink.const'
 import { isPSKcodeValid } from '../libp2p'
 import { createLogger } from '../logger'
@@ -34,6 +38,7 @@ const PEER_ID_REGEX = /^(?:[A-Za-z0-9]{46}|[A-Za-z0-9]{52})$/
 const INVITATION_SEED_REGEX = /^[a-zA-Z0-9]{16}$/g
 const COMMUNITY_NAME_REGEX = /^[-a-zA-Z0-9 ]+$/g
 const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
+const BASE58_REGEX = /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$/
 
 /**
  * Helper Error class for generating validation errors in a standard format
@@ -41,8 +46,17 @@ const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
 export class UrlParamValidatorError extends Error {
   name = 'UrlParamValidatorError'
 
-  constructor(key: string, value: string | null | undefined) {
-    super(`Invalid value '${value}' for key '${key}' in invitation link`)
+  constructor(key: string, value: string | null | undefined, detail?: string) {
+    super(UrlParamValidatorError.generateErrorMessage(key, value, detail))
+  }
+
+  private static generateErrorMessage(key: string, value: string | null | undefined, detail?: string): string {
+    const baseMessage = `Invalid value '${value}' for key '${key}' in invitation link`
+    if (detail == null) {
+      return baseMessage
+    }
+
+    return `${baseMessage} - ${detail}`
   }
 }
 
@@ -63,8 +77,22 @@ export class UrlParamValidatorError extends Error {
  * @returns {string} Base64url-encoded string
  */
 export const encodeAuthData = (authData: InvitationAuthData): string => {
-  const encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
+  let encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
+  if (authData.teamId) {
+    encodedAuthData = `${encodedAuthData}&t=${authData.teamId}`
+  }
   return base64url.encode(Buffer.from(encodedAuthData, 'utf8'))
+}
+
+/**
+ * Encode a QSS endpoint string as a base64url-encoded string
+ *
+ * @param qssEndpoint QSS endpoint string to encode
+ *
+ * @returns {string} Base64url-encoded string
+ */
+export const encodeQssEndpoint = (qssEndpoint: string): string => {
+  return base64url.encode(Buffer.from(qssEndpoint, 'utf8'))
 }
 
 /**
@@ -74,12 +102,15 @@ export const encodeAuthData = (authData: InvitationAuthData): string => {
  *
  * Yz1jb21tdW5pdHktbmFtZSZzPTRrZ2Q1bXdxNXo0Zm1md3E => quiet://?c=community-name&s=4kgd5mwq5z4fmfwq
  *
- * @param authDataString Base64url-encoded string representing the InvitationAuthData of the invite link
+ * @param encodedString Base64url-encoded string
  *
- * @returns {string} URL-encoded string of the InvitationAuthData object as URL with parameters
+ * @returns {string} URL-encoded string of the decoded value as URL with parameters
  */
-export const decodeAuthData: InvitationLinkUrlNamedParamProcessorFun<string> = (authDataString: string): string => {
-  return `${DEEP_URL_SCHEME_WITH_SEPARATOR}?${base64url.toBuffer(authDataString).toString('utf-8')}`
+export const decodeFromBase64Url: InvitationLinkUrlNamedParamProcessorFun<string> = (
+  encodedString: string,
+  withSeparator: boolean = true
+): string => {
+  return `${withSeparator ? `${DEEP_URL_SCHEME_WITH_SEPARATOR}?` : ''}${base64url.toBuffer(encodedString).toString('utf-8')}`
 }
 
 /**
@@ -235,6 +266,93 @@ const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationD
 }
 
 /**
+ * Validate the QSS enabled flag
+ *
+ * Example:
+ *
+ * "true"
+ *
+ * =>
+ *
+ * {
+ *  "qssEnabled": true
+ * }
+ *
+ * @param value QSS enabled flag value
+ *
+ * @returns {Partial<InvitationData>} The processed QSS enabled flag represented as a partial InvitationData object
+ */
+const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
+  value: string
+): Partial<InvitationDataV3> => {
+  if (value !== 'true' && value !== 'false') {
+    logger.warn(`QSS enabled flag must be set to either 'true' or 'false'`)
+    throw new UrlParamValidatorError(QSS_ENABLED_KEY, value)
+  }
+
+  return {
+    qssEnabled: value === 'true',
+  }
+}
+
+/**
+ * Validate the QSS endpoint string
+ *
+ * Example:
+ *
+ * "ws://localhost:3000"
+ *
+ * =>
+ *
+ * {
+ *  "qssEndpoint": "ws://localhost:3000"
+ * }
+ *
+ * @param value QSS websocket endpoint string
+ *
+ * @returns {Partial<InvitationData>} The processed QSS endpoint string represented as a partial InvitationData object
+ */
+const validateQssEndpoint: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
+  value: string
+): Partial<InvitationDataV3> => {
+  let decodedValue: string | undefined = undefined
+  try {
+    decodedValue = decodeFromBase64Url(value, false)
+    const wsUrl = new URL(decodedValue)
+    const errorDetails: string[] = []
+    if (wsUrl.hostname == null || wsUrl.hostname === '') {
+      errorDetails.push(`Hostname was null`)
+    }
+    if (wsUrl.port == null || wsUrl.port === '') {
+      errorDetails.push(`Port was null`)
+    }
+    if (wsUrl.protocol == null || wsUrl.protocol === '') {
+      errorDetails.push(`Protocol was null`)
+    } else if (wsUrl.protocol !== 'ws:' && wsUrl.protocol !== 'wss:') {
+      errorDetails.push(`Protocol must be 'ws:' or 'wss:'`)
+    }
+
+    if (errorDetails.length > 0) {
+      throw new UrlParamValidatorError(QSS_ENDPOINT_KEY, decodedValue, errorDetails.join(', '))
+    }
+
+    return {
+      qssEndpoint: decodedValue,
+    }
+  } catch (e) {
+    if (e instanceof UrlParamValidatorError) {
+      throw e
+    }
+
+    let errorDetail: string | undefined = undefined
+    if (e.message === 'Invalid URL') {
+      errorDetail = 'Value was an invalid URL'
+    }
+    throw new UrlParamValidatorError(QSS_ENDPOINT_KEY, decodedValue ?? value, errorDetail)
+  }
+}
+
+/**
  * Parse and validate the provided auth data string
  *
  * Example:
@@ -259,7 +377,7 @@ const validateAuthData: InvitationLinkUrlNamedParamValidatorFun<string> = (value
     logger.warn(`Auth data string is not a valid base64url-encoded string`)
     throw new UrlParamValidatorError(AUTH_DATA_KEY, value)
   }
-  return decodeAuthData(value)
+  return decodeFromBase64Url(value)
 }
 
 /**
@@ -326,6 +444,38 @@ const validateCommunityName: InvitationLinkUrlNamedParamValidatorFun<InvitationA
 }
 
 /**
+ * **** NESTED VALIDATOR ****
+ *
+ * Parse and validate the provided team ID string
+ *
+ * Example:
+ *
+ * 3jCPyeaWFmjcbFtv
+ *
+ * =>
+ *
+ * {
+ *   "teamId": "3jCPyeaWFmjcbFtv"
+ * }
+ *
+ * @param value Nested team ID string pulled from the decoded auth data string
+ * @param processor Optional post-processor to run the validated value through
+ *
+ * @returns {Partial<InvitationAuthData>} The processed team ID represented as a partial InvitationAuthData object
+ */
+const validateTeamId: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData> = (
+  value: string
+): Partial<InvitationAuthData> => {
+  if (value.match(BASE58_REGEX) == null) {
+    logger.warn(`Team ID ${value} is not valid base58`)
+    throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${TEAM_ID_KEY}`, value)
+  }
+  return {
+    teamId: value,
+  }
+}
+
+/**
  * URL param validation config for V1 (non-LFA) invite links
  */
 export const PARAM_CONFIG_V1: VersionedInvitationLinkUrlParamConfig<InvitationDataV1> = {
@@ -377,6 +527,56 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
               [INVITATION_SEED_KEY]: {
                 required: true,
                 validator: validateInvitationSeed,
+              },
+            })
+          ),
+        },
+      },
+    })
+  ),
+}
+
+/**
+ * URL param validation config for V3 (LFA + QSS) invite links
+ */
+export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDataV3> = {
+  version: InvitationDataVersion.v3,
+  named: new Map(
+    Object.entries({
+      [PSK_PARAM_KEY]: {
+        required: true,
+        validator: validatePsk,
+      },
+      [PEER_ADDRESS_KEY]: {
+        required: false,
+        validator: validatePeerAddresses,
+      },
+      [QSS_ENABLED_KEY]: {
+        required: true,
+        validator: validateQssEnabled,
+      },
+      [QSS_ENDPOINT_KEY]: {
+        required: true,
+        validator: validateQssEndpoint,
+      },
+      [AUTH_DATA_KEY]: {
+        required: true,
+        validator: validateAuthData,
+        nested: {
+          key: AUTH_DATA_OBJECT_KEY,
+          config: new Map(
+            Object.entries({
+              [COMMUNITY_NAME_KEY]: {
+                required: true,
+                validator: validateCommunityName,
+              },
+              [INVITATION_SEED_KEY]: {
+                required: true,
+                validator: validateInvitationSeed,
+              },
+              [TEAM_ID_KEY]: {
+                required: true,
+                validator: validateTeamId,
               },
             })
           ),

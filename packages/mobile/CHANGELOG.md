@@ -23,6 +23,7 @@
 * Compresses images and user profile photos over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
 * Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
 * Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
+* Add support for QSS sigchain syncing and QSS-enabled invitation links [#2759](https://github.com/TryQuiet/quiet/issues/2759)
 
 ### Fixes
 

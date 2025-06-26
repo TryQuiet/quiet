@@ -52,8 +52,9 @@ import {
   DownloadFilePayload,
   DeleteChannelPayload,
   SetUserProfilePayload,
+  InvitationData,
 } from '@quiet/types'
-import { CONFIG_OPTIONS, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { CONFIG_OPTIONS, QSS_ENABLED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -70,7 +71,9 @@ import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
+import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
+import { SigChain } from '../auth/sigchain'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -88,12 +91,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
+    @Inject(QSS_ENABLED) private readonly qssEnabled: boolean,
+    @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string | undefined,
     private readonly socketService: SocketService,
     public readonly libp2pService: Libp2pService,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
-    private readonly sigChainService: SigChainService
+    private readonly sigChainService: SigChainService,
+    private readonly qssService: QSSService
   ) {
     super()
   }
@@ -222,6 +228,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
+    if (community.name) {
+      try {
+        this.logger.info('Loading sigchain for community', community.name)
+        const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
+        const connected = await this.qssService.connect(!!community.qssEnabled, community.qssEndpoint)
+        if (connected) {
+          await this.qssService.signInToCommunity(loadedSigchain.team!.id, loadedSigchain)
+        }
+      } catch (e) {
+        this.logger.warn('Failed to load sigchain', e)
+      }
+    } else {
+      this.logger.warn('No community name found in storage')
+    }
+
     await this.launchCommunity(community)
   }
 
@@ -295,6 +316,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info('Closing local DB')
       await this.localDbService.close()
     }
+    if (this.qssService) {
+      this.logger.info('Closing QSS service')
+      this.qssService.close()
+    }
   }
 
   public async leaveCommunity(): Promise<boolean> {
@@ -356,11 +381,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  private async createCommunityOnQss(community: Community, sigchain: SigChain): Promise<void> {
+    const connected = await this.qssService.connect(this.qssEnabled, this.qssEndpoint)
+    if (connected) {
+      await this.qssService.createCommunity(community, sigchain)
+    }
+  }
+
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
 
     this.logger.info(`Creating new LFA chain`)
-    await this.sigChainService.createChain(payload.name, payload.username, true)
+    const sigchain = await this.sigChainService.createChain(payload.name, payload.username, true)
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
@@ -382,10 +414,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [localAddress],
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
+      teamId: sigchain.team!.id,
+      qssEnabled: this.qssEnabled,
+      qssEndpoint: this.qssEndpoint,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
+
+    // purposely don't await
+    this.createCommunityOnQss(community, sigchain)
 
     await this.launchCommunity(community)
 
@@ -407,6 +445,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
+  private async joinViaQSS(inviteData: InvitationData, sigChain: SigChain) {
+    if (
+      inviteData.version === InvitationDataVersion.v3 &&
+      inviteData.qssEnabled &&
+      inviteData.authData.teamId != null &&
+      inviteData.qssEndpoint != null
+    ) {
+      const connected = await this.qssService.connect(true, inviteData.qssEndpoint)
+      if (connected) {
+        await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
+      }
+    }
+  }
+
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
@@ -419,9 +471,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
     let communityName: string | undefined
-    if (inviteData && inviteData?.version == InvitationDataVersion.v2) {
+    if (
+      inviteData &&
+      (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
+    ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
-      this.sigChainService.createChainFromInvite(payload.username, communityName, inviteData.authData.seed, true)
+      const joiningSigchain = await this.sigChainService.createChainFromInvite(
+        payload.username,
+        communityName,
+        inviteData.authData.seed,
+        inviteData.authData.teamId,
+        true
+      )
+
+      this.joinViaQSS(inviteData, joiningSigchain)
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {
@@ -467,6 +530,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       inviteData,
       psk: inviteData.psk,
       ownership: CommunityOwnership.User,
+      qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
+      qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
     }
 
     await this.localDbService.setCommunity(community)
@@ -562,7 +627,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const onionAddress = await this.spawnTorHiddenService(community.id, identity)
 
-    this.logger.info(JSON.stringify(identity.networkInfo.peerId, null, 2))
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
       privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),

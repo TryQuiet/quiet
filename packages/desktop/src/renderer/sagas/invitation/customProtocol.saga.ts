@@ -90,9 +90,8 @@ export function* customProtocolSaga(
   const invitationCodes = yield* select(communities.selectors.invitationCodes)
   switch (data.version) {
     case InvitationDataVersion.v1:
-      joiningInProgress = Boolean(Object.keys(invitationCodes).length !== 0)
-      break
-    case InvitationDataVersion.v2: // Question: should we also check if the sig chain team name is different or something?  is the psk enough?
+    case InvitationDataVersion.v2:
+    case InvitationDataVersion.v3:
       joiningInProgress = Boolean(Object.keys(invitationCodes).length !== 0)
       break
   }

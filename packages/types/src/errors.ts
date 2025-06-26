@@ -64,7 +64,7 @@ export enum ErrorMessages {
 export class CompoundError<T extends Error> extends Error {
   constructor(
     message: string,
-    public readonly originalError: T
+    public readonly originalError?: T
   ) {
     super(message)
   }

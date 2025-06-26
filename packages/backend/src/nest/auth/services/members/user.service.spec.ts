@@ -7,9 +7,9 @@ import { RoleName } from '..//roles/roles'
 import { UserService } from './user.service'
 import { DeviceService } from '../members/device.service'
 
-const logger = createLogger('auth:services:invite.spec')
+const logger = createLogger('auth:services:users.spec')
 
-describe('invites', () => {
+describe('users', () => {
   let adminSigChain: SigChain
 
   it('should initialize a new sigchain and be admin', () => {

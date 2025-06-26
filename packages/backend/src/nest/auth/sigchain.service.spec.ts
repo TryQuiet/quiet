@@ -48,14 +48,14 @@ describe('SigChainManager', () => {
   it('should add a new chain and it be active if set to be', async () => {
     const sigChain = await sigChainManager.createChain('test2', 'user2', true)
     expect(sigChainManager.getActiveChain()).toBe(sigChain)
-    const prevSigChain = sigChainManager.getChain('test')
+    const prevSigChain = sigChainManager.getChain({ teamName: 'test' })
     expect(prevSigChain).toBeDefined()
     expect(prevSigChain).not.toBe(sigChain)
   })
   it('should delete nonactive chain without changing active chain', async () => {
     sigChainManager.setActiveChain('test2')
     await sigChainManager.deleteChain('test', false)
-    expect(() => sigChainManager.getChain('test')).toThrowError()
+    expect(() => sigChainManager.getChain({ teamName: 'test' })).toThrowError()
     expect(sigChainManager.getActiveChain()).toBeDefined()
   })
   it('should delete active chain and set active chain to undefined', async () => {
@@ -73,7 +73,7 @@ describe('SigChainManager', () => {
   })
   it('should delete sigchains from disk', async () => {
     await sigChainManager.deleteChain('test3', true)
-    expect(() => sigChainManager.getChain('test3')).toThrowError()
+    expect(() => sigChainManager.getChain({ teamName: 'test3' })).toThrowError()
     await expect(sigChainManager.loadChain('test3', true)).rejects.toThrowError()
   })
   it('should not allow duplicate chains to be added', async () => {
@@ -87,7 +87,7 @@ describe('SigChainManager', () => {
       sigChainManager.createChain(TEAM_NAME1, 'user1', true),
       sigChainManager.createChain(TEAM_NAME2, 'user2', false),
     ])
-    expect(sigChainManager.getChain(TEAM_NAME1)).toBeDefined()
-    expect(sigChainManager.getChain(TEAM_NAME2)).toBeDefined()
+    expect(sigChainManager.getChain({ teamName: TEAM_NAME1 })).toBeDefined()
+    expect(sigChainManager.getChain({ teamName: TEAM_NAME2 })).toBeDefined()
   })
 })

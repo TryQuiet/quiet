@@ -1,12 +1,12 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
-import { DeviceWithSecrets, LocalUserContext } from '3rd-party/auth/packages/auth/dist'
+import { DeviceWithSecrets } from '3rd-party/auth/packages/auth/dist'
 import { RoleName } from '..//roles/roles'
 import { DeviceService } from './device.service'
 
 const logger = createLogger('auth:services:device.spec')
 
-describe('invites', () => {
+describe('devices', () => {
   let adminSigChain: SigChain
   let newDevice: DeviceWithSecrets
 

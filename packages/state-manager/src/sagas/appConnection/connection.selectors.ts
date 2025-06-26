@@ -89,14 +89,37 @@ export const invitationUrl = createSelector(
     }
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
-    const inviteData: InvitationData = {
+    let inviteData: InvitationData = {
       psk: communityPsk,
       pairs,
-      version: InvitationDataVersion.v2,
       authData: {
         communityName: currentCommunity.name,
         seed: longLivedInvite.seed,
       },
+      version: InvitationDataVersion.v2,
+    }
+    const qssEnabled = currentCommunity.qssEnabled
+    const teamId = currentCommunity.teamId
+    const qssEndpoint = currentCommunity.qssEndpoint
+
+    if (qssEnabled === true) {
+      if (teamId == null || qssEndpoint == null) {
+        const message = `QSS is enabled but team ID and/or QSS endpoint was null!  You must provide a team ID and QSS endpoint to properly handle QSS invites!`
+        logger.error(message)
+        throw new Error(message)
+      }
+
+      inviteData = {
+        ...inviteData,
+        version: InvitationDataVersion.v3,
+        qssEnabled,
+        qssEndpoint,
+        authData: {
+          ...inviteData.authData,
+          teamId,
+        },
+      }
+      logger.info('Added V3 invite data to the invite link')
     }
     return composeInvitationShareUrl(inviteData)
   }

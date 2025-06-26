@@ -595,10 +595,10 @@ describe('Multiple Clients', () => {
           FileAttachmentType.IMAGE,
           users.owner.username
         )
+        expect(imageMessageIds).toBeDefined()
       })
 
       it('Guest sees uploaded image', async () => {
-        expect(imageMessageIds).toBeDefined()
         await generalChannelUser1.getMessageIdsByFileAndId(
           imageMessageIds!,
           TEST_IMAGE_FILE_NAME,
@@ -675,7 +675,7 @@ describe('Multiple Clients', () => {
         expect(await generalChannelOwner.isReady()).toBeTruthy()
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
         expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-        const messageIds = await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
+        await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
       })
     })
   })
