@@ -257,7 +257,7 @@ jobs:
           source-path: darwin
 
       - name: "Remove crud files"
-        run: xattr -cr .
+        run: xattr -crs .
 
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
