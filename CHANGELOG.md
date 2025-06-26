@@ -12,6 +12,8 @@
 * Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
 * Changing the text on the loading screen when the user creates a community. [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
 
+## [5.1.2]
+
 ### Chores
 
 * Quiet Desktop now uses Tor 0.4.8.16
@@ -19,7 +21,6 @@
 * Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 * Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
-
 
 ## [5.1.0]
 
