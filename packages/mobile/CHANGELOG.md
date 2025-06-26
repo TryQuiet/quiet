@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [6.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@5.1.2-alpha.1...@quiet/mobile@6.0.0-alpha.0) (2025-06-26)
+
+
+### Features
+
+* **2759:** Add QSS sigchain syncing to Quiet ([#2877](https://github.com/TryQuiet/quiet/issues/2877)) ([fe1b1a0](https://github.com/TryQuiet/quiet/commit/fe1b1a0927e8f3c3e0ef3bc8c9adda19a64df0cc))
+
+
+
+
+
 # Changelog
 
 ## [unreleased]
