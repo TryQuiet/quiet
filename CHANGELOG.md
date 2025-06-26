@@ -10,7 +10,11 @@
 ### Fixes
 
 * Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
-* Changing the text on the loading screen when the user creates a community. [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
+* Changing the text on the loading screen when the user creates a community [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
+
+### Breaking
+
+* Adds key commitment scheme to address the "invisible salamanders" attack [#2711](https://github.com/TryQuiet/quiet/issues/2711)
 
 ## [5.1.2]
 
