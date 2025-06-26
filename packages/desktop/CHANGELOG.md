@@ -1,22 +1,16 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@5.1.2-alpha.1...@quiet/desktop@6.0.0-alpha.0) (2025-06-26)
-
-
-### Features
-
-* **2759:** Add QSS sigchain syncing to Quiet ([#2877](https://github.com/TryQuiet/quiet/issues/2877)) ([fe1b1a0](https://github.com/TryQuiet/quiet/commit/fe1b1a0927e8f3c3e0ef3bc8c9adda19a64df0cc))
-
-
-
-
-
 # Changelog
 
 ## [unreleased]
+
+### Features
+
+* Adds a hook for QSS to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
+* Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
+
+### Fixes
+
+* Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
+* Changing the text on the loading screen when the user creates a community. [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
 
 ### Chores
 
@@ -25,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 * Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
-* Update OrbitDB to improve error handling [#2883](https://github.com/TryQuiet/quiet/issues/2883)
+
 
 ## [5.1.0]
 
@@ -39,7 +33,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Compresses images and user profile photos over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
 * Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
 * Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
-* Add support for QSS sigchain syncing and QSS-enabled invitation links [#2759](https://github.com/TryQuiet/quiet/issues/2759)
 
 ### Fixes
 
@@ -54,7 +47,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixes
 
-* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858) 
+* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858)
 * Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
 * Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
 * Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)
