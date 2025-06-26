@@ -19,6 +19,7 @@ import {
   OrbitDBOpenOptions,
   LogEntry,
   Entry,
+  DatabaseType,
 } from '@orbitdb/core'
 import { HeliaLibp2p, type Helia } from 'helia'
 import { OrbitDbStorage } from '../../types'
@@ -117,7 +118,7 @@ export class OrbitDbService {
     this.identities = undefined
   }
 
-  public async open<T>(address: string, options?: OrbitDBOpenOptions): Promise<T> {
+  public async open<T extends DatabaseType>(address: string, options?: OrbitDBOpenOptions): Promise<T> {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
@@ -125,6 +126,12 @@ export class OrbitDbService {
     const storeAddress = (store as { address: string }).address
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
+
+    store.events.on('update', async (entry: LogEntry) => {
+      if (entry.identity == this.orbitDbInstance?.identity.hash) {
+        OrbitDbService.events.emit('put', entry)
+      }
+    })
 
     await this.joinPendingHeads(storeAddress)
     return store

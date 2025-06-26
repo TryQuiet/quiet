@@ -140,3 +140,13 @@ Even though Quiet is completely peer-to-peer, it is mostly written in TypeScript
 To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/develop/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/orgs/TryQuiet/projects/3/views/4?filterQuery=label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/3/views/4).
 
 Most of all, if you're interested in contributing, be in touch! Drop us a line at [h@quiet.chat](mailto:h@quiet.chat) and we'll add you to the project's Quiet community and (if you like) plan an onboarding session.
+
+## Donations
+
+We've had some inquiries from people wanting to donate. Here are a few ways to do that:
+
+**BTC**: <a href="bitcoin:bc1qgg39g8u650jgl8k53tshfxqv8jtxnvly43f0ls">bc1qgg39g8u650jgl8k53tshfxqv8jtxnvly43f0ls</a>
+<br>
+**XMR**: <a href="monero:82jpkVEmbKdPJcsvgEfsccMZQxrAkjsQkBm6N8ZezRr6Rb1XoNdsL7RNKkGjyBmBVMjouHTDYFGWBeRGy7UVUpa7A64BkSK">82jpkVEmbKdPJcsvgEfsccMZQxrAkjsQkBm6N8ZezRr6Rb1XoNdsL7RNKkGjyBmBVMjouHTDYFGWBeRGy7UVUpa7A64BkSK</a>
+
+(If you do decide to donate, please also let us know by email: [h@quiet.chat](mailto:h@quiet.chat))

@@ -108,6 +108,8 @@ declare module '@orbitdb/core' {
     type: string
     sign: (identity: Identity, data: string) => Promise<string>
     verify: (signature: string, publicKey: string, data: string) => Promise<boolean>
+    hash: string
+    bytes: Uint8Array<ArrayBuffer>
   }
 
   export interface IdentityProvider {
