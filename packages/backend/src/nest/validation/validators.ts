@@ -61,9 +61,15 @@ const messageSchema = joi.object({
 const encryptedMessageSchema = joi.object({
   id: joi.string().required(),
   contents: joi.object({
-    contents: joi.required().custom((value, _helpers) => {
-      return isUint8Array(value) || Buffer.isBuffer(value)
-    }),
+    contents: joi
+      .any()
+      .required()
+      .custom((value, _helpers) => {
+        if (!Buffer.isBuffer(value) && !isUint8Array(value)) {
+          throw new Error('value must be a Uint8Array or Buffer')
+        }
+        return value
+      }),
     scope: joi
       .object({
         generation: joi.number().required(),
