@@ -9,6 +9,7 @@ on:
       - packages/identity/**
       - packages/common/**
       - packages/e2e-tests/**
+      - 3rd-party/**
 
 jobs:
   mac:

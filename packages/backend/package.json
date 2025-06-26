@@ -173,7 +173,7 @@
     "it-pushable": "^3.2.3",
     "it-ws": "^6.1.5",
     "jimp": "^1.6.0",
-    "joi": "^17.8.1",
+    "joi": "^17.13.3",
     "level": "8.0.1",
     "libp2p": "2.4.2",
     "libsodium-wrappers-sumo": "0.7.15",

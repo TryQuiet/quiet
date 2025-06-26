@@ -6,6 +6,7 @@ on:
       - packages/state-manager/**
       - packages/backend/**
       - packages/integration-tests/**
+      - 3rd-party/**
 
 jobs:
   integration-tests:

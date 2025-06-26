@@ -18,6 +18,7 @@ jobs:
           filters: |
             backend:
               - 'packages/backend/**'
+              - '3rd-party/**'
       - name: "Skip tests"
         if: steps.filter.outputs.backend == 'false'
         run: |
