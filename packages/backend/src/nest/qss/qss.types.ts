@@ -1,5 +1,6 @@
 import { Keyset } from '3rd-party/auth/packages/auth/dist'
 import { CompoundError } from '@quiet/types'
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
 
 /**
  * Quiet-specific websocket event types
@@ -10,6 +11,7 @@ export enum WebsocketEvents {
   AUTH_SYNC = 'auth-sync',
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
+  DATA_SYNC = 'data-sync',
 }
 
 /**
@@ -80,6 +82,7 @@ export class QSSHandshakeError<T extends Error> extends CompoundError<T> {
 export enum CommunityOperationStatus {
   ERROR = 'error',
   SUCCESS = 'success',
+  SENDING = 'sending',
   UNAUTHORIZED = 'unauthorized',
   NOT_FOUND = 'not found',
 }
@@ -139,4 +142,22 @@ export interface CommunitySignInPayload extends BaseStatusPayload<CommunitySignI
 export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {
   ts: number
   payload: CommunitySignInPayload
+}
+
+export interface QSSDataSyncInnerPayload {
+  teamId: string
+  hash: string
+  hashedDbId: string
+  encEntry: EncryptedAndSignedPayload
+}
+
+export interface QSSDataSyncPayload extends BaseStatusPayload<QSSDataSyncInnerPayload> {
+  status: CommunityOperationStatus
+  reason?: string
+  payload?: QSSDataSyncInnerPayload
+}
+
+export interface QSSDataSyncMessage extends BaseWebsocketMessage<QSSDataSyncPayload> {
+  ts: number
+  payload: QSSDataSyncPayload
 }

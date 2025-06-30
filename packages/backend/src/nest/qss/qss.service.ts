@@ -16,6 +16,7 @@ import {
   CreateCommunity,
   CreateCommunityResponse,
   CreateCommunityStatus,
+  QSSDataSyncMessage,
   GeneratePublicKeysMessage,
   GeneratePublicKeysResponse,
   WebsocketEvents,
@@ -26,6 +27,11 @@ import EventEmitter from 'node:events'
 import { sleep } from '../common/sleep'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
+import { LogEntry } from '@orbitdb/core'
+import { SigChainService } from '../auth/sigchain.service'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
+import { RoleName } from '../auth/services/roles/roles'
+import { hash } from '../../../../../3rd-party/auth/packages/crypto/dist'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy {
@@ -40,7 +46,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     @Inject(QSS_ENABLED) private qssEnabled: boolean,
     @Inject(QSS_ENDPOINT) public qssEndpoint: string,
     private readonly qssClient: QSSClient,
-    private readonly qssAuthConnManager: QSSAuthConnectionManager
+    private readonly qssAuthConnManager: QSSAuthConnectionManager,
+    private readonly sigChainService: SigChainService
   ) {
     super({ captureRejections: true })
   }
@@ -266,6 +273,41 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
     this.qssAuthConnManager.startNewConnection(teamId, teamName)
+  }
+
+  public async sendDataSyncMessage(entry: LogEntry<unknown>): Promise<void> {
+    this.logger.info('Sending data sync to QSS', entry.hash)
+    const encEntry: EncryptedAndSignedPayload = this.sigChainService.activeChain.crypto.encryptAndSign(entry, {
+      type: EncryptionScopeType.ROLE,
+      name: RoleName.MEMBER,
+    })
+    const dataSyncMessage: QSSDataSyncMessage = {
+      ts: DateTime.utc().toMillis(),
+      payload: {
+        status: CommunityOperationStatus.SENDING,
+        payload: {
+          teamId: this.sigChainService.team.id,
+          hash: entry.hash,
+          hashedDbId: hash('', entry.id),
+          encEntry,
+        },
+      },
+    }
+    const dataSyncAck = await this.qssClient.sendMessage<QSSDataSyncMessage>(
+      WebsocketEvents.DATA_SYNC,
+      dataSyncMessage,
+      true
+    )
+
+    if (dataSyncAck == null) {
+      this.logger.error('Error while sending a data sync to QSS', entry.hash, entry.id)
+      // TODO: add dead letter queue for failed syncs
+    } else if (dataSyncAck.payload.status !== CommunityOperationStatus.SUCCESS) {
+      this.logger.error(`Error while sending a data sync to QSS - ${dataSyncAck.payload.reason}`, entry.hash, entry.id)
+      // TODO: add dead letter queue for failed syncs
+    } else {
+      this.logger.info('Successful data sync to QSS')
+    }
   }
 
   /**

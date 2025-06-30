@@ -15,6 +15,7 @@ import {
   CommunityOperationStatus,
   CreateCommunityStatus,
   CommunitySignInMessage,
+  QSSDataSyncMessage,
 } from './qss.types'
 import { createLogger } from '../common/logger'
 import { Community, Identity } from '@quiet/types'
@@ -26,6 +27,17 @@ import { randomBytes } from 'crypto'
 import waitForExpect from 'wait-for-expect'
 import * as uint8arrays from 'uint8arrays'
 import { JoinStatus } from '../libp2p/libp2p.auth'
+import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
+import { StorageModule } from '../storage/storage.module'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { IpfsService } from '../ipfs/ipfs.service'
+import { LocalDbService } from '../local-db/local-db.service'
+import { Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { spawnLibp2pInstancesInMemory } from '../common/test-utils'
+import * as fs from 'fs'
+import { EventsType } from '@orbitdb/core'
+import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
+import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
 
 describe('QSSService', () => {
   let store: Store
@@ -34,6 +46,11 @@ describe('QSSService', () => {
   let qssClient: QSSClient
   let qssService: QSSService
   let sigchainService: SigChainService
+  let libp2pService: Libp2pService
+  let ipfsService: IpfsService
+  let orbitDbService: OrbitDbService
+  let localDbService: LocalDbService
+  let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedSendMessage: any
   let community: Community
@@ -49,10 +66,20 @@ describe('QSSService', () => {
     factory = await getReduxStoreFactory(store)
 
     module = await Test.createTestingModule({
-      imports: [TestModule, QSSModule, SigChainModule],
+      imports: [TestModule, QSSModule, SigChainModule, StorageModule],
     }).compile()
     qssService = module.get<QSSService>(QSSService)
     qssClient = module.get<QSSClient>(QSSClient)
+    libp2pService = await module.resolve(Libp2pService)
+    libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
+
+    ipfsService = await module.resolve(IpfsService)
+    await ipfsService.createInstance()
+
+    localDbService = await module.resolve(LocalDbService)
+    orbitDbService = await module.resolve(OrbitDbService)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+
     mockedCreateSocket = jest
       .spyOn(qssClient, 'createSocket')
       .mockImplementation(async (_qssEnabled: boolean, _qssEndpoint: string | undefined): Promise<ClientSocket> => {
@@ -79,7 +106,14 @@ describe('QSSService', () => {
   })
 
   afterEach(async () => {
-    await module.close()
+    await orbitDbService?.stop()
+    if (fs.existsSync(orbitDbService.orbitDbDir)) {
+      fs.rmSync(orbitDbService.orbitDbDir, { recursive: true })
+    }
+    await ipfsService?.stop()
+    await libp2pService?.close()
+    await localDbService?.close()
+    await module?.close()
     mockedCreateSocket.mockRestore()
     if (mockedSendMessage != null) {
       mockedSendMessage.mockRestore()
@@ -479,6 +513,71 @@ describe('QSSService', () => {
       expect(error).toBeDefined()
       expect(error?.message.includes('Error while signing in to community')).toBeTruthy()
       expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.NOT_STARTED)
+      expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('sendDataSyncMessage', () => {
+    it(`sends a successful data sync to QSS`, async () => {
+      mockedSendMessage = jest
+        .spyOn(qssClient, 'sendMessage')
+        .mockImplementation(
+          async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
+            logger.debug('Sending event to QSS', event, payload, withAck)
+            if (!withAck) {
+              return undefined
+            }
+            switch (event) {
+              case WebsocketEvents.DATA_SYNC:
+                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload.payload!
+                return {
+                  ts: DateTime.utc().toMillis(),
+                  payload: {
+                    status: CommunityOperationStatus.SUCCESS,
+                    payload: {
+                      teamId,
+                      hash,
+                      hashedDbId,
+                    },
+                  },
+                } as T
+              default:
+                return undefined
+            }
+          }
+        )
+      await qssService.connect(true, 'ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+      expect(qssService.enabled).toBeTruthy()
+
+      const db = await orbitDbService.open<EventsType<string>>(`channels.foobar`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: MessagesAccessController({ write: ['*'] }),
+        sync: true,
+      })
+      const hash = await db.add('random message')
+      const entry = await db.log.get(hash)
+      await qssService.sendDataSyncMessage(entry)
+      await waitForExpect(() => {
+        expect(mockedSendMessage).toHaveBeenNthCalledWith(
+          1,
+          WebsocketEvents.DATA_SYNC,
+          expect.objectContaining({
+            ts: expect.any(Number),
+            payload: {
+              status: CommunityOperationStatus.SENDING,
+              payload: {
+                teamId: sigchainService.team.id,
+                hash,
+                hashedDbId: expect.any(String),
+                encEntry: expect.any(Object),
+              },
+            },
+          } as QSSDataSyncMessage),
+          true
+        )
+      })
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
     })
   })
