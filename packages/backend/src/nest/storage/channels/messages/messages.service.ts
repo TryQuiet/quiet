@@ -61,6 +61,7 @@ export class MessagesService extends EventEmitter {
         id: rawMessage.id,
         channelId: rawMessage.channelId,
         createdAt: rawMessage.createdAt,
+        teamId: encryptedMessage.teamId,
         encSignature: encryptedMessage.signature,
         contents: encryptedMessage.encrypted,
       }
