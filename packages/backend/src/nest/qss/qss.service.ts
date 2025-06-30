@@ -275,8 +275,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.qssAuthConnManager.startNewConnection(teamId, teamName)
   }
 
+  /**
+   * Sync an OrbitDB log entry to QSS
+   *
+   * @param entry OrbitDB oplog entry object
+   */
   public async sendDataSyncMessage(entry: LogEntry<unknown>): Promise<void> {
     this.logger.info('Sending data sync to QSS', entry.hash)
+
+    this.logger.trace('Encrypting log entry', entry.hash)
     const encEntry: EncryptedAndSignedPayload = this.sigChainService.activeChain.crypto.encryptAndSign(entry, {
       type: EncryptionScopeType.ROLE,
       name: RoleName.MEMBER,
@@ -293,6 +300,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         },
       },
     }
+
+    this.logger.trace('Sending data sync message to QSS', entry.hash)
     const dataSyncAck = await this.qssClient.sendMessage<QSSDataSyncMessage>(
       WebsocketEvents.DATA_SYNC,
       dataSyncMessage,
@@ -306,7 +315,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       this.logger.error(`Error while sending a data sync to QSS - ${dataSyncAck.payload.reason}`, entry.hash, entry.id)
       // TODO: add dead letter queue for failed syncs
     } else {
-      this.logger.info('Successful data sync to QSS')
+      this.logger.debug('Successful data sync to QSS')
     }
   }
 
