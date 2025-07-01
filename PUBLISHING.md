@@ -107,6 +107,7 @@ QA will test according to the following checklists:
 ## Breaking changes
 
 While Quiet is in its early stages and does not have known communities of active users, we have the luxury of releasing breaking changes, e.g. changes that require users to start a new community. However, we still take some reasonable steps to make breaking changes comfortable for users.
+While Quiet is in its early stages and does not have known communities of active users, we have the luxury of releasing breaking changes, e.g. changes that require users to start a new community. However, we still take some reasonable steps to make breaking changes comfortable for users.
 
 1. Update storage location on Desktop (see: https://github.com/TryQuiet/quiet/pull/2829) and Mobile (see: https://github.com/TryQuiet/quiet/pull/2831/files).
 2. Create a new S3 bucket for the new major release (the new release will fail without this step)

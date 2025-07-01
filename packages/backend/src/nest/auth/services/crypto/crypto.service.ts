@@ -64,7 +64,8 @@ class CryptoService extends ChainServiceBase {
       },
       ts: Date.now(),
       userId: this.sigChain.user.userId,
-    } as EncryptedAndSignedPayload
+      teamId: this.sigChain.team!.id,
+    }
   }
 
   private symEncrypt(message: any, scope: EncryptionScope): EncryptedPayload {
