@@ -1,10 +1,10 @@
 # Changelog
 
-## [unreleased]
+## [6.0.0]
 
 ### Features
 
-* Adds a hook for QSS to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
+* Adds a hook for Quiet Storage Service (QSS) to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
 * Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
 
 ### Fixes
