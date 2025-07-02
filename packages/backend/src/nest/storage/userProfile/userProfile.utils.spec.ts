@@ -99,33 +99,33 @@ describe('base64DataURLToByteArray', () => {
 describe('validatePhoto', () => {
   test("returns false when the photo isn't a string", () => {
     const input = 1234 as any
-    expect(validatePhoto(input, 'abc123')).toEqual(false)
+    expect(validatePhoto(input, 'abc123').success).toEqual(false)
   })
 
   test("returns false when the photo doesn't have a valid image header", () => {
     const input = 'Zm9vYmFy'
-    expect(validatePhoto(input, 'abc123')).toEqual(false)
+    expect(validatePhoto(input, 'abc123').success).toEqual(false)
   })
 
   test('returns false when the photo is missing the magic byte header', () => {
     const input = 'data:image/png;base64,Zm9vYmFy'
-    expect(validatePhoto(input, 'abc123')).toEqual(false)
+    expect(validatePhoto(input, 'abc123').success).toEqual(false)
   })
 
   test('returns true when the photo is a valid PNG string', () => {
-    expect(validatePhoto(VALID_PNG_URI, 'abc123')).toEqual(true)
+    expect(validatePhoto(VALID_PNG_URI, 'abc123').success).toEqual(true)
   })
 
   test('returns true when the photo is a valid JPEG string', () => {
-    expect(validatePhoto(VALID_JPEG_URI, 'abc123')).toEqual(true)
+    expect(validatePhoto(VALID_JPEG_URI, 'abc123').success).toEqual(true)
   })
 
   test('returns true when the photo is a valid GIF string', () => {
-    expect(validatePhoto(VALID_GIF_URI, 'abc123')).toEqual(true)
+    expect(validatePhoto(VALID_GIF_URI, 'abc123').success).toEqual(true)
   })
 
   test('returns true when the photo is a <15MB valid JPEG string', () => {
-    expect(validatePhoto(VALID_LARGE_JPG_URI, 'abc123')).toEqual(true)
+    expect(validatePhoto(VALID_LARGE_JPG_URI, 'abc123').success).toEqual(true)
   })
 
   test('rejects PNG images larger than 200KB', () => {
@@ -143,7 +143,7 @@ describe('validatePhoto', () => {
     const dataUrl = `data:image/png;base64,${base64Image}`
 
     // Should be rejected since it's over 200KB and is a PNG
-    expect(validatePhoto(dataUrl, 'abc123')).toEqual(false)
+    expect(validatePhoto(dataUrl, 'abc123').success).toEqual(false)
   })
 
   test('rejects JPEG images larger than 15MB', () => {
@@ -162,6 +162,6 @@ describe('validatePhoto', () => {
     const dataUrl = `data:image/jpeg;base64,${base64Image}`
 
     // Should be rejected as it's > 15MB
-    expect(validatePhoto(dataUrl, 'abc123')).toEqual(false)
+    expect(validatePhoto(dataUrl, 'abc123').success).toEqual(false)
   })
 })

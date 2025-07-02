@@ -253,27 +253,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     await this.launchCommunity(community)
-    if (!(await this.healthCheck())) {
-      this.logger.error('Health check failed')
-      await this.leaveCommunity()
-    }
-  }
-
-  public async healthCheck(): Promise<boolean> {
-    this.logger.info('Running health check')
-    if (!this.sigChainService.getActiveChain()) {
-      this.logger.error('No active sigchain found')
-      return false
-    }
-    if (!(await this.storageService.userProfileStore.getEntry(this.sigChainService.user.userId))) {
-      this.logger.error('No user profile found')
-      // TODO: try to get user profile from redux or local db
-      return false
-    }
-
-    // Perform health check logic here
-    this.logger.info('Health check passed')
-    return true
   }
 
   public async closeSocket() {
