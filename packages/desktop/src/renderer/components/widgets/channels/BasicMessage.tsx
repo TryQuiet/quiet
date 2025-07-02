@@ -184,7 +184,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
 }) => {
-  const messageDisplayData = messages[0]
+  const messageDisplayData: DisplayableMessage = messages[0]
 
   const userLabel = messageDisplayData?.isDuplicated
     ? UserLabelType.DUPLICATE
