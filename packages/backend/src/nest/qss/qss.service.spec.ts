@@ -38,6 +38,8 @@ import * as fs from 'fs'
 import { EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
+import { RoleName } from '../auth/services/roles/roles'
 
 describe('QSSService', () => {
   let store: Store
@@ -53,6 +55,7 @@ describe('QSSService', () => {
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedSendMessage: any
+  let addPendingMessageSpy: any
   let community: Community
   let userIdentity: Identity
 
@@ -118,6 +121,7 @@ describe('QSSService', () => {
     if (mockedSendMessage != null) {
       mockedSendMessage.mockRestore()
     }
+    addPendingMessageSpy = null
   })
 
   describe('connect', () => {
@@ -550,15 +554,20 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.enabled).toBeTruthy()
 
-      const db = await orbitDbService.open<EventsType<string>>(`channels.foobar`, {
+      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
         AccessController: MessagesAccessController({ write: ['*'] }),
         sync: true,
       })
-      const hash = await db.add('random message')
+      const hash = await db.add(
+        sigchainService.activeChain.crypto.encryptAndSign('random message', {
+          type: EncryptionScopeType.ROLE,
+          name: RoleName.MEMBER,
+        })
+      )
       const entry = await db.log.get(hash)
-      await qssService.sendDataSyncMessage(entry)
+      const result = await qssService.sendDataSyncMessage(entry)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -578,7 +587,69 @@ describe('QSSService', () => {
           true
         )
       })
+      expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+
+      const pendingMessages = await localDbService.getPendingQssSyncMessages()
+      expect(pendingMessages.length).toBe(0)
+    })
+
+    it(`fails to send data sync to QSS and writes pending message to local DB`, async () => {
+      mockedSendMessage = jest
+        .spyOn(qssClient, 'sendMessage')
+        .mockImplementation(
+          async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
+            logger.debug('Sending event to QSS', event, payload, withAck)
+            if (!withAck) {
+              return undefined
+            }
+            switch (event) {
+              case WebsocketEvents.DATA_SYNC:
+                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload.payload!
+                return {
+                  ts: DateTime.utc().toMillis(),
+                  payload: {
+                    status: CommunityOperationStatus.SUCCESS,
+                    payload: {
+                      teamId,
+                      hash,
+                      hashedDbId,
+                    },
+                  },
+                } as T
+              default:
+                return undefined
+            }
+          }
+        )
+      addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssSyncMessage')
+      mockedCreateSocket.mockRestore()
+      await qssService.connect(true, 'ws://localhost:3000')
+      expect(qssService.connected).toBeFalsy()
+      expect(qssService.enabled).toBeTruthy()
+
+      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: MessagesAccessController({ write: ['*'] }),
+        sync: true,
+      })
+      const hash = await db.add(
+        sigchainService.activeChain.crypto.encryptAndSign('random message', {
+          type: EncryptionScopeType.ROLE,
+          name: RoleName.MEMBER,
+        })
+      )
+      const entry = await db.log.get(hash)
+      const result = await qssService.sendDataSyncMessage(entry)
+      expect(result).toBe(undefined)
+      await waitForExpect(async () => {
+        expect(addPendingMessageSpy).toHaveBeenCalledTimes(1)
+      })
+      expect(mockedSendMessage).toHaveBeenCalledTimes(0)
+
+      const pendingMessages = await localDbService.getPendingQssSyncMessages()
+      expect(pendingMessages.length).toBe(1)
     })
   })
 })

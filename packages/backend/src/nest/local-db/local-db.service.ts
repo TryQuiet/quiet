@@ -12,6 +12,10 @@ import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
+import * as uint8arrays from 'uint8arrays'
+import { LogEntry } from '@orbitdb/core'
+import { QSSDataSyncMessage } from '../qss/qss.types'
 
 @Injectable()
 export class LocalDbService {
@@ -337,6 +341,40 @@ export class LocalDbService {
     }
     for (const head of heads) {
       arr = arr.filter(cidStr => !CID.parse(cidStr, base58btc).equals(head))
+    }
+    if (arr.length === 0) {
+      await this.delete(key)
+    } else {
+      await this.put(key, arr)
+    }
+  }
+
+  public async addPendingQssSyncMessage(unsentMessage: QSSDataSyncMessage): Promise<void> {
+    const key = LocalDBKeys.PENDING_QSS_SYNCS
+    const arr: string[] = (await this.get(key)) || []
+    const messageString = JSON.stringify(unsentMessage)
+    if (arr.filter(pendingMessage => pendingMessage === messageString)) {
+      arr.push(messageString)
+      await this.put(key, arr)
+    }
+  }
+
+  public async getPendingQssSyncMessages(): Promise<QSSDataSyncMessage[]> {
+    const key = LocalDBKeys.PENDING_QSS_SYNCS
+    const arr: string[] = (await this.get(key)) || []
+    const parsed: QSSDataSyncMessage[] = []
+    for (const pendingMessage of arr) {
+      parsed.push(JSON.parse(pendingMessage) as QSSDataSyncMessage)
+    }
+    return parsed
+  }
+
+  public async removePendingQssSyncMessages(sentMessages: QSSDataSyncMessage[]): Promise<void> {
+    const key = LocalDBKeys.PENDING_QSS_SYNCS
+    let arr: string[] = (await this.get(key)) || []
+    for (const message of sentMessages) {
+      const messageString = JSON.stringify(message)
+      arr = arr.filter(pendingMessage => pendingMessage === messageString)
     }
     if (arr.length === 0) {
       await this.delete(key)
