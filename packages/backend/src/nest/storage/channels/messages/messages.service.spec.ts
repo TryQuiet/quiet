@@ -49,6 +49,7 @@ describe('MessagesService', () => {
       expect(encryptedMessage).toEqual(
         expect.objectContaining({
           id: message.id,
+          teamId: sigChainService.team.id,
           createdAt: message.createdAt,
           channelId: message.channelId,
           contents: expect.objectContaining({
