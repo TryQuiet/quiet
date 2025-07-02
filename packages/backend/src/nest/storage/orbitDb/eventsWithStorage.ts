@@ -89,12 +89,11 @@ export const EventsWithStorage =
     }
 
     const all = async (): Promise<{ hash: string; value: unknown }[]> => {
-      try {
-        return await db.all()
-      } catch (e) {
-        db.events.emit('error', e)
-        return []
+      const values = []
+      for await (const entry of iterator({})) {
+        values.unshift(entry)
       }
+      return values
     }
 
     return {

@@ -214,7 +214,6 @@ export class ChannelsService extends EventEmitter {
       return undefined
     }
     // need to rehydrate the UInt8Array bc json value encoding in KeyValueIndexedValidated does not maintain type
-    channelEncrypted.encrypted.contents = new Uint8Array(Object.values(channelEncrypted.encrypted.contents))
     return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
   }
 
