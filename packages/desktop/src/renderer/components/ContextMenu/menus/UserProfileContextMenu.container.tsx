@@ -275,9 +275,16 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const username = userProfile?.nickname || ''
   const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
+  const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
     dispatch(users.actions.saveUserProfile({ photo }))
   }
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(users.actions.setSaveUserProfileError(null))
+    }
+  }, [dispatch])
 
   return (
     <UserProfileMenuEditView
@@ -287,6 +294,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
       contextMenu={contextMenu}
       setRoute={setRoute}
       onSaveUserProfile={onSaveUserProfile}
+      errorBanner={saveUserProfileError}
     />
   )
 }
@@ -302,6 +310,7 @@ export interface UserProfileMenuEditViewProps {
   }
   setRoute: (route: string) => void
   onSaveUserProfile: ({ photo }: { photo: File }) => void
+  errorBanner?: string | null
 }
 
 export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
@@ -311,6 +320,7 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   contextMenu,
   setRoute,
   onSaveUserProfile,
+  errorBanner,
 }) => {
   const [error, setError] = useState<string>('')
 
@@ -410,6 +420,21 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                   style={{ width: maxWidth + offset, height: height }}
                 >
                   <Grid container direction='column'>
+                    {/* Error banner for saveUserProfile error */}
+                    {errorBanner && (
+                      <Grid
+                        item
+                        style={{
+                          background: '#ffebee',
+                          color: '#b71c1c',
+                          padding: '12px 16px',
+                          borderRadius: 8,
+                          margin: '8px 16px',
+                        }}
+                      >
+                        <Typography variant='body2'>{errorBanner}</Typography>
+                      </Grid>
+                    )}
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
                       {userProfile?.photo ? (
                         <img

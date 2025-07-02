@@ -45,6 +45,11 @@ export interface SetUserProfilePayload {
   profile: UserProfile
 }
 
+export interface SetUserProfileResponse {
+  success: boolean
+  error?: string
+}
+
 export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
 }

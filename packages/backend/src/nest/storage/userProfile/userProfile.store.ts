@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { type LogEntry, type KeyValueType, IPFSAccessController } from '@orbitdb/core'
-import { UserProfile } from '@quiet/types'
+import { type LogEntry, type KeyValueType, IPFSAccessController, Entry } from '@orbitdb/core'
+import { SetUserProfileResponse, UserProfile } from '@quiet/types'
 
 import { createLogger } from '../../common/logger'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
@@ -43,6 +43,16 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       })
     })
 
+    logger.info('Atteching sending listener')
+    this.store.sync.events.on('sending', (entry: LogEntry) => {
+      logger.info('Database sync sending entry:', entry.hash, entry.key, entry.identity)
+    })
+
+    logger.info('Atteching get listener')
+    this.store.events.on('get', (hash: string) => {
+      logger.info('Database get entry:', hash)
+    })
+
     this.auth.on('updated', async payload => {
       this.flushDeferredEntries()
     })
@@ -50,13 +60,51 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
     })
+    try {
+      await this.store.log.traverse()
+    } catch (err) {
+      logger.error('Failed to traverse user profiles store log:', err)
+    }
   }
 
+  /**
+   * Starts synchronization of the user profiles store and flushes deferred entries.
+   */
   public async startSync() {
     await this.getStore().sync.start()
+    this.getStore().sync.events.on('sending', async (entry: LogEntry) => {
+      logger.info('User profiles store sync sending entry:', entry.hash, entry.key, entry.identity)
+      try {
+        const decodedEntry = await Entry.decode(entry.bytes)
+        logger.info('Decoded entry:', decodedEntry)
+      } catch (err) {
+        logger.error('Failed to decode entry:', entry.hash, err)
+      }
+    })
+
+    this.getStore().sync.events.on('received', async (bytes: Uint8Array) => {
+      logger.info('User profiles store sync received bytes:', bytes.length)
+      try {
+        const decodedEntry = await Entry.decode(bytes)
+        logger.info('Decoded entry:', decodedEntry)
+      } catch (err) {
+        logger.error('Failed to decode received bytes:', err)
+      }
+      // for (const valueEncoding of Object.values(bases)) {
+      //   try {
+      //     const decoded = JSON.parse(toString(bytes, valueEncoding.name as SupportedEncodings))
+      //     logger.info(`Decoded block with encoding ${valueEncoding.name}:`, decoded)
+      //   } catch (decodeError) {
+      //     logger.debug(`Failed to decode block with encoding ${valueEncoding.name}:`, decodeError)
+      //   }
+      // }
+    })
     await this.flushDeferredEntries()
   }
 
+  /**
+   * Attempts to write any deferred user profiles to the store if permissions allow.
+   */
   public async flushDeferredEntries() {
     if (this.deferredProfiles.length === 0) {
       logger.info('No deferred user profiles to flush')
@@ -82,6 +130,12 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     this.deferredProfiles = []
   }
 
+  /**
+   * Encrypts and signs a user profile for secure storage.
+   * @param payload The user profile to encrypt.
+   * @returns The encrypted and signed payload.
+   * @throws If encryption or signing fails.
+   */
   public async encryptEntry(payload: UserProfile): Promise<EncryptedAndSignedPayload> {
     try {
       const encryptedPayload = this.auth.crypto.encryptAndSign(payload, {
@@ -95,8 +149,14 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     }
   }
 
+  /**
+   * Decrypts and verifies an encrypted user profile payload.
+   * @param payload The encrypted and signed payload.
+   * @returns The decrypted user profile.
+   * @throws If decryption or signature verification fails.
+   */
   public async decryptEntry(payload: EncryptedAndSignedPayload): Promise<UserProfile> {
-    logger.debug('Decrypting user profile:', payload)
+    // logger.debug('Decrypting user profile:', payload)
     try {
       // Normalize encrypted.contents to a Buffer/Uint8Array for decryption
       const encrypted = payload.encrypted
@@ -128,7 +188,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
           .map(key => (encrypted.contents as any)[key] as number)
         encrypted.contents = Buffer.from(nums)
       }
-      logger.debug('Decrypting payload:', encrypted)
+      // logger.debug('Decrypting payload:', encrypted)
       const decryptedPayload = this.auth.crypto.decryptAndVerify<UserProfile>(encrypted, payload.signature)
       if (!decryptedPayload.isValid) {
         throw new Error('Failed to decrypt user entry: invalid signature')
@@ -136,11 +196,17 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       return decryptedPayload.contents
     } catch (err) {
       logger.error('Failed to decrypt user entry:', err)
-      logger.error('Failed to decrypt user entry:', payload)
+      // logger.error('Failed to decrypt user entry:', payload)
       throw err
     }
   }
 
+  /**
+   * Retrieves and decrypts a user profile by key.
+   * @param key The user ID or key for the profile.
+   * @returns The user profile.
+   * @throws If the entry is not found or decryption fails.
+   */
   public async getEntry(key: string): Promise<UserProfile> {
     const entry = await this.getStore().get(key)
     if (!entry) {
@@ -149,6 +215,13 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     return this.decryptEntry(entry)
   }
 
+  /**
+   * Encrypts and stores a user profile entry in the store.
+   * @param key The user ID or key for the profile.
+   * @param userProfile The user profile to store.
+   * @returns The encrypted and signed payload.
+   * @throws If encryption or storage fails.
+   */
   public async setEntry(key: string, userProfile: UserProfile): Promise<EncryptedAndSignedPayload> {
     logger.info('Adding user profile')
     try {
@@ -156,6 +229,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
         logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
+        throw new Error('Invalid user profile')
       }
       const encEntry = await this.encryptEntry(userProfile)
       await this.getStore().put(key, encEntry)
@@ -168,18 +242,31 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     }
   }
 
-  public static async validateUserProfile(userProfile: UserProfile) {
+  /**
+   * Validates a user profile, including its photo if present.
+   * @param userProfile The user profile to validate.
+   * @returns True if valid, false otherwise.
+   */
+  public static async validateUserProfile(userProfile: UserProfile): Promise<SetUserProfileResponse> {
     try {
-      if (userProfile?.photo && !validatePhoto(userProfile.photo, userProfile.userId)) {
-        return false
+      if (userProfile?.photo) {
+        const photoValidation = validatePhoto(userProfile.photo ?? '', userProfile.userId)
+        if (!photoValidation.success) {
+          return { success: false, error: photoValidation.error }
+        }
       }
     } catch (err) {
-      logger.error('Failed to validate user profile:', userProfile.userId, err)
-      return false
+      logger.error('Error validating user profile:', userProfile.userId, err)
+      return { success: false, error: 'Internal error: Failed to validate user profile' }
     }
-    return true
+    return { success: true }
   }
 
+  /**
+   * Validates a log entry for a user profile in the OrbitDB store.
+   * @param entry The log entry to validate.
+   * @returns True if valid, false otherwise.
+   */
   public async validateEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
     try {
       if (!entry.payload.value) {
@@ -191,13 +278,17 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         logger.error(`Failed to verify user profile entry: ${entry.hash} entry key != payload pubKey`)
         return false
       }
-      return await UserProfileStore.validateUserProfile(decEntry)
+      return (await UserProfileStore.validateUserProfile(decEntry)).success
     } catch (err) {
       logger.error('Failed to validate user profile entry:', entry.hash, err)
       return false
     }
   }
 
+  /**
+   * Retrieves and decrypts all user profiles from the store.
+   * @returns An array of user profiles.
+   */
   public async getUserProfiles(): Promise<UserProfile[]> {
     const encValues = (await this.getStore().all()).map(x => x.value)
     const results = await Promise.all(
@@ -215,10 +306,18 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     return userProfiles
   }
 
+  /**
+   * Gets the nickname for a given user ID, if available.
+   * @param userId The user ID to look up.
+   * @returns The nickname or undefined if not found.
+   */
   public async getUsername(userId: string): Promise<string | undefined> {
     return this.nicknameMaps.get(userId)
   }
 
+  /**
+   * Cleans up the user profiles store by unsetting the store instance.
+   */
   public async clean(): Promise<void> {
     logger.info('Cleaning user profiles store')
     this.store = undefined

@@ -53,6 +53,7 @@ import {
   DeleteChannelPayload,
   SetUserProfilePayload,
   InvitationData,
+  SetUserProfileResponse,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ENABLED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -107,7 +108,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   async onModuleInit() {
     process.on('unhandledRejection', reason => {
       // console.log(`why won't this log rejection`, (reason as any).message)
-      this.logger.error(`Unhandled rejection`, reason)
+      let reasonMsg = ''
+      if (reason instanceof Error) {
+        reasonMsg = reason.stack || reason.message
+      } else if (typeof reason === 'object' && reason !== null && 'stack' in reason) {
+        reasonMsg = (reason as any).stack
+      } else {
+        reasonMsg = JSON.stringify(reason)
+      }
+      this.logger.error('Unhandled rejection:', reasonMsg)
       throw new Error(`Unhandled Rejection`)
     })
 
@@ -244,6 +253,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     await this.launchCommunity(community)
+    if (!(await this.healthCheck())) {
+      this.logger.error('Health check failed')
+      await this.leaveCommunity()
+    }
+  }
+
+  public async healthCheck(): Promise<boolean> {
+    this.logger.info('Running health check')
+    if (!this.sigChainService.getActiveChain()) {
+      this.logger.error('No active sigchain found')
+      return false
+    }
+    if (!(await this.storageService.userProfileStore.getEntry(this.sigChainService.user.userId))) {
+      this.logger.error('No user profile found')
+      // TODO: try to get user profile from redux or local db
+      return false
+    }
+
+    // Perform health check logic here
+    this.logger.info('Health check passed')
+    return true
   }
 
   public async closeSocket() {
@@ -634,6 +664,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
+    const psk = 'v4UWpNX+SvCWs3eH3jatO/suEGFCkrHgUai24LtzyVc='
     const params: Libp2pNodeParams = {
       peerId: peerIdData,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
@@ -797,9 +828,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // User Profile
-    this.socketService.on(SocketActions.SET_USER_PROFILE, async (payload: SetUserProfilePayload) => {
-      await this.storageService?.addUserProfile(payload.profile)
-    })
+    this.socketService.on(
+      SocketActions.SET_USER_PROFILE,
+      async (payload: SetUserProfilePayload, callback: (response: SetUserProfileResponse) => void) => {
+        callback(await this.storageService?.addUserProfile(payload.profile))
+      }
+    )
   }
 
   /**
@@ -848,6 +882,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      this.logger.info(
+        `Storage - ${StorageEvents.USER_PROFILES_STORED}`,
+        payload.profiles.map(profile => {
+          return {
+            nickname: profile.nickname,
+            peerId: profile.userData?.peerId,
+          }
+        })
+      )
       this.storageService.updatePeerStore()
       this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)

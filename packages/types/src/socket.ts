@@ -1,5 +1,6 @@
 import {
   SetUserProfilePayload,
+  SetUserProfileResponse,
   UserProfilesStoredEvent,
   UsersRemovedEvent,
   UsersUpdatedEvent,
@@ -180,7 +181,7 @@ export interface SocketActionsMap {
   [SocketActions.GET_MESSAGES]: EmitEvent<GetMessagesPayload, (response?: MessagesLoadedPayload) => void>
 
   // ====== User Profiles ======
-  [SocketActions.SET_USER_PROFILE]: EmitEvent<SetUserProfilePayload>
+  [SocketActions.SET_USER_PROFILE]: EmitEvent<SetUserProfilePayload, (response?: SetUserProfileResponse) => void>
   [SocketActions.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
 
   // ====== Local First Auth ======
