@@ -75,37 +75,38 @@ export const validatePhoto = (photoString: string, pubKey: string): SetUserProfi
     // validate that the type is approved and has a matching magic number header
     if (
       !(photoString.startsWith('data:image/png;base64,') && isPng(photoBytes)) &&
-      !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes)) &&
-      !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes))
+      !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes))
+      // !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes)) // disabling GIF support for now
     ) {
-      logger.error('Expected valid PNG, JPEG or GIF for user profile photo', pubKey)
-      return { success: false, error: 'Invalid photo format. Must be PNG, JPEG or GIF' }
+      logger.error('Expected valid PNG or JPEG for user profile photo', pubKey)
+      return { success: false, error: 'Invalid photo format. Must be PNG or JPEG' }
     }
 
     // Apply different size limits based on image format:
-    // - For JPEG: 15MB limit (we compress these)
-    // - For PNG/GIF: 200KB limit (we don't compress these)
-    const MAX_SIZE_JPEG = 15 * 1024 * 1024 // 15MB in bytes
+    const MAX_SIZE_JPEG = 200 * 1024 // 200KB in bytes
     const MAX_SIZE_PNG_GIF = 200 * 1024 // 200KB in bytes
 
     if (photoString.startsWith('data:image/jpeg;base64,')) {
-      // JPEG format - allow up to 15MB
       if (photoBytes.length > MAX_SIZE_JPEG) {
         const sizeInMB = (photoBytes.length / (1024 * 1024)).toFixed(2)
-        logger.error(`JPEG profile photo must be less than or equal to 15MB (received: ${sizeInMB}MB)`)
+        logger.error(
+          `JPEG profile photo must be less than or equal to ${MAX_SIZE_JPEG / (1024 * 1024)}MB (received: ${sizeInMB}MB)`
+        )
         return {
           success: false,
-          error: `JPEG profile photo must be less than or equal to 15MB (received: ${sizeInMB}MB)`,
+          error: `JPEG profile photo must be less than or equal to ${MAX_SIZE_JPEG / (1024 * 1024)}MB (received: ${sizeInMB}MB)`,
         }
       }
     } else {
       // PNG or GIF format - restrict to 200KB
       if (photoBytes.length > MAX_SIZE_PNG_GIF) {
         const sizeInKB = (photoBytes.length / 1024).toFixed(2)
-        logger.error(`PNG/GIF profile photo must be less than or equal to 200KB (received: ${sizeInKB}KB)`)
+        logger.error(
+          `PNG/GIF profile photo must be less than or equal to ${MAX_SIZE_PNG_GIF / 1024}KB (received: ${sizeInKB}KB)`
+        )
         return {
           success: false,
-          error: `PNG/GIF profile photo must be less than or equal to 200KB (received: ${sizeInKB}KB)`,
+          error: `PNG/GIF profile photo must be less than or equal to ${MAX_SIZE_PNG_GIF / 1024}KB (received: ${sizeInKB}KB)`,
         }
       }
     }
