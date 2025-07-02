@@ -1,11 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Features
+
+* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+
+### Fixes
+
+* Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+
 ## [6.0.0]
 
 ### Features
 
 * Adds a hook for Quiet Storage Service (QSS) to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
 * Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
+* Adds support for QSS auth syncing [#2760](https://github.com/TryQuiet/quiet/issues/2760)
 
 ### Fixes
 
@@ -15,6 +26,7 @@
 ### Breaking
 
 * Adds key commitment scheme to address the "invisible salamanders" attack [#2711](https://github.com/TryQuiet/quiet/issues/2711)
+* Adds team ID to encrypted OrbitDB entries
 
 ## [5.1.2]
 
