@@ -1,3 +1,5 @@
+import { FileMetadata } from './files'
+
 export interface UserData {
   onionAddress: string
   peerId: string
@@ -20,6 +22,7 @@ export interface UserProfile {
   userId: string
   nickname: string
   photo?: string // base64 encoded image
+  fileMetadata?: FileMetadata
   bio?: string
   userData?: UserData
 }
