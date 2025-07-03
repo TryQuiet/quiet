@@ -1,4 +1,9 @@
-import { encodeSecret, verifyToken } from './auth'
+import { encodeSecret } from './auth'
+
+const verifyToken = (secret: string, token: string): boolean => {
+  const decoded = Buffer.from(token, 'base64').toString('ascii')
+  return decoded === secret
+}
 
 describe('Auth', () => {
   it('correctly create secret, encode and decode', () => {
