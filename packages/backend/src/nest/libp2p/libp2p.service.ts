@@ -14,7 +14,7 @@ import * as filters from '@libp2p/websockets/filters'
 import { createLibp2p } from 'libp2p'
 
 import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
@@ -52,7 +52,7 @@ const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 
 @Injectable()
-export class Libp2pService extends EventEmitter {
+export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   public libp2pInstance: Libp2p | null
   private redialQueue: TimedQueue
   public connectedPeers: Map<string, Libp2pConnectedPeer>
@@ -100,6 +100,18 @@ export class Libp2pService extends EventEmitter {
         this.logger.warn('Redialing all known peers due to a server IO reconnect')
       })
     })
+  }
+
+  public onModuleDestroy() {
+    this.logger.log('Module is being destroyed')
+    this.redialQueue.stop(true)
+    if (this._dialQueueInterval) {
+      clearInterval(this._dialQueueInterval)
+      this._dialQueueInterval = null
+    }
+    if (this._connectedPeersInterval) {
+      clearInterval(this._connectedPeersInterval)
+    }
   }
 
   public emit(event: string | symbol, ...args: any[]): boolean {
