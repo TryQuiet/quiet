@@ -155,12 +155,15 @@ export class Libp2pService extends EventEmitter {
     peerAddress: string,
     options: DialPeerOptions = { throwOnError: false, redialOnError: true }
   ) => {
-    if (this.connectedPeers.has(peerAddress.split('/').pop()!)) {
-      this.logger.debug(`Already connected to peer address: ${peerAddress}`)
+    const peerId = peerAddress.split('/').pop()!
+    if (peerId === '12D3KooWSGLPwT8vSmD9hp2umX6XKNVCQrneGJJbeFLdKTQ3DMjE') {
+      this.logger.info('Handling kingas peer address', peerAddress)
+    }
+    if (this.connectedPeers.has(peerId)) {
+      // this.logger.debug(`Already connected to peer address: ${peerAddress}`)
       return
     }
-    this.logger.info(`Dialing peer address: ${peerAddress}`)
-
+    // this.logger.debug(`Dialing peer address: ${peerAddress}`)
     if (!peerAddress.includes(this.libp2pInstance?.peerId.toString() ?? '')) {
       try {
         this.dialedPeers.add(peerAddress)
@@ -171,11 +174,11 @@ export class Libp2pService extends EventEmitter {
         }
         await this.libp2pInstance?.dial(parsedMultiAddr)
       } catch (e) {
-        let errorContext: Error | string = e
-        if (e.message.includes('Unexpected server response: 404')) {
-          errorContext = e.message
+        // let errorContext: Error | string = e
+        if (!e.message.includes('Unexpected server response: 404')) {
+          // errorContext = e.message
+          this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
         }
-        this.logger.warn(`Failed to dial peer address: ${peerAddress}`, errorContext)
         if (options.redialOnError) {
           await this.redialPeerAfterDelay(peerAddress)
         }
@@ -207,6 +210,11 @@ export class Libp2pService extends EventEmitter {
       this.logger.info('No peers to dial')
       return
     }
+
+    this.logger.info('Adding peers to dial queue', sortedPeers)
+    sortedPeers.push(
+      '/dns4/agrtyei6odml3ylmbfykcohzhd7n4wyxgdlcd5eamlmwdo2ciczchhqd.onion/tcp/80/ws/p2p/12D3KooWSGLPwT8vSmD9hp2umX6XKNVCQrneGJJbeFLdKTQ3DMjE'
+    )
 
     for (const addr of sortedPeers) {
       const peerId = addr.split('/').pop()!
@@ -375,7 +383,7 @@ export class Libp2pService extends EventEmitter {
     if (params.instanceName != null) {
       this.logger = this.logger.extend(params.instanceName)
     }
-    this.logger.info(`Creating new libp2p instance`)
+    this.logger.info(`Creating new libp2p instance with psk`, params.psk)
 
     if (this.libp2pInstance) {
       this.logger.warn(`Found an existing instance of libp2p, returning...`)
@@ -612,6 +620,7 @@ export class Libp2pService extends EventEmitter {
         lastSeen: connectionEndTime,
       }
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
+      this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, peerStat)
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       if (!peerPrevStats) {
         this.logger.info(`No previous stats for peer ${remotePeerId}. Not updating stats`)

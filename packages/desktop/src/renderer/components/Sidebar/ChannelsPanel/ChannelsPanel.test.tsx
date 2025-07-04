@@ -49,18 +49,27 @@ describe('Channels panel', () => {
 
     const channels = publicChannels.selectors.publicChannels(store.getState())
 
+    // Add a fake peerId to alice for online indicator
+    alice.userData = { onionAddress: 'fake', peerId: 'peer-alice' }
+    const connectedPeers = ['peer-alice']
+
+    if (!generalChannel) throw new Error('generalChannel is undefined')
+
     const result = renderComponent(
       <ChannelsPanel
         channels={channels}
+        userProfiles={{ [alice.userId]: alice }}
+        connectedPeers={connectedPeers}
         unreadChannels={[]}
         setCurrentChannel={function (_id: string): void {}}
-        // @ts-expect-error
         currentChannelId={generalChannel.id}
         createChannelModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
           handleClose: function (): any {},
         }}
+        myUserProfile={alice}
+        isTorInitialized={true}
       />
     )
 

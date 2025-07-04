@@ -54,7 +54,7 @@ const StyledGrid = styled(Grid)(() => ({
 
 interface SidebarHeaderProps {
   title: string
-  action: () => void
+  action?: () => void
   actionTitle?: () => void
   tooltipText: string
 }
@@ -63,32 +63,28 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ title, action, act
   return (
     <StyledGrid container direction='row' justifyContent='space-between' alignItems='center' className={classes.root}>
       <Grid item>
-        {actionTitle ? (
-          <Typography variant='body2' className={classNames(classes.title)}>
-            {title}
-          </Typography>
-        ) : (
-          <Typography variant='body2' className={classes.title}>
-            {title}
-          </Typography>
-        )}
+        <Typography variant='body2' className={classes.title}>
+          {title}
+        </Typography>
       </Grid>
-      <Grid item>
-        <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
-          <IconButton
-            className={classes.iconButton}
-            onClick={event => {
-              event.persist()
-              action()
-            }}
-            edge='end'
-            data-testid={'addChannelButton'}
-            size='large'
-          >
-            <PlusIconWithBorder color='white' />
-          </IconButton>
-        </Tooltip>
-      </Grid>
+      {typeof action === 'function' && (
+        <Grid item>
+          <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
+            <IconButton
+              className={classes.iconButton}
+              onClick={event => {
+                event.persist()
+                action()
+              }}
+              edge='end'
+              data-testid={'addChannelButton'}
+              size='large'
+            >
+              <PlusIconWithBorder color='white' />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      )}
     </StyledGrid>
   )
 }
