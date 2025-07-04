@@ -46,6 +46,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
     await this.init()
   }
 
+  async onModuleDestroy() {
+    this.logger.info('Destroying Tor service...')
+    if (this.initTimeout) clearTimeout(this.initTimeout)
+    if (this.interval) clearInterval(this.interval)
+    if (this.process) {
+      await this.kill()
+    }
+  }
+
   public setControlPort = (port: number) => {
     this.controlPort = port
   }

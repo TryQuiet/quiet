@@ -205,7 +205,7 @@ export class QSSAuthConnection extends EventEmitter {
       } else {
         this._joinStatus = JoinStatus.JOINED
       }
-      await this.sigChainService.saveChain(team.teamName)
+      // await this.sigChainService.saveChain(team.teamName)
       this.emit(QSSEvents.QSS_AUTH_JOINED) // tell other services that we've joined via QSS
     })
 

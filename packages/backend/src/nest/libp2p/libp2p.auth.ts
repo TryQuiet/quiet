@@ -379,7 +379,7 @@ export class Libp2pAuth {
         this.sigChainService.setActiveChain(team.teamName)
       }
       this.joinStatus = JoinStatus.JOINED
-      this.sigChainService.saveChain(team.teamName)
+      // this.sigChainService.saveChain(team.teamName)
       this.emit(Libp2pEvents.AUTH_JOINED)
       this.unblockConnections(this.bufferedConnections)
     })
@@ -448,7 +448,7 @@ export class Libp2pAuth {
       this.joinStatus = JoinStatus.JOINED
       this.unblockConnections(this.bufferedConnections)
       this.emit(Libp2pEvents.AUTH_JOINED)
-      await this.sigChainService.saveChain(this.sigChainService.team.teamName)
+      // await this.sigChainService.saveChain(this.sigChainService.team.teamName)
     }
   }
 

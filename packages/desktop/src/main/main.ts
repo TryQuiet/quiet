@@ -303,35 +303,7 @@ const setupUpdater = async () => {
 
 let ports: ApplicationPorts
 let backendProcess: ChildProcess | null = null
-
-const closeBackendProcess = () => {
-  if (backendProcess !== null) {
-    /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
-       it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
-       https://github.com/orbitdb/orbit-db-store/issues/121
-       ...
-       Quiet side workaround is force-killing backend process.
-       It may result in problems caused by post-process leftovers (like lock-files),
-       nevertheless developer team is aware of that and has a response
-       https://github.com/TryQuiet/monorepo/issues/469
-    */
-    const forceClose = setTimeout(() => {
-      const killed = backendProcess?.kill()
-      logger.warn(`Backend killed: ${killed}, Quitting.`)
-      app.quit()
-    }, 2000)
-    backendProcess.send('close')
-    backendProcess.on('message', message => {
-      if (message === 'closed-services') {
-        logger.info('Closing the app')
-        clearTimeout(forceClose)
-        app.quit()
-      }
-    })
-  } else {
-    app.quit()
-  }
-}
+let backendExited = false
 
 app.on('ready', async () => {
   logger.info('Event: app.ready')
@@ -399,8 +371,9 @@ app.on('ready', async () => {
   }
 
   backendProcess = fork(backendBundlePath, forkArgvs, {
+    stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     env: {
-      NODE_OPTIONS: '--experimental-global-customevent',
+      NODE_OPTIONS: '--experimental-global-customevent --trace-uncaught --enable-source-maps',
       DEBUG: process.env.DEBUG,
       LOG_DIR: process.env.LOG_DIR,
       COLORIZE: process.env.COLORIZE ?? 'true',
@@ -412,16 +385,15 @@ app.on('ready', async () => {
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
 
-  backendProcess.on('error', e => {
-    logger.error('Backend process returned error', e)
-    throw Error(e.message)
-  })
-
   backendProcess.on('exit', (code, signal) => {
     logger.warn('Backend process exited', code, signal)
-    if (code === 1) {
-      throw Error('Abnormal backend process termination')
-    }
+    backendExited = true
+    backendProcess = null
+    mainWindow?.webContents.send('force-save-state')
+    // Let any pending stdout flush, then quit the Electron shell.
+    setTimeout(() => {
+      app.quit()
+    }, 100)
   })
 
   if (!isBrowserWindow(mainWindow)) {
@@ -443,7 +415,6 @@ app.on('ready', async () => {
     e.preventDefault()
     logger.info('Closing splash window')
     mainWindow?.webContents.send('force-save-state')
-    closeBackendProcess()
   })
 
   ipcMain.on('state-saved', e => {
@@ -465,7 +436,6 @@ app.on('ready', async () => {
   ipcMain.on('restart-app', () => {
     logger.info('ipcMain: restart-app')
     app.relaunch()
-    closeBackendProcess()
   })
 
   ipcMain.on('writeTempFile', (event, arg) => {
@@ -556,13 +526,13 @@ app.on('browser-window-created', (_, window) => {
 })
 
 // Quit when all windows are closed.
-app.on('window-all-closed', async () => {
-  logger.info('Event: app.window-all-closed')
-  closeBackendProcess()
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.
-})
+// app.on('window-all-closed', async () => {
+//   logger.info('Event: app.window-all-closed')
+//   closeBackendProcess()
+//   // On macOS it is common for applications and their menu bar
+//   // to stay active until the user quits explicitly with Cmd + Q
+//   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.
+// })
 
 app.on('activate', async () => {
   logger.info('Event: app.activate')
@@ -570,5 +540,17 @@ app.on('activate', async () => {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
     await createWindow()
+  }
+})
+
+app.on('before-quit', e => {
+  if (!backendExited) {
+    logger.info('App before-quit intercepted – waiting for backend to exit')
+    e.preventDefault()
+    // closeBackendProcess() sends 'close' if we haven't already
+    if (backendProcess) {
+      backendProcess.send('close')
+    }
+    // When backend exits, the handler above will re‑issue app.quit()
   }
 })
