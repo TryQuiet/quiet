@@ -292,7 +292,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error('Error while saving active sigchain', e)
       }
     }
-    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
 
     this.logger.info('Closing services', options)
 
@@ -320,6 +319,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info('Closing QSS service')
       this.qssService.close()
     }
+
+    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
   }
 
   public async leaveCommunity(): Promise<boolean> {
