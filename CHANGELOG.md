@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Fixes
+
+* Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
+
 ## [6.0.0]
 
 ### Features
