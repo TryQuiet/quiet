@@ -107,7 +107,6 @@ export const DebugInfoComponent: React.FC = () => {
   const myUserProfile = useSelector(users.selectors.myUserProfile)
   const userProfiles = useSelector(users.selectors.userProfiles)
   const userProfile = useSelector(users.selectors.myUserProfile)
-  const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
   const allUsers = useSelector(users.selectors.allUsers)
 
   // --- Identity ---
@@ -154,7 +153,7 @@ export const DebugInfoComponent: React.FC = () => {
   // --- Debug Info Object ---
   const debugInfo = {
     network: { connectedPeers, initializedCommunities, loadingPanelType, isCommunityInitialized },
-    users: { userProfile, userProfiles, allUsers, saveUserProfileError },
+    users: { userProfile, userProfiles, allUsers },
     identity: { currentIdentity, allIdentities, joinedCommunities, username, usernameTaken },
     communities: { communitiesList, currentCommunity, invitationCodes, isOwner },
     publicChannels: {
