@@ -303,7 +303,6 @@ const setupUpdater = async () => {
 
 let ports: ApplicationPorts
 let backendProcess: ChildProcess | null = null
-let backendExited = false
 
 app.on('ready', async () => {
   logger.info('Event: app.ready')
@@ -387,13 +386,8 @@ app.on('ready', async () => {
 
   backendProcess.on('exit', (code, signal) => {
     logger.warn('Backend process exited', code, signal)
-    backendExited = true
     backendProcess = null
     mainWindow?.webContents.send('force-save-state')
-    // Let any pending stdout flush, then quit the Electron shell.
-    setTimeout(() => {
-      app.quit()
-    }, 100)
   })
 
   if (!isBrowserWindow(mainWindow)) {
@@ -404,24 +398,50 @@ app.on('ready', async () => {
     logger.error('failed loading webcontents')
   })
 
-  mainWindow.once('close', e => {
+  mainWindow.on('close', e => {
     if (resetting) return
-    e.preventDefault()
-    logger.info('Closing main window')
-    mainWindow?.webContents.send('force-save-state')
-    backendProcess?.send('close')
+
+    // --- macOS: hide instead of destroying the renderer ---
+    if (process.platform === 'darwin' && backendProcess !== null) {
+      logger.info('Main window close (macOS) will hide after saving state')
+      e.preventDefault()
+      mainWindow?.webContents.send('force-save-state') // state‑saved → hide
+      return
+    }
+
+    // If the backend is still running we must wait for it to exit first
+    if (backendProcess !== null) {
+      logger.info('Main window close intercepted, waiting for backend to exit')
+      e.preventDefault()
+      backendProcess.send('close')
+      return
+    }
   })
 
   splash?.once('close', e => {
+    if (!backendProcess !== null) {
+      e.preventDefault()
+      logger.info('Closing splash window')
+      backendProcess?.send('close')
+      return
+    }
     e.preventDefault()
-    logger.info('Closing splash window')
     mainWindow?.webContents.send('force-save-state')
-    backendProcess?.send('close')
   })
 
-  ipcMain.on('state-saved', e => {
-    mainWindow?.close()
-    logger.info('Saved state, closed window')
+  ipcMain.on('state-saved', () => {
+    if (backendProcess === null) {
+      logger.info('State saved, quitting app')
+      app.quit()
+      return
+    }
+    if (process.platform === 'darwin') {
+      logger.info('Saved state hiding window (macOS)')
+      mainWindow?.hide()
+    } else {
+      logger.info('Saved state closing window')
+      mainWindow?.close()
+    }
   })
 
   ipcMain.on('clear-community', () => {
@@ -531,29 +551,35 @@ app.on('browser-window-created', (_, window) => {
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
   logger.info('Event: app.window-all-closed')
-  backendProcess?.send('close')
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.
+  // NOTE: now only fully quits on Win/Linux; on macOS app remains open after window is closed.
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
 })
 
 app.on('activate', async () => {
   logger.info('Event: app.activate')
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
+    logger.info('App activate mainWindow is null, creating new window')
     await createWindow()
+  } else {
+    logger.info('App activate showing existing hidden window')
+    mainWindow.show()
   }
 })
 
 app.on('before-quit', e => {
-  if (!backendExited) {
-    logger.info('App before-quit intercepted – waiting for backend to exit')
+  if (backendProcess !== null) {
+    logger.info('App before-quit intercepted waiting for backend to exit')
     e.preventDefault()
     // closeBackendProcess() sends 'close' if we haven't already
     if (backendProcess) {
       backendProcess.send('close')
     }
     // When backend exits, the handler above will re‑issue app.quit()
+    return
   }
+  logger.info('App before-quit backend exited, quitting app')
 })
