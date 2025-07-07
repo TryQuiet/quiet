@@ -182,6 +182,7 @@ export const runBackendDesktop = async () => {
         await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)
+        await shutdown.initiateShutdown(1, 'leaveCommunity error')
       }
       if (process.send) process.send('leftCommunity')
     }
