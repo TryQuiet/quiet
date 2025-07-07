@@ -84,7 +84,7 @@ describe('CommmunityMetadataStore', () => {
     await ipfsService.createInstance()
 
     orbitDbService = await module.resolve(OrbitDbService)
-    await orbitDbService.create(libp2pParams.peerId.peerId, ipfsService.ipfsInstance!)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
     localDbService = await module.resolve(LocalDbService)
     localDbService.setCommunity({ ...community, ownerOrbitDbIdentity: orbitDbService.orbitDb.identity.id })
     localDbService.setCurrentCommunityId(community.id)

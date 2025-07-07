@@ -4,6 +4,10 @@ inputs:
   bootstrap-packages:
     description: 'Lerna bootstrap packages (comma separated without spaces)'
     required: false
+  install-docker:
+    description: 'Install and setup docker/docker compose'
+    required: false
+    default: false
   cachePrefix:
     description: 'For correct caching'
     required: false
@@ -21,6 +25,12 @@ runs:
       if: runner.os == 'macOS'
       with:
         python-version: 3.12
+
+    - name: Set up Docker
+      uses: docker/setup-docker-action@v4
+      if: ${{ inputs.install-docker == true || inputs.install-docker == 'true' }}
+      with:
+        version: version=28.1.1
 
     - name: Print python version
       run: which python3

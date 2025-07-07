@@ -585,7 +585,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       ref={fileInput}
                       type='file'
                       onChange={handleFileInput}
-                      // Value needs to be cleared otherwise one can't upload same image twice
+                      // Value needs to be cleared otherwise one can't attach same image twice
                       onClick={e => {
                         ;(e.target as HTMLInputElement).value = ''
                       }} // TODO: check

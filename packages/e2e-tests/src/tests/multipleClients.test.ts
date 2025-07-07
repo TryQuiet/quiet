@@ -16,14 +16,14 @@ import { promiseWithRetries, createArbitraryFile } from '../utils'
 import { MessageIds, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import * as path from 'path'
-import { SettingsModalTabName, UploadedFileType } from '../enums'
+import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import {
   BIG_FILE_SIZE,
   TEST_BIG_FILE_NAME,
   TEST_FILE_NAME,
   TEST_IMAGE_FILE_NAME,
   UPLOAD_FILE_DIR,
-} from '../uploadFile.const'
+} from '../attachFile.const'
 import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
 const logger = createLogger('multipleClients')
@@ -527,23 +527,14 @@ describe('Multiple Clients', () => {
         await joinPanel.waitForJoinToComplete()
       })
 
-      // Check correct channels replication
-      // TODO: add check for number of messages
-      it('User sees information about recreation general channel and see correct amount of messages', async () => {
-        logger.info('TEST 6')
+      it('Guest app is ready to use', async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         expect(await generalChannelUser1.isReady()).toBeTruthy()
         expect(await generalChannelUser1.isOpen()).toBeTruthy()
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
-        logger.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
+      })
 
-        // add an extra long timeout to wait for connection
-        await generalChannelUser1.getMessageIdsByText(
-          generalChannelDeletionMessage(users.owner.username),
-          users.owner.username,
-          120_000
-        )
-
+      it('Guest sees join message', async () => {
         await generalChannelUser1.getMessageIdsByText(
           `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
           users.user2.username,
@@ -551,46 +542,77 @@ describe('Multiple Clients', () => {
         )
       })
 
+      it('Owner sees join message for guest', async () => {
+        await generalChannelOwner.getMessageIdsByText(
+          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          users.user2.username,
+          120_000
+        )
+      })
+
+      it('Other user sees join message for guest', async () => {
+        await generalChannelUser3.getMessageIdsByText(
+          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
+          users.user2.username,
+          120_000
+        )
+      })
+
       it('Guest sends a message after rejoining community as a new user and it is visible', async () => {
-        logger.info('TEST 7')
-        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
-        expect(await generalChannelUser1.isReady()).toBeTruthy()
-        expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
         await generalChannelUser1.sendMessage(users.user2.messages[0], users.user2.username)
+      })
+
+      it('Owner sees the message sent by guest', async () => {
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages[0], users.user2.username, 120_000)
+      })
+
+      it('Other user sees the message sent by guest', async () => {
+        await generalChannelUser3.getMessageIdsByText(users.user2.messages[0], users.user2.username, 120_000)
+      })
+
+      // Check correct channels replication
+      // TODO: add check for number of messages
+      it('User sees information about recreation general channel and see correct amount of messages', async () => {
+        // add an extra long timeout to wait for connection
+        await generalChannelUser1.getMessageIdsByText(
+          generalChannelDeletionMessage(users.owner.username).replaceAll('**', ''),
+          users.owner.username,
+          300_000
+        )
       })
     })
 
-    describe('Uploading and downloading files', () => {
+    describe('Attaching and downloading files', () => {
       let imageMessageIds: MessageIds | undefined = undefined
       let fileMessageIds: MessageIds | undefined = undefined
       let largeFileMessageIds: MessageIds | undefined = undefined
 
       it('Owner uploads an image', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_IMAGE_FILE_NAME)
-        imageMessageIds = await generalChannelOwner.uploadFile(
+        imageMessageIds = await generalChannelOwner.attachFile(
           TEST_IMAGE_FILE_NAME,
           uploadFilePath,
-          UploadedFileType.IMAGE,
+          FileAttachmentType.IMAGE,
           users.owner.username
         )
+        expect(imageMessageIds).toBeDefined()
       })
 
       it('Guest sees uploaded image', async () => {
-        expect(imageMessageIds).toBeDefined()
         await generalChannelUser1.getMessageIdsByFileAndId(
           imageMessageIds!,
           TEST_IMAGE_FILE_NAME,
-          UploadedFileType.IMAGE,
+          FileAttachmentType.IMAGE,
           users.owner.username
         )
       })
 
       it('Owner uploads a file', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_FILE_NAME)
-        fileMessageIds = await generalChannelOwner.uploadFile(
+        fileMessageIds = await generalChannelOwner.attachFile(
           TEST_FILE_NAME,
           uploadFilePath,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -600,7 +622,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.getMessageIdsByFileAndId(
           fileMessageIds!,
           TEST_FILE_NAME,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -608,10 +630,10 @@ describe('Multiple Clients', () => {
       it('Owner uploads a large file', async () => {
         const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_BIG_FILE_NAME)
         createArbitraryFile(uploadFilePath, BIG_FILE_SIZE)
-        largeFileMessageIds = await generalChannelOwner.uploadFile(
+        largeFileMessageIds = await generalChannelOwner.attachFile(
           TEST_BIG_FILE_NAME,
           uploadFilePath,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -621,7 +643,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.getMessageIdsByFileAndId(
           largeFileMessageIds!,
           TEST_BIG_FILE_NAME,
-          UploadedFileType.FILE,
+          FileAttachmentType.FILE,
           users.owner.username
         )
       })
@@ -634,7 +656,8 @@ describe('Multiple Clients', () => {
 
     describe('Guest Closes App', () => {
       it('Owner closes app', async () => {
-        await users.owner.app.close({ forceSaveState: true })
+        const forceSaveState = process.platform !== 'darwin'
+        await users.owner.app.close({ forceSaveState })
       })
 
       it('Guest closes app', async () => {
@@ -652,7 +675,7 @@ describe('Multiple Clients', () => {
         expect(await generalChannelOwner.isReady()).toBeTruthy()
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
         expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-        const messageIds = await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
+        await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
       })
     })
   })

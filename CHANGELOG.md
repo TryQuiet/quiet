@@ -1,5 +1,49 @@
 # Changelog
 
+## [6.0.0]
+
+### Features
+
+* Adds a hook for Quiet Storage Service (QSS) to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
+* Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
+
+### Fixes
+
+* Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
+* Changing the text on the loading screen when the user creates a community [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
+
+### Breaking
+
+* Adds key commitment scheme to address the "invisible salamanders" attack [#2711](https://github.com/TryQuiet/quiet/issues/2711)
+
+## [5.1.2]
+
+### Chores
+
+* Quiet Desktop now uses Tor 0.4.8.16
+* The process for updating Tor on desktop is now mostly automated and part of our release checklist (thanks @bitmold!)
+* Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
+* The process for updating Tor on Android is now also mostly automated and part of our release checklist
+* Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
+
+## [5.1.0]
+
+### Chores
+
+* Rename upload/uploaded terminology to attachment for clarity across codebase
+* Updates Android instructions in `packages/mobile/README.md`
+
+### Features
+
+* Compresses images and user profile photos over 200KB, for faster downloads and less hogging of storage space. [#1018](https://github.com/TryQuiet/quiet/issues/1018)
+* Attachments button on mobile shows photo library ([#1698](https://github.com/TryQuiet/quiet/issues/1698))
+* Adds date dividers and a sticky date marker on mobile too, for better readability ([#505](https://github.com/TryQuiet/quiet/issues/505))
+
+### Fixes
+
+* Removes Sentry logger and the associated warning modal, since we aren't using it anymore. ([#2777](https://github.com/TryQuiet/quiet/issues/2777))
+
+
 ## [5.0.0]
 
 ### Features
@@ -8,7 +52,17 @@
 
 ### Fixes
 
+* Resolved an issue where messages autocorrected by iOS were remaining unsent in the message input, after the uncorrected message was sent [#2858](https://github.com/TryQuiet/quiet/issues/2858)
 * Resolved an issue with event handlers not attaching to the Team object when joining a community for the first time [#2845](https://github.com/TryQuiet/quiet/issues/2845)
+* Resolved an issue with malformed libp2p addresses during redialing peers you had recently been connected to [#2842](https://github.com/TryQuiet/quiet/issues/2842)
+* Fixed an issue with failing to reconnect to users who had dialed you and then disconnected [#2854](https://github.com/TryQuiet/quiet/issues/2854)
+* Resolved an issue with logger duplication [#2853](https://github.com/TryQuiet/quiet/issues/2853)
+
+### Fixes
+
+* Adds a bunch of missing emoji codes [2824](https://github.com/TryQuiet/quiet/issues/2824)
+
+## [5.0.0]
 
 ### Chores
 
@@ -29,6 +83,7 @@
 * You can now type emoticons (<3) and emojicodes (:heart:) with tab completion and a handy dropdown. [#540](https://github.com/TryQuiet/quiet/issues/540) (thanks @agiledev24 for your initial work on this!)
 
 ### Fixes
+
 * Fixes an issue where heart emojis were displaying all tiny, ASCII, and goth. Now our hearts are big and bright red, for vibes! [#510](https://github.com/TryQuiet/quiet/issues/510)
 * Fixes back button navigation issues in user profile/edit screens [#2570](https://github.com/TryQuiet/quiet/issues/2570)
 * Changes close button in settings to the back button ([#2792]https://github.com/TryQuiet/quiet/issues/2792)

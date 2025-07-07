@@ -26,7 +26,7 @@ declare module '@orbitdb/core' {
     id: string
     open: <T>(address: string, options?: OrbitDBOpenOptions) => Promise<T>
     stop
-    ipfs
+    ipfs: Helia
     directory
     keystore
     identity: Identity
@@ -108,6 +108,8 @@ declare module '@orbitdb/core' {
     type: string
     sign: (identity: Identity, data: string) => Promise<string>
     verify: (signature: string, publicKey: string, data: string) => Promise<boolean>
+    hash: string
+    bytes: Uint8Array<ArrayBuffer>
   }
 
   export interface IdentityProvider {
@@ -152,7 +154,7 @@ declare module '@orbitdb/core' {
     put: (hash: string, value: any) => Promise<void>
     del: (hash: string) => Promise<void>
     get: (hash: string) => Promise<any | undefined>
-    iterator: ({ amount, reverse }: { amount?: number; reverse: boolean }) => Generator<[string, any]>
+    iterator: (args: { amount?: number; reverse: boolean }) => AsyncGenerator<[string, any], void, unknown>
     close: () => Promise<void>
     clear: () => Promise<void>
   }
@@ -238,6 +240,7 @@ declare module '@orbitdb/core' {
     identity: string
     sig: string
     hash: string
+    bytes: Uint8Array
   }
 
   export interface Clock {
@@ -276,6 +279,7 @@ declare module '@orbitdb/core' {
     close(): Promise<void>
     drop(): Promise<void>
     addOperation: (args: { op: string; key: string | null; value: unknown }) => Promise<string>
+    applyOperation: (bytes: Uint8Array) => Promise<void>
     log: Log
     sync: Sync
     // peers: TODO
@@ -284,11 +288,27 @@ declare module '@orbitdb/core' {
   }
 
   export interface Sync {
-    // add: TODO
+    /**
+     * Add a log entry to the Sync Protocol to be sent to peers.
+     * @param entry Log entry (usually has a .bytes property)
+     */
+    add(entry: any): Promise<void>
+    /**
+     * Stop the Sync Protocol.
+     */
     stop(): Promise<void>
+    /**
+     * Start the Sync Protocol.
+     */
     start(): Promise<void>
-    // events: TODO
-    // peers: TODO
+    /**
+     * Event emitter for sync events ('join', 'leave', 'error').
+     */
+    events: import('events').EventEmitter
+    /**
+     * Set of currently connected peer IDs.
+     */
+    peers: Set<string>
   }
 
   export function KeyValue(): ({
@@ -344,10 +364,13 @@ declare module '@orbitdb/core' {
       lt,
       lte,
       amount,
-    }: { gt: string; gte: string; lt: string; lte: string; amount: number } = {}): AyncGenerator<{
-      hash: string
-      value: T
-    }>
+    }: {
+      gt?: string
+      gte?: string
+      lt?: string
+      lte?: string
+      amount?: number
+    } = {}): AsyncGenerator<{ hash: string; value: T }, void, unknown>
     all(): Promise<{ hash: string; value: T }[]>
   }
 

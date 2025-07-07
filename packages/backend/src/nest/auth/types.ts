@@ -12,3 +12,8 @@ export type SerializedSigChain = {
   localUserContext: LocalUserContext
   teamKeyRing: Keyring | undefined
 }
+
+export type GetChainFilter = {
+  teamId?: string
+  teamName?: string
+}

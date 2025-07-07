@@ -1,0 +1,78 @@
+name: E2E linux (Backwards Compatibility)
+
+on: [workflow_call]
+jobs:
+
+  linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+
+    timeout-minutes: 180
+
+    env:
+      DISPLAY: ":99.0"
+      TEST_MODE: true
+      IS_CI: true
+      SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          submodules: 'recursive'
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/mobile
+
+      - name: Check for major version
+        id: major-ver
+        run: |
+          echo ${{ steps.extract_version.outputs.version }}
+          if [[ "${{ steps.extract_version.outputs.version }}" =~ ^[[:digit:]]+\.0\.0(-alpha.[[:digit:]]+)?$ ]]; then
+              echo "This is a major version"
+              echo "match=true" >> $GITHUB_OUTPUT
+          else
+              echo "This is NOT a major version"
+              echo "match=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install WM
+        run: sudo apt install fluxbox
+
+      - name: Install libfuse2
+        run: sudo apt install libfuse2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-linux"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
+      
+      - name: Run X11
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+          fluxbox &
+
+      - name: Build App Image
+        working-directory: ./packages/desktop
+        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+
+      - name: Chmod
+        working-directory: ./packages/e2e-tests/Quiet
+        run: chmod +x $FILE_NAME
+
+      - name: Run Backwards Compatibility test
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: ${{ steps.major-ver.outputs.match == 'false' }}
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
+            cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts

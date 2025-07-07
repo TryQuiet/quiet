@@ -5,7 +5,7 @@ import {
   type CreateChannelPayload,
   type CreateChannelResponse,
   SendMessagePayload,
-  UploadFilePayload,
+  AttachFilePayload,
   DownloadFilePayload,
   CancelDownloadPayload,
   GetMessagesPayload,
@@ -136,8 +136,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       )
 
       // ====== Files ======
-      socket.on(SocketActions.UPLOAD_FILE, async (payload: UploadFilePayload) => {
-        this.emit(SocketActions.UPLOAD_FILE, payload.file)
+      socket.on(SocketActions.ATTACH_FILE, async (payload: AttachFilePayload) => {
+        this.emit(SocketActions.ATTACH_FILE, payload.file)
       })
 
       socket.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {

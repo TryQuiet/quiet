@@ -13,7 +13,7 @@ import { createLogger } from './logger'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '4.0.2' // Pre-latest production version
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '5.0.0' // version to test against
 const appImagesPath = `${__dirname}/../Quiet`
 
 export interface BuildSetupInit {
@@ -30,6 +30,7 @@ export class BuildSetup {
   public debugPort?: number
   public dataDir?: string
   public dataDirPath: string
+  public id: string
   private child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
@@ -40,11 +41,13 @@ export class BuildSetup {
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
+    this.id = (Math.random() * 10 ** 18).toString(36)
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (!this.dataDir) {
-      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
+      this.dataDir = `e2e_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
+    logger.info('Running app from directory', this.dataDirPath)
   }
 
   async initPorts() {
@@ -59,18 +62,25 @@ export class BuildSetup {
     return process.env.FILE_NAME
   }
 
-  private getBinaryLocation() {
+  private getBinaryLocation(): string {
+    let binaryPath: string | undefined = undefined
     switch (process.platform) {
       case 'linux':
         logger.info('filename', this.fileName)
-        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
+        binaryPath = `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
+        break
       case 'win32':
-        return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
+        binaryPath = `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
+        break
       case 'darwin':
-        return this.getMacBinaryDir()
+        binaryPath = this.getMacBinaryDir()
+        break
       default:
-        throw new Error('wrong SYSTEM env')
+        throw new Error(`Running on unsupported platform ${process.platform}`)
     }
+
+    logger.info('Found binary path', binaryPath, process.platform, this.fileName)
+    return binaryPath
   }
 
   private getMacBinaryDir(): string {
@@ -112,13 +122,24 @@ export class BuildSetup {
     exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
   }
 
-  public async createChromeDriver() {
+  public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
-    const env = {
+    let env: any = {
       DEBUG:
-        'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:connection-manager:auto-dial',
+        process.env.TRACE_APP_LOGS === 'true'
+          ? '*:trace'
+          : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
       DATA_DIR: this.dataDir,
+      STATIC_LOG_ID: this.id,
     }
+    if (qssEnabled) {
+      env = {
+        ...env,
+        QSS_ENABLED: true,
+        QSS_ENDPOINT: 'ws://127.0.0.1:3003',
+      }
+    }
+
     if (process.platform === 'win32') {
       logger.info('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {

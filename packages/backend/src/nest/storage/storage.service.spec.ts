@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quiet/state-manager'
-import { Community, Identity, PublicChannel, UserProfile } from '@quiet/types'
+import { Community, Identity, NetworkStats, PublicChannel, UserProfile } from '@quiet/types'
 
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
@@ -39,7 +39,6 @@ describe('StorageService', () => {
   let localDbService: LocalDbService
   let userProfileStore: UserProfileStore
   let sigchainService: SigChainService
-  let peerId: PeerId
 
   let store: Store
   let factory: FactoryGirl
@@ -96,7 +95,6 @@ describe('StorageService', () => {
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
 
     const params = await libp2pInstanceParams()
-    peerId = params.peerId.peerId
 
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
@@ -106,22 +104,32 @@ describe('StorageService', () => {
 
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
+    logger.info('Running test:', expect.getState().currentTestName)
   })
 
   afterEach(async () => {
-    await ipfsService.stop()
-    await libp2pService.close()
-    await storageService.stop()
-    await sigchainService.deleteChain('team', true)
-    await localDbService.close()
+    logger.info('Cleaning up after test:', expect.getState().currentTestName)
+    await module.close()
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }
-    await module.close()
   })
 
   it('should be defined', async () => {
-    await storageService.init(peerId)
+    await storageService.init()
+  })
+
+  it('should clean stores and reinitialize', async () => {
+    await storageService.init()
+    logger.info(orbitDbDir)
+    logger.info(storageService.quietDir)
+    expect(fs.existsSync(orbitDbDir)).toBe(true)
+    expect(fs.existsSync(storageService.quietDir)).toBe(true)
+    await storageService.clean()
+    await storageService.stop()
+    expect(() => storageService.orbitDbService.orbitDb).toThrow('[get orbitDb]:no orbitDbInstance')
+    expect(ipfsService.isStarted()).toBe(false)
+    await storageService.init()
   })
 
   describe('Storage', () => {
@@ -135,7 +143,7 @@ describe('StorageService', () => {
       // FIXME: throws TypeError: Cannot assign to read only property 'createPaths' of object '[object Module]' and I can't be bothered to figure out how to get it to work
       // const createPathsSpy = jest.spyOn(utils, 'createPaths')
 
-      await storageService.init(peerId)
+      await storageService.init()
 
       // FIXME: throws TypeError: Cannot assign to read only property 'createPaths' of object '[object Module]' and I can't be bothered to figure out how to get it to work
       // expect(createPathsSpy).not.toHaveBeenCalled()
@@ -153,9 +161,8 @@ describe('StorageService', () => {
     it('init should initialize services and start sync', async () => {
       const attachStoreSpy = jest.spyOn(storageService, 'attachStoreListeners')
       const startSyncSpy = jest.spyOn(storageService as any, 'startSync')
-      await storageService.init(peerId)
-      expect((storageService as any).peerId).toEqual(peerId)
-      expect(await ipfsService.isStarted()).toBe(true)
+      await storageService.init()
+      expect(ipfsService.isStarted()).toBe(true)
       expect(attachStoreSpy).toHaveBeenCalled()
       expect(startSyncSpy).toHaveBeenCalled()
     })
@@ -184,17 +191,15 @@ describe('StorageService', () => {
       expect(result).toEqual(identity)
     })
 
-    it('startSync should not run when IPFS is not started', async () => {
-      jest.spyOn(ipfsService, 'isStarted').mockReturnValue(false as unknown as Promise<boolean>)
-      const userProfileStartSpy = jest.spyOn(userProfileStore, 'startSync')
-      await (storageService as any).startSync()
-      expect(userProfileStartSpy).not.toHaveBeenCalled()
-    })
-
     it('updatePeerStore should merge existing and new peers', async () => {
       const existingPeerStats = {
-        '/dns4/oldpeer.onion/tcp/80/ws/p2p/peerOld': { peerId: 'peerOld', lastSeen: 0, connectionTime: 0 },
-      }
+        peerOld: {
+          peerId: 'peerOld',
+          address: '/dns4/oldpeer.onion/tcp/80/ws/p2p/peerOld',
+          lastSeen: 0,
+          connectionTime: 0,
+        },
+      } as Record<string, NetworkStats>
       jest.spyOn(localDbService, 'getPeerStats').mockResolvedValue(existingPeerStats as any)
 
       const members = [{ userId: 'user1' }]
@@ -219,8 +224,9 @@ describe('StorageService', () => {
       const expectedMultiaddr = `/dns4/addr1.onion/tcp/80/ws/p2p/peer1`
       expect(setPeerStatsSpy).toHaveBeenCalled()
       const arg = setPeerStatsSpy.mock.calls[0][0]
-      expect(arg[expectedMultiaddr]).toBeDefined()
-      expect(arg[expectedMultiaddr].peerId).toEqual('peer1')
+      expect(arg['peer1']).toBeDefined()
+      expect(arg['peer1'].peerId).toEqual('peer1')
+      expect(arg['peer1'].address).toEqual(expectedMultiaddr)
     })
   })
 })

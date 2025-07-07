@@ -1,5 +1,5 @@
 import { AccessControllerType, IdentitiesType, LogEntry, Events, LogType } from '@orbitdb/core'
-import { type Helia } from 'helia'
+import { HeliaLibp2p, type Helia } from 'helia'
 import { createLogger } from '../../common/logger'
 import { abortableAsyncIterable } from '../../common/utils'
 import { OrbitDbService } from './orbitDb.service'
@@ -20,7 +20,7 @@ export const EventsWithStorage =
     syncAutomatically,
     onUpdate,
   }: {
-    ipfs: Helia
+    ipfs: HeliaLibp2p
     identity: IdentitiesType
     address: string
     name: string
@@ -81,10 +81,19 @@ export const EventsWithStorage =
 
     const get = async (hash: string): Promise<unknown> => {
       try {
-        return db.get(hash)
+        return await db.get(hash)
       } catch (e) {
         db.events.emit('error', e)
         return undefined
+      }
+    }
+
+    const all = async (): Promise<{ hash: string; value: unknown }[]> => {
+      try {
+        return await db.all()
+      } catch (e) {
+        db.events.emit('error', e)
+        return []
       }
     }
 
@@ -92,6 +101,8 @@ export const EventsWithStorage =
       ...db,
       iterator,
       get,
+      all,
+      type: EventsWithStorage.type,
     }
   }
 

@@ -1,11 +1,97 @@
-name: Desktop release build
+name: Desktop Build
 
 on:
   release:
-    types:
-      [released, prereleased]
+    types: [released, prereleased]
+
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
+  build-debug-distributables:
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: linux
+            source_path: linux
+            build_cmd: "--linux AppImage"
+            artifact_glob: "packages/desktop/dist/*.AppImage"
+          - os: macos-13
+            target: macos
+            source_path: darwin
+            build_cmd: "--mac"
+            artifact_glob: "packages/desktop/dist/*.dmg"
+          - os: windows-2022
+            target: win
+            source_path: win32
+            build_cmd: "--win"
+            artifact_glob: "packages/desktop/dist/*.exe"
+
+    runs-on: ${{ matrix.os }}
+    env:
+      TEST_MODE: true
+      IS_LOCAL: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/desktop
+
+      - name: Install libfuse (Linux only)
+        if: matrix.os == 'ubuntu-22.04'
+        run: sudo apt-get update && sudo apt-get install -y libfuse2
+
+      - name: Get branch name
+        id: branch
+        shell: bash
+        run: |
+          B_NAME=$(echo "${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" | sed 's|/|-|g')
+          echo "branch_name=$B_NAME" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$B_NAME" >> $GITHUB_ENV
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: ${{ matrix.source_path }}
+
+      - name: Build desktop preview
+        shell: bash
+        env:
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ steps.branch.outputs.branch_name }}
+        run: |
+          cd packages/desktop
+          export VERSION_SUFFIX="-$BRANCH-$COMMIT_SHA"
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const pkgPath = path.resolve('package.json');
+          const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+          pkg.version += process.env.VERSION_SUFFIX;
+          fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+          NODE
+          USE_HARD_LINKS=false node_modules/.bin/electron-builder ${{ matrix.build_cmd }} -p never
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quiet-${{ matrix.target }}-${{ steps.extract_version.outputs.version }}-${{ steps.branch.outputs.branch_name }}-${{ github.event.pull_request.head.sha }}
+          path: ${{ matrix.artifact_glob }}
+          retention-days: 14
+
   release-start-notification-desktop:
     runs-on: ubuntu-22.04
     if: |
@@ -15,13 +101,13 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: 'recursive'
-          
+
       - name: Extract version
         id: extract_version
         uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
         with:
           path: packages/desktop
-          
+
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
         if: always()
@@ -46,7 +132,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-win.yml
 
-  build-linux:
+  build-linux-prod:
     # needs: run-e2e-tests-linux
     runs-on: ubuntu-22.04
     if: |
@@ -129,7 +215,7 @@ jobs:
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
-  build-macos:
+  build-macos-prod:
     # needs: run-e2e-tests-mac
     runs-on: macos-13
     if: |
@@ -171,7 +257,7 @@ jobs:
           source-path: darwin
 
       - name: "Remove crud files"
-        run: xattr -cr .
+        run: xattr -crs .
 
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
@@ -214,9 +300,9 @@ jobs:
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
-  build-windows:
+  build-windows-prod:
     # needs: run-e2e-tests-win
-    runs-on: windows-2019
+    runs-on: windows-2022
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 

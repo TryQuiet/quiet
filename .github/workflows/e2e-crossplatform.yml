@@ -9,12 +9,17 @@ on:
       - packages/identity/**
       - packages/common/**
       - packages/e2e-tests/**
+      - 3rd-party/**
 
 jobs:
   mac:
     uses: ./.github/workflows/e2e-mac.yml
   linux:
     uses: ./.github/workflows/e2e-linux.yml
-  windows:
-    uses: ./.github/workflows/e2e-win.yml
+  linux-qss:
+    uses: ./.github/workflows/e2e-qss-linux.yml
+  linux-back-compat:
+    uses: ./.github/workflows/e2e-back-compat-linux.yml
+  # windows:
+  #   uses: ./.github/workflows/e2e-win.yml
     

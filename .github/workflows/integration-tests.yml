@@ -6,6 +6,7 @@ on:
       - packages/state-manager/**
       - packages/backend/**
       - packages/integration-tests/**
+      - 3rd-party/**
 
 jobs:
   integration-tests:
@@ -14,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-22.04] #, macos-13, windows-2019]
+        os: [ubuntu-22.04] #, macos-13, windows-2022]
 
     steps:
       - name: 'Print OS'

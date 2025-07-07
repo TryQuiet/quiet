@@ -231,7 +231,7 @@ export async function sendImage(payload: SendImage) {
 
   logger.info(JSON.stringify(payload), 'sendImage')
 
-  store.dispatch(files.actions.uploadFile(file))
+  store.dispatch(files.actions.attachFile(file))
 
   // Result of an action is sending a message containing cid of uploaded image
   await waitForExpect(() => {

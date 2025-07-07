@@ -17,7 +17,7 @@ import { SettingsModalTabName } from '../enums'
 
 const logger = createLogger('invitationLink')
 
-jest.setTimeout(1900000)
+jest.setTimeout(5 * 60 * 1000)
 it.todo('New user joins using invitation link while having app closed')
 describe('New user joins using invitation link while having app opened', () => {
   // Note: this test requires no DATA_DIR env so ran on local machine may interfere with 'Quiet' data directory
@@ -177,6 +177,8 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Guest waits to join the community', async () => {
       const joinPanel = new JoiningLoadingPanel(guestApp.driver)
       await joinPanel.waitForJoinToComplete()
+      const debugModal = new DebugModeModal(guestApp.driver)
+      await debugModal.close()
     })
 
     it('Guest joined a community and sees general channel', async () => {
@@ -194,7 +196,8 @@ describe('New user joins using invitation link while having app opened', () => {
 
       const messageIds = await generalChannel.getMessageIdsByText(
         `@${joiningUserUsername} has joined and will be registered soon. 🎉 Learn more`,
-        joiningUserUsername
+        joiningUserUsername,
+        1000
       )
     })
   })

@@ -79,7 +79,7 @@ describe('Validators - Messages', () => {
 })
 
 describe('Validators - Encrypted Messages', () => {
-  test('valid encrypted message passes', () => {
+  test('valid encrypted message passes - buffer contents', () => {
     const validEncryptedMessage = {
       id: 'msg-123',
       contents: {
@@ -92,6 +92,33 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
+      encSignature: {
+        author: {
+          generation: 0,
+          type: 'USER',
+          name: 'user-xyz',
+        },
+        signature: 'abc123signaturevalue',
+      },
+    }
+    expect(isEncryptedMessage(validEncryptedMessage as unknown as EncryptedMessage)).toBeTruthy()
+  })
+
+  test('valid encrypted message passes - uint8array contents', () => {
+    const validEncryptedMessage = {
+      id: 'msg-123',
+      contents: {
+        contents: new Uint8Array([1, 2, 3]),
+        scope: {
+          generation: 0,
+          type: 'ROLE',
+          name: 'member',
+        },
+      },
+      createdAt: 1710000000000,
+      channelId: 'channel-abc',
+      teamId: 'teamId',
       encSignature: {
         author: {
           generation: 0,
@@ -117,15 +144,16 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
     }
     expect(isEncryptedMessage(invalidEncryptedMessage as unknown as EncryptedMessage)).toBeFalsy()
   })
 
-  test('contents.contents not buffer fails', () => {
+  test('contents.contents not uint8array or buffer', () => {
     const invalidEncryptedMessage = {
       id: 'msg-123',
       contents: {
-        contents: new Uint8Array([1, 2, 3]),
+        contents: 'foobar',
         scope: {
           generation: 0,
           type: 'ROLE',
@@ -134,6 +162,7 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
       encSignature: {
         author: {
           generation: 0,

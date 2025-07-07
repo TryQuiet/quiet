@@ -8,7 +8,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 
@@ -268,7 +268,7 @@ SentImage.args = {
 // Files
 export const FilePreview = Template.bind({})
 export const MultipleMediaPreview = Template.bind({})
-export const UploadingFile = Template.bind({})
+export const AttachingFile = Template.bind({})
 export const HostedFile = Template.bind({})
 export const ReadyDownload = Template.bind({})
 export const Downloading = Template.bind({})
@@ -302,13 +302,13 @@ MultipleMediaPreview.args = {
     },
   },
 }
-UploadingFile.args = {
+AttachingFile.args = {
   ...args,
   messages: mock_messages({
     id: '32',
     type: 4,
     media: {
-      cid: 'uploading_32',
+      cid: 'attaching_32',
       message: {
         channelId: 'general',
         id: 'wgtlstx3u7',
@@ -329,9 +329,9 @@ UploadingFile.args = {
   }),
   downloadStatuses: {
     32: {
-      cid: 'uploading_32',
+      cid: 'attaching_32',
       mid: 'mid',
-      downloadState: DownloadState.Uploading,
+      downloadState: DownloadState.Attaching,
       downloadProgress: undefined,
     },
   },

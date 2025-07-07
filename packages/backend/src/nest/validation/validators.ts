@@ -5,6 +5,7 @@ import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageSe
 import { isPSKcodeValid } from '@quiet/common'
 import { createLogger } from '../common/logger'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
+import { isUint8Array } from 'util/types'
 
 const logger = createLogger('rnBridge')
 
@@ -60,7 +61,15 @@ const messageSchema = joi.object({
 const encryptedMessageSchema = joi.object({
   id: joi.string().required(),
   contents: joi.object({
-    contents: joi.binary().required(),
+    contents: joi
+      .any()
+      .required()
+      .custom((value, _helpers) => {
+        if (!Buffer.isBuffer(value) && !isUint8Array(value)) {
+          throw new Error('value must be a Uint8Array or Buffer')
+        }
+        return value
+      }),
     scope: joi
       .object({
         generation: joi.number().required(),
@@ -71,6 +80,7 @@ const encryptedMessageSchema = joi.object({
   }),
   createdAt: joi.number().required(),
   channelId: joi.string().required(),
+  teamId: joi.string().required(),
   encSignature: EncryptionSignatureSchema.required(),
 })
 
@@ -110,6 +120,7 @@ export const isMessage = (msg: ChannelMessage): boolean => {
 
 export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
   const value: joi.ValidationResult = encryptedMessageSchema.validate(msg)
+  if (value.error) logger.error('isEncryptedMessage', value.error)
   return !value.error
 }
 

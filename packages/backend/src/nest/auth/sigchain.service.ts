@@ -15,6 +15,7 @@ import { type DeviceWithSecrets } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
+import { GetChainFilter } from './types'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -75,31 +76,50 @@ export class SigChainService extends EventEmitter {
     if (!this.activeChainTeamName) {
       throw new Error('No active chain found!')
     }
-    return this.getChain(this.activeChainTeamName)
+    return this.getChain({ teamName: this.activeChainTeamName })
   }
 
   /**
-   * Gets a chain by team name
-   * @param teamName Name of the team to get the chain for
-   * @returns The chain for the team
-   * @throws Error if the chain doesn't exist
+   * Gets a chain by team name or ID
+   * @param filter Filter query with either team name or team ID
+   * @returns The chain for the team name or ID specified
+   * @throws Error if the chain doesn't exist, if ID and name in filter, or no filter criteria provided
    */
-  getChain(teamName: string): SigChain {
-    if (!this.chains.has(teamName)) {
-      throw new Error(`No chain found for team ${teamName}`)
+  getChain(filter: GetChainFilter): SigChain {
+    // reject filters with both team name and ID
+    if (filter.teamName != null && filter.teamId != null) {
+      throw new Error('Must provide only one of `teamName` or `teamId` in filter query, not both!')
     }
-    return this.chains.get(teamName)!
+
+    // reject filters without ID or name
+    if (filter.teamName == null && filter.teamId == null) {
+      throw new Error('Must provide one of `teamName` or `teamId` in filter query!')
+    }
+
+    if (filter.teamId != null) {
+      for (const potentialChain of this.chains.values()) {
+        if (potentialChain.team != null && potentialChain.team.id === filter.teamId) {
+          return potentialChain
+        }
+      }
+      throw new Error(`No chain found for team ID ${filter.teamId}`)
+    }
+
+    if (!this.chains.has(filter.teamName!)) {
+      throw new Error(`No chain found for team ${filter.teamName}`)
+    }
+    return this.chains.get(filter.teamName!)!
   }
 
   setActiveChain(teamName: string): void {
     if (this.activeChainTeamName && this.activeChainTeamName !== teamName) {
-      this.detachSocketListeners(this.getChain(this.activeChainTeamName))
+      this.detachSocketListeners(this.getChain({ teamName: this.activeChainTeamName }))
     }
     if (!this.chains.has(teamName)) {
       throw new Error(`No chain found for team ${teamName}, can't set to active!`)
     }
     this.activeChainTeamName = teamName
-    this.attachSocketListeners(this.getChain(teamName))
+    this.attachSocketListeners(this.getChain({ teamName }))
   }
 
   private handleChainUpdate = () => {
@@ -112,13 +132,15 @@ export class SigChainService extends EventEmitter {
         isDuplicated: false,
       })) as User[]
     this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+    this.emit('updated')
     this.saveChain(this.activeChainTeamName!)
+    this.emit('updated')
+    this.logger.info('Chain updated, emitted updated event')
   }
 
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
     chain.on('updated', this.handleChainUpdate)
-    this.emit('updated')
   }
 
   private detachSocketListeners(chain: SigChain): void {
@@ -130,9 +152,11 @@ export class SigChainService extends EventEmitter {
    * Adds a chain to the service
    * @param chain SigChain to add
    * @param setActive Whether to set the chain as active
+   * @param teamName Optional name of the team
+   * @param teamId Optionally pass in the team ID
    * @returns Whether the chain was set as active
    */
-  addChain(chain: SigChain, setActive: boolean, teamName?: string): boolean {
+  addChain(chain: SigChain, setActive: boolean, teamName?: string, teamId?: string): boolean {
     teamName = teamName || chain.team!.teamName
     if (this.chains.has(teamName)) {
       throw new Error(`Chain for team ${teamName} already exists`)
@@ -178,10 +202,16 @@ export class SigChainService extends EventEmitter {
     return sigChain
   }
 
-  async createChainFromInvite(username: string, teamName: string, seed: string, setActive: boolean): Promise<SigChain> {
+  async createChainFromInvite(
+    username: string,
+    teamName: string,
+    seed: string,
+    teamId: string | undefined,
+    setActive: boolean
+  ): Promise<SigChain> {
     this.logger.info('Creating chain from invite')
     const sigChain = SigChain.createFromInvite(username, seed)
-    this.addChain(sigChain, setActive, teamName)
+    this.addChain(sigChain, setActive, teamName, teamId)
     await this.saveChain(teamName)
     return sigChain
   }
@@ -243,7 +273,7 @@ export class SigChainService extends EventEmitter {
   async saveChain(teamName: string): Promise<void> {
     this.logger.info(`Saving chain to disk`, teamName)
     await this._ensureDb()
-    const chain = this.getChain(teamName)
+    const chain = this.getChain({ teamName })
     await this.localDbService.setSigChain(chain, teamName)
   }
 

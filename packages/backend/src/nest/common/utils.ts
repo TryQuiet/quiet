@@ -17,6 +17,7 @@ import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
 import { createLogger } from './logger'
 import { pureJsCrypto } from '@chainsafe/libp2p-noise'
 import { webSockets } from '@libp2p/websockets'
+import { memory } from '@libp2p/memory'
 
 const logger = createLogger('utils')
 
@@ -157,15 +158,10 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
 export const torDirForPlatform = (basePath?: string): string => {
   let torPath: string
   if (!basePath) {
-    const platformPath = process.platform === 'darwin' ? path.join(process.platform, process.arch) : process.platform
     basePath = path.join(process.cwd(), '..', '..', '3rd-party')
-    torPath = path.join(basePath, 'tor', platformPath)
+    torPath = path.join(basePath, 'tor', process.platform)
   } else {
-    if (process.platform === 'darwin') {
-      torPath = path.join(basePath, 'tor', process.arch)
-    } else {
-      torPath = path.join(basePath, 'tor')
-    }
+    torPath = path.join(basePath, 'tor')
   }
   return torPath
 }
@@ -257,6 +253,26 @@ export async function getLocalLibp2pInstanceParams(): Promise<Libp2pNodeParams> 
   }
 }
 
+/**
+ * Generates params for use in testing libp2p instances with in-memory transport
+ * @returns {Promise<Libp2pNodeParams>}
+ */
+export async function getInMemoryLibp2pInstanceParams(): Promise<Libp2pNodeParams> {
+  const port = await getPort()
+  const peerId = await createPeerId()
+  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
+  return {
+    peerId,
+    listenAddresses: [`/memory/${port}`],
+    agent: undefined,
+    localAddress: `/memory/${port}/p2p/${peerId.peerId.toString()}`,
+    targetPort: port,
+    psk: libp2pKey,
+    transport: [memory()],
+    useConnectionProtector: false,
+  }
+}
+
 export const createTmpDir = (prefix = 'quietTestTmp_'): tmp.DirResult => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
 }
@@ -279,8 +295,22 @@ export async function createPeerId(): Promise<CreatedLibp2pPeerId> {
 export const createArbitraryFile = async (filePath: string, sizeBytes: number) => {
   const maxChunkSize = 1048576 // 1MB
 
+  // Delete the file if it already exists, to ensure we start fresh
+  if (fs.existsSync(filePath)) {
+    await fsAsync.unlink(filePath)
+  }
+
   let remainingSize = sizeBytes
 
+  // Create initial file (first chunk)
+  if (remainingSize > 0) {
+    const chunkSize = Math.min(maxChunkSize, remainingSize)
+    // Use writeFile for the first chunk to create a new file
+    await fsAsync.writeFile(filePath, crypto.randomBytes(chunkSize))
+    remainingSize -= chunkSize
+  }
+
+  // Append remaining chunks
   while (remainingSize > 0) {
     const chunkSize = Math.min(maxChunkSize, remainingSize)
     await fsAsync.appendFile(filePath, crypto.randomBytes(chunkSize))

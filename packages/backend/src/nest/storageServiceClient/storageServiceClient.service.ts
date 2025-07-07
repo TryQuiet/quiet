@@ -92,7 +92,7 @@ export class StorageServiceClient extends EventEmitter {
   }
 
   public uploadData = async (cid: string, data: ServerStoredCommunityMetadata) => {
-    this.logger.info(`Uploading data for cid: ${cid}`, data)
+    this.logger.info(`Attaching data for cid: ${cid}`, data)
     this.validateMetadata(data)
     const accessToken = await this.auth()
     const dataResponse: Response = await this.fetch(this.getInviteUrl(cid), {
@@ -104,9 +104,9 @@ export class StorageServiceClient extends EventEmitter {
       body: JSON.stringify(data),
       ...this.fetchConfig,
     })
-    this.logger.info('Upload data response status', dataResponse.status)
+    this.logger.info('Attachment data response status', dataResponse.status)
     if (!dataResponse.ok) {
-      throw new HTTPResponseError('Failed to upload data', dataResponse)
+      throw new HTTPResponseError('Failed to attach data', dataResponse)
     }
     return cid
   }

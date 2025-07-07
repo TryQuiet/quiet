@@ -81,13 +81,26 @@ export const validatePhoto = (photoString: string, pubKey: string): boolean => {
       return false
     }
 
-    // 200 KB = 204800 B limit
-    //
-    // TODO: Perhaps the compression matters and we should check
-    // actual dimensions in pixels?
-    if (photoBytes.length > 204800) {
-      logger.error('User profile photo must be less than or equal to 200KB')
-      return false
+    // Apply different size limits based on image format:
+    // - For JPEG: 15MB limit (we compress these)
+    // - For PNG/GIF: 200KB limit (we don't compress these)
+    const MAX_SIZE_JPEG = 15 * 1024 * 1024 // 15MB in bytes
+    const MAX_SIZE_PNG_GIF = 200 * 1024 // 200KB in bytes
+
+    if (photoString.startsWith('data:image/jpeg;base64,')) {
+      // JPEG format - allow up to 15MB
+      if (photoBytes.length > MAX_SIZE_JPEG) {
+        const sizeInMB = (photoBytes.length / (1024 * 1024)).toFixed(2)
+        logger.error(`JPEG profile photo must be less than or equal to 15MB (received: ${sizeInMB}MB)`)
+        return false
+      }
+    } else {
+      // PNG or GIF format - restrict to 200KB
+      if (photoBytes.length > MAX_SIZE_PNG_GIF) {
+        const sizeInKB = (photoBytes.length / 1024).toFixed(2)
+        logger.error(`PNG/GIF profile photo must be less than or equal to 200KB (received: ${sizeInKB}KB)`)
+        return false
+      }
     }
   } catch (e) {
     logger.error('Error while validating photo', pubKey, e)

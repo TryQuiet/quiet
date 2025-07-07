@@ -8,7 +8,7 @@ import {
   Topology,
 } from '@libp2p/interface'
 import type { ConnectionManager, IncomingStreamData, Registrar } from '@libp2p/interface-internal'
-import * as Auth from '@localfirst/auth'
+import * as Auth from '../../../../../3rd-party/auth/packages/auth/dist'
 import { pipe } from 'it-pipe'
 import { encode, decode } from 'it-length-prefixed'
 
@@ -20,6 +20,12 @@ import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
 import { QuietLogger } from '@quiet/logger'
 import { createWinstonQuietLogger } from '@quiet/node-common'
+import { ServerIoProviderTypes } from '../types'
+import { RoleName } from '../auth/services/roles/roles'
+import { QSSService } from '../qss/qss.service'
+import { QSSEvents } from '../qss/qss.types'
+import { ConnectionContext, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
+import { SigChain } from '../auth/sigchain'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -34,7 +40,8 @@ export interface Libp2pAuthStatus {
   joining: boolean
 }
 
-enum JoinStatus {
+export enum JoinStatus {
+  PENDING_MEMBER = 'PENDING_MEMBER',
   PENDING = 'PENDING',
   JOINING = 'JOINING',
   JOINED = 'JOINED',
@@ -46,8 +53,10 @@ const createLFALogger = createWinstonQuietLogger('localfirst')
 export class Libp2pAuth {
   private readonly protocol: string
   private readonly components: Libp2pAuthComponents
+  private registrarId: string
   private sigChainService: SigChainService
   private libp2pService: Libp2pService
+  private qssService: QSSService
   private authConnections: Map<string, Auth.Connection>
   private peerConnections: Map<string, Connection>
   private bufferedConnections: { peerId: PeerId; connection: Connection }[]
@@ -57,11 +66,17 @@ export class Libp2pAuth {
   readonly [serviceCapabilities]: string[] = ['@quiet/auth']
   readonly [Symbol.toStringTag]: string = 'lfaAuth'
 
-  constructor(sigChainService: SigChainService, libp2pService: Libp2pService, components: Libp2pAuthComponents) {
+  constructor(
+    sigChainService: SigChainService,
+    qssService: QSSService,
+    libp2pService: Libp2pService,
+    components: Libp2pAuthComponents
+  ) {
     this.protocol = '/local-first-auth/1.0.0'
     this.components = components
     this.sigChainService = sigChainService
     this.libp2pService = libp2pService
+    this.qssService = qssService
     this.authConnections = new Map()
     this.peerConnections = new Map()
     this.bufferedConnections = []
@@ -70,18 +85,28 @@ export class Libp2pAuth {
       this.logger.warn('No active chain found')
       this.joinStatus = JoinStatus.NOT_STARTED
     } else {
-      this.logger = this.logger.extend(this.sigChainService.user.userName)
-      if (sigChainService.getActiveChain()!.team == null) {
+      this.logger = this.logger.extend(sigChainService.getActiveChain().username)
+      const activeChain = sigChainService.getActiveChain()!
+      if (activeChain.team == null) {
         this.joinStatus = JoinStatus.PENDING
+      } else if (!activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        this.joinStatus = JoinStatus.PENDING_MEMBER
       } else {
         this.joinStatus = JoinStatus.JOINED
       }
     }
 
+    this.qssService.once(QSSEvents.QSS_AUTH_JOINED, async () => {
+      if (this.joinStatus !== JoinStatus.JOINED) {
+        this.joinStatus = JoinStatus.PENDING_MEMBER
+      }
+    })
+
     this.logger.info('Auth service initialized')
     this.logger.info('sigChainService', sigChainService.activeChainTeamName)
 
     // Set up a periodic check to process buffered connections
+    this.unblockConnections = this.unblockConnections.bind(this)
     this.unblockInterval = setInterval(this.unblockConnections, 5_000, this.bufferedConnections)
   }
 
@@ -93,8 +118,12 @@ export class Libp2pAuth {
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamName != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
-      this.joinStatus = JoinStatus.PENDING
-    } else if (this.joinStatus !== JoinStatus.JOINED) {
+      this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
+    } else if (this.joinStatus !== JoinStatus.JOINED && this.joinStatus !== JoinStatus.PENDING_MEMBER) {
+      return
+    }
+
+    if (conns.length === 0) {
       return
     }
 
@@ -110,15 +139,18 @@ export class Libp2pAuth {
   async start() {
     this.logger.info('Auth service starting')
 
+    this.onPeerConnected = this.onPeerConnected.bind(this)
+    this.onPeerDisconnected = this.onPeerDisconnected.bind(this)
+    this.onIncomingStream = this.onIncomingStream.bind(this)
     const topology: Topology = {
-      onConnect: this.onPeerConnected.bind(this),
-      onDisconnect: this.onPeerDisconnected.bind(this),
+      onConnect: this.onPeerConnected,
+      onDisconnect: this.onPeerDisconnected,
       notifyOnLimitedConnection: false,
     }
 
     const registrar = this.components.registrar
-    await registrar.register(this.protocol, topology)
-    await registrar.handle(this.protocol, this.onIncomingStream.bind(this), {
+    this.registrarId = await registrar.register(this.protocol, topology)
+    await registrar.handle(this.protocol, this.onIncomingStream, {
       runOnLimitedConnection: false,
     })
   }
@@ -137,6 +169,9 @@ export class Libp2pAuth {
     for (const peerId of this.authConnections.keys()) {
       this.closeAuthConnection(peerId)
     }
+
+    await this.components.registrar.unhandle(this.protocol)
+    this.components.registrar.unregister(this.registrarId)
 
     this.logger.info('Libp2pAuth service stopped')
   }
@@ -271,10 +306,18 @@ export class Libp2pAuth {
     const context = this.sigChainService.getActiveChain().context
 
     if (this.authConnections.has(peerId.toString())) {
-      this.logger.info(
-        `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
-      )
-      return
+      const oldAuthConnection = this.authConnections.get(peerId.toString())!
+      const oldPeerConnection = this.peerConnections.get(peerId.toString())
+      if (oldPeerConnection != null && oldPeerConnection.status === 'open') {
+        this.logger.warn(
+          `A connection with ${peerId.toString()} was already available, skipping connection initialization!`
+        )
+        return
+      }
+      this.logger.warn('Replacing closed auth connection with a new one', oldPeerConnection?.remotePeer)
+      oldAuthConnection.stop()
+      this.authConnections.delete(peerId.toString())
+      this.peerConnections.delete(peerId.toString())
     }
 
     // Create an auth connection using an ephemeral sendMessage callback.
@@ -286,22 +329,28 @@ export class Libp2pAuth {
           this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
         })
       },
-      createLogger: createLFALogger,
     } as ConnectionParams)
 
     // Set up auth connection event handlers.
-    authConnection.on('connected', () => {
+    authConnection.on('connected', async () => {
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
         const user = this.sigChainService.user
         if (team) {
           authConnection.emit('sync', { team, user })
+          if (
+            authConnection._context.peer != null &&
+            !(authConnection._context.peer as Member).roles.includes(RoleName.MEMBER)
+          ) {
+            this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
+          }
+          await this.handleJoinViaQSS()
         } else {
           this.logger.error('Cannot emit sync event, team is null')
         }
+        this.emit(Libp2pEvents.AUTH_CONNECTED)
       }
-      this.emit(Libp2pEvents.AUTH_CONNECTED)
     })
 
     authConnection.on('disconnected', event => {
@@ -330,13 +379,18 @@ export class Libp2pAuth {
         this.sigChainService.setActiveChain(team.teamName)
       }
       this.joinStatus = JoinStatus.JOINED
-      this.unblockConnections(this.bufferedConnections)
-      this.emit(Libp2pEvents.AUTH_JOINED)
       this.sigChainService.saveChain(team.teamName)
+      this.emit(Libp2pEvents.AUTH_JOINED)
+      this.unblockConnections(this.bufferedConnections)
     })
 
     authConnection.on('change', payload => {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
+    })
+
+    authConnection.on('updated', async payload => {
+      this.emit(Libp2pEvents.AUTH_UPDATED, payload)
+      await this.handleJoinViaQSS()
     })
 
     // Handle errors from local or remote sources.
@@ -380,11 +434,33 @@ export class Libp2pAuth {
       this.authConnections.delete(key)
     }
   }
+
+  private async handleJoinViaQSS(): Promise<void> {
+    if (this.sigChainService.team == null) {
+      throw new Error('Team is undefined')
+    }
+
+    if (
+      this.joinedViaQSS(this.sigChainService.team.id) &&
+      this.joinStatus !== JoinStatus.JOINED &&
+      this.sigChainService.roles.amIMemberOfRole(RoleName.MEMBER)
+    ) {
+      this.joinStatus = JoinStatus.JOINED
+      this.unblockConnections(this.bufferedConnections)
+      this.emit(Libp2pEvents.AUTH_JOINED)
+      await this.sigChainService.saveChain(this.sigChainService.team.teamName)
+    }
+  }
+
+  private joinedViaQSS(teamId: string): boolean {
+    return [JoinStatus.JOINED, JoinStatus.PENDING_MEMBER].includes(this.qssService?.joinStatus(teamId))
+  }
 }
 
 export const libp2pAuth = (
   sigChainService: SigChainService,
+  qssService: QSSService,
   libp2pService: Libp2pService
 ): ((components: Libp2pAuthComponents) => Libp2pAuth) => {
-  return (components: Libp2pAuthComponents) => new Libp2pAuth(sigChainService, libp2pService, components)
+  return (components: Libp2pAuthComponents) => new Libp2pAuth(sigChainService, qssService, libp2pService, components)
 }

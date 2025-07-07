@@ -52,7 +52,7 @@ jobs:
         with:
           cachePrefix: "e2e-crossplatform-linux"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
-
+      
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
@@ -94,13 +94,3 @@ jobs:
           timeout_minutes: 25
           max_attempts: 1
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
-
-      - name: Run Backwards Compatibility test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        if: ${{ steps.major-ver.outputs.match == 'false' }}
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          command: |
-            echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
-            cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts

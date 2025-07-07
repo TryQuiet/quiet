@@ -19,9 +19,6 @@ export const filterAndSortPeers = (
   localPeerAddress?: string,
   includeLocalPeerAddress: boolean = true
 ): string[] => {
-  logger.info(
-    `filterAndSortPeers: includeLocalPeerAddress: ${includeLocalPeerAddress}, localPeerAddress: ${localPeerAddress}`
-  )
   peersAddresses = filterValidAddresses(peersAddresses)
   const currentlyConnected = [...stats].filter(peer => peer.connectionTime === 0)
   const lastSeenSorted = [...stats].sort((a, b) => {

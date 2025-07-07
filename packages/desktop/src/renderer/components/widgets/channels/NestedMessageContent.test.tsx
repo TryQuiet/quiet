@@ -139,13 +139,13 @@ describe('NestedMessageContent', () => {
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="css-gd4qex"
+                class="css-2iuva0"
               >
                 <div
-                  class="UploadedImagecontainer"
+                  class="ImageAttachmentcontainer"
                 >
                   <div
-                    class="UploadedImageimage"
+                    class="ImageAttachmentimage"
                     data-testid="abcd1234-imageVisual"
                   >
                     <p
@@ -154,7 +154,7 @@ describe('NestedMessageContent', () => {
                       test.png
                     </p>
                     <img
-                      class="UploadedImageimage"
+                      class="ImageAttachmentimage"
                       src="path/to/file/test.png"
                       style="width: 400px;"
                     />

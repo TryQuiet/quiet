@@ -4,7 +4,12 @@ import { SigChainService } from '../../auth/sigchain.service'
 import { Libp2pEvents } from '../libp2p.types'
 import { createLogger } from '../../common/logger'
 import { headsAreEqual } from '@localfirst/crdx'
-import { spawnLibp2pInstances, spawnTestModules, attachEventListeners, timelinesInclude } from './test-utils'
+import {
+  spawnLibp2pInstancesInMemory,
+  spawnTestModules,
+  attachEventListeners,
+  timelinesInclude,
+} from '../../common/test-utils'
 
 const logger = createLogger('libp2p:libp2p.auth.spec')
 
@@ -39,7 +44,7 @@ describe('Libp2pAuth', () => {
 
     // Create invitation from A -> B
     const inviteResult = await sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
-    await sigchainServiceB.createChainFromInvite(userB, teamName, inviteResult.seed, true)
+    await sigchainServiceB.createChainFromInvite(userB, teamName, inviteResult.seed, sigchainServiceA.team.id, true)
   })
 
   afterAll(async () => {
@@ -52,7 +57,7 @@ describe('Libp2pAuth', () => {
 
   it('create two instances of libp2p', async () => {
     logger.info('Creating libp2p instances')
-    await spawnLibp2pInstances(modules)
+    await spawnLibp2pInstancesInMemory(modules)
     logger.info('Created libp2p instances')
     expect(libp2pServiceA.libp2pInstance).toBeDefined()
     expect(libp2pServiceB.libp2pInstance).toBeDefined()
