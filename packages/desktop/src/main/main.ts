@@ -526,13 +526,13 @@ app.on('browser-window-created', (_, window) => {
 })
 
 // Quit when all windows are closed.
-// app.on('window-all-closed', async () => {
-//   logger.info('Event: app.window-all-closed')
-//   closeBackendProcess()
-//   // On macOS it is common for applications and their menu bar
-//   // to stay active until the user quits explicitly with Cmd + Q
-//   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.
-// })
+app.on('window-all-closed', async () => {
+  logger.info('Event: app.window-all-closed')
+  backendProcess?.send('close')
+  // On macOS it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.
+})
 
 app.on('activate', async () => {
   logger.info('Event: app.activate')
