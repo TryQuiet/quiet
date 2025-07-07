@@ -18,6 +18,7 @@ const mockWindowWebContentsSend = jest.fn()
 const mockwebContentsOn = jest.fn()
 const mockwebContentsOnce = jest.fn()
 const mockDestroyWindow = jest.fn()
+const mockWindowOn = jest.fn()
 const mockWindowOnce = jest.fn()
 const mockSetMovable = jest.fn()
 const mockSetAlwaysOnTop = jest.fn()
@@ -80,7 +81,7 @@ jest.mock('electron', () => {
         loadURL: jest.fn(),
         show: mockShowWindow,
         setMinimumSize: jest.fn(),
-        on: jest.fn(),
+        on: mockWindowOn,
         once: mockWindowOnce,
         getTitle: jest.fn(),
         destroy: mockDestroyWindow,
@@ -176,17 +177,27 @@ describe('electron app ready event', () => {
     expect(mockShowWindow).toHaveBeenCalledTimes(1)
   })
 
-  it('close application and save state correctly', async () => {
-    const mockWindowOnceCalls = mockWindowOnce.mock.calls
+  it('close application triggers correct shutdown flow', async () => {
+    // Find the handler registered with BrowserWindow.on('close', …)
+    const closeCall = mockWindowOn.mock.calls.find(call => call[0] === 'close')
+    expect(closeCall).toBeDefined()
 
-    expect(mockWindowOnce).toHaveBeenCalledTimes(2)
-    expect(mockWindowOnceCalls[0][0]).toBe('close')
-    const event = { preventDefault: () => {} }
-    mockWindowOnceCalls[0][1](event)
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('force-save-state')
+    const closeHandler = closeCall![1] as (e: any) => void
+    const event = { preventDefault: jest.fn() }
+    closeHandler(event)
 
-    const mockIpcMainOnCalls = mockIpcMainOn.mock.calls
-    expect(mockIpcMainOnCalls[0][0]).toBe('state-saved')
+    if (process.platform === 'darwin') {
+      // On macOS we ask the renderer to save state
+      expect(mockWindowWebContentsSend).toHaveBeenCalledWith('force-save-state')
+    } else {
+      // On other OSes we tell the backend to shut down first
+      const { fork } = require('child_process')
+      const backend = (fork as jest.Mock).mock.results[0].value
+      expect(backend.send).toHaveBeenCalledWith('close')
+    }
+
+    // Ensure the state-saved IPC listener was registered
+    expect((ipcMain.on as jest.Mock).mock.calls.some(call => call[0] === 'state-saved')).toBe(true)
   })
 
   it('checks for updates in webcontents once did-finish-load window event', async () => {
