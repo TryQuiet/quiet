@@ -409,12 +409,14 @@ app.on('ready', async () => {
     e.preventDefault()
     logger.info('Closing main window')
     mainWindow?.webContents.send('force-save-state')
+    backendProcess?.send('close')
   })
 
   splash?.once('close', e => {
     e.preventDefault()
     logger.info('Closing splash window')
     mainWindow?.webContents.send('force-save-state')
+    backendProcess?.send('close')
   })
 
   ipcMain.on('state-saved', e => {
@@ -436,6 +438,7 @@ app.on('ready', async () => {
   ipcMain.on('restart-app', () => {
     logger.info('ipcMain: restart-app')
     app.relaunch()
+    backendProcess?.send('close')
   })
 
   ipcMain.on('writeTempFile', (event, arg) => {
