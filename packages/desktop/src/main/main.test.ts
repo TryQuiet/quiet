@@ -20,6 +20,8 @@ const mockwebContentsOnce = jest.fn()
 const mockDestroyWindow = jest.fn()
 const mockWindowOn = jest.fn()
 const mockWindowOnce = jest.fn()
+const mockWindowHide = jest.fn()
+const mockWindowClose = jest.fn()
 const mockSetMovable = jest.fn()
 const mockSetAlwaysOnTop = jest.fn()
 
@@ -81,6 +83,8 @@ jest.mock('electron', () => {
         loadURL: jest.fn(),
         show: mockShowWindow,
         setMinimumSize: jest.fn(),
+        hide: mockWindowHide,
+        close: mockWindowClose,
         on: mockWindowOn,
         once: mockWindowOnce,
         getTitle: jest.fn(),
@@ -219,6 +223,55 @@ describe('electron app ready event', () => {
     expect(autoUpdaterOn.mock.calls[4][0]).toBe('update-downloaded')
     autoUpdaterOn.mock.calls[4][1]()
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('newUpdateAvailable')
+  })
+})
+// --- EXTRA QUIT-FLOW TESTS ---
+describe('additional quit flow scenarios', () => {
+  const forkMock = require('child_process').fork as jest.Mock
+  it('before-quit interception waits for backend to exit first', () => {
+    const beforeQuitHandler = mockAppOnCalls.find(c => c[0] === 'before-quit')[1]
+    const backend = forkMock.mock.results[0].value
+    backend.send.mockClear()
+
+    const evt = { preventDefault: jest.fn() }
+    beforeQuitHandler(evt)
+
+    expect(evt.preventDefault).toHaveBeenCalled()
+    expect(backend.send).toHaveBeenCalledWith('close')
+  })
+
+  it('state-saved event hides or closes the window when backend is still running', () => {
+    const stateSavedHandler = mockIpcMainOn.mock.calls.find(c => c[0] === 'state-saved')[1]
+    mockWindowHide.mockClear()
+    mockWindowClose.mockClear()
+
+    // backendProcess is still alive → trigger state-saved
+    stateSavedHandler()
+
+    if (process.platform === 'darwin') {
+      expect(mockWindowHide).toHaveBeenCalledTimes(1)
+      expect(mockWindowClose).not.toHaveBeenCalled()
+    } else {
+      expect(mockWindowClose).toHaveBeenCalledTimes(1)
+      expect(mockWindowHide).not.toHaveBeenCalled()
+    }
+  })
+
+  it('backend exit ⇒ force-save-state ⇒ state-saved ⇒ app.quit()', () => {
+    const backend = forkMock.mock.results[0].value
+    const exitCb = backend.on.mock.calls.find((c: any[]) => c[0] === 'exit')[1]
+
+    const sendsBefore = mockWindowWebContentsSend.mock.calls.length
+    exitCb() // simulate backend dying
+
+    expect(mockWindowWebContentsSend).toHaveBeenLastCalledWith('force-save-state')
+    expect(mockWindowWebContentsSend.mock.calls.length).toBe(sendsBefore + 1)
+
+    const stateSavedHandler = mockIpcMainOn.mock.calls.find(c => c[0] === 'state-saved')[1]
+    ;(app.quit as jest.Mock).mockClear()
+    stateSavedHandler() // renderer confirms saved
+
+    expect(app.quit).toHaveBeenCalled()
   })
 })
 
