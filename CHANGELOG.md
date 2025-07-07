@@ -3,6 +3,7 @@
 ## [unreleased]
 
 ### Features
+
 * User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 
 ## [6.0.0]
