@@ -419,7 +419,8 @@ app.on('ready', async () => {
   })
 
   splash?.once('close', e => {
-    if (!backendProcess !== null) {
+    if (resetting) return
+    if (backendProcess !== null) {
       e.preventDefault()
       logger.info('Closing splash window')
       backendProcess?.send('close')
@@ -447,7 +448,7 @@ app.on('ready', async () => {
   ipcMain.on('clear-community', () => {
     logger.info('ipcMain: clear-community')
     resetting = true
-    backendProcess?.on('message', msg => {
+    backendProcess?.once('message', msg => {
       if (msg === 'leftCommunity') {
         resetting = false
       }
