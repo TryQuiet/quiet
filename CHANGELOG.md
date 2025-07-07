@@ -1,5 +1,11 @@
 # Changelog
 
+# [unreleased]
+
+### Chores
+
+* Android build now targets SDK 35 [#2736](https://github.com/TryQuiet/quiet/issues/2736)
+
 ## [6.0.0]
 
 ### Features
