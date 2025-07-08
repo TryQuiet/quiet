@@ -342,64 +342,6 @@ describe('Channels panel', () => {
                   </div>
                 </ul>
               </div>
-              <div
-                class="MuiGrid-root MuiGrid-item css-r4jj1p-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                  >
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
-                    >
-                      Users
-                    </p>
-                  </div>
-                </div>
-                <ul
-                  class="MuiList-root css-1mk9mw3-MuiList-root"
-                  data-testid="usersList"
-                >
-                  <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-1wjqjst-MuiButtonBase-root-MuiListItemButton-root"
-                    data-testid="user_2-user-link"
-                    role="button"
-                    tabindex="-1"
-                  >
-                    <span
-                      class="MuiBadge-root MuiBadge-root css-m4kryd-MuiBadge-root"
-                    >
-                      <div
-                        class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
-                      >
-                        <img
-                          alt="user_2"
-                          class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
-                          src="dGVzdAo="
-                        />
-                      </div>
-                      <span
-                        class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-                      />
-                    </span>
-                    <div
-                      class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
-                    >
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
-                        data-testid="user_2-user-link-text"
-                      >
-                        user_2
-                      </p>
-                    </div>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </div>
-                </ul>
-              </div>
             </div>
           </div>
         </body>,
@@ -654,64 +596,6 @@ describe('Channels panel', () => {
                         </div>
                       </div>
                     </span>
-                  </div>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </div>
-              </ul>
-            </div>
-            <div
-              class="MuiGrid-root MuiGrid-item css-r4jj1p-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                >
-                  <p
-                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
-                  >
-                    Users
-                  </p>
-                </div>
-              </div>
-              <ul
-                class="MuiList-root css-1mk9mw3-MuiList-root"
-                data-testid="usersList"
-              >
-                <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-1wjqjst-MuiButtonBase-root-MuiListItemButton-root"
-                  data-testid="user_2-user-link"
-                  role="button"
-                  tabindex="-1"
-                >
-                  <span
-                    class="MuiBadge-root MuiBadge-root css-m4kryd-MuiBadge-root"
-                  >
-                    <div
-                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
-                    >
-                      <img
-                        alt="user_2"
-                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
-                        src="dGVzdAo="
-                      />
-                    </div>
-                    <span
-                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-                    />
-                  </span>
-                  <div
-                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
-                  >
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
-                      data-testid="user_2-user-link-text"
-                    >
-                      user_2
-                    </p>
                   </div>
                   <span
                     class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
