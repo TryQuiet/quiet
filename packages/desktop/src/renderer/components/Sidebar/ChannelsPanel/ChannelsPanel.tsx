@@ -5,7 +5,6 @@ import { useModal } from '../../../containers/hooks'
 import { PublicChannel, UserProfile } from '@quiet/types'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
-import UserProfileListItem from './UserProfileListItem'
 
 export interface ChannelsPanelProps {
   channels: PublicChannel[]
@@ -21,14 +20,10 @@ export interface ChannelsPanelProps {
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
-  myUserProfile,
-  userProfiles,
-  connectedPeers,
   unreadChannels,
   setCurrentChannel,
   currentChannelId,
   createChannelModal,
-  isTorInitialized,
 }) => {
   return (
     <Grid container item xs direction='column'>
@@ -56,32 +51,6 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
               />
             )
           })}
-        </List>
-      </Grid>
-      {/* Users Section */}
-      <Grid item sx={{ mt: 2 }}>
-        <SidebarHeader title={'Users'} tooltipText='List of users in this workspace' />
-        <List disablePadding data-testid='usersList'>
-          {myUserProfile && (
-            <UserProfileListItem user={myUserProfile} key={myUserProfile.userId} connected={isTorInitialized} />
-          )}
-          {Object.values(userProfiles)
-            .filter(user => !myUserProfile || user.userId !== myUserProfile.userId)
-            .sort((a, b) => {
-              const aConnected = !!(a.userData && a.userData.peerId && connectedPeers.includes(a.userData.peerId))
-              const bConnected = !!(b.userData && b.userData.peerId && connectedPeers.includes(b.userData.peerId))
-              if (aConnected === bConnected) {
-                return a.nickname.localeCompare(b.nickname, undefined, { sensitivity: 'base' })
-              }
-              return aConnected ? -1 : 1
-            })
-            .map(user => (
-              <UserProfileListItem
-                user={user}
-                key={user.userId}
-                connected={!!(user.userData && user.userData.peerId && connectedPeers.includes(user.userData.peerId))}
-              />
-            ))}
         </List>
       </Grid>
       {/* <Grid item>

@@ -69,23 +69,26 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface UserProfileListItemProps {
-  user: UserProfile
+  userProfile: UserProfile
+  userProfileContextMenu: ReturnType<typeof useContextMenu>
   connected?: boolean
 }
 
-export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({ user, connected = false }) => {
-  const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
-
+export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
+  userProfile,
+  userProfileContextMenu,
+  connected = false,
+}) => {
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation()
-    userProfileContextMenu.handleOpen({ userProfile: user })
+    userProfileContextMenu.handleOpen({ userProfile })
   }
 
   return (
     <StyledListItemButton
       className={classNames(classes.root)}
       disableGutters
-      data-testid={`${user.nickname}-user-link`}
+      data-testid={`${userProfile.nickname}-user-link`}
       tabIndex={-1}
       onClick={handleOpenMenu}
     >
@@ -95,18 +98,22 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({ user, 
         variant='dot'
         invisible={!connected}
       >
-        {user.photo ? (
-          <Avatar className={classes.avatar} src={user.photo} alt={user.nickname} />
+        {userProfile.photo ? (
+          <Avatar className={classes.avatar} src={userProfile.photo} alt={userProfile.nickname} />
         ) : (
           <span className={classes.avatar}>
-            <Jdenticon value={user.userId} size='28' style={{ width: 28, height: 28, borderRadius: 4 }} />
+            <Jdenticon value={userProfile.userId} size='28' style={{ width: 28, height: 28, borderRadius: 4 }} />
           </span>
         )}
       </StyledBadge>
       <ListItemText
         primary={
-          <Typography variant='body2' className={classes.nickname} data-testid={`${user.nickname}-user-link-text`}>
-            {user.nickname}
+          <Typography
+            variant='body2'
+            className={classes.nickname}
+            data-testid={`${userProfile.nickname}-user-link-text`}
+          >
+            {userProfile.nickname}
           </Typography>
         }
         classes={{

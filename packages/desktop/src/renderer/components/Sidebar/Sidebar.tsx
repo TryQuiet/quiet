@@ -9,6 +9,7 @@ import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { MenuName } from '../../../const/MenuNames.enum'
+import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
 
 const Sidebar = () => {
   const dispatch = useDispatch()
@@ -69,12 +70,20 @@ const Sidebar = () => {
     userProfileContextMenu: userProfileContextMenu,
   }
 
+  const directMessagesPanelProps: DirectMessagesPanelProps = {
+    myUserProfile: myUserProfile,
+    userProfiles: userProfileSelector,
+    userProfileContextMenu: userProfileContextMenu,
+    connectedPeers: connectedPeers,
+    isTorInitialized: isTorInitialized,
+  }
+
   return (
     <SidebarComponent
       {...identityPanelProps}
       {...channelsPanelProps}
-      isTorInitialized={isTorInitialized}
       {...userProfilePanelProps}
+      {...directMessagesPanelProps}
     />
   )
 }
