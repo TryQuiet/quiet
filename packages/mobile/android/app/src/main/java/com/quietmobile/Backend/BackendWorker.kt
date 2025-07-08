@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.goterl.lazysodium.SodiumAndroid
 import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.MainApplication
@@ -27,12 +28,13 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.concurrent.ThreadLocalRandom
 
-
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
+
+    private var sodium = SodiumAndroid()
 
     // Use dedicated class for composing and displaying notifications
     private lateinit var notificationHandler: NotificationHandler
@@ -98,7 +100,20 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             // Get and store data port for usage in methods across the app
             val socketPort = Utils.getOpenPort(11000)
-            val socketIOSecret = Utils.generateRandomString(20)
+
+            /**
+             * SODIUM_BASE64_VARIANT_ORIGINAL            = 1
+             * SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING = 3
+             * SODIUM_BASE64_VARIANT_URLSAFE             = 5 -> this is the on we're using
+             * SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING  = 7
+             */
+            sodium.sodium_init()
+            val b64Len = sodium.sodium_base64_encoded_len(32, 5)
+            var socketIOSecretBytes = ByteArray(32)
+            var socketIOSecretBase64Bytes = ByteArray(b64Len)
+            sodium.randombytes_buf(socketIOSecretBytes, 32)
+            sodium.sodium_bin2base64(socketIOSecretBase64Bytes, b64Len, socketIOSecretBytes, 32, 5)
+            val socketIOSecret = socketIOSecretBase64Bytes.decodeToString()
 
             (applicationContext as MainApplication).setSocketPort(socketPort)
             (applicationContext as MainApplication).setSocketIOSecret(socketIOSecret)
