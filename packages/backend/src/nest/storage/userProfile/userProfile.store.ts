@@ -43,16 +43,6 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       })
     })
 
-    logger.info('Atteching sending listener')
-    this.store.sync.events.on('sending', (entry: LogEntry) => {
-      logger.info('Database sync sending entry:', entry.hash, entry.key, entry.identity)
-    })
-
-    logger.info('Atteching get listener')
-    this.store.events.on('get', (hash: string) => {
-      logger.info('Database get entry:', hash)
-    })
-
     this.auth.on('updated', async payload => {
       this.flushDeferredEntries()
     })
@@ -60,11 +50,6 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
     })
-    try {
-      await this.store.log.traverse()
-    } catch (err) {
-      logger.error('Failed to traverse user profiles store log:', err)
-    }
   }
 
   /**
@@ -72,33 +57,6 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
    */
   public async startSync() {
     await this.getStore().sync.start()
-    this.getStore().sync.events.on('sending', async (entry: LogEntry) => {
-      logger.info('User profiles store sync sending entry:', entry.hash, entry.key, entry.identity)
-      try {
-        const decodedEntry = await Entry.decode(entry.bytes)
-        logger.info('Decoded entry:', decodedEntry)
-      } catch (err) {
-        logger.error('Failed to decode entry:', entry.hash, err)
-      }
-    })
-
-    this.getStore().sync.events.on('received', async (bytes: Uint8Array) => {
-      logger.info('User profiles store sync received bytes:', bytes.length)
-      try {
-        const decodedEntry = await Entry.decode(bytes)
-        logger.info('Decoded entry:', decodedEntry)
-      } catch (err) {
-        logger.error('Failed to decode received bytes:', err)
-      }
-      // for (const valueEncoding of Object.values(bases)) {
-      //   try {
-      //     const decoded = JSON.parse(toString(bytes, valueEncoding.name as SupportedEncodings))
-      //     logger.info(`Decoded block with encoding ${valueEncoding.name}:`, decoded)
-      //   } catch (decodeError) {
-      //     logger.debug(`Failed to decode block with encoding ${valueEncoding.name}:`, decodeError)
-      //   }
-      // }
-    })
     await this.flushDeferredEntries()
   }
 
@@ -156,10 +114,7 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
    * @throws If decryption or signature verification fails.
    */
   public async decryptEntry(payload: EncryptedAndSignedPayload): Promise<UserProfile> {
-    // logger.debug('Decrypting user profile:', payload)
     try {
-      // Normaliz
-      // logger.debug('Decrypting payload:', encrypted)
       const decryptedPayload = this.auth.crypto.decryptAndVerify<UserProfile>(payload.encrypted, payload.signature)
       if (!decryptedPayload.isValid) {
         throw new Error('Failed to decrypt user entry: invalid signature')
@@ -167,7 +122,6 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       return decryptedPayload.contents
     } catch (err) {
       logger.error('Failed to decrypt user entry:', err)
-      // logger.error('Failed to decrypt user entry:', payload)
       throw err
     }
   }
