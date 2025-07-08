@@ -14,6 +14,7 @@ import path from 'path'
 import { createLogger } from '../logger'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
+import { sleep } from '../utils'
 
 const logger = createLogger('oneClient')
 
@@ -33,10 +34,6 @@ describe('One Client', () => {
 
   beforeAll(async () => {
     app = new App()
-    await app.open()
-    const processData = app.buildSetup.getProcessData()
-    dataDirPath = processData.dataDirPath
-    resourcesPath = processData.resourcesPath
   })
 
   afterAll(async () => {
@@ -49,6 +46,9 @@ describe('One Client', () => {
   })
 
   describe('User opens app for the first time', () => {
+    it('User opens app', async () => {
+      await app.open()
+    })
     it('Get opened app process data', () => {
       const processData = app.buildSetup.getProcessData()
       dataDirPath = processData.dataDirPath
@@ -102,37 +102,44 @@ describe('One Client', () => {
       await generalChannel.sendMessage('this shows up as sent', ownerUserName)
     })
   })
-
-  if (process.platform === 'linux') {
-    // TODO: Fix test for win32 and macos
-    describe('User can open the app despite hanging backend process', () => {
-      it('User closes the app but leaves hanging backend', async () => {
-        const forkArgvs = [
-          '-d',
-          `${await getPort()}`,
-          '-a',
-          `${dataDirPath}`,
-          '-r',
-          `${resourcesPath}`,
-          '-p',
-          'desktop',
-        ]
-        const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
-        logger.info('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
-        fork(backendBundlePath, forkArgvs)
-        await app.close({ forceSaveState: true })
-      })
-
-      it('Opens app again', async () => {
-        await app.open()
-      })
-
-      it('User sees "general channel" page', async () => {
-        const generalChannel = new Channel(app.driver, 'general')
-        expect(await generalChannel.isReady()).toBeTruthy()
-      })
+  describe('User can open the app despite hanging backend process', () => {
+    let hangingProcess: any
+    afterAll(async () => {
+      // Ensure we clean up the hanging backend process after the test
+      if (hangingProcess) {
+        logger.info('Killing hanging backend process')
+        hangingProcess.kill('SIGKILL')
+      }
     })
-  }
+    it('User closes the app but leaves hanging backend', async () => {
+      const forkArgvs = [
+        '-d',
+        `${await getPort()}`,
+        '-a',
+        `${dataDirPath}`,
+        '-r',
+        `${resourcesPath}`,
+        '-p',
+        'desktop',
+        '-scrt',
+        'test',
+      ]
+      const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
+      logger.info('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
+      hangingProcess = fork(backendBundlePath, forkArgvs)
+      await app.close({ forceSaveState: true })
+      logger.info('App closed, backend should be running')
+    })
+
+    it('Opens app again', async () => {
+      await app.open()
+    })
+
+    it('User sees "general channel" page', async () => {
+      const generalChannel = new Channel(app.driver, 'general')
+      expect(await generalChannel.isReady()).toBeTruthy()
+    })
+  })
 
   describe('User leaves community and recreates it', () => {
     it('Leave community', async () => {
@@ -199,6 +206,51 @@ describe('One Client', () => {
     it('Owner uploads a non-image file', async () => {
       const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_FILE_NAME)
       await generalChannel.attachFile(TEST_FILE_NAME, uploadFilePath, FileAttachmentType.FILE, ownerUserName)
+    })
+  })
+
+  describe('App closing methods', () => {
+    beforeEach(async () => {
+      const opened = await app.isSessionOpen()
+      if (!opened) {
+        await app.open()
+      }
+      generalChannel = new Channel(app.driver, generalChannelName)
+      await generalChannel.isReady()
+    })
+
+    it('closes the app with quit event', async () => {
+      expect(await app.isSessionOpen()).toBe(true)
+      await app.quitProgrammatically()
+
+      const opened = await app.isSessionOpen()
+      expect(opened).toBe(false)
+    })
+
+    it('Closes the app via window X button', async () => {
+      expect(await app.isSessionOpen()).toBe(true)
+      await app.closeWindowViaX()
+      if (process.platform === 'darwin') {
+        // On macOS, window should be hidden but app still running
+        const visible = await app.isVisible()
+        expect(visible).toBe(false)
+        const opened = await app.isSessionOpen()
+        expect(opened).toBe(true)
+        await app.close()
+        const closed = await app.isSessionOpen()
+        expect(closed).toBe(false)
+      } else {
+        // On other platforms, app should be closed
+        const opened = await app.isSessionOpen()
+        expect(opened).toBe(false)
+      }
+    })
+
+    it('Force kills the app', async () => {
+      expect(await app.isSessionOpen()).toBe(true)
+      await app.terminateBackendProcess()
+      const opened = await app.isSessionOpen()
+      expect(opened).toBe(false)
     })
   })
 })
