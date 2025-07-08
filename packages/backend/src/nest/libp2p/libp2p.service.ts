@@ -156,9 +156,6 @@ export class Libp2pService extends EventEmitter {
     options: DialPeerOptions = { throwOnError: false, redialOnError: true }
   ) => {
     const peerId = peerAddress.split('/').pop()!
-    if (peerId === '12D3KooWSGLPwT8vSmD9hp2umX6XKNVCQrneGJJbeFLdKTQ3DMjE') {
-      this.logger.info('Handling kingas peer address', peerAddress)
-    }
     if (this.connectedPeers.has(peerId)) {
       // this.logger.debug(`Already connected to peer address: ${peerAddress}`)
       return
@@ -210,11 +207,6 @@ export class Libp2pService extends EventEmitter {
       this.logger.info('No peers to dial')
       return
     }
-
-    this.logger.info('Adding peers to dial queue', sortedPeers)
-    sortedPeers.push(
-      '/dns4/agrtyei6odml3ylmbfykcohzhd7n4wyxgdlcd5eamlmwdo2ciczchhqd.onion/tcp/80/ws/p2p/12D3KooWSGLPwT8vSmD9hp2umX6XKNVCQrneGJJbeFLdKTQ3DMjE'
-    )
 
     for (const addr of sortedPeers) {
       const peerId = addr.split('/').pop()!
@@ -383,7 +375,7 @@ export class Libp2pService extends EventEmitter {
     if (params.instanceName != null) {
       this.logger = this.logger.extend(params.instanceName)
     }
-    this.logger.info(`Creating new libp2p instance with psk`, params.psk)
+    this.logger.info(`Creating new libp2p instance`)
 
     if (this.libp2pInstance) {
       this.logger.warn(`Found an existing instance of libp2p, returning...`)

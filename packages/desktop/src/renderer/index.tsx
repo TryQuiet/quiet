@@ -11,9 +11,7 @@ if (window && process.env.DEBUG) {
 }
 
 ipcRenderer.on('newUpdateAvailable', _event => {
-  if (process.env.TEST_MODE !== 'true') {
-    store.dispatch(updateHandlers.epics.openUpdateModal() as any)
-  }
+  store.dispatch(updateHandlers.epics.openUpdateModal() as any)
 })
 
 ipcRenderer.on('force-save-state', async _event => {
