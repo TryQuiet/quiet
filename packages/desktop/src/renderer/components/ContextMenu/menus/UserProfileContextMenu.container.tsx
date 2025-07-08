@@ -5,16 +5,13 @@ import { Scrollbars } from 'rc-scrollbars'
 import { styled, Grid, List, Typography, useTheme } from '@mui/material'
 
 import { identity, users } from '@quiet/state-manager'
+import { UserProfile } from '@quiet/types'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
-import { useModal } from '../../../containers/hooks'
 import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
-import { ContextMenuItemProps, ContextMenuProps } from '../ContextMenu.types'
 import { MenuName } from '../../../../const/MenuNames.enum'
-import { ModalName } from '../../../sagas/modals/modals.types'
 import Jdenticon from '../../Jdenticon/Jdenticon'
 import { createLogger } from '../../../logger'
-import { UserProfile } from '@quiet/types'
 
 const logger = createLogger('userProfileContextMenu:container')
 
@@ -95,15 +92,39 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
   },
 }))
 
+export interface UserProfileContextMenuArgs {
+  userProfile?: UserProfile
+}
+
 /**
  * Context menu view that switches between user profile subviews.
  */
 export const UserProfileContextMenu: FC = () => {
+  const contextMenu = useContextMenu<UserProfileContextMenuArgs>(MenuName.UserProfile)
+  const userProfile = contextMenu.userProfile
   const [route, setRoute] = useState('userProfile')
+  const myUserProfile = useSelector(users.selectors.myUserProfile)
+  const isMyProfile = myUserProfile?.userId === userProfile?.userId
+  // Use a selector to make the user profile view reactive
+  const userProfileSelector = useSelector(users.selectors.getUserProfileById(userProfile?.userId || ''))
+
+  if (!userProfile) return null
 
   const views: Map<string, JSX.Element> = new Map()
-  views.set('userProfile', <UserProfileMenuProfileComponent setRoute={setRoute} />)
-  views.set('userProfile/edit', <UserProfileMenuEditComponent setRoute={setRoute} />)
+  views.set(
+    'userProfile',
+    <UserProfileMenuProfileView
+      username={userProfile.nickname}
+      userId={userProfile.userId}
+      userProfile={userProfileSelector || userProfile}
+      contextMenu={contextMenu}
+      setRoute={setRoute}
+      isMyProfile={isMyProfile}
+    />
+  )
+  if (isMyProfile) {
+    views.set('userProfile/edit', <UserProfileMenuEditComponent setRoute={setRoute} />)
+  }
   return views.get(route) || (views.get('userProfile') as JSX.Element)
 }
 
@@ -133,12 +154,12 @@ export interface UserProfileMenuProfileViewProps {
   userId: string
   userProfile?: UserProfile
   contextMenu: {
-    // FIXME: should be boolean; useContextMenu typing is broken
     visible: boolean
     handleOpen: (args?: object | undefined) => any
     handleClose: () => any
   }
   setRoute: (route: string) => void
+  isMyProfile?: boolean
 }
 
 export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = ({
@@ -147,20 +168,11 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
   userProfile,
   contextMenu,
   setRoute,
+  isMyProfile = false,
 }) => {
-  const items: ContextMenuItemProps[] = [
-    {
-      title: 'Edit profile',
-      action: () => {
-        setRoute('userProfile/edit')
-      },
-    },
-  ]
-
   const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null)
   const scrollbarRef = useRef(null)
   const [offset, setOffset] = useState(0)
-
   const theme = useTheme()
 
   const adjustOffset = () => {
@@ -200,11 +212,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
                       {userProfile?.photo ? (
-                        <img
-                          className={classes.profilePhoto}
-                          src={userProfile?.photo}
-                          alt={'Your user profile image'}
-                        />
+                        <img className={classes.profilePhoto} src={userProfile?.photo} alt={'User profile image'} />
                       ) : (
                         <Jdenticon
                           value={userId}
@@ -222,9 +230,18 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                         {username}
                       </Typography>
                     </Grid>
-                    <Grid item>
-                      <ContextMenuItemList items={items} />
-                    </Grid>
+                    {isMyProfile && (
+                      <Grid item>
+                        <ContextMenuItemList
+                          items={[
+                            {
+                              title: 'Edit profile',
+                              action: () => setRoute('userProfile/edit'),
+                            },
+                          ]}
+                        />
+                      </Grid>
+                    )}
                   </Grid>
                 </Scrollbars>
               )

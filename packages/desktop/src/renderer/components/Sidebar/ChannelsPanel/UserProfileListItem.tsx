@@ -6,6 +6,10 @@ import Badge from '@mui/material/Badge'
 import ListItemText from '@mui/material/ListItemText'
 import { UserProfile } from '@quiet/types'
 import Jdenticon from '../../Jdenticon/Jdenticon'
+import { useContextMenu } from '../../../../hooks/useContextMenu'
+import { MenuName } from '../../../../const/MenuNames.enum'
+import { users } from '@quiet/state-manager'
+import { useSelector } from 'react-redux'
 
 const PREFIX = 'UserProfileListItem'
 
@@ -70,12 +74,20 @@ export interface UserProfileListItemProps {
 }
 
 export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({ user, connected = false }) => {
+  const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    userProfileContextMenu.handleOpen({ userProfile: user })
+  }
+
   return (
     <StyledListItemButton
       className={classNames(classes.root)}
       disableGutters
       data-testid={`${user.nickname}-user-link`}
       tabIndex={-1}
+      onClick={handleOpenMenu}
     >
       <StyledBadge
         overlap='circular'
