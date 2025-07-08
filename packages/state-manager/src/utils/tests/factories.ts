@@ -562,6 +562,12 @@ export const getSocketFactory = async () => {
     profile: {
       userId: 'user-id',
       nickname: 'Test User',
+      photo: 'dGVzdAo=',
+      bio: 'This is a test user profile',
+      userData: {
+        onionAddress: 'test.onion',
+        peerId: 'peer-id',
+      },
     },
   })
 

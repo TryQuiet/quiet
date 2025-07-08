@@ -108,15 +108,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   async onModuleInit() {
     process.on('unhandledRejection', reason => {
       // console.log(`why won't this log rejection`, (reason as any).message)
-      let reasonMsg = ''
-      if (reason instanceof Error) {
-        reasonMsg = reason.stack || reason.message
-      } else if (typeof reason === 'object' && reason !== null && 'stack' in reason) {
-        reasonMsg = (reason as any).stack
-      } else {
-        reasonMsg = JSON.stringify(reason)
-      }
-      this.logger.error('Unhandled rejection:', reasonMsg)
+      this.logger.error(`Unhandled rejection`, reason)
       throw new Error(`Unhandled Rejection`)
     })
 
@@ -643,7 +635,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
-    const psk = 'v4UWpNX+SvCWs3eH3jatO/suEGFCkrHgUai24LtzyVc='
     const params: Libp2pNodeParams = {
       peerId: peerIdData,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
