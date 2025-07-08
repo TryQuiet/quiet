@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { type LogEntry, type KeyValueType, IPFSAccessController, Entry } from '@orbitdb/core'
+import { type LogEntry, type KeyValueType, IPFSAccessController } from '@orbitdb/core'
 import { SetUserProfileResponse, UserProfile } from '@quiet/types'
 
 import { createLogger } from '../../common/logger'
