@@ -17,7 +17,7 @@ import { createLogger } from '../../common/logger'
 import { Libp2pEvents } from '../libp2p.types'
 
 const logger = createLogger('UserProfile-sync')
-const N_PEERS = 2
+const N_PEERS = 3
 jest.setTimeout(60000)
 
 describe('UserProfileStore OrbitDB Sync', () => {
@@ -47,7 +47,9 @@ describe('UserProfileStore OrbitDB Sync', () => {
     await sigChainServices[0].createChain('test-team', 'alice', true)
     const invite = sigChainServices[0].getActiveChain().invites.createLongLivedUserInvite()
     await sigChainServices[1].createChainFromInvite('bob', 'test-team', invite.seed, undefined, true)
-    userIds = [sigChainServices[0].user.userId, sigChainServices[1].user.userId]
+    await sigChainServices[2].createChainFromInvite('charlie', 'test-team', invite.seed, undefined, true)
+    // Set users in services
+    userIds = [sigChainServices[0].user.userId, sigChainServices[1].user.userId, sigChainServices[2].user.userId]
     // Create libp2p, ipfs, orbitdb, userProfileStore
     await spawnLibp2pInstancesInMemory(modules)
     for (let i = 0; i < N_PEERS; i++) {
@@ -59,17 +61,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
       await userProfileStores[i].init()
       libp2pServices[i].pauseDialQueue()
     }
-    // Connect peers
-    const addr1 = libp2pServices[1].localAddress
-    await libp2pServices[0].dialPeer(addr1)
-    // Wait for connection
-    await waitForExpect(() => {
-      expect(libp2pServices[0].connectedPeers.size).toBeGreaterThan(0)
-      expect(libp2pServices[1].connectedPeers.size).toBeGreaterThan(0)
-    }, 10000)
-    for (let i = 0; i < N_PEERS; i++) {
-      await userProfileStores[i].startSync()
-    }
+
     // Alice sets her profile
     aliceProfile = await factory.build('UserProfile', {
       userId: userIds[0],
@@ -140,20 +132,40 @@ describe('UserProfileStore OrbitDB Sync', () => {
     })
   }, 240_000)
 
+  it('disconnects the last peer', async () => {
+    expect(libp2pServices[0].connectedPeers.size).toBe(N_PEERS - 1)
+    libp2pServices[0].hangUpPeer(libp2pServices[N_PEERS - 1].localAddress)
+    await waitForExpect(async () => {
+      expect(libp2pServices[N_PEERS - 1].connectedPeers.size).toBe(0)
+      expect(libp2pServices[0].connectedPeers.size).toBe(N_PEERS - 2)
+      expect(libp2pServices[1].connectedPeers.size).toBe(1)
+    }, 2000)
+  })
+
+  it('starts sync on each peer', async () => {
+    for (let i = 0; i < N_PEERS; i++) {
+      await userProfileStores[i].startSync()
+    }
+  })
+
   it('each peer can update their own userProfile and it syncs', async () => {
     await userProfileStores[0].setEntry(userIds[0], aliceProfile)
 
     logger.info('Bob setting profile', bobProfile)
     await userProfileStores[1].setEntry(userIds[1], bobProfile)
     // Wait for sync
-    await waitForExpect(async () => {
-      const aliceProfiles = await userProfileStores[0].getUserProfiles()
-      const bobProfiles = await userProfileStores[1].getUserProfiles()
-      expect(aliceProfiles.length).toBe(2)
-      expect(bobProfiles.length).toBe(2)
-      expect(aliceProfiles.find(p => p.userId === userIds[1])?.nickname).toBe('Bob')
-      expect(bobProfiles.find(p => p.userId === userIds[0])?.nickname).toBe('Alice')
-    }, 10000)
+    await waitForExpect(
+      async () => {
+        const aliceProfiles = await userProfileStores[0].getUserProfiles()
+        const bobProfiles = await userProfileStores[1].getUserProfiles()
+        expect(aliceProfiles.length).toBe(2)
+        expect(bobProfiles.length).toBe(2)
+        expect(aliceProfiles.find(p => p.userId === userIds[1])?.nickname).toBe('Bob')
+        expect(bobProfiles.find(p => p.userId === userIds[0])?.nickname).toBe('Alice')
+      },
+      10000,
+      1000
+    )
   })
 
   it("peer cannot update the other peer's userProfile", async () => {
@@ -231,6 +243,35 @@ describe('UserProfileStore OrbitDB Sync', () => {
         expect(bobProfiles.length).toBe(2)
         expect(aliceProfiles.find(p => p.userId === userIds[0])?.nickname).toBe('Alice Updated')
         expect(bobProfiles.find(p => p.userId === userIds[1])?.nickname).toBe('Bob Updated')
+      },
+      10000,
+      1000
+    )
+  })
+
+  it('a new peer can join and sync profiles', async () => {
+    expect(await userProfileStores[N_PEERS - 1].getUserProfiles()).toEqual([])
+    for (let i = 0; i < N_PEERS - 1; i++) {
+      await libp2pServices[N_PEERS - 1].dialPeer(libp2pServices[i].localAddress)
+    }
+    // wait for connnected peers on each to include the new peer
+    await waitForExpect(
+      async () => {
+        expect(libp2pServices[N_PEERS - 1].connectedPeers.size).toBe(N_PEERS - 1)
+      },
+      10000,
+      100
+    )
+    userProfileStores[N_PEERS - 1].startSync()
+
+    await waitForExpect(
+      async () => {
+        for (let i = 0; i < N_PEERS; i++) {
+          const profiles = await userProfileStores[i].getUserProfiles()
+          expect(profiles.length).toBe(2)
+          expect(profiles.find(p => p.userId === userIds[0])?.nickname).toBe('Alice Updated')
+          expect(profiles.find(p => p.userId === userIds[1])?.nickname).toBe('Bob Updated')
+        }
       },
       10000,
       1000
