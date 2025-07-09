@@ -154,6 +154,7 @@ export class App {
     if (process.platform !== 'darwin') {
       this.isOpened = false
     }
+    await sleep(750)
   }
 
   async quitProgrammatically() {
@@ -163,26 +164,17 @@ export class App {
   }
 
   async terminateBackendProcess() {
-    /**
-     * A more resilient backend killer:
-     *  1.  Try the PID stored on the Electron `global`.
-     *  2.  Fallback to a process-table scan that matches both
-     *      the backend-bundle entry-point **and** this test’s data-dir.
-     *  3.  SIGTERM → wait ≤ 5 s → SIGKILL if stubborn.
-     */
-
     const pids = new Set<number>()
     const bundlePath = path.normalize('backend-bundle/bundle.cjs')
 
-    // ----- step 1: PID from main -----
     try {
       const { pid } = require('@electron/remote').getGlobal('backendProcess') ?? {}
       if (pid) pids.add(pid)
-    } catch {
+    } catch (e) {
       /* remote not available – ignore */
+      return logAndReturnError(e)
     }
 
-    // ----- step 2: scan process table -----
     try {
       let cmd = ''
       switch (process.platform) {
@@ -251,20 +243,13 @@ export class App {
       // still alive?
       try {
         process.kill(pid, 0)
-        logger.warn(`PID ${pid} still alive – sending SIGKILL`)
+        logger.warn(`PID ${pid} still alive sending SIGKILL`)
         process.kill(pid, 'SIGKILL')
       } catch {
         /* empty */
       }
     }
 
-    // ensure ChromeDriver is gone so isSessionOpen() flips false
-    // try {
-    //   await this.driver?.quit()
-    // } catch {
-    //   /* empty */
-    // }
-    // await this.buildSetup.killChromeDriver().catch(() => {})
     this.isOpened = false
     await sleep(500)
   }
