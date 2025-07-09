@@ -336,7 +336,7 @@ const closeBackendProcess = () => {
 app.on('ready', async () => {
   logger.info('Event: app.ready')
   await sodium.ready
-  SOCKET_IO_SECRET = sodium.to_base64(sodium.randombytes_buf(32), sodium.base64_variants.URLSAFE)
+  SOCKET_IO_SECRET = sodium.to_hex(sodium.randombytes_buf(32))
 
   Menu.setApplicationMenu(null)
 
