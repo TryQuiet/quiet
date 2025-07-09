@@ -14,6 +14,7 @@ import { getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 const contextMenu = require('electron-context-menu')
+import sodium from 'libsodium-wrappers-sumo'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -22,6 +23,7 @@ remote.initialize()
 const logger = createLogger('main')
 
 let resetting = false
+let SOCKET_IO_SECRET: string | undefined = undefined
 
 const updaterInterval = 15 * 60_000
 
@@ -97,8 +99,6 @@ setEngine(
     subtle: webcrypto.subtle,
   })
 )
-
-const SOCKET_IO_SECRET = webcrypto.getRandomValues(new Uint32Array(5)).join('')
 
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
@@ -335,6 +335,9 @@ const closeBackendProcess = () => {
 
 app.on('ready', async () => {
   logger.info('Event: app.ready')
+  await sodium.ready
+  SOCKET_IO_SECRET = sodium.to_hex(sodium.randombytes_buf(32))
+
   Menu.setApplicationMenu(null)
 
   await applyDevTools()

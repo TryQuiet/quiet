@@ -6,7 +6,6 @@ import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
 import { createLogger } from '../../logger'
-import { encodeSecret } from '@quiet/common'
 import { SocketActions } from '@quiet/types'
 
 const logger = createLogger('socket')
@@ -29,12 +28,11 @@ export function* startConnectionSaga(
   if (!socketIOSecret) return
 
   logger.info('Connecting to backend')
-  const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
     upgrade: true,
     extraHeaders: {
-      authorization: `Basic ${token}`,
+      authorization: `Basic ${socketIOSecret}`,
       Connection: 'Upgrade',
       Upgrade: 'websocket',
     },
