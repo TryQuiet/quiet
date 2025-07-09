@@ -198,11 +198,23 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
         logger.error(`Failed to verify user profile entry: ${entry.hash} entry payload is empty`)
         return false
       }
-      const decEntry = await this.decryptEntry(entry.payload.value)
-      if (entry.payload.key !== decEntry.userId) {
-        logger.error(`Failed to verify user profile entry: ${entry.hash} entry key != payload pubKey`)
+      const encPayload = entry.payload.value
+      const decEntry = await this.decryptEntry(encPayload)
+
+      // Validate that all IDs match
+      const key = entry.payload.key
+      const valueUserId = encPayload.userId
+      const decUserId = decEntry.userId
+      const sigAuthor = encPayload.signature.author.name
+      if (
+        !(key && valueUserId && decUserId && sigAuthor && key === valueUserId && key === decUserId && key === sigAuthor)
+      ) {
+        logger.error(
+          `Failed to verify user profile entry: ${entry.hash} - key, value.userId, decEntry.userId, and signature.author.name must all match. Got key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
+        )
         return false
       }
+
       return (await UserProfileStore.validateUserProfile(decEntry)).success
     } catch (err) {
       logger.error('Failed to validate user profile entry:', entry.hash, err)

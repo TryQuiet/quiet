@@ -20,6 +20,8 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { libp2pInstanceParams } from '../../common/utils'
 import { TestConfig } from '../../const'
+import { LogEntry } from '@orbitdb/core'
+import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
 
 const logger = createLogger('messagesService:test')
 
@@ -196,5 +198,31 @@ describe('UserProfileStore/validateUserProfile', () => {
     const pngBase64 = 'data:image/png;base64,' + Buffer.from(pngArray).toString('base64')
     const userProfile = await getUserProfile({ photoUrl: pngBase64 })
     expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeTruthy()
+  })
+})
+
+describe('UserProfileStore/validateEntry', () => {
+  test('should not allow syncing entry if key does not match userId in payload or signature', async () => {
+    // Arrange: create a fake encrypted payload with mismatched userId and key
+    const fakeUserId = 'aliceUserId'
+    const mismatchedKey = 'bobUserId'
+    const encPayload: any = {
+      userId: fakeUserId,
+      signature: { author: { name: fakeUserId } },
+      encrypted: 'fake-encrypted',
+    }
+    const decEntry: any = { userId: fakeUserId }
+    // Patch decryptEntry to return decEntry
+    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: fakeUserId } } as any)
+    jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
+    jest.spyOn(UserProfileStore, 'validateUserProfile').mockResolvedValue({ success: true })
+    const entry = {
+      hash: 'fakehash',
+      payload: { key: mismatchedKey, value: encPayload },
+    } as unknown as LogEntry<EncryptedAndSignedPayload>
+    // Act
+    const result = await store.validateEntry(entry)
+    // Assert
+    expect(result).toBe(false)
   })
 })
