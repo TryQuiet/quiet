@@ -1,17 +1,12 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [6.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.0.0...@quiet/desktop@6.0.1-alpha.0) (2025-07-09)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
+
+## [Unreleased]
+
+### Security
+
+* Use libsodium for socketIOSecret comparison and migrate logic from common to backend [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+* Use libsodium for socketIOSecret generation in desktop and android [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+* Simplify/standardize socketIOSecret generation on IOS (no libsodium) [#2820](https://github.com/TryQuiet/quiet/issues/2820)
 
 ## [6.0.0]
 
