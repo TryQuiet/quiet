@@ -107,6 +107,14 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </>
           )}
           <Divider />
+          {process.env.NODE_ENV === 'development' && (
+            <ListItemButton data-testid={'debug-settings-tab'} onClick={() => handleChange('debug')}>
+              <ListItemText>Debug</ListItemText>
+              <ListItemIcon>
+                <ChevronRightIcon />
+              </ListItemIcon>
+            </ListItemButton>
+          )}
         </List>
       </Drawer>
       <Drawer open={currentTab !== ''} onClose={handleCloseTab} anchor='right' BackdropProps={{ invisible: true }}>
