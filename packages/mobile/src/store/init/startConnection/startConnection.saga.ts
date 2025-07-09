@@ -39,7 +39,7 @@ export function* startConnectionSaga(
     return
   }
 
-  logger.info('Connecting to backend', socketIOSecret)
+  logger.info('Connecting to backend')
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
     extraHeaders: {
