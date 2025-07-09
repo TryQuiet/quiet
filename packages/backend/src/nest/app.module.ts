@@ -125,7 +125,6 @@ export class AppModule {
               }
 
               const token = authHeader && authHeader.split(' ')[1]
-              _ioLogger.warn('secret, token', options.socketIOSecret, token)
               if (!token) {
                 _ioLogger.error('Backend server: No auth token')
                 res.writeHead(401, 'No authorization token')
