@@ -168,7 +168,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="general-link-text"
+                              data-testid="general-channel-link-text"
                             >
                               # general
                             </p>
@@ -200,7 +200,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="allergies-link-text"
+                              data-testid="allergies-channel-link-text"
                             >
                               # allergies
                             </p>
@@ -232,7 +232,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="antiques-link-text"
+                              data-testid="antiques-channel-link-text"
                             >
                               # antiques
                             </p>
@@ -264,7 +264,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="croatia-link-text"
+                              data-testid="croatia-channel-link-text"
                             >
                               # croatia
                             </p>
@@ -296,7 +296,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="pets-link-text"
+                              data-testid="pets-channel-link-text"
                             >
                               # pets
                             </p>
@@ -328,7 +328,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="sailing-link-text"
+                              data-testid="sailing-channel-link-text"
                             >
                               # sailing
                             </p>
@@ -429,7 +429,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="general-link-text"
+                            data-testid="general-channel-link-text"
                           >
                             # general
                           </p>
@@ -461,7 +461,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="allergies-link-text"
+                            data-testid="allergies-channel-link-text"
                           >
                             # allergies
                           </p>
@@ -493,7 +493,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="antiques-link-text"
+                            data-testid="antiques-channel-link-text"
                           >
                             # antiques
                           </p>
@@ -525,7 +525,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="croatia-link-text"
+                            data-testid="croatia-channel-link-text"
                           >
                             # croatia
                           </p>
@@ -557,7 +557,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="pets-link-text"
+                            data-testid="pets-channel-link-text"
                           >
                             # pets
                           </p>
@@ -589,7 +589,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="sailing-link-text"
+                            data-testid="sailing-channel-link-text"
                           >
                             # sailing
                           </p>

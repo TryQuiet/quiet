@@ -839,7 +839,7 @@ export class Channel {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//p[@data-testid="${this.name}-link-text"]`)),
+      until.elementLocated(By.xpath(`//p[@data-testid="${this.name}-channel-link-text"]`)),
       60_000,
       `Link for channel ${this.name} couldn't be found within timeout`,
       500
@@ -1348,14 +1348,43 @@ export class Sidebar {
     this.driver = driver
   }
 
+  /**
+   * Get channel link elements in the sidebar
+   */
   async getChannelList() {
     const channels = await this.driver.wait(
-      this.driver.findElements(By.xpath('//*[contains(@data-testid, "link-text")]')),
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "channel-link-text")]')),
       15_000,
       `Sidebar channel list couldn't be found within timeout`,
       500
     )
     return channels
+  }
+
+  /**
+   * Get user profile link elements in the sidebar
+   */
+  async getUserProfileList() {
+    const userProfileList = await this.driver.wait(
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "user-link-text")]')),
+      15_000,
+      `Sidebar user profile list couldn't be found within timeout`,
+      500
+    )
+    return userProfileList
+  }
+
+  /**
+   * Get names of all users in the sidebar
+   */
+  async getUserNames() {
+    const elements = await this.getUserProfileList()
+    return Promise.all(
+      elements.map(async element => {
+        const fullName = await element.getText()
+        return fullName.split(' ')[1]
+      })
+    )
   }
 
   /**
@@ -1437,6 +1466,80 @@ export class Sidebar {
     )
     await channelNameButton.click()
     return new Channel(this.driver, name)
+  }
+
+  /**
+   * Get user profile element by nickname
+   */
+  async getUserProfileByNickname(nickname: string) {
+    return this.driver.wait(
+      this.driver.findElement(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
+      10_000,
+      `User profile for ${nickname} couldn't be found within timeout`,
+      500
+    )
+  }
+
+  /**
+   * Wait for a specific number of user profiles in the sidebar
+   */
+  async waitForUserProfilesNum(num: number) {
+    logger.info(`Waiting for ${num} user profiles`)
+    return this.driver.wait(
+      async () => {
+        const users = await this.getUserProfileList()
+        return users.length === num
+      },
+      15_000,
+      `Sidebar user profile list length couldn't be determined within timeout`,
+      500
+    )
+  }
+
+  /**
+   * Wait for a specific set of user profile names in the sidebar
+   */
+  async waitForUserProfiles(userNames: Array<string>) {
+    await this.waitForUserProfilesNum(userNames.length)
+    const names = await this.getUserNames()
+    expect(names).toEqual(expect.arrayContaining(userNames))
+  }
+
+  /**
+   * Check if a user's connected badge is visible
+   */
+  async isUserConnected(nickname: string): Promise<boolean> {
+    const userProfile = await this.getUserProfileByNickname(nickname)
+    try {
+      const badge = await userProfile.findElement(
+        By.xpath(`.//span[contains(@class, 'MuiBadge-dot') and not(contains(@class, 'MuiBadge-invisible'))]`)
+      )
+      return await badge.isDisplayed()
+    } catch (e) {
+      return false
+    }
+  }
+
+  /**
+   * Wait for a user's connected badge to become visible
+   */
+  async waitForUserConnected(nickname: string, timeout = 60_000): Promise<void> {
+    const userProfile = await this.getUserProfileByNickname(nickname)
+    await this.driver.wait(
+      async () => {
+        try {
+          const badge = await userProfile.findElement(
+            By.xpath(`.//span[contains(@class, 'MuiBadge-dot') and not(contains(@class, 'MuiBadge-invisible'))]`)
+          )
+          return await badge.isDisplayed()
+        } catch (e) {
+          return false
+        }
+      },
+      timeout,
+      `Connected badge for user ${nickname} was not visible within timeout`,
+      500
+    )
   }
 }
 

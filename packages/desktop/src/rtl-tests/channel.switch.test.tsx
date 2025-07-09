@@ -177,7 +177,7 @@ describe('Switch channels', () => {
     )
 
     // Assert channel is not highglighted
-    const memesChannelLink = screen.getByTestId('memes-link-text')
+    const memesChannelLink = screen.getByTestId('memes-channel-link-text')
     expect(memesChannelLink).toHaveStyle('opacity: 0.7')
 
     await act(async () => {
@@ -187,14 +187,14 @@ describe('Switch channels', () => {
     // Verify proper channel shows unread messages information
     expect(memesChannelLink).toHaveStyle('opacity: 1')
     // Confirm 'read' channel hasn't changed
-    const travelsChannelLink = screen.getByTestId('travels-link-text')
+    const travelsChannelLink = screen.getByTestId('travels-channel-link-text')
     expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
 
     // Enter channel and confirm highlight dissapeared
     await userEvent.click(memesChannelLink)
     expect(memesChannelLink).toHaveStyle('opacity: 0.7')
     // Confirm the other 'unread' channel is still highlighted
-    const petsChannelLink = screen.getByTestId('pets-link-text')
+    const petsChannelLink = screen.getByTestId('pets-channel-link-text')
     expect(petsChannelLink).toHaveStyle('opacity: 1')
 
     function* mockIncomingMessages(): Generator {
@@ -231,7 +231,7 @@ describe('Switch channels', () => {
     )
 
     const generalChannelLink = screen.getByTestId('general-link')
-    const generalChannelLinkText = screen.getByTestId('general-link-text')
+    const generalChannelLinkText = screen.getByTestId('general-channel-link-text')
 
     // Assert channel is selected and not highlighted
     expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
@@ -289,7 +289,7 @@ describe('Switch channels', () => {
     )
 
     // Assert channel is not highglighted
-    const travelsChannelLink = screen.getByTestId('travels-link-text')
+    const travelsChannelLink = screen.getByTestId('travels-channel-link-text')
     expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
 
     await act(async () => {

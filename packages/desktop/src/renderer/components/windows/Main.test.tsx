@@ -170,7 +170,7 @@ describe('Main', () => {
                                             >
                                               <p
                                                 class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                                                data-testid="general-link-text"
+                                                data-testid="general-channel-link-text"
                                               >
                                                 # general
                                               </p>
