@@ -7,7 +7,7 @@ import { createLogger } from '../common/logger'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { isUint8Array } from 'util/types'
 
-const logger = createLogger('rnBridge')
+const logger = createLogger('validators')
 
 const messageMediaSchema = joi.object({
   path: joi.string().allow(null),

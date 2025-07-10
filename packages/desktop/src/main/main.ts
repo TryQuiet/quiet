@@ -210,7 +210,7 @@ export const createWindow = async () => {
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}&socketIOSecret=${SOCKET_IO_SECRET}`,
+      search: `dataPort=${ports.dataServer}`,
       protocol: 'file:',
       slashes: true,
       hash: '/',
@@ -355,7 +355,7 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
-    mainWindow?.webContents.send('socketIOSecret', SOCKET_IO_SECRET)
+    // Only send the secret to the renderer via IPC, not via URL
     if (splash && !splash.isDestroyed()) {
       const [width, height] = splash.getSize()
       mainWindow?.setSize(width, height)
@@ -388,8 +388,6 @@ app.on('ready', async () => {
     `${process.resourcesPath}`,
     '-p',
     'desktop',
-    '-scrt',
-    `${SOCKET_IO_SECRET}`,
   ]
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
@@ -412,6 +410,22 @@ app.on('ready', async () => {
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
+
+  function isReadyForSecretMessage(msg: any): msg is { type: string; nonce: string } {
+    return msg && typeof msg === 'object' && msg.type === 'readyForSecret' && typeof msg.nonce === 'string'
+  }
+
+  let sentSecret = false
+  backendProcess.on('message', msg => {
+    logger.info('Received message from backend:', msg)
+    if (isReadyForSecretMessage(msg) && !sentSecret) {
+      // Send the secret securely via IPC after verifying the nonce
+      sentSecret = true
+      backendProcess?.send({ type: 'set-socket-secret', secret: SOCKET_IO_SECRET, nonce: msg.nonce })
+      mainWindow?.webContents.send('socketIOSecret', SOCKET_IO_SECRET)
+      SOCKET_IO_SECRET = undefined // Clear the secret after sending it
+    }
+  })
 
   backendProcess.on('error', e => {
     logger.error('Backend process returned error', e)

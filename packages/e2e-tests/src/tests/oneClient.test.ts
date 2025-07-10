@@ -201,4 +201,29 @@ describe('One Client', () => {
       await generalChannel.attachFile(TEST_FILE_NAME, uploadFilePath, FileAttachmentType.FILE, ownerUserName)
     })
   })
+
+  describe('security: socketIOSecret exposure', () => {
+    it('leaks socketIOSecret in renderer process URL (query string)', async () => {
+      // Get the main window's URL via webdriver
+      const url = await app.driver.getCurrentUrl()
+      // The secret is passed as a query param, e.g. ?socketIOSecret=...
+      expect(url).toMatch(/socketIOSecret=[a-f0-9]{64}/i)
+    })
+
+    it('leaks socketIOSecret in window.location.search in renderer', async () => {
+      // Evaluate in renderer context
+      const search = await app.driver.executeScript('return window.location.search')
+      expect(search).toMatch(/socketIOSecret=[a-f0-9]{64}/i)
+    })
+
+    it('leaks socketIOSecret in backend process arguments (process list)', async () => {
+      // This test assumes you can get the backend process command line via BuildSetup.getProcessData
+      // and that it includes the -scrt <secret> argument
+      const processData = app.buildSetup.getProcessData()
+      // Try to find the secret in the processData (simulate ps output)
+      // This is a best-effort check, may need to adjust for your CI/OS
+      const backendArgs = JSON.stringify(processData)
+      expect(backendArgs).toMatch(/-scrt [a-f0-9]{64}/i)
+    })
+  })
 })

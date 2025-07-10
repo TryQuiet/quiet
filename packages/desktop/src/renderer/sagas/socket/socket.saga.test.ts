@@ -1,4 +1,4 @@
-import { connection, getReduxStoreFactory, Store } from '@quiet/state-manager'
+import { connection, getReduxStoreFactory, socket, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { socketActions, WebsocketConnectionPayload } from '../socket/socket.slice'
@@ -15,27 +15,22 @@ describe('Start Connection Saga', () => {
     factory = await getReduxStoreFactory(store)
   })
 
-  it('socketIOSecret is null - take setSocketIOSecret', async () => {
+  it('returns if socketIOSecret is missing', async () => {
     const payload: WebsocketConnectionPayload = {
       dataPort,
-    }
-
-    await expectSaga(startConnectionSaga, socketActions.startConnection(payload))
-      .withState(store.getState())
-      .take(connection.actions.setSocketIOSecret)
-      .run()
+      socketIOSecret: undefined,
+    } as any
+    const spyCall = jest.spyOn(require('typed-redux-saga'), 'call')
+    await expectSaga(startConnectionSaga, socketActions.startConnection(payload)).withState(store.getState()).run()
+    expect(spyCall).not.toHaveBeenCalledWith(expect.anything(), expect.stringContaining('http://127.0.0.1'))
+    spyCall.mockRestore()
   })
 
-  it('socketIOSecret already exist', async () => {
+  it('connects if socketIOSecret is present', async () => {
     const payload: WebsocketConnectionPayload = {
       dataPort,
+      socketIOSecret: 'socketIOSecret',
     }
-
-    store.dispatch(connection.actions.setSocketIOSecret('secret'))
-
-    await expectSaga(startConnectionSaga, socketActions.startConnection(payload))
-      .withState(store.getState())
-      .not.take(connection.actions.setSocketIOSecret)
-      .run()
+    await expectSaga(startConnectionSaga, socketActions.startConnection(payload)).withState(store.getState()).run()
   })
 })

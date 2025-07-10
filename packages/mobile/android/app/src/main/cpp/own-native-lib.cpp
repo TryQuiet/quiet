@@ -64,7 +64,7 @@ Java_com_quietmobile_Backend_BackendWorker_registerNodeDataDirPath(
 void rcv_message(const char* channel_name, const char* msg) {
   JNIEnv *env=cacheEnvPointer;
   if(!env) return;
-  jclass cls2 = env->FindClass("com/quietmobile/BackendWorker");
+  jclass cls2 = env->FindClass("com/quietmobile/Backend/BackendWorker");
   if(cls2 != nullptr) {
     jmethodID m_sendMessage = env->GetStaticMethodID(cls2, "handleNodeMessages", "(Ljava/lang/String;Ljava/lang/String;)V");
     if(m_sendMessage != nullptr) {

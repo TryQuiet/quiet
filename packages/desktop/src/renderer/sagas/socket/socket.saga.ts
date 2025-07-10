@@ -13,26 +13,23 @@ const logger = createLogger('socket')
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
-  const { dataPort } = action.payload
+  const { dataPort, socketIOSecret } = action.payload
   if (!dataPort) {
     logger.error('About to start connection but no dataPort found')
+    return
   }
-
-  let socketIOSecret = yield* select(connection.selectors.socketIOSecret)
 
   if (!socketIOSecret) {
-    yield* take(connection.actions.setSocketIOSecret)
-    socketIOSecret = yield* select(connection.selectors.socketIOSecret)
+    logger.error('About to start connection but no socketIOSecret found')
+    return
   }
-
-  if (!socketIOSecret) return
 
   logger.info('Connecting to backend')
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
     upgrade: true,
     extraHeaders: {
-      authorization: `Basic ${socketIOSecret}`,
+      authorization: `Bearer ${socketIOSecret}`,
       Connection: 'Upgrade',
       Upgrade: 'websocket',
     },

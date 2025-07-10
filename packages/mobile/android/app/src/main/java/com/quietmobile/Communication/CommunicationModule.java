@@ -29,6 +29,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
     public static final String APP_READY_CHANNEL = "_APP_READY_";
 
+    public static final String BACKEND_READY_CHANNEL = "_BACKEND_READY_";
     public static final String PUSH_NOTIFICATION_CHANNEL = "_PUSH_NOTIFICATION_";
     public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
     public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
@@ -55,6 +56,8 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public static void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
         switch (event) {
+            case BACKEND_READY_CHANNEL:
+                startWebsocketConnection();
             case APP_READY_CHANNEL:
                 startWebsocketConnection();
                 break;

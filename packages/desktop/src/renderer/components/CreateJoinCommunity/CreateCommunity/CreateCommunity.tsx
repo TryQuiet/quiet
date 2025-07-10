@@ -21,7 +21,6 @@ const CreateCommunity = () => {
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
 
   useEffect(() => {
-    logger.info('currentCommunity', currentCommunity)
     if (currentCommunity && createCommunityModal.open) {
       createCommunityModal.handleClose()
     }
