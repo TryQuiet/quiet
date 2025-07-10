@@ -107,10 +107,10 @@ QA will test according to the following checklists:
 ## Breaking changes
 
 While Quiet is in its early stages and does not have known communities of active users, we have the luxury of releasing breaking changes, e.g. changes that require users to start a new community. However, we still take some reasonable steps to make breaking changes comfortable for users.
+While Quiet is in its early stages and does not have known communities of active users, we have the luxury of releasing breaking changes, e.g. changes that require users to start a new community. However, we still take some reasonable steps to make breaking changes comfortable for users.
 
 1. Update storage location on Desktop (see: https://github.com/TryQuiet/quiet/pull/2829) and Mobile (see: https://github.com/TryQuiet/quiet/pull/2831/files).
 2. Create a new S3 bucket for the new major release (the new release will fail without this step)
 3. Once the new release is available for download on our website, push a final release of the previous major branch with a notice to desktop users (e.g: https://github.com/TryQuiet/quiet/pull/2827)
-4. Do not automatically update iOS users
 2. Do not automatically update iOS users. Instead, create a new release branch in TestFlight such that users must update manually. See: https://github.com/TryQuiet/quiet/issues/1980
 3. On Android, we currently have no great way to avoid automatic updates. In this case, decide whether to show a message a few days or weeks in advance, or not. See: https://github.com/TryQuiet/quiet/issues/1980#issuecomment-1795028313

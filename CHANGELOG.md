@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Features
+
+* In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
+
 ## [6.0.1]
 
 ### Security
@@ -29,7 +35,7 @@
 ### Chores
 
 * Quiet Desktop now uses Tor 0.4.8.16
-* The process for updating Tor on desktop is now mostly automated and part of our release checklist
+* The process for updating Tor on desktop is now mostly automated and part of our release checklist (thanks @bitmold!)
 * Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 * Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
