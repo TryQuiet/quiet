@@ -54,11 +54,11 @@ static NSString *const platform = @"mobile";
   if (self.socketIOSecret == nil) {
       self.socketIOSecret = [utils generateSecretWithLength:(20)];
   }
-  
+
   FindFreePort *findFreePort = [FindFreePort new];
 
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
-  
+
   WebsocketSingleton *websocket = [WebsocketSingleton sharedInstance];
   websocket.socketPort      = self.dataPort;
   websocket.socketIOSecret  = self.socketIOSecret;
@@ -107,9 +107,9 @@ static NSString *const platform = @"mobile";
     NSString *authCookie = [self getAuthCookie];
 
     if (init) {
-      [self launchBackend:controlPort :httpTunnelPort :authCookie];
+      [self launchBackend:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
     } else {
-      [self rewireServices:controlPort :httpTunnelPort : authCookie];
+      [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
     }
   });
 }
@@ -134,12 +134,14 @@ static NSString *const platform = @"mobile";
   return authCookie;
 }
 
-- (void) launchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
+
+- (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {
   self.nodeJsMobile = [RNNodeJsMobile new];
-  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@ --socketIOSecret %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform, self.socketIOSecret]];
+  [self.nodeJsMobile setSocketIOSecret:self.socketIOSecret];
+  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
 }
 
-- (void) rewireServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
+- (void)rewireServices:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {
   NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
   NSString * socketIOSecretPayload = [NSString stringWithFormat:@"%@:%@", @"socketIOSecret", self.socketIOSecret];
   NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];

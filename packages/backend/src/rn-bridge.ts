@@ -62,7 +62,18 @@ class MessageCodec {
       throw new Error('Malformed message envelope')
     }
     if (typeof envelope.payload === 'string') {
-      envelope.payload = this.parsePayload(envelope.payload)
+      try {
+        const parsedPayload = JSON.parse(envelope.payload)
+        if (typeof parsedPayload === 'object' && parsedPayload !== null) {
+          envelope.payload = parsedPayload
+        } else {
+          envelope.payload = MessageCodec.parsePayload(envelope.payload)
+        }
+      } catch (e) {
+        if (typeof envelope.payload === 'string') {
+          envelope.payload = MessageCodec.parsePayload(envelope.payload)
+        }
+      }
     }
     return envelope
   }
@@ -89,6 +100,7 @@ class EventChannel extends ChannelSuper {
     this.post('message', ...msg)
   }
   processData(data: string): void {
+    logger.info('EventChannel received data:', data)
     const envelope = MessageCodec.deserialize(data)
     setImmediate(() => {
       this.emitLocal(envelope.event, envelope.payload)
