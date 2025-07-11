@@ -164,15 +164,17 @@ export class App {
   }
 
   async terminateBackendProcess() {
+    logger.warn('Terminating backend process')
     const pids = new Set<number>()
     const bundlePath = path.normalize('backend-bundle/bundle.cjs')
 
     try {
+      logger.info('Getting backend process PID')
       const { pid } = require('@electron/remote').getGlobal('backendProcess') ?? {}
       if (pid) pids.add(pid)
     } catch (e) {
       /* remote not available – ignore */
-      return logAndReturnError(e)
+      logger.error('Error while getting backend process PID', e)
     }
 
     try {
