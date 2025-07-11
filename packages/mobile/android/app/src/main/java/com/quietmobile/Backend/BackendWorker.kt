@@ -9,6 +9,8 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.goterl.lazysodium.LazySodiumAndroid
+import com.goterl.lazysodium.SodiumAndroid
 import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.MainApplication
@@ -27,12 +29,13 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.concurrent.ThreadLocalRandom
 
-
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
+
+    private var sodium = LazySodiumAndroid(SodiumAndroid())
 
     // Use dedicated class for composing and displaying notifications
     private lateinit var notificationHandler: NotificationHandler
@@ -98,7 +101,9 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             // Get and store data port for usage in methods across the app
             val socketPort = Utils.getOpenPort(11000)
-            val socketIOSecret = Utils.generateRandomString(20)
+
+            val socketIOSecretBytes = sodium.randomBytesBuf(32)
+            val socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
 
             (applicationContext as MainApplication).setSocketPort(socketPort)
             (applicationContext as MainApplication).setSocketIOSecret(socketIOSecret)
@@ -175,10 +180,9 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     }
 
     private fun subscribePushNotifications(port: Int, secret: String) {
-        val encodedSecret = Base64.encodeToString(secret.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
         val options = IO.Options()
         val headers = mutableMapOf<String, List<String>>()
-        headers["Authorization"] = listOf("Basic $encodedSecret")
+        headers["Authorization"] = listOf("Basic $secret")
         options.extraHeaders = headers
 
         val webSocketClient = IO.socket("http://127.0.0.1:$port", options)

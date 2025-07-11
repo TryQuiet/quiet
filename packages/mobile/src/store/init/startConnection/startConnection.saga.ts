@@ -14,7 +14,6 @@ import {
 } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
-import { encodeSecret } from '@quiet/common'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
 import { SocketActions } from '@quiet/types'
@@ -41,11 +40,10 @@ export function* startConnectionSaga(
   }
 
   logger.info('Connecting to backend')
-  const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
     extraHeaders: {
-      authorization: `Basic ${token}`,
+      authorization: `Basic ${socketIOSecret}`,
     },
   })
   yield* fork(handleSocketLifecycleActions, socket, action.payload)

@@ -108,7 +108,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       logger.info(`${SocketEvents.PEER_DISCONNECTED}`, payload)
-      emit(networkActions.removeConnectedPeer(payload.peer))
+      emit(networkActions.removeConnectedPeer([payload.peer]))
       emit(connectionActions.updateNetworkData(payload))
     })
     socket.on(SocketEvents.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
