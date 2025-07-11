@@ -839,7 +839,9 @@ export class Channel {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//p[@data-testid="${this.name}-channel-link-text"]`)),
+      until.elementLocated(
+        By.xpath(`//p[@data-testid="${this.name}-channel-link-text" or @data-testid="${this.name}-link-text"]`)
+      ),
       60_000,
       `Link for channel ${this.name} couldn't be found within timeout`,
       500
@@ -1353,12 +1355,13 @@ export class Sidebar {
    */
   async getChannelList() {
     const channels = await this.driver.wait(
-      this.driver.findElements(By.xpath('//*[contains(@data-testid, "channel-link-text")]')),
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
       15_000,
       `Sidebar channel list couldn't be found within timeout`,
       500
     )
-    return channels
+    // filter out any elements that include the "-user-" text, as these are user profile links
+    return channels.filter(async channel => !(await channel.getAttribute('data-testid')).includes('-user-'))
   }
 
   /**
