@@ -1360,8 +1360,15 @@ export class Sidebar {
       `Sidebar channel list couldn't be found within timeout`,
       500
     )
+    logger.info(
+      `Found ${channels.length} channel candidates: ${channels.map(async channel => await channel.getAttribute('data-testid'))}`
+    )
     // filter out any elements that include the "-user-" text, as these are user profile links
-    return channels.filter(async channel => !(await channel.getAttribute('data-testid')).includes('-user-'))
+    const channelFilter = channels.filter(
+      async channel => !(await channel.getAttribute('data-testid')).includes('user-link-text')
+    )
+    logger.info(`Filtered channels: ${channelFilter.map(async channel => await channel.getAttribute('data-testid'))}`)
+    return channelFilter
   }
 
   /**
