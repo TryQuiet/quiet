@@ -154,13 +154,13 @@ export class App {
     if (process.platform !== 'darwin') {
       this.isOpened = false
     }
-    await sleep(750)
+    await sleep(2000)
   }
 
   async quitProgrammatically() {
     await this.driver.executeScript("require('@electron/remote').app.quit();")
     this.isOpened = false
-    await sleep(750)
+    await sleep(2000)
   }
 
   async terminateBackendProcess() {
@@ -221,39 +221,17 @@ export class App {
 
     logger.info(`Terminating backend PIDs ${[...pids].join(', ')} for ${this.buildSetup.dataDir}`)
 
-    // ----- step 3: SIGTERM, wait, SIGKILL -----
+    // ----- step 3: SIGINT, wait, SIGKILL -----
     for (const pid of pids) {
       try {
-        logger.info(`Sending SIGTERM to PID ${pid}`)
-        process.kill(pid, 'SIGTERM')
+        logger.info(`Sending SIGINT to PID ${pid}`)
+        process.kill(pid, 'SIGINT')
       } catch {
         /* empty */
       }
     }
-
-    const deadline = Date.now() + 5_000
-    for (const pid of pids) {
-      while (Date.now() < deadline) {
-        try {
-          logger.info(`Sending 0 to PID ${pid}`)
-          process.kill(pid, 0) // throws if gone
-          await sleep(250)
-        } catch {
-          break
-        }
-      }
-      // still alive?
-      try {
-        process.kill(pid, 0)
-        logger.warn(`PID ${pid} still alive sending SIGKILL`)
-        process.kill(pid, 'SIGKILL')
-      } catch {
-        /* empty */
-      }
-    }
-
     this.isOpened = false
-    await sleep(500)
+    await sleep(2000)
   }
 
   async cleanup(force: boolean = false) {
