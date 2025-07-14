@@ -2,8 +2,18 @@
 
 ## [unreleased]
 
+### Chores
+
+* Android build now targets SDK 35 [#2736](https://github.com/TryQuiet/quiet/issues/2736)
+
+### Fixes
+
+* Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
+* User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
+
 ### Features
 
+* User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
 
 ### Security

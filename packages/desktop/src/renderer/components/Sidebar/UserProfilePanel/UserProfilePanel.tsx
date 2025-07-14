@@ -78,7 +78,11 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
       <Button
         onClick={event => {
           event.persist()
-          userProfileContextMenu.handleOpen()
+          if (userProfile) {
+            userProfileContextMenu.handleOpen({ userProfile })
+          } else {
+            userProfileContextMenu.handleOpen()
+          }
         }}
         component='div'
         classes={{ root: classes.button }}

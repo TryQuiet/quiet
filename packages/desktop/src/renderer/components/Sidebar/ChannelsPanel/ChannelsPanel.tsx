@@ -2,16 +2,20 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import { useModal } from '../../../containers/hooks'
-import { PublicChannel } from '@quiet/types'
+import { PublicChannel, UserProfile } from '@quiet/types'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
   channels: PublicChannel[]
+  myUserProfile?: UserProfile
+  userProfiles: Record<string, UserProfile>
+  connectedPeers: string[]
   unreadChannels: string[]
   setCurrentChannel: (id: string) => void
   currentChannelId: string
   createChannelModal: ReturnType<typeof useModal>
+  isTorInitialized: boolean
 }
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({

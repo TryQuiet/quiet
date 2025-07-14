@@ -134,7 +134,6 @@ export class SigChainService extends EventEmitter {
     this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
     this.emit('updated')
     this.saveChain(this.activeChainTeamName!)
-    this.emit('updated')
     this.logger.info('Chain updated, emitted updated event')
   }
 
