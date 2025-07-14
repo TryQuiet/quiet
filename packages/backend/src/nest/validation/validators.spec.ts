@@ -92,6 +92,7 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
       encSignature: {
         author: {
           generation: 0,
@@ -117,6 +118,7 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
       encSignature: {
         author: {
           generation: 0,
@@ -142,6 +144,7 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
     }
     expect(isEncryptedMessage(invalidEncryptedMessage as unknown as EncryptedMessage)).toBeFalsy()
   })
@@ -159,6 +162,7 @@ describe('Validators - Encrypted Messages', () => {
       },
       createdAt: 1710000000000,
       channelId: 'channel-abc',
+      teamId: 'teamId',
       encSignature: {
         author: {
           generation: 0,

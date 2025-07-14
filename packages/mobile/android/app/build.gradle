@@ -192,8 +192,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 498
-        versionName "6.0.0-alpha.0"
+        versionCode 506
+        versionName "6.0.1"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -336,6 +336,8 @@ dependencies {
     // For animated GIF support
     implementation 'com.facebook.fresco:fresco:2.6.0'
     implementation 'com.facebook.fresco:animated-gif:2.6.0'
+    implementation "com.goterl:lazysodium-android:5.1.0@aar"
+    implementation "net.java.dev.jna:jna:5.12.1@aar"
 }
 
 // Run this once to be able to run the application with BUCK
@@ -358,6 +360,15 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 
 repositories {
     mavenCentral()
+    maven {
+        name = "Central Portal Snapshots"
+        url = uri("https://central.sonatype.com/repository/maven/")
+
+        // Only search this repository for the specific dependency
+        content {
+            includeModule("com.goterl", "lazysodium-java")
+        }
+    }
 }
 
 task CopyNodeProjectAssetsFolder (type:Copy) {

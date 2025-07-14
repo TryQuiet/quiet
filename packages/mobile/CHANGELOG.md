@@ -1,16 +1,30 @@
 # Changelog
 
-## [unreleased]
+## [Unreleased]
+
+### Security
+
+* Use libsodium for socketIOSecret comparison and migrate logic from common to backend [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+* Use libsodium for socketIOSecret generation in desktop and android [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+* Simplify/standardize socketIOSecret generation on IOS (no libsodium) [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+
+## [6.0.0]
 
 ### Features
 
-* Adds a hook for QSS to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
+* Adds a hook for Quiet Storage Service (QSS) to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
 * Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
 
 ### Fixes
 
 * Fixes race condition with initial user profile entry on joining [#2887](https://github.com/TryQuiet/quiet/issues/2887)
-* Changing the text on the loading screen when the user creates a community. [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
+* Changing the text on the loading screen when the user creates a community [#2248] (https://github.com/TryQuiet/quiet/issues/2248)
+
+### Breaking
+
+* Adds key commitment scheme to address the "invisible salamanders" attack [#2711](https://github.com/TryQuiet/quiet/issues/2711)
+
+## [5.1.2]
 
 ### Chores
 
@@ -19,7 +33,6 @@
 * Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 * Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
-
 
 ## [5.1.0]
 

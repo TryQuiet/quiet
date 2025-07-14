@@ -257,6 +257,12 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
    */
   public async clean(): Promise<void> {
     logger.info('Cleaning user profiles store')
+    this.deferredProfiles = []
+    try {
+      await this.getStore().drop()
+    } catch (err) {
+      logger.error('Failed to clean user profiles store:', err)
+    }
     this.store = undefined
   }
 }

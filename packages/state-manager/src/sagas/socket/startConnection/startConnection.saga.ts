@@ -64,6 +64,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
+    | ReturnType<typeof communitiesActions.setCurrentCommunity>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.setNetworkData>
@@ -88,6 +89,7 @@ export function subscribe(socket: Socket) {
     // UPDATE FOR APP
     socket.on(SocketEvents.COMMUNITY_LAUNCHED, (payload: LaunchCommunityPayload) => {
       logger.info(`${SocketEvents.COMMUNITY_LAUNCHED}`, payload)
+      emit(communitiesActions.setCurrentCommunity(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
     })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
@@ -106,7 +108,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       logger.info(`${SocketEvents.PEER_DISCONNECTED}`, payload)
-      emit(networkActions.removeConnectedPeer(payload.peer))
+      emit(networkActions.removeConnectedPeer([payload.peer]))
       emit(connectionActions.updateNetworkData(payload))
     })
     socket.on(SocketEvents.MIGRATION_DATA_REQUIRED, (keys: string[]) => {

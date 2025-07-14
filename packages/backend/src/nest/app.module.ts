@@ -36,10 +36,10 @@ import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
-import { verifyToken } from '@quiet/common'
 import { createLogger } from './common/logger'
 import { SocketActionsMap, SocketEventsMap } from '@quiet/types'
 import { QSSModule } from './qss/qss.module'
+import { verifyToken } from './common/token'
 
 const logger = createLogger('appModule')
 
@@ -115,7 +115,7 @@ export class AppModule {
               pingTimeout: 30_000,
             })
             // @ts-ignore
-            io.engine.use((req, res, next) => {
+            io.engine.use(async (req, res, next) => {
               const authHeader = req.headers['authorization']
               if (!authHeader) {
                 _ioLogger.error('Backend server: No authorization header')
@@ -132,7 +132,7 @@ export class AppModule {
                 return
               }
 
-              if (verifyToken(options.socketIOSecret, token)) {
+              if (await verifyToken(options.socketIOSecret, token)) {
                 next()
               } else {
                 _ioLogger.error('Backend server: Unauthorized')

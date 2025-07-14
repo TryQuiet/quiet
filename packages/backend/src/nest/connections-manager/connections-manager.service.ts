@@ -106,17 +106,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   async onModuleInit() {
-    process.on('unhandledRejection', reason => {
-      // console.log(`why won't this log rejection`, (reason as any).message)
-      this.logger.error(`Unhandled rejection`, reason)
-      throw new Error(`Unhandled Rejection`)
-    })
-
-    // process.on('SIGINT', function () {
-    //   // This is not graceful even in a single percent. we must close services first, not just kill process %
-    //   // this.logger.info('\nGracefully shutting down from SIGINT (Ctrl-C)')
-    //   process.exit(0)
-    // })
     const webcrypto = new Crypto()
     // @ts-ignore
     global.crypto = webcrypto
@@ -293,7 +282,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error('Error while saving active sigchain', e)
       }
     }
-    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
 
     this.logger.info('Closing services', options)
 
@@ -313,6 +301,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info('Stopping libp2p')
       await this.libp2pService.close(options.closeDatastore)
     }
+
+    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
+
     if (this.localDbService) {
       this.logger.info('Closing local DB')
       await this.localDbService.close()
@@ -326,10 +317,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
-    await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
+    await this.libp2pService.pause()
 
     this.logger.info('Resetting StorageService')
     await this.storageService.clean()
+
+    await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
     this.logger.info('Cleaning libp2p datastore')
     await this.libp2pService.cleanDatastore()

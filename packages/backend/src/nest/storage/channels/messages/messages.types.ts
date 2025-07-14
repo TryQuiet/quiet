@@ -17,5 +17,6 @@ export interface EncryptedMessage {
   contents: EncryptedPayload
   createdAt: number
   channelId: string
+  teamId: string
   encSignature: Signature
 }

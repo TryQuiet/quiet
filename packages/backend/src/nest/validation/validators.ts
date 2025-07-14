@@ -80,6 +80,7 @@ const encryptedMessageSchema = joi.object({
   }),
   createdAt: joi.number().required(),
   channelId: joi.string().required(),
+  teamId: joi.string().required(),
   encSignature: EncryptionSignatureSchema.required(),
 })
 

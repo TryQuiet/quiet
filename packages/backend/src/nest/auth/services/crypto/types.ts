@@ -27,6 +27,7 @@ export type EncryptedAndSignedPayload = {
   signature: Signature
   ts: number
   userId: string
+  teamId: string
 }
 
 export type DecryptedPayload<T> = {
