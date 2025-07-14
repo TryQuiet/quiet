@@ -1,12 +1,7 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
-import {
-  generateMessageFactoryContentWithId,
-  getReduxStoreFactory,
-  identity,
-  publicChannels,
-} from '@quiet/state-manager'
+import { generateMessageFactoryContentWithId, getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
 import { setupCrypto } from '@quiet/identity'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -18,7 +13,6 @@ import { reducers } from '../../root.reducer'
 import { redirectionSaga } from './redirection.saga'
 import { initActions } from '../../init/init.slice'
 import { NativeModules } from 'react-native'
-import { socketIOSecret } from 'packages/state-manager/src/sagas/appConnection/connection.selectors'
 
 describe('redirectionSaga', () => {
   let store: Store
