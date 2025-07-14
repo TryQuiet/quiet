@@ -18,6 +18,7 @@ import { reducers } from '../../root.reducer'
 import { redirectionSaga } from './redirection.saga'
 import { initActions } from '../../init/init.slice'
 import { NativeModules } from 'react-native'
+import { socketIOSecret } from 'packages/state-manager/src/sagas/appConnection/connection.selectors'
 
 describe('redirectionSaga', () => {
   let store: Store
@@ -90,6 +91,14 @@ describe('redirectionSaga', () => {
         verifyAutomatically: true,
       })
     ).message
+
+    store.dispatch({
+      type: 'Init/setWebsocketConnected',
+      payload: {
+        dataPort: 1234,
+        socketIOSecret: 'mocked-secret',
+      },
+    })
 
     const reducer = combineReducers(reducers)
     await expectSaga(redirectionSaga)
