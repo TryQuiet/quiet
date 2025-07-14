@@ -167,12 +167,12 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     peerAddress: string,
     options: DialPeerOptions = { throwOnError: false, redialOnError: true }
   ) => {
-    if (this.connectedPeers.has(peerAddress.split('/').pop()!)) {
-      this.logger.debug(`Already connected to peer address: ${peerAddress}`)
+    const peerId = peerAddress.split('/').pop()!
+    if (this.connectedPeers.has(peerId)) {
+      // this.logger.debug(`Already connected to peer address: ${peerAddress}`)
       return
     }
-    this.logger.info(`Dialing peer address: ${peerAddress}`)
-
+    // this.logger.debug(`Dialing peer address: ${peerAddress}`)
     if (!peerAddress.includes(this.libp2pInstance?.peerId.toString() ?? '')) {
       try {
         this.dialedPeers.add(peerAddress)
@@ -183,11 +183,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         }
         await this.libp2pInstance?.dial(parsedMultiAddr)
       } catch (e) {
-        let errorContext: Error | string = e
-        if (e.message.includes('Unexpected server response: 404')) {
-          errorContext = e.message
+        // let errorContext: Error | string = e
+        if (!e.message.includes('Unexpected server response: 404')) {
+          // errorContext = e.message
+          this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
         }
-        this.logger.warn(`Failed to dial peer address: ${peerAddress}`, errorContext)
         if (options.redialOnError) {
           await this.redialPeerAfterDelay(peerAddress)
         }
@@ -624,6 +624,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         lastSeen: connectionEndTime,
       }
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
+      this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, peerStat)
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       if (!peerPrevStats) {
         this.logger.info(`No previous stats for peer ${remotePeerId}. Not updating stats`)

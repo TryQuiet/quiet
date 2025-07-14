@@ -37,7 +37,7 @@ describe('saveUserProfileSaga', () => {
     reduxFactory = await getReduxStoreFactory(store)
     baseTypesFactory = await getBaseTypesFactory()
     identity = await reduxFactory.create('Identity')
-    userProfile = await baseTypesFactory.build('UserProfile', {
+    userProfile = await reduxFactory.create('UserProfile', {
       userId: identity.userId,
     })
   })
@@ -67,7 +67,7 @@ describe('saveUserProfileSaga', () => {
 
   test('sends user profile with photo to backend', async () => {
     const logger = createLogger('saveUserProfileSaga-test2')
-    logger.info('userProfile', userProfile)
+    logger.info('userProfile', JSON.stringify(userProfile, null, 2))
 
     // We are testing browser-targeting code in NodeJS and this
     // version of NodeJS doesn't have a File class, so we are using a

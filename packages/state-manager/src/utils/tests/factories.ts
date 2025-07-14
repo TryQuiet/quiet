@@ -216,6 +216,10 @@ export const getReduxStoreFactory = async (store: Store) => {
       photo: 'dGVzdAo=',
       bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
       userId: factory.assoc('User', 'userId'),
+      userData: {
+        peerId: createPeerIdTestHelper().id,
+        onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
+      },
     }
   )
 

@@ -170,7 +170,7 @@ describe('Main', () => {
                                             >
                                               <p
                                                 class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                                                data-testid="general-link-text"
+                                                data-testid="general-channel-link-text"
                                               >
                                                 # general
                                               </p>
@@ -184,6 +184,27 @@ describe('Main', () => {
                                     </div>
                                   </ul>
                                 </div>
+                              </div>
+                              <div
+                                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+                              >
+                                <div
+                                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                  >
+                                    <p
+                                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                                    >
+                                      Users
+                                    </p>
+                                  </div>
+                                </div>
+                                <ul
+                                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                                  data-testid="usersList"
+                                />
                               </div>
                             </div>
                             <div

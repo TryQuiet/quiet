@@ -11,6 +11,8 @@ import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import { TorStatusProps } from './TorStatus'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
+import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
+import { CommunityOwnership } from '@quiet/types'
 
 const Template: ComponentStory<typeof SidebarComponent> = args => {
   const [currentChannel, setCurrentChannel] = useState('general')
@@ -35,10 +37,15 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
   )
 }
 
-const args: IdentityPanelProps & ChannelsPanelProps & TorStatusProps & UserProfilePanelProps = {
-  // @ts-expect-error
+const args: IdentityPanelProps &
+  ChannelsPanelProps &
+  TorStatusProps &
+  UserProfilePanelProps &
+  DirectMessagesPanelProps = {
   currentCommunity: {
     name: 'rockets',
+    id: 'rocketsCommunityId',
+    ownership: CommunityOwnership.Owner,
   },
   accountSettingsModal: {
     open: false,
@@ -46,22 +53,63 @@ const args: IdentityPanelProps & ChannelsPanelProps & TorStatusProps & UserProfi
     handleClose: function (): any {},
   },
   channels: [
-    // @ts-expect-error
     {
       id: 'general',
       name: 'general',
+      description: 'General discussion channel',
+      owner: 'aliceUserId',
+      timestamp: Date.now(),
     },
-    // @ts-expect-error
     {
       id: 'spooky',
       name: 'spooky',
+      description: 'Spooky channel for Halloween discussions',
+      owner: 'bobUserId',
+      timestamp: Date.now(),
     },
-    // @ts-expect-error
     {
       id: 'kalkan',
       name: 'kalkan',
+      description: 'Kalkan channel for discussions about Kalkan',
+      owner: 'charlieUserId',
+      timestamp: Date.now(),
     },
   ],
+  myUserProfile: {
+    userId: 'aliceUserId',
+    nickname: 'Alice',
+    userData: {
+      peerId: 'alicePeerId',
+      onionAddress: 'alice.onion',
+    },
+  },
+  userProfiles: {
+    aliceUserId: {
+      userId: 'aliceUserId',
+      nickname: 'Alice',
+      userData: {
+        peerId: 'alicePeerId',
+        onionAddress: 'alice.onion',
+      },
+    },
+    bobUserId: {
+      userId: 'bobUserId',
+      nickname: 'Bob',
+      userData: {
+        peerId: 'bobPeerId',
+        onionAddress: 'bob.onion',
+      },
+    },
+    charlieUserId: {
+      userId: 'charlieUserId',
+      nickname: 'Charlie',
+      userData: {
+        peerId: 'charliePeerId',
+        onionAddress: 'charlie.onion',
+      },
+    },
+  },
+  connectedPeers: ['alicePeerId', 'bobPeerId'],
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_id: string): void {},
   currentChannel: 'general',
