@@ -1354,20 +1354,26 @@ export class Sidebar {
    * Get channel link elements in the sidebar
    */
   async getChannelList() {
+    // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
-      this.driver.findElements(By.xpath('//*[contains(@data-testid, "channel-link-text")]')),
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
       15_000,
       `Sidebar channel list couldn't be found within timeout`,
       500
     )
-    logger.info(
-      `Found ${channels.length} channel candidates: ${channels.map(async channel => await channel.getAttribute('data-testid'))}`
-    )
+    const channelTestIds = await Promise.all(channels.map(async channel => await channel.getAttribute('data-testid')))
+    logger.info(`Found ${channels.length} channel candidates: ${channelTestIds}`)
     // filter out any elements that include the "-user-" text, as these are user profile links
-    const channelFilter = channels.filter(
-      async channel => !(await channel.getAttribute('data-testid')).includes('user-link-text')
+    const channelFilter = []
+    for (let i = 0; i < channels.length; i++) {
+      if (!channelTestIds[i].includes('user-link-text')) {
+        channelFilter.push(channels[i])
+      }
+    }
+    const filteredTestIds = await Promise.all(
+      channelFilter.map(async channel => await channel.getAttribute('data-testid'))
     )
-    logger.info(`Filtered channels: ${channelFilter.map(async channel => await channel.getAttribute('data-testid'))}`)
+    logger.info(`Filtered channels: ${filteredTestIds}`)
     return channelFilter
   }
 

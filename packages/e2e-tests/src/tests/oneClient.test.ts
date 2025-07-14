@@ -97,6 +97,20 @@ describe('One Client', () => {
       expect(generalChannelText).toEqual(`# ${generalChannelName}`)
     })
 
+    it('User sees just the general channel in the sidebar', async () => {
+      const sidebar = new Sidebar(app.driver)
+      const channelList = await sidebar.getChannelList()
+      expect(channelList.length).toBe(1)
+      expect(await channelList[0].getText()).toBe(`# ${generalChannelName}`)
+    })
+
+    it('Users sees just themselves in the user list', async () => {
+      const sidebar = new Sidebar(app.driver)
+      const userList = await sidebar.getUserProfileList()
+      expect(userList.length).toBe(1)
+      expect(await userList[0].getText()).toBe(ownerUserName)
+    })
+
     it('User sends a message', async () => {
       expect(await generalChannel.isMessageInputReady()).toBeTruthy()
       await generalChannel.sendMessage('this shows up as sent', ownerUserName)
