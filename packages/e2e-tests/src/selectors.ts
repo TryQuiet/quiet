@@ -1355,7 +1355,7 @@ export class Sidebar {
    */
   async getChannelList() {
     const channels = await this.driver.wait(
-      this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "channel-link-text")]')),
       15_000,
       `Sidebar channel list couldn't be found within timeout`,
       500
