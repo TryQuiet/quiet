@@ -111,7 +111,8 @@ describe('User Profile Feature', () => {
     }
   })
 
-  it('Owner updates their profile photo with GIF', async () => {
+  // Functionality disabled until support is added again
+  it.skip('Owner updates their profile photo with GIF', async () => {
     try {
       logger.info('GIF')
       const menu = new UserProfileContextMenu(users.owner.app.driver)
