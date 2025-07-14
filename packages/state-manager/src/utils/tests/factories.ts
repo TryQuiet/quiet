@@ -43,6 +43,8 @@ import {
   PublicChannel,
   TestMessage,
   Community,
+  SetUserProfilePayload,
+  SetUserProfileResponse,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -556,8 +558,22 @@ export const getSocketFactory = async () => {
   })
 
   // User profile events
-  factory.define<UserProfile>(SocketActions.SET_USER_PROFILE, Object, {
-    userId: 'user-id',
+  factory.define<SetUserProfilePayload>(SocketActions.SET_USER_PROFILE, Object, {
+    profile: {
+      userId: 'user-id',
+      nickname: 'Test User',
+      photo: 'dGVzdAo=',
+      bio: 'This is a test user profile',
+      userData: {
+        onionAddress: 'test.onion',
+        peerId: 'peer-id',
+      },
+    },
+  })
+
+  factory.define<SetUserProfileResponse>(`${SocketActions.SET_USER_PROFILE}_response`, Object, {
+    success: true,
+    error: undefined,
   })
 
   // Migration

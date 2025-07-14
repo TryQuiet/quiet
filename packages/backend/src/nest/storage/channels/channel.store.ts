@@ -98,12 +98,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this._subscribing = true
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
-      this.logger.info(
-        `${this.channelData.id} database updated`,
-        entry.hash,
-        entry.payload.value?.channelId,
-        entry.payload
-      )
+      this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
       let message: ChannelMessage | undefined = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)

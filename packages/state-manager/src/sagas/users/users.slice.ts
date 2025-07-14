@@ -10,6 +10,8 @@ export class UsersState {
   public userProfiles: Record<string, UserProfile> = {}
   // Mapping of userId to User (for sigchain state cache)
   public users: Record<string, User> = {}
+  // Error string for save user profile failures
+  public saveUserProfileError: string | null = null
 }
 
 export const usersSlice = createSlice({
@@ -17,6 +19,10 @@ export const usersSlice = createSlice({
   name: StoreKeys.Users,
   reducers: {
     saveUserProfile: (state, _action: PayloadAction<SaveUserProfileActionPayload>) => state,
+    setSaveUserProfileError: (state, action: PayloadAction<string | null>) => {
+      state.saveUserProfileError = action.payload
+      return state
+    },
     // Bootstraps initial user profiles from the server, wipes state and sets new profiles
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1

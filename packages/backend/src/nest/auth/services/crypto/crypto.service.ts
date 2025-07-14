@@ -114,6 +114,33 @@ class CryptoService extends ChainServiceBase {
     failOnInvalid = true
   ): DecryptedPayload<T> {
     let contents: T
+    if (typeof encrypted.contents === 'string') {
+      logger.debug('Converting Base64 string to Buffer')
+      encrypted.contents = Buffer.from(encrypted.contents, 'base64')
+    }
+    // Handle numeric array case (JSON-encoded Uint8Array)
+    else if (Array.isArray(encrypted.contents)) {
+      logger.debug('Converting numeric array to Buffer')
+      encrypted.contents = Buffer.from(encrypted.contents)
+    }
+    // Handle Node.js Buffer JSON representation ({"type":"Buffer","data":[...]})
+    else if (
+      encrypted.contents &&
+      typeof encrypted.contents === 'object' &&
+      (encrypted.contents as any).type === 'Buffer' &&
+      Array.isArray((encrypted.contents as any).data)
+    ) {
+      logger.debug('Converting JSON Buffer representation to Buffer')
+      encrypted.contents = Buffer.from((encrypted.contents as any).data)
+    }
+    // Handle object with numeric keys (parsed JSON representation)
+    else if (encrypted.contents && typeof encrypted.contents === 'object' && !Buffer.isBuffer(encrypted.contents)) {
+      logger.debug('Converting object with numeric keys to Buffer')
+      const nums = Object.keys(encrypted.contents)
+        .filter(key => /^\d+$/.test(key))
+        .map(key => (encrypted.contents as any)[key] as number)
+      encrypted.contents = Buffer.from(nums)
+    }
     switch (encrypted.scope.type) {
       // Symmetrical Encryption Types
       case EncryptionScopeType.CHANNEL:

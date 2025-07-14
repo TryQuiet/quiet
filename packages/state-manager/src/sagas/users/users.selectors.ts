@@ -30,7 +30,14 @@ export const getUserById = (userId: string) =>
     return null
   })
 
+// Selector for saveUserProfileError
+export const saveUserProfileError = createSelector(
+  usersSlice,
+  state => state.saveUserProfileError as string | null | undefined
+)
+
 export const usersSelectors = {
   allUsers,
   getUserById,
+  saveUserProfileError,
 }

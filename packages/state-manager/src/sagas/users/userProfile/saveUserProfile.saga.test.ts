@@ -61,7 +61,7 @@ describe('saveUserProfileSaga', () => {
       .withState(store.getState())
       .not.call(fileToBase64String, expect.any(Blob))
       .put(usersActions.setUserProfile(userProfile))
-      .apply(socket, socket.emit, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
+      .apply(socket, socket.emitWithAck, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
       .run()
   })
 
@@ -81,7 +81,7 @@ describe('saveUserProfileSaga', () => {
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
       .put(usersActions.setUserProfile(userProfile))
-      .apply(socket, socket.emit, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
+      .apply(socket, socket.emitWithAck, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
       .run()
   })
 })

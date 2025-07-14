@@ -53,6 +53,7 @@ import {
   DeleteChannelPayload,
   SetUserProfilePayload,
   InvitationData,
+  SetUserProfileResponse,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ENABLED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -790,9 +791,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // User Profile
-    this.socketService.on(SocketActions.SET_USER_PROFILE, async (payload: SetUserProfilePayload) => {
-      await this.storageService?.addUserProfile(payload.profile)
-    })
+    this.socketService.on(
+      SocketActions.SET_USER_PROFILE,
+      async (payload: SetUserProfilePayload, callback: (response: SetUserProfileResponse) => void) => {
+        callback(await this.storageService?.addUserProfile(payload.profile))
+      }
+    )
   }
 
   /**
@@ -841,6 +845,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      this.logger.info(
+        `Storage - ${StorageEvents.USER_PROFILES_STORED}`,
+        payload.profiles.map(profile => {
+          return {
+            nickname: profile.nickname,
+            peerId: profile.userData?.peerId,
+          }
+        })
+      )
       this.storageService.updatePeerStore()
       this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)

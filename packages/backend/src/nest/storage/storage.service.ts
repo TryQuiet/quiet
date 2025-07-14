@@ -9,6 +9,7 @@ import {
   type Identity,
   UserData,
   NetworkStats,
+  SetUserProfileResponse,
 } from '@quiet/types'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -214,13 +215,18 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public async addUserProfile(profile: UserProfile) {
+  public async addUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {
+    const validationResponse = await UserProfileStore.validateUserProfile(profile)
+    if (!validationResponse.success) {
+      return validationResponse
+    }
     try {
       await this.userProfileStore.setEntry(profile.userId, profile)
     } catch (err) {
       // additions may be deferred if the user is not a member of the team
       this.logger.warn('User profile deferred:', profile.userId, err)
     }
+    return { success: true }
   }
 
   public async setIdentity(identity: Identity) {

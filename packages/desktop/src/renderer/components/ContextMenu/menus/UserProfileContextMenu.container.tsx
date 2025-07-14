@@ -258,7 +258,7 @@ export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onCh
         onClick={evt => {
           ;(evt.target as HTMLInputElement).value = ''
         }}
-        accept='image/png, image/jpeg, image/gif'
+        accept='image/png, image/jpeg'
         hidden
       />
     </button>
@@ -270,14 +270,20 @@ export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onCh
  */
 export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => void }> = ({ setRoute }) => {
   const dispatch = useDispatch()
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const username = userProfile?.nickname || ''
   const userId = userProfile?.userId || ''
   const contextMenu = useContextMenu(MenuName.UserProfile)
+  const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
     dispatch(users.actions.saveUserProfile({ photo }))
   }
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(users.actions.setSaveUserProfileError(null))
+    }
+  }, [dispatch])
 
   return (
     <UserProfileMenuEditView
@@ -287,6 +293,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
       contextMenu={contextMenu}
       setRoute={setRoute}
       onSaveUserProfile={onSaveUserProfile}
+      errorBanner={saveUserProfileError}
     />
   )
 }
@@ -302,6 +309,7 @@ export interface UserProfileMenuEditViewProps {
   }
   setRoute: (route: string) => void
   onSaveUserProfile: ({ photo }: { photo: File }) => void
+  errorBanner?: string | null
 }
 
 export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
@@ -311,9 +319,8 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   contextMenu,
   setRoute,
   onSaveUserProfile,
+  errorBanner,
 }) => {
-  const [error, setError] = useState<string>('')
-
   const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null)
   const scrollbarRef = useRef(null)
   const [offset, setOffset] = useState(0)
@@ -334,46 +341,11 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
     handleClose()
   }
 
-  const getImageSize = (file: File) => {
-    return new Promise<{ width: number; height: number }>((resolve, reject) => {
-      const img = new Image()
-
-      img.onload = () => {
-        resolve({ width: img.naturalWidth, height: img.naturalHeight })
-      }
-      img.onerror = reject
-      img.src = URL.createObjectURL(file)
-    })
-  }
-
   const onChange = async (photo?: File) => {
     if (!photo) {
       return
     }
 
-    let width: number, height: number
-
-    try {
-      ;({ width, height } = await getImageSize(photo))
-    } catch (err) {
-      const msg = 'Failed to get image size'
-      logger.error(msg)
-      setError(msg)
-      return
-    }
-
-    if (width === 0 || height === 0) {
-      const msg = `Image has invalid dimensions: width: ${width}, height: ${height}`
-      logger.error(msg)
-      setError(msg)
-      return
-    }
-
-    // No size limit needed as backend now compresses images
-
-    // Removed dimension and size check as backend handles image compression now
-
-    setError('')
     onSaveUserProfile({ photo })
   }
 
@@ -410,6 +382,21 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                   style={{ width: maxWidth + offset, height: height }}
                 >
                   <Grid container direction='column'>
+                    {/* Error banner for saveUserProfile error */}
+                    {errorBanner && (
+                      <Grid
+                        item
+                        style={{
+                          background: '#ffebee',
+                          color: '#b71c1c',
+                          padding: '12px 16px',
+                          borderRadius: 8,
+                          margin: '8px 16px',
+                        }}
+                      >
+                        <Typography variant='body2'>{errorBanner}</Typography>
+                      </Grid>
+                    )}
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
                       {userProfile?.photo ? (
                         <img
@@ -431,9 +418,6 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                         />
                       )}
                       <EditPhotoButton onChange={onChange} />
-                      <span className={error ? classes.profilePhotoError + ' show' : classes.profilePhotoError}>
-                        {error}
-                      </span>
                     </Grid>
                     <label htmlFor='username' className={classes.editUsernameFieldLabel}>
                       Username

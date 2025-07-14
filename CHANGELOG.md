@@ -5,6 +5,7 @@
 ### Fixes
 
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
+* User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
 
 ### Features
 
