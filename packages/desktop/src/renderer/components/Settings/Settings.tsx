@@ -10,6 +10,7 @@ import { QRCode } from './Tabs/QRCode/QRCode'
 import { LeaveCommunity } from './Tabs/LeaveCommunity/LeaveCommunity'
 
 import SettingsComponent from './SettingsComponent'
+import { DebugInfoComponent } from '../debugInfo/debugInfoComponent'
 
 const Settings = () => {
   const modal = useModal(ModalName.accountSettingsModal)
@@ -20,6 +21,7 @@ const Settings = () => {
     invite: Invite,
     qrcode: QRCode,
     leaveCommunity: LeaveCommunity,
+    debug: DebugInfoComponent,
   }
 
   const leaveCommunityModal = useModal(ModalName.leaveCommunity)

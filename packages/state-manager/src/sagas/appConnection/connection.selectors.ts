@@ -25,7 +25,7 @@ export const connectionProcess = createSelector(connectionSlice, reducerState =>
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
 
-const peerStats = createSelector(connectionSlice, reducerState => {
+export const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
   if (reducerState.peersStats === undefined) {
     stats = []
@@ -146,4 +146,5 @@ export const connectionSelectors = {
   isTorInitialized,
   socketIOSecret,
   isJoiningCompleted,
+  peerStats,
 }

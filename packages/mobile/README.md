@@ -2,8 +2,15 @@
 
 Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and a JavaScript/Redux [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager) with [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop).
 
+### Prerequisites
+
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
+1. If not on Mac (which comes preinstalled with `patch`), install `patch`, e.g. via your Linux package manager
+1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
+
 ## Android development
 
+1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 1. Follow the instructions for running [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop) and confirm it runs
 1. If not on Mac, which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
 1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
@@ -109,31 +116,75 @@ const watchFolders = [
 ]
 ```
 
-## iOS Development
+## iOS development
 
-### Local Environment Setup
+1. Have a Mac (Apple requires this)
+1. Create an account at [developer.apple.com](https://developer.apple.com) 
+1. Install Xcode Command Line Tools (required for Homebrew):
+    
+    ```bash
+    xcode-select --install
+    ```
+1. Install [Homebrew](https://brew.sh/)
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
+1. Install [Git Large File Storage (LFS)](https://git-lfs.com/)
 
-1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
-1. Follow the [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) instructions to set up your development environment.
-1. Install rbenv, a Ruby version manager.
+    ```bash
+    brew install git-lfs
+    ```
+
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) 
+
+    ```bash
+    brew install xcodesorg/made/xcodes
+    xcodes install 16.2.0 
+    xcodes select 16.2.0
+    xcodes runtimes install "iOS 18.4"
+    ```
+    
+    You may need to wait for the "Verifying Runtime" modal to complete before running Quiet
+
+1. Initialize submodules in the project's root and pull files with Git LFS:
+
+    ```bash
+    git submodule update --init --recursive --remote 
+    git lfs pull 
+     # Note: it may be necessary to first run `git lfs install`
+    ```
+
+1. Confirm that submodules are properly initialized by checking that NodeMobile is a binary file, not text:
+
+    ```bash
+    cd packages/mobile/ios
+    file NodeJsMobile/NodeMobile.framework/NodeMobile 
+    ```
+    You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup step was not successful.
+
+1. In the project's root, bootstrap the project again (must be run *after* submodule initialization)
+
+    ```bash
+    npm run bootstrap
+    ```
+
+1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version.
 
     ```bash
     brew install rbenv
-    ```
-
-1. Set your Ruby version to the suggested version.
-
-    At the time of writing, the suggested Ruby version is 2.7.5
-
-    ```bash
+    rbenv init
     rbenv install 2.7.5
     rbenv global 2.7.5
+    ```
+
+1. Restart your terminal and confirm that you are using Ruby 2.7.5
+
+    ```bash
+    ruby --version
     ```
 
 1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
 
     ```bash
-    gem install bundler
+    gem install bundler -v 1.17.2
     bundle install
     ```
 
@@ -141,20 +192,45 @@ const watchFolders = [
 
     ```bash
     cd ios
-    bundle exec pod install
+    bundle exec pod install 
     ```
 
-1. Open the `ios` directory in Xcode.
+1. In `packages/mobile`, create a `.xcode.env.local` file with your Node path:
 
-1. If planning to run on device, setup the signing certificate and provisioning profile in Xcode.
+     ```bash
+     echo "export NODE_BINARY=$(which node)" > .xcode.env.local
+     ```
 
-    - [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
+1. Install `ios-deploy` for deploying to iOS devices from the command line
 
-### Building the iOS App
+     ```bash
+     brew install ios-deploy
+     ```
+1. Open the Quiet project in Xcode
 
-The iOS app can be built and run in two ways: from the command line or from Xcode. The command line is preferred as it is faster and more reliable especially when using nvm to manage node versions.
+    From the `packages/mobile` directory
+    ```bash
+    xed ios
+    ```
 
-#### Command Line (preferred)
+1. Enable developer mode on your iPhone in Settings > Privacy & Security > Developer Mode
+1. Connect your iPhone to your Mac via USB and accept "Trust Device?" prompts
+1. Now we must get Apple's *permission* to run our own app on our own device. In addition to being a kafkaesque violation of everyone's basic rights, this step is difficult to document due to all the shuttling between Apple's website and the Xcode UI. Doing this wrong results in unclear and difficult-to-attribute errors. [Apple's documentation](https://developer.apple.com/help/account/) is not helpful so we'll attempt to provide instructions here: 
+    - Set up the signing certificate and Ad Hoc provisioning profile in [developer.apple.com > Profiles](https://developer.apple.com/account/resources/profiles/list)
+    - Download the profile and open it in Xcode 
+    - In Xcode, go to Settings > Accounts, create a new account, and sign in with your Apple developer account
+    - For good measure, in Settings > Accounts click "Download Manual Profiles"
+    - Open the "Signing & Capabilities" tab in the Xcode UI and ensure there are no errors.
+    
+    If you have not been added on developer.apple.com to the Quiet team, you will also need to:
+    - Uncheck "Automatically manage signing" if checked
+    - Change Team to "Personal Team" (your Apple ID)
+    - Create a unique Bundle Identifier (e.g. com.quietmobile.yourname) 
+    - Let Xcode create a new provisioning profile (click "Fix Issue" if prompted)
+    - If errors persist, go to Build Settings → Code Signing
+    - Set "Code Signing Identity" to "Apple Development"
+    - Set "Provisioning Profile" to "Automatic"
+1. You may need to disconnect and reconnect your iPhone for Xcode to pair with it successfully (the connection with the iPhone should be visible in the Xcode UI). You may also need to wait for "Copying shared cache symbols from iPhone" to complete
 
 1. Build and run the application,
 
@@ -163,24 +239,24 @@ The iOS app can be built and run in two ways: from the command line or from Xcod
       ```bash
       npm run ios
       ```
+      There should now be a Quiet icon on your iOS device, and the React Native Metro bundler should be running in its own terminal. Opening Quiet on your iPhone should start Quiet. (🎉!)
 
+1. To see most changes without rebuilding the app, ensure the Quiet app on your phone can connect to the Metro bundler:
+    - Ensure your iPhone and dev machine are both connected to the same wifi network
+    - In Quiet on your iPhone, shake the phone twice to open the React Native dev menu, then tap "Configure Bundler"
+    - Enter the local IP address of your dev machine (get it with e.g. `ifconfig`)
+    - After a short delay, you should be able to confirm a connection by shaking your phone twice and tapping "Reload", or by tapping "r" in the terminal running Metro
       The application should now be installed on your device, and a new terminal window will open with the Metro bundler running.
 
-#### Xcode (alternative)
 
-1. Start the metro bundler,
-
-    From the `packages/mobile` directory,
-
-    ```bash
-    npm run start
-    ```
+Note: it may also be useful to run in Xcode, since additional error messages are visible there. (Generally the hints in React Native's error messages are useful and you may need to follow them and change some settings in the Xcode UI. To run in Xcode:
 
 1. Open the `ios` directory in Xcode.
-1. Select the target device or simulator and press the play button.
+1. Select the target device and press the play button.
 
+Currently you cannot run Quiet for iOS in a simulator.
 
-### Quiet log files
+## Quiet log files
 
 All quiet-generated logs are output to files in the application directory under `files/logs`.  Unlike desktop the logs on mobile are not unified between backend and frontend.  Backend logs can be found in the `log_<date>.log` and `error_<date>.log` files (see the `backend` and `node-common` READMEs for more details) while frontend logs are in the `com.quietmobile.debug-latest.log` file.  This is due to differences in how we have to log in react-native vs node.
 
@@ -300,6 +376,6 @@ Built app bundle cannot contain symlinks linking outside the package (which some
 
 Usage of native methods (like the ones for file management) must be adapted for mobile environment. There're several ways to fix the issue with incompatible packages/files:
 
-1. Shim packages with `rn-dodeify` <https://www.npmjs.com/package/rn-nodeify>
+1. Shim packages with `rn-nodeify` <https://www.npmjs.com/package/rn-nodeify>
 2. Blacklist certain files in `metro.config.js:30`
 3. Use diff & patch <https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/>
