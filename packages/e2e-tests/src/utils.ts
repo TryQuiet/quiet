@@ -31,7 +31,7 @@ export class BuildSetup {
   public dataDir?: string
   public dataDirPath: string
   public id: string
-  private child?: ChildProcessWithoutNullStreams
+  public child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
 
@@ -162,17 +162,17 @@ export class BuildSetup {
 
     this.child.on('error', () => {
       logger.error('ERROR')
-      this.killNine()
+      // this.killNine()
     })
 
     this.child.on('exit', () => {
       logger.info('EXIT')
-      this.killNine()
+      // this.killNine()
     })
 
     this.child.on('close', () => {
       logger.info('CLOSE')
-      this.killNine()
+      // this.killNine()
     })
 
     this.child.on('message', data => {
@@ -293,19 +293,42 @@ export class BuildSetup {
     const command = byPlatform[process.platform as SupportedPlatformDesktop]
     const appBackendProcess = execSync(command).toString('utf8').trim()
     logger.info('Backend process info', appBackendProcess)
-    let args = appBackendProcess.split(' ')
-    if (process.platform === 'win32') {
-      args = args.filter(item => item.trim() !== '')
-      args = args.map(item => item.trim())
-    }
-    logger.info('Args:', args)
-    if (args.length >= 5) {
-      if (process.platform === 'win32') {
-        dataDirPath = args[5]
-        resourcesPath = args[7]
-      } else {
-        dataDirPath = args[6]
-        resourcesPath = args[8]
+    // Use regex to extract paths instead of splitting by spaces
+    if (process.platform === 'darwin') {
+      // Match dataDirPath (Application Support path)
+      const dataDirMatch = appBackendProcess.match(
+        /\/(?:Users|Volumes)\/[\w\-/ ]*Application Support\/[\w\-/ ]+(?=\s-\w|$)/
+      )
+      if (dataDirMatch) {
+        dataDirPath = dataDirMatch[0]
+      }
+      // Match resourcesPath (Quiet.app/Contents/Resources)
+      const resourcesPathMatch = appBackendProcess.match(/\/[\w\-/.]+Quiet\.app\/Contents\/Resources/)
+      if (resourcesPathMatch) {
+        resourcesPath = resourcesPathMatch[0]
+      }
+    } else if (process.platform === 'linux') {
+      // Dynamically match the literal data‑dir, stopping before the next CLI flag or EOL
+      const dataDirRegexp = new RegExp(`[\\\\/]\\S*${this.dataDir}(?=\\s-\\w|$)`)
+      const dataDirMatch = appBackendProcess.match(dataDirRegexp)
+      if (dataDirMatch) {
+        dataDirPath = dataDirMatch[0]
+      }
+
+      // Resources path is optional on Linux; keep a permissive heuristic
+      const resourcesPathMatch = appBackendProcess.match(/\\S+Quiet\.app\/Contents\/Resources/)
+      if (resourcesPathMatch) {
+        resourcesPath = resourcesPathMatch[0]
+      }
+    } else if (process.platform === 'win32') {
+      // Capture the values passed to -a and -r, regardless of order or quoting
+      const dataDirMatch = appBackendProcess.match(/-a\s+"?([A-Za-z]:\\[^"-]+)"?/i)
+      if (dataDirMatch) {
+        dataDirPath = dataDirMatch[1]
+      }
+      const resourcesPathMatch = appBackendProcess.match(/-r\s+"?([A-Za-z]:\\[^"-]+)"?/i)
+      if (resourcesPathMatch) {
+        resourcesPath = resourcesPathMatch[1]
       }
     }
     logger.info('Extracted dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
