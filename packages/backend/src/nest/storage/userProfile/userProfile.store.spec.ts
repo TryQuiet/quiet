@@ -20,6 +20,8 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { libp2pInstanceParams } from '../../common/utils'
 import { TestConfig } from '../../const'
+import { LogEntry } from '@orbitdb/core'
+import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
 
 const logger = createLogger('messagesService:test')
 
@@ -142,7 +144,7 @@ describe('UserProfileStore/validateUserProfile', () => {
     // Changed the first byte from 137 to 136
     const pngByteArray = new Uint8Array([136, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
     const userProfile = await getUserProfile({ pngByteArray })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeFalsy()
   })
 
   test('returns false if photo is larger than 200KB', async () => {
@@ -153,7 +155,7 @@ describe('UserProfileStore/validateUserProfile', () => {
     const pngByteArray = new Uint8Array(pngArray)
 
     const userProfile = await getUserProfile({ pngByteArray })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeFalsy()
   })
 
   test('returns true if photo is less than 200KB', async () => {
@@ -164,7 +166,7 @@ describe('UserProfileStore/validateUserProfile', () => {
     const pngByteArray = new Uint8Array(pngArray)
 
     const userProfile = await getUserProfile({ pngByteArray })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeTruthy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeTruthy()
   })
 
   test('returns false if photo URL prefix is unexpected', async () => {
@@ -172,7 +174,7 @@ describe('UserProfileStore/validateUserProfile', () => {
     // Capitalized I in image
     const pngBase64 = 'data:Image/png;base64,' + Buffer.from(pngArray).toString('base64')
     const userProfile = await getUserProfile({ photoUrl: pngBase64 })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeFalsy()
   })
 
   test('returns false if photo URL prefix is unexpected (trailing comma)', async () => {
@@ -180,7 +182,7 @@ describe('UserProfileStore/validateUserProfile', () => {
     // Missing trailing comma
     const pngBase64 = 'data:image/png;base64' + Buffer.from(pngArray).toString('base64')
     const userProfile = await getUserProfile({ photoUrl: pngBase64 })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeFalsy()
   })
 
   test('returns false if photo URL prefix is unexpected (invalid content-type)', async () => {
@@ -188,13 +190,39 @@ describe('UserProfileStore/validateUserProfile', () => {
     // Invalid content-type
     const pngBase64 = 'data:text/html,' + Buffer.from(pngArray).toString('base64')
     const userProfile = await getUserProfile({ photoUrl: pngBase64 })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeFalsy()
   })
 
   test('returns true if photo URL prefix is expected', async () => {
     const pngArray = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]
     const pngBase64 = 'data:image/png;base64,' + Buffer.from(pngArray).toString('base64')
     const userProfile = await getUserProfile({ photoUrl: pngBase64 })
-    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeTruthy()
+    expect((await UserProfileStore.validateUserProfile(userProfile)).success).toBeTruthy()
+  })
+})
+
+describe('UserProfileStore/validateEntry', () => {
+  test('should not allow syncing entry if key does not match userId in payload or signature', async () => {
+    // Arrange: create a fake encrypted payload with mismatched userId and key
+    const fakeUserId = 'aliceUserId'
+    const mismatchedKey = 'bobUserId'
+    const encPayload: any = {
+      userId: fakeUserId,
+      signature: { author: { name: fakeUserId } },
+      encrypted: 'fake-encrypted',
+    }
+    const decEntry: any = { userId: fakeUserId }
+    // Patch decryptEntry to return decEntry
+    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: fakeUserId } } as any)
+    jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
+    jest.spyOn(UserProfileStore, 'validateUserProfile').mockResolvedValue({ success: true })
+    const entry = {
+      hash: 'fakehash',
+      payload: { key: mismatchedKey, value: encPayload },
+    } as unknown as LogEntry<EncryptedAndSignedPayload>
+    // Act
+    const result = await store.validateEntry(entry)
+    // Assert
+    expect(result).toBe(false)
   })
 })

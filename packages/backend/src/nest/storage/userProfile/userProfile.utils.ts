@@ -1,3 +1,4 @@
+import { SetUserProfileResponse } from '@quiet/types'
 import { createLogger } from '../../common/logger'
 
 const logger = createLogger('UserProfileStoreUtils')
@@ -61,11 +62,11 @@ export const isGif = (buffer: Uint8Array): boolean => {
  * @param pubKey Public key string for logging purposes
  * @returns True if photo is valid and false if not
  */
-export const validatePhoto = (photoString: string, pubKey: string): boolean => {
+export const validatePhoto = (photoString: string, pubKey: string): SetUserProfileResponse => {
   // validate that we have the photo as a base64 string
   if (typeof photoString !== 'string') {
     logger.error('Expected PNG, JPEG or GIF as base64 string for user profile photo', pubKey)
-    return false
+    return { success: false, error: 'Internal error: Expected base64 string' }
   }
 
   try {
@@ -74,40 +75,47 @@ export const validatePhoto = (photoString: string, pubKey: string): boolean => {
     // validate that the type is approved and has a matching magic number header
     if (
       !(photoString.startsWith('data:image/png;base64,') && isPng(photoBytes)) &&
-      !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes)) &&
-      !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes))
+      !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes))
+      // !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes)) // disabling GIF support for now
     ) {
-      logger.error('Expected valid PNG, JPEG or GIF for user profile photo', pubKey)
-      return false
+      logger.error('Expected valid PNG or JPEG for user profile photo', pubKey)
+      return { success: false, error: 'Invalid photo format. Must be PNG or JPEG' }
     }
 
     // Apply different size limits based on image format:
-    // - For JPEG: 15MB limit (we compress these)
-    // - For PNG/GIF: 200KB limit (we don't compress these)
-    const MAX_SIZE_JPEG = 15 * 1024 * 1024 // 15MB in bytes
+    const MAX_SIZE_JPEG = 200 * 1024 // 200KB in bytes
     const MAX_SIZE_PNG_GIF = 200 * 1024 // 200KB in bytes
 
     if (photoString.startsWith('data:image/jpeg;base64,')) {
-      // JPEG format - allow up to 15MB
       if (photoBytes.length > MAX_SIZE_JPEG) {
         const sizeInMB = (photoBytes.length / (1024 * 1024)).toFixed(2)
-        logger.error(`JPEG profile photo must be less than or equal to 15MB (received: ${sizeInMB}MB)`)
-        return false
+        logger.error(
+          `JPEG profile photo must be less than or equal to ${MAX_SIZE_JPEG / (1024 * 1024)}MB (received: ${sizeInMB}MB)`
+        )
+        return {
+          success: false,
+          error: `JPEG profile photo must be less than or equal to ${MAX_SIZE_JPEG / (1024 * 1024)}MB (received: ${sizeInMB}MB)`,
+        }
       }
     } else {
       // PNG or GIF format - restrict to 200KB
       if (photoBytes.length > MAX_SIZE_PNG_GIF) {
         const sizeInKB = (photoBytes.length / 1024).toFixed(2)
-        logger.error(`PNG/GIF profile photo must be less than or equal to 200KB (received: ${sizeInKB}KB)`)
-        return false
+        logger.error(
+          `PNG/GIF profile photo must be less than or equal to ${MAX_SIZE_PNG_GIF / 1024}KB (received: ${sizeInKB}KB)`
+        )
+        return {
+          success: false,
+          error: `PNG/GIF profile photo must be less than or equal to ${MAX_SIZE_PNG_GIF / 1024}KB (received: ${sizeInKB}KB)`,
+        }
       }
     }
   } catch (e) {
     logger.error('Error while validating photo', pubKey, e)
-    return false
+    return { success: false, error: 'Internal error: Failed to validate photo' }
   }
 
-  return true
+  return { success: true }
 }
 
 /**

@@ -8,6 +8,7 @@ import IdentityPanel, { IdentityPanelProps } from './IdentityPanel/IdentityPanel
 import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import TorStatus, { TorStatusProps } from './TorStatus'
 import UserProfilePanel, { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
+import DirectMessagesPanel, { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
 
 const PREFIX = 'SidebarComponent'
 
@@ -46,9 +47,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 }))
 
-const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps & TorStatusProps & UserProfilePanelProps> = ({
-  ...props
-}) => {
+const SidebarComponent: React.FC<
+  IdentityPanelProps & ChannelsPanelProps & TorStatusProps & UserProfilePanelProps & DirectMessagesPanelProps
+> = ({ ...props }) => {
   return (
     <StyledGrid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
@@ -60,7 +61,7 @@ const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps & TorSt
             {({ width, height }) => (
               <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
                 <ChannelsPanel {...props} />
-                {/* <DirectMessagesPanel title='Direct Messages' /> */}
+                <DirectMessagesPanel {...props} />
               </Scrollbars>
             )}
           </AutoSizer>

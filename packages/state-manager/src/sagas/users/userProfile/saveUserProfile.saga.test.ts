@@ -37,7 +37,7 @@ describe('saveUserProfileSaga', () => {
     reduxFactory = await getReduxStoreFactory(store)
     baseTypesFactory = await getBaseTypesFactory()
     identity = await reduxFactory.create('Identity')
-    userProfile = await baseTypesFactory.build('UserProfile', {
+    userProfile = await reduxFactory.create('UserProfile', {
       userId: identity.userId,
     })
   })
@@ -61,13 +61,13 @@ describe('saveUserProfileSaga', () => {
       .withState(store.getState())
       .not.call(fileToBase64String, expect.any(Blob))
       .put(usersActions.setUserProfile(userProfile))
-      .apply(socket, socket.emit, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
+      .apply(socket, socket.emitWithAck, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
       .run()
   })
 
   test('sends user profile with photo to backend', async () => {
     const logger = createLogger('saveUserProfileSaga-test2')
-    logger.info('userProfile', userProfile)
+    logger.info('userProfile', JSON.stringify(userProfile, null, 2))
 
     // We are testing browser-targeting code in NodeJS and this
     // version of NodeJS doesn't have a File class, so we are using a
@@ -81,7 +81,7 @@ describe('saveUserProfileSaga', () => {
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
       .put(usersActions.setUserProfile(userProfile))
-      .apply(socket, socket.emit, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
+      .apply(socket, socket.emitWithAck, [SocketActions.SET_USER_PROFILE, { profile: userProfile }])
       .run()
   })
 })

@@ -14,6 +14,9 @@ import { SOCKS_PROXY_AGENT } from './nest/const'
 import { createLogger } from './nest/common/logger'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
+// Shutdown helper constants
+const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
+
 const logger = createLogger('backendManager')
 
 logger.info('Launching backend manager')
@@ -41,6 +44,101 @@ program.parse(process.argv)
 const options = program.opts()
 
 logger.info('options', options)
+
+function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManager: () => ConnectionsManagerService) {
+  let shuttingDown = false
+  let termSignalCount = 0
+
+  /**
+   * Close down all backend services and tell the parent process we're done.
+   * Safe to call multiple times—concurrent callers will see `shuttingDown`
+   * and return early.
+   */
+  async function gracefulCloseServices() {
+    if (shuttingDown) return
+    shuttingDown = true
+    if (process.connected) process.send?.('closing-services')
+    let timeoutId: NodeJS.Timeout | undefined
+    try {
+      // Failsafe: force‑exit if closeAllServices hangs >SHUTDOWN_TIMEOUT
+      timeoutId = setTimeout(() => {
+        logger.error('closeAllServices timed out, forcing process exit')
+        if (process.connected) process.send?.('closed-services')
+        process.exit(1)
+      }, SHUTDOWN_TIMEOUT)
+      const connectionsManager = getConnectionsManager()
+      await connectionsManager.closeAllServices()
+      logger.info('All backend services closed successfully')
+    } catch (e) {
+      logger.error('Error occurred while closing backend services', e)
+      process.exit(1)
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId)
+      if (process.connected) process.send?.('closed-services')
+      scheduleProcessExit(0)
+    }
+  }
+
+  /**
+   * Set the process exit code and let Node exit naturally so that
+   * stdout / stderr buffers have a chance to flush.
+   * Falls back to `process.exit()` only if the event‑loop hasn't
+   * unwound after a short grace period.
+   */
+  function scheduleProcessExit(code: number) {
+    logger.info(`Scheduling process exit with code ${code}`)
+    process.exitCode = code
+    // After one tick, if we're still alive, force exit (rare).
+    setTimeout(() => {
+      process.exit(code)
+    }, 500)
+  }
+
+  async function initiateShutdown(exitCode: number, reason: string) {
+    if (exitCode === 1) {
+      logger.warn(`${reason}: forcing immediate exit with code 1`)
+      scheduleProcessExit(1)
+    }
+    if (shuttingDown) return
+    logger.info(`${reason} received, initiating shutdown`)
+    await gracefulCloseServices()
+  }
+
+  async function handleTermSignal(signal: 'SIGINT' | 'SIGTERM') {
+    termSignalCount += 1
+    const exitCode = termSignalCount > 1 ? 1 : 0
+    await initiateShutdown(exitCode, signal + (exitCode ? ' (force close)' : ''))
+  }
+
+  process.on('SIGINT', async () => handleTermSignal('SIGINT'))
+  process.on('SIGTERM', async () => handleTermSignal('SIGTERM'))
+
+  process.on('uncaughtException', async (error: Error) => {
+    if (error.message.includes('EPIPE')) {
+      return
+    }
+    logger.error('Uncaught Exception thrown:', error)
+    initiateShutdown(1, 'uncaughtException')
+  })
+
+  process.on('unhandledRejection', async (reason: any, promise) => {
+    let reasonMsg = ''
+    if (reason instanceof Error) {
+      reasonMsg = reason.stack || reason.message
+    } else if (typeof reason === 'object' && reason !== null && 'stack' in reason) {
+      reasonMsg = (reason as any).stack
+    } else {
+      reasonMsg = JSON.stringify(reason)
+    }
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reasonMsg)
+    initiateShutdown(0, 'unhandledRejection')
+  })
+
+  return {
+    gracefulCloseServices,
+    initiateShutdown,
+  }
+}
 
 export const runBackendDesktop = async () => {
   logger.info('Running backend manager desktop')
@@ -72,21 +170,19 @@ export const runBackendDesktop = async () => {
   )
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+  const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
 
   process.on('message', async message => {
     if (message === 'close') {
-      try {
-        await connectionsManager.closeAllServices()
-      } catch (e) {
-        logger.error('Error occurred while closing backend services', e)
-      }
-      if (process.send) process.send('closed-services')
+      logger.info('Received close message from parent process')
+      await shutdown.gracefulCloseServices()
     }
     if (message === 'leaveCommunity') {
       try {
         await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)
+        await shutdown.initiateShutdown(1, 'leaveCommunity error')
       }
       if (process.send) process.send('leftCommunity')
     }
@@ -139,6 +235,8 @@ export const runBackendMobile = async () => {
 
     connectionsManager.resume()
   })
+
+  const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
 }
 
 const platform = options.platform
