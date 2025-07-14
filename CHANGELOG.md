@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+### Chores
+
+* Android build now targets SDK 35 [#2736](https://github.com/TryQuiet/quiet/issues/2736)
+
 ### Fixes
 
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
