@@ -1,259 +1,204 @@
-import { emit } from 'process'
 import { createLogger } from './nest/common/logger'
-
-const EventEmitter = require('events')
+import { EventEmitter } from 'events'
 
 const logger = createLogger('rnBridge')
 
-const initRnBridge = () => {
-  // @ts-ignore
-  const NativeBridge = process._linkedBinding('rn_bridge')
-
-  /**
-   * Built-in events channel to exchange events between the react-native app
-   * and the Node.js app. It allows to emit user defined event types with
-   * optional arguments.
-   */
-  const EVENT_CHANNEL = '_EVENTS_'
-
-  /**
-   * Built-in, one-way event channel reserved for sending events from
-   * the react-native plug-in native layer to the Node.js app.
-   */
-  const SYSTEM_CHANNEL = '_SYSTEM_'
-
-  /**
-   * This class is defined in the plugin's root index.js as well.
-   * Any change made here should be ported to the root index.js too.
-   * The MessageCodec class provides two static methods to serialize/deserialize
-   * the data sent through the events channel.
-   */
-  class MessageCodec {
-    event: string
-    payload: string
-    // This is a 'private' constructor, should only be used by this class
-    // static methods.
-    constructor(_event: string, ..._payload: string[]) {
-      this.event = _event
-      this.payload = JSON.stringify(_payload)
+// Augment global Process type for _linkedBinding
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface Process {
+      _linkedBinding?: (name: string) => any
     }
+  }
+}
 
-    // Serialize the message payload and the message.
-    static serialize(event: string, ...payload: string[]) {
-      const envelope = new MessageCodec(event, ...payload)
-      // Return the serialized message, that can be sent through a channel.
-      return JSON.stringify(envelope)
-    }
+interface NativeBridgeType {
+  sendMessage: (channel: string, message: string) => void
+  registerChannel: (channel: string, listener: (channelName: string, data: string) => void) => void
+  getDataDir?: () => string
+}
 
-    static parsePayload(message: string) {
-      logger.warn('rn-bridge payload', message)
-      const parsed: { [key: string]: string } = {}
-      const entries = message.split('|')
-      if (entries.length < 1) {
-        logger.warn('Malformed or non-existent rn-bridge payload ', entries)
-        return parsed
-      }
-      entries.forEach(s => {
-        const split = s.split(':')
-        if (split.length !== 2) {
-          logger.warn('Malformed rn-bridge entry: ', split)
-          return
-        }
-        parsed[split[0]] = split[1]
-      })
+interface MessageEnvelope {
+  event: string
+  payload: string | Record<string, string>
+}
 
-      logger.info('parsed', parsed)
+class MessageCodec {
+  event: string
+  payload: string
+  constructor(_event: string, ..._payload: string[]) {
+    this.event = _event
+    this.payload = JSON.stringify(_payload)
+  }
+  static serialize(event: string, ...payload: string[]): string {
+    const envelope = new MessageCodec(event, ...payload)
+    return JSON.stringify(envelope)
+  }
+  static parsePayload(message: string): Record<string, string> {
+    logger.warn('rn-bridge payload', message)
+    const parsed: Record<string, string> = {}
+    const entries = message.split('|')
+    if (entries.length < 1) {
+      logger.warn('Malformed or non-existent rn-bridge payload ', entries)
       return parsed
     }
+    entries.forEach(s => {
+      const split = s.split(':')
+      if (split.length !== 2) {
+        logger.warn('Malformed rn-bridge entry: ', split)
+        return
+      }
+      parsed[split[0]] = split[1]
+    })
+    logger.info('parsed', JSON.stringify(parsed))
+    return parsed
+  }
+  static deserialize(message: string): MessageEnvelope {
+    const envelope = JSON.parse(message) as MessageEnvelope
+    if (typeof envelope !== 'object' || !Object.prototype.hasOwnProperty.call(envelope, 'event')) {
+      logger.error('Malformed message envelope: ', envelope)
+      throw new Error('Malformed message envelope')
+    }
+    if (typeof envelope.payload === 'string') {
+      try {
+        const parsedPayload = JSON.parse(envelope.payload)
+        if (typeof parsedPayload === 'object' && parsedPayload !== null) {
+          envelope.payload = parsedPayload
+        } else {
+          envelope.payload = MessageCodec.parsePayload(envelope.payload)
+        }
+      } catch (e) {
+        if (typeof envelope.payload === 'string') {
+          envelope.payload = MessageCodec.parsePayload(envelope.payload)
+        }
+      }
+    }
+    return envelope
+  }
+}
 
-    // Deserialize the message and the message payload.
-    static deserialize(message: string) {
-      const envelope = JSON.parse(message)
-      envelope.payload = this.parsePayload(envelope.payload)
-      return envelope
+abstract class ChannelSuper extends EventEmitter {
+  name: string
+  emitLocal: (event: string, ...args: any[]) => boolean
+  constructor(name: string) {
+    super()
+    this.name = name
+    this.emitLocal = this.emit.bind(this)
+    // @ts-expect-error: Remove emit from instance
+    delete this.emit
+  }
+  abstract processData(data: string): void
+}
+
+class EventChannel extends ChannelSuper {
+  post(event: string, ...msg: string[]): void {
+    NativeBridge.sendMessage(this.name, MessageCodec.serialize(event, ...msg))
+  }
+  send(...msg: string[]): void {
+    this.post('message', ...msg)
+  }
+  processData(data: string): void {
+    logger.info('EventChannel received data:', data)
+    const envelope = MessageCodec.deserialize(data)
+    setImmediate(() => {
+      this.emitLocal(envelope.event, envelope.payload)
+    })
+  }
+}
+
+class SystemEventLock {
+  private _locksAcquired: number
+  private _callback: () => void
+  private _hasReleased: boolean
+  constructor(callback: () => void, startingLocks: number) {
+    this._locksAcquired = startingLocks
+    this._callback = callback
+    this._hasReleased = false
+    this._checkRelease()
+  }
+  release(): void {
+    if (this._hasReleased) return
+    this._locksAcquired--
+    this._checkRelease()
+  }
+  private _checkRelease(): void {
+    if (this._locksAcquired <= 0) {
+      this._hasReleased = true
+      this._callback()
     }
   }
+}
 
-  /**
-   * Channel super class.
-   */
-  class ChannelSuper extends EventEmitter {
-    constructor(name: string) {
-      super()
-      this.name = name
-
-      // Renaming the 'emit' method to 'emitLocal' is not strictly needed, but
-      // it is useful to clarify that 'emitting' on this object has a local
-      // scope: it emits the event on the react-native side only, it doesn't send
-      // the event to Node.
-      this.emitLocal = this.emit
-
-      delete this.emit
-    }
-
-    emitWrapper(type: string, ...msg: string[]) {
-      // eslint-disable-next-line
-      const _this = this
+class SystemChannel extends ChannelSuper {
+  _cacheDataDir: string | null
+  constructor(name: string) {
+    super(name)
+    this._cacheDataDir = null
+  }
+  emitWrapper(type: string): void {
+    if (type.startsWith('pause')) {
       setImmediate(() => {
-        _this.emitLocal(type, ...msg)
+        let releaseMessage = 'release-pause-event'
+        const eventArguments = type.split('|')
+        if (eventArguments.length >= 2) {
+          releaseMessage = releaseMessage + '|' + eventArguments[1]
+        }
+        const eventLock = new SystemEventLock(() => {
+          NativeBridge.sendMessage(this.name, releaseMessage)
+        }, this.listenerCount('pause'))
+        this.emitLocal('pause', eventLock)
+      })
+    } else {
+      setImmediate(() => {
+        this.emitLocal(type)
       })
     }
   }
-
-  /**
-   * Events channel class that supports user defined event types with
-   * optional arguments. Allows to send any serializable
-   * JavaScript object supported by 'JSON.stringify()'.
-   * Sending functions is not currently supported.
-   * Includes the previously available 'send' method for 'message' events.
-   */
-  class EventChannel extends ChannelSuper {
-    post(event: string, ...msg: string[]) {
-      NativeBridge.sendMessage(this.name, MessageCodec.serialize(event, ...msg))
-    }
-
-    // Posts a 'message' event, to be backward compatible with old code.
-    send(...msg: string[]) {
-      this.post('message', ...msg)
-    }
-
-    processData(data: string) {
-      // The data contains the serialized message envelope.
-      const envelope = MessageCodec.deserialize(data)
-      setImmediate(() => {
-        this.emitLocal(envelope.event, envelope.payload)
-      })
-    }
+  processData(data: string): void {
+    this.emitWrapper(data)
   }
-
-  /**
-   * System event Lock class
-   * Helper class to handle lock acquisition and release in system event handlers.
-   * Will call a callback after every lock has been released.
-   **/
-  class SystemEventLock {
-    _locksAcquired: any
-    _callback: any
-    _hasReleased: boolean
-    constructor(callback: () => any, startingLocks: any) {
-      this._locksAcquired = startingLocks // Start with one lock.
-      this._callback = callback // Callback to call after all locks are released.
-      this._hasReleased = false // To stop doing anything after it's supposed to serve its purpose.
-      this._checkRelease() // Initial check. If it's been started with no locks, can be released right away.
+  datadir(): string {
+    if (this._cacheDataDir === null) {
+      this._cacheDataDir = NativeBridge.getDataDir ? NativeBridge.getDataDir() : ''
     }
-    // Release a lock and call the callback if all locks have been released.
-    release() {
-      if (this._hasReleased) return
-      this._locksAcquired--
-      this._checkRelease()
-    }
-    // Check if the lock can be released and release it.
-    _checkRelease() {
-      if (this._locksAcquired <= 0) {
-        this._hasReleased = true
-        this._callback()
-      }
-    }
+    return this._cacheDataDir
   }
+}
 
-  /**
-   * System channel class.
-   * Emit pause/resume events when the app goes to background/foreground.
-   */
-  class SystemChannel extends ChannelSuper {
-    constructor(name: string) {
-      super(name)
-      // datadir should not change during runtime, so we cache it.
-      this._cacheDataDir = null
-    }
+let NativeBridge: NativeBridgeType
 
-    emitWrapper(type: string) {
-      // Overload the emitWrapper to handle the pause event locks.
-      // eslint-disable-next-line
-      const _this = this
-      if (type.startsWith('pause')) {
-        setImmediate(() => {
-          let releaseMessage = 'release-pause-event'
-          const eventArguments = type.split('|')
-          if (eventArguments.length >= 2) {
-            // The expected format for the release message is "release-pause-event|{eventId}"
-            // eventId comes from the pause event, with the format "pause|{eventId}"
-            releaseMessage = releaseMessage + '|' + eventArguments[1]
-          }
-          // Create a lock to signal the native side after the app event has been handled.
-          const eventLock = new SystemEventLock(
-            () => {
-              NativeBridge.sendMessage(_this.name, releaseMessage)
-            },
-            _this.listenerCount('pause') // A lock for each current event listener. All listeners need to call release().
-          )
-          _this.emitLocal('pause', eventLock)
-        })
-      } else {
-        setImmediate(() => {
-          _this.emitLocal(type)
-        })
-      }
-    }
-
-    processData(data: string) {
-      // The data is the event.
-      this.emitWrapper(data)
-    }
-
-    // Get a writable data directory for persistent file storage.
-    datadir() {
-      if (this._cacheDataDir === null) {
-        this._cacheDataDir = NativeBridge.getDataDir()
-      }
-      return this._cacheDataDir
-    }
-  }
-
-  const channels: { [key: string]: SystemChannel | EventChannel } = {}
-  /**
-   * Manage the registered channels to emit events/messages received by the
-   * react-native app or by the react-native plugin itself (i.e. the system channel).
-   */
-
-  /*
-   * This method is invoked by the native code when an event/message is received
-   * from the react-native app.
-   */
-  function bridgeListener(channelName: string, data: string) {
-    // eslint-disable-next-line
-    if (channels.hasOwnProperty(channelName)) {
+const initRnBridge = () => {
+  NativeBridge = ((process as any)._linkedBinding && (process as any)._linkedBinding('rn_bridge')) as NativeBridgeType
+  const EVENT_CHANNEL = '_EVENTS_'
+  const SYSTEM_CHANNEL = '_SYSTEM_'
+  const channels: Record<string, SystemChannel | EventChannel> = {}
+  function bridgeListener(channelName: string, data: string): void {
+    if (Object.prototype.hasOwnProperty.call(channels, channelName)) {
       channels[channelName].processData(data)
     } else {
       logger.error('ERROR: Channel not found:', channelName)
     }
   }
-
-  /*
-   * The bridge's native code processes each channel's messages in a dedicated
-   * per-channel queue, therefore each channel needs to be registered within
-   * the native code.
-   */
-  function registerChannel(channel: SystemChannel | EventChannel) {
+  function registerChannel(channel: SystemChannel | EventChannel): void {
     channels[channel.name] = channel
     NativeBridge.registerChannel(channel.name, bridgeListener)
   }
-
-  /**
-   * Module exports.
-   */
   const systemChannel = new SystemChannel(SYSTEM_CHANNEL)
   registerChannel(systemChannel)
-
-  // Signal we are ready for app events, so the native code won't lock before node is ready to handle those.
   NativeBridge.sendMessage(SYSTEM_CHANNEL, 'ready-for-app-events')
-
   const eventChannel = new EventChannel(EVENT_CHANNEL)
   registerChannel(eventChannel)
-
   return {
     app: systemChannel,
     channel: eventChannel,
-  }
+  } as RnBridge
+}
+
+export { SystemChannel, EventChannel }
+export interface RnBridge {
+  app: SystemChannel
+  channel: EventChannel
 }
 export default initRnBridge

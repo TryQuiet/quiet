@@ -3,10 +3,14 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
 import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { getReduxStoreFactory, publicChannels, communities, identity } from '@quiet/state-manager'
+import { getReduxStoreFactory, publicChannels, communities, identity, users } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
 import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
+import { Identity, UserProfile } from '@quiet/types'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('ChannelsPanelTest')
 
 describe('Channels panel', () => {
   let socket: MockedSocket
@@ -27,9 +31,16 @@ describe('Channels panel', () => {
     const community = await factory.create('Community')
     const generalChannel = publicChannels.selectors.generalChannel(store.getState())
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create('Identity', {
+    const alice: Identity = await factory.create('Identity', {
       communityId: community.id,
-      nickname: 'alice',
+    })
+    const aliceUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+      name: 'Alice',
+    })
+    logger.info('Alice user profile created:', JSON.stringify(aliceUserProfile, null, 2))
+    const aliceUser = await factory.create('User', {
+      userId: alice.userId,
     })
 
     // Setup channels
@@ -41,7 +52,7 @@ describe('Channels panel', () => {
           name: name,
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
+          owner: alice.userId,
           id: generateChannelId(name),
         },
       })
@@ -49,18 +60,23 @@ describe('Channels panel', () => {
 
     const channels = publicChannels.selectors.publicChannels(store.getState())
 
+    if (!generalChannel) throw new Error('generalChannel is undefined')
+
     const result = renderComponent(
       <ChannelsPanel
         channels={channels}
+        userProfiles={users.selectors.userProfiles(store.getState())}
+        connectedPeers={[aliceUserProfile.userData!.peerId]}
         unreadChannels={[]}
         setCurrentChannel={function (_id: string): void {}}
-        // @ts-expect-error
         currentChannelId={generalChannel.id}
         createChannelModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
           handleClose: function (): any {},
         }}
+        myUserProfile={aliceUserProfile}
+        isTorInitialized={true}
       />
     )
 
@@ -152,7 +168,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="general-link-text"
+                              data-testid="general-channel-link-text"
                             >
                               # general
                             </p>
@@ -184,7 +200,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="allergies-link-text"
+                              data-testid="allergies-channel-link-text"
                             >
                               # allergies
                             </p>
@@ -216,7 +232,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="antiques-link-text"
+                              data-testid="antiques-channel-link-text"
                             >
                               # antiques
                             </p>
@@ -248,7 +264,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="croatia-link-text"
+                              data-testid="croatia-channel-link-text"
                             >
                               # croatia
                             </p>
@@ -280,7 +296,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="pets-link-text"
+                              data-testid="pets-channel-link-text"
                             >
                               # pets
                             </p>
@@ -312,7 +328,7 @@ describe('Channels panel', () => {
                           >
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                              data-testid="sailing-link-text"
+                              data-testid="sailing-channel-link-text"
                             >
                               # sailing
                             </p>
@@ -413,7 +429,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="general-link-text"
+                            data-testid="general-channel-link-text"
                           >
                             # general
                           </p>
@@ -445,7 +461,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="allergies-link-text"
+                            data-testid="allergies-channel-link-text"
                           >
                             # allergies
                           </p>
@@ -477,7 +493,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="antiques-link-text"
+                            data-testid="antiques-channel-link-text"
                           >
                             # antiques
                           </p>
@@ -509,7 +525,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="croatia-link-text"
+                            data-testid="croatia-channel-link-text"
                           >
                             # croatia
                           </p>
@@ -541,7 +557,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="pets-link-text"
+                            data-testid="pets-channel-link-text"
                           >
                             # pets
                           </p>
@@ -573,7 +589,7 @@ describe('Channels panel', () => {
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
-                            data-testid="sailing-link-text"
+                            data-testid="sailing-channel-link-text"
                           >
                             # sailing
                           </p>

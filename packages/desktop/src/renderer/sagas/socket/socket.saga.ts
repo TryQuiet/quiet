@@ -6,7 +6,6 @@ import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
 import { createLogger } from '../../logger'
-import { encodeSecret } from '@quiet/common'
 import { SocketActions } from '@quiet/types'
 
 const logger = createLogger('socket')
@@ -14,27 +13,23 @@ const logger = createLogger('socket')
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
-  const { dataPort } = action.payload
+  const { dataPort, socketIOSecret } = action.payload
   if (!dataPort) {
     logger.error('About to start connection but no dataPort found')
+    return
   }
-
-  let socketIOSecret = yield* select(connection.selectors.socketIOSecret)
 
   if (!socketIOSecret) {
-    yield* take(connection.actions.setSocketIOSecret)
-    socketIOSecret = yield* select(connection.selectors.socketIOSecret)
+    logger.error('About to start connection but no socketIOSecret found')
+    return
   }
 
-  if (!socketIOSecret) return
-
   logger.info('Connecting to backend')
-  const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
     upgrade: true,
     extraHeaders: {
-      authorization: `Basic ${token}`,
+      authorization: `Bearer ${socketIOSecret}`,
       Connection: 'Upgrade',
       Upgrade: 'websocket',
     },

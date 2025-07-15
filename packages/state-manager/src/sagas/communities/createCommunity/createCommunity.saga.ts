@@ -69,15 +69,10 @@ export function* createCommunitySaga(
     return
   }
 
-  logger.info('Community data:', createCommunityResponse.community)
   yield* put(communitiesActions.updateCommunityData(createCommunityResponse.community))
-  logger.info('Identity data:', createCommunityResponse.identity)
   yield* put(identityActions.addNewIdentity(createCommunityResponse.identity))
-  logger.info('setUserProfile', createCommunityResponse.profile)
   yield* put(usersActions.setUserProfile(createCommunityResponse.profile))
-  logger.info('createGeneralChannel')
   yield* put(publicChannelsActions.createGeneralChannel())
-  logger.info('launchCommunity')
   yield* put(communitiesActions.launchCommunity({ id: communityId }))
   yield* put(connectionActions.createInvite({}))
 }

@@ -25,8 +25,8 @@ export const networkSlice = createSlice({
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
       connectedPeersAdapter.upsertMany(state.connectedPeers, action.payload)
     },
-    removeConnectedPeer: (state, action) => {
-      connectedPeersAdapter.removeOne(state.connectedPeers, action.payload)
+    removeConnectedPeer: (state, action: PayloadAction<ConnectedPeers>) => {
+      connectedPeersAdapter.removeOne(state.connectedPeers, action.payload[0])
     },
     setLoadingPanelType: (state, action) => {
       state.loadingPanelType = action.payload

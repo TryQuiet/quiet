@@ -43,6 +43,8 @@ import {
   PublicChannel,
   TestMessage,
   Community,
+  SetUserProfilePayload,
+  SetUserProfileResponse,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -214,6 +216,10 @@ export const getReduxStoreFactory = async (store: Store) => {
       photo: 'dGVzdAo=',
       bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
       userId: factory.assoc('User', 'userId'),
+      userData: {
+        peerId: createPeerIdTestHelper().id,
+        onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
+      },
     }
   )
 
@@ -556,8 +562,22 @@ export const getSocketFactory = async () => {
   })
 
   // User profile events
-  factory.define<UserProfile>(SocketActions.SET_USER_PROFILE, Object, {
-    userId: 'user-id',
+  factory.define<SetUserProfilePayload>(SocketActions.SET_USER_PROFILE, Object, {
+    profile: {
+      userId: 'user-id',
+      nickname: 'Test User',
+      photo: 'dGVzdAo=',
+      bio: 'This is a test user profile',
+      userData: {
+        onionAddress: 'test.onion',
+        peerId: 'peer-id',
+      },
+    },
+  })
+
+  factory.define<SetUserProfileResponse>(`${SocketActions.SET_USER_PROFILE}_response`, Object, {
+    success: true,
+    error: undefined,
   })
 
   // Migration

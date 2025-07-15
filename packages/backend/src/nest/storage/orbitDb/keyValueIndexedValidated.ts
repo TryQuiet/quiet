@@ -251,6 +251,14 @@ export const KeyValueIndexedValidated =
       }
     }
 
+    const all = async () => {
+      const values = []
+      for await (const entry of iterator()) {
+        values.unshift(entry)
+      }
+      return values
+    }
+
     /**
      * Closes the index and underlying storage.
      */
@@ -271,6 +279,7 @@ export const KeyValueIndexedValidated =
       ...keyValueStore,
       get,
       iterator,
+      all,
       close,
       drop,
     }

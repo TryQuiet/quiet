@@ -36,6 +36,12 @@ export function* redirectionSaga(): Generator {
     return
   }
 
+  logger.info('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
+  const connection = yield* select(initSelectors.isWebsocketConnected)
+  if (!connection) {
+    yield* take(initActions.setWebsocketConnected)
+  }
+
   // If user belongs to a community, let him directly into the app
   const communityMembership = yield* select(identity.selectors.communityMembership)
 
@@ -47,13 +53,6 @@ export function* redirectionSaga(): Generator {
       })
     )
     return
-  }
-
-  // If user doesn't belong to a community, wait for websocket connection and redirect to welcome screen
-  logger.info('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
-  const connection = yield* select(initSelectors.isWebsocketConnected)
-  if (!connection) {
-    yield* take(initActions.setWebsocketConnected)
   }
 
   logger.info('INIT_NAVIGATION: Switching to the join community screen.')

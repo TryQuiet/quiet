@@ -22,6 +22,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
 
   if (!identity || !identity.userId) {
     logger.error('No userId found in identity, cannot save profile')
+    yield* put(usersActions.setSaveUserProfileError('No userId found in identity, cannot save profile'))
     return
   }
 
@@ -31,6 +32,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
       base64EncodedPhoto = yield* call(fileToBase64String, action.payload.photo)
     } catch (err) {
       logger.error('Failed to base64 encode profile photo', err)
+      yield* put(usersActions.setSaveUserProfileError('Failed to base64 encode profile photo'))
       return
     }
   }
@@ -39,6 +41,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
   if (!existingUserProfile) {
     // we expect the backend to setup a user profile for us when we first connect
     logger.error('No existing user profile found, cannot save profile')
+    yield* put(usersActions.setSaveUserProfileError('No existing user profile found, cannot save profile'))
     return
   }
   const userProfile: UserProfile = {
@@ -55,6 +58,16 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<SaveU
     profile: userProfile,
   }
 
+  const response = yield* apply(
+    socket,
+    socket.emitWithAck,
+    applyEmitParams(SocketActions.SET_USER_PROFILE, socketPayload)
+  )
+  if (!response || !response.success) {
+    logger.info('Failed to save user profile', response?.error)
+    yield* put(usersActions.setSaveUserProfileError(response?.error || 'Failed to save user profile'))
+    return
+  }
   yield* put(usersActions.setUserProfile(userProfile))
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SET_USER_PROFILE, socketPayload))
+  yield* put(usersActions.setSaveUserProfileError(null))
 }

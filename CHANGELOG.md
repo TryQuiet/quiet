@@ -1,14 +1,34 @@
 # Changelog
 
-## [Unreleased]
+## [unreleased]
 
-### Features
+### Chores
 
-* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Android build now targets SDK 35 [#2736](https://github.com/TryQuiet/quiet/issues/2736)
 
 ### Fixes
 
+* Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
+* User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
 * Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+
+### Features
+
+* User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
+* In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
+* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+
+### Security
+
+* More secure socketIOSecret sharing [#2931](https://github.com/TryQuiet/quiet/issues/2931)
+
+## [6.0.1]
+
+### Security
+
+* Use libsodium for socketIOSecret comparison and migrate logic from common to backend [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+* Use libsodium for socketIOSecret generation in desktop and android [#2820](https://github.com/TryQuiet/quiet/issues/2820)
+* Simplify/standardize socketIOSecret generation on IOS (no libsodium) [#2820](https://github.com/TryQuiet/quiet/issues/2820)
 
 ## [6.0.0]
 

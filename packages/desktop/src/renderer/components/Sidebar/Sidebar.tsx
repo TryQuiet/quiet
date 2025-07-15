@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { communities, connection, identity, publicChannels, users } from '@quiet/state-manager'
+import { communities, connection, identity, network, publicChannels, users } from '@quiet/state-manager'
 import SidebarComponent from './SidebarComponent'
 import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { MenuName } from '../../../const/MenuNames.enum'
+import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
 
 const Sidebar = () => {
   const dispatch = useDispatch()
@@ -18,6 +19,9 @@ const Sidebar = () => {
 
   const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
 
+  const userProfileSelector = useSelector(users.selectors.userProfiles)
+  const myUserProfile = useSelector(users.selectors.myUserProfile)
+  const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
@@ -49,10 +53,14 @@ const Sidebar = () => {
 
   const channelsPanelProps: ChannelsPanelProps = {
     channels: publicChannelsSelector,
+    myUserProfile: myUserProfile,
+    userProfiles: userProfileSelector,
+    connectedPeers: connectedPeers,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
+    isTorInitialized: isTorInitialized,
   }
 
   const userProfilePanelProps: UserProfilePanelProps = {
@@ -62,12 +70,20 @@ const Sidebar = () => {
     userProfileContextMenu: userProfileContextMenu,
   }
 
+  const directMessagesPanelProps: DirectMessagesPanelProps = {
+    myUserProfile: myUserProfile,
+    userProfiles: userProfileSelector,
+    userProfileContextMenu: userProfileContextMenu,
+    connectedPeers: connectedPeers,
+    isTorInitialized: isTorInitialized,
+  }
+
   return (
     <SidebarComponent
       {...identityPanelProps}
       {...channelsPanelProps}
-      isTorInitialized={isTorInitialized}
       {...userProfilePanelProps}
+      {...directMessagesPanelProps}
     />
   )
 }

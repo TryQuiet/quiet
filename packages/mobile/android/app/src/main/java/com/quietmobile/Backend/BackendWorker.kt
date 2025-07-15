@@ -1,14 +1,15 @@
-package com.quietmobile.Backend;
+package com.quietmobile.Backend
 
 import android.content.Context
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.os.Build
-import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.goterl.lazysodium.LazySodiumAndroid
+import com.goterl.lazysodium.SodiumAndroid
 import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.MainApplication
@@ -19,20 +20,22 @@ import com.quietmobile.Utils.Utils
 import com.quietmobile.Utils.isAppOnForeground
 import io.socket.client.IO
 import io.socket.emitter.Emitter
+import java.util.concurrent.ThreadLocalRandom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.concurrent.ThreadLocalRandom
 
-
-class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
+class BackendWorker(private val context: Context, workerParams: WorkerParameters) :
+        CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
+
+    private var sodium = LazySodiumAndroid(SodiumAndroid())
 
     // Use dedicated class for composing and displaying notifications
     private lateinit var notificationHandler: NotificationHandler
@@ -43,6 +46,61 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             System.loadLibrary("node")
             System.loadLibrary("tor")
         }
+
+        /** Populated once in `doWork()`; used later by the JNI‑callback handshake */
+        @JvmStatic var socketIOSecret: String = ""
+
+        /** Kotlin → C++ bridge for sending messages to Node (see `own-native-lib.cpp`) */
+        @JvmStatic external fun sendMessageToNodeChannel(channelName: String, message: String)
+
+        /**
+         * Called from native code (`rcv_message` in `own-native-lib.cpp`) whenever Node posts over
+         * rn‑bridge.
+         */
+        @JvmStatic
+        fun handleNodeMessages(channelName: String, msg: String?) {
+            if (channelName == "_EVENTS_" && msg != null) {
+                try {
+                    val envelope = org.json.JSONObject(msg)
+                    val event = envelope.optString("event", "")
+                    val payloadStr = envelope.optString("payload", "")
+                    if (event == "message" && payloadStr.isNotEmpty()) {
+                        val payloadArr = org.json.JSONArray(payloadStr)
+                        if (payloadArr.length() > 0 && payloadArr.getString(0) == "readyForSecret"
+                        ) {
+                            val nonce =
+                                    if (payloadArr.length() > 1) payloadArr.getString(1) else null
+                            if (nonce != null) {
+                                val response =
+                                        org.json.JSONObject()
+                                                .put("event", "secret")
+                                                .put(
+                                                        "payload",
+                                                        org.json.JSONObject()
+                                                                .put("type", "set-socket-secret")
+                                                                .put("secret", socketIOSecret)
+                                                                .put("nonce", nonce)
+                                                )
+                                                .toString()
+                                sendMessageToNodeChannel("_EVENTS_", response)
+                            }
+                        }
+                    } else if (event == "backendReady") {
+                        CommunicationModule.handleIncomingEvents(event, "", "")
+                    } else {
+                        Log.d(
+                                "BackendWorker",
+                                "Received unhandled event: $event with payload: $payloadStr"
+                        )
+                    }
+                } catch (e: org.json.JSONException) {
+                    Log.d(
+                            "BackendWorker",
+                            "handleNodeMessages: JSONException while parsing message from backend"
+                    )
+                }
+            }
+        }
     }
 
     private fun createForegroundInfo(): ForegroundInfo {
@@ -51,44 +109,50 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         // val intent = WorkManager.getInstance(applicationContext)
         //     .createCancelPendingIntent(id)
 
-        val title = if (!BuildConfig.DEBUG) {
-            applicationContext.getString(R.string.app_name)
-        } else {
-            applicationContext.getString(R.string.debug_app_name)
-        }
+        val title =
+                if (!BuildConfig.DEBUG) {
+                    applicationContext.getString(R.string.app_name)
+                } else {
+                    applicationContext.getString(R.string.debug_app_name)
+                }
 
-        val icon = if (!BuildConfig.DEBUG) {
-            R.drawable.ic_notification
-        } else {
-            R.drawable.ic_notification_dev
-        }
+        val icon =
+                if (!BuildConfig.DEBUG) {
+                    R.drawable.ic_notification
+                } else {
+                    R.drawable.ic_notification_dev
+                }
 
-        val notification = NotificationCompat.Builder(applicationContext,
-            Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle(title)
-            .setTicker("Quiet")
-            .setContentText("Backend is running")
-            .setSmallIcon(icon)
-            // Add the cancel action to the notification which can
-            // be used to cancel the worker
-            // .addAction(android.R.drawable.ic_delete, "cancel", intent)
-            .build()
+        val notification =
+                NotificationCompat.Builder(
+                                applicationContext,
+                                Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID
+                        )
+                        .setContentTitle(title)
+                        .setTicker("Quiet")
+                        .setContentText("Backend is running")
+                        .setSmallIcon(icon)
+                        // Add the cancel action to the notification which can
+                        // be used to cancel the worker
+                        // .addAction(android.R.drawable.ic_delete, "cancel", intent)
+                        .build()
 
         val id = ThreadLocalRandom.current().nextInt(0, 9000 + 1)
 
-        val foregroundInfo: ForegroundInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ForegroundInfo(id, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
-        } else {
-            ForegroundInfo(id, notification)
-        }
+        val foregroundInfo: ForegroundInfo =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ForegroundInfo(id, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+                } else {
+                    ForegroundInfo(id, notification)
+                }
 
         return foregroundInfo
     }
 
     override suspend fun doWork(): Result {
         /* This is a simple workaround for the problem of firing doWork() method twice
-           I see people on the internet have similar problems but it seems like there's no official solution
-           https://stackoverflow.com/questions/59724922/workmanager-dowork-getting-fired-twice */
+        I see people on the internet have similar problems but it seems like there's no official solution
+        https://stackoverflow.com/questions/59724922/workmanager-dowork-getting-fired-twice */
         if (running) return Result.success()
         running = true
 
@@ -98,26 +162,27 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             // Get and store data port for usage in methods across the app
             val socketPort = Utils.getOpenPort(11000)
-            val socketIOSecret = Utils.generateRandomString(20)
+
+            val socketIOSecretBytes = sodium.randomBytesBuf(32)
+            BackendWorker.socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
 
             (applicationContext as MainApplication).setSocketPort(socketPort)
-            (applicationContext as MainApplication).setSocketIOSecret(socketIOSecret)
+            (applicationContext as MainApplication).setSocketIOSecret(BackendWorker.socketIOSecret)
 
             // Init nodejs project
-            launch {
-                nodeProject.init()
-            }
+            launch { nodeProject.init() }
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(socketPort, socketIOSecret)
+                subscribePushNotifications(socketPort, BackendWorker.socketIOSecret)
             }
 
             val dataPath = Utils.createDirectory(context)
 
-            val appInfo = applicationContext.packageManager.getApplicationInfo(context.packageName, 0)
+            val appInfo =
+                    applicationContext.packageManager.getApplicationInfo(context.packageName, 0)
             val torBinary = appInfo.nativeLibraryDir + "/libtor.so"
-            
+
             val platform = "mobile"
 
             launch {
@@ -127,26 +192,26 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * https://github.com/TryQuiet/quiet/issues/2214
                  */
                 delay(500)
-                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform --socketIOSecret $socketIOSecret", context.filesDir.absolutePath)
+                startNodeProjectWithArguments(
+                        "bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform",
+                        context.filesDir.absolutePath
+                )
+                delay(500)
             }
         }
 
         println("FINISHING BACKEND WORKER")
 
-        CommunicationModule.handleIncomingEvents(
-            CommunicationModule.BACKEND_CLOSED_CHANNEL,
-            "",
-            ""
-        )
+        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
 
         // Indicate whether the work finished successfully with the Result
         return Result.success()
     }
 
     private external fun startNodeWithArguments(
-        arguments: Array<String?>?,
-        modulesPath: String?,
-        dataPath: String?,
+            arguments: Array<String?>?,
+            modulesPath: String?,
+            dataPath: String?,
     ): Int?
 
     @Throws(Exception::class)
@@ -168,17 +233,16 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         nodeProject.waitForInit()
 
         startNodeWithArguments(
-            command.toTypedArray(),
-            "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}",
-            dataPath
+                command.toTypedArray(),
+                "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}",
+                dataPath
         )
     }
 
     private fun subscribePushNotifications(port: Int, secret: String) {
-        val encodedSecret = Base64.encodeToString(secret.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
         val options = IO.Options()
         val headers = mutableMapOf<String, List<String>>()
-        headers["Authorization"] = listOf("Basic $encodedSecret")
+        headers["Authorization"] = listOf("Bearer $secret")
         options.extraHeaders = headers
 
         val webSocketClient = IO.socket("http://127.0.0.1:$port", options)
@@ -189,22 +253,19 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     }
 
     private val onPushNotification =
-        Emitter.Listener { args ->
-            var message = ""
-            var username = ""
-            try {
-                val data = args[0] as JSONObject
-                message = data.getString("message")
-                username = data.getString("username")
-            } catch (e: JSONException) {
-                Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
+            Emitter.Listener { args ->
+                var message = ""
+                var username = ""
+                try {
+                    val data = args[0] as JSONObject
+                    message = data.getString("message")
+                    username = data.getString("username")
+                } catch (e: JSONException) {
+                    Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
+                }
+                if (context.isAppOnForeground())
+                        return@Listener // If application is in foreground, let redux be in charge
+                // of displaying notifications
+                notificationHandler.notify(message, username)
             }
-            if (context.isAppOnForeground()) return@Listener // If application is in foreground, let redux be in charge of displaying notifications
-            notificationHandler.notify(message, username)
-        }
-
-    fun handleNodeMessages(channelName: String, msg: String?) {
-        print("handle node message - channel name $channelName")
-        print("handle node message - msg $msg")
-    }
 }

@@ -3,14 +3,13 @@ import { StoreKeys } from '../store.keys'
 import { type CommunitiesState } from './communities.slice'
 
 export const CommunitiesTransform = createTransform(
-  (inboundState: CommunitiesState, _key) => {
-    return { ...inboundState }
+  // inbound: before the slice is written to storage
+  (inboundState: CommunitiesState) => {
+    // strip invitationCodes so we don't persist them
+    const { invitationCodes, ...rest } = inboundState
+    return rest as CommunitiesState
   },
-  (outboundState: CommunitiesState, _key) => {
-    return {
-      ...outboundState,
-      invitationCode: undefined,
-    }
-  },
+  // outbound: use whatever is in storage without modification
+  (outboundState: CommunitiesState) => outboundState,
   { whitelist: [StoreKeys.Communities] }
 )

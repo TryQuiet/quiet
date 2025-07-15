@@ -8,3 +8,5 @@ c4/workspace.json
 packages/.DS_Store
 .idea
 *.log
+clangd/
+**/.claude/settings.local.json

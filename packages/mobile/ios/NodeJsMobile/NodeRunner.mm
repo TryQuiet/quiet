@@ -13,18 +13,21 @@
 @synthesize startedNodeAlready = _startedNodeAlready;
 
 NSString* const SYSTEM_CHANNEL = @"_SYSTEM_";
+NSString* const EVENT_CHANNEL = @"_EVENTS_";
 
 void rcv_message(const char* channelName, const char* msg) {
   @autoreleasepool {
     NSString* objectiveCChannelName=[NSString stringWithUTF8String:channelName];
     NSString* objectiveCMessage=[NSString stringWithUTF8String:msg];
-
     if ([objectiveCChannelName isEqualToString:SYSTEM_CHANNEL]) {
       // If it's a system channel call, handle it in the plugin native side.
       handleAppChannelMessage(objectiveCMessage);
+    } else if ([objectiveCChannelName isEqualToString:EVENT_CHANNEL]) {
+      // If it's an event channel call, handle it in the plugin native side.
+      handleNodeEventMessage(objectiveCMessage);
     } else {
       // Otherwise, send it to React Native.
-    [[NodeRunner sharedInstance] sendMessageBackToReact:objectiveCChannelName:objectiveCMessage];
+      [[NodeRunner sharedInstance] sendMessageBackToReact:objectiveCChannelName:objectiveCMessage];
     }
   }
 }
@@ -70,6 +73,63 @@ void handleAppChannelMessage(NSString* msg) {
   } else if ([msg isEqualToString:@"ready-for-app-events"]) {
     // The nodejs runtime is ready for APP events.
     nodeIsReadyForAppEvents = true;
+  }
+}
+
+static void handleNodeEventMessage(NSString *msg) {
+  if (msg == nil) return;
+
+  // Parse the outer envelope {event, payload}
+  NSData *data = [msg dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *jsonErr = nil;
+  id envelope = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr];
+  if (jsonErr || ![envelope isKindOfClass:[NSDictionary class]]) return;
+
+  NSString *event  = envelope[@"event"];
+  NSString *payloadStr = envelope[@"payload"];
+  if (event == nil || payloadStr == nil) return;
+
+  if ([event isEqualToString:@"message"]) {
+    // payload is a JSON‑encoded array
+    NSData *pData = [payloadStr dataUsingEncoding:NSUTF8StringEncoding];
+    id payloadArr = [NSJSONSerialization JSONObjectWithData:pData options:0 error:&jsonErr];
+    if (jsonErr || ![payloadArr isKindOfClass:[NSArray class]]) return;
+
+    NSArray *arr = (NSArray *)payloadArr;
+    if (arr.count > 0 && [arr[0] isKindOfClass:[NSString class]] &&
+        [arr[0] isEqualToString:@"readyForSecret"]) {
+
+      NSString *nonce = (arr.count > 1 && [arr[1] isKindOfClass:[NSString class]]) ? arr[1] : nil;
+      if (nonce == nil) return;
+
+      // Build response envelope
+      NSString *socketSecret = [NodeRunner sharedInstance]->_currentModuleInstance.socketIOSecret;
+      NSDictionary *secretPayload = @{
+        @"type":  @"set-socket-secret",
+        @"secret": socketSecret,
+        @"nonce": nonce
+      };
+      NSData *secretPayloadData = [NSJSONSerialization dataWithJSONObject:secretPayload options:0 error:&jsonErr];
+      if (jsonErr || secretPayloadData == nil) return;
+      NSString *secretPayloadStr = [[NSString alloc] initWithData:secretPayloadData encoding:NSUTF8StringEncoding];
+      if (secretPayloadStr == nil) return;
+
+      NSDictionary *responseEnvelope = @{
+        @"event": @"secret",
+        @"payload": secretPayloadStr
+      };
+      NSData *respData = [NSJSONSerialization dataWithJSONObject:responseEnvelope options:0 error:&jsonErr];
+      if (jsonErr || respData == nil) return;
+      NSString *respStr = [[NSString alloc] initWithData:respData encoding:NSUTF8StringEncoding];
+
+      // Send back to Node on the same channel
+      [[NodeRunner sharedInstance] sendMessageToNode:EVENT_CHANNEL :respStr];
+    }
+  } else if ([event isEqualToString:@"backendReady"]) {
+    // Forward to React Native for any listeners
+    [[NodeRunner sharedInstance] sendMessageBackToReact:EVENT_CHANNEL :msg];
+  } else {
+    NSLog(@"NodeRunner: Received unhandled event \"%@\" with payload %@", event, payloadStr);
   }
 }
 
@@ -255,6 +315,3 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
   node_start(argument_count, argv);
 }
 @end
-
-
-

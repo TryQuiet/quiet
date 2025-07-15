@@ -20,6 +20,8 @@ import {
   LaunchCommunityPayload,
   ResponseJoinCommunityPayload,
   ResponseCreateCommunityPayload,
+  SetUserProfileResponse,
+  SetUserProfilePayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -188,9 +190,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       // ====== Users ======
 
-      socket.on(SocketActions.SET_USER_PROFILE, (profile: UserProfile) => {
-        this.emit(SocketActions.SET_USER_PROFILE, profile)
-      })
+      socket.on(
+        SocketActions.SET_USER_PROFILE,
+        (profile: SetUserProfilePayload, callback: (response: SetUserProfileResponse) => void) => {
+          this.emit(SocketActions.SET_USER_PROFILE, profile, callback)
+        }
+      )
 
       // ====== Local First Auth ======
 

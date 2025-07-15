@@ -5,6 +5,7 @@ import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType,
 import { MessageIds, RetryConfig } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
+import { execSync } from 'child_process'
 
 const logger = createLogger('selectors')
 
@@ -57,21 +58,180 @@ export class App {
     await promiseWithRetries(this.open(qssEnabled), failureReason, config, this.close)
   }
 
+  /**
+   * Close the application if it is still running.
+   *
+   * * Safe to call multiple times – a no‑op if everything is already gone.
+   * * Gracefully quits when possible, falls back to killing ChromeDriver.
+   * * Handles the case where the Electron process is dead but the DevTools
+   *   session / chromedriver is still alive.
+   */
   async close(options?: { forceSaveState?: boolean }): Promise<void> {
-    if (!this.isOpened) return
     logger.info('Closing the app', this.buildSetup.dataDir)
-    if (options?.forceSaveState) {
-      await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
-      await this.waitForSavedState()
+
+    // 1. Detect whether an Electron window is still around.
+    let sessionOpen = false
+    try {
+      sessionOpen = await this.isSessionOpen()
+    } catch {
+      /* swallowing – isSessionOpen throws if chromedriver is already gone */
     }
-    await this.buildSetup.closeDriver()
-    await this.buildSetup.killChromeDriver()
+
+    // Nothing left to do?
+    if (!this.isOpened && !sessionOpen) {
+      logger.info('App already closed ensuring driver is shut down')
+      try {
+        await this.buildSetup.closeDriver()
+        await this.buildSetup.killChromeDriver()
+      } catch {
+        /* ignore */
+      }
+      this.isOpened = false
+      return
+    }
+
+    // 2. Optionally persist state before quitting.
+    if (options?.forceSaveState && this.isOpened) {
+      try {
+        await this.saveState()
+        await this.waitForSavedState()
+      } catch (e) {
+        logger.warn('Failed to save state while closing', e)
+      }
+    }
+
+    // 3. Attempt a graceful quit *only* if we believe the renderer is alive.
+    if (sessionOpen) {
+      try {
+        await this.quitProgrammatically()
+      } catch (e) {
+        logger.error('Error while sending quit', e)
+      }
+    }
+
+    // 4. Wait (≤15 s) for the DevTools session to disappear.
+    let closed = false
+    for (let i = 0; i < 30; i++) {
+      try {
+        if (!(await this.isSessionOpen())) {
+          closed = true
+          break
+        }
+      } catch {
+        // Driver threw (likely ECONNREFUSED) → treat as closed.
+        closed = true
+        break
+      }
+      await sleep(500)
+    }
+
+    // 5. If still not closed, force‑kill the driver & chromedriver.
+    if (!closed) {
+      logger.warn('App did not close gracefully, forcing shutdown')
+    }
+    try {
+      await this.buildSetup.closeDriver()
+    } catch {
+      /* ignore */
+    }
+    try {
+      await this.buildSetup.killChromeDriver()
+    } catch {
+      /* ignore */
+    }
+
     if (process.platform === 'win32') {
       this.buildSetup.killNine()
-      await sleep(2000)
+      await sleep(2_000)
     }
+
     this.isOpened = false
     logger.info('App closed', this.buildSetup.dataDir)
+  }
+
+  async closeWindowViaX() {
+    await this.driver.executeScript("require('@electron/remote').BrowserWindow.getFocusedWindow().close();")
+    if (process.platform !== 'darwin') {
+      this.isOpened = false
+    }
+    await sleep(2000)
+  }
+
+  async quitProgrammatically() {
+    await this.driver.executeScript("require('@electron/remote').app.quit();")
+    this.isOpened = false
+    await sleep(2000)
+  }
+
+  async terminateBackendProcess() {
+    logger.warn('Terminating backend process')
+    const pids = new Set<number>()
+    const bundlePath = path.normalize('backend-bundle/bundle.cjs')
+
+    try {
+      logger.info('Getting backend process PID')
+      const { pid } = require('@electron/remote').getGlobal('backendProcess') ?? {}
+      if (pid) pids.add(pid)
+    } catch (e) {
+      /* remote not available – ignore */
+      logger.error('Error while getting backend process PID', e)
+    }
+
+    try {
+      let cmd = ''
+      switch (process.platform) {
+        case 'darwin':
+          cmd = `ps -A -o pid= -o command= | grep "${bundlePath}" | grep "${this.buildSetup.dataDir}" | grep -v grep`
+          break
+        case 'linux':
+          cmd = `pgrep -af "${bundlePath}" | grep "${this.buildSetup.dataDir}" | grep -v grep`
+          break
+        case 'win32': {
+          const bundleWin = bundlePath.replace(/\\/g, '\\\\')
+          cmd = `wmic process where "CommandLine like '%${bundleWin}%' and CommandLine like '%${this.buildSetup.dataDir}%'" get ProcessId`
+          break
+        }
+      }
+      if (cmd) {
+        const out = execSync(cmd, { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+
+        out
+          .split('\n')
+          .map(l => l.trim())
+          .filter(Boolean)
+          .forEach(line => {
+            const m = line.match(/^(\d+)\b/)
+            if (!m) return
+
+            const pid = Number(m[1])
+            // Skip obviously bogus entries (0, kernel tasks, or > 10 million).
+            if (Number.isFinite(pid) && pid > 10 && pid < 10_000_000) {
+              pids.add(pid)
+            }
+          })
+      }
+    } catch {
+      /* scanning failed – ignore */
+    }
+
+    if (pids.size === 0) {
+      logger.warn(`terminateBackendProcess: no backend PID found for ${this.buildSetup.dataDir}`)
+      return
+    }
+
+    logger.info(`Terminating backend PIDs ${[...pids].join(', ')} for ${this.buildSetup.dataDir}`)
+
+    // ----- step 3: SIGINT, wait, SIGKILL -----
+    for (const pid of pids) {
+      try {
+        logger.info(`Sending SIGINT to PID ${pid}`)
+        process.kill(pid, 'SIGINT')
+      } catch {
+        /* empty */
+      }
+    }
+    this.isOpened = false
+    await sleep(2000)
   }
 
   async cleanup(force: boolean = false) {
@@ -109,6 +269,34 @@ export class App {
       500
     )
     return await dataSaved
+  }
+
+  async isSessionOpen(): Promise<boolean> {
+    try {
+      // Try to get the session; if it fails, the app is not running
+      await this.driver.getSession()
+      const windows = await this.driver.executeScript<number>(
+        "return require('@electron/remote').BrowserWindow.getAllWindows().length"
+      )
+      return windows > 0
+    } catch (e) {
+      return false
+    }
+  }
+
+  /**
+   * Returns true if the main window is visible (not hidden/minimized/destroyed).
+   * On macOS, closing via X hides the window but does not quit the app.
+   */
+  async isVisible(): Promise<boolean> {
+    try {
+      const isVisible = await this.driver.executeScript(
+        "const win = require('@electron/remote').BrowserWindow.getAllWindows()[0]; return win ? win.isVisible() : false;"
+      )
+      return Boolean(isVisible)
+    } catch (e) {
+      return false
+    }
   }
 }
 
@@ -839,7 +1027,9 @@ export class Channel {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//p[@data-testid="${this.name}-link-text"]`)),
+      until.elementLocated(
+        By.xpath(`//p[@data-testid="${this.name}-channel-link-text" or @data-testid="${this.name}-link-text"]`)
+      ),
       60_000,
       `Link for channel ${this.name} couldn't be found within timeout`,
       500
@@ -1348,14 +1538,57 @@ export class Sidebar {
     this.driver = driver
   }
 
+  /**
+   * Get channel link elements in the sidebar
+   */
   async getChannelList() {
+    // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
-      this.driver.findElements(By.xpath('//*[contains(@data-testid, "link-text")]')),
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
       15_000,
       `Sidebar channel list couldn't be found within timeout`,
       500
     )
-    return channels
+    const channelTestIds = await Promise.all(channels.map(async channel => await channel.getAttribute('data-testid')))
+    logger.info(`Found ${channels.length} channel candidates: ${channelTestIds}`)
+    // filter out any elements that include the "-user-" text, as these are user profile links
+    const channelFilter = []
+    for (let i = 0; i < channels.length; i++) {
+      if (!channelTestIds[i].includes('user-link-text')) {
+        channelFilter.push(channels[i])
+      }
+    }
+    const filteredTestIds = await Promise.all(
+      channelFilter.map(async channel => await channel.getAttribute('data-testid'))
+    )
+    logger.info(`Filtered channels: ${filteredTestIds}`)
+    return channelFilter
+  }
+
+  /**
+   * Get user profile link elements in the sidebar
+   */
+  async getUserProfileList() {
+    const userProfileList = await this.driver.wait(
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "user-link-text")]')),
+      15_000,
+      `Sidebar user profile list couldn't be found within timeout`,
+      500
+    )
+    return userProfileList
+  }
+
+  /**
+   * Get names of all users in the sidebar
+   */
+  async getUserNames() {
+    const elements = await this.getUserProfileList()
+    return Promise.all(
+      elements.map(async element => {
+        const fullName = await element.getText()
+        return fullName.split(' ')[1]
+      })
+    )
   }
 
   /**
@@ -1437,6 +1670,80 @@ export class Sidebar {
     )
     await channelNameButton.click()
     return new Channel(this.driver, name)
+  }
+
+  /**
+   * Get user profile element by nickname
+   */
+  async getUserProfileByNickname(nickname: string) {
+    return this.driver.wait(
+      this.driver.findElement(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
+      10_000,
+      `User profile for ${nickname} couldn't be found within timeout`,
+      500
+    )
+  }
+
+  /**
+   * Wait for a specific number of user profiles in the sidebar
+   */
+  async waitForUserProfilesNum(num: number) {
+    logger.info(`Waiting for ${num} user profiles`)
+    return this.driver.wait(
+      async () => {
+        const users = await this.getUserProfileList()
+        return users.length === num
+      },
+      15_000,
+      `Sidebar user profile list length couldn't be determined within timeout`,
+      500
+    )
+  }
+
+  /**
+   * Wait for a specific set of user profile names in the sidebar
+   */
+  async waitForUserProfiles(userNames: Array<string>) {
+    await this.waitForUserProfilesNum(userNames.length)
+    const names = await this.getUserNames()
+    expect(names).toEqual(expect.arrayContaining(userNames))
+  }
+
+  /**
+   * Check if a user's connected badge is visible
+   */
+  async isUserConnected(nickname: string): Promise<boolean> {
+    const userProfile = await this.getUserProfileByNickname(nickname)
+    try {
+      const badge = await userProfile.findElement(
+        By.xpath(`.//span[contains(@class, 'MuiBadge-dot') and not(contains(@class, 'MuiBadge-invisible'))]`)
+      )
+      return await badge.isDisplayed()
+    } catch (e) {
+      return false
+    }
+  }
+
+  /**
+   * Wait for a user's connected badge to become visible
+   */
+  async waitForUserConnected(nickname: string, timeout = 60_000): Promise<void> {
+    const userProfile = await this.getUserProfileByNickname(nickname)
+    await this.driver.wait(
+      async () => {
+        try {
+          const badge = await userProfile.findElement(
+            By.xpath(`.//span[contains(@class, 'MuiBadge-dot') and not(contains(@class, 'MuiBadge-invisible'))]`)
+          )
+          return await badge.isDisplayed()
+        } catch (e) {
+          return false
+        }
+      },
+      timeout,
+      `Connected badge for user ${nickname} was not visible within timeout`,
+      500
+    )
   }
 }
 
