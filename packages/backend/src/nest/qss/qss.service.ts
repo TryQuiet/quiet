@@ -34,7 +34,6 @@ import { RoleName } from '../auth/services/roles/roles'
 import { hash } from '../../../../../3rd-party/auth/packages/crypto/dist'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
-import { TimedQueue } from '../common/timed-queue'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
