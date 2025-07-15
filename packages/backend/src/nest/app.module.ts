@@ -68,7 +68,6 @@ const logger = createLogger('appModule')
 export class AppModule {
   static forOptions(options: ConnectionsManagerTypes) {
     const configOptions: ConfigOptions = { ...options, ...new ConnectionsManagerOptions() }
-    logger.info('configOptions', configOptions)
     return {
       module: AppModule,
       providers: [
@@ -123,8 +122,15 @@ export class AppModule {
                 res.end()
                 return
               }
-
-              const token = authHeader && authHeader.split(' ')[1]
+              // Require Bearer token
+              const match = /^Bearer (.+)$/.exec(authHeader)
+              if (!match) {
+                _ioLogger.error('Backend server: Invalid or missing Bearer token')
+                res.writeHead(401, 'Invalid or missing Bearer token')
+                res.end()
+                return
+              }
+              const token = match[1]
               if (!token) {
                 _ioLogger.error('Backend server: No auth token')
                 res.writeHead(401, 'No authorization token')

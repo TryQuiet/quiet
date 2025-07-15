@@ -18,6 +18,7 @@ import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
 import { SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { initSelectors } from '../init.selectors'
 
 const logger = createLogger('startConnection')
 
@@ -25,6 +26,12 @@ export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
   const { dataPort, socketIOSecret } = action.payload
+
+  const isConnected = yield* select(initSelectors.isWebsocketConnected)
+  if (isConnected) {
+    logger.warn('Websocket is already connected. Skipping connection saga.')
+    return
+  }
 
   logger.info(`Starting connection saga on dataPort: ${dataPort}`)
 
@@ -43,7 +50,7 @@ export function* startConnectionSaga(
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
     extraHeaders: {
-      authorization: `Basic ${socketIOSecret}`,
+      authorization: `Bearer ${socketIOSecret}`,
     },
   })
   yield* fork(handleSocketLifecycleActions, socket, action.payload)

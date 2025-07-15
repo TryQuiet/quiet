@@ -56,6 +56,7 @@ jest.mock('child_process', () => {
     fork: jest.fn().mockImplementation(() => {
       return {
         on: jest.fn(),
+        once: jest.fn(),
         send: jest.fn(),
       }
     }),
@@ -333,5 +334,34 @@ describe('Invitation code', () => {
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: deepUrl })
+  })
+})
+
+describe('security: socketIOSecret exposure', () => {
+  it('does not leak socketIOSecret in renderer process URL (query string)', () => {
+    // Find the call to mainWindow.loadURL and check the search param
+    const BrowserWindowMock = BrowserWindow as unknown as jest.Mock
+    const calls = BrowserWindowMock.mock.calls
+    // The second BrowserWindow is the main window
+    const mainWindowInstance = BrowserWindowMock.mock.results[0]?.value
+    expect(mainWindowInstance).toBeDefined()
+    const loadURL = mainWindowInstance.loadURL
+    expect(loadURL).toBeDefined()
+    // Find the call to loadURL and extract the URL
+    const loadURLCalls = loadURL.mock.calls
+    expect(loadURLCalls.length).toBeGreaterThan(0)
+    const urlArg = loadURLCalls[0][0]
+    // Should NOT contain socketIOSecret=...
+    expect(urlArg).not.toMatch(/socketIOSecret=[a-f0-9]{64}/i)
+  })
+
+  it('does not leak socketIOSecret in backend process fork arguments', () => {
+    // Check the arguments passed to fork
+    const forkMock = require('child_process').fork
+    const forkCalls = forkMock.mock.calls
+    expect(forkCalls.length).toBeGreaterThan(0)
+    // Should NOT find the call with -scrt
+    const secretCall = forkCalls.find((call: (string | string[])[]) => call[1] && call[1].includes('-scrt'))
+    expect(secretCall).toBeUndefined()
   })
 })

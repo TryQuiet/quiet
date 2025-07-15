@@ -223,6 +223,28 @@ describe('One Client', () => {
     })
   })
 
+  describe('security: socketIOSecret exposure', () => {
+    it('does NOT leak socketIOSecret in renderer process URL (query string)', async () => {
+      // Get the main window's URL via webdriver
+      const url = await app.driver.getCurrentUrl()
+      // The secret should NOT be present as a query param
+      expect(url).not.toMatch(/socketIOSecret=[a-f0-9]{64}/i)
+    })
+
+    it('does NOT leak socketIOSecret in window.location.search in renderer', async () => {
+      // Evaluate in renderer context
+      const search = await app.driver.executeScript('return window.location.search')
+      expect(search).not.toMatch(/socketIOSecret=[a-f0-9]{64}/i)
+    })
+
+    it('does NOT leak socketIOSecret in backend process arguments (process list)', async () => {
+      // This test assumes you can get the backend process command line via BuildSetup.getProcessData
+      // and that it should NOT include the -scrt <secret> argument in a way that's exposed
+      const processData = app.buildSetup.getProcessData()
+      const backendArgs = JSON.stringify(processData)
+      expect(backendArgs).not.toMatch(/-scrt [a-f0-9]{64}/i)
+    })
+  })
   describe('App closing methods', () => {
     beforeEach(async () => {
       const opened = await app.isSessionOpen()

@@ -16,6 +16,10 @@
 * User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
 
+### Security
+
+* More secure socketIOSecret sharing [#2931](https://github.com/TryQuiet/quiet/issues/2931)
+
 ## [6.0.1]
 
 ### Security
@@ -23,7 +27,6 @@
 * Use libsodium for socketIOSecret comparison and migrate logic from common to backend [#2820](https://github.com/TryQuiet/quiet/issues/2820)
 * Use libsodium for socketIOSecret generation in desktop and android [#2820](https://github.com/TryQuiet/quiet/issues/2820)
 * Simplify/standardize socketIOSecret generation on IOS (no libsodium) [#2820](https://github.com/TryQuiet/quiet/issues/2820)
-=
 
 ## [6.0.0]
 

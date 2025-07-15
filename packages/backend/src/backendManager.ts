@@ -7,12 +7,13 @@ import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import { TorControl } from './nest/tor/tor-control.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
-import initRnBridge from './rn-bridge'
+import initRnBridge, { RnBridge } from './rn-bridge'
 import { INestApplicationContext } from '@nestjs/common'
 import { OpenServices, validateOptions } from './options'
 import { SOCKS_PROXY_AGENT } from './nest/const'
 import { createLogger } from './nest/common/logger'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import { randomBytes } from 'crypto'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -36,15 +37,29 @@ program
   .option('-a, --appDataPath <string>', 'Path of application data directory')
   .option('-d, --socketIOPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
-  .option('-scrt, --socketIOSecret <string>', 'socketIO secret')
 
 logger.info('Parsing args')
 
 program.parse(process.argv)
 const options = program.opts()
 
-logger.info('options', options)
+interface SecretMessage {
+  type: 'set-socket-secret'
+  secret: string
+  nonce: string
+}
 
+let secretReceived = false
+
+function isSecretMessage(msg: any): msg is SecretMessage {
+  return (
+    msg &&
+    typeof msg === 'object' &&
+    msg.type === 'set-socket-secret' &&
+    typeof msg.secret === 'string' &&
+    typeof msg.nonce === 'string'
+  )
+}
 function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManager: () => ConnectionsManagerService) {
   let shuttingDown = false
   let termSignalCount = 0
@@ -140,24 +155,23 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
   }
 }
 
-export const runBackendDesktop = async () => {
+export const runBackendDesktop = async (secret: string) => {
   logger.info('Running backend manager desktop')
 
   const isDev = process.env.NODE_ENV === 'development'
-
   const webcrypto = new Crypto()
-
   // @ts-ignore
   global.crypto = webcrypto
-
   validateOptions(options)
-
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
-
+  if (!secret) {
+    logger.error('Socket IO secret is not set. Please set SOCKET_IO_SECRET via IPC.')
+    throw new Error('Socket IO secret is not set.')
+  }
   const app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.socketIOPort,
-      socketIOSecret: options.socketIOSecret,
+      socketIOSecret: secret,
       torBinaryPath: torBinForPlatform(resourcesPath),
       torResourcesPath: torDirForPlatform(resourcesPath),
       torControlPort: await getPort(),
@@ -168,7 +182,6 @@ export const runBackendDesktop = async () => {
       },
     })
   )
-
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
 
@@ -189,19 +202,15 @@ export const runBackendDesktop = async () => {
   })
 }
 
-export const runBackendMobile = async () => {
+export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   logger.info('Running backend manager mobile')
-
-  // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
-  process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
-
-  const rn_bridge = initRnBridge()
+  process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString()
 
   const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
-      socketIOSecret: options.socketIOSecret,
+      socketIOSecret: secret,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
       torAuthCookie: options.authCookie ? options.authCookie : null,
       torControlPort: options.controlPort ? options.controlPort : await getPort(),
@@ -215,48 +224,86 @@ export const runBackendMobile = async () => {
     }),
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
-
   let proxyAgent: HttpsProxyAgent<string> | undefined
-
   rn_bridge.channel.on('close', () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     connectionsManager.pause()
   })
-
   rn_bridge.channel.on('open', (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     const torControl = app.get<TorControl>(TorControl)
     proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
-
     torControl.torControlParams.port = msg.torControlPort
     torControl.torControlParams.auth.value = msg.authCookie
     proxyAgent.connectOpts.port = msg.httpTunnelPort
     proxyAgent.proxy.port = msg.httpTunnelPort
-
     connectionsManager.resume()
   })
-
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
+  rn_bridge.channel.send('backendReady')
 }
 
 const platform = options.platform
-
 if (platform === 'desktop') {
-  runBackendDesktop().catch(error => {
-    logger.error('Error occurred while initializing backend', error)
-    throw error
-  })
-} else if (platform === 'mobile') {
-  runBackendMobile().catch(async error => {
-    logger.error('Error occurred while initializing backend', error)
-    // Prevent stopping process before getting output
-    await new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve()
-      }, 10000)
+  let ipcNonce: string | undefined = randomBytes(16).toString('hex')
+  process.on('message', async msg => {
+    if (secretReceived) return
+    if (!isSecretMessage(msg)) return
+
+    secretReceived = true
+    const secret = msg.secret
+    if (msg.nonce && typeof msg.nonce === 'string') {
+      if (msg.nonce !== ipcNonce) {
+        logger.error('IPC nonce mismatch. Expected:', ipcNonce, 'Received:', msg.nonce)
+        throw new Error('IPC nonce mismatch')
+      }
+    }
+    ipcNonce = undefined
+    runBackendDesktop(secret).catch(async error => {
+      logger.error('Error occurred while initializing backend', error)
+      // Prevent stopping process before getting output
+      await new Promise<void>(resolve => {
+        setTimeout(() => {
+          resolve()
+        }, 10000)
+      })
     })
-    throw error
   })
-} else {
+  process.send?.({ type: 'readyForSecret', nonce: ipcNonce })
+} else if (platform === 'mobile') {
+  const rn_bridge: RnBridge = initRnBridge()
+  let ipcNonce: string | undefined = randomBytes(16).toString('hex')
+
+  rn_bridge.channel.once('secret', async msg => {
+    if (isSecretMessage(msg) && msg.nonce === ipcNonce && !secretReceived) {
+      secretReceived = true
+      ipcNonce = undefined
+
+      runBackendMobile(rn_bridge, msg.secret).catch(async error => {
+        logger.error('Error occurred while initializing backend', error)
+        // Prevent stopping process before getting output
+        if (process.env.NODE_ENV === 'development') {
+          await new Promise<void>(resolve => {
+            setTimeout(() => {
+              resolve()
+            }, 10000)
+          })
+        } else {
+          await new Promise<void>(resolve => {
+            setTimeout(() => {
+              resolve()
+            }, 100)
+          })
+        }
+      })
+    } else {
+      throw new Error('Invalid secret message or nonce mismatch')
+    }
+  })
+  // Notify the Kotlin side that we're ready
+  rn_bridge.channel.send('readyForSecret', ipcNonce)
+}
+
+if (platform !== 'desktop' && platform !== 'mobile') {
   throw Error(`Platfrom must be either desktop or mobile, received ${options.platform}`)
 }

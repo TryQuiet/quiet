@@ -11,6 +11,8 @@ NSString* const EVENTS_CHANNEL = @"_EVENTS_";
 NSString* const BUILTIN_MODULES_RESOURCE_PATH = @"builtin_modules";
 NSString* const NODEJS_PROJECT_RESOURCE_PATH = @"nodejs-project";
 NSString* const NODEJS_DLOPEN_OVERRIDE_FILENAME = @"override-dlopen-paths-preload.js";
+
+@synthesize socketIOSecret = _socketIOSecret;
 NSString* nodePath;
 
 @synthesize bridge = _bridge;
@@ -30,14 +32,14 @@ NSString* nodePath;
   self = [super init];
   if (self != nil)
   {
-    [[NodeRunner sharedInstance] setCurrentRNNodeJsMobile:self];
+    _socketIOSecret = nil;
   }
 
   NSString* builtinModulesPath = [[NSBundle mainBundle] pathForResource:BUILTIN_MODULES_RESOURCE_PATH ofType:@""];
   nodePath = [[NSBundle mainBundle] pathForResource:NODEJS_PROJECT_RESOURCE_PATH ofType:@""];
   nodePath = [nodePath stringByAppendingString:@":"];
   nodePath = [nodePath stringByAppendingString:builtinModulesPath];
-  
+
   return self;
 }
 
@@ -56,7 +58,7 @@ RCT_EXPORT_MODULE()
   NSMutableArray* nodeArguments = nil;
 
   NSString* dlopenoverridePath = [[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"%@/%@", NODEJS_PROJECT_RESOURCE_PATH, NODEJS_DLOPEN_OVERRIDE_FILENAME] ofType:@""];
-  
+
   // Check if the file to override dlopen lookup exists, for loading native modules from the Frameworks.
   if(!dlopenoverridePath)
   {
@@ -80,6 +82,7 @@ RCT_EXPORT_MODULE()
 
     [nodeArguments addObjectsFromArray:args];
   }
+  [[NodeRunner sharedInstance] setCurrentRNNodeJsMobile:(RNNodeJsMobile *)self];
   [[NodeRunner sharedInstance] startEngineWithArguments:nodeArguments:nodePath];
 }
 
@@ -118,4 +121,3 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
 }
 
 @end
-

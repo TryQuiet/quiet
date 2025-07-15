@@ -1,12 +1,7 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
-import {
-  generateMessageFactoryContentWithId,
-  getReduxStoreFactory,
-  identity,
-  publicChannels,
-} from '@quiet/state-manager'
+import { generateMessageFactoryContentWithId, getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
 import { setupCrypto } from '@quiet/identity'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -90,6 +85,14 @@ describe('redirectionSaga', () => {
         verifyAutomatically: true,
       })
     ).message
+
+    store.dispatch({
+      type: 'Init/setWebsocketConnected',
+      payload: {
+        dataPort: 1234,
+        socketIOSecret: 'mocked-secret',
+      },
+    })
 
     const reducer = combineReducers(reducers)
     await expectSaga(redirectionSaga)

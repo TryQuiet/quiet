@@ -4,7 +4,8 @@ import { ipcRenderer } from 'electron'
 import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
-import { communities, connection } from '@quiet/state-manager'
+import { socketActions } from './sagas/socket/socket.slice'
+import { communities } from '@quiet/state-manager'
 import { createLogger } from './logger'
 
 const logger = createLogger('index')
@@ -35,7 +36,16 @@ ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) =
 })
 
 ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
-  store.dispatch(connection.actions.setSocketIOSecret(socketIOSecret))
+  const dataPort = new URLSearchParams(window.location.search).get('dataPort')
+  if (!dataPort) {
+    logger.error('No dataPort found in URL parameters')
+    return
+  }
+  if (!socketIOSecret) {
+    logger.error('No socketIOSecret found in IPC event')
+    return
+  }
+  store.dispatch(socketActions.startConnection({ dataPort: parseInt(dataPort), socketIOSecret }))
 })
 
 const container = document.getElementById('root')
