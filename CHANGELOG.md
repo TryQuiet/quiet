@@ -1,6 +1,6 @@
 # Changelog
 
-## [unreleased]
+## [6.1.0]
 
 ### Chores
 
