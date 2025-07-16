@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, ListItemButton, Avatar } from '@mui/material'
 import Badge from '@mui/material/Badge'
@@ -23,13 +23,18 @@ const classes = {
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
-    backgroundColor: '#4caf50',
-    color: '#4caf50',
-    width: 10,
-    height: 10,
+    backgroundColor: theme.palette.colors.statusGreen,
+    color: theme.palette.colors.statusGreen,
+    width: theme.componentSizes.statusIndicator.size,
+    height: theme.componentSizes.statusIndicator.size,
+    minWidth: theme.componentSizes.statusIndicator.size,
+    minHeight: theme.componentSizes.statusIndicator.size,
     borderRadius: '50%',
-    border: '1.5px solid white',
+    border: `${theme.componentSizes.statusIndicator.borderWidth}px solid ${theme.palette.colors?.sidebarBackground || theme.palette.background.default}`,
     boxSizing: 'border-box',
+    right: theme.componentSizes.statusIndicator.position.right,
+    bottom: theme.componentSizes.statusIndicator.position.bottom,
+    padding: 0,
   },
 }))
 
@@ -37,7 +42,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: 220,
     padding: `3px 16px 3px 16px`,
-    gap: 8,
+    gap: theme.componentSizes.userListItem.gap,
     opacity: 1,
     display: 'flex',
     backgroundColor: 'inherit',
@@ -47,10 +52,10 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     backgroundColor: theme.palette.colors?.sidebarHover || theme.palette.action.hover,
   },
   [`& .${classes.avatar}`]: {
-    width: 28,
-    height: 28,
-    marginRight: 12,
-    fontSize: 16,
+    width: theme.componentSizes.avatar.small,
+    height: theme.componentSizes.avatar.small,
+    marginRight: 0,
+    fontSize: 14,
     borderRadius: 4,
     background: theme.palette.background.paper,
   },
@@ -79,6 +84,8 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
   userProfileContextMenu,
   connected = false,
 }) => {
+  const theme = useTheme()
+
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation()
     userProfileContextMenu.handleOpen({ userProfile })
@@ -102,7 +109,11 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
           <Avatar className={classes.avatar} src={userProfile.photo} alt={userProfile.nickname} />
         ) : (
           <span className={classes.avatar}>
-            <Jdenticon value={userProfile.userId} size='28' style={{ width: 28, height: 28, borderRadius: 4 }} />
+            <Jdenticon
+              value={userProfile.userId}
+              size={theme.componentSizes.avatar.small.toString()}
+              style={{ borderRadius: 4 }}
+            />
           </span>
         )}
       </StyledBadge>

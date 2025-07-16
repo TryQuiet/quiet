@@ -123,6 +123,26 @@ const lightTheme = createTheme({
       sidebarBackground: '#511974',
       sidebarSelected: '#FFFFFF19',
       sidebarHover: '#FFFFFF0C',
+      // Status colors
+      statusGreen: '#9BD174', // Grass Green - for online status
+    },
+  },
+  componentSizes: {
+    avatar: {
+      small: 24,
+      medium: 28,
+      large: 40,
+    },
+    statusIndicator: {
+      size: 11, // Total size including border
+      borderWidth: 2,
+      position: {
+        right: 0,
+        bottom: 2,
+      },
+    },
+    userListItem: {
+      gap: 8,
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
@@ -349,6 +369,26 @@ const darkTheme = createTheme({
       sidebarBackground: '#2F193D',
       sidebarSelected: '#FFFFFF19',
       sidebarHover: '#FFFFFF0C',
+      // Status colors
+      statusGreen: '#9BD174', // Grass Green - for online status
+    },
+  },
+  componentSizes: {
+    avatar: {
+      small: 24,
+      medium: 28,
+      large: 40,
+    },
+    statusIndicator: {
+      size: 11, // Total size including border
+      borderWidth: 2,
+      position: {
+        right: 0,
+        bottom: 2,
+      },
+    },
+    userListItem: {
+      gap: 8,
     },
   },
   //@ts-ignore MUI types expect 25 shadows
