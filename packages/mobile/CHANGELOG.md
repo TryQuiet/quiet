@@ -1,26 +1,6 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.1.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0-alpha.2...@quiet/mobile@6.1.0-alpha.3) (2025-07-16)
-
-
-### Reverts
-
-* Revert "upgrade to AGP 8.3.2, Gradle 8.8, Android SDK 35 (#2923)" ([504545e](https://github.com/TryQuiet/quiet/commit/504545efbc5ddf1d3f0ddcf9fbeb9137d378a3e5)), closes [#2923](https://github.com/TryQuiet/quiet/issues/2923)
-
-
-
-
-
 # Changelog
 
 ## [6.1.0]
-
-### Chores
-
-* Android build now targets SDK 35 [#2736](https://github.com/TryQuiet/quiet/issues/2736)
 
 ### Fixes
 
