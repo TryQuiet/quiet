@@ -1,19 +1,26 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.0.1...@quiet/desktop@6.1.0-alpha.0) (2025-07-16)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
-## [Unreleased]
+## [6.1.0]
+
+### Chores
+
+* Android build now targets SDK 35 [#2736](https://github.com/TryQuiet/quiet/issues/2736)
+
+### Fixes
+
+* Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
+* User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
+
+### Features
+
+* User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
+* In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
+
+### Security
+
+* More secure socketIOSecret sharing [#2931](https://github.com/TryQuiet/quiet/issues/2931)
+
+## [6.0.1]
 
 ### Security
 
@@ -42,7 +49,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Chores
 
 * Quiet Desktop now uses Tor 0.4.8.16
-* The process for updating Tor on desktop is now mostly automated and part of our release checklist
+* The process for updating Tor on desktop is now mostly automated and part of our release checklist (thanks @bitmold!)
 * Quiet Android now uses Tor 0.4.8.16 [#2861](https://github.com/TryQuiet/quiet/issues/2861)
 * The process for updating Tor on Android is now also mostly automated and part of our release checklist
 * Stops duplicating Tor binaries on MacOS (we were just duplicating the same Universal Binary for both x64 and arm64, which did not make sense.)
