@@ -23,13 +23,18 @@ const classes = {
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
-    backgroundColor: '#4caf50',
-    color: '#4caf50',
-    width: 10,
-    height: 10,
+    backgroundColor: '#9BD174',
+    color: '#9BD174',
+    width: 11,
+    height: 11,
+    minWidth: 11,
+    minHeight: 11,
     borderRadius: '50%',
-    border: '1.5px solid white',
+    border: `2px solid ${theme.palette.colors?.sidebarBackground || theme.palette.background.default}`,
     boxSizing: 'border-box',
+    right: 0,
+    bottom: 2,
+    padding: 0,
   },
 }))
 
@@ -47,10 +52,10 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     backgroundColor: theme.palette.colors?.sidebarHover || theme.palette.action.hover,
   },
   [`& .${classes.avatar}`]: {
-    width: 28,
-    height: 28,
-    marginRight: 12,
-    fontSize: 16,
+    width: 24,
+    height: 24,
+    marginRight: 0,
+    fontSize: 14,
     borderRadius: 4,
     background: theme.palette.background.paper,
   },
@@ -102,7 +107,7 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
           <Avatar className={classes.avatar} src={userProfile.photo} alt={userProfile.nickname} />
         ) : (
           <span className={classes.avatar}>
-            <Jdenticon value={userProfile.userId} size='28' style={{ width: 28, height: 28, borderRadius: 4 }} />
+            <Jdenticon value={userProfile.userId} size='24' style={{ width: 24, height: 24, borderRadius: 4 }} />
           </span>
         )}
       </StyledBadge>
