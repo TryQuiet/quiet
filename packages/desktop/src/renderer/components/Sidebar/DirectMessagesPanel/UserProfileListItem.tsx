@@ -23,17 +23,17 @@ const classes = {
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
-    backgroundColor: '#9BD174',
-    color: '#9BD174',
-    width: 11,
-    height: 11,
-    minWidth: 11,
-    minHeight: 11,
+    backgroundColor: theme.palette.colors.statusGreen,
+    color: theme.palette.colors.statusGreen,
+    width: theme.componentSizes.statusIndicator.size,
+    height: theme.componentSizes.statusIndicator.size,
+    minWidth: theme.componentSizes.statusIndicator.size,
+    minHeight: theme.componentSizes.statusIndicator.size,
     borderRadius: '50%',
-    border: `2px solid ${theme.palette.colors?.sidebarBackground || theme.palette.background.default}`,
+    border: `${theme.componentSizes.statusIndicator.borderWidth}px solid ${theme.palette.colors?.sidebarBackground || theme.palette.background.default}`,
     boxSizing: 'border-box',
-    right: 0,
-    bottom: 2,
+    right: theme.componentSizes.statusIndicator.position.right,
+    bottom: theme.componentSizes.statusIndicator.position.bottom,
     padding: 0,
   },
 }))
@@ -42,7 +42,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: 220,
     padding: `3px 16px 3px 16px`,
-    gap: 8,
+    gap: theme.componentSizes.userListItem.gap,
     opacity: 1,
     display: 'flex',
     backgroundColor: 'inherit',
@@ -52,8 +52,8 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     backgroundColor: theme.palette.colors?.sidebarHover || theme.palette.action.hover,
   },
   [`& .${classes.avatar}`]: {
-    width: 24,
-    height: 24,
+    width: theme.componentSizes.avatar.small,
+    height: theme.componentSizes.avatar.small,
     marginRight: 0,
     fontSize: 14,
     borderRadius: 4,
@@ -107,7 +107,7 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
           <Avatar className={classes.avatar} src={userProfile.photo} alt={userProfile.nickname} />
         ) : (
           <span className={classes.avatar}>
-            <Jdenticon value={userProfile.userId} size='24' style={{ width: 24, height: 24, borderRadius: 4 }} />
+            <Jdenticon value={userProfile.userId} size='24' style={{ borderRadius: 4 }} />
           </span>
         )}
       </StyledBadge>
