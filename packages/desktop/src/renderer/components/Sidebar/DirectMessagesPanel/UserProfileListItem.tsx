@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, ListItemButton, Avatar } from '@mui/material'
 import Badge from '@mui/material/Badge'
@@ -84,6 +84,8 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
   userProfileContextMenu,
   connected = false,
 }) => {
+  const theme = useTheme()
+
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation()
     userProfileContextMenu.handleOpen({ userProfile })
@@ -107,7 +109,11 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
           <Avatar className={classes.avatar} src={userProfile.photo} alt={userProfile.nickname} />
         ) : (
           <span className={classes.avatar}>
-            <Jdenticon value={userProfile.userId} size='24' style={{ borderRadius: 4 }} />
+            <Jdenticon
+              value={userProfile.userId}
+              size={theme.componentSizes.avatar.small.toString()}
+              style={{ borderRadius: 4 }}
+            />
           </span>
         )}
       </StyledBadge>
