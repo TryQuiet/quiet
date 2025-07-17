@@ -5,6 +5,7 @@ import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { getReduxStoreFactory, publicChannels, communities, identity, users } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
+import DirectMessagesPanel from '../DirectMessagesPanel/DirectMessagesPanel'
 import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
 import { Identity, UserProfile } from '@quiet/types'
@@ -20,7 +21,7 @@ describe('Channels panel', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('displays channels in proper order', async () => {
+  it('displays channels and users in proper order', async () => {
     const { store } = await prepareStore(
       {},
       socket // Fork State manager's sagas
@@ -43,6 +44,29 @@ describe('Channels panel', () => {
       userId: alice.userId,
     })
 
+    // Create additional users for the users list
+    const bob: Identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const bobUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: bob.userId,
+      name: 'Bob',
+    })
+    const bobUser = await factory.create('User', {
+      userId: bob.userId,
+    })
+
+    const charlie: Identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const charlieUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: charlie.userId,
+      name: 'Charlie',
+    })
+    const charlieUser = await factory.create('User', {
+      userId: charlie.userId,
+    })
+
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
@@ -59,25 +83,48 @@ describe('Channels panel', () => {
     }
 
     const channels = publicChannels.selectors.publicChannels(store.getState())
+    const userProfilesMap = users.selectors.userProfiles(store.getState())
 
     if (!generalChannel) throw new Error('generalChannel is undefined')
 
+    // Mock userProfileContextMenu
+    const mockUserProfileContextMenu = {
+      visible: false,
+      handleOpen: jest.fn(),
+      handleClose: jest.fn(),
+      setUserId: jest.fn(),
+      setPosition: jest.fn(),
+      closeMenu: jest.fn(),
+      userId: '',
+      users: {},
+      position: { x: 0, y: 0 },
+    }
+
     const result = renderComponent(
-      <ChannelsPanel
-        channels={channels}
-        userProfiles={users.selectors.userProfiles(store.getState())}
-        connectedPeers={[aliceUserProfile.userData!.peerId]}
-        unreadChannels={[]}
-        setCurrentChannel={function (_id: string): void {}}
-        currentChannelId={generalChannel.id}
-        createChannelModal={{
-          open: false,
-          handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {},
-        }}
-        myUserProfile={aliceUserProfile}
-        isTorInitialized={true}
-      />
+      <>
+        <ChannelsPanel
+          channels={channels}
+          userProfiles={userProfilesMap}
+          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          unreadChannels={[]}
+          setCurrentChannel={function (_id: string): void {}}
+          currentChannelId={generalChannel.id}
+          createChannelModal={{
+            open: false,
+            handleOpen: function (_args?: any): any {},
+            handleClose: function (): any {},
+          }}
+          myUserProfile={aliceUserProfile}
+          isTorInitialized={true}
+        />
+        <DirectMessagesPanel
+          myUserProfile={aliceUserProfile}
+          userProfiles={userProfilesMap}
+          userProfileContextMenu={mockUserProfileContextMenu}
+          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          isTorInitialized={true}
+        />
+      </>
     )
 
     expect(result).toMatchInlineSnapshot(`
@@ -343,6 +390,136 @@ describe('Channels panel', () => {
                 </ul>
               </div>
             </div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                  >
+                    Users
+                  </p>
+                </div>
+              </div>
+              <ul
+                class="MuiList-root css-1mk9mw3-MuiList-root"
+                data-testid="usersList"
+              >
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="user_2-user-link"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  >
+                    <div
+                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                    >
+                      <img
+                        alt="user_2"
+                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
+                        src="dGVzdAo="
+                      />
+                    </div>
+                    <span
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    />
+                  </span>
+                  <div
+                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                      data-testid="user_2-user-link-text"
+                    >
+                      user_2
+                    </p>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="user_4-user-link"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  >
+                    <div
+                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                    >
+                      <img
+                        alt="user_4"
+                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
+                        src="dGVzdAo="
+                      />
+                    </div>
+                    <span
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    />
+                  </span>
+                  <div
+                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                      data-testid="user_4-user-link-text"
+                    >
+                      user_4
+                    </p>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="user_6-user-link"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  >
+                    <div
+                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                    >
+                      <img
+                        alt="user_6"
+                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
+                        src="dGVzdAo="
+                      />
+                    </div>
+                    <span
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    />
+                  </span>
+                  <div
+                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                      data-testid="user_6-user-link-text"
+                    >
+                      user_6
+                    </p>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+              </ul>
+            </div>
           </div>
         </body>,
         "container": <div>
@@ -603,6 +780,136 @@ describe('Channels panel', () => {
                 </div>
               </ul>
             </div>
+          </div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              >
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                >
+                  Users
+                </p>
+              </div>
+            </div>
+            <ul
+              class="MuiList-root css-1mk9mw3-MuiList-root"
+              data-testid="usersList"
+            >
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="user_2-user-link"
+                role="button"
+                tabindex="-1"
+              >
+                <span
+                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                >
+                  <div
+                    class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                  >
+                    <img
+                      alt="user_2"
+                      class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
+                      src="dGVzdAo="
+                    />
+                  </div>
+                  <span
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                  />
+                </span>
+                <div
+                  class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                    data-testid="user_2-user-link-text"
+                  >
+                    user_2
+                  </p>
+                </div>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="user_4-user-link"
+                role="button"
+                tabindex="-1"
+              >
+                <span
+                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                >
+                  <div
+                    class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                  >
+                    <img
+                      alt="user_4"
+                      class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
+                      src="dGVzdAo="
+                    />
+                  </div>
+                  <span
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                  />
+                </span>
+                <div
+                  class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                    data-testid="user_4-user-link-text"
+                  >
+                    user_4
+                  </p>
+                </div>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="user_6-user-link"
+                role="button"
+                tabindex="-1"
+              >
+                <span
+                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                >
+                  <div
+                    class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                  >
+                    <img
+                      alt="user_6"
+                      class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
+                      src="dGVzdAo="
+                    />
+                  </div>
+                  <span
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                  />
+                </span>
+                <div
+                  class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                    data-testid="user_6-user-link-text"
+                  >
+                    user_6
+                  </p>
+                </div>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </div>
+            </ul>
           </div>
         </div>,
         "debug": [Function],
