@@ -227,19 +227,19 @@ export interface ChannelInputProps {
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
-   channelId,
-   inputPlaceholder,
-   inputState = INPUT_STATE.AVAILABLE,
-   initialMessage = '',
-   onChange,
-   onKeyPress,
-   infoClass,
-   setInfoClass,
-   children,
-   openFilesDialog,
-   handleClipboardFiles,
-   handleOpenFiles,
- }) => {
+  channelId,
+  inputPlaceholder,
+  inputState = INPUT_STATE.AVAILABLE,
+  initialMessage = '',
+  onChange,
+  onKeyPress,
+  infoClass,
+  setInfoClass,
+  children,
+  openFilesDialog,
+  handleClipboardFiles,
+  handleOpenFiles,
+}) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const fileInput = React.useRef<HTMLInputElement>(null)
 
