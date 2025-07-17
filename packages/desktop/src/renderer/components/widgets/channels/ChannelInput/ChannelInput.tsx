@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback, useRef, useEffect } from 'react'
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
-import Picker, { EmojiStyle, type Theme } from 'emoji-picker-react'
+import Picker, { EmojiStyle, SkinTones, type Theme } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
 import { styled, useTheme } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
@@ -14,10 +14,11 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { emojify, findMatchingEmojis, extractPartialEmojiCode, emojiShortcodes } from './utils/emojiCodes'
+import { emojify, emojiShortcodes, extractPartialEmojiCode, findMatchingEmojis } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 const MAX_EMOJI_SUGGESTIONS = 100
+const SKIN_TONE_KEY = 'emojiPickerSkinTone'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -226,19 +227,19 @@ export interface ChannelInputProps {
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
-  channelId,
-  inputPlaceholder,
-  inputState = INPUT_STATE.AVAILABLE,
-  initialMessage = '',
-  onChange,
-  onKeyPress,
-  infoClass,
-  setInfoClass,
-  children,
-  openFilesDialog,
-  handleClipboardFiles,
-  handleOpenFiles,
-}) => {
+                                                                     channelId,
+                                                                     inputPlaceholder,
+                                                                     inputState = INPUT_STATE.AVAILABLE,
+                                                                     initialMessage = '',
+                                                                     onChange,
+                                                                     onKeyPress,
+                                                                     infoClass,
+                                                                     setInfoClass,
+                                                                     children,
+                                                                     openFilesDialog,
+                                                                     handleClipboardFiles,
+                                                                     handleOpenFiles,
+                                                                   }) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const fileInput = React.useRef<HTMLInputElement>(null)
 
@@ -454,6 +455,20 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     handleOpenFiles({ files: Object.values(target.files) })
   }
 
+  const handleSkinToneChange = (newTone: SkinTones) => {
+    setSkinTone(newTone)
+    localStorage.setItem(SKIN_TONE_KEY, newTone)
+  }
+
+  const [skinTone, setSkinTone] = useState(SkinTones.NEUTRAL)
+
+  useEffect(() => {
+    const savedTone = localStorage.getItem(SKIN_TONE_KEY)
+    if (savedTone) {
+      setSkinTone(savedTone as SkinTones)
+    }
+  }, [])
+
   return (
     <StyledChannelInput
       className={classNames({
@@ -585,7 +600,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       ref={fileInput}
                       type='file'
                       onChange={handleFileInput}
-                      // Value needs to be cleared otherwise one can't attach same image twice
+                      // Value needs to be cleared otherwise one can't upload same image twice
                       onClick={e => {
                         ;(e.target as HTMLInputElement).value = ''
                       }} // TODO: check
@@ -626,6 +641,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                           // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
                           // Do not change it unless using custom getEmojiUrl with local emojis.
                           emojiStyle={EmojiStyle.NATIVE}
+                          defaultSkinTone={skinTone}
+                          onSkinToneChange={handleSkinToneChange} // persist changes
                           theme={theme.palette.mode as Theme}
                         />
                       </div>
