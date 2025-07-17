@@ -14,7 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { emojify, emojiShortcodes, extractPartialEmojiCode, findMatchingEmojis } from './utils/emojiCodes'
+import { emojify, findMatchingEmojis, extractPartialEmojiCode, emojiShortcodes } from './utils/emojiCodes'
 
 const PREFIX = 'ChannelInput'
 const MAX_EMOJI_SUGGESTIONS = 100
@@ -227,19 +227,19 @@ export interface ChannelInputProps {
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
-                                                                     channelId,
-                                                                     inputPlaceholder,
-                                                                     inputState = INPUT_STATE.AVAILABLE,
-                                                                     initialMessage = '',
-                                                                     onChange,
-                                                                     onKeyPress,
-                                                                     infoClass,
-                                                                     setInfoClass,
-                                                                     children,
-                                                                     openFilesDialog,
-                                                                     handleClipboardFiles,
-                                                                     handleOpenFiles,
-                                                                   }) => {
+   channelId,
+   inputPlaceholder,
+   inputState = INPUT_STATE.AVAILABLE,
+   initialMessage = '',
+   onChange,
+   onKeyPress,
+   infoClass,
+   setInfoClass,
+   children,
+   openFilesDialog,
+   handleClipboardFiles,
+   handleOpenFiles,
+ }) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const fileInput = React.useRef<HTMLInputElement>(null)
 
@@ -600,7 +600,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       ref={fileInput}
                       type='file'
                       onChange={handleFileInput}
-                      // Value needs to be cleared otherwise one can't upload same image twice
+                      // Value needs to be cleared otherwise one can't attach same image twice
                       onClick={e => {
                         ;(e.target as HTMLInputElement).value = ''
                       }} // TODO: check
