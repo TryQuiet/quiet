@@ -1,12 +1,11 @@
 import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
-import { type PeerId } from '@libp2p/interface'
+import { Inject, Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
 
 import { ORBIT_DB_DIR } from '../../const'
 import { createLogger } from '../../common/logger'
-import { posixJoin } from './util'
+import { logEntryToLogUpdate, posixJoin } from './util'
 import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
 import {
   createOrbitDB,
@@ -21,7 +20,7 @@ import {
   Entry,
   DatabaseType,
 } from '@orbitdb/core'
-import { HeliaLibp2p, type Helia } from 'helia'
+import { HeliaLibp2p } from 'helia'
 import { OrbitDbStorage } from '../../types'
 import { IdentitiesWithStorage } from './identitiesWithStorage'
 import drain from 'it-drain'
@@ -129,7 +128,7 @@ export class OrbitDbService {
 
     store.events.on('update', async (entry: LogEntry) => {
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
-        OrbitDbService.events.emit('put', entry)
+        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
       }
     })
 
@@ -226,6 +225,14 @@ export class OrbitDbService {
     await Promise.all(joinAll)
   }
 
+  public async getLogEntriesByHashes(address: string, hashes: string[]): Promise<LogEntry[]> {
+    if (this.orbitDbInstance == undefined) {
+      throw new Error('OrbitDB instance is not initialized. Call create() first.')
+    }
+
+    return []
+  }
+
   public static async createDefaultStorage(
     baseDirectory: string,
     address: string,
@@ -260,6 +267,13 @@ export class OrbitDbService {
       entryStorage,
       headsStorage,
       indexStorage,
+    }
+  }
+
+  public static updateMetadata(db: DatabaseType, metadata: Record<string, any>): void {
+    db.meta = {
+      ...(db.meta ?? {}),
+      ...metadata,
     }
   }
 }

@@ -1,13 +1,11 @@
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import * as uint8arrays from 'uint8arrays'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
-import fs from 'fs'
 import getPort from 'get-port'
 import { Agent } from 'https'
-import path from 'path'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { createPeerId, removeFilesFromDir } from '../common/utils'
+import { createPeerId } from '../common/utils'
 
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import {
@@ -24,12 +22,10 @@ import {
   FileMetadata,
   GetMessagesPayload,
   MessagesLoadedPayload,
-  NetworkDataPayload,
   NetworkInfo,
   NetworkStats,
   PushNotificationPayload,
   RemoveDownloadStatus,
-  SendMessagePayload,
   SocketActions,
   SocketEvents,
   AttachFilePayload,
@@ -364,8 +360,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
       id: peerId.peerId.toString(),
-      privKey: uint8ArrayToString(peerId.privKey.raw, 'base64'),
-      noiseKey: uint8ArrayToString(peerId.noiseKey, 'base64'),
+      privKey: uint8arrays.toString(peerId.privKey.raw, 'base64'),
     }
     this.logger.info(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
@@ -623,8 +618,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
-      privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),
-      noiseKey: Buffer.from(identity.networkInfo.peerId.noiseKey, 'base64'),
+      privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
     }
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
@@ -646,10 +640,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const activeChain = this.sigChainService.getActiveChain()
     if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
       await setupStorage()
+      this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
     } else {
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
         await setupStorage()
+        this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
       })
     }
     if (await this.tor.isBootstrappingFinished()) {

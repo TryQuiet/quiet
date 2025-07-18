@@ -34,6 +34,8 @@ import { RoleName } from '../auth/services/roles/roles'
 import { hash } from '../../../../../3rd-party/auth/packages/crypto/dist'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
+import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
+import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -54,7 +56,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     private readonly qssClient: QSSClient,
     private readonly qssAuthConnManager: QSSAuthConnectionManager,
     private readonly sigChainService: SigChainService,
-    private readonly localDbService: LocalDbService
+    private readonly localDbService: LocalDbService,
+    private readonly orbitDbService: OrbitDbService
   ) {
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
@@ -66,8 +69,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   public async onModuleInit() {
-    OrbitDbService.events.on('put', async (entry: LogEntry) => {
-      await this.sendDataSyncMessage(entry)
+    OrbitDbService.events.on('put', async (logUpdate: LogUpdate) => {
+      await this.sendDataSyncMessage(logUpdate)
     })
   }
 
@@ -81,18 +84,22 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     this.logger.info('Processing QSS data sync dead letter queue')
 
-    const unsentMessages = await this.localDbService.getPendingQssSyncMessages()
-    const successes: QSSDataSyncMessage[] = []
-    for (const message of unsentMessages) {
-      // update the timestamp on the message to be current
-      message.ts = DateTime.utc().toMillis()
-
-      const success = await this._sendDataSyncMessage(message)
-      if (success) {
-        successes.push(message)
+    const unsentHashesByAddr = await this.localDbService.getPendingQssSyncMessages()
+    const successes: Record<string, string[]> = {}
+    for (const [address, unsentHashes] of Object.entries(unsentHashesByAddr)) {
+      const successByAddr: string[] = []
+      const unsentEntries: LogEntry[] = await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)
+      for (const entry of unsentEntries) {
+        const success = await this.sendDataSyncMessage(logEntryToLogUpdate(entry, address))
+        if (success) {
+          successByAddr.push(entry.hash)
+        }
+      }
+      if (successByAddr.length > 0) {
+        successes[address] = successByAddr
       }
     }
-    if (successes.length > 0) {
+    if (Object.keys(successes).length > 0) {
       await this.localDbService.removePendingQssSyncMessages(successes)
     }
   }
@@ -319,20 +326,20 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Sync an OrbitDB log entry to QSS
    *
-   * @param entry OrbitDB oplog entry object
+   * @param update OrbitDB oplog entry update event
    * @return True if sent successfully, false if send failed, and undefined if the send was skipped
    */
-  public async sendDataSyncMessage(entry: LogEntry<unknown>): Promise<boolean | undefined> {
+  public async sendDataSyncMessage(update: LogUpdate): Promise<boolean | undefined> {
     if (!this.enabled) {
       return undefined
     }
 
-    this.logger.info('Syncing OrbitDB entry to QSS', entry.hash)
+    this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
 
-    this.logger.trace('Encrypting log entry', entry.hash)
+    this.logger.trace('Encrypting log entry', update.hash)
     const encEntry: EncryptedAndSignedPayload = this.sigChainService
-      .getChain({ teamId: (entry.payload.value! as any).teamId })
-      .crypto.encryptAndSign(entry, {
+      .getChain({ teamId: update.teamId })
+      .crypto.encryptAndSign(update.entry, {
         type: EncryptionScopeType.ROLE,
         name: RoleName.MEMBER,
       })
@@ -342,15 +349,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       payload: {
         status: CommunityOperationStatus.SENDING,
         payload: {
-          teamId: (entry.payload.value! as any).teamId,
-          hash: entry.hash,
-          hashedDbId: hash('', entry.id),
+          teamId: update.teamId,
+          hash: update.hash,
+          hashedDbId: hash('', update.id),
           encEntry,
         },
       },
     }
 
-    return await this._sendDataSyncMessage(dataSyncMessage)
+    return await this._sendDataSyncMessage(dataSyncMessage, update.addr)
   }
 
   /**
@@ -359,12 +366,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param dataSyncMessage Pending message we want to send to QSS
    * @returns True if sent successfully, false if send failed, and undefined if the send was skipped
    */
-  private async _sendDataSyncMessage(dataSyncMessage: QSSDataSyncMessage): Promise<boolean | undefined> {
+  private async _sendDataSyncMessage(
+    dataSyncMessage: QSSDataSyncMessage,
+    address: string
+  ): Promise<boolean | undefined> {
     const hash = dataSyncMessage.payload.payload!.hash
     const teamId = dataSyncMessage.payload.payload?.teamId
     if (!this.connected) {
       this.logger.warn('QSS not connected, writing entry to dead letter queue', hash, teamId)
-      await this.localDbService.addPendingQssSyncMessage(dataSyncMessage)
+      await this.localDbService.addPendingQssSyncMessage(address, hash)
       return undefined
     }
 
@@ -388,7 +398,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     if (!success) {
-      await this.localDbService.addPendingQssSyncMessage(dataSyncMessage)
+      await this.localDbService.addPendingQssSyncMessage(address, hash)
     }
 
     return success

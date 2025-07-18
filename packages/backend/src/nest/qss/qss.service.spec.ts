@@ -28,7 +28,6 @@ import waitForExpect from 'wait-for-expect'
 import * as uint8arrays from 'uint8arrays'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
-import { StorageModule } from '../storage/storage.module'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -40,6 +39,10 @@ import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
 import { RoleName } from '../auth/services/roles/roles'
+import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
+import { IpfsModule } from '../ipfs/ipfs.module'
+import { logEntryToLogUpdate } from '../storage/orbitDb/util'
+import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 
 describe('QSSService', () => {
   let store: Store
@@ -69,7 +72,7 @@ describe('QSSService', () => {
     factory = await getReduxStoreFactory(store)
 
     module = await Test.createTestingModule({
-      imports: [TestModule, QSSModule, SigChainModule, StorageModule],
+      imports: [TestModule, SigChainModule, IpfsFileManagerModule, IpfsModule, OrbitDbModule, QSSModule],
     }).compile()
     qssService = module.get<QSSService>(QSSService)
     qssClient = module.get<QSSClient>(QSSClient)
@@ -114,7 +117,7 @@ describe('QSSService', () => {
       fs.rmSync(orbitDbService.orbitDbDir, { recursive: true })
     }
     await ipfsService?.stop()
-    await libp2pService?.close()
+    await libp2pService?.close(true)
     await localDbService?.close()
     await module?.close()
     mockedCreateSocket.mockRestore()
@@ -567,7 +570,8 @@ describe('QSSService', () => {
         })
       )
       const entry = await db.log.get(hash)
-      const result = await qssService.sendDataSyncMessage(entry)
+      const update = logEntryToLogUpdate(entry, db.address)
+      const result = await qssService.sendDataSyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -591,7 +595,7 @@ describe('QSSService', () => {
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
 
       const pendingMessages = await localDbService.getPendingQssSyncMessages()
-      expect(pendingMessages.length).toBe(0)
+      expect(pendingMessages).toEqual({})
     })
 
     it(`fails to send data sync to QSS and writes pending message to local DB`, async () => {
@@ -641,7 +645,8 @@ describe('QSSService', () => {
         })
       )
       const entry = await db.log.get(hash)
-      const result = await qssService.sendDataSyncMessage(entry)
+      const update = logEntryToLogUpdate(entry, db.address)
+      const result = await qssService.sendDataSyncMessage(update)
       expect(result).toBe(undefined)
       await waitForExpect(async () => {
         expect(addPendingMessageSpy).toHaveBeenCalledTimes(1)
@@ -649,7 +654,7 @@ describe('QSSService', () => {
       expect(mockedSendMessage).toHaveBeenCalledTimes(0)
 
       const pendingMessages = await localDbService.getPendingQssSyncMessages()
-      expect(pendingMessages.length).toBe(1)
+      expect(pendingMessages[db.address].length).toBe(1)
     })
   })
 })
