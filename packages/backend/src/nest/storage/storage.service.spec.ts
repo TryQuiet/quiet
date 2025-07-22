@@ -229,7 +229,6 @@ describe('StorageService', () => {
       const expectedMultiaddr = `/dns4/addr1.onion/tcp/80/ws/p2p/peer1`
       waitForExpect(async () => expect(setPeerStatsSpy).toHaveBeenCalledTimes(1), 5_000)
       const arg = setPeerStatsSpy.mock.calls[0][0]
-      logger.warn(setPeerStatsSpy.mock.calls)
       expect(arg['peer1']).toBeDefined()
       expect(arg['peer1'].peerId).toEqual('peer1')
       expect(arg['peer1'].address).toEqual(expectedMultiaddr)
