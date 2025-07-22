@@ -23,3 +23,46 @@ declare module '@mui/material/styles/createPalette' {
     colors?: { [key: string]: string }
   }
 }
+
+declare module '@mui/material/styles' {
+  interface Theme {
+    componentSizes: {
+      avatar: {
+        small: number
+        medium: number
+        large: number
+      }
+      statusIndicator: {
+        size: number
+        borderWidth: number
+        position: {
+          right: number
+          bottom: number
+        }
+      }
+      userListItem: {
+        gap: number
+      }
+    }
+  }
+  interface ThemeOptions {
+    componentSizes?: {
+      avatar?: {
+        small?: number
+        medium?: number
+        large?: number
+      }
+      statusIndicator?: {
+        size?: number
+        borderWidth?: number
+        position?: {
+          right?: number
+          bottom?: number
+        }
+      }
+      userListItem?: {
+        gap?: number
+      }
+    }
+  }
+}
