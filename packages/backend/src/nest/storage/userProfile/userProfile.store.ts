@@ -148,6 +148,15 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
    * @throws If encryption or storage fails.
    */
   public async setEntry(key: string, userProfile: UserProfile): Promise<EncryptedAndSignedPayload> {
+    // check if the orbitDB store is initialized
+    if (this.store === undefined) {
+      try {
+        await this.init()
+      } catch (err) {
+        logger.error('Failed to initialize user profiles store:', err)
+        throw new Error('User profiles store is not initialized')
+      }
+    }
     logger.info('Adding user profile')
     try {
       if (!UserProfileStore.validateUserProfile(userProfile)) {

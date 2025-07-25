@@ -192,6 +192,7 @@ export const runBackendDesktop = async (secret: string) => {
     }
     if (message === 'leaveCommunity') {
       try {
+        logger.info('Received leaveCommunity message from parent process')
         await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)

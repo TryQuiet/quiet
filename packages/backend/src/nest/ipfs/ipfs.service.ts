@@ -8,6 +8,9 @@ import { LevelBlockstore, LevelBlockstoreInit } from 'blockstore-level'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { DatabaseOptions, Level } from 'level'
 import { BITSWAP_PROTOCOL } from '../libp2p/libp2p.const'
+import * as fs from 'fs/promises'
+import * as path from 'path'
+import { SigChainService } from '../auth/sigchain.service'
 
 type StoreInit = {
   blockstore?: Omit<LevelBlockstoreInit, 'valueEncoding' | 'keyEncoding'>
@@ -35,7 +38,8 @@ export class IpfsService {
 
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    public readonly libp2pService: Libp2pService
+    public readonly libp2pService: Libp2pService,
+    public readonly auth: SigChainService
   ) {
     this.started = false
   }
@@ -81,12 +85,23 @@ export class IpfsService {
     return this.ipfsInstance
   }
 
-  private async initializeStores(init?: StoreInit): Promise<void> {
-    this.datastore = await this.createDatastore(init?.datastore)
-    this.blockstore = await this.createBlockstore(init?.blockstore)
+  private async initializeStores(init?: StoreInit, repoPathOverride?: string): Promise<void> {
+    this.datastore = await this.createDatastore(init?.datastore, repoPathOverride)
+    this.blockstore = await this.createBlockstore(init?.blockstore, repoPathOverride)
   }
 
-  private async createDatastore(init?: DatabaseOptions<string, Uint8Array>): Promise<Datastore> {
+  private async ensureDirExists(dir: string) {
+    try {
+      await fs.mkdir(dir, { recursive: true })
+    } catch (e) {
+      // ignore if already exists
+    }
+  }
+
+  private async createDatastore(
+    init?: DatabaseOptions<string, Uint8Array>,
+    repoPathOverride?: string
+  ): Promise<Datastore> {
     let datastoreInit: DatabaseOptions<string, Uint8Array> = {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
@@ -107,14 +122,21 @@ export class IpfsService {
       throw new Error(`Datastore keyEncoding was set to ${datastoreInit.keyEncoding} but MUST be set to 'utf8'!`)
     }
 
-    const datastoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/data', datastoreInit)
+    const basePath = repoPathOverride || this.ipfsRepoPath
+    const dataDir = path.join(basePath, `data_${this.auth.team.id ?? ''}`)
+    await this.ensureDirExists(dataDir)
+    this.logger.info(`Creating LevelDB at ${dataDir}`)
+    const datastoreLevelDb = new Level<string, Uint8Array>(dataDir, datastoreInit)
+    this.logger.info(`Created LevelDB at ${dataDir}`)
+    const datastore = new LevelDatastore(datastoreLevelDb, datastoreInit)
+    this.logger.info(`Datastore created at ${dataDir}`)
     return {
       db: datastoreLevelDb,
-      store: new LevelDatastore(datastoreLevelDb, datastoreInit),
+      store: datastore,
     }
   }
 
-  private async createBlockstore(init?: LevelBlockstoreInit): Promise<Blockstore> {
+  private async createBlockstore(init?: LevelBlockstoreInit, repoPathOverride?: string): Promise<Blockstore> {
     let blockstoreInit: LevelBlockstoreInit = {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
@@ -140,10 +162,18 @@ export class IpfsService {
       throw new Error(`Blockstore keyEncoding was set to ${blockstoreInit.keyEncoding} but MUST be set to 'utf8'!`)
     }
 
-    const blockstoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/blocks', blockstoreInit)
+    const basePath = repoPathOverride || this.ipfsRepoPath
+    const blocksDir = path.join(basePath, `blocks_${this.auth.team.id ?? ''}`)
+    await this.ensureDirExists(blocksDir)
+    this.logger.info(`Creating LevelDB at ${blocksDir}`)
+    const blockstoreLevelDb = new Level<string, Uint8Array>(blocksDir, blockstoreInit)
+    this.logger.info(`Created LevelDB at ${blocksDir}`)
+    this.logger.info(`Creating LevelBlockstore at ${blocksDir}`)
+    const blockstore = new LevelBlockstore(blockstoreLevelDb, blockstoreInit)
+    this.logger.info(`LevelDB created at ${blocksDir}`)
     return {
       db: blockstoreLevelDb,
-      store: new LevelBlockstore(blockstoreLevelDb, blockstoreInit),
+      store: blockstore,
     }
   }
 
@@ -153,12 +183,14 @@ export class IpfsService {
       throw new Error('IPFS instance does not exist')
     }
 
-    this.logger.info(`Opening Helia blockstore`)
+    this.logger.info(`Opening Helia blockstore db`)
     await this.blockstore!.db.open()
+    this.logger.info(`Opening Helia blockstore store`)
     await this.blockstore!.store.open()
 
-    this.logger.info(`Opening Helia datastore`)
+    this.logger.info(`Opening Helia datastore db`)
     await this.datastore!.db.open()
+    this.logger.info(`Opening Helia datastore store`)
     await this.datastore!.store.open()
 
     this.logger.info(`Starting Helia`)
@@ -215,8 +247,28 @@ export class IpfsService {
     } catch (error) {
       this.logger.error('Error while destroying IPFS instance', error)
     }
+
+    // Remove all event listeners from ipfsInstance if possible
+    if (this.ipfsInstance && typeof (this.ipfsInstance as any).removeAllListeners === 'function') {
+      ;(this.ipfsInstance as any).removeAllListeners()
+    }
+    // Remove all event listeners from blockstore and datastore if possible
+    if (this.blockstore?.db && typeof (this.blockstore.db as any).removeAllListeners === 'function') {
+      ;(this.blockstore.db as any).removeAllListeners()
+    }
+    if (this.blockstore?.store && typeof (this.blockstore.store as any).removeAllListeners === 'function') {
+      ;(this.blockstore.store as any).removeAllListeners()
+    }
+    if (this.datastore?.db && typeof (this.datastore.db as any).removeAllListeners === 'function') {
+      ;(this.datastore.db as any).removeAllListeners()
+    }
+    if (this.datastore?.store && typeof (this.datastore.store as any).removeAllListeners === 'function') {
+      ;(this.datastore.store as any).removeAllListeners()
+    }
+
     this.ipfsInstance = null
     this.blockstore = null
     this.datastore = null
+    this.logger.info('IpfsService: all internal references and listeners nulled')
   }
 }
