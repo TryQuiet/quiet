@@ -39,5 +39,8 @@
   "volta": {
     "node": "18.20.4",
     "npm": "10.7.0"
+  },
+  "dependencies": {
+    "unicode-emoji-json": "^0.8.0"
   }
 }

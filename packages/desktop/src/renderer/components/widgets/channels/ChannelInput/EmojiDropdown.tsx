@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import { emojiShortcodes } from './utils/emojiCodes'
+import { getEmojiFromShortcode } from './utils/emojiCodes'
 
 const PREFIX = 'EmojiDropdown'
 
@@ -171,7 +171,7 @@ export const EmojiDropdown: React.FC<EmojiDropdownProps> = ({
             onClick={() => onEmojiSelect(suggestion)}
           >
             <span>{suggestion}</span>
-            <span>{emojiShortcodes[suggestion]}</span>
+            <span>{getEmojiFromShortcode(suggestion)}</span>
           </div>
         ))}
       </StyledRoot>
