@@ -7,6 +7,8 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { SocketModule } from '../socket/socket.module'
 import { IpfsModule } from './ipfs.module'
 import { IpfsService } from './ipfs.service'
+import { SigChainService } from '../auth/sigchain.service'
+import { SigChainModule } from '../auth/sigchain.service.module'
 
 describe('IpfsService', () => {
   let module: TestingModule
@@ -15,8 +17,11 @@ describe('IpfsService', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [TestModule, IpfsModule, SocketModule, Libp2pModule, LocalDbModule],
+      imports: [TestModule, IpfsModule, SocketModule, Libp2pModule, LocalDbModule, SigChainModule],
     }).compile()
+
+    const sigchainService = module.get<SigChainService>(SigChainService)
+    sigchainService.createChain('teamName', 'username', true)
 
     libp2pService = await module.resolve(Libp2pService)
     const params = await libp2pInstanceParams()
@@ -43,5 +48,18 @@ describe('IpfsService', () => {
     await ipfsService.createInstance()
     await ipfsService.destroyInstance()
     expect(ipfsService.ipfsInstance).toBeNull()
+  })
+
+  it('starts ipfs, destroys it, and then starts it again', async () => {
+    await ipfsService.createInstance()
+    await ipfsService.start()
+    expect(ipfsService.isStarted()).toBe(true)
+
+    await ipfsService.destroyInstance()
+    expect(ipfsService.isStarted()).toBe(false)
+
+    await ipfsService.createInstance()
+    await ipfsService.start()
+    expect(ipfsService.isStarted()).toBe(true)
   })
 })
