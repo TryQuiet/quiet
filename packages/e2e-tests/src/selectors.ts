@@ -47,6 +47,12 @@ export class App {
     await this.driver.getSession()
     const debugModal = new DebugModeModal(this.driver)
     await debugModal.close()
+    try {
+      await this.closeUpdateModalIfPresent()
+      logger.info('Closed update modal')
+    } catch (e) {
+      logger.warn('Could not close update modal (may not be displayed)', e)
+    }
   }
 
   async openWithRetries(overrideConfig?: RetryConfig, qssEnabled = false): Promise<void> {

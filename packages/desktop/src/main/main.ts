@@ -26,6 +26,7 @@ let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 
 const updaterInterval = 15 * 60_000
+autoUpdater.autoInstallOnAppQuit = false
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
@@ -551,11 +552,11 @@ app.on('ready', async () => {
       }
     }
 
-    // await setupUpdater()
-    // await checkForUpdate()
-    // setInterval(async () => {
-    //   await checkForUpdate()
-    // }, updaterInterval)
+    await setupUpdater()
+    await checkForUpdate()
+    setInterval(async () => {
+      await checkForUpdate()
+    }, updaterInterval)
   })
 
   ipcMain.on('proceed-update', () => {
