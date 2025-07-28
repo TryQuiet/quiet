@@ -551,11 +551,11 @@ app.on('ready', async () => {
       }
     }
 
-    await setupUpdater()
-    await checkForUpdate()
-    setInterval(async () => {
-      await checkForUpdate()
-    }, updaterInterval)
+    // await setupUpdater()
+    // await checkForUpdate()
+    // setInterval(async () => {
+    //   await checkForUpdate()
+    // }, updaterInterval)
   })
 
   ipcMain.on('proceed-update', () => {
