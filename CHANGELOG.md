@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Fixes
+
+* Leaving a community on android and then immediately creating/joining a new one no longer fails to reinitialize databases [#2940](https://github.com/TryQuiet/quiet/issues/2940)
+
 ## [6.1.0]
 
 ### Fixes
