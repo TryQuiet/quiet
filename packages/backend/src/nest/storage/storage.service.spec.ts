@@ -108,6 +108,7 @@ describe('StorageService', () => {
   })
 
   afterEach(async () => {
+    jest.clearAllMocks()
     logger.info('Cleaning up after test:', expect.getState().currentTestName)
     await module.close()
     if (fs.existsSync(filePath)) {
