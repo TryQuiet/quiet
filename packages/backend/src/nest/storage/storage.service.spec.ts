@@ -173,7 +173,7 @@ describe('StorageService', () => {
       const profile = { userId: sigchainService.user.userId, userData: null } as unknown as UserProfile
       const setEntrySpy = jest.spyOn(userProfileStore, 'setEntry').mockResolvedValueOnce({} as unknown as any)
       await storageService.addUserProfile(profile)
-      waitForExpect(async () => expect(setEntrySpy).toHaveBeenCalledWith(profile.userId, profile), 10_000)
+      await waitForExpect(async () => expect(setEntrySpy).toHaveBeenCalledWith(profile.userId, profile), 10_000)
     })
 
     it('addUserProfile should log and not throw when setEntry rejects', async () => {
@@ -228,7 +228,7 @@ describe('StorageService', () => {
       await storageService.updatePeerStore()
 
       const expectedMultiaddr = `/dns4/addr1.onion/tcp/80/ws/p2p/peer1`
-      waitForExpect(async () => expect(setPeerStatsSpy).toHaveBeenCalledTimes(1), 5_000)
+      await waitForExpect(async () => expect(setPeerStatsSpy).toHaveBeenCalledTimes(1), 5_000)
       const arg = setPeerStatsSpy.mock.calls[0][0]
       expect(arg['peer1']).toBeDefined()
       expect(arg['peer1'].peerId).toEqual('peer1')
