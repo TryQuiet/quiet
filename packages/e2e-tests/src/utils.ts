@@ -135,7 +135,7 @@ export class BuildSetup {
     if (qssEnabled) {
       env = {
         ...env,
-        QSS_ENABLED: true,
+        QSS_ALLOWED: true,
         QSS_ENDPOINT: 'ws://127.0.0.1:3003',
       }
     }

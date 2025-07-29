@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Chores
+
+* Update QSS flag to QSS_ALLOWED and reconfigure enabled setting/checking [#2912](https://github.com/TryQuiet/quiet/issues/2912)
+
 ## [6.1.0]
 
 ### Fixes

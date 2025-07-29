@@ -4,10 +4,9 @@
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
-import { Community } from '@quiet/types'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
-import { QSS_ENABLED, QSS_ENDPOINT } from '../const'
+import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
 import { QSSClient } from './qss.client'
 import * as uint8arrays from 'uint8arrays'
 import {
@@ -47,12 +46,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Interval for checking for unsent sync messages
    */
   private _deadLetterQueueProcessor: NodeJS.Timeout
+  /**
+   * Is QSS enabled for this community?
+   *
+   * Map of team ID to enabled status
+   */
+  private _qssEnabledByCommunity = new Map<string, boolean>()
 
   private readonly logger = createLogger(`qss:service`)
 
   constructor(
-    @Inject(QSS_ENABLED) private qssEnabled: boolean,
-    @Inject(QSS_ENDPOINT) public qssEndpoint: string,
+    @Inject(QSS_ALLOWED) private _qssAllowed: boolean,
+    @Inject(QSS_ENDPOINT) public _qssEndpoint: string,
     private readonly qssClient: QSSClient,
     private readonly qssAuthConnManager: QSSAuthConnectionManager,
     private readonly sigChainService: SigChainService,
@@ -105,17 +110,55 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   /**
-   * Check if QSS is enabled and our websocket connection is active
+   * Check if QSS is allowed and our websocket connection is active
    */
   public get connected(): boolean {
-    return this.enabled && !!this.qssClient.clientSocket?.connected
+    return this.canConnect && !!this.qssClient.clientSocket?.connected
   }
 
   /**
-   * Check if QSS is enabled and we have a valid endpoint string
+   * Check if QSS is allowed to connect and we have a valid endpoint string
    */
-  public get enabled(): boolean {
-    return this.qssEnabled && this.qssEndpoint !== '' && this.qssEndpoint != null
+  public get canConnect(): boolean {
+    return this.qssAllowed && this._qssEndpoint !== '' && this._qssEndpoint != null
+  }
+
+  /**
+   * Is QSS allowed to connect on this app?
+   */
+  public get qssAllowed(): boolean {
+    return this._qssAllowed
+  }
+
+  /**
+   * Configured endpoint for QSS on this app (can come from the flag QSS_ENDPOINT or from the invite)
+   */
+  public get qssEndpoint(): string | undefined {
+    return this._qssEndpoint
+  }
+
+  /**
+   * Check if QSS is enabled for a given community by its sigchain team ID
+   *
+   * @param teamId ID of the team we are checking enabled on
+   * @returns True if QSS is enabled for this community
+   */
+  public isEnabledForCommunity(teamId: string): boolean {
+    return this._qssEnabledByCommunity.get(teamId) ?? false
+  }
+
+  /**
+   * Enabled QSS functionality for a given community
+   *
+   * @param teamId ID of the team we are enabling QSS for
+   */
+  public enableForCommunity(teamId: string): void {
+    this._qssEnabledByCommunity.set(teamId, true)
+    if (!this.canConnect) {
+      this.logger.warn(
+        `QSS is enabled on this community but your app doesn't allow QSS.  To allow QSS pass in the ${QSS_ALLOWED} flag.`
+      )
+    }
   }
 
   /**
@@ -132,11 +175,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Connect the QSS client if enabled
    *
-   * @param qssEnabled Determined by the QSS_ENABLED env variable and data stored in community metadata and V3 invites
    * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
    * @returns True if connection was successful
    */
-  public async connect(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<boolean> {
+  public async connect(qssEndpoint: string | undefined): Promise<boolean> {
     // wait for existing socket to finish connecting, if present
     if (this._connecting) {
       this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
@@ -153,9 +195,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     this._connecting = true
 
-    this.qssEnabled = this.qssEnabled || qssEnabled
-    this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
-    if (!this.enabled) {
+    this._qssEndpoint = qssEndpoint ?? this._qssEndpoint
+    if (!this.canConnect) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
       return false
     }
@@ -164,7 +205,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     let connected = false
     try {
       this.logger.info(`Establishing connection with QSS`)
-      await this.qssClient.createSocket(this.qssEnabled, this.qssEndpoint)
+      await this.qssClient.createSocket(this._qssEndpoint)
       this.logger.info(`Connection established`)
       connected = true
     } catch (e) {
@@ -179,18 +220,24 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Add a community to QSS and start syncing our chain with QSS
    *
-   * @param community Metadata for community we are adding to QSS
    * @param sigChain Sigchain for this community
    * @returns True if successfully created
    */
-  public async createCommunity(community: Community, sigChain: SigChain): Promise<boolean> {
-    if (!this.enabled) {
+  public async createCommunity(sigChain: SigChain): Promise<boolean> {
+    if (!this.canConnect) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
     }
 
     if (sigChain.team == null) {
       throw new Error(`Team on this sigchain is nullish!`)
+    }
+
+    this.enableForCommunity(sigChain.team.id)
+
+    if (!this.connected) {
+      this.logger.warn(`Can't create community on QSS because the client hasn't connected`)
+      return false
     }
 
     // Generating the QSS LFA keyset for this community
@@ -222,7 +269,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     // we need to normalize the hostname for QSS when running locally before adding the server to the chain
-    let host = url.parse(this.qssEndpoint).hostname!
+    let host = url.parse(this._qssEndpoint).hostname!
     if (host === '127.0.0.1') {
       host = 'localhost'
     }
@@ -280,13 +327,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param teamName Optional team name to pass in for filtering purposes
    */
   public async signInToCommunity(teamId: string, sigChain: SigChain, teamName?: string): Promise<void> {
-    if (!this.enabled) {
+    if (!this.canConnect) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
       return
     }
 
     if (!this.connected) {
-      this.logger.info(`Can't sign in to community on QSS because the client hasn't connected`)
+      this.logger.warn(`Can't sign in to community on QSS because the client hasn't connected`)
+      return
+    }
+
+    if (!this.isEnabledForCommunity(teamId)) {
+      this.logger.warn(`Attempting to sign in to a community that isn't QSS enabled!`)
       return
     }
 
@@ -330,8 +382,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @return True if sent successfully, false if send failed, and undefined if the send was skipped
    */
   public async sendDataSyncMessage(update: LogUpdate): Promise<boolean | undefined> {
-    if (!this.enabled) {
-      return undefined
+    if (!this.canConnect) {
+      this.logger.info(`Can't send data sync message to QSS because QSS is not enabled for this community`)
+      return
+    }
+
+    if (!this.connected) {
+      this.logger.warn(`Can't send data sync message to QSS because the client hasn't connected`)
+      return
     }
 
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)

@@ -16,7 +16,7 @@ import {
   LEVEL_DB,
   TEST_DATA_PORT,
   LIBP2P_DB_PATH,
-  QSS_ENABLED,
+  QSS_ALLOWED,
   QSS_ENDPOINT,
 } from '../const'
 import { ConfigOptions } from '../types'
@@ -117,7 +117,7 @@ export const defaultConfigForTest = {
       inject: [DB_PATH],
     },
     {
-      provide: QSS_ENABLED,
+      provide: QSS_ALLOWED,
       useFactory: () => false,
     },
     {
@@ -135,7 +135,7 @@ export const defaultConfigForTest = {
     LEVEL_DB,
     EXPRESS_PROVIDER,
     LIBP2P_DB_PATH,
-    QSS_ENABLED,
+    QSS_ALLOWED,
     QSS_ENDPOINT,
   ],
 })
