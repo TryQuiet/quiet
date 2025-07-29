@@ -172,22 +172,18 @@ describe('QSSService', () => {
               case WebsocketEvents.GEN_PUB_KEYS:
                 return {
                   ts: DateTime.utc().toMillis(),
+                  status: CommunityOperationStatus.SUCCESS,
                   payload: {
-                    status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId: sigchainService.team?.id,
-                      keys: redactKeys(
-                        createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                      ),
-                    },
+                    teamId: sigchainService.team?.id,
+                    keys: redactKeys(
+                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
+                    ),
                   },
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CreateCommunityStatus.SUCCESS,
-                  },
+                  status: CreateCommunityStatus.SUCCESS,
                 } as T
               default:
                 return undefined
@@ -206,6 +202,7 @@ describe('QSSService', () => {
           WebsocketEvents.GEN_PUB_KEYS,
           expect.objectContaining({
             ts: expect.any(Number),
+            status: CommunityOperationStatus.SENDING,
             payload: {
               teamId: sigchainService.team.id,
             },
@@ -250,17 +247,13 @@ describe('QSSService', () => {
               case WebsocketEvents.GEN_PUB_KEYS:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CommunityOperationStatus.ERROR,
-                    reason: 'Failed to create server keys',
-                  },
+                  status: CommunityOperationStatus.ERROR,
+                  reason: 'Failed to create server keys',
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CreateCommunityStatus.SUCCESS,
-                  },
+                  status: CreateCommunityStatus.SUCCESS,
                 } as T
               default:
                 return undefined
@@ -279,6 +272,7 @@ describe('QSSService', () => {
           WebsocketEvents.GEN_PUB_KEYS,
           expect.objectContaining({
             ts: expect.any(Number),
+            status: CommunityOperationStatus.SENDING,
             payload: {
               teamId: sigchainService.team.id,
             },
@@ -301,23 +295,19 @@ describe('QSSService', () => {
               case WebsocketEvents.GEN_PUB_KEYS:
                 return {
                   ts: DateTime.utc().toMillis(),
+                  status: CommunityOperationStatus.SUCCESS,
                   payload: {
-                    status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId: sigchainService.team?.id,
-                      keys: redactKeys(
-                        createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
-                      ),
-                    },
+                    teamId: sigchainService.team?.id,
+                    keys: redactKeys(
+                      createKeyset({ type: 'SERVER', name: 'localhost' }, randomBytes(32).toString('base64'))
+                    ),
                   },
                 } as T
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CreateCommunityStatus.ERROR,
-                    reason: 'Failed to create community',
-                  },
+                  status: CreateCommunityStatus.ERROR,
+                  reason: 'Failed to create community',
                 } as T
               default:
                 return undefined
@@ -335,6 +325,7 @@ describe('QSSService', () => {
           WebsocketEvents.GEN_PUB_KEYS,
           expect.objectContaining({
             ts: expect.any(Number),
+            status: CommunityOperationStatus.SENDING,
             payload: {
               teamId: sigchainService.team.id,
             },
@@ -392,9 +383,7 @@ describe('QSSService', () => {
               case WebsocketEvents.CREATE_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CreateCommunityStatus.SUCCESS,
-                  },
+                  status: CreateCommunityStatus.SUCCESS,
                 } as T
               default:
                 return undefined
@@ -423,9 +412,7 @@ describe('QSSService', () => {
               case WebsocketEvents.SIGN_IN_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CommunityOperationStatus.SUCCESS,
-                  },
+                  status: CommunityOperationStatus.SUCCESS,
                 } as T
               default:
                 return undefined
@@ -445,12 +432,10 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
+            status: CommunityOperationStatus.SUCCESS,
             payload: {
-              status: CommunityOperationStatus.SUCCESS,
-              payload: {
-                userId: sigchainService.user.userId,
-                teamId: sigchainService.team.id,
-              },
+              userId: sigchainService.user.userId,
+              teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
           true
@@ -472,9 +457,7 @@ describe('QSSService', () => {
               case WebsocketEvents.SIGN_IN_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CommunityOperationStatus.SUCCESS,
-                  },
+                  status: CommunityOperationStatus.SUCCESS,
                 } as T
               default:
                 return undefined
@@ -497,10 +480,8 @@ describe('QSSService', () => {
               case WebsocketEvents.SIGN_IN_COMMUNITY:
                 return {
                   ts: DateTime.utc().toMillis(),
-                  payload: {
-                    status: CommunityOperationStatus.ERROR,
-                    reason: 'Failed to sign in',
-                  },
+                  status: CommunityOperationStatus.ERROR,
+                  reason: 'Failed to sign in',
                 } as T
               default:
                 return undefined
@@ -525,12 +506,10 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
+            status: CommunityOperationStatus.SUCCESS,
             payload: {
-              status: CommunityOperationStatus.SUCCESS,
-              payload: {
-                userId: sigchainService.user.userId,
-                teamId: sigchainService.team.id,
-              },
+              userId: sigchainService.user.userId,
+              teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
           true
@@ -555,16 +534,14 @@ describe('QSSService', () => {
             }
             switch (event) {
               case WebsocketEvents.DATA_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload.payload!
+                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
+                  status: CommunityOperationStatus.SUCCESS,
                   payload: {
-                    status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId,
-                      hash,
-                      hashedDbId,
-                    },
+                    teamId,
+                    hash,
+                    hashedDbId,
                   },
                 } as T
               default:
@@ -597,14 +574,12 @@ describe('QSSService', () => {
           WebsocketEvents.DATA_SYNC,
           expect.objectContaining({
             ts: expect.any(Number),
+            status: CommunityOperationStatus.SENDING,
             payload: {
-              status: CommunityOperationStatus.SENDING,
-              payload: {
-                teamId: sigchainService.team.id,
-                hash,
-                hashedDbId: expect.any(String),
-                encEntry: expect.any(Object),
-              },
+              teamId: sigchainService.team.id,
+              hash,
+              hashedDbId: expect.any(String),
+              encEntry: expect.any(Object),
             },
           } as QSSDataSyncMessage),
           true
@@ -628,16 +603,14 @@ describe('QSSService', () => {
             }
             switch (event) {
               case WebsocketEvents.DATA_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload.payload!
+                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
+                  status: CommunityOperationStatus.SUCCESS,
                   payload: {
-                    status: CommunityOperationStatus.SUCCESS,
-                    payload: {
-                      teamId,
-                      hash,
-                      hashedDbId,
-                    },
+                    teamId,
+                    hash,
+                    hashedDbId,
                   },
                 } as T
               default:
@@ -649,7 +622,7 @@ describe('QSSService', () => {
       mockedCreateSocket.mockRestore()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('ws://localhost:3000')
-      expect(qssService.connected).toBeTruthy()
+      expect(qssService.connected).toBeFalsy()
 
       const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
         type: 'events',

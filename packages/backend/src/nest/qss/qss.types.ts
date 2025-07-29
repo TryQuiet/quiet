@@ -23,10 +23,6 @@ export enum QSSEvents {
 
 export interface BaseWebsocketMessage<T extends object | undefined> {
   ts: number
-  payload: T
-}
-
-export interface BaseStatusPayload<T extends object | undefined> {
   status: string
   reason?: string
   payload?: T
@@ -38,9 +34,9 @@ export interface QSSCommunity {
 }
 
 export interface CreateCommunityPayload {
-  userId: string
   community: QSSCommunity
   teamKeyring: string
+  userId: string
 }
 
 export interface CreateCommunity {
@@ -52,19 +48,10 @@ export enum CreateCommunityStatus {
   ERROR = 'error',
   SUCCESS = 'success',
 }
-
-export interface CreateCommunityResponseInnerPayload {
-  serverKeys: Keyset
-}
-
-export interface CreateCommunityResponsePayload extends BaseStatusPayload<CreateCommunityResponseInnerPayload> {
+export interface CreateCommunityResponse extends BaseWebsocketMessage<undefined> {
+  ts: number
   status: CreateCommunityStatus
   reason?: string
-  payload?: CreateCommunityResponseInnerPayload
-}
-export interface CreateCommunityResponse extends BaseWebsocketMessage<CreateCommunityResponsePayload> {
-  ts: number
-  payload: CreateCommunityResponsePayload
 }
 
 export class QSSConnectionError<T extends Error> extends CompoundError<T> {}
@@ -87,77 +74,53 @@ export enum CommunityOperationStatus {
   NOT_FOUND = 'not found',
 }
 
-export interface AuthSyncMessageInnerPayload {
+export interface AuthSyncMessagePayload {
   userId: string
   teamId: string
   message: string
 }
-export interface AuthSyncMessagePayload extends BaseStatusPayload<AuthSyncMessageInnerPayload> {
-  status: CommunityOperationStatus
-  reason?: string
-  payload?: AuthSyncMessageInnerPayload
-}
 
 export interface AuthSyncMessage extends BaseWebsocketMessage<AuthSyncMessagePayload> {
   ts: number
+  status: CommunityOperationStatus
+  reason?: string
   payload: AuthSyncMessagePayload
 }
 
 export interface GeneratePublicKeysMessagePayload {
   teamId: string
+  keys?: Keyset
 }
 
-export interface GeneratePublicKeysMessage {
+export interface GeneratePublicKeysMessage extends BaseWebsocketMessage<GeneratePublicKeysMessagePayload> {
   ts: number
-  payload: GeneratePublicKeysMessagePayload
-}
-
-export interface GeneratePublicKeysResponseInnerPayload {
-  teamId: string
-  keys: Keyset
-}
-
-export interface GeneratePublicKeysResponsePayload extends BaseStatusPayload<GeneratePublicKeysResponseInnerPayload> {
   status: CommunityOperationStatus
   reason?: string
-  payload?: GeneratePublicKeysResponseInnerPayload
+  payload?: GeneratePublicKeysMessagePayload
 }
 
-export interface GeneratePublicKeysResponse extends BaseWebsocketMessage<GeneratePublicKeysResponsePayload> {
-  ts: number
-  payload: GeneratePublicKeysResponsePayload
-}
-
-export interface CommunitySignInInnerPayload {
+export interface CommunitySignInPayload {
+  teamId: string
   userId: string
-  teamId: string
-}
-
-export interface CommunitySignInPayload extends BaseStatusPayload<CommunitySignInInnerPayload> {
-  status: CommunityOperationStatus
-  reason?: string
-  payload?: CommunitySignInInnerPayload
 }
 
 export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {
   ts: number
-  payload: CommunitySignInPayload
+  status: CommunityOperationStatus
+  reason?: string
+  payload?: CommunitySignInPayload
 }
 
-export interface QSSDataSyncInnerPayload {
+export interface QSSDataSyncPayload {
   teamId: string
   hash: string
   hashedDbId: string
   encEntry: EncryptedAndSignedPayload
 }
 
-export interface QSSDataSyncPayload extends BaseStatusPayload<QSSDataSyncInnerPayload> {
-  status: CommunityOperationStatus
-  reason?: string
-  payload?: QSSDataSyncInnerPayload
-}
-
 export interface QSSDataSyncMessage extends BaseWebsocketMessage<QSSDataSyncPayload> {
   ts: number
+  status: CommunityOperationStatus
+  reason?: string
   payload: QSSDataSyncPayload
 }
