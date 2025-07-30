@@ -3,7 +3,7 @@
  */
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
-import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
 import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
@@ -15,8 +15,8 @@ import {
   CreateCommunity,
   CreateCommunityResponse,
   CreateCommunityStatus,
+  QSSDataSyncMessage,
   GeneratePublicKeysMessage,
-  GeneratePublicKeysResponse,
   WebsocketEvents,
 } from './qss.types'
 import { DateTime } from 'luxon'
@@ -25,13 +25,26 @@ import EventEmitter from 'node:events'
 import { sleep } from '../common/sleep'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
+import { LogEntry } from '@orbitdb/core'
+import { SigChainService } from '../auth/sigchain.service'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
+import { RoleName } from '../auth/services/roles/roles'
+import { hash } from '@localfirst/crypto'
+import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
+import { LocalDbService } from '../local-db/local-db.service'
+import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
+import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 
 @Injectable()
-export class QSSService extends EventEmitter implements OnModuleDestroy {
+export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
   /**
    * True while waiting for websocket connection to finish connecting
    */
   private _connecting = false
+  /**
+   * Interval for checking for unsent sync messages
+   */
+  private _deadLetterQueueProcessor: NodeJS.Timeout
   /**
    * Is QSS enabled for this community?
    *
@@ -45,13 +58,54 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     @Inject(QSS_ALLOWED) private _qssAllowed: boolean,
     @Inject(QSS_ENDPOINT) public _qssEndpoint: string,
     private readonly qssClient: QSSClient,
-    private readonly qssAuthConnManager: QSSAuthConnectionManager
+    private readonly qssAuthConnManager: QSSAuthConnectionManager,
+    private readonly sigChainService: SigChainService,
+    private readonly localDbService: LocalDbService,
+    private readonly orbitDbService: OrbitDbService
   ) {
     super({ captureRejections: true })
+    this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
+    this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
   }
 
   public onModuleDestroy() {
     this.close()
+  }
+
+  public async onModuleInit() {
+    OrbitDbService.events.on('put', async (logUpdate: LogUpdate) => {
+      await this.sendDataSyncMessage(logUpdate)
+    })
+  }
+
+  /**
+   * Check for pending data sync messages and, if connected, attempt to send to QSS
+   */
+  private async processDeadLetterQueue(): Promise<void> {
+    if (!this.connected) {
+      return
+    }
+
+    this.logger.info('Processing QSS data sync dead letter queue')
+
+    const unsentHashesByAddr = await this.localDbService.getPendingQssSyncMessages()
+    const successes: Record<string, string[]> = {}
+    for (const [address, unsentHashes] of Object.entries(unsentHashesByAddr)) {
+      const successByAddr: string[] = []
+      const unsentEntries: LogEntry[] = await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)
+      for (const entry of unsentEntries) {
+        const success = await this.sendDataSyncMessage(logEntryToLogUpdate(entry, address))
+        if (success) {
+          successByAddr.push(entry.hash)
+        }
+      }
+      if (successByAddr.length > 0) {
+        successes[address] = successByAddr
+      }
+    }
+    if (Object.keys(successes).length > 0) {
+      await this.localDbService.removePendingQssSyncMessages(successes)
+    }
   }
 
   /**
@@ -189,11 +243,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.logger.info(`Getting server keys for this team`)
     const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
       ts: DateTime.utc().toMillis(),
+      status: CommunityOperationStatus.SENDING,
       payload: {
         teamId: sigChain.team.id,
       },
     }
-    const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysResponse>(
+    const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(
       WebsocketEvents.GEN_PUB_KEYS,
       qssGeneratePublicKeysMessage,
       true
@@ -202,14 +257,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     // if we couldn't create QSS' LFA keys for this community we should eject
     if (
       generateKeysResponse == null ||
-      generateKeysResponse.payload.status !== CommunityOperationStatus.SUCCESS ||
-      generateKeysResponse.payload.payload == null ||
-      generateKeysResponse.payload.payload.teamId != sigChain.team.id
+      generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
+      generateKeysResponse.payload == null ||
+      generateKeysResponse.payload.teamId != sigChain.team.id ||
+      generateKeysResponse.payload.keys == null
     ) {
-      this.logger.error(
-        `Failed to generate server keys!`,
-        generateKeysResponse?.payload.reason ?? 'Response was nullish'
-      )
+      this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
       return false
     }
 
@@ -221,7 +274,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
     const lfaServer: Server = {
       host,
-      keys: generateKeysResponse.payload.payload.keys,
+      keys: generateKeysResponse.payload.keys,
     }
 
     // add this QSS server/cluster to our chain using the keys we generated earlier
@@ -251,11 +304,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     )
 
     // if we didn't get a successful response from QSS when adding the community we should eject
-    if (createCommunityResponse == null || createCommunityResponse.payload.status !== CreateCommunityStatus.SUCCESS) {
-      this.logger.error(
-        `Failed to create a community!`,
-        createCommunityResponse?.payload.reason ?? 'Response was nullish'
-      )
+    if (createCommunityResponse == null || createCommunityResponse.status !== CreateCommunityStatus.SUCCESS) {
+      this.logger.error(`Failed to create a community!`, createCommunityResponse?.reason ?? 'Response was nullish')
       return false
     }
 
@@ -291,12 +341,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.logger.info(`Signing in to community`, teamId)
     const qssSignInMessage: CommunitySignInMessage = {
       ts: DateTime.utc().toMillis(),
+      status: CommunityOperationStatus.SUCCESS,
       payload: {
-        status: CommunityOperationStatus.SUCCESS,
-        payload: {
-          userId: (sigChain.context as MemberContext).user.userId,
-          teamId,
-        },
+        userId: (sigChain.context as MemberContext).user.userId,
+        teamId,
       },
     }
     const signInResponse = await this.qssClient.sendMessage<CommunitySignInMessage>(
@@ -309,9 +357,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       throw new Error(`Error while signing in to community ${teamId} - Nullish response from QSS`)
     }
 
-    if (signInResponse.payload.status !== CommunityOperationStatus.SUCCESS) {
+    if (signInResponse.status !== CommunityOperationStatus.SUCCESS) {
       throw new Error(
-        `Error while signing in to community ${teamId} - ${signInResponse.payload.status}: ${signInResponse.payload.reason ?? `Unknown QSS Error`}`
+        `Error while signing in to community ${teamId} - ${signInResponse.status}: ${signInResponse.reason ?? `Unknown QSS Error`}`
       )
     }
 
@@ -321,10 +369,91 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   /**
+   * Sync an OrbitDB log entry to QSS
+   *
+   * @param update OrbitDB oplog entry update event
+   * @return True if sent successfully, false if send failed, and undefined if the send was skipped
+   */
+  public async sendDataSyncMessage(update: LogUpdate): Promise<boolean | undefined> {
+    if (!this.canConnect) {
+      this.logger.info(`Can't send data sync message to QSS because QSS is not enabled for this community`)
+      return
+    }
+
+    this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
+
+    this.logger.trace('Encrypting log entry', update.hash)
+    const encEntry: EncryptedAndSignedPayload = this.sigChainService
+      .getChain({ teamId: update.teamId })
+      .crypto.encryptAndSign(update.entry, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+    const dataSyncMessage: QSSDataSyncMessage = {
+      ts: DateTime.utc().toMillis(),
+      status: CommunityOperationStatus.SENDING,
+      payload: {
+        teamId: update.teamId,
+        hash: update.hash,
+        hashedDbId: hash('', update.id),
+        encEntry,
+      },
+    }
+
+    return await this._sendDataSyncMessage(dataSyncMessage, update.addr)
+  }
+
+  /**
+   * Send a data sync message to QSS if connected, otherwise write the message to level DB for later processing
+   *
+   * @param dataSyncMessage Pending message we want to send to QSS
+   * @returns True if sent successfully, false if send failed, and undefined if the send was skipped
+   */
+  private async _sendDataSyncMessage(
+    dataSyncMessage: QSSDataSyncMessage,
+    address: string
+  ): Promise<boolean | undefined> {
+    const hash = dataSyncMessage.payload!.hash
+    const teamId = dataSyncMessage.payload?.teamId
+    if (!this.connected) {
+      this.logger.warn('QSS not connected, writing entry to dead letter queue', hash, teamId)
+      await this.localDbService.addPendingQssSyncMessage(address, hash)
+      return undefined
+    }
+
+    this.logger.trace('Sending data sync message to QSS', hash, teamId)
+    const dataSyncAck = await this.qssClient.sendMessage<QSSDataSyncMessage>(
+      WebsocketEvents.DATA_SYNC,
+      dataSyncMessage,
+      true
+    )
+
+    let success = false
+    if (dataSyncAck == null) {
+      this.logger.error('Error while sending a data sync to QSS', hash, teamId)
+      // TODO: add dead letter queue for failed syncs
+    } else if (dataSyncAck.status !== CommunityOperationStatus.SUCCESS) {
+      this.logger.error(`Error while sending a data sync to QSS - ${dataSyncAck.reason}`, hash, teamId)
+      // TODO: add dead letter queue for failed syncs
+    } else {
+      this.logger.debug('Successful data sync to QSS')
+      success = true
+    }
+
+    if (!success) {
+      await this.localDbService.addPendingQssSyncMessage(address, hash)
+    }
+
+    return success
+  }
+
+  /**
    * Close all open auth sync connections and the QSS websocket connection
    */
   public close(): void {
     this.logger.info(`Closing QSS service`)
+    clearInterval(this._deadLetterQueueProcessor)
     this.qssAuthConnManager.close()
     this.qssClient.close()
   }

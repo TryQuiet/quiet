@@ -12,11 +12,13 @@
 
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
 * User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
+* Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
 
 ### Features
 
 * User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
+* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
 * Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
 
 ### Security
@@ -37,6 +39,7 @@
 
 * Adds a hook for Quiet Storage Service (QSS) to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
 * Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
+* Adds support for QSS auth syncing [#2760](https://github.com/TryQuiet/quiet/issues/2760)
 
 ### Fixes
 
@@ -46,6 +49,7 @@
 ### Breaking
 
 * Adds key commitment scheme to address the "invisible salamanders" attack [#2711](https://github.com/TryQuiet/quiet/issues/2711)
+* Adds team ID to encrypted OrbitDB entries
 
 ## [5.1.2]
 

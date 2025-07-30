@@ -2,6 +2,7 @@ import { type KeyValueType, type EventsType } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import { createLogger } from '../common/logger'
 import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
+import { OrbitDbService } from './orbitDb/orbitDb.service'
 
 const logger = createLogger('store')
 
@@ -23,6 +24,14 @@ abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends E
     logger.info('Closing', this.getAddress())
     await this.getStore().close()
     logger.info('Closed', this.getAddress())
+  }
+
+  updateMetadata(metadata: Record<string, any>): void {
+    if (this.store == null) {
+      throw new Error('Store must be initialized before updating metadata!')
+    }
+    logger.debug('Updating metadata for OrbitDB store', this.store.address)
+    OrbitDbService.updateMetadata(this.store, metadata)
   }
 
   abstract init(...args: any[]): Promise<void> | Promise<StoreBase<V, S>>

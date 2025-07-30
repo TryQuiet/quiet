@@ -40,6 +40,7 @@ import { createLogger } from './common/logger'
 import { SocketActionsMap, SocketEventsMap } from '@quiet/types'
 import { QSSModule } from './qss/qss.module'
 import { verifyToken } from './common/token'
+import { OrbitDbModule } from './storage/orbitDb/orbitdb.module'
 
 const logger = createLogger('appModule')
 
@@ -52,6 +53,7 @@ const logger = createLogger('appModule')
     IpfsModule,
     ImageCompressionModule,
     IpfsFileManagerModule,
+    OrbitDbModule,
     StorageModule,
     ConnectionsManagerModule,
     TorModule,

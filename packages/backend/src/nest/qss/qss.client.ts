@@ -95,11 +95,15 @@ export class QSSClient {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
 
-    if (withAck) {
-      return (await this.clientSocket.emitWithAck(event, payload)) as T
-    }
+    try {
+      if (withAck) {
+        return (await this.clientSocket.emitWithAck(event, payload)) as T
+      }
 
-    this.clientSocket.emit(event, payload)
+      this.clientSocket.emit(event, payload)
+    } catch (e) {
+      this.logger.error('Error while sending message to QSS', e)
+    }
     return undefined
   }
 

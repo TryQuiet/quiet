@@ -1,6 +1,6 @@
 import { is } from 'ramda'
-import emojiDataJson from "unicode-emoji-json";
-const emojiData = emojiDataJson as EmojiData;
+import emojiDataJson from 'unicode-emoji-json'
+const emojiData = emojiDataJson as EmojiData
 
 // Emoji shortcode mapping
 export interface EmojiMapping {
@@ -1084,30 +1084,30 @@ function isLastWordProtected(text: string): boolean {
 }
 
 type EmojiInfo = {
-  name: string;
-  slug: string;
-  group: string;
-  emoji_version: string;
-  unicode_version: string;
-  skin_tone_support: boolean;
-  skin_tone_support_unicode_version?: string;
-};
+  name: string
+  slug: string
+  group: string
+  emoji_version: string
+  unicode_version: string
+  skin_tone_support: boolean
+  skin_tone_support_unicode_version?: string
+}
 
 type EmojiData = {
-  [emoji: string]: EmojiInfo;
-};
+  [emoji: string]: EmojiInfo
+}
 
 function supportsSkinTone(emoji: string): boolean {
   const data: EmojiInfo = emojiData[emoji]
-  return data ? data.skin_tone_support : false;
+  return data ? data.skin_tone_support : false
 }
 
 function getSkinToneEmoji(emoji: string): string {
-  if (supportsSkinTone(emoji) ) {
+  if (supportsSkinTone(emoji)) {
     const code = localStorage.getItem(SKIN_TONE_KEY)
     if (code) {
       // Need to convert the stored modifier to Unicode.
-      return emoji +  String.fromCodePoint(parseInt(code, 16));
+      return emoji + String.fromCodePoint(parseInt(code, 16))
     }
   }
   // If emoji doesn't support skin tone modifiers return it as is

@@ -127,13 +127,11 @@ export class QSSAuthConnection extends EventEmitter {
         sendMessage: (message: Uint8Array) => {
           const socketMessage: AuthSyncMessage = {
             ts: DateTime.utc().toMillis(),
+            status: CommunityOperationStatus.SUCCESS,
             payload: {
-              status: CommunityOperationStatus.SUCCESS,
-              payload: {
-                userId: (sigChain!.context as MemberContext).user.userId,
-                teamId: this.teamId!,
-                message: uint8arrays.toString(message, 'base64'),
-              },
+              userId: (sigChain!.context as MemberContext).user.userId,
+              teamId: this.teamId!,
+              message: uint8arrays.toString(message, 'base64'),
             },
           }
           this.qssClient.sendMessage(WebsocketEvents.AUTH_SYNC, socketMessage, false)
@@ -152,10 +150,10 @@ export class QSSAuthConnection extends EventEmitter {
     // pass auth sync messages received on the websocket to the auth connection
     this.qssClient.clientSocket!.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
       try {
-        if (message.payload.payload?.message == null) {
+        if (message.payload?.message == null) {
           throw new Error(`Missing message`)
         }
-        this.authConnection.deliver(uint8arrays.fromString(message.payload.payload.message, 'base64'))
+        this.authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
       } catch (e) {
         this.logger.error(`Error handling auth sync message`, e)
         this.authConnection.emit('localError', {
