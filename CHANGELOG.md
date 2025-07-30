@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unpublished]
+
+### Fixes
+
+* Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
+
 ## [6.1.0]
 
 ### Fixes
