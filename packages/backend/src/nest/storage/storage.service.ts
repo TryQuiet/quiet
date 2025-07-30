@@ -102,6 +102,7 @@ export class StorageService extends EventEmitter {
     await this.channelsService.clean()
     await this.userProfileStore.clean()
     await this.ipfsService.destroyInstance()
+    await this.stop()
   }
 
   public purgeData() {

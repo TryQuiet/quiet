@@ -243,7 +243,12 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
     // close all connections, must be done after closing the server to prevent
     // race conditions where a new connection is accepted while we are closing
     // the existing ones
-    this.http?.closeAllConnections()
+
+    // if http and closeAllConnections is defined, close all connections
+    if (this.http && typeof this.http.closeAllConnections === 'function') {
+      this.log('Closing all HTTP connections')
+      this.http.closeAllConnections()
+    }
     ;[...this.connections].forEach(connection => {
       connection.destroy()
     })
