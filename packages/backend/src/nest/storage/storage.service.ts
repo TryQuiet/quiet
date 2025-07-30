@@ -182,6 +182,12 @@ export class StorageService extends EventEmitter {
     this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
   }
 
+  public addTeamIdToDbMetas(teamId: string): void {
+    this.logger.info('Adding team ID to all OrbitDB database meta fields')
+    this.userProfileStore.updateMetadata({ teamId })
+    this.channelsService.updateMetadata({ teamId })
+  }
+
   public async stop() {
     try {
       await this.channelsService.close()

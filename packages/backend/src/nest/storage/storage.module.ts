@@ -9,17 +9,11 @@ import { IpfsModule } from '../ipfs/ipfs.module'
 import { ChannelsService } from './channels/channels.service'
 import { MessagesService } from './channels/messages/messages.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
+import { OrbitDbModule } from './orbitDb/orbitdb.module'
 
 @Module({
-  imports: [LocalDbModule, IpfsModule, IpfsFileManagerModule, SigChainModule],
-  providers: [
-    StorageService,
-    OrbitDbService,
-    CommunityMetadataStore,
-    UserProfileStore,
-    ChannelsService,
-    MessagesService,
-  ],
+  imports: [LocalDbModule, IpfsModule, IpfsFileManagerModule, SigChainModule, OrbitDbModule],
+  providers: [StorageService],
   exports: [StorageService],
 })
 export class StorageModule {}

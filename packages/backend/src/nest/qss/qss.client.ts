@@ -5,7 +5,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { connect, type Socket as ClientSocket } from 'socket.io-client'
 
 import { createLogger } from '../common/logger'
-import { QSS_ENABLED, QSS_ENDPOINT } from '../const'
+import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
 import { QSSConnectionError, QSSNotInitializedError, WebsocketEvents } from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
@@ -21,7 +21,7 @@ export class QSSClient {
 
   constructor(
     // environment variable that determines if we are using QSS
-    @Inject(QSS_ENABLED) private qssEnabled: boolean,
+    @Inject(QSS_ALLOWED) private qssAllowed: boolean,
     // environment variable that determines what endpoint we connect to QSS on
     @Inject(QSS_ENDPOINT) private qssEndpoint: string
   ) {}
@@ -29,16 +29,13 @@ export class QSSClient {
   /**
    * Create and connect a socket.io socket to QSS
    *
-   * @param qssEnabled Determined by the QSS_ENABLED env variable and data stored in community metadata and V3 invites
    * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
    * @returns Connected socket.io socket instance
    */
-  public async createSocket(qssEnabled: boolean, qssEndpoint: string | undefined): Promise<ClientSocket> {
-    // determine if we should actually connect to the client
-    this.qssEnabled = qssEnabled || this.qssEnabled
+  public async createSocket(qssEndpoint: string | undefined): Promise<ClientSocket> {
     this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
 
-    if (!this.qssEnabled || this.qssEndpoint == null) {
+    if (!this.qssAllowed || this.qssEndpoint == null) {
       throw new QSSNotInitializedError(`QSS is not enabled`)
     }
 
@@ -98,11 +95,15 @@ export class QSSClient {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
 
-    if (withAck) {
-      return (await this.clientSocket.emitWithAck(event, payload)) as T
-    }
+    try {
+      if (withAck) {
+        return (await this.clientSocket.emitWithAck(event, payload)) as T
+      }
 
-    this.clientSocket.emit(event, payload)
+      this.clientSocket.emit(event, payload)
+    } catch (e) {
+      this.logger.error('Error while sending message to QSS', e)
+    }
     return undefined
   }
 
