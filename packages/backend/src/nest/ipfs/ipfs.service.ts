@@ -8,9 +8,8 @@ import { LevelBlockstore, LevelBlockstoreInit } from 'blockstore-level'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { DatabaseOptions, Level } from 'level'
 import { BITSWAP_PROTOCOL } from '../libp2p/libp2p.const'
-import * as fs from 'fs/promises'
-import * as path from 'path'
-import { SigChainService } from '../auth/sigchain.service'
+import * as fs from 'fs'
+import util from 'util'
 
 type StoreInit = {
   blockstore?: Omit<LevelBlockstoreInit, 'valueEncoding' | 'keyEncoding'>
@@ -36,10 +35,175 @@ export class IpfsService {
   private started: boolean
   private readonly logger = createLogger(IpfsService.name)
 
+  // --- lifecycle & debug helpers ---
+  private lifecycleBusy = false
+
+  private async withLifecycleLock<T>(label: string, fn: () => Promise<T>): Promise<T> {
+    const start = Date.now()
+    while (this.lifecycleBusy) {
+      this.logger.info(`[LOCK:${label}] waiting for lifecycle lock...`)
+      await new Promise(r => setTimeout(r, 25))
+    }
+    this.lifecycleBusy = true
+    this.logger.info(`[LOCK:${label}] acquired in ${Date.now() - start}ms`)
+    try {
+      return await fn()
+    } finally {
+      this.lifecycleBusy = false
+      this.logger.info(`[LOCK:${label}] released`)
+    }
+  }
+
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  private snapshot(label: string) {
+    const repo = this.ipfsRepoPath
+    const blocks = repo + '/blocks'
+    const data = repo + '/data'
+    const ls = (p: string) => {
+      try {
+        return fs.existsSync(p) ? fs.readdirSync(p) : '<missing>'
+      } catch {
+        return '<error>'
+      }
+    }
+    const mode = (p: string) => {
+      try {
+        return fs.existsSync(p) ? fs.statSync(p).mode.toString(8) : '<missing>'
+      } catch {
+        return '<error>'
+      }
+    }
+    this.logger.info(`[SNAPSHOT:${label}] repo=${repo} exists=${fs.existsSync(repo)} mode=${mode(repo)}`)
+    const blocksList = ls(blocks)
+    const dataList = ls(data)
+    this.logger.info(
+      `[SNAPSHOT:${label}] blocks=${blocks} exists=${fs.existsSync(blocks)} mode=${mode(blocks)} files=${Array.isArray(blocksList) ? (blocksList as string[]).slice(0, 20) : blocksList}`
+    )
+    this.logger.info(
+      `[SNAPSHOT:${label}] data=${data} exists=${fs.existsSync(data)} mode=${mode(data)} files=${Array.isArray(dataList) ? (dataList as string[]).slice(0, 20) : dataList}`
+    )
+    this.logger.info(
+      `[SNAPSHOT:${label}] blockDB.status=${this.blockstore?.db.status} blockStore.status=${(this.blockstore as any)?.store?.status ?? '<n/a>'}`
+    )
+    this.logger.info(
+      `[SNAPSHOT:${label}] dataDB.status=${this.datastore?.db.status} dataStore.status=${(this.datastore as any)?.store?.status ?? '<n/a>'}`
+    )
+    const lockFiles = ['LOCK', 'LOCKS', 'CURRENT', 'MANIFEST-000001']
+    for (const f of lockFiles) {
+      this.logger.info(
+        `[SNAPSHOT:${label}] lock? blocks/${f}=${fs.existsSync(blocks + '/' + f)} data/${f}=${fs.existsSync(data + '/' + f)}`
+      )
+    }
+  }
+
+  private async ensureRepoReady(label: string) {
+    const repo = this.ipfsRepoPath
+    const blocks = repo + '/blocks'
+    const data = repo + '/data'
+    this.logger.info(`[FS:${label}] ensuring repo directories exist at ${repo}`)
+    fs.mkdirSync(repo, { recursive: true })
+    fs.mkdirSync(blocks, { recursive: true })
+    fs.mkdirSync(data, { recursive: true })
+
+    // quick RW probe
+    try {
+      const p = blocks + '/.__probe__'
+      fs.writeFileSync(p, 'ok')
+      fs.unlinkSync(p)
+      this.logger.info(`[FS:${label}] RW probe blocks OK`)
+    } catch (e) {
+      this.logger.error(`[FS:${label}] RW probe blocks FAILED`, e)
+    }
+    try {
+      const p = data + '/.__probe__'
+      fs.writeFileSync(p, 'ok')
+      fs.unlinkSync(p)
+      this.logger.info(`[FS:${label}] RW probe data OK`)
+    } catch (e) {
+      this.logger.error(`[FS:${label}] RW probe data FAILED`, e)
+    }
+  }
+
+  private async ensureOpen(db: Level<string, Uint8Array>, name: string) {
+    this.logger.info(`[OPEN:${name}] pre-status=${db.status}`)
+    if (db.status === 'open') return
+
+    if (db.status === 'opening') {
+      const t0 = Date.now()
+      // @ts-ignore
+      for (let i = 0; i < 50 && db.status !== 'open'; i++) {
+        await this.delay(10)
+      }
+      this.logger.info(`[OPEN:${name}] waited ${Date.now() - t0}ms for 'opening' → status=${db.status}`)
+      // @ts-ignore
+      if (db.status === 'open') return
+    }
+
+    const t1 = Date.now()
+    await db.open()
+    this.logger.info(`[OPEN:${name}] db.open() resolved in ${Date.now() - t1}ms status=${db.status}`)
+
+    // give one tick for some environments to flip status
+    await this.delay(0)
+  }
+
+  private async healthCheck(db: Level<string, Uint8Array>, name: string) {
+    const key = `__health__:${Date.now()}`
+    const t0 = Date.now()
+    try {
+      await db.put(key, Buffer.from('ok'))
+      const v = await db.get(key)
+      await db.del(key)
+      this.logger.info(
+        `[HEALTH:${name}] put/get/del OK in ${Date.now() - t0}ms len=${(v as Uint8Array)?.length ?? 'n/a'}`
+      )
+    } catch (e) {
+      this.logger.error(`[HEALTH:${name}] FAILED in ${Date.now() - t0}ms`, e)
+      throw e
+    }
+  }
+
+  private async openStore(store: { open: () => Promise<void> }, name: string) {
+    const tryOpen = async (attempt: number) => {
+      this.logger.info(`[STORE-OPEN:${name}] attempt ${attempt}`)
+      await store.open()
+      this.logger.info(`[STORE-OPEN:${name}] opened on attempt ${attempt}`)
+    }
+
+    try {
+      await tryOpen(1)
+    } catch (e: any) {
+      const msg = e?.message || String(e)
+      this.logger.error(`[STORE-OPEN:${name}] attempt 1 failed: ${msg}`)
+      this.snapshot(`store-open-fail:${name}:1`)
+      if (/not open/i.test(msg) || /Database is not open/i.test(msg)) {
+        await this.delay(100)
+        try {
+          await tryOpen(2)
+          return
+        } catch (e2: any) {
+          this.logger.error(`[STORE-OPEN:${name}] attempt 2 failed: ${e2?.message || e2}`)
+          this.snapshot(`store-open-fail:${name}:2`)
+          await this.delay(200)
+          try {
+            await tryOpen(3)
+            return
+          } catch (e3) {
+            this.logger.error(`[STORE-OPEN:${name}] attempt 3 failed`)
+            throw e3
+          }
+        }
+      }
+      throw e
+    }
+  }
+
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    public readonly libp2pService: Libp2pService,
-    public readonly auth: SigChainService
+    public readonly libp2pService: Libp2pService
   ) {
     this.started = false
   }
@@ -56,6 +220,11 @@ export class IpfsService {
 
       this.logger.info(`Initializing Helia datastore and blockstore`)
       await this.initializeStores()
+      this.snapshot('createInstance:post-init-stores')
+
+      // Ensure stores are open before constructing Helia
+      await this.openStores()
+      this.snapshot('createInstance:post-open-stores')
 
       this.logger.info(`Creating Helia instance`)
       const bitstwapInstance = bitswap({
@@ -85,26 +254,52 @@ export class IpfsService {
     return this.ipfsInstance
   }
 
-  private async initializeStores(init?: StoreInit, repoPathOverride?: string): Promise<void> {
-    this.datastore = await this.createDatastore(init?.datastore, repoPathOverride)
-    this.blockstore = await this.createBlockstore(init?.blockstore, repoPathOverride)
+  private async initializeStores(init?: StoreInit): Promise<void> {
+    await this.ensureRepoReady('initializeStores')
+    this.snapshot('initializeStores:before-create')
+
+    this.logger.info('[DEBUG] Initializing Datastore with options:', init?.datastore)
+    this.datastore = await this.createDatastore(init?.datastore)
+    this.logger.info(
+      '[DEBUG] Datastore initialized:',
+      util.inspect(
+        {
+          dbType: typeof this.datastore.db,
+          dbKeys: Object.keys(this.datastore.db),
+          dbLocation: this.datastore.db.location,
+          dbState: this.datastore.db.status,
+          storeType: typeof this.datastore.store,
+          storeKeys: Object.keys(this.datastore.store),
+        },
+        { depth: 3, colors: false }
+      )
+    )
+    this.logger.info('[DEBUG] Initializing Blockstore with options:', init?.blockstore)
+    this.blockstore = await this.createBlockstore(init?.blockstore)
+    this.logger.info(
+      '[DEBUG] Blockstore initialized:',
+      util.inspect(
+        {
+          dbType: typeof this.blockstore.db,
+          dbKeys: Object.keys(this.blockstore.db),
+          dbLocation: this.blockstore.db.location,
+          dbState: this.blockstore.db.status,
+          storeType: typeof this.blockstore.store,
+          storeKeys: Object.keys(this.blockstore.store),
+        },
+        { depth: 3, colors: false }
+      )
+    )
+    this.snapshot('initializeStores:after-create')
   }
 
-  private async ensureDirExists(dir: string) {
-    try {
-      await fs.mkdir(dir, { recursive: true })
-    } catch (e) {
-      // ignore if already exists
-    }
-  }
-
-  private async createDatastore(
-    init?: DatabaseOptions<string, Uint8Array>,
-    repoPathOverride?: string
-  ): Promise<Datastore> {
+  private async createDatastore(init?: DatabaseOptions<string, Uint8Array>): Promise<Datastore> {
     let datastoreInit: DatabaseOptions<string, Uint8Array> = {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
+      createIfMissing: true,
+      errorIfExists: false,
+      version: 1,
     }
 
     if (init != null) {
@@ -122,21 +317,14 @@ export class IpfsService {
       throw new Error(`Datastore keyEncoding was set to ${datastoreInit.keyEncoding} but MUST be set to 'utf8'!`)
     }
 
-    const basePath = repoPathOverride || this.ipfsRepoPath
-    const dataDir = path.join(basePath, `data_${this.auth.team.id ?? ''}`)
-    await this.ensureDirExists(dataDir)
-    this.logger.info(`Creating LevelDB at ${dataDir}`)
-    const datastoreLevelDb = new Level<string, Uint8Array>(dataDir, datastoreInit)
-    this.logger.info(`Created LevelDB at ${dataDir}`)
-    const datastore = new LevelDatastore(datastoreLevelDb, datastoreInit)
-    this.logger.info(`Datastore created at ${dataDir}`)
+    const datastoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/data', datastoreInit)
     return {
       db: datastoreLevelDb,
-      store: datastore,
+      store: new LevelDatastore(datastoreLevelDb, datastoreInit),
     }
   }
 
-  private async createBlockstore(init?: LevelBlockstoreInit, repoPathOverride?: string): Promise<Blockstore> {
+  private async createBlockstore(init?: LevelBlockstoreInit): Promise<Blockstore> {
     let blockstoreInit: LevelBlockstoreInit = {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
@@ -162,42 +350,61 @@ export class IpfsService {
       throw new Error(`Blockstore keyEncoding was set to ${blockstoreInit.keyEncoding} but MUST be set to 'utf8'!`)
     }
 
-    const basePath = repoPathOverride || this.ipfsRepoPath
-    const blocksDir = path.join(basePath, `blocks_${this.auth.team.id ?? ''}`)
-    await this.ensureDirExists(blocksDir)
-    this.logger.info(`Creating LevelDB at ${blocksDir}`)
-    const blockstoreLevelDb = new Level<string, Uint8Array>(blocksDir, blockstoreInit)
-    this.logger.info(`Created LevelDB at ${blocksDir}`)
-    this.logger.info(`Creating LevelBlockstore at ${blocksDir}`)
-    const blockstore = new LevelBlockstore(blockstoreLevelDb, blockstoreInit)
-    this.logger.info(`LevelDB created at ${blocksDir}`)
+    const blockstoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/blocks', blockstoreInit)
     return {
       db: blockstoreLevelDb,
-      store: blockstore,
+      store: new LevelBlockstore(blockstoreLevelDb, blockstoreInit),
     }
   }
 
-  public async start() {
-    this.logger.info(`Starting IPFS Service`)
-    if (!this.ipfsInstance) {
-      throw new Error('IPFS instance does not exist')
+  private async openStoresCore(): Promise<void> {
+    if (!this.blockstore || !this.datastore) {
+      this.logger.error('Blockstore or datastore is not initialized')
+      throw new Error('Blockstore or datastore is not initialized')
     }
 
-    this.logger.info(`Opening Helia blockstore db`)
-    await this.blockstore!.db.open()
-    this.logger.info(`Opening Helia blockstore store`)
-    await this.blockstore!.store.open()
+    this.snapshot('openStores:begin')
 
-    this.logger.info(`Opening Helia datastore db`)
-    await this.datastore!.db.open()
-    this.logger.info(`Opening Helia datastore store`)
-    await this.datastore!.store.open()
+    // Blockstore: open DB → health → open store
+    await this.ensureOpen(this.blockstore.db, 'block-db')
+    await this.healthCheck(this.blockstore.db, 'block-db')
+    await this.delay(0) // yield a tick
+    await this.openStore(this.blockstore.store as any, 'block-store')
 
-    this.logger.info(`Starting Helia`)
-    await this.ipfsInstance.start()
+    // Datastore: open DB → health → open store
+    await this.ensureOpen(this.datastore.db, 'data-db')
+    await this.healthCheck(this.datastore.db, 'data-db')
+    await this.delay(0)
+    await this.openStore(this.datastore.store as any, 'data-store')
 
-    this.started = true
-    this.logger.info(`IPFS Service has started`)
+    this.snapshot('openStores:end')
+  }
+
+  public async openStores(): Promise<void> {
+    return this.withLifecycleLock('openStores', async () => {
+      await this.openStoresCore()
+    })
+  }
+
+  public async start() {
+    return this.withLifecycleLock('start', async () => {
+      this.logger.info(`Starting IPFS Service`)
+      if (!this.ipfsInstance) {
+        throw new Error('IPFS instance does not exist')
+      }
+
+      // idempotent: ensure stores are open if needed
+      this.snapshot('start:pre-openStores')
+      await this.openStoresCore()
+      this.snapshot('start:post-openStores')
+
+      this.logger.info(`Starting Helia`)
+      await this.ipfsInstance.start()
+      this.snapshot('start:post-helia-start')
+
+      this.started = true
+      this.logger.info(`IPFS Service has started`)
+    })
   }
 
   public isStarted() {
@@ -205,13 +412,18 @@ export class IpfsService {
   }
 
   public async stop() {
+    this.snapshot('stop:begin')
+
     this.logger.info('Stopping IPFS')
 
     try {
+      this.logger.info('[DEBUG] Stopping IPFS instance')
       await this.ipfsInstance?.stop()
+      this.logger.info('[DEBUG] Stopped IPFS instance')
     } catch (e) {
+      this.logger.error('[DEBUG] Error while closing IPFS instance', e)
+      this.logger.error('[DEBUG] Error stack:', e?.stack)
       if (!(e as Error).message.includes('Database is not open')) {
-        this.logger.error(`Error while closing IPFS instance`, e)
         throw e
       }
     }
@@ -220,24 +432,56 @@ export class IpfsService {
     await new Promise<void>(r => setImmediate(r))
 
     try {
-      await this.blockstore?.db.close()
+      this.logger.info('[DEBUG] Closing blockstore store')
       await this.blockstore?.store.close()
+      this.logger.info('[DEBUG] Closed blockstore store')
     } catch (e) {
+      this.logger.error('[DEBUG] Error while closing IPFS blockstore', e)
+      this.logger.error('[DEBUG] Error stack:', e?.stack)
       if (!(e as Error).message.includes('Database is not open')) {
-        this.logger.error(`Error while closing IPFS blockstore`, e)
         throw e
       }
     }
 
     try {
-      await this.datastore?.db.close()
-      await this.datastore?.store.close()
+      this.logger.info('[DEBUG] Closing blockstore db')
+      await this.blockstore?.db.close()
+      this.logger.info('[DEBUG] Closed blockstore db')
     } catch (e) {
+      this.logger.error('[DEBUG] Error while closing IPFS blockstore db', e)
+      this.logger.error('[DEBUG] Error stack:', e?.stack)
       if (!(e as Error).message.includes('Database is not open')) {
-        this.logger.error(`Error while closing IPFS datastore`, e)
         throw e
       }
     }
+    await this.delay(0)
+
+    try {
+      this.logger.info('[DEBUG] Closing datastore store')
+      await this.datastore?.store.close()
+      this.logger.info('[DEBUG] Closed datastore store')
+    } catch (e) {
+      this.logger.error('[DEBUG] Error while closing IPFS datastore', e)
+      this.logger.error('[DEBUG] Error stack:', e?.stack)
+      if (!(e as Error).message.includes('Database is not open')) {
+        throw e
+      }
+    }
+
+    try {
+      this.logger.info('[DEBUG] Closing datastore db')
+      await this.datastore?.db.close()
+      this.logger.info('[DEBUG] Closed datastore db')
+    } catch (e) {
+      this.logger.error('[DEBUG] Error while closing IPFS datastore db', e)
+      this.logger.error('[DEBUG] Error stack:', e?.stack)
+      if (!(e as Error).message.includes('Database is not open')) {
+        throw e
+      }
+    }
+    await this.delay(0)
+
+    this.snapshot('stop:end')
     this.started = false
   }
 
@@ -247,28 +491,8 @@ export class IpfsService {
     } catch (error) {
       this.logger.error('Error while destroying IPFS instance', error)
     }
-
-    // Remove all event listeners from ipfsInstance if possible
-    if (this.ipfsInstance && typeof (this.ipfsInstance as any).removeAllListeners === 'function') {
-      ;(this.ipfsInstance as any).removeAllListeners()
-    }
-    // Remove all event listeners from blockstore and datastore if possible
-    if (this.blockstore?.db && typeof (this.blockstore.db as any).removeAllListeners === 'function') {
-      ;(this.blockstore.db as any).removeAllListeners()
-    }
-    if (this.blockstore?.store && typeof (this.blockstore.store as any).removeAllListeners === 'function') {
-      ;(this.blockstore.store as any).removeAllListeners()
-    }
-    if (this.datastore?.db && typeof (this.datastore.db as any).removeAllListeners === 'function') {
-      ;(this.datastore.db as any).removeAllListeners()
-    }
-    if (this.datastore?.store && typeof (this.datastore.store as any).removeAllListeners === 'function') {
-      ;(this.datastore.store as any).removeAllListeners()
-    }
-
     this.ipfsInstance = null
     this.blockstore = null
     this.datastore = null
-    this.logger.info('IpfsService: all internal references and listeners nulled')
   }
 }

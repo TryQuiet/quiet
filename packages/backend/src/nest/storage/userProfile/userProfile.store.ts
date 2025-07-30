@@ -148,24 +148,16 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
    * @throws If encryption or storage fails.
    */
   public async setEntry(key: string, userProfile: UserProfile): Promise<EncryptedAndSignedPayload> {
-    // check if the orbitDB store is initialized
-    if (this.store === undefined) {
-      try {
-        await this.init()
-      } catch (err) {
-        logger.error('Failed to initialize user profiles store:', err)
-        throw new Error('User profiles store is not initialized')
-      }
+    if (!UserProfileStore.validateUserProfile(userProfile)) {
+      logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
+      throw new Error('Invalid user profile')
     }
     logger.info('Adding user profile')
     try {
-      if (!UserProfileStore.validateUserProfile(userProfile)) {
-        // TODO: Send validation errors to frontend or replicate
-        // validation on frontend?
-        logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
-        throw new Error('Invalid user profile')
-      }
       const encEntry = await this.encryptEntry(userProfile)
+      if (this.store === undefined) {
+        await this.init()
+      }
       await this.getStore().put(key, encEntry)
       this.nicknameMaps.set(userProfile.userId, userProfile.nickname)
       return encEntry

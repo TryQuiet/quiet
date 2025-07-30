@@ -57,7 +57,7 @@ export class StorageService extends EventEmitter {
     }
   }
 
-  public async init() {
+  public async init(startSync: boolean = true) {
     if (this.initialized === true) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
       return
@@ -82,8 +82,10 @@ export class StorageService extends EventEmitter {
     this.logger.info(`Initializing Databases`)
     await this.initDatabases()
 
-    this.logger.info(`Starting database sync`)
-    await this.startSync()
+    if (startSync) {
+      this.logger.info(`Starting database sync`)
+      await this.startSync()
+    }
 
     this.logger.info('Updating peer store')
     await this.updatePeerStore()

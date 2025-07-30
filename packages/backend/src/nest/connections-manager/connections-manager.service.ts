@@ -317,7 +317,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
-    await this.libp2pService.pause()
+    // await this.libp2pService.pause()
 
     this.logger.info('Resetting StorageService')
     await this.storageService.clean()
@@ -579,6 +579,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.launch(community)
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
+      this.logger.error('[DEBUG] Failed to launch community error details:', {
+        errorType: typeof e,
+        errorKeys: Object.keys(e || {}),
+        errorStack: e?.stack,
+        errorMessage: e?.message,
+        errorString: String(e),
+      })
       emitError(this.serverIoProvider.io, {
         type: SocketActions.JOIN_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
@@ -638,18 +645,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     await this.libp2pService.createInstance(params)
 
-    const setupStorage = async () => {
+    await this.storageService.init(false)
+
+    const startSync = async () => {
       this.logger.info('Setting up storage')
-      await this.storageService.init()
+      await this.storageService.startSync()
     }
 
     const activeChain = this.sigChainService.getActiveChain()
     if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      await setupStorage()
+      await startSync()
     } else {
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-        await setupStorage()
+        await startSync()
       })
     }
     if (await this.tor.isBootstrappingFinished()) {

@@ -396,7 +396,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     this.logger.info(`Creating or opening existing level datastore for libp2p`)
     this.libp2pDatastore = new Libp2pDatastore({
-      inMemory: false,
+      inMemory: true,
       datastorePath: this.datastorePath,
     })
 
@@ -465,7 +465,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
                 localAddress: params.localAddress,
                 targetPort: params.targetPort,
                 inboundConnectionUpgradeTimeout: 60_000,
-                closeOnEnd: false,
+                closeOnEnd: true,
               }),
             ],
         transportManager: {

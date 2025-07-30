@@ -37,7 +37,7 @@ export class Libp2pDatastore {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
       createIfMissing: true,
-      errorIfExists: false,
+      errorIfExists: true,
       version: 1,
     }
 
