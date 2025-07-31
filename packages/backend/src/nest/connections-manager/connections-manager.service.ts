@@ -293,7 +293,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } else if (options.saveTor) {
       this.logger.info('Saving tor')
     }
-    if (this.storageService) {
+    if (this.storageService && options.closeDatastore) {
       this.logger.info('Stopping StorageService')
       await this.storageService?.stop()
     }
@@ -317,12 +317,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
-    await this.libp2pService.pause()
+    await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
     this.logger.info('Resetting StorageService')
     await this.storageService.clean()
-
-    await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
     this.logger.info('Cleaning libp2p datastore')
     await this.libp2pService.cleanDatastore()
