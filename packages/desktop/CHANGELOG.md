@@ -1,22 +1,10 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.1.0-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.1.0-alpha.4...@quiet/desktop@6.1.0-alpha.5) (2025-07-31)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [6.1.0]
 
 ### Fixes
 
+* Leaving a community on android and then immediately creating/joining a new one no longer fails to reinitialize [#2940](https://github.com/TryQuiet/quiet/issues/2940)
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
 * User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
 
