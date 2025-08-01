@@ -96,6 +96,7 @@ const lightTheme = createTheme({
       purple: '#521C74', // To be replaced with theme.palette.primary.main
       quietBlue: '#521c74', // To be replaced with theme.palette.primary.main
       darkPurple: '#4d1a6d', // To be replaced with theme.palette.primary.dark?
+      lightPurple: '#F9EFFF',
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#1B6FEC', // Used in a variety of places - likely wants to be split / consolidated
@@ -342,6 +343,7 @@ const darkTheme = createTheme({
       purple: '#521C74', // To be replaced with theme.palette.primary.main
       quietBlue: '#521c74', // To be replaced with theme.palette.primary.main
       darkPurple: '#4d1a6d', // To be replaced with theme.palette.primary.dark?
+      lightPurple: '#F9EFFF',
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
       linkBlue: '#59c0d5', // Used in a variety of places - likely wants to be split / consolidated
