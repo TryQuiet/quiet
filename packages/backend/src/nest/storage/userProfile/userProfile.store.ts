@@ -250,6 +250,23 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
   }
 
   /**
+   * Retrieves all encrypted user profile entries from the store.
+   * @param ids Optional list of user IDs to filter by.
+   * @returns An array of encrypted user profile entries.
+   */
+  public getEncryptedEntries(): Promise<{ [key: string]: EncryptedAndSignedPayload }>
+  public getEncryptedEntries(ids: string[]): Promise<{ [key: string]: EncryptedAndSignedPayload }>
+  public async getEncryptedEntries(ids?: string[]): Promise<{ [key: string]: EncryptedAndSignedPayload }> {
+    const allEntries = await this.getStore().all()
+    const filtered = ids == null ? allEntries : allEntries.filter(entry => ids.includes(entry.key))
+    const result: { [key: string]: EncryptedAndSignedPayload } = {}
+    for (const entry of filtered) {
+      result[entry.key] = entry.value
+    }
+    return result
+  }
+
+  /**
    * Gets the nickname for a given user ID, if available.
    * @param userId The user ID to look up.
    * @returns The nickname or undefined if not found.

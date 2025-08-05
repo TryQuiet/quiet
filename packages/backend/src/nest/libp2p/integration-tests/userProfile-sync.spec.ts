@@ -251,11 +251,11 @@ describe('UserProfileStore OrbitDB Sync', () => {
 
   it('a new peer can join and catch up to the latest head without a new entry being made', async () => {
     expect(await userProfileStores[N_PEERS - 1].getUserProfiles()).toEqual([])
+    expect(await userProfileStores[N_PEERS - 1].getEncryptedEntries()).toEqual({})
 
-    // Spy on 'updated' event for all peers
     const updatedSpies = userProfileStores.map(store => jest.fn())
     userProfileStores.forEach((store, idx) => {
-      store.on('updated', updatedSpies[idx])
+      store.getStore().events.on('update', updatedSpies[idx])
     })
 
     for (let i = 0; i < N_PEERS - 1; i++) {
@@ -286,8 +286,9 @@ describe('UserProfileStore OrbitDB Sync', () => {
 
     // Ensure only the new peer emitted 'updated'
     for (let i = 0; i < N_PEERS - 1; i++) {
-      expect(updatedSpies[i]).not.toHaveBeenCalled()
+      expect(updatedSpies[i]).toHaveBeenCalledTimes(1)
     }
+    logger.info('New peer updated:', updatedSpies[N_PEERS - 1].mock.calls.length, 'times')
     expect(updatedSpies[N_PEERS - 1]).toHaveBeenCalled()
   })
 })

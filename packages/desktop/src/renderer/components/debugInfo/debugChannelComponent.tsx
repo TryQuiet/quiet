@@ -191,6 +191,12 @@ export const DebugChannelComponent: React.FC = () => {
           </summary>
           <pre className={classes.json}>{JSON.stringify(currentChannelMessagesMergedBySender, null, 2)}</pre>
         </details>
+        <details>
+          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 16 }}>
+            Sorted Current Channel Messages
+          </summary>
+          <pre className={classes.json}>{JSON.stringify(sortedCurrentChannelMessages, null, 2)}</pre>
+        </details>
       </Grid>
       <Grid item className={classes.section}>
         <details open>

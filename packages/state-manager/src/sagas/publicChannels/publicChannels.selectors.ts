@@ -197,7 +197,7 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
 })
 
 /**
- * Channel messages grouped by day
+ * Channel display messages grouped by day
  */
 export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
   const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
@@ -216,8 +216,7 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
 
 /**
  * Channel messages grouped by day and then additionally by sender (if
- * there are successive messages by the same sender). Also adds a
- * profile photo to the first message of each user.
+ * there are successive messages by the same sender)
  */
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,

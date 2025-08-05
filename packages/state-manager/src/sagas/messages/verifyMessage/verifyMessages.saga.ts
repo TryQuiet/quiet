@@ -17,33 +17,30 @@ export function* verifyMessagesSaga(
 
   for (const message of messages) {
     let isVerified = !!action.payload.isVerified
-
-    if (message.type === MessageType.Info) {
+    const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
+    if (author === null) {
+      logger.warn(`No author for ID found in redux`, message.userId, message.id)
+      isVerified = false
+    } else if (message.type === MessageType.Info) {
       logger.info('getting channel for info message', message.channelId, message.id)
       const channel = yield* select(publicChannelsSelectors.getChannelById(message.channelId))
       if (!channel) {
         logger.warn(`No channel for ID found in redux`, message.channelId, message.id)
-        return
+        continue
       }
 
-      const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
-      if (author == null) {
-        logger.warn(`No author for ID found in redux`, message.userId, message.id)
-        isVerified = false
+      // Handle channel deletion info messages sent to #general
+      if (channel.name === 'general' && deleteChannelMessageRegex.test(message.message)) {
+        logger.debug('Trusting deletion message until we have a better solution')
+      } else if (generalChannelDeletionMessageRegex.test(message.message)) {
+        logger.debug('Trusting deletion message until we have a better solution')
       } else {
-        // Handle channel deletion info messages sent to #general
-        if (channel.name === 'general' && deleteChannelMessageRegex.test(message.message)) {
-          logger.debug('Trusting deletion message until we have a better solution')
-        } else if (generalChannelDeletionMessageRegex.test(message.message)) {
-          logger.debug('Trusting deletion message until we have a better solution')
-        } else {
-          const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
-          if (message.message !== expectedMessage) {
-            logger.warn(`${author.nickname} tried to send a malicious info message`)
-            logger.info('Expected message:', expectedMessage)
-            logger.info('Received message:', message.message)
-            isVerified = false
-          }
+        const expectedMessage = yield* call(verifyUserInfoMessage, author.nickname, author.userId, channel)
+        if (message.message !== expectedMessage) {
+          logger.warn(`${author.nickname} tried to send a malicious info message`)
+          logger.info('Expected message:', expectedMessage)
+          logger.info('Received message:', message.message)
+          isVerified = false
         }
       }
     }

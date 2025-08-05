@@ -52,6 +52,17 @@ export const messageSendingStatusById = (messageId: string) =>
     return messageSendingStatusAdapter.getSelectors().selectById(reducerState.messageSendingStatus, messageId)
   })
 
+export const messagesByIds = (messageIds: string[]) =>
+  createSelector(publicChannelsMessagesBase, base => {
+    // Flatten all channel messages into a single array
+    const allMessages = Object.values(base || {}).flatMap(channelMessagesBase => {
+      if (!channelMessagesBase) return []
+      return channelMessagesAdapter.getSelectors().selectAll(channelMessagesBase.messages)
+    })
+    // Filter messages by the provided IDs
+    return allMessages.filter(msg => messageIds.includes(msg.id))
+  })
+
 export const currentPublicChannelMessagesEntities = createSelector(currentPublicChannelMessagesBase, base => {
   if (!base) return {}
   return channelMessagesAdapter.getSelectors().selectEntities(base.messages)
@@ -66,13 +77,28 @@ export const currentPublicChannelMessagesEntries = createSelector(currentPublicC
     .reverse()
 })
 
-export const validCurrentPublicChannelMessagesEntries = createSelector(
+export const invalidCurrentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesEntries,
   messagesVerificationStatus,
   (messages, verification) => {
     return messages.filter(message => {
       const status = verification[message.id]
+      if (status && !status.isVerified) {
+        return message
+      }
+    })
+  }
+)
+
+export const validCurrentPublicChannelMessagesEntries = createSelector(
+  currentPublicChannelMessagesEntries,
+  messagesVerificationStatus,
+  (messages, verification) => {
+    return messages.filter(message => {
+      logger.info('[validCurrentPublicChannelMessagesEntries]', message)
+      const status = verification[message.id]
       if (status && status.isVerified) {
+        logger.info(`[validCurrentPublicChannelMessagesEntries] Message ${message.id} is verified`)
         return message
       }
     })
@@ -108,6 +134,35 @@ export const missingChannelFiles = (channelId: string) =>
       .filter(isDefined)
   })
 
+export const invalidMessagesEntries = createSelector(
+  publicChannelsMessagesBase,
+  messagesVerificationStatus,
+  (base, verification) => {
+    if (!base || !verification) return []
+    return Object.values(base)
+      .flatMap(channelMessagesBase => {
+        if (!channelMessagesBase) return []
+        return channelMessagesAdapter.getSelectors().selectAll(channelMessagesBase.messages)
+      })
+      .filter(message => {
+        if (message == null) return false
+        const status = verification[message.id]
+        return status && !status.isVerified
+      })
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .reverse()
+  }
+)
+
+export const invalidChannelMessagesEntries = (channelId: string) =>
+  createSelector(publicChannelMessagesEntities(channelId), messagesVerificationStatus, (messages, verification) => {
+    return Object.values(messages).filter(message => {
+      if (message == null) return false
+      const status = verification[message.id]
+      return status && !status.isVerified
+    })
+  })
+
 export const messagesSelectors = {
   publicChannelsMessagesBase,
   publicChannelMessagesEntities,
@@ -121,4 +176,8 @@ export const messagesSelectors = {
   messageSendingStatusById,
   missingChannelMessages,
   missingChannelFiles,
+  invalidCurrentPublicChannelMessagesEntries,
+  invalidChannelMessagesEntries,
+  messagesByIds,
+  invalidMessagesEntries,
 }
