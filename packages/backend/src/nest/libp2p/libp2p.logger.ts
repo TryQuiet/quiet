@@ -174,12 +174,20 @@ export function logger(name: string): () => CallableQuietLogger {
     const makeCallable = (logger: QuietLogger): CallableQuietLogger => {
       const callable = {
         LOGGER: logger,
-        enabled: [LogSetting.DEBUG, LogSetting.TRACE].includes(logger.logSetting),
-        error: (message: any, ...optionalParams: any[]) => logger.error(message, ...optionalParams),
-        trace: (message: any, ...optionalParams: any[]) => logger.trace(message, ...optionalParams),
-        warn: (message: any, ...optionalParams: any[]) => logger.warn(message, ...optionalParams),
+        enabled: false,
+        error:
+          (message: any, ...optionalParams: any[]) =>
+          () => {},
+        trace:
+          (message: any, ...optionalParams: any[]) =>
+          () => {},
+        warn:
+          (message: any, ...optionalParams: any[]) =>
+          () => {},
       }
-      const func = (message: any, ...optionalParams: any[]) => logger.info(message, ...optionalParams)
+      const func =
+        (message: any, ...optionalParams: any[]) =>
+        () => {}
       return Object.assign(func, callable)
     }
 

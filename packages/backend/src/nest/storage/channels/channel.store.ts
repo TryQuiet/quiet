@@ -69,6 +69,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       sync: options.sync,
     })
 
+    const currentEntries = await this.getEntries()
+
     this.logger.info('Initialized')
     return this
   }

@@ -249,8 +249,15 @@ describe('UserProfileStore OrbitDB Sync', () => {
     )
   })
 
-  it('a new peer can join and sync profiles', async () => {
+  it('a new peer can join and catch up to the latest head without a new entry being made', async () => {
     expect(await userProfileStores[N_PEERS - 1].getUserProfiles()).toEqual([])
+
+    // Spy on 'updated' event for all peers
+    const updatedSpies = userProfileStores.map(store => jest.fn())
+    userProfileStores.forEach((store, idx) => {
+      store.on('updated', updatedSpies[idx])
+    })
+
     for (let i = 0; i < N_PEERS - 1; i++) {
       await libp2pServices[N_PEERS - 1].dialPeer(libp2pServices[i].localAddress)
     }
@@ -276,5 +283,11 @@ describe('UserProfileStore OrbitDB Sync', () => {
       10000,
       1000
     )
+
+    // Ensure only the new peer emitted 'updated'
+    for (let i = 0; i < N_PEERS - 1; i++) {
+      expect(updatedSpies[i]).not.toHaveBeenCalled()
+    }
+    expect(updatedSpies[N_PEERS - 1]).toHaveBeenCalled()
   })
 })

@@ -101,9 +101,9 @@ export class TimedQueue {
    * @param processDef Task definition
    */
   public async enqueue(processDef: TimedQueueProcessDef): Promise<void> {
-    this.logger.debug(`Adding task with key ${processDef.key} to timed queue`)
+    // this.logger.debug(`Adding task with key ${processDef.key} to timed queue`)
     if (this.scheduled.has(processDef.key)) {
-      this.logger.trace(`Task ${processDef.key} already scheduled – skipping`)
+      // this.logger.trace(`Task ${processDef.key} already scheduled – skipping`)
       return
     }
     this.scheduled.add(processDef.key)
@@ -120,16 +120,16 @@ export class TimedQueue {
    * @param processDef Task to be processed
    */
   private async _processQueue(processDef: TimedQueueProcessDef): Promise<void> {
-    this.logger.debug(`Pulled task with key ${processDef.key} from queue`)
+    // this.logger.debug(`Pulled task with key ${processDef.key} from queue`)
     if (this.inProcess.has(processDef.key)) {
-      this.logger.debug(`Task with key ${processDef.key} already in process!`)
+      // this.logger.debug(`Task with key ${processDef.key} already in process!`)
       return
     }
 
     const delayMs = processDef.delayMs ?? this.options.baseDelayMs
 
     const process = async (): Promise<void> => {
-      this.logger.debug(`Processing task with key ${processDef.key}`)
+      // this.logger.debug(`Processing task with key ${processDef.key}`)
       try {
         await processDef.task()
         this.inProcess.delete(processDef.key)
@@ -142,10 +142,10 @@ export class TimedQueue {
         if (e.message.includes('Unexpected server response: 404')) {
           errorContext = e.message
         }
-        this.logger.warn(
-          `Error while processing task with key ${processDef.key}, retrying with delay ${newDelayMs}ms`,
-          errorContext
-        )
+        // this.logger.warn(
+        //   `Error while processing task with key ${processDef.key}, retrying with delay ${newDelayMs}ms`,
+        //   errorContext
+        // )
         await this.enqueue({
           ...processDef,
           delayMs: newDelayMs,

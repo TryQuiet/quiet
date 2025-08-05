@@ -240,6 +240,12 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     )
     const userProfiles = results.filter((profile): profile is UserProfile => profile !== null)
     this.nicknameMaps = new Map(userProfiles.map(profile => [profile.userId, profile.nickname]))
+    // list current relations in compact string
+    logger.info(
+      `Current nickname map: ${Array.from(this.nicknameMaps.entries())
+        .map(([userId, nickname]) => `${userId}:${nickname}`)
+        .join(', ')}`
+    )
     return userProfiles
   }
 

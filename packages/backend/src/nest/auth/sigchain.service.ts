@@ -1,6 +1,14 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '@localfirst/auth'
+import {
+  Connection,
+  InviteeMemberContext,
+  Keyring,
+  LocalUserContext,
+  MemberContext,
+  Team,
+  TeamLink,
+} from '@localfirst/auth'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
@@ -120,6 +128,7 @@ export class SigChainService extends EventEmitter {
     }
     this.activeChainTeamName = teamName
     this.attachSocketListeners(this.getChain({ teamName }))
+    this.logGraph()
   }
 
   private handleChainUpdate = () => {
@@ -135,6 +144,7 @@ export class SigChainService extends EventEmitter {
     this.emit('updated')
     this.saveChain(this.activeChainTeamName!)
     this.logger.info('Chain updated, emitted updated event')
+    this.logGraph()
   }
 
   private attachSocketListeners(chain: SigChain): void {
@@ -281,5 +291,31 @@ export class SigChainService extends EventEmitter {
       this.logger.warn(`LocalDbService wasn't open, opening now!`)
       await this.localDbService.open()
     }
+  }
+
+  public logGraph(): void {
+    this.logger.info('Logging graph of all chains')
+    for (const [teamName, chain] of this.chains.entries()) {
+      for (const link of Object.values(chain.team?.graph.links ?? {}) as TeamLink[]) {
+        const redactedLink = this._redactLockboxes(link)
+        this.logger.info(`\t Link: ${JSON.stringify(redactedLink, null, 2)}`)
+      }
+    }
+  }
+
+  /**
+   * Returns a deep clone of the link object with all payload.lockboxes[*].encryptedPayload removed
+   */
+  private _redactLockboxes(link: TeamLink): any {
+    // Deep clone
+    const clone = JSON.parse(JSON.stringify(link))
+    if (clone?.body?.payload?.lockboxes && Array.isArray(clone.body.payload.lockboxes)) {
+      for (const lockbox of clone.body.payload.lockboxes) {
+        if ('encryptedPayload' in lockbox) {
+          delete lockbox.encryptedPayload
+        }
+      }
+    }
+    return clone
   }
 }

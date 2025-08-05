@@ -185,6 +185,7 @@ export const displayableCurrentChannelMessages = createSelector(
         result.push(displayableMessage(message, users[message.userId]))
       } else {
         logger.warn('Received a message from a user that does not exist', message.id, message.userId)
+        result.push(displayableMessage(message, { userId: message.userId, nickname: 'Unknown user' }))
       }
       return result
     }, [])
