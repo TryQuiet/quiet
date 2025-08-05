@@ -23,7 +23,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: 220,
     height: 'hug',
-    padding: `3px 16px 3px 16px`,
+    padding: `3px 0px 3px 0px`,
     gap: 4,
     opacity: 1,
     display: 'flex',
