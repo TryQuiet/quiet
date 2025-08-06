@@ -35,6 +35,11 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
       Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
       AccessController: IPFSAccessController({ write: ['*'] }),
     })
+    const heads = await this.store.log.heads()
+    const headIds = heads.map((h: LogEntry) => {
+      return { key: h.payload.key, v: h.v, hash: h.hash, next: h.next, refs: h.refs }
+    })
+    logger.info('Current head: ', JSON.stringify(headIds, null, 2))
 
     this.store.events.on('update', async (entry: LogEntry) => {
       logger.info('Database update')
