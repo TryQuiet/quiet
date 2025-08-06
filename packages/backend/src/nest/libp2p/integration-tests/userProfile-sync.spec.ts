@@ -249,7 +249,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
     )
   })
 
-  it('a new peer can join and catch up to the latest head without a new entry being made', async () => {
+  it('a new peer can join and sync profiles', async () => {
     expect(await userProfileStores[N_PEERS - 1].getUserProfiles()).toEqual([])
     expect(await userProfileStores[N_PEERS - 1].getEncryptedEntries()).toEqual({})
 

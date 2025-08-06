@@ -6,7 +6,6 @@ import { communities, publicChannels } from '@quiet/state-manager'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { MenuName } from '../../../../const/MenuNames.enum'
 import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
-import DebugChannelComponent from '../../debugInfo/debugChannelComponent'
 import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { useModal } from '../../../containers/hooks'
@@ -14,7 +13,6 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { exportChats } from '../../../../utils/functions/exportMessages'
 
 export const ChannelContextMenu: FC = () => {
-  const [showDebug, setShowDebug] = React.useState(false)
   const isOwner = useSelector(communities.selectors.isOwner)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -33,10 +31,6 @@ export const ChannelContextMenu: FC = () => {
       title: 'Export messages',
       action: () => channel && exportChats(channel?.name, channelMessages),
     },
-    {
-      title: 'Debug',
-      action: () => setShowDebug(true),
-    },
   ]
 
   if (isOwner) {
@@ -49,11 +43,7 @@ export const ChannelContextMenu: FC = () => {
     })
   }
 
-  return showDebug ? (
-    <ContextMenu title={title + ' Debug'} {...channelContextMenu} handleBack={() => setShowDebug(false)}>
-      <DebugChannelComponent />
-    </ContextMenu>
-  ) : (
+  return (
     <ContextMenu title={title} {...channelContextMenu}>
       <ContextMenuItemList items={items} />
     </ContextMenu>
