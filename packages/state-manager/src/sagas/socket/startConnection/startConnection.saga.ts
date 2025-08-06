@@ -171,7 +171,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
       logger.info(`${SocketEvents.USERS_UPDATED}`, payload)
       emit(usersActions.setUsers(payload.users))
-      emit(messagesActions.retryVerification({ retryAll: true }))
+      emit(messagesActions.retryVerification({ currentChannel: true }))
     })
 
     socket.on(SocketEvents.USERS_REMOVED, (payload: UsersUpdatedEvent) => {
@@ -182,7 +182,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.updateUserProfiles(payload.profiles))
-      emit(messagesActions.retryVerification({ retryAll: true }))
+      emit(messagesActions.retryVerification({ currentChannel: true }))
     })
     return () => undefined
   })

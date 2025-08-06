@@ -130,7 +130,7 @@ export interface VerifyMessagesPayload {
   messageIds?: string[]
   channelId?: string
   messages?: ChannelMessage[]
-  retryAll?: boolean
+  currentChannel?: boolean
 }
 
 export interface CacheMessagesPayload {
