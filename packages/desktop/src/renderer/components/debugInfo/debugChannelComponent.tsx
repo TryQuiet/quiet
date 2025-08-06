@@ -5,7 +5,8 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
-import { messages, publicChannels } from '@quiet/state-manager'
+import { messages, publicChannels, files } from '@quiet/state-manager'
+import { DownloadStatus } from '@quiet/types'
 
 const PREFIX = 'DebugChannel'
 
@@ -16,6 +17,9 @@ const classes = {
   th: `${PREFIX}th`,
   td: `${PREFIX}td`,
   json: `${PREFIX}json`,
+  summary: `${PREFIX}summary`,
+  summarySmall: `${PREFIX}summarySmall`,
+  code: `${PREFIX}code`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -72,19 +76,60 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-all',
   },
+  [`& .${classes.summary}`]: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontWeight: 500,
+    fontSize: 18,
+  },
+  [`& .${classes.summarySmall}`]: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontWeight: 500,
+    fontSize: 16,
+  },
+  [`& .${classes.code}`]: {
+    fontFamily: 'monospace',
+    fontSize: 12,
+    color: theme.palette.text.secondary,
+    wordBreak: 'break-all',
+  },
 }))
 
 // Selectors from publicChannels.selectors.ts relevant to Channel.tsx message display
 const channelSelectors = publicChannels.selectors
+
+// Collapsible JSON that only stringifies when opened
+const CollapsibleJson: React.FC<{
+  summary: string
+  data: any | (() => any)
+  small?: boolean
+  defaultOpen?: boolean
+}> = ({ summary, data, small = false, defaultOpen = false }) => {
+  const [open, setOpen] = React.useState(defaultOpen)
+  const json = React.useMemo(() => {
+    if (!open) return ''
+    const value = typeof data === 'function' ? (data as any)() : data
+    try {
+      return JSON.stringify(value, null, 2)
+    } catch (e) {
+      return String(value)
+    }
+  }, [open, data])
+
+  return (
+    <details open={open} onToggle={e => setOpen((e.target as HTMLDetailsElement).open)}>
+      <summary className={small ? classes.summarySmall : classes.summary}>{summary}</summary>
+      {open ? <pre className={classes.json}>{json}</pre> : null}
+    </details>
+  )
+}
 
 export const DebugChannelComponent: React.FC = () => {
   // Get current channel id
   const currentChannelId = useSelector(channelSelectors.currentChannelId)
   // Channel message display selectors
   const currentChannelName = useSelector(channelSelectors.currentChannelName)
-  const currentChannel = useSelector(channelSelectors.currentChannel)
-  const currentChannelMessages = useSelector(channelSelectors.currentChannelMessages)
-  const sortedCurrentChannelMessages = useSelector(channelSelectors.sortedCurrentChannelMessages)
   const displayableCurrentChannelMessages = useSelector(channelSelectors.displayableCurrentChannelMessages)
   const newestCurrentChannelMessage = useSelector(channelSelectors.newestCurrentChannelMessage)
   const currentChannelMessagesCount = useSelector(channelSelectors.currentChannelMessagesCount)
@@ -104,6 +149,7 @@ export const DebugChannelComponent: React.FC = () => {
   )
   const messagesVerificationStatus = useSelector(messages.selectors.messagesVerificationStatus)
   const messagesSendingStatus = useSelector(messages.selectors.messagesSendingStatus)
+  const downloadStatuses = useSelector(files.selectors.downloadStatuses)
   // For missingChannelMessages and missingChannelFiles, need to pass channelId
   // For demo, use empty array for ids
   // Use missingChannelMessages and missingChannelFiles directly
@@ -118,33 +164,24 @@ export const DebugChannelComponent: React.FC = () => {
   const missingChannelMessagesArr = useSelector(missingMessagesSelector)
   const missingChannelFilesArr = useSelector(missingFilesSelector)
 
-  // Compose debug info object
-  const debugInfo = {
-    currentChannelId,
-    publicChannelsMessagesBase: currentChannelId ? publicChannelsMessagesBase?.[currentChannelId] : undefined,
-    currentPublicChannelMessagesBase,
-    currentPublicChannelMessagesEntities,
-    currentPublicChannelMessagesEntries,
-    validCurrentPublicChannelMessagesEntries,
-    sortedCurrentPublicChannelMessagesEntries,
-    messagesVerificationStatus: Object.fromEntries(
-      Object.entries(messagesVerificationStatus || {}).filter(([id]) => {
-        return currentPublicChannelMessagesEntities?.[id]
-      })
-    ),
-    messagesSendingStatus: Object.fromEntries(
-      Object.entries(messagesSendingStatus || {}).filter(([id]) => {
-        return currentPublicChannelMessagesEntities?.[id]
-      })
-    ),
-    missingChannelMessages: missingChannelMessagesArr,
-    missingChannelFiles: missingChannelFilesArr,
-  }
+  const { verifiedCount, unverifiedMessageIds } = React.useMemo(() => {
+    const idsInChannel = new Set(Object.keys(currentPublicChannelMessagesEntities || {}))
+    let verified = 0
+    const unverified: string[] = []
+    for (const [id, status] of Object.entries(messagesVerificationStatus || {})) {
+      if (!idsInChannel.has(id)) continue
+      if ((status as any)?.isVerified) verified += 1
+      else unverified.push(id)
+    }
+    return { verifiedCount: verified, unverifiedMessageIds: unverified }
+  }, [messagesVerificationStatus, currentPublicChannelMessagesEntities])
+
+  const unverifiedOrUnknownCount = Math.max((currentChannelMessagesCount || 0) - verifiedCount, 0)
 
   return (
     <StyledGrid container direction='column' className={classes.root}>
       <Grid item className={classes.section}>
-        <Typography variant='h5' gutterBottom>
+        <Typography variant='h4' gutterBottom>
           Channel Debug Information
         </Typography>
         <Divider sx={{ mb: 2 }} />
@@ -154,10 +191,16 @@ export const DebugChannelComponent: React.FC = () => {
           Channel Message Display Debug
         </Typography>
         <table className={classes.table}>
+          <colgroup>
+            <col style={{ width: '45%' }} />
+            <col style={{ width: '55%' }} />
+          </colgroup>
           <tbody>
             <tr>
               <th className={classes.th}>Current Channel ID</th>
-              <td className={classes.td}>{String(currentChannelId)}</td>
+              <td className={classes.td}>
+                <span className={classes.code}>{String(currentChannelId)}</span>
+              </td>
             </tr>
             <tr>
               <th className={classes.th}>Current Channel Name</th>
@@ -168,45 +211,135 @@ export const DebugChannelComponent: React.FC = () => {
               <td className={classes.td}>{String(currentChannelMessagesCount)}</td>
             </tr>
             <tr>
+              <th className={classes.th}>Verified Messages</th>
+              <td className={classes.td}>{String(verifiedCount)}</td>
+            </tr>
+            <tr>
+              <th className={classes.th}>Unverified / Unknown</th>
+              <td className={classes.td}>{String(unverifiedOrUnknownCount)}</td>
+            </tr>
+            <tr>
               <th className={classes.th}>Newest Message</th>
-              <td className={classes.td}>{JSON.stringify(newestCurrentChannelMessage)}</td>
+              <td className={classes.td}>
+                <CollapsibleJson summary='View JSON' data={newestCurrentChannelMessage} small />
+              </td>
             </tr>
             <tr>
               <th className={classes.th}>Last Displayed Message</th>
-              <td className={classes.td}>{JSON.stringify(currentChannelLastDisplayedMessage)}</td>
+              <td className={classes.td}>
+                <CollapsibleJson summary='View JSON' data={currentChannelLastDisplayedMessage} small />
+              </td>
             </tr>
           </tbody>
         </table>
+        <CollapsibleJson summary='Displayable Current Channel Messages' data={displayableCurrentChannelMessages} />
+        <CollapsibleJson
+          summary='Current Channel Messages Merged By Sender'
+          data={currentChannelMessagesMergedBySender}
+          small
+        />
+      </Grid>
+      <Grid item className={classes.section}>
+        <CollapsibleJson summary='Channel Messages Entities' data={currentPublicChannelMessagesEntities} />
+      </Grid>
+      <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>
-            Displayable Current Channel Messages
-          </summary>
+          <summary className={classes.summary}>Unverified Message IDs</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
-            <pre className={classes.json}>{JSON.stringify(displayableCurrentChannelMessages, null, 2)}</pre>
+            <table className={classes.table}>
+              <colgroup>
+                <col style={{ width: '100%' }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th className={classes.th}>Message ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unverifiedMessageIds && unverifiedMessageIds.length > 0 ? (
+                  unverifiedMessageIds.map(id => (
+                    <tr key={id}>
+                      <td className={classes.td}>
+                        <span className={classes.code}>{id}</span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className={classes.td}>—</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </Paper>
-        </details>
-        <details>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 16 }}>
-            Current Channel Messages Merged By Sender
-          </summary>
-          <pre className={classes.json}>{JSON.stringify(currentChannelMessagesMergedBySender, null, 2)}</pre>
         </details>
       </Grid>
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>
-            Channel Messages Entities
-          </summary>
+          <summary className={classes.summary}>File Downloads</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
-            <pre className={classes.json}>{JSON.stringify(currentPublicChannelMessagesEntities, null, 2)}</pre>
+            <table className={classes.table}>
+              <colgroup>
+                <col style={{ width: '45%' }} />
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '25%' }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th className={classes.th}>CID</th>
+                  <th className={classes.th}>Status</th>
+                  <th className={classes.th}>Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                {downloadStatuses && Object.values(downloadStatuses).length > 0 ? (
+                  Object.values(downloadStatuses)
+                    .filter((file): file is DownloadStatus => !!file)
+                    .map(file => (
+                      <tr key={file.cid}>
+                        <td className={classes.td}>
+                          <span className={classes.code}>{file.cid}</span>
+                        </td>
+                        <td className={classes.td}>{String(file.downloadState ?? '-')}</td>
+                        <td className={classes.td}>{JSON.stringify(file.downloadProgress, null, 2) ?? '-'}</td>
+                      </tr>
+                    ))
+                ) : (
+                  <tr>
+                    <td className={classes.td}>—</td>
+                    <td className={classes.td}>—</td>
+                    <td className={classes.td}>—</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </Paper>
         </details>
       </Grid>
       <Grid item className={classes.section}>
-        <details>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 16 }}>Raw JSON</summary>
-          <pre className={classes.json}>{JSON.stringify(debugInfo, null, 2)}</pre>
-        </details>
+        <CollapsibleJson
+          summary='Raw JSON'
+          small
+          data={() => ({
+            currentChannelId,
+            publicChannelsMessagesBase: currentChannelId ? publicChannelsMessagesBase?.[currentChannelId] : undefined,
+            currentPublicChannelMessagesBase,
+            currentPublicChannelMessagesEntities,
+            currentPublicChannelMessagesEntries,
+            validCurrentPublicChannelMessagesEntries,
+            sortedCurrentPublicChannelMessagesEntries,
+            messagesVerificationStatus: Object.fromEntries(
+              Object.entries(messagesVerificationStatus || {}).filter(
+                ([id]) => currentPublicChannelMessagesEntities?.[id]
+              )
+            ),
+            messagesSendingStatus: Object.fromEntries(
+              Object.entries(messagesSendingStatus || {}).filter(([id]) => currentPublicChannelMessagesEntities?.[id])
+            ),
+            missingChannelMessages: missingChannelMessagesArr,
+            missingChannelFiles: missingChannelFilesArr,
+          })}
+        />
       </Grid>
     </StyledGrid>
   )
