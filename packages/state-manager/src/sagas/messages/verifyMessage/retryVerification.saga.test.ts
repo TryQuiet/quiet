@@ -27,7 +27,6 @@ describe('retryVerification saga (store-backed)', () => {
   it('empty inputs -> dispatches verifyMessages([])', async () => {
     const action = messagesActions.retryVerification({
       messages: [], // pass a fresh array literal; saga mutates it
-      retryAll: false, // explicit for clarity
       // channelId: undefined
       // messageIds: undefined
     })
@@ -115,7 +114,6 @@ describe('retryVerification saga (store-backed)', () => {
     const action = messagesActions.retryVerification({
       messages: [],
       channelId: channelIdA,
-      retryAll: false,
     })
 
     await expectSaga(retryVerificationSaga, action)
@@ -161,7 +159,6 @@ describe('retryVerification saga (store-backed)', () => {
     const action = messagesActions.retryVerification({
       messages: [],
       messageIds: ids,
-      retryAll: false,
     })
 
     await expectSaga(retryVerificationSaga, action)
@@ -225,7 +222,6 @@ describe('retryVerification saga (store-backed)', () => {
       messages: [p1, p2],
       channelId: channelIdA,
       messageIds: ids,
-      retryAll: false,
     })
 
     await expectSaga(retryVerificationSaga, action)
