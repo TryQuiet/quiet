@@ -5,9 +5,9 @@ import { SetUserProfileResponse, UserProfile } from '@quiet/types'
 import { createLogger } from '../../common/logger'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
-import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
+import { KeyValueIndexedValidated, type KeyValueIndexedValidatedType } from '../orbitDb/keyValueIndexedValidated'
 import { validatePhoto } from './userProfile.utils'
-import { EncryptedKeyValueStoreBase } from '../base.store'
+import { EncryptedKeyValueIndexedValidatedStoreBase, EncryptedKeyValueStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
@@ -15,7 +15,10 @@ import { RoleName } from '../../auth/services/roles/roles'
 const logger = createLogger('UserProfileStore')
 
 @Injectable()
-export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSignedPayload, UserProfile> {
+export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase<
+  EncryptedAndSignedPayload,
+  UserProfile
+> {
   private deferredProfiles: UserProfile[] = []
   private nicknameMaps: Map<string, string> = new Map()
 
@@ -28,18 +31,15 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
 
   public async init() {
     logger.info('Initializing user profiles key/value store')
-
-    this.store = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('user-profiles', {
-      type: 'KeyValueIndexedValidated',
-      sync: false,
-      Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
-      AccessController: IPFSAccessController({ write: ['*'] }),
-    })
-    const heads = await this.store.log.heads()
-    const headIds = heads.map((h: LogEntry) => {
-      return { key: h.payload.key, v: h.v, hash: h.hash, next: h.next, refs: h.refs }
-    })
-    logger.info('Current head: ', JSON.stringify(headIds, null, 2))
+    this.store = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
+      'user-profiles',
+      {
+        type: 'KeyValueIndexedValidated',
+        sync: false,
+        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
+        AccessController: IPFSAccessController({ write: ['*'] }),
+      }
+    )
 
     this.store.events.on('update', async (entry: LogEntry) => {
       logger.info('Database update')
@@ -49,8 +49,11 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     })
 
     this.auth.on('updated', async payload => {
-      this.flushDeferredEntries()
+      await this.flushDeferredEntries()
+      await this.store!.retryIndexingUnindexedEntries()
     })
+
+    await this.store!.retryIndexingUnindexedEntries()
 
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
@@ -236,7 +239,8 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     const results = await Promise.all(
       encValues.map(async value => {
         try {
-          return await this.decryptEntry(value)
+          const decrypted = await this.decryptEntry(value)
+          return decrypted
         } catch (error) {
           logger.error('Failed to decrypt entry:', error)
           return null
@@ -245,12 +249,6 @@ export class UserProfileStore extends EncryptedKeyValueStoreBase<EncryptedAndSig
     )
     const userProfiles = results.filter((profile): profile is UserProfile => profile !== null)
     this.nicknameMaps = new Map(userProfiles.map(profile => [profile.userId, profile.nickname]))
-    // list current relations in compact string
-    logger.info(
-      `Current nickname map: ${Array.from(this.nicknameMaps.entries())
-        .map(([userId, nickname]) => `${userId}:${nickname}`)
-        .join(', ')}`
-    )
     return userProfiles
   }
 

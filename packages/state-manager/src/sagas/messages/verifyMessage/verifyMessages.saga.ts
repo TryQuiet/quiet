@@ -16,7 +16,7 @@ export function* verifyMessagesSaga(
   const messages: ChannelMessage[] = action.payload.messages
 
   for (const message of messages) {
-    let isVerified = !!action.payload.isVerified
+    let isVerified = true
     const author = yield* select(userProfileSelectors.getUserProfileById(message.userId))
     if (author === null) {
       logger.warn(`No author for ID found in redux`, message.userId, message.id)
@@ -50,6 +50,7 @@ export function* verifyMessagesSaga(
       isVerified,
     }
 
+    logger.debug('Message verification status:', verificationStatus)
     yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
   }
 }

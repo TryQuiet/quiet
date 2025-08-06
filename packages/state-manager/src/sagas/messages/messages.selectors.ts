@@ -95,10 +95,8 @@ export const validCurrentPublicChannelMessagesEntries = createSelector(
   messagesVerificationStatus,
   (messages, verification) => {
     return messages.filter(message => {
-      logger.info('[validCurrentPublicChannelMessagesEntries]', message)
       const status = verification[message.id]
       if (status && status.isVerified) {
-        logger.info(`[validCurrentPublicChannelMessagesEntries] Message ${message.id} is verified`)
         return message
       }
     })
