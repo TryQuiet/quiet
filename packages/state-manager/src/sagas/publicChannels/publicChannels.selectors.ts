@@ -46,7 +46,6 @@ const pendingGeneralChannelRecreation = createSelector(selectState, state => {
 })
 
 export const subscribedChannels = createSelector(selectChannelsSubscriptions, subscriptions => {
-  logger.info('selectChannelsSubscriptions', subscriptions)
   return subscriptions.map(subscription => {
     if (subscription.subscribed) return subscription.id
   })
@@ -184,8 +183,7 @@ export const displayableCurrentChannelMessages = createSelector(
         // @ts-ignore
         result.push(displayableMessage(message, users[message.userId]))
       } else {
-        logger.warn('Received a message from a user that does not exist', message.id, message.userId)
-        result.push(displayableMessage(message, { userId: message.userId, nickname: 'Unknown user' }))
+        logger.warn('User Profile not found. Cannot display:', message.id, message.userId)
       }
       return result
     }, [])
@@ -286,13 +284,11 @@ export const unreadChannels = createSelector(channelsStatus, status => {
 
 export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
   const messageCount = Object.values(currentChannelMessages).length
-  logger.info(`Number of messages: ${messageCount}`)
   return messageCount > 0
 })
 
 export const areChannelsLoaded = createSelector(publicChannels, channels => {
   const channelCount = channels.length
-  logger.info(`Number of channels: ${channelCount}`)
   return channelCount > 0
 })
 

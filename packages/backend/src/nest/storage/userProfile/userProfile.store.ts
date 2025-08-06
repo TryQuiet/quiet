@@ -42,7 +42,6 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     )
 
     this.store.events.on('update', async (entry: LogEntry) => {
-      logger.info('Database update')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: await this.getUserProfiles(),
       })
@@ -73,7 +72,6 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
    */
   public async flushDeferredEntries() {
     if (this.deferredProfiles.length === 0) {
-      logger.info('No deferred user profiles to flush')
       return
     }
     if (!this.auth.team) {
