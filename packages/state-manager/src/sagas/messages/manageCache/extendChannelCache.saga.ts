@@ -16,6 +16,8 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
     return
   }
 
+  yield* put(messagesActions.retryVerification({ channelId }))
+
   const channelMessagesChunkSize = 50
 
   const channelMessagesEntries = yield* select(messagesSelectors.sortedCurrentPublicChannelMessagesEntries)

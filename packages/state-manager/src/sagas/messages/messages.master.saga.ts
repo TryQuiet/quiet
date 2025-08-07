@@ -14,6 +14,7 @@ import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannel
 import { autoDownloadFilesSaga } from '../files/autoDownloadFiles/autoDownloadFiles.saga'
 import { sendDeletionMessageSaga } from './sendDeletionMessage/sendDeletionMessage.saga'
 import { createLogger } from '../../utils/logger'
+import { retryVerificationSaga } from './verifyMessage/retryVerification.saga'
 
 const logger = createLogger('messagesMasterSaga')
 
@@ -22,9 +23,9 @@ export function* messagesMasterSaga(socket: Socket): Generator {
   try {
     yield all([
       takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
+      takeEvery(messagesActions.addMessages.type, verifyMessagesSaga),
       takeEvery(messagesActions.addMessages.type, autoDownloadFilesSaga, socket),
       takeEvery(messagesActions.addMessages.type, addMessagesSaga),
-      takeEvery(messagesActions.addMessages.type, verifyMessagesSaga),
       takeEvery(messagesActions.addMessages.type, markUnreadChannelsSaga),
       takeEvery(messagesActions.addMessages.type, updateNewestMessageSaga),
       takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga),
@@ -33,6 +34,8 @@ export function* messagesMasterSaga(socket: Socket): Generator {
       takeEvery(messagesActions.checkForMessages.type, checkForMessagesSaga),
       takeEvery(messagesActions.getMessages.type, getMessagesSaga, socket),
       takeEvery(messagesActions.sendDeletionMessage.type, sendDeletionMessageSaga),
+      takeEvery(messagesActions.verifyMessages.type, verifyMessagesSaga),
+      takeEvery(messagesActions.retryVerification.type, retryVerificationSaga),
     ])
   } finally {
     logger.info('messagesMasterSaga stopping')

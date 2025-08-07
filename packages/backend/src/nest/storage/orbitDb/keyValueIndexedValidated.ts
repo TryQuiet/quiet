@@ -1,3 +1,6 @@
+export type KeyValueIndexedValidatedType<T = any> = KeyValueType<T> & {
+  retryIndexingUnindexedEntries: () => Promise<void>
+}
 /**
  * Forked from:
  * https://github.com/orbitdb/orbitdb/blob/9ddffd346a26937902cacf0a33ee8210bdc637a0/src/databases/keyvalue-indexed.js
@@ -95,6 +98,8 @@ const Index =
             keys.add(key)
             await index.del(key as string)
             await indexedEntries.put(hash, true)
+          } else if (!isValid) {
+            logger.warn(`Invalid entry detected: ${hash}, skipping indexing`)
           }
           // Remove the entry (hash) from the list of to-be-indexed entries
           toBeIndexed.delete(hash)
@@ -203,6 +208,17 @@ export const KeyValueIndexedValidated =
     })
 
     /**
+     * Traverses the log and attempts to index entries that are not currently indexed.
+     * Useful for retrying entries that previously failed validation.
+     */
+    const retryIndexingUnindexedEntries = async () => {
+      const heads = await keyValueStore.log.heads()
+      for (const head of heads) {
+        await index.update(keyValueStore.log, head)
+      }
+    }
+
+    /**
      * Gets a value from the store by key.
      * @function
      * @param {string} key The key of the value to get.
@@ -282,6 +298,7 @@ export const KeyValueIndexedValidated =
       all,
       close,
       drop,
+      retryIndexingUnindexedEntries,
     }
   }
 
