@@ -7,6 +7,7 @@
 * Leaving a community on android and then immediately creating/joining a new one no longer fails to reinitialize [#2940](https://github.com/TryQuiet/quiet/issues/2940)
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
 * User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
+* Fixed some race conditions with user profiles and message verification that could cause some messages to never display [#2847](https://github.com/TryQuiet/quiet/issues/2847)
 
 ### Features
 
