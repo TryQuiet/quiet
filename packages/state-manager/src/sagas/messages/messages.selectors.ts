@@ -119,4 +119,6 @@ export const messagesSelectors = {
   messagesVerificationStatus,
   messagesSendingStatus,
   messageSendingStatusById,
+  missingChannelMessages,
+  missingChannelFiles,
 }

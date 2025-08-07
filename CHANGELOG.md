@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+### Features
+
+* Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
+
 ### Fixes
 
 * Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
