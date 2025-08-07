@@ -8,7 +8,7 @@ import { EncryptionScopeType } from '../../../auth/services/crypto/types'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
 import { RoleName } from '../../../auth/services/roles/roles'
-import { isEncryptedMessage, isMessage } from '../../../validation/validators'
+import { isConsumedChannelMessage, isEncryptedMessage, isMessage } from '../../../validation/validators'
 
 @Injectable()
 export class MessagesService extends EventEmitter {
@@ -37,7 +37,7 @@ export class MessagesService extends EventEmitter {
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | undefined> {
     try {
       const decryptedMessage = this._decryptPublicChannelMessage(message)
-      if (this.validateMessage(decryptedMessage, message)) {
+      if (!this.validateMessage(decryptedMessage, message)) {
         return
       }
       return decryptedMessage
@@ -106,12 +106,12 @@ export class MessagesService extends EventEmitter {
    * @param encryptedMessage Encrypted message to validate against
    * @returns True if the message is valid, false otherwise
    */
-  public validateMessage(message: ChannelMessage, encryptedMessage: EncryptedMessage): boolean {
+  public validateMessage(message: ConsumedChannelMessage, encryptedMessage: EncryptedMessage): boolean {
     if (message.id !== encryptedMessage.id) {
       this.logger.warn(`Cannot validate msg ${message.id}: IDs do not match`)
       return false
     }
-    if (!isMessage(message)) {
+    if (!isConsumedChannelMessage(message)) {
       this.logger.warn(`Cannot validate msg ${message.id}: message shape is not valid`)
       return false
     }
