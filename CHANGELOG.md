@@ -5,6 +5,7 @@
 ### Fixes
 
 * Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
+* Warning modal background color is now reactive to theme selection [#2958](https://github.com/TryQuiet/quiet/issues/2958)
 
 ### Chores
 
