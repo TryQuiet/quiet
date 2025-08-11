@@ -11,6 +11,7 @@
 
 ### Features
 
+* Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
 * User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
 
