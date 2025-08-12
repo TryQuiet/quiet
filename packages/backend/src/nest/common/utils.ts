@@ -174,7 +174,7 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
       )
     }
   }
-  return pathCandidate
+  return `"${pathCandidate}"`
 }
 
 export const torDirForPlatform = (basePath?: string): string => {
