@@ -54,8 +54,8 @@
       "./jestSetup.ts"
     ],
     "testEnvironment": "jest-environment-node",
-    "testMatch": [
-      "<rootDir>/src/**/?(*.)+(spec|test).[tj]s?(x)"
+    "testRegex": [
+      "[\\\\/]src[\\\\/].*\\.(spec|test)\\.[tj]sx?$"
     ]
   },
   "devDependencies": {
