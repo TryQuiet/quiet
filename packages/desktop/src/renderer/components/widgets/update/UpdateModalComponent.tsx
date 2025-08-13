@@ -46,7 +46,7 @@ export interface UpdateModalProps {
 
 export const UpdateModalComponent: React.FC<UpdateModalProps> = ({ open, handleClose, buttons, title, message }) => {
   return (
-    <Modal open={open} handleClose={handleClose} data-testid={'updateAppModal'}>
+    <Modal open={open} handleClose={handleClose} data-testid={'updateAppModal'} zIndex={2000}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='center'>
         <Grid>
           <Icon src={updateIcon} />
