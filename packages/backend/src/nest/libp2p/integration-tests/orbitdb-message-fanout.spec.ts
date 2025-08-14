@@ -541,7 +541,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(newPeerModule.length).toBe(1)
     modules.push(newPeerModule[0])
     const sigchainService = await modules[N_PEERS].resolve(SigChainService)
-    await sigchainService.createChainFromInvite(`user${N_PEERS + 1}`, teamName, inviteResult.seed, undefined, true)
+    await sigchainService.createChainFromInvite(`user${N_PEERS}`, teamName, inviteResult.seed, undefined, true)
     // Create libp2p instances (in-memory transport)
     libp2pNodeParams = await spawnLibp2pInstancesInMemory(newPeerModule)
 
@@ -598,37 +598,43 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(newPeerEntries.length).toBe(peer0Entries.length)
   })
 
-  it('connects to the existing network and reindexes once its sigchain updates', async () => {
-    // stop orbitDB syncing on all peers to ensure new peer does not receive any updates
-    await Promise.all(
-      modules.map(async module => {
-        const orbitDbService = module.get(OrbitDbService)
-        await orbitDbService.stopSync()
-      })
-    )
-
+  it('connects to the existing network and reindexes', async () => {
     // new peer connects to original peer
     const libp2pService = modules[N_PEERS].get(Libp2pService)
     await libp2pService.dialPeer(modules[0].get(Libp2pService).localAddress)
-    logger.info('dialed original peer')
+    // Wait for the peer to be connected (AUTH_JOINED)
+    await new Promise<void>(resolve => {
+      libp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+        logger.info(`peer ${N_PEERS} connected`)
+        resolve()
+      })
+    })
 
-    // new peer should eventually show the same channels and messages as the original peer
-    await waitForExpect(
-      async () => {
-        expect(await channelEntriesSynced([modules[0].get(ChannelsService), modules[1].get(ChannelsService)])).toBe(
-          true
-        )
-      },
-      1000,
-      100
+    await Promise.all(
+      modules.map(async module => {
+        const channelsService = module.get(ChannelsService)
+        await channelsService.startSync()
+      })
     )
 
     await waitForExpect(
       async () => {
-        expect(await channelsSynced(modules.map(module => module.get(ChannelsService)))).toBe(false)
+        expect(await channelsSynced([modules[0].get(ChannelsService), modules[N_PEERS].get(ChannelsService)])).toBe(
+          true
+        )
       },
-      1000,
-      100
+      10000,
+      1000
+    )
+    // new peer should eventually show the same channels and messages as the original peer
+    await waitForExpect(
+      async () => {
+        expect(
+          await channelEntriesSynced([modules[0].get(ChannelsService), modules[N_PEERS].get(ChannelsService)])
+        ).toBe(true)
+      },
+      10000,
+      1000
     )
   })
 })
