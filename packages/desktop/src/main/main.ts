@@ -24,6 +24,7 @@ const logger = createLogger('main')
 
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
+let updating = false
 
 const updaterInterval = 15 * 60_000
 
@@ -399,15 +400,16 @@ app.on('ready', async () => {
     }
   })
 
+  backendProcess.on('close', (code, signal) => {
+    logger.warn('Backend process close event', code, signal)
+    backendProcess = null
+    if (updating) return
+    mainWindow?.webContents.send('force-save-state')
+  })
+
   backendProcess.on('error', e => {
     logger.error('Backend process returned error', e)
     throw Error(e.message)
-  })
-
-  backendProcess.on('exit', (code, signal) => {
-    logger.warn('Backend process exited', code, signal)
-    backendProcess = null
-    mainWindow?.webContents.send('force-save-state')
   })
 
   if (!isBrowserWindow(mainWindow)) {
@@ -422,7 +424,7 @@ app.on('ready', async () => {
     if (resetting) return
 
     // --- macOS: hide instead of destroying the renderer ---
-    if (process.platform === 'darwin' && backendProcess !== null) {
+    if (process.platform === 'darwin' && !updating && backendProcess !== null) {
       logger.info('Main window close (macOS) will hide after saving state')
       e.preventDefault()
       mainWindow?.webContents.send('force-save-state') // state‑saved → hide
@@ -432,31 +434,43 @@ app.on('ready', async () => {
     // If the backend is still running we must wait for it to exit first
     if (backendProcess !== null) {
       logger.info('Main window close intercepted, waiting for backend to exit')
-      e.preventDefault()
+      if (!updating) {
+        e.preventDefault()
+      }
       backendProcess.send('close')
       return
     }
+    logger.info('Main window close event, saving state')
+    mainWindow?.webContents.send('force-save-state') // state‑saved → hide
   })
 
+  // splash window is destroyed when mainWindow is ready and close should not fire in regular case
   splash?.once('close', e => {
     if (resetting) return
+
+    // in the case where the user closes the splash window before the main window is ready
+    // we close the backend process and quit the app
     if (backendProcess !== null) {
-      e.preventDefault()
+      if (!updating) {
+        e.preventDefault()
+      }
       logger.info('Closing splash window')
       backendProcess?.send('close')
       return
     }
-    e.preventDefault()
+    logger.info('Splash window close event, saving state')
     mainWindow?.webContents.send('force-save-state')
   })
 
   ipcMain.on('state-saved', () => {
+    if (updating) return
+
     if (backendProcess === null) {
       logger.info('State saved, quitting app')
       app.quit()
       return
     }
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' && !updating) {
       logger.info('Saved state hiding window (macOS)')
       mainWindow?.hide()
     } else {
@@ -560,6 +574,7 @@ app.on('ready', async () => {
 
   ipcMain.on('proceed-update', () => {
     logger.info('ipcMain: proceed-update')
+    updating = true
     autoUpdater.quitAndInstall()
   })
 })
@@ -594,12 +609,12 @@ app.on('activate', async () => {
 app.on('before-quit', e => {
   if (backendProcess !== null) {
     logger.info('App before-quit intercepted waiting for backend to exit')
-    e.preventDefault()
-    // closeBackendProcess() sends 'close' if we haven't already
+    if (!updating) {
+      e.preventDefault()
+    }
     if (backendProcess) {
       backendProcess.send('close')
     }
-    // When backend exits, the handler above will re‑issue app.quit()
     return
   }
   logger.info('App before-quit backend exited, quitting app')

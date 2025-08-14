@@ -227,7 +227,11 @@ describe('User', () => {
         "Modals/closeModal",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
       ]
     `)
   })
