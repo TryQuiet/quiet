@@ -96,6 +96,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async startSync(): Promise<void> {
     await this.channels?.sync.start()
+    this.logger.info(`Started syncing channels management database`)
   }
 
   /**
@@ -231,12 +232,12 @@ export class ChannelsService extends EventEmitter {
    * @param channel Channel configuration metadata
    * @throws Error
    */
-  public async setChannel(id: string, channel: PublicChannel): Promise<void> {
+  public async setChannel(channel: PublicChannel): Promise<void> {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
     const encryptedChannel = this.encryptChannelEntry(channel)
-    await this.channels.put(id, encryptedChannel)
+    await this.channels.put(channel.id, encryptedChannel)
   }
 
   /**
@@ -307,7 +308,7 @@ export class ChannelsService extends EventEmitter {
 
     const channel = await this.getChannel(channelId)
     if (channel == undefined) {
-      await this.setChannel(channelId, channelData)
+      await this.setChannel(channelData)
     } else {
       this.logger.info(`Channel ${channelId} already exists`)
     }
