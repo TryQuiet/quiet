@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.1.0-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.1.0-alpha.6...@quiet/desktop@6.1.0-alpha.7) (2025-08-14)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [6.1.0]
@@ -21,6 +8,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
 * User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
 * Fixed some race conditions with user profiles and message verification that could cause some messages to never display [#2847](https://github.com/TryQuiet/quiet/issues/2847)
+* Fixed automatic updates on mac [#2965](https://github.com/TryQuiet/quiet/issues/2965)
+* Fixed tor binary path detection on locally distributables [#2964](https://github.com/TryQuiet/quiet/issues/2964)
 
 ### Features
 
