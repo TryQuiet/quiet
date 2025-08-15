@@ -34,6 +34,7 @@ import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/servi
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { EncryptedMessage } from './messages/messages.types'
+import { isChannel } from '../../validation/validators'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -187,19 +188,27 @@ export class ChannelsService extends EventEmitter {
    * @returns True if valid, false otherwise.
    */
   public async validateEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    // TODO: unpin invalidated entries?
     try {
-      if (!entry.payload.value) {
-        this.logger.error(`Failed to validate entry: ${entry.hash} entry payload is empty`)
-        return false
+      if (entry.payload.op === 'PUT') {
+        const encPayload = entry.payload.value!
+        const decEntry = this.decryptChannelEntry(encPayload)
+        if (!isChannel(decEntry)) {
+          this.logger.error('Decrypted entry is not a valid channel:', entry.hash, decEntry)
+          return false
+        }
       }
-      const encPayload = entry.payload.value
-      const decEntry = this.decryptChannelEntry(encPayload)
-
-      return true
+      if (entry.payload.op === 'DEL') {
+        if (!entry.payload.key) {
+          this.logger.error('Delete entry is missing key:', entry.hash)
+          return false
+        }
+      }
     } catch (err) {
       this.logger.error('Failed to validate user profile entry:', entry.hash, err)
       return false
     }
+    return true
   }
 
   /**

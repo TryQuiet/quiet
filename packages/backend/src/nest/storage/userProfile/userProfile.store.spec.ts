@@ -204,21 +204,21 @@ describe('UserProfileStore/validateUserProfile', () => {
 describe('UserProfileStore/validateEntry', () => {
   test('should not allow syncing entry if key does not match userId in payload or signature', async () => {
     // Arrange: create a fake encrypted payload with mismatched userId and key
-    const fakeUserId = 'aliceUserId'
-    const mismatchedKey = 'bobUserId'
+    const aliceUserId = 'aliceUserId'
+    const bobUserId = 'bobUserId'
     const encPayload: any = {
-      userId: fakeUserId,
-      signature: { author: { name: fakeUserId } },
+      userId: aliceUserId,
+      signature: { author: { name: aliceUserId } },
       encrypted: 'fake-encrypted',
     }
-    const decEntry: any = { userId: fakeUserId }
+    const decEntry: any = { userId: aliceUserId }
     // Patch decryptEntry to return decEntry
-    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: fakeUserId } } as any)
+    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: aliceUserId } } as any)
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     jest.spyOn(UserProfileStore, 'validateUserProfile').mockResolvedValue({ success: true })
     const entry = {
       hash: 'fakehash',
-      payload: { key: mismatchedKey, value: encPayload },
+      payload: { key: bobUserId, op: 'PUT', value: encPayload },
     } as unknown as LogEntry<EncryptedAndSignedPayload>
     // Act
     const result = await store.validateEntry(entry)
