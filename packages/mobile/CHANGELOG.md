@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.1.0-alpha.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0-alpha.8...@quiet/mobile@6.1.0-alpha.9) (2025-08-15)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 ## [6.1.0]
@@ -23,6 +10,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixed some race conditions with user profiles and message verification that could cause some messages to never display [#2847](https://github.com/TryQuiet/quiet/issues/2847)
 * Fixed automatic updates on mac [#2965](https://github.com/TryQuiet/quiet/issues/2965)
 * Fixed tor binary path detection on locally distributables [#2964](https://github.com/TryQuiet/quiet/issues/2964)
+* Fixed channel metadata syncing [#2968](https://github.com/TryQuiet/quiet/issues/2968)
 
 ### Features
 
