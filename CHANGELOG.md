@@ -10,6 +10,7 @@
 * Fixed some race conditions with user profiles and message verification that could cause some messages to never display [#2847](https://github.com/TryQuiet/quiet/issues/2847)
 * Fixed automatic updates on mac [#2965](https://github.com/TryQuiet/quiet/issues/2965)
 * Fixed tor binary path detection on locally distributables [#2964](https://github.com/TryQuiet/quiet/issues/2964)
+* Fixed channel metadata syncing [#2968](https://github.com/TryQuiet/quiet/issues/2968)
 
 ### Features
 

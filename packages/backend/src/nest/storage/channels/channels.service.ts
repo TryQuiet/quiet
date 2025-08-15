@@ -26,7 +26,7 @@ import { createLogger } from '../../common/logger'
 import { PublicChannelsRepo } from '../../common/types'
 import { StorageEvents } from '../storage.types'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
-import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
+import { KeyValueIndexedValidated, KeyValueIndexedValidatedType } from '../orbitDb/keyValueIndexedValidated'
 import { ChannelStore } from './channel.store'
 import { createContextId, ModuleRef } from '@nestjs/core'
 import { SigChainService } from '../../auth/sigchain.service'
@@ -34,6 +34,7 @@ import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/servi
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { EncryptedMessage } from './messages/messages.types'
+import { isChannel } from '../../validation/validators'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -44,7 +45,7 @@ export class ChannelsService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
 
   // Channel metadata store
-  public channels: KeyValueType<EncryptedAndSignedPayload> | undefined
+  public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
 
   private readonly logger = createLogger(`storage:channels`)
 
@@ -96,6 +97,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async startSync(): Promise<void> {
     await this.channels?.sync.start()
+    this.logger.info(`Started syncing channels management database`)
   }
 
   /**
@@ -115,11 +117,15 @@ export class ChannelsService extends EventEmitter {
    */
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating public-channels database')
-    this.channels = await this.orbitDbService.open<KeyValueType<EncryptedAndSignedPayload>>('public-channels', {
-      sync: false,
-      Database: KeyValueIndexedValidated(),
-      AccessController: IPFSAccessController({ write: ['*'] }),
-    })
+    this.channels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
+      'public-channels',
+      {
+        type: 'KeyValueIndexedValidated',
+        sync: false,
+        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
+        AccessController: IPFSAccessController({ write: ['*'] }),
+      }
+    )
 
     this.channels.events.on('update', async (entry: LogEntry) => {
       const channelId = entry.payload.key
@@ -127,23 +133,16 @@ export class ChannelsService extends EventEmitter {
       this.logger.info('public-channels database updated', channelId, operation)
 
       this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
+      await this.broadcastCurrentChannels()
+    })
 
-      const channels = await this.getChannels()
+    this.sigchainService.on('updated', async payload => {
+      const currentChannelsCount = (await this.getChannels()).length
+      await this.channels!.retryIndexingUnindexedEntries()
+      const newChannelsCount = (await this.getChannels()).length
 
-      this.emit(StorageEvents.CHANNELS_STORED, { channels })
-
-      // Try to subscribe to all channels that we haven't subscribed to yet, even if this update event isn't for that
-      // particular channel.
-      //
-      // This fixes a bug where joining a community with multiple channels doesn't initialize all channels immediately.
-      for (const channel of channels) {
-        if (
-          !this.publicChannelsRepos.has(channel.id) ||
-          (!this.publicChannelsRepos.get(channel.id)?.eventsAttached &&
-            !this.publicChannelsRepos.get(channel.id)?.store.isSubscribing)
-        ) {
-          await this.subscribeToChannel(channel)
-        }
+      if (currentChannelsCount !== newChannelsCount) {
+        await this.broadcastCurrentChannels()
       }
     })
 
@@ -184,18 +183,70 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
+   * Validates a log entry in the OrbitDB store.
+   * @param entry The log entry to validate.
+   * @returns True if valid, false otherwise.
+   */
+  public async validateEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    // TODO: unpin invalidated entries?
+    try {
+      if (entry.payload.op === 'PUT') {
+        const encPayload = entry.payload.value!
+        const decEntry = this.decryptChannelEntry(encPayload)
+        if (!isChannel(decEntry)) {
+          this.logger.error('Decrypted entry is not a valid channel:', entry.hash, decEntry)
+          return false
+        }
+      }
+      if (entry.payload.op === 'DEL') {
+        if (!entry.payload.key) {
+          this.logger.error('Delete entry is missing key:', entry.hash)
+          return false
+        }
+      }
+    } catch (err) {
+      this.logger.error('Failed to validate user profile entry:', entry.hash, err)
+      return false
+    }
+    return true
+  }
+
+  /**
+   * Broadcasts current channels to any listeners
+   */
+  public async broadcastCurrentChannels(): Promise<void> {
+    const channels = await this.getChannels()
+
+    this.emit(StorageEvents.CHANNELS_STORED, { channels })
+
+    // Try to subscribe to all channels that we haven't subscribed to yet, even if this update event isn't for that
+    // particular channel.
+    //
+    // This fixes a bug where joining a community with multiple channels doesn't initialize all channels immediately.
+    for (const channel of channels) {
+      if (
+        !this.publicChannelsRepos.has(channel.id) ||
+        (!this.publicChannelsRepos.get(channel.id)?.eventsAttached &&
+          !this.publicChannelsRepos.get(channel.id)?.store.isSubscribing)
+      ) {
+        await this.subscribeToChannel(channel)
+      }
+    }
+  }
+
+  /**
    * Add a channel to the channels management database
    *
    * @param id ID of channel to add to the channels database
    * @param channel Channel configuration metadata
    * @throws Error
    */
-  public async setChannel(id: string, channel: PublicChannel): Promise<void> {
+  public async setChannel(channel: PublicChannel): Promise<void> {
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
     const encryptedChannel = this.encryptChannelEntry(channel)
-    await this.channels.put(id, encryptedChannel)
+    await this.channels.put(channel.id, encryptedChannel)
   }
 
   /**
@@ -266,7 +317,7 @@ export class ChannelsService extends EventEmitter {
 
     const channel = await this.getChannel(channelId)
     if (channel == undefined) {
-      await this.setChannel(channelId, channelData)
+      await this.setChannel(channelData)
     } else {
       this.logger.info(`Channel ${channelId} already exists`)
     }
