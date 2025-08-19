@@ -18,20 +18,17 @@ const logger = createLogger('ServerOffer:component')
 
 const PREFIX = 'ServerOfferComponent-'
 const classes = {
-  titleBar: `${PREFIX}titleBar`,
   contentWrap: `${PREFIX}contentWrap`,
   actionsWrap: `${PREFIX}actions`,
   textWrap: `${PREFIX}text`,
   dividerWrap: `${PREFIX}dividerWrap`,
-  heading: `${PREFIX}heading`,
-  useServerButton: `${PREFIX}useServerButton`,
-  notNowButton: `${PREFIX}notNowButton`,
-  title: `${PREFIX}title`,
   info: `${PREFIX}info`,
   icon: `${PREFIX}icon`,
   iconContainer: `${PREFIX}iconContainer`,
   pill: `${PREFIX}pill`,
   mutedAction: `${PREFIX}mutedAction`,
+  useServerButton: `${PREFIX}useServerButton`,
+  notNowButton: `${PREFIX}notNowButton`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -42,19 +39,19 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.contentWrap}`]: {
     width: '100%',
     height: '100%',
-    gap: '24px',
-    padding: '0px 32px',
+    gap: theme.spacing(3),
+    padding: theme.spacing(0, 4),
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   [`& .${classes.actionsWrap}`]: {
-    gap: '16px',
+    gap: theme.spacing(2),
   },
 
   [`& .${classes.textWrap}`]: {
-    padding: '0px 24px',
-    gap: '16px',
+    padding: theme.spacing(0, 3),
+    gap: theme.spacing(2),
   },
 
   [`& .${classes.dividerWrap}`]: {
@@ -64,40 +61,17 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.useServerButton}`]: {
     height: '50px',
     borderRadius: '16px',
-    padding: '12px 20px',
+    padding: theme.spacing(1.5, 2.5),
     width: 'auto',
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.colors.white,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue,
-    },
-    fontWeight: 400,
-    fontSize: '16px',
-    lineHeight: '26px',
-    textAlign: 'center',
-    textTransform: 'none',
+    ...theme.typography.body1,
   },
 
   [`& .${classes.notNowButton}`]: {
-    height: '16px',
     minWidth: '62px',
     padding: 0,
     borderRadius: '4px',
-
-    fontWeight: 400,
-    fontSize: '16px',
-    lineHeight: '16px',
-    letterSpacing: 0,
-    textTransform: 'none',
-
-    backgroundColor: 'transparent',
-    color: theme.palette.colors.gray50,
-    border: 'none',
-    boxShadow: 'none',
-    '&:hover': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-    },
+    ...theme.typography.body2,
+    color: theme.palette.text.secondary,
   },
 
   [`& .${classes.iconContainer}`]: {
@@ -112,16 +86,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     height: 51,
   },
 
-  [`& .${classes.title}`]: {
-    fontWeight: 500,
-    fontSize: '28px',
-    lineHeight: '34px',
-  },
-
   [`& .${classes.pill}`]: {
-    fontSize: '14px',
-    lineHeight: '20px',
-    fontWeight: 500,
+    ...theme.typography.subtitle2,
 
     '& .MuiChip-root': {
       height: 24,
@@ -138,20 +104,18 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
       fontWeight: 500,
       fontSize: '14px',
       lineHeight: '20px',
-      padding: '2px 8px',
+      padding: theme.spacing(0.5, 1),
     },
   },
 
   [`& .${classes.info}`]: {
     maxWidth: 520,
-    lineHeight: '20px',
-    fontSize: '14px',
-    fontWeight: 400,
-    color: theme.palette.colors.contrastText,
+    color: theme.palette.text.secondary,
+    ...theme.typography.body2,
   },
   [`& .${classes.mutedAction}`]: {
     '& .MuiFormControlLabel-label': {
-      fontSize: '14px',
+      ...theme.typography.body2,
     },
   },
 }))
@@ -182,13 +146,13 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
         </Grid>
         <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
           <Grid item>
-            <Typography className={classes.title}>Want a server?</Typography>
+            <Typography variant='h3'>Want a server?</Typography>
           </Grid>
           <Grid item className={classes.pill}>
             <Chip label='It’s free!' />
           </Grid>
           <Grid item>
-            <Typography variant='body1' className={classes.info}>
+            <Typography className={classes.info}>
               Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on
               iPhones.
             </Typography>
@@ -198,21 +162,21 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
           <Grid item>
             <Button
               variant='contained'
-              sx={{ textTransform: 'none' }}
               className={classes.useServerButton}
               onClick={() => onChoose(true)}
               data-testid='ServerOffer-UseQuietServer'
+              size='large'
             >
               Use Quiet’s server
             </Button>
           </Grid>
           <Grid item>
             <Button
-              variant='contained'
-              sx={{ textTransform: 'none' }}
+              variant='text'
               className={classes.notNowButton}
               onClick={() => onChoose(false)}
               data-testid='ServerOffer-NotNow'
+              size='small'
             >
               Not now
             </Button>
