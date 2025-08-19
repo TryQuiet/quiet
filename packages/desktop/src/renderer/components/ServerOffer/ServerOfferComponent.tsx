@@ -63,26 +63,14 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     borderRadius: '16px',
     padding: theme.spacing(1.5, 2.5),
     width: 'auto',
-    fontWeight: 400,
-    fontSize: '16px',
-    lineHeight: '26px',
-    textAlign: 'center',
-    textTransform: 'none',
     ...theme.typography.body1,
   },
 
   [`& .${classes.notNowButton}`]: {
-    height: '16px',
     minWidth: '62px',
     padding: 0,
     borderRadius: '4px',
-
-    fontWeight: 400,
-    fontSize: '16px',
-    lineHeight: '16px',
-    letterSpacing: 0,
-    textTransform: 'none',
-
+    ...theme.typography.body1,
     color: theme.palette.text.secondary,
   },
 
@@ -99,9 +87,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.pill}`]: {
-    fontSize: '14px',
-    lineHeight: '20px',
-    fontWeight: 500,
+    ...theme.typography.subtitle2,
 
     '& .MuiChip-root': {
       height: 24,
@@ -118,7 +104,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
       fontWeight: 500,
       fontSize: '14px',
       lineHeight: '20px',
-      padding: '2px 8px',
+      padding: theme.spacing(0.5, 1),
     },
   },
 
