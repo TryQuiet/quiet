@@ -36,7 +36,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     export PATH=$PATH:$ANDROID_HOME/platform-tools
     ```
 
-1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35")
+1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35" or [API level 35](https://apilevels.com/))
 
     ```bash
     ls $ANDROID_HOME/platforms
@@ -80,7 +80,7 @@ It may be convenient to run the app from Android studio, for example if you are 
 1. Open Android Studio
     
     If using nvm to manage node versions, you may need to open Android studio from a terminal which has the correct node version set. This is because Android Studio may not be able to find the correct node version if it is not set in the terminal.
-    ```
+    ```bash
     nvm install 18.20.4
     nvm use 18.20.4
     open -a "Android Studio"
@@ -109,7 +109,7 @@ _See the `node-common` README for a more detailed description of file logging in
 
 Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
 
-```bash
+```js
 const watchFolders = [
   ...
   path.resolve(__dirname, '<path-to-linked-package>')
