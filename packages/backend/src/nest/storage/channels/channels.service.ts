@@ -120,7 +120,6 @@ export class ChannelsService extends EventEmitter {
     this.channels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
       'public-channels',
       {
-        type: 'KeyValueIndexedValidated',
         sync: false,
         Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
         AccessController: IPFSAccessController({ write: ['*'] }),
