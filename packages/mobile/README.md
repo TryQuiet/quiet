@@ -90,11 +90,12 @@ It may be convenient to run the app from Android studio, for example if you are 
 
 1. Open Android Studio
     
-    If using nvm to manage node versions, you may need to open Android studio from a terminal which has the correct node version set. This is because Android Studio may not be able to find the correct node version if it is not set in the terminal.
+    If using `nvm` to manage `node` versions, you may need relink the `node` installed by `nvm` in order to open Quiet in Android Studio.
+    
     ```bash
     nvm install 18.20.4
     nvm use 18.20.4
-    open -a "Android Studio"
+    sudo ln -s "$(which node)" /usr/local/bin/node
     ```
 1. Open the `android` directory in Android Studio.
 1. If necessary, sync the Gradle files by hitting the "Sync Project with Gradle Files" button in the top right corner.
