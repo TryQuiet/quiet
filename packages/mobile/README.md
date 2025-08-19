@@ -18,6 +18,17 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:  
     - Mac: `export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"`
     - Linux: `export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/`
+
+    Alternatively, the easiest way to install The Temurin 17 JDK on Mac and Linux systems is to use [`SDKMAn`](https://sdkman.io/). This program is similar to `nvm` but for JDKs and allows you to easily install and switch between multiple JDKs on a single system.
+
+    ```bash
+    # downloads and installs SDKMAN
+    curl -s "https://get.sdkman.io" | bash
+
+    # downloads + installs + configures JAVA_HOME for Temurin JDK 17
+    sdk install java 17.0.0-tem
+    ``` 
+
 1. Install [Android Studio](https://developer.android.com/studio), ensuring that all of the following items in the installation wizard are checked
     - Android SDK
     - Android SDK Platform
