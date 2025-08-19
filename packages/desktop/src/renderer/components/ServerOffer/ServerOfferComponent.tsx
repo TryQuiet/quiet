@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import classNames from 'classnames'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
@@ -25,8 +24,8 @@ const classes = {
   textWrap: `${PREFIX}text`,
   dividerWrap: `${PREFIX}dividerWrap`,
   heading: `${PREFIX}heading`,
-  primaryActionButton: `${PREFIX}primaryActionButton`,
-  secondaryActionButton: `${PREFIX}secondaryActionButton`,
+  useServerButton: `${PREFIX}useServerButton`,
+  notNowButton: `${PREFIX}notNowButton`,
   title: `${PREFIX}title`,
   info: `${PREFIX}info`,
   icon: `${PREFIX}icon`,
@@ -38,12 +37,15 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   textAlign: 'center',
+  justifyContent: 'center',
 
   [`&.${classes.contentWrap}`]: {
     width: '100%',
     height: '100%',
     gap: '24px',
     padding: '0px 32px',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   [`& .${classes.actionsWrap}`]: {
@@ -56,39 +58,46 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.dividerWrap}`]: {
-    // margin: '28px auto 6px auto',
-  },
-
-  // should hold a back button, may not be relevant yet
-  [`& .${classes.titleBar}`]: {
     width: '100%',
-    height: '60px',
   },
 
-  [`& .${classes.primaryActionButton}`]: {
-    width: '174px',
+  [`& .${classes.useServerButton}`]: {
+    height: '50px',
+    borderRadius: '16px',
+    padding: '12px 20px',
+    width: 'auto',
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.colors.white,
     '&:hover': {
       backgroundColor: theme.palette.colors.quietBlue,
     },
-    borderRadius: '16px',
-    height: '50px',
-    fontWeight: '400',
-    padding: '20px 12px',
+    fontWeight: 400,
+    fontSize: '16px',
+    lineHeight: '26px',
+    textAlign: 'center',
+    textTransform: 'none',
   },
 
-  [`& .${classes.secondaryActionButton}`]: {
-    width: '100px',
+  [`& .${classes.notNowButton}`]: {
     height: '16px',
-    fontWeight: '400',
-    backgroundColor: theme.palette.background.default,
-    '&:hover': {
-      backgroundColor: theme.palette.background.default,
-    },
+    minWidth: '62px',
+    padding: 0,
+    borderRadius: '4px',
+
+    fontWeight: 400,
+    fontSize: '16px',
+    lineHeight: '16px',
+    letterSpacing: 0,
+    textTransform: 'none',
+
+    backgroundColor: 'transparent',
     color: theme.palette.colors.gray50,
     border: 'none',
     boxShadow: 'none',
+    '&:hover': {
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+    },
   },
 
   [`& .${classes.iconContainer}`]: {
@@ -112,17 +121,24 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.pill}`]: {
     fontSize: '14px',
     lineHeight: '20px',
+    fontWeight: 500,
 
     '& .MuiChip-root': {
       height: 24,
-      borderRadius: 8,
-      fontWeight: 500,
-      fontSize: 14,
+      borderRadius: 4,
       backgroundColor: theme.palette.colors.lightPurple,
       color: theme.palette.colors.primary,
-      borderStyle: 'solid',
-      borderWidth: 1,
-      borderColor: '#ECDCF5',
+      border: '1px solid #ECDCF5',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    '& .MuiChip-label': {
+      fontWeight: 500,
+      fontSize: '14px',
+      lineHeight: '20px',
+      padding: '2px 8px',
     },
   },
 
@@ -132,6 +148,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     fontSize: '14px',
     fontWeight: 400,
     color: theme.palette.colors.contrastText,
+  },
+  [`& .${classes.mutedAction}`]: {
+    '& .MuiFormControlLabel-label': {
+      fontSize: '14px',
+    },
   },
 }))
 
@@ -143,15 +164,7 @@ export interface ServerOfferComponentProps {
 export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open, handleClose }) => {
   const [dontShowAgain, setDontShowAgain] = useState(false)
 
-  const persistPreference = useCallback(() => {
-    try {
-      if (dontShowAgain) {
-        localStorage.setItem('quiet.serverOffer.dismissed', 'true')
-      }
-    } catch (e) {
-      logger.warn('Unable to persist server-offer preference', e)
-    }
-  }, [dontShowAgain])
+  const persistPreference = useCallback(() => {}, [dontShowAgain])
 
   const onChoose = useCallback(
     (useServer: boolean) => {
@@ -186,7 +199,7 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
             <Button
               variant='contained'
               sx={{ textTransform: 'none' }}
-              className={classes.primaryActionButton}
+              className={classes.useServerButton}
               onClick={() => onChoose(true)}
               data-testid='ServerOffer-UseQuietServer'
             >
@@ -197,7 +210,7 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
             <Button
               variant='contained'
               sx={{ textTransform: 'none' }}
-              className={classes.secondaryActionButton}
+              className={classes.notNowButton}
               onClick={() => onChoose(false)}
               data-testid='ServerOffer-NotNow'
             >
@@ -205,12 +218,13 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
             </Button>
           </Grid>
         </StyledGrid>
-        <Grid item className={classes.dividerWrap} sx={{ width: '100%' }}>
+        <Grid item className={classes.dividerWrap}>
           <Divider />
         </Grid>
 
         <Grid item>
           <FormControlLabel
+            className={classes.mutedAction}
             control={
               <Checkbox color='primary' checked={dontShowAgain} onChange={e => setDontShowAgain(e.target.checked)} />
             }
