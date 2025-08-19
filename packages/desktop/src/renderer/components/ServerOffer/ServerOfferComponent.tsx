@@ -19,10 +19,12 @@ const logger = createLogger('ServerOffer:component')
 
 const PREFIX = 'ServerOfferComponent-'
 const classes = {
-  content: `${PREFIX}content`,
   titleBar: `${PREFIX}titleBar`,
+  contentWrap: `${PREFIX}contentWrap`,
+  actionsWrap: `${PREFIX}actions`,
+  textWrap: `${PREFIX}text`,
+  dividerWrap: `${PREFIX}dividerWrap`,
   heading: `${PREFIX}heading`,
-  actionWrap: `${PREFIX}actionWrap`,
   primaryActionButton: `${PREFIX}primaryActionButton`,
   secondaryActionButton: `${PREFIX}secondaryActionButton`,
   title: `${PREFIX}title`,
@@ -31,37 +33,36 @@ const classes = {
   iconContainer: `${PREFIX}iconContainer`,
   pill: `${PREFIX}pill`,
   mutedAction: `${PREFIX}mutedAction`,
-  dividerWrap: `${PREFIX}dividerWrap`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   textAlign: 'center',
-  padding: '0px 32px',
-  gap: '8px',
 
-  [`& .${classes.content}`]: {
-    width: '375px',
+  [`&.${classes.contentWrap}`]: {
+    width: '100%',
     height: '100%',
-    padding: '0px 0px 0px 24px',
     gap: '24px',
+    padding: '0px 32px',
+  },
+
+  [`& .${classes.actionsWrap}`]: {
+    gap: '16px',
+  },
+
+  [`& .${classes.textWrap}`]: {
+    padding: '0px 24px',
+    gap: '16px',
+  },
+
+  [`& .${classes.dividerWrap}`]: {
+    // margin: '28px auto 6px auto',
   },
 
   // should hold a back button, may not be relevant yet
   [`& .${classes.titleBar}`]: {
     width: '100%',
     height: '60px',
-  },
-
-  [`& .${classes.heading}`]: {
-    marginTop: '16px',
-    marginBottom: '16px',
-  },
-
-  [`& .${classes.actionWrap}`]: {
-    gap: '16px',
-    textAlign: 'center',
-    padding: '0 24px',
   },
 
   [`& .${classes.primaryActionButton}`]: {
@@ -111,7 +112,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.pill}`]: {
     fontSize: '14px',
     lineHeight: '20px',
-    marginBottom: 16,
+
     '& .MuiChip-root': {
       height: 24,
       borderRadius: 8,
@@ -131,10 +132,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     fontSize: '14px',
     fontWeight: 400,
     color: theme.palette.colors.contrastText,
-  },
-
-  [`& .${classes.dividerWrap}`]: {
-    // margin: '28px auto 6px auto',
   },
 }))
 
@@ -165,27 +162,26 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
   )
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled testIdPrefix='ServerOffer'>
-      <div className={classes.titleBar}></div>
-      <StyledGrid container direction='column' alignItems='center' className={classes.content}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} testIdPrefix='ServerOffer'>
+      <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
         <Grid item className={classes.iconContainer}>
           <ServerBoxIcon className={classes.icon} />
         </Grid>
-        <StyledGrid container direction='column' alignItems='center' className={classes.actionWrap}>
-          <Grid item className={classes.heading}>
+        <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
+          <Grid item>
             <Typography className={classes.title}>Want a server?</Typography>
-
-            <div className={classes.pill}>
-              <Chip label='It’s free!' />
-            </div>
-
+          </Grid>
+          <Grid item className={classes.pill}>
+            <Chip label='It’s free!' />
+          </Grid>
+          <Grid item>
             <Typography variant='body1' className={classes.info}>
               Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on
               iPhones.
             </Typography>
           </Grid>
         </StyledGrid>
-        <StyledGrid container direction='column' alignItems='center' className={classes.actionWrap}>
+        <StyledGrid container direction='column' alignItems='center' className={classes.actionsWrap}>
           <Grid item>
             <Button
               variant='contained'
