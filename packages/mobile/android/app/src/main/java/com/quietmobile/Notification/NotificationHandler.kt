@@ -19,7 +19,7 @@ class NotificationHandler(private val context: Context) {
     /**
      * @param message - Object of type ChannelMessage
      */
-    fun notify(message: String?, username: String?) {
+    fun notify(message: String, username: String?) {
         var channelId = ""
         var channelName = ""
         var content = ""
