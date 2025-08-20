@@ -29,7 +29,11 @@ let updating = false
 const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
-export const isE2Etest = process.env.E2E_TEST === 'true'
+export const isE2Etest = process.env.IS_E2E === 'true'
+
+if (isE2Etest) {
+  autoUpdater.autoInstallOnAppQuit = false
+}
 
 const webcrypto = new Crypto()
 
@@ -378,7 +382,7 @@ app.on('ready', async () => {
       COLORIZE: process.env.COLORIZE ?? 'true',
       LOG_TO_FILE: process.env.LOG_TO_FILE ?? 'true',
       STATIC_LOG_ID: process.env.STATIC_LOG_ID,
-      QSS_ENABLED: process.env.QSS_ENABLED ?? 'false',
+      QSS_ALLOWED: process.env.QSS_ALLOWED ?? 'false',
       QSS_ENDPOINT: process.env.QSS_ENDPOINT,
     },
   })

@@ -18,6 +18,7 @@ import { TestConfig } from '../../const'
 import { spawnLibp2pInstancesInMemory } from '../../common/test-utils'
 import { Libp2pNodeParams } from '../../libp2p/libp2p.types'
 import { EventsType, IPFSAccessController, LogEntry } from '@orbitdb/core'
+import { LogUpdate } from './orbitdb.types'
 
 const logger = createLogger('messagesService:test')
 
@@ -102,11 +103,11 @@ describe('OrbitDbService', () => {
       sync: false,
     })
     let putEventEmitted = false
-    OrbitDbService.events.on('put', (entry: unknown) => {
+    OrbitDbService.events.on('put', (update: LogUpdate) => {
       putEventEmitted = true
-      expect(entry).toBeDefined()
-      expect((entry as LogEntry).payload.value).toStrictEqual({ content: 'test content' })
-      expect((entry as LogEntry).identity).toEqual(orbitDbService.orbitDb.identity.hash)
+      expect(update).toBeDefined()
+      expect(update.entry.payload.value).toStrictEqual({ content: 'test content' })
+      expect(update.entry.identity).toEqual(orbitDbService.orbitDb.identity.hash)
     })
 
     await store.add({ content: 'test content' })

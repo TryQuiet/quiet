@@ -289,7 +289,8 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     logger.info('Cleaning user profiles store')
     this.deferredProfiles = []
     try {
-      await this.getStore().drop()
+      await this.store?.sync?.stop?.()
+      await this.store?.drop?.()
     } catch (err) {
       logger.error('Failed to clean user profiles store:', err)
     }

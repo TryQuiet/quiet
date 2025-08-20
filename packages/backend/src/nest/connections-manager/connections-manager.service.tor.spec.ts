@@ -39,6 +39,7 @@ import { ServiceState } from './connections-manager.types'
 import { SocketService } from '../socket/socket.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
+import { StorageModule } from '../storage/storage.module'
 
 const logger = createLogger('connectionsManager:test')
 
@@ -86,7 +87,7 @@ beforeEach(async () => {
       ConnectionsManagerModule,
       LocalDbModule,
       SocketModule,
-      Libp2pModule,
+      StorageModule,
       TorModule,
       SigChainModule,
     ],

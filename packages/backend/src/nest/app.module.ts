@@ -21,7 +21,7 @@ import {
   LEVEL_DB,
   DB_PATH,
   LIBP2P_DB_PATH,
-  QSS_ENABLED,
+  QSS_ALLOWED,
   QSS_ENDPOINT,
 } from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
@@ -40,6 +40,7 @@ import { createLogger } from './common/logger'
 import { SocketActionsMap, SocketEventsMap } from '@quiet/types'
 import { QSSModule } from './qss/qss.module'
 import { verifyToken } from './common/token'
+import { OrbitDbModule } from './storage/orbitDb/orbitdb.module'
 
 const logger = createLogger('appModule')
 
@@ -52,6 +53,7 @@ const logger = createLogger('appModule')
     IpfsModule,
     ImageCompressionModule,
     IpfsFileManagerModule,
+    OrbitDbModule,
     StorageModule,
     ConnectionsManagerModule,
     TorModule,
@@ -204,8 +206,8 @@ export class AppModule {
           inject: [DB_PATH],
         },
         {
-          provide: QSS_ENABLED,
-          useValue: process.env.QSS_ENABLED === 'true',
+          provide: QSS_ALLOWED,
+          useValue: process.env.QSS_ALLOWED === 'true',
         },
         {
           provide: QSS_ENDPOINT,
@@ -221,7 +223,7 @@ export class AppModule {
         SERVER_IO_PROVIDER,
         SOCKS_PROXY_AGENT,
         LEVEL_DB,
-        QSS_ENABLED,
+        QSS_ALLOWED,
         QSS_ENDPOINT,
       ],
     }

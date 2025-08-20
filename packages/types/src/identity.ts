@@ -9,7 +9,7 @@ export interface HiddenService {
 export interface PeerId {
   id: string
   privKey: string
-  noiseKey: string
+  noiseKey?: string
 }
 
 export interface NetworkInfo {

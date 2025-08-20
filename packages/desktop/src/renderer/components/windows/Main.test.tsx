@@ -59,12 +59,13 @@ describe('Main', () => {
                             <svg
                               aria-hidden="true"
                               class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                              data-testid="ExpandMoreIcon"
+                              data-testid="ArrowDropDownIcon"
                               focusable="false"
+                              style="margin-left: 4px;"
                               viewBox="0 0 24 24"
                             >
                               <path
-                                d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                                d="m7 10 5 5 5-5z"
                               />
                             </svg>
                             <span
@@ -151,7 +152,7 @@ describe('Main', () => {
                                     data-testid="channelsList"
                                   >
                                     <div
-                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-dfcapv-MuiButtonBase-root-MuiListItemButton-root"
+                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
                                       data-testid="general-link"
                                       role="button"
                                       tabindex="0"

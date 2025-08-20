@@ -9,6 +9,7 @@ import { type Socket as ClientSocket } from 'socket.io-client'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
+import { QSS_ALLOWED } from '../const'
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
@@ -22,12 +23,18 @@ describe('QSSAuthConnectionManager', () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [TestModule, QSSModule, SigChainModule],
+      providers: [
+        {
+          provide: QSS_ALLOWED,
+          useFactory: () => true,
+        },
+      ],
     }).compile()
     qssAuthConnManager = module.get<QSSAuthConnectionManager>(QSSAuthConnectionManager)
     qssClient = module.get<QSSClient>(QSSClient)
     jest
       .spyOn(qssClient, 'createSocket')
-      .mockImplementation(async (_qssEnabled: boolean, _qssEndpoint: string | undefined): Promise<ClientSocket> => {
+      .mockImplementation(async (_qssEndpoint: string | undefined): Promise<ClientSocket> => {
         const socket = {
           ...new MockedSocket(),
           close: () => {},
@@ -39,7 +46,7 @@ describe('QSSAuthConnectionManager', () => {
       })
     sigchainService = module.get<SigChainService>(SigChainService)
     await sigchainService.createChain(teamName, username, true)
-    await qssClient.createSocket(true, '')
+    await qssClient.createSocket('')
   })
 
   afterEach(async () => {

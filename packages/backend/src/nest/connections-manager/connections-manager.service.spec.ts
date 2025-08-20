@@ -1,16 +1,14 @@
 import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { getReduxStoreFactory, identity, prepareStore, type Store, type communities } from '@quiet/state-manager'
-import { CommunityOwnership, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
+import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
+import { CommunityOwnership, type Community, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
 import { QUIET_DIR, TOR_PASSWORD_PROVIDER } from '../const'
-import { Libp2pModule } from '../libp2p/libp2p.module'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
-import { LocalDBKeys } from '../local-db/local-db.types'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
@@ -18,6 +16,7 @@ import { createLibp2pAddress } from '@quiet/common'
 
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
+import { StorageModule } from '../storage/storage.module'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -46,7 +45,7 @@ describe('ConnectionsManagerService', () => {
     })
 
     module = await Test.createTestingModule({
-      imports: [TestModule, ConnectionsManagerModule, LocalDbModule, SocketModule, Libp2pModule],
+      imports: [TestModule, LocalDbModule, StorageModule, ConnectionsManagerModule, SocketModule],
     })
       .overrideProvider(TOR_PASSWORD_PROVIDER)
       .useValue({ torPassword: '', torHashedPassword: '' })
