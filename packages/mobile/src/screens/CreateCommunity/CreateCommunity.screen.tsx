@@ -21,6 +21,7 @@ export const CreateCommunityScreen: FC = () => {
     (name: string) => {
       const payload: CreateCommunityPayload = {
         name,
+        useServer: false,
       }
       dispatch(communities.actions.createCommunity(payload))
       dispatch(
