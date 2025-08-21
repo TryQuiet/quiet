@@ -71,7 +71,7 @@ describe('ServerOfferComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-contentWrap css-18g0kx4-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-contentWrap css-1c4y1a-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item ServerOfferComponent-iconContainer css-13i4rnv-MuiGrid-root"
@@ -89,7 +89,7 @@ describe('ServerOfferComponent', () => {
                     </svg>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-text css-18g0kx4-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-text css-1c4y1a-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -124,7 +124,7 @@ describe('ServerOfferComponent', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-actions css-18g0kx4-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ServerOfferComponent-actions css-1c4y1a-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
