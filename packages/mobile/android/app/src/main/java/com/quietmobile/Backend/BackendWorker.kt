@@ -61,7 +61,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         fun handleNodeMessages(channelName: String, msg: String?) {
             if (channelName == "_EVENTS_" && msg != null) {
                 try {
-                    val envelope = org.json.JSONObject(msg)
+                    val envelope = JSONObject(msg)
                     val event = envelope.optString("event", "")
                     val payloadStr = envelope.optString("payload", "")
                     if (event == "message" && payloadStr.isNotEmpty()) {
@@ -72,11 +72,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                                     if (payloadArr.length() > 1) payloadArr.getString(1) else null
                             if (nonce != null) {
                                 val response =
-                                        org.json.JSONObject()
+                                        JSONObject()
                                                 .put("event", "secret")
                                                 .put(
                                                         "payload",
-                                                        org.json.JSONObject()
+                                                        JSONObject()
                                                                 .put("type", "set-socket-secret")
                                                                 .put("secret", socketIOSecret)
                                                                 .put("nonce", nonce)
@@ -93,7 +93,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                                 "Received unhandled event: $event with payload: $payloadStr"
                         )
                     }
-                } catch (e: org.json.JSONException) {
+                } catch (e: JSONException) {
                     Log.d(
                             "BackendWorker",
                             "handleNodeMessages: JSONException while parsing message from backend"

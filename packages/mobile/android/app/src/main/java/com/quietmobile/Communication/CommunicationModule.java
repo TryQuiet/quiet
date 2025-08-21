@@ -76,14 +76,11 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     public static void passDataToReact(String channelName, String payload) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                WritableMap params = Arguments.createMap();
-                params.putString("channelName", channelName);
-                params.putString("payload", payload);
-                sendEvent(params);
-            }
+        new Thread(() -> {
+            WritableMap params = Arguments.createMap();
+            params.putString("channelName", channelName);
+            params.putString("payload", payload);
+            sendEvent(params);
         }).start();
     }
 

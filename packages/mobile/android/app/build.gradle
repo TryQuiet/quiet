@@ -122,14 +122,6 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
-def _nodeTargetSdkVersion = ((rootProject?.ext?.properties?.targetSdkVersion) ?: 22)
-def _nodeMinSdkVersion = ((rootProject?.ext?.properties?.minSdkVersion) ?: 16)
-def _compileNativeModulesSdkVersion = _nodeMinSdkVersion
-if (_compileNativeModulesSdkVersion<21) {
-    // 21 is the minimum sdk version Node is built with.
-    _compileNativeModulesSdkVersion=21
-}
-
 /**
  * Architectures to build native code for.
  */
@@ -167,18 +159,12 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
-        pickFirst 'lib/x86/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
-        pickFirst 'lib/x86/libfbjni.so'
-        pickFirst 'lib/x86_64/libfbjni.so'
-        pickFirst 'lib/armeabi-v7a/libfbjni.so'
         pickFirst 'lib/arm64-v8a/libfbjni.so'
 
         jniLibs {
@@ -199,11 +185,6 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         ndk {
             abiFilters "arm64-v8a"
-        }
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
         }
         externalNativeBuild {
             cmake {
@@ -294,7 +275,7 @@ android {
 
 dependencies {
     androidTestImplementation('com.wix:detox:+')
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
 
     implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
 
@@ -303,7 +284,7 @@ dependencies {
 
     implementation("com.facebook.react:flipper-integration")
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     if (enableHermes) {
         //noinspection GradleDynamicVersion
@@ -316,28 +297,28 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "androidx.core:core-ktx:1.15.0"
 
-    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.google.code.gson:gson:2.13.1'
 
     implementation project(':react-native-fs')
 
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.20.0'
 
     // Websockets connection
-    implementation ('io.socket:socket.io-client:2.0.0') {
+    implementation ('io.socket:socket.io-client:2.1.2') {
         exclude group: 'org.json', module: 'json'
     }
 
     // Work manager
-    implementation("androidx.work:work-runtime:2.7.1")
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation("androidx.work:work-runtime:2.10.3")
+    implementation("androidx.work:work-runtime-ktx:2.10.3")
 
     // For animated GIF support
-    implementation 'com.facebook.fresco:fresco:2.6.0'
-    implementation 'com.facebook.fresco:animated-gif:2.6.0'
-    implementation "com.goterl:lazysodium-android:5.1.0@aar"
-    implementation "net.java.dev.jna:jna:5.12.1@aar"
+    implementation 'com.facebook.fresco:fresco:3.6.0'
+    implementation 'com.facebook.fresco:animated-gif:3.6.0'
+    implementation "com.goterl:lazysodium-android:5.2.0@aar"
+    implementation "net.java.dev.jna:jna:5.17.0@aar"
 }
 
 // Run this once to be able to run the application with BUCK

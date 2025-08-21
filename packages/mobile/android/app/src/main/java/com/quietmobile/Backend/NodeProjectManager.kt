@@ -9,6 +9,7 @@ import android.util.Log
 import com.quietmobile.Utils.Const
 import java.io.*
 import java.util.concurrent.Semaphore
+import androidx.core.content.edit
 
 class NodeProjectManager(private val context: Context) {
 
@@ -84,9 +85,9 @@ class NodeProjectManager(private val context: Context) {
             Const.NODEJS_SHARED_PREFS,
             Context.MODE_PRIVATE
         )
-        val editor = prefs.edit()
-        editor.putLong(Const.APK_LAST_UPDATED_TIME, this.lastUpdateTime)
-        editor.apply()
+        prefs.edit {
+            putLong(Const.APK_LAST_UPDATED_TIME, lastUpdateTime)
+        }
     }
 
     private fun emptyTrash() {
@@ -120,7 +121,7 @@ class NodeProjectManager(private val context: Context) {
         val nativeDirs = readFileFromAssets("$nativeAssetsPath/dir.list")
         val nativeFiles = readFileFromAssets("$nativeAssetsPath/file.list")
         // Copy additional asset files to project working folder
-        if (nativeFiles.size > 0) {
+        if (nativeFiles.isNotEmpty()) {
             Log.v(
                 Const.NODEJS_ASSETS_TAG,
                 "Building folder hierarchy for $nativeAssetsPath"
@@ -162,7 +163,7 @@ class NodeProjectManager(private val context: Context) {
         val files: java.util.ArrayList<String> = readFileFromAssets("file.list")
 
         // Copy the nodejs project files to the application's data path.
-        if (dirs.size > 0 && files.size > 0) {
+        if (dirs.isNotEmpty() && files.isNotEmpty()) {
             Log.d("NODE_ASSETS", "Node assets copy using pre-built lists")
             for (dir in dirs) {
                 File("$filesDirPath/$dir").mkdirs()
@@ -204,17 +205,13 @@ class NodeProjectManager(private val context: Context) {
 
     @Throws(IOException::class)
     private fun copyAsset(fromAssetPath: String, toPath: String) {
-        var `in`: InputStream?
-        var out: OutputStream?
-        `in` = assetManager.open(fromAssetPath)
+        val `in` = assetManager.open(fromAssetPath)
         File(toPath).createNewFile()
-        out = FileOutputStream(toPath)
+        val out = FileOutputStream(toPath)
         copyFile(`in`, out)
         `in`.close()
-        `in` = null
         out.flush()
         out.close()
-        out = null
     }
 
     // Copy file from an input stream to an output stream
