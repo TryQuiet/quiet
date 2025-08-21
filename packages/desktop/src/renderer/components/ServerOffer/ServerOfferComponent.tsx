@@ -60,7 +60,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.useServerButton}`]: {
     height: '50px',
-    borderRadius: '16px',
     padding: theme.spacing(1.5, 2.5),
     width: 'auto',
     ...theme.typography.body1,
@@ -69,7 +68,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.notNowButton}`]: {
     minWidth: '62px',
     padding: 0,
-    borderRadius: '4px',
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
   },

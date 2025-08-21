@@ -9,6 +9,7 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
+  ServerOfferModal,
 } from '../selectors'
 import { promiseWithRetries, sleep } from '../utils'
 import { UserTestData } from '../types'
@@ -79,6 +80,16 @@ describe('Multiple Clients (QSS)', () => {
         expect(await createModal.isReady()).toBeTruthy()
         await createModal.typeCommunityName(communityName)
         await createModal.submit()
+      })
+
+      it('Owner sees "server offer" modal', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        expect(await serverOfferModal.element).toBeTruthy()
+      })
+
+      it('Owner accepts server offer', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        await serverOfferModal.chooseUseServer()
       })
 
       it('Owner sees "register username" modal and submits valid username', async () => {
