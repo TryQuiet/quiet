@@ -62,7 +62,7 @@ object Utils {
         return _port
     }
 
-    private fun isPortOpen(ip: String?, port: Int, timeout: Int): Boolean {
+    private fun isPortOpen(ip: String, port: Int, timeout: Int): Boolean {
         return try {
             val socket = Socket()
             socket.connect(InetSocketAddress(ip, port), timeout)

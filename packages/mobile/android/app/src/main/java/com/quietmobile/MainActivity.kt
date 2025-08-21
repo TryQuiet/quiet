@@ -56,7 +56,9 @@ class MainActivity : ReactActivity() {
         return super.onCreateView(name, context, attrs)
     }
 
-    private val NOTIFICATION_PERMISSION_REQUEST_CODE = 200
+    companion object {
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 200
+    }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkNotificationsPermission() {

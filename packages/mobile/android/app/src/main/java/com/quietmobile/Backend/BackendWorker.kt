@@ -93,7 +93,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                                 "Received unhandled event: $event with payload: $payloadStr"
                         )
                     }
-                } catch (e: JSONException) {
+                } catch (_: JSONException) {
                     Log.d(
                             "BackendWorker",
                             "handleNodeMessages: JSONException while parsing message from backend"
