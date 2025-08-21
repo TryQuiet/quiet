@@ -9,6 +9,7 @@ import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
 import { QSSConnectionError, QSSNotInitializedError, WebsocketEvents } from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
+import { CompoundError } from '@quiet/types'
 
 @Injectable()
 export class QSSClient {
@@ -32,30 +33,36 @@ export class QSSClient {
    * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
    * @returns Connected socket.io socket instance
    */
-  public async createSocket(qssEndpoint: string | undefined): Promise<ClientSocket> {
-    this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
+  public async createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
+    try {
+      this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
 
-    if (!this.qssAllowed || this.qssEndpoint == null) {
-      throw new QSSNotInitializedError(`QSS is not enabled`)
-    }
+      if (!this.qssAllowed || this.qssEndpoint == null) {
+        throw new QSSNotInitializedError(`QSS is not enabled`)
+      }
 
-    // check for an existing socket instance and, if connected, return that socket and move on
-    if (this.clientSocket != null && this.clientSocket.active) {
-      this.logger.warn('createSocket was already called and the socket is active!')
+      // check for an existing socket instance and, if connected, return that socket and move on
+      if (this.clientSocket != null && this.clientSocket.active) {
+        this.logger.warn('createSocket was already called and the socket is active!')
+        return this.clientSocket
+      }
+
+      // create a new websocket to QSS
+      this.logger.info(`Creating and connecting client socket`)
+      this.clientSocket = connect(this.qssEndpoint, {
+        autoConnect: false,
+        forceNew: true,
+        transports: CLIENT_TRANSPORTS,
+      })
+      // wait for socket to connect with QSS instance
+      await this._waitForConnect()
+
       return this.clientSocket
+    } catch (e) {
+      const message = `Failed to connect to QSS, will retry later!`
+      this.logger.error(message, e)
+      throw new CompoundError(message, e)
     }
-
-    // create a new websocket to QSS
-    this.logger.info(`Creating and connecting client socket`)
-    this.clientSocket = connect(this.qssEndpoint, {
-      autoConnect: false,
-      forceNew: true,
-      transports: CLIENT_TRANSPORTS,
-    })
-    // wait for socket to connect with QSS instance
-    await this._waitForConnect()
-
-    return this.clientSocket
   }
 
   /**

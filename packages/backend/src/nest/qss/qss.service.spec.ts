@@ -92,7 +92,7 @@ describe('QSSService', () => {
     await orbitDbService.create(ipfsService.ipfsInstance!)
 
     mockedCreateSocket = jest
-      .spyOn(qssClient, 'createSocket')
+      .spyOn(qssClient, 'createSocketAndConnect')
       .mockImplementation(async (_qssEndpoint: string | undefined): Promise<ClientSocket> => {
         const socket = {
           ...new MockedSocket(),

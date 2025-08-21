@@ -21,6 +21,12 @@ export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
 }
 
+export enum QSSConnectionStatus {
+  DISABLED = 'DISABLED',
+  ERROR = 'ERROR',
+  SUCCESS = 'SUCCESS',
+}
+
 export interface BaseWebsocketMessage<T extends object | undefined> {
   ts: number
   status: string

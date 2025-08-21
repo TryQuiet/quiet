@@ -18,6 +18,7 @@ import {
   QSSLogEntrySyncMessage,
   GeneratePublicKeysMessage,
   WebsocketEvents,
+  QSSConnectionStatus,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
@@ -45,6 +46,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Interval for checking for unsent sync messages
    */
   private _deadLetterQueueProcessor: NodeJS.Timeout
+  /**
+   * Interval for retrying/reconnecting to QSS
+   */
+  private _reconnectQueueProcessor: NodeJS.Timeout
+
   /**
    * Is QSS enabled for this community?
    *
@@ -107,6 +113,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       await this.localDbService.removePendingQssLogSyncMessages(successes)
     }
   }
+
+  // private async reconnectToQSS(): Promise<void> {
+
+  // }
 
   /**
    * Check if QSS is allowed and our websocket connection is active
@@ -171,13 +181,25 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     return authConnection?.joinStatus ?? JoinStatus.NOT_STARTED
   }
 
+  public async connect(qssEndpoint: string | undefined): Promise<QSSConnectionStatus> {
+    let connStatus: QSSConnectionStatus
+    try {
+      connStatus = await this._connect(qssEndpoint)
+    } catch (e) {
+      this.logger.error('Error while connecting to QSS', e)
+      connStatus = QSSConnectionStatus.ERROR
+    }
+
+    return connStatus
+  }
+
   /**
    * Connect the QSS client if enabled
    *
    * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
    * @returns True if connection was successful
    */
-  public async connect(qssEndpoint: string | undefined): Promise<boolean> {
+  private async _connect(qssEndpoint: string | undefined): Promise<QSSConnectionStatus> {
     // wait for existing socket to finish connecting, if present
     if (this._connecting) {
       this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
@@ -189,7 +211,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     // if we are already connected return true and move on
     if (this.connected) {
-      return true
+      return QSSConnectionStatus.SUCCESS
     }
 
     this._connecting = true
@@ -197,23 +219,23 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._qssEndpoint = qssEndpoint ?? this._qssEndpoint
     if (!this.canConnect) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
-      return false
+      return QSSConnectionStatus.DISABLED
     }
 
     // wait for our socket to finish connecting
-    let connected = false
+    let connStatus: QSSConnectionStatus
     try {
       this.logger.info(`Establishing connection with QSS`)
-      await this.qssClient.createSocket(this._qssEndpoint)
+      await this.qssClient.createSocketAndConnect(this._qssEndpoint)
       this.logger.info(`Connection established`)
-      connected = true
+      connStatus = QSSConnectionStatus.SUCCESS
     } catch (e) {
       this.logger.error(`Error while connecting to QSS`, e)
-      connected = false
+      connStatus = QSSConnectionStatus.ERROR
     }
 
     this._connecting = false
-    return connected
+    return connStatus
   }
 
   /**
