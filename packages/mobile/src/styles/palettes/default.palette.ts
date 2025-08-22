@@ -41,5 +41,6 @@ export const defaultPalette = {
     gray70: '#4C4C4C',
     blue: '#2373EA',
     lushSky: '#67BFD3',
+    lightPurple: '#F3E8FF',
   },
 }
