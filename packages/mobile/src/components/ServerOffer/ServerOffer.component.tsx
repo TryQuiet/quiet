@@ -15,6 +15,13 @@ const CHECK_SIZE = 14
 const CHECK_BORDER = 2
 const CHECK_RADIUS = 2
 
+const SPACING_UNIT = 8
+const GAP_CONTENT = SPACING_UNIT * 3 // 24px;
+const GAP_TEXT = SPACING_UNIT * 2 // 16px;
+const GAP_ACTIONS = SPACING_UNIT * 2 // 16px;
+const PADDING_H = SPACING_UNIT * 4 // 32px;
+const PADDING_TEXT_H = SPACING_UNIT * 3 // 24px;
+
 export interface ServerOfferProps {
   visible: boolean
   /**
@@ -44,58 +51,66 @@ export const ServerOffer: FC<ServerOfferProps> = ({ visible, onClose }) => {
       <Appbar title={'Want a server?'} back={handleNotNow} />
 
       {/* Content */}
-      <View style={{ flex: 1, padding: 24, alignItems: 'center', justifyContent: 'center' }}>
-        {/* Icon */}
-        <View style={{ marginBottom: 16, width: 64, height: 64, alignItems: 'center', justifyContent: 'center' }}>
-          <ServerBoxIcon />
-        </View>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: GAP_CONTENT,
+        }}
+      >
+        {/* Text group */}
+        <View style={{ alignItems: 'center', gap: GAP_TEXT }}>
+          {/* Icon */}
+          <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center' }}>
+            <ServerBoxIcon />
+          </View>
 
-        {/* Title */}
-        <Typography fontSize={24} fontWeight={'bold'} style={{ marginBottom: 8 }}>
-          Want a server?
-        </Typography>
+          {/* Title */}
+          <Typography fontSize={28} fontWeight={'bold'}>
+            Want a server?
+          </Typography>
 
-        {/* Pill: It’s free! */}
-        <View
-          style={{
-            marginBottom: 8,
-            borderRadius: 4,
-            borderWidth: 1,
-            borderColor: defaultTheme.palette.typography.veryLightGray,
-            backgroundColor: LIGHT_PURPLE,
-            paddingHorizontal: 10,
-            paddingVertical: 2,
-          }}
-        >
-          <Typography fontSize={14} fontWeight={'medium'} style={{ color: defaultTheme.palette.main.brand }}>
-            It’s free!
+          {/* Pill: It’s free! */}
+          <View
+            style={{
+              borderRadius: 4,
+              borderWidth: 1,
+              borderColor: defaultTheme.palette.input.borderLightPurple,
+              backgroundColor: LIGHT_PURPLE,
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+            }}
+          >
+            <Typography
+              fontSize={14}
+              fontWeight={'medium'}
+              style={{ color: defaultTheme.palette.typography.darkPurple }}
+            >
+              It’s free!
+            </Typography>
+          </View>
+
+          {/* Body copy */}
+          <Typography fontSize={14} color={'subtitle'} style={{ textAlign: 'center', maxWidth: 320 }}>
+            Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.
           </Typography>
         </View>
 
-        {/* Body copy */}
-        <Typography fontSize={14} color={'subtitle'} style={{ textAlign: 'center', marginBottom: 32, maxWidth: 320 }}>
-          Messages are still end-to-end encrypted, joining will be faster, and Quiet will work much better on iPhones.
-        </Typography>
-
-        {/* Primary CTA */}
-        <View style={{ width: '100%', marginBottom: 16 }}>
+        {/* Actions */}
+        <View style={{ width: 'auto', gap: GAP_ACTIONS }}>
           <Button title={'Add server'} onPress={handleUseServer} />
-          {/** If you want to match the screenshot label exactly, change the title to 'Add server' **/}
-        </View>
-
-        {/* Secondary CTA */}
-        <View style={{ width: '100%', marginBottom: 24 }}>
           <Button title={'Not now'} onPress={handleNotNow} negative />
         </View>
 
         {/* Divider */}
-        <View style={{ width: '100%', marginTop: 24 }}>
+        <View style={{ width: '100%' }}>
           <View style={{ width: '100%', height: 1, backgroundColor: defaultTheme.palette.appBar.gray }} />
         </View>
 
         {/* Don’t show again checkbox */}
         <TouchableOpacity
-          style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, paddingVertical: 8 }}
+          style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}
           onPress={() => setDontShowAgain(v => !v)}
           testID={'server-offer-dont-show-again'}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}

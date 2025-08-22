@@ -129,7 +129,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 + 24 }}>
           <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
         </View>
       </KeyboardAvoidingView>

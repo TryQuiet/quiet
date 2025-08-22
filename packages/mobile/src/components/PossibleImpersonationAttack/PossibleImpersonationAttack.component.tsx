@@ -4,7 +4,6 @@ import { View, Image, StyleSheet } from 'react-native'
 import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
 import { icons } from '../../assets'
-import { Button } from '../Button/Button.component'
 import { PossibleImpersonationAttackComponentProps } from '../../screens/PossibleImpersonationAttack/PossibleImpersonationAttack.types'
 
 const classes = StyleSheet.create({

@@ -50,10 +50,10 @@ export const DeleteChannel: FC<DeleteChannelProps> = ({ name, deleteChannel, han
             will be removed from the community. This cannot be undone.
           </Typography>
         </View>
-        <View style={{ paddingTop: 16 }}>
+        <View style={{ paddingTop: 16 + 24 }}>
           <Button title={'Delete channel'} onPress={onPress} loading={loading} />
         </View>
-        <View>
+        <View style={{ paddingTop: 24 }}>
           <Button title={'Never mind'} onPress={goBack} negative />
         </View>
       </View>

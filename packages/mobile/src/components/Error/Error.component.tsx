@@ -31,7 +31,7 @@ export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
       <Typography fontSize={14} horizontalTextAlign={'center'} style={{ margin: 10, maxWidth: 300 }}>
         {message}
       </Typography>
-      <View style={{ width: 100 }}>
+      <View style={{ width: 100, marginTop: 24 }}>
         <Button title={'Continue'} onPress={onPress} />
       </View>
     </View>
