@@ -5,5 +5,10 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { ServerOffer } from './ServerOffer.component'
 
 storiesOf('ServerOffer', module).add('Default', () => (
-  <ServerOffer visible={true} onClose={storybookLog('Server offer closed')} />
+  <ServerOffer
+    visible={true}
+    onClose={storybookLog('Server offer closed')}
+    handleDontShowAgainChange={storybookLog('Dont show again toggled')}
+    showDontShowAgain={true}
+  />
 ))

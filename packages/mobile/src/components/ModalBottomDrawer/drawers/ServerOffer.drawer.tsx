@@ -40,7 +40,7 @@ export const ServerOfferDrawer: React.FC<ServerOfferDrawerProps> = ({ visible, o
         visible={visible}
         onClose={handleOfferClose}
         handleDontShowAgainChange={setDontShowAgain}
-        showDontShowAgain
+        showDontShowAgain={showDontShowAgain}
       />
     </ModalBottomDrawer>
   )

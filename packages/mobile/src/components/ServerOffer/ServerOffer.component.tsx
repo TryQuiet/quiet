@@ -96,9 +96,11 @@ export const ServerOffer: FC<ServerOfferProps> = ({
         </View>
 
         {/* Divider */}
-        <View style={{ width: '100%' }}>
-          <View style={{ width: '100%', height: 1, backgroundColor: defaultTheme.palette.appBar.gray }} />
-        </View>
+        {showDontShowAgain && (
+          <View style={{ width: '100%' }}>
+            <View style={{ width: '100%', height: 1, backgroundColor: defaultTheme.palette.appBar.gray }} />
+          </View>
+        )}
 
         {/* Don’t show again checkbox */}
         {showDontShowAgain && (

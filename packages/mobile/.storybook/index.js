@@ -39,6 +39,7 @@ configure(() => {
   require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
   require('../src/components/FileAttachmentPreview/FileAttachmentPreview.stories')
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
+  require('../src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({
