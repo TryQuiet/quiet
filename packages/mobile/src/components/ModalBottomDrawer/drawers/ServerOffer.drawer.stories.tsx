@@ -16,12 +16,12 @@ const ServerOfferDrawerStory = () => {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 20 }}>
       <Button title='Show Drawer' onPress={() => setVisible(true)} />
       <Button title='Toggle DSA checkbox' onPress={() => setShowDontShowAgain(!showDontShowAgain)} />
       <ServerOfferDrawer visible={visible} onClose={handleClose} showDontShowAgain={showDontShowAgain} />
       {lastResult && (
-        <View style={{ marginTop: 20 }}>
+        <View>
           <Button
             title={`Last: useServer=${lastResult.useServer ? 'true' : 'false'}, dontShowAgain=${
               lastResult.dontShowAgain ? 'true' : 'false'
