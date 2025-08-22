@@ -121,9 +121,10 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export interface ServerOfferComponentProps {
   open: boolean
   handleClose: (selection: boolean) => void
+  showDontShowAgain?: boolean
 }
 
-export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open, handleClose }) => {
+export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open, handleClose, showDontShowAgain }) => {
   const [dontShowAgain, setDontShowAgain] = useState(false)
 
   const persistPreference = useCallback(() => {}, [dontShowAgain])
@@ -180,19 +181,23 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
             </Button>
           </Grid>
         </StyledGrid>
-        <Grid item className={classes.dividerWrap}>
-          <Divider />
-        </Grid>
+        {showDontShowAgain && (
+          <Grid item className={classes.dividerWrap}>
+            <Divider />
+          </Grid>
+        )}
 
-        <Grid item>
-          <FormControlLabel
-            className={classes.mutedAction}
-            control={
-              <Checkbox color='primary' checked={dontShowAgain} onChange={e => setDontShowAgain(e.target.checked)} />
-            }
-            label='Don’t show this again'
-          />
-        </Grid>
+        {showDontShowAgain && (
+          <Grid item>
+            <FormControlLabel
+              className={classes.mutedAction}
+              control={
+                <Checkbox color='primary' checked={dontShowAgain} onChange={e => setDontShowAgain(e.target.checked)} />
+              }
+              label='Don’t show this again'
+            />
+          </Grid>
+        )}
       </StyledGrid>
     </Modal>
   )

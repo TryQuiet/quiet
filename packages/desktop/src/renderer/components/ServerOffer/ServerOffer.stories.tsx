@@ -17,6 +17,7 @@ const args: ServerOfferComponentProps = {
     // eslint-disable-next-line no-console
     console.info('ServerOffer closed with selection:', selection)
   },
+  showDontShowAgain: true,
 }
 
 Component.args = args
