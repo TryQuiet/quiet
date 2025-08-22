@@ -14,7 +14,7 @@ exports[`Notifier component should match inline snapshot 1`] = `
   <Image
     source={
       {
-        "testUri": "../../../assets/icons/update_graphics.png",
+        "testUri": "../../../src/assets/icons/png/update_graphics.png",
       }
     }
     style={

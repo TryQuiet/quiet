@@ -1,6 +1,6 @@
 import React, { FC, useCallback } from 'react'
 import { TouchableWithoutFeedback, View, Image } from 'react-native'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 
 import { MessageSendButtonProps } from './MessageSendButton.types'
 
@@ -11,7 +11,7 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({ onPress, disable
     }
   }, [disabled, onPress])
 
-  const icon = disabled ? appImages.icon_send_disabled : appImages.icon_send
+  const icon = disabled ? icons.icon_send_disabled : icons.icon_send
 
   return (
     <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>

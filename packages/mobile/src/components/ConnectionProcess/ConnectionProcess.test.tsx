@@ -39,7 +39,7 @@ describe('ConnectionProcessComponent', () => {
             collapsable={false}
             source={
               {
-                "testUri": "../../../assets/icons/join-community.png",
+                "testUri": "../../../src/assets/icons/png/join-community.png",
               }
             }
             style={

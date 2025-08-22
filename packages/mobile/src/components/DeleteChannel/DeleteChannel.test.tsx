@@ -93,7 +93,7 @@ describe('DeleteChannel component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/arrow_left.png",
+                      "testUri": "../../../src/assets/icons/png/arrow_left.png",
                     }
                   }
                   style={
