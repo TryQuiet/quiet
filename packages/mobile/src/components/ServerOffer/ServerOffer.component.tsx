@@ -17,10 +17,8 @@ const CHECK_RADIUS = 2
 
 const SPACING_UNIT = 8
 const GAP_CONTENT = SPACING_UNIT * 3 // 24px;
-const GAP_TEXT = SPACING_UNIT * 2 // 16px;
+const GAP_TEXT = SPACING_UNIT * 1 // 16px;
 const GAP_ACTIONS = SPACING_UNIT * 2 // 16px;
-const PADDING_H = SPACING_UNIT * 4 // 32px;
-const PADDING_TEXT_H = SPACING_UNIT * 3 // 24px;
 
 export interface ServerOfferProps {
   visible: boolean
@@ -48,7 +46,7 @@ export const ServerOffer: FC<ServerOfferProps> = ({ visible, onClose }) => {
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'server-offer-component'}>
       {/* Top app bar */}
       {/** If Appbar is not available in your project, remove this and keep the rest **/}
-      <Appbar title={'Want a server?'} back={handleNotNow} />
+      <Appbar title={''} back={handleNotNow} />
 
       {/* Content */}
       <View
@@ -63,7 +61,7 @@ export const ServerOffer: FC<ServerOfferProps> = ({ visible, onClose }) => {
         <View style={{ alignItems: 'center', gap: GAP_TEXT }}>
           {/* Icon */}
           <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center' }}>
-            <ServerBoxIcon />
+            <ServerBoxIcon size={64} />
           </View>
 
           {/* Title */}
