@@ -38,7 +38,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`&.${classes.contentWrap}`]: {
     width: '100%',
-    height: '100%',
+    flex: 1,
+    display: 'flex',
     gap: theme.spacing(3),
     padding: theme.spacing(0, 4),
     alignItems: 'center',
@@ -138,7 +139,7 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
   )
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} testIdPrefix='ServerOffer'>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader={true} testIdPrefix='ServerOffer'>
       <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
         <Grid item className={classes.iconContainer}>
           <ServerBoxIcon className={classes.icon} />

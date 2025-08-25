@@ -96,8 +96,6 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     zIndex: 2,
   },
   [`& .${classes.progressBarWrapper}`]: {
-    // margin: '16px 0 40px',
-
     margin: '16px 0 20px',
   },
 }))
@@ -120,7 +118,13 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   logger.info('Generating JoiningPanelComponent with props:', { open, connectionInfo, isOwner })
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
-      <StyledGrid container justifyContent='center' className={classes.root} width={connectionInfo.number * 3}>
+      <StyledGrid
+        container
+        justifyContent='center'
+        alignItems='center'
+        className={classes.root}
+        width={connectionInfo.number * 3}
+      >
         <Grid
           container
           alignItems='center'
@@ -152,9 +156,9 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
               </strong>
               <br />
               <br />
-              Quiet stores data on <i>your</i> community’s devices (not Big Tech’s servers!) using the battle-tested
-              privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and
-              closing this window will stop the process of joining.
+              Quiet stores data on <i>your</i> community’s devices using the battle-tested privacy tool Tor to protect
+              your information. Tor is fast once connected, but it can be slow at first, and closing this window will
+              stop the process of joining.
             </Typography>
           )}
           {!isOwner && (
