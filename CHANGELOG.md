@@ -5,6 +5,7 @@
 ### Features
 
 * Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
+* Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
 
 ### Fixes
 
