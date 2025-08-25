@@ -32,7 +32,7 @@ export const UnregisteredUsernameContextMenu: FC = () => {
           </Typography>
         </View>
 
-        <View style={{ marginTop: 12 + 24 }}>
+        <View style={{ marginTop: 12 + 12 }}>
           <Button width={60} title={'Ok'} onPress={usernameTakenContextMenu.handleClose} />
         </View>
       </View>

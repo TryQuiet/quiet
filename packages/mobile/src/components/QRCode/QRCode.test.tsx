@@ -196,7 +196,7 @@ describe('QRCode component', () => {
           <View
             style={
               {
-                "marginTop": 16,
+                "marginTop": 28,
                 "width": 124,
               }
             }
@@ -226,8 +226,8 @@ describe('QRCode component', () => {
                   "backgroundColor": "#521C74",
                   "borderRadius": 8,
                   "justifyContent": "center",
-                  "marginVertical": 12,
                   "minHeight": 45,
+                  "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
                 }

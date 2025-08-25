@@ -101,8 +101,8 @@ exports[`Notifier component should match inline snapshot 1`] = `
           "backgroundColor": "#521C74",
           "borderRadius": 8,
           "justifyContent": "center",
-          "marginVertical": 12,
           "minHeight": 50,
+          "paddingHorizontal": 20,
           "paddingVertical": 12,
           "width": 135,
         }

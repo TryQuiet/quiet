@@ -152,9 +152,9 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
               </strong>
               <br />
               <br />
-              Quiet stores data on <i>your</i> community’s devices (not Big Tech’s servers!) using the battle-tested
-              privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and
-              closing this window will stop the process of joining.
+              Quiet stores data on <i>your</i> community’s devices using the battle-tested privacy tool Tor to protect
+              your information. Tor is fast once connected, but it can be slow at first, and closing this window will
+              stop the process of joining.
             </Typography>
           )}
           {!isOwner && (

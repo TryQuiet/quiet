@@ -121,9 +121,8 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
         </Typography>
 
         <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 25 }}>
-          Quiet stores data on your community’s devices (not Big Tech’s servers!) using the battle-tested privacy tool
-          Tor to protect your information. Tor is fast once connected, but it can be slow at first, and leaving this
-          screen
+          Quiet stores data on your community’s devices using the battle-tested privacy tool Tor to protect your
+          information. Tor is fast once connected, but it can be slow at first, and leaving this screen
           {Platform.OS === 'ios' ? ' will stop the process of joining.' : ' could stop the process of joining.'}
         </Typography>
 

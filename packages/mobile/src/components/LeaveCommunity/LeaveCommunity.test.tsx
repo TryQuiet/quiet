@@ -225,7 +225,7 @@ describe('LeaveCommunity component', () => {
           <View
             style={
               {
-                "paddingTop": 16,
+                "paddingTop": 28,
               }
             }
           >
@@ -254,8 +254,8 @@ describe('LeaveCommunity component', () => {
                   "backgroundColor": "#521C74",
                   "borderRadius": 8,
                   "justifyContent": "center",
-                  "marginVertical": 12,
                   "minHeight": 45,
+                  "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
                 }
@@ -283,7 +283,13 @@ describe('LeaveCommunity component', () => {
               </Text>
             </View>
           </View>
-          <View>
+          <View
+            style={
+              {
+                "paddingTop": 12,
+              }
+            }
+          >
             <View
               accessibilityState={
                 {
@@ -309,8 +315,8 @@ describe('LeaveCommunity component', () => {
                   "backgroundColor": "transparent",
                   "borderRadius": 8,
                   "justifyContent": "center",
-                  "marginVertical": 0,
                   "minHeight": 45,
+                  "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
                 }

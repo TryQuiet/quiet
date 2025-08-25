@@ -49,10 +49,10 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({ name, leaveCommunity, 
             will be deleted from this device. This cannot be undone.
           </Typography>
         </View>
-        <View style={{ paddingTop: 16 + 24 }}>
+        <View style={{ paddingTop: 16 + 12 }}>
           <Button title={'Leave community'} onPress={onPress} loading={loading} />
         </View>
-        <View style={{ paddingTop: 24 }}>
+        <View style={{ paddingTop: 12 }}>
           <Button title={"Never mind, I'll stay"} onPress={goBack} negative />
         </View>
       </View>

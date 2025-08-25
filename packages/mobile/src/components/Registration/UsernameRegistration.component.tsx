@@ -155,7 +155,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           </View>
         )}
 
-        <View style={{ marginTop: 20 + 24 }}>
+        <View style={{ marginTop: 20 + 12 }}>
           <Button
             disabled={Boolean(inputError) || loading}
             onPress={onPress}
