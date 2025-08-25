@@ -21,7 +21,11 @@ export const CreateCommunityScreen: FC = () => {
 
   const handleCommunityNameSubmit = useCallback((name: string) => {
     setPendingName(name)
-    setShowServerOffer(true)
+    if (process.env.QSS_ALLOWED === 'true') {
+      setShowServerOffer(true)
+    } else {
+      handleServerOfferClose(false, false)
+    }
   }, [])
 
   const handleServerOfferClose = useCallback(
