@@ -38,7 +38,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`&.${classes.contentWrap}`]: {
     width: '100%',
-    height: '100%',
+    flex: 1,
+    display: 'flex',
     gap: theme.spacing(3),
     padding: theme.spacing(0, 4),
     alignItems: 'center',
@@ -121,28 +122,18 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export interface JoiningOptInComponentProps {
   open: boolean
   handleClose: (selection: boolean) => void
-  showDontShowAgain?: boolean
 }
 
-export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({
-  open,
-  handleClose,
-  showDontShowAgain,
-}) => {
-  const [dontShowAgain, setDontShowAgain] = useState(false)
-
-  const persistPreference = useCallback(() => {}, [dontShowAgain])
-
+export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({ open, handleClose }) => {
   const onChoose = useCallback(
     (useServer: boolean) => {
-      persistPreference()
       handleClose(useServer)
     },
-    [persistPreference, handleClose]
+    [handleClose]
   )
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} testIdPrefix='JoiningOptIn'>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader testIdPrefix='JoiningOptIn'>
       <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
         <Grid item className={classes.iconContainer}>
           <ServerBoxIcon className={classes.icon} />
@@ -153,7 +144,7 @@ export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({
           </Grid>
           <Grid item>
             <Typography className={classes.info}>
-              Your community admins have added a server (qss.tryquiet.org) for more speed and reliability. Quiet will
+              This community's admins have added a server (qss.tryquiet.org) for more speed and reliability. Quiet will
               connect to the server without Tor, so this comes at the cost of Tor's anonymity protection. Would you like
               to use the server or leave the community?
             </Typography>
@@ -183,23 +174,6 @@ export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({
             </Button>
           </Grid>
         </StyledGrid>
-        {showDontShowAgain && (
-          <Grid item className={classes.dividerWrap}>
-            <Divider />
-          </Grid>
-        )}
-
-        {showDontShowAgain && (
-          <Grid item>
-            <FormControlLabel
-              className={classes.mutedAction}
-              control={
-                <Checkbox color='primary' checked={dontShowAgain} onChange={e => setDontShowAgain(e.target.checked)} />
-              }
-              label='Don’t show this again'
-            />
-          </Grid>
-        )}
       </StyledGrid>
     </Modal>
   )
