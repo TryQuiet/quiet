@@ -4,7 +4,6 @@
 
 ### Features
 
-* Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
 * Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
 
 ### Fixes
@@ -29,6 +28,7 @@
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
 * Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
 * Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
+* Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
 
 ### Security
 
