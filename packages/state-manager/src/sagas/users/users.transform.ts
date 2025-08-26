@@ -4,7 +4,11 @@ import { UsersState } from './users.slice'
 
 export const UsersTransform = createTransform(
   (inboundState: UsersState, _key: any) => {
-    return { ...inboundState }
+    const { saveUserProfileError, ...rest } = inboundState
+    return {
+      ...rest,
+      saveUserProfileError: null,
+    }
   },
   (outboundState: UsersState, _key: any) => {
     // TODO: determine if we still need this transform
@@ -13,6 +17,7 @@ export const UsersTransform = createTransform(
     // or we might want to remove user profiles that are not in the sigchain
     return {
       ...outboundState,
+      saveUserProfileError: null,
     }
   },
   { whitelist: [StoreKeys.Users] }

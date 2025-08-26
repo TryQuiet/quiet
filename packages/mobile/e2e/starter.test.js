@@ -4,6 +4,7 @@ import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
 import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
+import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
 const { ios } = info
 
@@ -43,20 +44,21 @@ describe('User', () => {
 
     if (!ios) await device.pressBack()
 
+    await device.disableSynchronization()
     await press(element(by.text('Continue')), true)
-
-    await waitFor(element(by.text('Register a username')))
-      .toBeVisible()
-      .withTimeout(BASIC)
   })
 
   test('enters username', async () => {
+    await waitFor(element(by.text('Register a username')))
+      .toBeVisible()
+      .withTimeout(BASIC)
     const componentName = 'username-registration-component'
     await checkVisualRegression(componentName)
 
     await write(element(by.id('input')), 'rick')
 
     await press(element(by.text('Continue')), true)
+    await device.enableSynchronization()
   })
 
   // test('should see connection process screen', async () => {
@@ -74,8 +76,10 @@ describe('User', () => {
   test('minimizes and restores the app', async () => {
     await device.sendToHome()
 
-    await new Promise((resolve) => {
-      setTimeout(() => { resolve() }, 3000)
+    await new Promise(resolve => {
+      setTimeout(() => {
+        resolve()
+      }, 3000)
     })
 
     await device.launchApp({ newInstance: false })
@@ -212,5 +216,95 @@ describe('User', () => {
     await waitFor(element(by.text('Join community')))
       .toBeVisible()
       .withTimeout(STARTUP)
+  })
+
+  test('should see join community screen again', async () => {
+    await waitFor(element(by.text('Join community')))
+      .toBeVisible()
+      .withTimeout(STARTUP)
+
+    const componentName = 'join-community-component'
+    await checkVisualRegression(componentName)
+  })
+  test('should not see create community screen', async () => {
+    await waitFor(element(by.text('Create a community')))
+      .not.toBeVisible()
+      .withTimeout(BASIC)
+  })
+
+  test('switches to create community screen', async () => {
+    await press(element(by.text('create a new community')))
+
+    await waitFor(element(by.text('Create a community')))
+      .toBeVisible()
+      .withTimeout(BASIC)
+
+    const componentName = 'create-community-component'
+    await checkVisualRegression(componentName)
+  })
+  test('enters community name again', async () => {
+    await write(element(by.id('input')), 'rockets')
+
+    if (!ios) await device.pressBack()
+
+    await device.disableSynchronization()
+    await press(element(by.text('Continue')), true)
+  })
+
+  test('enters username again', async () => {
+    await waitFor(element(by.text('Register a username')))
+      .toBeVisible()
+      .withTimeout(BASIC)
+
+    const componentName = 'username-registration-component'
+    await checkVisualRegression(componentName)
+
+    await write(element(by.id('input')), 'rick')
+
+    await press(element(by.text('Continue')), true)
+    await device.enableSynchronization()
+  })
+
+  test('should see channels list again', async () => {
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(LONG)
+  })
+  test('minimizes and restores the app', async () => {
+    await device.sendToHome()
+
+    await new Promise(resolve => {
+      setTimeout(() => {
+        resolve()
+      }, 3000)
+    })
+
+    await device.launchApp({ newInstance: false })
+
+    // User comes back to channel list
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(STARTUP)
+  })
+
+  test('enters #general channel', async () => {
+    await press(element(by.text('#general')))
+
+    await waitFor(element(by.id('chat_general')))
+      .toBeVisible()
+      .withTimeout(BASIC)
+  })
+
+  test('sends message to #general channel', async () => {
+    await press(element(by.id('input')))
+    await write(element(by.id('input')), 'We are no strangers to love')
+
+    await press(element(by.id('send_message_button')), true)
+
+    await waitFor(element(by.id('We are no strangers to love')))
+      .toBeVisible()
+      .withTimeout(BASIC)
+
+    if (!ios) await device.pressBack()
   })
 })

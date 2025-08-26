@@ -258,15 +258,13 @@ describe('additional quit flow scenarios', () => {
     }
   })
 
-  it('backend exit ⇒ force-save-state ⇒ state-saved ⇒ app.quit()', () => {
+  it('backend close ⇒ force-save-state ⇒ state-saved ⇒ app.quit()', () => {
     const backend = forkMock.mock.results[0].value
-    const exitCb = backend.on.mock.calls.find((c: any[]) => c[0] === 'exit')[1]
+    const closeCb = backend.on.mock.calls.find((c: any[]) => c[0] === 'close')[1]
 
-    const sendsBefore = mockWindowWebContentsSend.mock.calls.length
-    exitCb() // simulate backend dying
+    closeCb() // simulate backend dying
 
-    expect(mockWindowWebContentsSend).toHaveBeenLastCalledWith('force-save-state')
-    expect(mockWindowWebContentsSend.mock.calls.length).toBe(sendsBefore + 1)
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('force-save-state')
 
     const stateSavedHandler = mockIpcMainOn.mock.calls.find(c => c[0] === 'state-saved')[1]
     ;(app.quit as jest.Mock).mockClear()

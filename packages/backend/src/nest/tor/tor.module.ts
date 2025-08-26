@@ -9,6 +9,9 @@ import * as os from 'os'
 import * as child_process from 'child_process'
 import crypto from 'crypto'
 import { SocketModule } from '../socket/socket.module'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('TorModule')
 
 const torParamsProvider = {
   provide: TOR_PARAMS_PROVIDER,
@@ -21,6 +24,8 @@ const torParamsProvider = {
       },
       // detached: true, // TODO: check if this is needed
     }
+
+    logger.info('Tor Params Provider:', JSON.stringify({ torPath, options }, null, 2))
 
     return { torPath, options }
   },

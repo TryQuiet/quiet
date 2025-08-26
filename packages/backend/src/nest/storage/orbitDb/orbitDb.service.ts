@@ -69,6 +69,11 @@ export class OrbitDbService {
     })
 
     this.orbitDbInstance = orbitDb
+
+    ipfs.libp2p.addEventListener('peer:connect', async event => {
+      this.logger.info('Peer connected. Attempting to join heads they may have ancestors of')
+      await this.joinPendingHeads()
+    })
   }
 
   public async startSync(address?: string) {

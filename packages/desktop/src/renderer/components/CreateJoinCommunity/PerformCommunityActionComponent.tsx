@@ -229,7 +229,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   }, [open])
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled} zIndex={1300}>
       <StyledModalContent container direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
