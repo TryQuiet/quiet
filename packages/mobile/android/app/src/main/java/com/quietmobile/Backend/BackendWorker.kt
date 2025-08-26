@@ -1,5 +1,6 @@
 package com.quietmobile.Backend
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.os.Build
@@ -58,6 +59,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
          * rn‑bridge.
          */
         @JvmStatic
+        @SuppressLint("UnusedMethod")
         fun handleNodeMessages(channelName: String, msg: String?) {
             if (channelName == "_EVENTS_" && msg != null) {
                 try {
@@ -164,17 +166,17 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val socketPort = Utils.getOpenPort(11000)
 
             val socketIOSecretBytes = sodium.randomBytesBuf(32)
-            BackendWorker.socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
+            socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
 
-            (applicationContext as MainApplication).setSocketPort(socketPort)
-            (applicationContext as MainApplication).setSocketIOSecret(BackendWorker.socketIOSecret)
+            (applicationContext as MainApplication).socketPort = socketPort
+            (applicationContext as MainApplication).socketIOSecret = socketIOSecret
 
             // Init nodejs project
             launch { nodeProject.init() }
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(socketPort, BackendWorker.socketIOSecret)
+                subscribePushNotifications(socketPort, socketIOSecret)
             }
 
             val dataPath = Utils.createDirectory(context)

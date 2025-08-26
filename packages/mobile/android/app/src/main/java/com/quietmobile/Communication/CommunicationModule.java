@@ -24,7 +24,6 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
-
 public class CommunicationModule extends ReactContextBaseJavaModule {
 
     public static final String APP_READY_CHANNEL = "_APP_READY_";
@@ -62,9 +61,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                 startWebsocketConnection();
                 break;
             case PUSH_NOTIFICATION_CHANNEL:
-                String message = payload;
-                String username = extra;
-                notificationHandler.notify(message, username);
+                notificationHandler.notify(payload, extra);
                 break;
             case INIT_CHECK_CHANNEL:
             case BACKEND_CLOSED_CHANNEL:
@@ -89,22 +86,21 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         if (reactContext == null) {
             Log.d("RCTNativeAppEventEmitter", "Tried to send an event but got NULL on reactContext");
         } else {
-            reactContext
-                    .getJSModule(RCTNativeAppEventEmitter.class)
-                    .emit("backend", params);
+            reactContext.getJSModule(RCTNativeAppEventEmitter.class).emit("backend", params);
         }
     }
 
     private static void startWebsocketConnection() {
         Context context = reactContext.getApplicationContext();
-        int port                = ((MainApplication) context).getSocketPort();
-        String socketIOSecret   = ((MainApplication) context).getSocketIOSecret();
+        int port = ((MainApplication) context).getSocketPort();
+        String socketIOSecret = ((MainApplication) context).getSocketIOSecret();
 
         WebsocketConnectionPayload websocketConnectionPayload = new WebsocketConnectionPayload(port, socketIOSecret);
         passDataToReact(WEBSOCKET_CONNECTION_CHANNEL, new Gson().toJson(websocketConnectionPayload));
     }
 
     @ReactMethod
+    @SuppressLint("UnusedMethod")
     private static void deleteBackendData() {
         Context context = reactContext.getApplicationContext();
         try {

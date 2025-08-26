@@ -116,7 +116,7 @@ class NodeProjectManager(private val context: Context) {
     }
 
     @Throws(IOException::class)
-    private fun copyNativeAssetsFrom(): Boolean {
+    private fun copyNativeAssetsFrom() {
         // Load the additional asset folder and files lists
         val nativeDirs = readFileFromAssets("$nativeAssetsPath/dir.list")
         val nativeFiles = readFileFromAssets("$nativeAssetsPath/file.list")
@@ -144,7 +144,6 @@ class NodeProjectManager(private val context: Context) {
                 "No assets to copy from $nativeAssetsPath"
             )
         }
-        return true
     }
 
     @Throws(IOException::class)
