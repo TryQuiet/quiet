@@ -71,7 +71,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { SigChain } from '../auth/sigchain'
-import { QSSConnectionStatus } from '../qss/qss.types'
+import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -219,13 +219,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         this.logger.info('Loading sigchain for community', community.name)
         const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
-        if (community.qssEnabled) {
-          this.qssService.enableForCommunity(loadedSigchain.team!.id)
-        }
-        const status = await this.qssService.connect(community.qssEndpoint)
-        if (status === QSSConnectionStatus.SUCCESS) {
-          await this.qssService.signInToCommunity(loadedSigchain.team!.id, loadedSigchain)
-        }
+        this.launchCommunityQSS(loadedSigchain, community)
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
       }
@@ -234,6 +228,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     await this.launchCommunity(community.id)
+  }
+
+  private async launchCommunityQSS(sigChain: SigChain, community: Community): Promise<void> {
+    if (community.qssEnabled) {
+      this.qssService.enableForCommunity(sigChain.team!.id)
+    }
+    const status = await this.qssService.connect(community.qssEndpoint)
+    if (status !== QSSOperationResult.DISABLED) {
+      await this.qssService.signInToCommunity(sigChain.team!.id, sigChain)
+    }
   }
 
   public async closeSocket() {
@@ -374,7 +378,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
     const status = await this.qssService.connect(this.qssEndpoint)
-    if (status === QSSConnectionStatus.SUCCESS) {
+    if (status !== QSSOperationResult.DISABLED) {
       await this.qssService.createCommunity(sigchain)
     }
   }
@@ -446,7 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     ) {
       this.qssService.enableForCommunity(inviteData.authData.teamId)
       const status = await this.qssService.connect(inviteData.qssEndpoint)
-      if (status === QSSConnectionStatus.SUCCESS) {
+      if (status === QSSOperationResult.SUCCESS) {
         await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
       }
     }

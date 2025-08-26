@@ -19,9 +19,10 @@ export enum WebsocketEvents {
  */
 export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
+  QSS_CONNECTED = 'qssConnected',
 }
 
-export enum QSSConnectionStatus {
+export enum QSSOperationResult {
   DISABLED = 'DISABLED',
   ERROR = 'ERROR',
   SUCCESS = 'SUCCESS',
