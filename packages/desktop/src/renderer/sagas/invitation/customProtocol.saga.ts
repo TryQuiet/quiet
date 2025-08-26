@@ -92,7 +92,7 @@ export function* customProtocolSaga(
     case InvitationDataVersion.v1:
     case InvitationDataVersion.v2:
     case InvitationDataVersion.v3:
-      joiningInProgress = Boolean(Object.keys(invitationCodes).length !== 0)
+      joiningInProgress = Boolean(invitationCodes !== null)
       break
   }
 

@@ -12,7 +12,11 @@ const JoiningOptInModal = () => {
     dispatch(communities.actions.setQssOptInResponse(useServer))
   }
 
-  return <JoiningOptInComponent open={waitingForOptIn} onChoose={onChoose} />
+  // Use type guard to check for qssEndPoint property
+  const qssEndPoint =
+    invitationCodes && 'qssEndPoint' in invitationCodes ? (invitationCodes as any).qssEndPoint : undefined
+
+  return <JoiningOptInComponent open={waitingForOptIn} onChoose={onChoose} qssEndPoint={qssEndPoint} />
 }
 
 export default JoiningOptInModal

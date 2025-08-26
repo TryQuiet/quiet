@@ -140,9 +140,9 @@ export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({ op
           </Grid>
           <Grid item>
             <Typography className={classes.info}>
-              This community's admins have added a server (qss.tryquiet.org) for more speed and reliability. Quiet will
-              connect to the server without Tor, so this comes at the cost of Tor's anonymity protection. Would you like
-              to use the server or leave the community?
+              This community's admins have added a server ({qssEndPoint ?? 'qss.tryquiet.org'}) for more speed and
+              reliability. Quiet will connect to the server without Tor, so this comes at the cost of Tor's anonymity
+              protection. Would you like to use the server or leave the community?
             </Typography>
           </Grid>
         </StyledGrid>

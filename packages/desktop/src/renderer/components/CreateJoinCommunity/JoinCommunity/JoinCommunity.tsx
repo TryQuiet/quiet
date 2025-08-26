@@ -62,7 +62,7 @@ const JoinCommunity = () => {
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={Boolean(Object.keys(invitationCodes).length === 0)}
+      hasReceivedResponse={invitationCodes === null}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
     />

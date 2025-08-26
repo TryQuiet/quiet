@@ -13,7 +13,7 @@ import { createLogger } from '../../utils/logger'
 const logger = createLogger('communitiesSlice')
 
 export class CommunitiesState {
-  public invitationCodes: Record<string, InvitationData> = {}
+  public invitationCodes: InvitationData | null = null
   public currentCommunity = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
   public qssOptInRequested = false
@@ -55,11 +55,11 @@ export const communitiesSlice = createSlice({
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
       logger.info('Setting invitation codes', action.payload)
-      state.invitationCodes[action.payload.psk] = action.payload
+      state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {
       logger.info('Clearing invitation codes')
-      state.invitationCodes = {}
+      state.invitationCodes = null
     },
     requestQssOptIn: state => {
       state.qssOptInRequested = true
