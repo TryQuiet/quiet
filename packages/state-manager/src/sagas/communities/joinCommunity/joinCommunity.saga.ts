@@ -7,6 +7,7 @@ import {
   type Community,
   CommunityOwnership,
   type InitCommunityPayload,
+  InvitationDataVersion,
   JoinCommunityPayload,
   ResponseJoinCommunityPayload,
   SocketActions,
@@ -26,16 +27,32 @@ export function* joinCommunitySaga(
   const { inviteData } = action.payload as JoinCommunityPayload
 
   const communityId = yield* call(generateId)
-
   // Setting invitationCodes to mark that we are in the process of joining a community
   yield* put(communitiesActions.setInvitationCodes(inviteData))
 
-  yield* put(
-    communitiesActions.addNewCommunity({
-      id: communityId,
-      ownership: CommunityOwnership.User,
-    } as Community)
-  )
+  const communityCandidate: Community = {
+    id: communityId,
+    ownership: CommunityOwnership.User,
+    inviteData: inviteData,
+  }
+
+  if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
+    yield* put(communitiesActions.requestQssOptIn())
+    const qssOptInResponseAction: ReturnType<typeof communitiesActions.setQssOptInResponse> = yield* take(
+      communitiesActions.setQssOptInResponse
+    )
+    if (qssOptInResponseAction.payload) {
+      logger.info('User opted in to QSS')
+      communityCandidate.qssEnabled = true
+      communityCandidate.qssEndpoint = inviteData.qssEndpoint
+    } else {
+      logger.info('User opted out of QSS')
+      yield* put(communitiesActions.clearInvitationCodes())
+      return
+    }
+  }
+
+  yield* put(communitiesActions.addNewCommunity(communityCandidate))
   yield* put(communitiesActions.setCurrentCommunity(communityId))
 
   logger.info('Waiting for user to register username')

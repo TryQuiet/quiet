@@ -161,6 +161,10 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
   const waitingForResponse = formSent && !hasReceivedResponse
 
+  if (hasReceivedResponse && formSent) {
+    setFormSent(false)
+  }
+
   const dictionary =
     communityOwnership === CommunityOwnership.Owner
       ? CreateCommunityDictionary(handleRedirection)

@@ -34,6 +34,7 @@ import DuplicateModalContainer from './components/widgets/userLabel/duplicate/Du
 import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
+import JoiningOptInModal from './components/ServerOffer/JoiningOptIn/JoiningOptin.modal'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -59,6 +60,7 @@ export default () => {
                 <JoinCommunity />
                 <CreateCommunity />
                 <CreateUsername />
+                <JoiningOptInModal />
                 <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />

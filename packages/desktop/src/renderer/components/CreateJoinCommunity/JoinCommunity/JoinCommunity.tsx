@@ -13,7 +13,7 @@ const JoinCommunity = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const invitationCodes = useSelector(communities.selectors.invitationCodes)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
@@ -62,7 +62,7 @@ const JoinCommunity = () => {
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={Boolean(currentIdentity)}
+      hasReceivedResponse={Boolean(Object.keys(invitationCodes).length === 0)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
     />

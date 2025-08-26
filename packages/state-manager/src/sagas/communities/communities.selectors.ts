@@ -55,6 +55,10 @@ export const isOwner = createSelector(currentCommunity, currentCommunity => {
   return Boolean(currentCommunity?.ownership === CommunityOwnership.Owner)
 })
 
+export const qssOptInRequested = createSelector(communitiesSlice, reducerState => {
+  return reducerState.qssOptInRequested
+})
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
@@ -66,4 +70,5 @@ export const communitiesSelectors = {
   ownerOrbitDbIdentity,
   psk,
   isOwner,
+  qssOptInRequested,
 }

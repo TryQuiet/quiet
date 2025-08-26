@@ -1,12 +1,8 @@
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
-import Chip from '@mui/material/Chip'
 
 import Modal from '../../ui/Modal/Modal'
 import Button from '@mui/material/Button'
@@ -121,17 +117,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export interface JoiningOptInComponentProps {
   open: boolean
-  handleClose: (selection: boolean) => void
+  onChoose: (useServer: boolean) => void
+  qssEndPoint?: string
 }
 
-export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({ open, handleClose }) => {
-  const onChoose = useCallback(
-    (useServer: boolean) => {
-      handleClose(useServer)
-    },
-    [handleClose]
-  )
-
+export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({ open, onChoose, handleClose }) => {
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader testIdPrefix='JoiningOptIn'>
       <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>

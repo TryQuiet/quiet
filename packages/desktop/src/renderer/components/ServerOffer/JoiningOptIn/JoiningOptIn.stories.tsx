@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../../storybook/decorators'
 
-import { JoiningOptInComponent, JoiningOptInComponentProps } from './JoiningOptInComponent'
+import { JoiningOptInComponent, JoiningOptInComponentProps } from './JoiningOptIn.component'
 
 const Template: ComponentStory<typeof JoiningOptInComponent> = args => {
   return <JoiningOptInComponent {...args} />
@@ -13,11 +13,11 @@ export const Component = Template.bind({})
 
 const args: JoiningOptInComponentProps = {
   open: true,
-  handleClose: selection => {
+  onChoose: (useServer: boolean) => {
     // eslint-disable-next-line no-console
-    console.info('JoiningOptIn closed with selection:', selection)
+    console.log('User choice:', useServer ? 'Use server' : 'Do not use server')
   },
-  showDontShowAgain: true,
+  qssEndPoint: 'qss.tryquiet.org',
 }
 
 Component.args = args

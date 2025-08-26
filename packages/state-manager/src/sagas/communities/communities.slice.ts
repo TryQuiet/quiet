@@ -16,6 +16,8 @@ export class CommunitiesState {
   public invitationCodes: Record<string, InvitationData> = {}
   public currentCommunity = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
+  public qssOptInRequested = false
+  public qssOptInResponse: boolean | null = null
 }
 
 export const communitiesSlice = createSlice({
@@ -58,6 +60,14 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       logger.info('Clearing invitation codes')
       state.invitationCodes = {}
+    },
+    requestQssOptIn: state => {
+      state.qssOptInRequested = true
+      state.qssOptInResponse = null
+    },
+    setQssOptInResponse: (state, action: PayloadAction<boolean>) => {
+      state.qssOptInResponse = action.payload
+      state.qssOptInRequested = false
     },
   },
 })
