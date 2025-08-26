@@ -121,9 +121,15 @@ export interface JoiningOptInComponentProps {
   qssEndPoint?: string
 }
 
-export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({ open, onChoose, handleClose }) => {
+export const JoiningOptInComponent: React.FC<JoiningOptInComponentProps> = ({ open, onChoose, qssEndPoint }) => {
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader testIdPrefix='JoiningOptIn'>
+    <Modal
+      open={open}
+      handleClose={() => onChoose(false)}
+      isCloseDisabled={true}
+      withoutHeader
+      testIdPrefix='JoiningOptIn'
+    >
       <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
         <Grid item className={classes.iconContainer}>
           <ServerBoxIcon className={classes.icon} />
