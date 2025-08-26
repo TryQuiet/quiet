@@ -46,7 +46,6 @@ const pendingGeneralChannelRecreation = createSelector(selectState, state => {
 })
 
 export const subscribedChannels = createSelector(selectChannelsSubscriptions, subscriptions => {
-  logger.info('selectChannelsSubscriptions', subscriptions)
   return subscriptions.map(subscription => {
     if (subscription.subscribed) return subscription.id
   })
@@ -184,7 +183,7 @@ export const displayableCurrentChannelMessages = createSelector(
         // @ts-ignore
         result.push(displayableMessage(message, users[message.userId]))
       } else {
-        logger.warn('Received a message from a user that does not exist', message.id, message.userId)
+        logger.warn('User Profile not found. Cannot display:', message.id, message.userId)
       }
       return result
     }, [])
@@ -196,7 +195,7 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
 })
 
 /**
- * Channel messages grouped by day
+ * Channel display messages grouped by day
  */
 export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
   const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
@@ -215,8 +214,7 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
 
 /**
  * Channel messages grouped by day and then additionally by sender (if
- * there are successive messages by the same sender). Also adds a
- * profile photo to the first message of each user.
+ * there are successive messages by the same sender)
  */
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
@@ -286,13 +284,11 @@ export const unreadChannels = createSelector(channelsStatus, status => {
 
 export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
   const messageCount = Object.values(currentChannelMessages).length
-  logger.info(`Number of messages: ${messageCount}`)
   return messageCount > 0
 })
 
 export const areChannelsLoaded = createSelector(publicChannels, channels => {
   const channelCount = channels.length
-  logger.info(`Number of channels: ${channelCount}`)
   return channelCount > 0
 })
 

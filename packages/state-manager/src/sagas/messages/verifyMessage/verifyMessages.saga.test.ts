@@ -119,7 +119,7 @@ describe('verifyMessage saga test', () => {
     const action = await factory.build('AddMessages', {
       messages: [
         await baseTypes.build('ChannelMessage', {
-          userId: owner.userId,
+          userId: 'unknownUser',
           channelId: generalChannel.id,
           type: MessageType.Basic,
         }),

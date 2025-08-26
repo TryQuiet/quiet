@@ -22,6 +22,7 @@ import {
   type SetDisplayedMessagesNumberPayload,
   type WriteMessagePayload,
   MessageSendingStatusPayload,
+  VerifyMessagesPayload,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -125,6 +126,8 @@ export const messagesSlice = createSlice({
     lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
     extendCurrentPublicChannelCache: state => state,
     resetCurrentPublicChannelCache: state => state,
+    verifyMessages: (state, _action: PayloadAction<MessagesLoadedPayload>) => state,
+    retryVerification: (state, _action: PayloadAction<VerifyMessagesPayload>) => state,
     // Utility action for testing purposes
     test_message_verification_status: (
       state,

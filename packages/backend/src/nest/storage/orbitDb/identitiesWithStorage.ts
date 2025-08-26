@@ -1,10 +1,11 @@
-import { ComposedStorage, Identities, IdentitiesType, IPFSBlockStorage, LRUStorage, MemoryStorage } from '@orbitdb/core'
-import { Helia } from 'helia'
+import { ComposedStorage, Identities, IdentitiesType, LRUStorage, MemoryStorage } from '@orbitdb/core'
+import { HeliaLibp2p } from 'helia'
 import { KeystoreWithStorage } from './keystoreWithStorage'
 import { OrbitDbService } from './orbitDb.service'
 import { posixJoin } from './util'
+import IPFSBlockStorage from './ipfsBlockStorage'
 
-export const IdentitiesWithStorage = async (orbitDbDir: string, ipfs: Helia): Promise<IdentitiesType> => {
+export const IdentitiesWithStorage = async (orbitDbDir: string, ipfs: HeliaLibp2p): Promise<IdentitiesType> => {
   const keystore = await KeystoreWithStorage({ path: posixJoin(orbitDbDir, './keystore') })
   const storage = await ComposedStorage(
     await LRUStorage({ size: 1000 }),
@@ -13,8 +14,8 @@ export const IdentitiesWithStorage = async (orbitDbDir: string, ipfs: Helia): Pr
   )
 
   return Identities({
-    ipfs,
     keystore,
     storage,
+    ipfs,
   })
 }

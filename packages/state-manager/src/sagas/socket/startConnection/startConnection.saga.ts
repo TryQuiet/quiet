@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
+import { all, call, fork, put, takeEvery, cancelled, take } from 'typed-redux-saga'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -51,6 +51,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof messagesActions.removePendingMessageStatuses>
     | ReturnType<typeof messagesActions.checkForMessages>
     | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
+    | ReturnType<typeof messagesActions.retryVerification>
     | ReturnType<typeof publicChannelsActions.addChannel>
     | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
     | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
@@ -170,6 +171,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
       logger.info(`${SocketEvents.USERS_UPDATED}`, payload)
       emit(usersActions.setUsers(payload.users))
+      emit(messagesActions.retryVerification({ currentChannel: true }))
     })
 
     socket.on(SocketEvents.USERS_REMOVED, (payload: UsersUpdatedEvent) => {
@@ -180,6 +182,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.updateUserProfiles(payload.profiles))
+      emit(messagesActions.retryVerification({ currentChannel: true }))
     })
     return () => undefined
   })

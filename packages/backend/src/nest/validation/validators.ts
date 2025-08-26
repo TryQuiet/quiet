@@ -58,6 +58,11 @@ const messageSchema = joi.object({
   media: messageMediaSchema.optional(),
 })
 
+// extends messageSchema to include "verified" field
+const consumedChannelMessageSchema = messageSchema.append({
+  verified: joi.boolean().required(),
+})
+
 const encryptedMessageSchema = joi.object({
   id: joi.string().required(),
   contents: joi.object({
@@ -115,6 +120,12 @@ export const isDirectMessage = (msg: string): boolean => {
 export const isMessage = (msg: ChannelMessage): boolean => {
   const value = messageSchema.validate(msg)
   if (value.error) logger.error('isMessage', value.error)
+  return !value.error
+}
+
+export const isConsumedChannelMessage = (msg: ChannelMessage): boolean => {
+  const value: joi.ValidationResult = consumedChannelMessageSchema.validate(msg)
+  if (value.error) logger.error('isConsumedChannelMessage', value.error)
   return !value.error
 }
 

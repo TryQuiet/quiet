@@ -31,9 +31,7 @@ describe('New user joins using invitation link while having app opened', () => {
   beforeAll(async () => {
     ownerApp = new App()
     guestApp = new App({ defaultDataDir: true })
-    if (process.platform === 'win32') {
-      await guestApp.cleanup(true)
-    }
+    await guestApp.cleanup(true)
   })
 
   beforeEach(async () => {
@@ -96,14 +94,11 @@ describe('New user joins using invitation link while having app opened', () => {
       await settingsModal.closeTabThenModal()
     })
 
-    if (process.platform === 'darwin') {
-      // MacOS tries to open link in first app (owner's app) so the workaround is to temporarly close owner
-      // while clicking on the invitation link to have just one instance of app opened
-      it('Owner closes the app', async () => {
-        logger.info('Invitation Link', 10)
-        await ownerApp.close({ forceSaveState: true })
-      })
-    }
+    // Close owners app so that invitation link doesn't accidentally route to it
+    it('Owner closes the app', async () => {
+      logger.info('Invitation Link', 10)
+      await ownerApp.close()
+    })
 
     it('Guest opens the app', async () => {
       logger.info('Invitation Link', 11)
@@ -163,16 +158,20 @@ describe('New user joins using invitation link while having app opened', () => {
       await registerModal.submit()
     })
 
-    if (process.platform === 'darwin') {
-      // Open the owner's app again so guest would be able to register
-      it('Owner opens the app again', async () => {
-        logger.info('Invitation Link', 17)
-        logger.info('Owner opens the app again')
-        await ownerApp.open()
-        const debugModal = new DebugModeModal(ownerApp.driver)
-        await debugModal.close()
-      })
-    }
+    // Open the owner's app again so guest would be able to register
+    it('Owner opens the app again', async () => {
+      logger.info('Invitation Link', 17)
+      logger.info('Owner opens the app again')
+      await ownerApp.open()
+      const debugModal = new DebugModeModal(ownerApp.driver)
+      await debugModal.close()
+    })
+
+    it('Owner sees sees general channel', async () => {
+      logger.info('Invitation Link', 18)
+      const generalChannel = new Channel(ownerApp.driver, 'general')
+      expect(await generalChannel.isReady()).toBeTruthy()
+    })
 
     it('Guest waits to join the community', async () => {
       const joinPanel = new JoiningLoadingPanel(guestApp.driver)

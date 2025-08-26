@@ -163,7 +163,7 @@ export const runBackendDesktop = async (secret: string) => {
   // @ts-ignore
   global.crypto = webcrypto
   validateOptions(options)
-  const resourcesPath = isDev ? null : options.resourcesPath.trim()
+  const resourcesPath = options.resourcesPath.trim()
   if (!secret) {
     logger.error('Socket IO secret is not set. Please set SOCKET_IO_SECRET via IPC.')
     throw new Error('Socket IO secret is not set.')
