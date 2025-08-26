@@ -7,6 +7,7 @@
 * Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
 * Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
 * Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
+* Adds warning UI for users attempting to join a QSS assist server enabled community [#2911](https://github.com/TryQuiet/quiet/issues/2911)
 
 ### Fixes
 
