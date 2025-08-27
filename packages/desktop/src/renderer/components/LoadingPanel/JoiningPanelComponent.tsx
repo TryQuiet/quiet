@@ -96,8 +96,6 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     zIndex: 2,
   },
   [`& .${classes.progressBarWrapper}`]: {
-    // margin: '16px 0 40px',
-
     margin: '16px 0 20px',
   },
 }))
@@ -120,7 +118,13 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   logger.info('Generating JoiningPanelComponent with props:', { open, connectionInfo, isOwner })
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
-      <StyledGrid container justifyContent='center' className={classes.root} width={connectionInfo.number * 3}>
+      <StyledGrid
+        container
+        justifyContent='center'
+        alignItems='center'
+        className={classes.root}
+        width={connectionInfo.number * 3}
+      >
         <Grid
           container
           alignItems='center'

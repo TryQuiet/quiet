@@ -22,7 +22,7 @@ describe('Create JoiningPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1on48p8-MuiModal-root"
+          class="MuiModal-root css-1l68gny-MuiModal-root"
           role="presentation"
         >
           <div
@@ -39,7 +39,7 @@ describe('Create JoiningPanelComponent', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader Modalnone css-lx31tv-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
@@ -70,7 +70,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-nds1ax-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1j55u07-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -158,7 +158,7 @@ describe('Create JoiningPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1on48p8-MuiModal-root"
+          class="MuiModal-root css-1l68gny-MuiModal-root"
           role="presentation"
         >
           <div
@@ -175,7 +175,7 @@ describe('Create JoiningPanelComponent', () => {
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader Modalnone css-lx31tv-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
@@ -206,7 +206,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-nds1ax-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1j55u07-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"

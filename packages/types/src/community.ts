@@ -73,6 +73,7 @@ export interface InitCommunityPayload {
   ownerOrbitDbIdentity?: string
   inviteData?: InvitationData | null
   username: string
+  useServer?: boolean
 }
 
 export interface ResponseLaunchCommunityPayload {

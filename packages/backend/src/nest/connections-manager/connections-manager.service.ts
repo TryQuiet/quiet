@@ -405,7 +405,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.team!.id,
-      qssEnabled: this.qssAllowed,
+      qssEnabled: this.qssAllowed && payload.useServer,
       qssEndpoint: this.qssEndpoint,
     }
 
