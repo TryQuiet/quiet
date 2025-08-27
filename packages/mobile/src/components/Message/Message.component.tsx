@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { MessageType, DisplayableMessage } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
@@ -157,7 +157,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             <Image
               resizeMode='cover'
               resizeMethod='resize'
-              source={appImages.quiet_icon}
+              source={icons.quiet_icon}
               style={{ width: 37, height: 37 }}
             />
           ) : (

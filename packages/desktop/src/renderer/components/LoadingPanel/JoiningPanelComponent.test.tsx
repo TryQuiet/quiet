@@ -118,7 +118,7 @@ describe('Create JoiningPanelComponent', () => {
                       <i>
                         your
                       </i>
-                       community’s devices (not Big Tech’s servers!) using the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and closing this window will stop the process of joining.
+                       community’s devices using the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and closing this window will stop the process of joining.
                     </p>
                     <a>
                       <p

@@ -4,7 +4,7 @@ import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 import { UsernameRegistrationProps, UsernameVariant } from './UsernameRegistration.types'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Appbar } from '../Appbar/Appbar.component'
@@ -82,7 +82,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     }
   }, [variant, loading, userName])
 
-  const icon = appImages.icon_warning
+  const icon = icons.icon_warning
 
   return (
     <View
@@ -155,7 +155,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           </View>
         )}
 
-        <View style={{ marginTop: 20 }}>
+        <View style={{ marginTop: 20 + 12 }}>
           <Button
             disabled={Boolean(inputError) || loading}
             onPress={onPress}

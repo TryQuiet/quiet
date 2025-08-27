@@ -44,6 +44,7 @@ export enum CommunityOwnership {
 
 export interface CreateCommunityPayload {
   name: string
+  useServer?: boolean
 }
 
 export interface JoinCommunityPayload {

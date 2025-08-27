@@ -3,7 +3,7 @@ import { View, TouchableWithoutFeedback, Animated, Easing, Platform } from 'reac
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { Typography } from '../Typography/Typography.component'
 import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
-import JoinCommunityImg from '../../../assets/icons/join-community.png'
+import { icons } from '../../assets'
 import { Site } from '@quiet/common'
 import { ConnectionProcessInfo } from '@quiet/types'
 
@@ -63,7 +63,7 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
       >
         <Animated.Image
           style={{ transform: [{ rotate: transformValues }], width: 120, height: 120 }}
-          source={JoinCommunityImg}
+          source={icons.join_community}
         />
         <Typography
           fontSize={18}
@@ -121,9 +121,8 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
         </Typography>
 
         <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 25 }}>
-          Quiet stores data on your community’s devices (not Big Tech’s servers!) using the battle-tested privacy tool
-          Tor to protect your information. Tor is fast once connected, but it can be slow at first, and leaving this
-          screen
+          Quiet stores data on your community’s devices using the battle-tested privacy tool Tor to protect your
+          information. Tor is fast once connected, but it can be slow at first, and leaving this screen
           {Platform.OS === 'ios' ? ' will stop the process of joining.' : ' could stop the process of joining.'}
         </Typography>
 
