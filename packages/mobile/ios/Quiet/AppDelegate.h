@@ -1,6 +1,8 @@
 #import <RCTAppDelegate.h>
 #import <UIKit/UIKit.h>
-#import <Tor/Tor.h>
+#import <Tor/TORConfiguration.h>
+#import <Tor/TORController.h>
+#import <Tor/TORControlReplyCode.h>
 
 #import "RNNodeJsMobile.h"
 

@@ -6,7 +6,8 @@ use_frameworks!
 target 'Quiet' do
   config = use_native_modules!
 
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec'
+  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v408.17.4/Tor.podspec'
+
 
   use_react_native!(
     :path => config[:reactNativePath],
