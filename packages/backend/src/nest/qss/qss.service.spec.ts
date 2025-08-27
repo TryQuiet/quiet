@@ -101,7 +101,7 @@ describe('QSSService', () => {
           emit: (event: string, payload: any) => {},
           connected: true,
         } as any as ClientSocket
-        qssClient.clientSocket = socket
+        // qssClient.clientSocket = socket
         return socket
       })
     sigchainService = module.get<SigChainService>(SigChainService)

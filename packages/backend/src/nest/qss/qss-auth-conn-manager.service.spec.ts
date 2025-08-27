@@ -41,7 +41,7 @@ describe('QSSAuthConnectionManager', () => {
           on: (event: string, callback: (...args: any[]) => void) => {},
           emit: (event: string, payload: any) => {},
         } as any as ClientSocket
-        qssClient.clientSocket = socket
+        // qssClient.clientSocket = socket
         return socket
       })
     sigchainService = module.get<SigChainService>(SigChainService)

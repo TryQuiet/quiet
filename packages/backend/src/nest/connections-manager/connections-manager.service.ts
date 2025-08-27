@@ -235,9 +235,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.qssService.enableForCommunity(sigChain.team!.id)
     }
     const status = await this.qssService.connect(community.qssEndpoint)
-    if (status !== QSSOperationResult.DISABLED) {
-      await this.qssService.signInToCommunity(sigChain.team!.id, sigChain)
-    }
+    // if (status !== QSSOperationResult.DISABLED) {
+    //   await this.qssService.signInToCommunity(sigChain.team!.id, sigChain)
+    // }
   }
 
   public async closeSocket() {
@@ -378,9 +378,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
     const status = await this.qssService.connect(this.qssEndpoint)
-    if (status !== QSSOperationResult.DISABLED) {
-      await this.qssService.createCommunity(sigchain)
-    }
+    // if (status !== QSSOperationResult.DISABLED) {
+    //   await this.qssService.createCommunity(sigchain)
+    // }
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
@@ -450,9 +450,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     ) {
       this.qssService.enableForCommunity(inviteData.authData.teamId)
       const status = await this.qssService.connect(inviteData.qssEndpoint)
-      if (status === QSSOperationResult.SUCCESS) {
-        await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
-      }
+      // if (status === QSSOperationResult.SUCCESS) {
+      //   await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
+      // }
     }
   }
 

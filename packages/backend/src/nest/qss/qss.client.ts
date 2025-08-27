@@ -6,17 +6,18 @@ import { connect, type Socket as ClientSocket } from 'socket.io-client'
 
 import { createLogger } from '../common/logger'
 import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
-import { QSSConnectionError, QSSNotInitializedError, WebsocketEvents } from './qss.types'
+import { QSSConnectionError, QSSEvents, QSSNotInitializedError, WebsocketEvents } from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
 import { CompoundError } from '@quiet/types'
+import EventEmitter from 'node:events'
 
 @Injectable()
-export class QSSClient {
+export class QSSClient extends EventEmitter {
   /**
    * Socket.io socket instance
    */
-  public clientSocket: ClientSocket | undefined = undefined
+  private _clientSocket: ClientSocket | undefined = undefined
 
   private readonly logger = createLogger(`qss:client`)
 
@@ -25,7 +26,17 @@ export class QSSClient {
     @Inject(QSS_ALLOWED) private qssAllowed: boolean,
     // environment variable that determines what endpoint we connect to QSS on
     @Inject(QSS_ENDPOINT) private qssEndpoint: string
-  ) {}
+  ) {
+    super()
+  }
+
+  public get connected(): boolean {
+    return this.clientSocket != null && this.clientSocket.active && this.clientSocket.connected
+  }
+
+  public get clientSocket(): ClientSocket | undefined {
+    return this._clientSocket
+  }
 
   /**
    * Create and connect a socket.io socket to QSS
@@ -42,14 +53,14 @@ export class QSSClient {
       }
 
       // check for an existing socket instance and, if connected, return that socket and move on
-      if (this.clientSocket != null && this.clientSocket.active) {
+      if (this.connected) {
         this.logger.warn('createSocket was already called and the socket is active!')
-        return this.clientSocket
+        return this.clientSocket!
       }
 
       // create a new websocket to QSS
       this.logger.info(`Creating and connecting client socket`)
-      this.clientSocket = connect(this.qssEndpoint, {
+      this._clientSocket = connect(this.qssEndpoint, {
         autoConnect: false,
         forceNew: true,
         transports: CLIENT_TRANSPORTS,
@@ -57,7 +68,7 @@ export class QSSClient {
       // wait for socket to connect with QSS instance
       await this._waitForConnect()
 
-      return this.clientSocket
+      return this._clientSocket
     } catch (e) {
       const message = `Failed to connect to QSS, will retry later!`
       this.logger.error(message, e)
@@ -73,9 +84,32 @@ export class QSSClient {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
 
+    if (this.connected) {
+      this.logger.debug('QSS already connected')
+      return
+    }
+
+    this.clientSocket.on('connect', async (): Promise<void> => {
+      this.logger.debug('QSS connected!', this.clientSocket?.id)
+      this.emit(QSSEvents.QSS_CONNECTED)
+    })
+
+    this.clientSocket.on('disconnect', async (): Promise<void> => {
+      this.logger.debug('QSS disconnected!')
+      this.emit(QSSEvents.QSS_DISCONNECTED)
+      this.clientSocket?.close()
+    })
+
+    // forward Quiet websocket events from the socket connection to the client's own emitter
+    this.clientSocket.onAny((eventName: string, ...args: any[]): void => {
+      if (Object.values(WebsocketEvents).includes(eventName as any)) {
+        this.emit(eventName, ...args)
+      }
+    })
+
     this.clientSocket.connect()
     let count = 20
-    while (!this.clientSocket.connected) {
+    while (!this.connected) {
       if (count < 0) {
         this.logger.error('QSS client failed to connect within timeout, closing socket')
         this.close()
@@ -98,16 +132,15 @@ export class QSSClient {
    */
   public async sendMessage<T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> {
     this.logger.debug(`Sending message`, event)
-    if (this.clientSocket == null) {
-      throw new QSSNotInitializedError(`Must run createSocket first!`)
-    }
-
     try {
+      if (!this.connected) {
+        throw new QSSNotInitializedError(`Must run createSocket first!`)
+      }
       if (withAck) {
-        return (await this.clientSocket.emitWithAck(event, payload)) as T
+        return (await this.clientSocket!.emitWithAck(event, payload)) as T
       }
 
-      this.clientSocket.emit(event, payload)
+      this.clientSocket!.emit(event, payload)
     } catch (e) {
       this.logger.error('Error while sending message to QSS', e)
     }
