@@ -42,7 +42,6 @@ export function* createCommunitySaga(
       name: action.payload.name,
       ownership: CommunityOwnership.Owner,
       qssEnabled: action.payload.useServer,
-      qssEndpoint: 'ws://localhost:3000',
     } as Community)
   )
   yield* put(communitiesActions.setCurrentCommunity(communityId))
