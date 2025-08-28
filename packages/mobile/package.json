@@ -56,6 +56,7 @@
     "react-native-config": "git+https://github.com/siepra/react-native-config.git#9dde363d95fce46248f63d9ff2530c16f954214e",
     "react-native-device-info": "^10.12.0",
     "react-native-document-picker": "^9.1.0",
+    "react-native-dotenv": "^3.4.11",
     "react-native-fast-image": "git+https://github.com/siepra/react-native-fast-image.git#f98be76a06b8a4a57ae92de85975aad9053634c5",
     "react-native-file-logger": "0.5.6",
     "react-native-fs": "^2.20.0",
