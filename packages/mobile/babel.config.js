@@ -1,4 +1,4 @@
-const envFile = process.env.ENVFILE || '.env'
+const envFile = process.env.ENVFILE || '.env.production'
 module.exports = {
   presets: ['module:metro-react-native-babel-preset'],
   plugins: [
