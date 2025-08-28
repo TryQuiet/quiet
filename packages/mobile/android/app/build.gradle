@@ -266,7 +266,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
     implementation("com.facebook.react:react-android") // version set by the React Native Gradle Plugin in npm
-    implementation("com.facebook.react:flipper-integration")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     if (enableHermes) {
@@ -315,7 +314,7 @@ project.ext.envConfigFiles = [
     prod: ".env.production",
 ]
 
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
 repositories {

@@ -10,3 +10,12 @@ packages/.DS_Store
 *.log
 clangd/
 **/.claude/settings.local.json
+
+ 
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

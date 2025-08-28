@@ -2,7 +2,7 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
 /**
  * Metro configuration
- * https://facebook.github.io/metro/docs/configuration
+ * https://reactnative.dev/docs/metro
  *
  * @type {import('metro-config').MetroConfig}
  */
@@ -18,6 +18,12 @@ const watchFolders = [
   path.resolve(__dirname, '../types'),
   path.resolve(__dirname, '../eslint-config-custom'),
 ]
+
+// Find the project and workspace directories
+const projectRoot = __dirname;
+// This can be replaced with `find-yarn-workspace-root`
+const monorepoRoot = path.resolve(projectRoot, '../..');
+
 
 const extraNodeModules = {
   '@quiet/identity': path.resolve(__dirname, '../identity'),
@@ -46,8 +52,8 @@ const config = {
       },
     }),
   },
-  // sourceExts: ['js', 'jsx', 'ts', 'tsx'],
-  watchFolders,
+  sourceExts: ['js', 'jsx', 'ts', 'tsx'],
+  watchFolders: watchFolders
 }
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

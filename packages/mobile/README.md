@@ -109,6 +109,12 @@ Open a terminal window,
 adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
 
+#### Telling Android Studio to use The Temurin JDK 
+
+[Some React Native packages](https://github.com/software-mansion/react-native-svg/issues/2703#issuecomment-2971893634) may build in the terminal with `npm run android` but aren't able to built in Android Studio.
+
+This can be fixed in Android Studio by going to the Settings -> "Build, Execution, Deployment" -> "Build Tools" -> "Gradle" and selecting the "Gradle JDK" dropdown menu. Select the Temurin SDK in place of what Android Studio is suggesting. 
+
 #### Quiet log files
 
 All quiet-generated logs are output to files in `/data/data/com.quietmobile.debug/files/logs`.  Unlike desktop the logs on mobile are not unified between backend and frontend.  Backend logs can be found in the `log_<date>.log` and `error_<date>.log` files (see the `backend` and `node-common` READMEs for more details) while frontend logs are in the `com.quietmobile.debug-latest.log` file.  This is due to differences in how we have to log in react-native vs node.
