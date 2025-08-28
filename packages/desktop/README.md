@@ -52,7 +52,31 @@ npm run lerna version prerelease
 
 ## Updating Tor Binaries
 
+
+### Windows, Mac, Linux, Android 
+
 Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory for desktop and `packages/mobile/android/app/src/main/jniLibs/arm64-v8a/libtor.so` for Android. Use `./scripts/update-tor-binaries-desktop.sh` to update them for all platforms, or use `--desktop-only` or `--android-only` flags to update specific platforms.
+
+### iOS 
+
+Quiet uses the [Tor.framework project](https://github.com/iCepa/Tor.framework) to get `tor` binaries that can be run on iOS devics and in the simulator. Relesaes can be found [here](https://github.com/iCepa/Tor.framework/releases/tag/v408.17.4) and are distributed as cocoapods. 
+
+Simply update the dependency in the `Podfile` found in `packages/mobile/ios` to a new release. In order to use `Tor.framework` `use_frameworks` has to be included in the `Podfile` too.
+
+```ruby
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+
+platform :ios, '17.1'
+install! 'cocoapods', :deterministic_uuids => false
+use_frameworks!
+target 'Quiet' do
+  config = use_native_modules!
+
+  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v408.17.4/Tor.podspec'
+
+```
+
+Afterwards, in `packages/mobile/ios` run `pod install` to fetch the latest dependency.
 
 ----
 
