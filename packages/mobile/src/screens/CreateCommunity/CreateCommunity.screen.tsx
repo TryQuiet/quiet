@@ -7,6 +7,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
 import ServerOfferDrawer from '../../components/ModalBottomDrawer/drawers/ServerOffer.drawer'
+import { QSS_ALLOWED } from '@env'
 
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
@@ -21,7 +22,7 @@ export const CreateCommunityScreen: FC = () => {
 
   const handleCommunityNameSubmit = useCallback((name: string) => {
     setPendingName(name)
-    if (process.env.QSS_ALLOWED === 'true') {
+    if (QSS_ALLOWED === 'true') {
       setShowServerOffer(true)
     } else {
       handleServerOfferClose(false, false)

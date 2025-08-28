@@ -207,6 +207,9 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString()
 
+  // dump env vars for debugging
+  logger.info('Environment Variables:', JSON.stringify(process.env, null, 2))
+
   const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
