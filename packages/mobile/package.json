@@ -51,7 +51,7 @@
     "react-i18next": "^11.8.15",
     "react-intl": "^6.6.6",
     "react-linkify": "^1.0.0-alpha",
-    "react-native": "0.73.3",
+    "react-native": "0.73.11",
     "react-native-blob-util": "^0.19.6",
     "react-native-config": "git+https://github.com/siepra/react-native-config.git#9dde363d95fce46248f63d9ff2530c16f954214e",
     "react-native-device-info": "^10.12.0",
@@ -102,8 +102,8 @@
     "@react-native-community/cli-platform-android": "^12.3.4",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/push-notification-ios": "^1.10.1",
-    "@react-native/gradle-plugin": "0.73.3",
-    "@react-native/metro-config": "0.73.4",
+    "@react-native/gradle-plugin": "0.73.5",
+    "@react-native/metro-config": "0.73.5",
     "@storybook/addon-actions": "^6.5.16",
     "@storybook/addon-controls": "^6.5.16",
     "@storybook/addon-ondevice-actions": "^6.5.3",
@@ -129,7 +129,7 @@
     "factory-girl": "^5.0.4",
     "jest": "^29.0.0",
     "lint-staged": "^15.2.2",
-    "@react-native/babel-preset": "0.73.20",
+    "@react-native/babel-preset": "0.73.21",
     "node-libs-react-native": "^1.2.1",
     "nodejs-mobile-gyp": "0.3.1",
     "plop": "^2.7.4",
@@ -170,5 +170,6 @@
   },
   "volta": {
     "extends": "../../package.json"
-  }
+  },
+  "packageManager": "yarn@3.6.4"
 }
