@@ -228,12 +228,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         command.add(scriptPath)
         command.addAll(args)
 
-        // Collect BuildConfig fields as environment variables
+
         val envVars = mutableListOf<String>()
-        // Example: Add desired BuildConfig fields here
         envVars.add("QSS_ALLOWED=${BuildConfig.QSS_ALLOWED}")
         envVars.add("QSS_ENDPOINT=${BuildConfig.QSS_ENDPOINT}")
-        // Add more BuildConfig fields as needed
 
         nodeProject.waitForInit()
 
