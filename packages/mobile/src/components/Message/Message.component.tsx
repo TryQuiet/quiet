@@ -10,7 +10,7 @@ import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
 import { FileAttachment } from '../FileAttachment/FileAttachment.component'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
+import Markdown, { MarkdownIt, ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
@@ -40,6 +40,16 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
+  const pushBr = (str: string) => {
+    const afterSplit = str
+      .split('\n')
+      .map(e => {
+        if (e === '') return '<br>'
+        return e
+      })
+      .join('\n')
+    return afterSplit
+  }
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
@@ -94,6 +104,14 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
               {children}
             </Typography>
           ),
+          html_inline: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => {
+            // we check that the parent array contans a td because <br> in paragraph setting will create a html_inlinde surrounded by a soft break, try removing the clause to see what happens (double spacing on the <br> between 'top one' and 'bottom one')
+            if (node.content.trim() === '<br>' && hasParents(parent, 'td')) {
+              return <Text key={node.key}>{'\n'}</Text>
+            }
+
+            return null
+          },
         }
 
         const containsLatex = /\$\$(.+)\$\$/.test(message.message)
@@ -108,7 +126,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         }
         return (
           <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
-            {message.message}
+            {pushBr(message.message)}
           </Markdown>
         )
     }
@@ -259,6 +277,7 @@ const markdownStyle = StyleSheet.create({
 const md = MarkdownIt({
   typographer: false,
   linkify: true,
+  html: true,
 })
 
 export const Message = React.memo(MessageInner)
