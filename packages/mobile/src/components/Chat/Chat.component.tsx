@@ -67,6 +67,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
+  const [isKeyboardShowing, setKeyboardShowing] = useState(false)
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
 
@@ -244,7 +245,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     }
 
     const onKeyboardDidHide = () => {
-      setKeyboardShow(false)
+      setKeyboardShowing(false)
     }
 
     const showSubscription = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow)
@@ -254,7 +255,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       showSubscription.remove()
       hideSubscription.remove()
     }
-  }, [messageInput?.length, setKeyboardShow])
+  }, [messageInput?.length, setKeyboardShow, setKeyboardShowing])
 
   // Clean up any timers when component unmounts
   useEffect(() => {
@@ -396,9 +397,9 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     <View style={styles.container} testID={`chat_${channel?.name}`}>
       <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: 'padding', android: undefined })}
-        keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: 0 })}
-        enabled={Platform.select({ ios: true, android: false })}
+        behavior={Platform.select({ ios: 'padding', android: 'height' })}
+        keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: insets.bottom })}
+        enabled={Platform.select({ ios: true, android: true })}
         style={styles.keyboardAvoidingView}
       >
         {messages.count === 0 ? (
