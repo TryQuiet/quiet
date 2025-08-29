@@ -22,7 +22,7 @@ target 'Quiet' do
   pre_install do |installer|
     installer.pod_targets.each do |target|
       # Make some targets static as they throw errors if not
-      if target.name.eql?('RNScreens') || target.name.eql?('react-native-image-picker')
+      if target.name.eql?('RNScreens') || target.name.eql?('react-native-image-picker') or target.name.eql?('RNCClipboard')
         def target.build_type;
           Pod::BuildType.static_library
         end

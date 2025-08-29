@@ -166,8 +166,7 @@ static NSString *const platform = @"mobile";
 
     NSLog(@"Tor control port response message %@", message);
 
-    NSDictionary<NSString *, NSString *> *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:message, NSLocalizedDescriptionKey, nil];
-    BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
+//    BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
 
     *stop = YES;
     return YES;
@@ -228,6 +227,11 @@ static NSString *const platform = @"mobile";
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  return [self bundleURL];
+}
+
+- (NSURL *)bundleURL
 {
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
