@@ -38,7 +38,6 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
         maven { url "https://raw.githubusercontent.com/guardianproject/gpmaven/master" }
         maven { url "https://mvnrepository.com/artifact/commons-io/commons-io" }
-        maven { url "$rootDir/../node_modules/detox/Detox-android" }
     }
 }
 

@@ -268,8 +268,8 @@ android {
 }
 
 dependencies {
-    androidTestImplementation('com.wix:detox:27.1.0')
-    implementation 'androidx.appcompat:appcompat:1.7.1'
+    androidTestImplementation("com.wix:detox:20.17.1")
+    implementation("androidx.appcompat:appcompat:1.7.1")
     implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
     implementation("com.facebook.react:react-android") // version set by the React Native Gradle Plugin in npm
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")

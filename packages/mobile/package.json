@@ -25,12 +25,12 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
-    "@quiet/backend": "file:../backend",
-    "@quiet/common": "file:../common",
-    "@quiet/identity": "file:../identity",
-    "@quiet/logger": "file:../logger",
-    "@quiet/state-manager": "file:../state-manager",
-    "@quiet/types": "file:../types",
+    "@quiet/backend": "^2.0.3-alpha.5",
+    "@quiet/common": "^2.0.2-alpha.1",
+    "@quiet/identity": "^2.0.2-alpha.2",
+    "@quiet/logger": "^2.0.2-alpha.0",
+    "@quiet/state-manager": "^2.0.2-alpha.3",
+    "@quiet/types": "^2.0.2-alpha.1",
     "@peculiar/webcrypto": "^1.4.3",
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-navigation/native": "^6.1.18",
@@ -93,7 +93,7 @@
     "react-native-randombytes": "git+https://github.com/siepra/react-native-randombytes.git#5a6dff9e340f70cabe3e1561cc2ff19671b0af49"
   },
   "devDependencies": {
-    "@quiet/eslint-config" : "file:../eslint-config-custom",
+    "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@babel/core": "^7.25.2",
     "@babel/plugin-transform-flow-strip-types": "^7.24.1",
     "@babel/plugin-transform-private-methods": "^7.24.1",

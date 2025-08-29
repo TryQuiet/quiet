@@ -333,7 +333,6 @@ napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 napi_value Init(napi_env env, napi_value exports) {
-    napi_status status;
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_METHOD("sendMessage", Method_SendMessage),
         DECLARE_NAPI_METHOD("registerChannel", Method_RegisterChannel),
