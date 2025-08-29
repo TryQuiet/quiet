@@ -52,7 +52,6 @@ const config = {
       },
     }),
   },
-  sourceExts: ['js', 'jsx', 'ts', 'tsx'],
   watchFolders: watchFolders
 }
 

@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.8.0'
+    ext.kotlin_version = '1.9.25'
     ext {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 26
@@ -41,3 +41,5 @@ allprojects {
         maven { url "$rootDir/../node_modules/detox/Detox-android" }
     }
 }
+
+apply plugin: "com.facebook.react.rootproject"

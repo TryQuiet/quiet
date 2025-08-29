@@ -38,6 +38,7 @@ class MainActivity : ReactActivity() {
             DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // pass null to super.onCreate https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
         super.onCreate(null)
 
         val intent = intent
