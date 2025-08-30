@@ -5,7 +5,7 @@ apply plugin: "kotlin-android"
 apply plugin: "com.facebook.react"
 
 react {
-	/* Autolinking */
+    /* Autolinking */
     autolinkLibrariesWithApp()
 }
 
@@ -85,7 +85,7 @@ react {
  */
 
 project.ext.react = [
-    enableHermes: false,  // clean and rebuild if changing
+        enableHermes: false,  // clean and rebuild if changing
 ]
 
 
@@ -95,15 +95,16 @@ def enableProguardInReleaseBuilds = false
 /**
  * The preferred build flavor of JavaScriptCore.
  *
- * For example, to use the international variant, you can use:
- * `def jscFlavor = 'org.webkit:android-jsc-intl:+'`
- *
  * The international variant includes ICU i18n library and necessary data
  * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
  * give correct results when using with locales other than en-US.  Note that
  * this variant is about 6MiB larger per architecture than default.
+ *
+ * Using this 16KB Aligned build from Maven Central
+ * https://github.com/react-native-community/jsc-android-buildscripts/pull/184
+ * https://repo1.maven.org/maven2/io/github/react-native-community/jsc-android-intl/
  */
-def jscFlavor = 'org.webkit:android-jsc-intl:+'
+def jscFlavor = "io.github.react-native-community:jsc-android-intl:2026004.0.1@aar"
 
 /**
  * Whether to enable the Hermes VM.
@@ -125,25 +126,23 @@ def reactNativeArchitectures() {
 def getNDK() {
     // Load local.properties
     Properties properties = new Properties()
-    def localPropertiesFile = rootProject.file('local.properties')
+    def localPropertiesFile = rootProject.file("local.properties")
     if (localPropertiesFile.exists()) {
         properties.load(localPropertiesFile.newDataInputStream())
     }
 
     // Return ndk.dir if it exists
-    def localNDK = properties['ndk.path']
+    def localNDK = properties["ndk.path"]
     if (localNDK) {
         return localNDK
     }
 
     // If ndk.dir doesn't exist, check for NDK_PATH in gradle.properties
-    return rootProject.ext.has('NDK_PATH') ? rootProject.ext.get('NDK_PATH') : null
+    return rootProject.ext.has("NDK_PATH") ? rootProject.ext.get("NDK_PATH") : null
 }
 
-def ndkDirectory = getNDK()
-
 android {
-    ndkPath ndkDirectory
+    ndkPath getNDK()
 
     ndkVersion rootProject.ext.ndkVersion
 
@@ -156,8 +155,8 @@ android {
     }
 
     packagingOptions {
-        pickFirst 'lib/arm64-v8a/libc++_shared.so'
-        pickFirst 'lib/arm64-v8a/libfbjni.so'
+        pickFirst "lib/arm64-v8a/libc++_shared.so"
+        pickFirst "lib/arm64-v8a/libfbjni.so"
 
         jniLibs {
             useLegacyPackaging = true
@@ -173,8 +172,8 @@ android {
         versionCode 519
         versionName "6.1.0"
         resValue "string", "build_config_package", "com.quietmobile"
-        testBuildType System.getProperty('testBuildType', 'debug')
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        testBuildType System.getProperty("testBuildType", "debug")
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             //noinspection ChromeOsAbiSupport
             abiFilters "arm64-v8a"
@@ -188,65 +187,65 @@ android {
     splits {
         abi {
             reset()
-            enable false
-            universalApk false  // If true, also generate a universal APK
+            enable = false
+            universalApk = false  // If true, also generate a universal APK
             //noinspection ChromeOsAbiSupport
-            include (*reactNativeArchitectures())
+            include(*reactNativeArchitectures())
         }
     }
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
         }
         release {
-            if (project.hasProperty('STORE_FILE')) {
-                storeFile file(STORE_FILE)
-                storePassword STORE_PASSWORD
-                keyAlias KEY_ALIAS
-                keyPassword KEY_PASSWORD
+            if (project.hasProperty("STORE_FILE")) {
+                storeFile = file(STORE_FILE)
+                storePassword = STORE_PASSWORD
+                keyAlias = KEY_ALIAS
+                keyPassword = KEY_PASSWORD
             } else {
-                storeFile file('debug.keystore')
-                storePassword 'android'
-                keyAlias 'androiddebugkey'
-                keyPassword 'android'
+                storeFile = file("debug.keystore")
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
             }
         }
     }
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
-            applicationIdSuffix ".debug"
-            versionNameSuffix "-debug"
+            signingConfig = signingConfigs.debug
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.release
-            minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+            signingConfig = signingConfigs.release
+            minifyEnabled = enableProguardInReleaseBuilds
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFile("${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro")
         }
     }
     externalNativeBuild {
         cmake {
-            path "CMakeLists.txt"
+            path = "CMakeLists.txt"
         }
     }
     sourceSets {
-        main.assets.srcDirs += '../install/resources/nodejs-modules'
+        main.assets.srcDirs += "../install/resources/nodejs-modules"
     }
     flavorDimensions "version"
     productFlavors {
         storybook {
-            applicationIdSuffix ".storybook"
-            versionNameSuffix "-storybook"
-            dimension "version"
+            applicationIdSuffix = ".storybook"
+            versionNameSuffix = "-storybook"
+            dimension = "version"
         }
         standard {
-            dimension "version"
+            dimension = "version"
         }
     }
 
@@ -270,27 +269,28 @@ android {
 dependencies {
     androidTestImplementation("com.wix:detox:20.17.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
-    implementation("com.facebook.react:react-android") // version set by the React Native Gradle Plugin in npm
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.so"])
+    implementation("com.facebook.react:react-android")
+    // version set by the React Native Gradle Plugin in npm
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     if (enableHermes) {
         //noinspection GradleDynamicVersion
         implementation("com.facebook.react:hermes-engine:+") { // From node_modules
-            exclude group:'com.facebook.fbjni'
+            exclude group: "com.facebook.fbjni"
         }
     } else {
         implementation(jscFlavor)
     }
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
-    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.core:core-ktx:1.16.0")
     implementation("com.google.code.gson:gson:2.13.1")
     implementation(project(":react-native-fs"))
-    implementation(group: 'commons-io', name: 'commons-io', version: '2.20.0')
+    implementation(group: "commons-io", name: "commons-io", version: "2.20.0")
 
     // Websockets connection
-    implementation ('io.socket:socket.io-client:2.1.2') {
-        exclude group: 'org.json', module: 'json'
+    implementation("io.socket:socket.io-client:2.1.2") {
+        exclude group: "org.json", module: "json"
     }
 
     // Work manager
@@ -302,23 +302,22 @@ dependencies {
     implementation("com.facebook.fresco:animated-gif:3.6.0")
     implementation("com.goterl:lazysodium-android:5.2.0@aar")
     implementation("net.java.dev.jna:jna:5.17.0@aar")
-
-    implementation "com.google.guava:guava:33.4.8-android"
+    implementation("com.google.guava:guava:33.4.8-android")
 }
 
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
-task copyDownloadableDepsToLibs(type: Copy) {
-    from configurations.implementation
-    into 'libs'
+tasks.register("copyDownloadableDepsToLibs", Copy) {
+    from(configurations.implementation)
+    into("libs")
 }
 
 // Additional configuration
 project.ext.envConfigFiles = [
-    debug: ".env.development",
-    storybook: ".env.storybook",
-    release: ".env.staging",
-    prod: ".env.production",
+        debug    : ".env.development",
+        storybook: ".env.storybook",
+        release  : ".env.staging",
+        prod     : ".env.production",
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
@@ -336,38 +335,39 @@ repositories {
     }
 }
 
-task CopyNodeProjectAssetsFolder (type:Copy) {
-    description "Copies the Node Project to a build folder for manipulation."
+tasks.register("CopyNodeProjectAssetsFolder", Copy) {
+    description = "Copies the Node Project to a build folder for manipulation."
 
-    from "${rootProject.projectDir}/../nodejs-assets/deps/android"
-    into "${rootProject.buildDir}/nodejs-assets/nodejs-project/deps/android"
+    from("${rootProject.projectDir}/../nodejs-assets/deps/android")
+    into("${rootProject.layout.buildDirectory.get()}/nodejs-assets/nodejs-project/deps/android")
 
-    from "${rootProject.projectDir}/../nodejs-assets/nodejs-project"
-    into "${rootProject.buildDir}/nodejs-assets/nodejs-project/"
-    exclude '**/*~' // temporary files
-    exclude '**/.*' // files and dirs starting with .
-    exclude '**/*.gz' // gzip files will cause errors on aapt when merging assets.
+    from("${rootProject.projectDir}/../nodejs-assets/nodejs-project")
+    into("${rootProject.layout.buildDirectory.get()}/nodejs-assets/nodejs-project/")
+    exclude("**/*~") // temporary files
+    exclude("**/.*") // files and dirs starting with .
+    exclude("**/*.gz") // gzip files will cause errors on aapt when merging assets.
 }
 
-task GenerateNodeProjectAssetsLists {
-    dependsOn "CopyNodeProjectAssetsFolder"
-    description "Generates a list for runtime copying"
-    inputs.dir "${rootProject.buildDir}/nodejs-assets/"
-    outputs.file "${rootProject.buildDir}/nodejs-assets/file.list"
-    outputs.file "${rootProject.buildDir}/nodejs-assets/dir.list"
-    doLast{
-        delete "${rootProject.buildDir}/nodejs-assets/file.list"
-        delete "${rootProject.buildDir}/nodejs-assets/dir.list"
+tasks.register("GenerateNodeProjectAssetsLists") {
+    dependsOn(tasks.named("CopyNodeProjectAssetsFolder"))
+    description = "Generates a list for runtime copying"
+
+    inputs.dir("${rootProject.layout.buildDirectory.get()}/nodejs-assets/")
+    outputs.file("${rootProject.layout.buildDirectory.get()}/nodejs-assets/file.list")
+    outputs.file("${rootProject.layout.buildDirectory.get()}/nodejs-assets/dir.list")
+    doLast {
+        delete("${rootProject.layout.buildDirectory.get()}/nodejs-assets/file.list")
+        delete("${rootProject.layout.buildDirectory.get()}/nodejs-assets/dir.list")
 
         ArrayList<String> file_list_arr = new ArrayList<String>();
         ArrayList<String> dir_list_arr = new ArrayList<String>();
         String file_list = "";
         String dir_list = "";
 
-        def assets_tree = fileTree(dir: "${rootProject.buildDir}/nodejs-assets/")
-        assets_tree.include('nodejs-project/**') // Include the node project.
-        assets_tree.exclude('**/.*') // Exclude files and dirs starting with .
-        assets_tree.exclude('**/*~') // Exclude temporary files.
+        def assets_tree = fileTree(dir: "${rootProject.layout.buildDirectory.get()}/nodejs-assets/")
+        assets_tree.include("nodejs-project/**") // Include the node project.
+        assets_tree.exclude("**/.*") // Exclude files and dirs starting with .
+        assets_tree.exclude("**/*~") // Exclude temporary files.
         assets_tree.visit { assetFile ->
             if (assetFile.isDirectory()) {
                 dir_list_arr.add("${assetFile.relativePath}\n");
@@ -380,61 +380,61 @@ task GenerateNodeProjectAssetsLists {
         Collections.sort(file_list_arr);
         Collections.sort(dir_list_arr);
 
-        def file_list_path = new File( "${rootProject.buildDir}/nodejs-assets/file.list")
-        for (String file : file_list_arr){
+        def file_list_path = new File("${rootProject.layout.buildDirectory.get()}/nodejs-assets/file.list")
+        for (String file : file_list_arr) {
             file_list += file;
         }
-        file_list_path.write file_list
+        file_list_path.write(file_list)
 
-        def dir_list_path = new File( "${rootProject.buildDir}/nodejs-assets/dir.list")
-        for (String dir : dir_list_arr){
-            dir_list += dir;
+        def dir_list_path = new File("${rootProject.layout.buildDirectory.get()}/nodejs-assets/dir.list")
+        for (String dir : dir_list_arr) {
+            dir_list += dir
         }
-        dir_list_path.write dir_list
+        dir_list_path.write(dir_list)
     }
 }
 
-project.android.sourceSets.main.assets.srcDirs+="${rootProject.buildDir}/nodejs-assets/"
+project.android.sourceSets.main.assets.srcDirs += "${rootProject.layout.buildDirectory.get()}/nodejs-assets/"
 
 tasks.getByPath(":${project.name}:preBuild").dependsOn GenerateNodeProjectAssetsLists
 
-def abi_name = 'arm64'
+def abi_name = "arm64"
 
-task "GenerateNodeNativeAssetsLists${abi_name}" {
-    description "Generates a list for runtime copying"
-    mkdir "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/"
+tasks.register("GenerateNodeNativeAssetsLists${abi_name}") {
+    description = "Generates a list for runtime copying"
+    mkdir("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/")
     copy {
-        from "${rootProject.buildDir}/nodejs-assets/deps/"
-        into "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/deps/"
+        from "${rootProject.layout.buildDirectory.get()}/nodejs-assets/deps/"
+        into "${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/deps/"
     }
-    inputs.dir "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/"
-    outputs.file "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/file.list"
-    outputs.file "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/dir.list"
-    doLast{
-        if(!(new File("${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/")).exists()) {
+    inputs.dir("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/")
+    outputs.file("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/file.list")
+    outputs.file("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/dir.list")
+    doLast {
+        if (!(new File("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/")).exists()) {
             // If the native assets folder doesn't exist from the copy task, skip the creation of the file.list
             return;
         }
-        delete "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/file.list"
-        delete "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/dir.list"
+        delete("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/file.list")
+        delete("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/dir.list")
         String file_list = "";
         String dir_list = "";
 
-        def assets_tree = fileTree(dir: "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/" )
+        def assets_tree = fileTree(dir: "${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/")
         assets_tree.visit { assetFile ->
             if (assetFile.isDirectory()) {
-                dir_list+="${assetFile.relativePath}\n"
+                dir_list += "${assetFile.relativePath}\n"
             } else {
-                file_list+="${assetFile.relativePath}\n"
+                file_list += "${assetFile.relativePath}\n"
             }
         }
-        def file_list_path = new File( "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/file.list")
-        file_list_path.write file_list
-        def dir_list_path = new File( "${rootProject.buildDir}/nodejs-native-assets/nodejs-native-assets-${abi_name}/dir.list")
-        dir_list_path.write dir_list
+        def file_list_path = new File("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/file.list")
+        file_list_path.write(file_list)
+        def dir_list_path = new File("${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/nodejs-native-assets-${abi_name}/dir.list")
+        dir_list_path.write(dir_list)
     }
 }
 
-tasks.getByPath(":${project.name}:preBuild").dependsOn "GenerateNodeNativeAssetsLists${abi_name}"
+tasks.getByPath(":${project.name}:preBuild").dependsOn("GenerateNodeNativeAssetsLists${abi_name}")
 
-project.android.sourceSets.main.assets.srcDirs+="${rootProject.buildDir}/nodejs-native-assets/"
+project.android.sourceSets.main.assets.srcDirs += "${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/"
