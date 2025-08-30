@@ -273,7 +273,6 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
     implementation("com.facebook.react:react-android") // version set by the React Native Gradle Plugin in npm
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-
     if (enableHermes) {
         //noinspection GradleDynamicVersion
         implementation("com.facebook.react:hermes-engine:+") { // From node_modules
