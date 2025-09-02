@@ -16,6 +16,8 @@ jobs:
       DISPLAY: ":99.0"
       TEST_MODE: true
       IS_CI: true
+      QSS_ALLOWED: true
+      QSS_ENDPOINT: "ws://127.0.0.1:3003"
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -55,7 +57,7 @@ jobs:
 
       - name: Start QSS docker
         run: npm run start:qss
-        
+
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
