@@ -228,7 +228,6 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         command.add(scriptPath)
         command.addAll(args)
 
-
         val envVars = mutableListOf<String>()
         envVars.add("QSS_ALLOWED=${BuildConfig.QSS_ALLOWED}")
         envVars.add("QSS_ENDPOINT=${BuildConfig.QSS_ENDPOINT}")
