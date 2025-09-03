@@ -835,15 +835,6 @@ export class ServerOfferModal {
     this.driver = driver
   }
 
-  get element() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath("//div[contains(@data-testid, 'ServerOffer') and @role='dialog']")),
-      10_000,
-      `ServerOffer modal couldn't be found within timeout`,
-      500
-    )
-  }
-
   get useServerButton() {
     return this.driver.wait(
       until.elementLocated(By.xpath("//button[@data-testid='ServerOffer-UseQuietServer']")),
@@ -865,12 +856,23 @@ export class ServerOfferModal {
   get dontShowAgainCheckbox() {
     return this.driver.wait(
       until.elementLocated(
-        By.xpath("//input[@type='checkbox' and ancestor::div[contains(@data-testid, 'ServerOffer')]]")
+        By.xpath("//label[contains(@class,'ServerOfferComponent-mutedAction')]//input[@type='checkbox']")
       ),
       5_000,
-      `Don't show again checkbox couldn't be found within timeout`,
+      `Don't show this again checkbox couldn't be found within timeout`,
       500
     )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    const actions = await this.useServerButton
+    await this.driver.wait(
+      until.elementIsVisible(actions),
+      timeoutMs,
+      `ServerOfferModalActions wasn't visible within timeout`,
+      500
+    )
+    return true
   }
 
   async chooseUseServer() {
