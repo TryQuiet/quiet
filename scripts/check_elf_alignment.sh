@@ -107,7 +107,8 @@ done
 
 if [ ${#unaligned_libs[@]} -gt 0 ]; then
   echo -e "${RED}Found ${#unaligned_libs[@]} unaligned libs (only arm64-v8a/x86_64 libs need to be aligned).${ENDCOLOR}"
+  exit 1
 elif [ -n "${dir_filename}" ]; then
   echo -e "ELF Verification Successful"
+  exit 0
 fi
-echo "====================="
