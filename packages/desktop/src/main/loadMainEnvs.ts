@@ -2,7 +2,15 @@ import path from 'path'
 import { app } from 'electron'
 import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR } from '@quiet/common'
 import { __nodeConsoleLogger } from '@quiet/logger'
-import dotenvx from '@dotenvx/dotenvx'
+// Defer loading to runtime to avoid Jest resolver issues with ESM subpath exports
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let dotenvx: any
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  dotenvx = require('@dotenvx/dotenvx')
+} catch (e) {
+  // If not available/resolveable in test, leave undefined; guarded use below
+}
 __nodeConsoleLogger.info('Environment variables', JSON.stringify(process.env, null, 2))
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -13,12 +21,12 @@ if (isDev || process.env.DATA_DIR) {
 
 try {
   const pathProd = path.join.apply(null, [process.resourcesPath, '.env'])
-  const loadedEnvVarsresult = dotenvx.config({ path: pathProd })
-  __nodeConsoleLogger.info('Loaded env vars', JSON.stringify(loadedEnvVarsresult.parsed, null, 2))
-  if (loadedEnvVarsresult.error) {
-    __nodeConsoleLogger.error(`Error occurred while loading main envs`, loadedEnvVarsresult.error)
-  } else {
-    // save env file contents to a variable for passthrough
+  if (dotenvx?.config) {
+    const loadedEnvVarsresult = dotenvx.config({ path: pathProd })
+    __nodeConsoleLogger.info('Loaded env vars', JSON.stringify(loadedEnvVarsresult.parsed, null, 2))
+    if (loadedEnvVarsresult.error) {
+      __nodeConsoleLogger.error(`Error occurred while loading main envs`, loadedEnvVarsresult.error)
+    }
   }
 } catch (e) {
   __nodeConsoleLogger.error(`Error occurred while loading main envs`, e)
