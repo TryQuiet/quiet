@@ -108,10 +108,10 @@
     "cypress:run": "cypress run --component",
     "cypress:run:ci": "cypress install --force && cypress run --component",
     "prepare": "npm run build:main",
-    "build": "npm run copyMainEnvs && concurrently \"npm run build:main\" \"npm run build:renderer\"",
-    "build:prod": "npm run copyMainEnvs && concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
-    "build:dev": "npm run copyMainEnvs && concurrently \"npm run build:main\" \"npm run build:renderer\"",
-    "build:dev:dist": "cross-env ENVFILE=.env.e2e.qss npm run copyMainEnvs && cross-env ENVFILE=.env.e2e.qss concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
+    "build": "npm run setMainEnvs && concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build:prod": "npm run setMainEnvs && concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
+    "build:dev": "npm run setMainEnvs && concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build:dev:dist": "cross-env ENVFILE=.env.e2e.qss npm run setMainEnvs && cross-env ENVFILE=.env.e2e.qss concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
     "build:main": "tsc -p tsconfig.build.json",
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
@@ -125,7 +125,7 @@
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
     "rmDist": "rimraf dist/",
     "copyFonts": "cp src/renderer/fonts/* dist/main",
-    "copyMainEnvs": "node scripts/setMainEnvs.js"
+    "setMainEnvs": "node scripts/setMainEnvs.js"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "1.39.0",
