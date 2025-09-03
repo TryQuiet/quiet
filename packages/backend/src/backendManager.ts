@@ -157,6 +157,7 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
 
 export const runBackendDesktop = async (secret: string) => {
   logger.info('Running backend manager desktop')
+  logger.info('Environment Variables:', JSON.stringify(process.env, null, 2))
 
   const isDev = process.env.NODE_ENV === 'development'
   const webcrypto = new Crypto()

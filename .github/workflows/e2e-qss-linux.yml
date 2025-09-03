@@ -16,8 +16,6 @@ jobs:
       DISPLAY: ":99.0"
       TEST_MODE: true
       IS_CI: true
-      QSS_ALLOWED: true
-      QSS_ENDPOINT: "ws://127.0.0.1:3003"
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -66,7 +64,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: npm run distUbuntuQss && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
