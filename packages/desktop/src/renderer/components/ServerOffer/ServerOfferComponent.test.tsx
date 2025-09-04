@@ -9,7 +9,7 @@ describe('ServerOfferComponent', () => {
   it('renders checkbox and divider when showDontShowAgain is true', async () => {
     const handleClose = jest.fn()
     const result = renderComponent(
-      <ServerOfferComponent open={false} handleClose={handleClose} showDontShowAgain={true} />
+      <ServerOfferComponent open={true} handleClose={handleClose} showDontShowAgain={true} />
     )
 
     // Inline snapshot of the rendered component
