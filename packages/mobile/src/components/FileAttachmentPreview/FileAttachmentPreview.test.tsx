@@ -92,7 +92,7 @@ describe('FileAttachmentPreview component', () => {
               <Image
                 source={
                   {
-                    "testUri": "../../../assets/icons/icon_close.png",
+                    "testUri": "../../../src/assets/icons/png/icon_close.png",
                   }
                 }
                 style={
@@ -179,7 +179,7 @@ describe('FileAttachmentPreview component', () => {
               <Image
                 source={
                   {
-                    "testUri": "../../../assets/icons/icon_close.png",
+                    "testUri": "../../../src/assets/icons/png/icon_close.png",
                   }
                 }
                 style={
@@ -223,7 +223,7 @@ describe('FileAttachmentPreview component', () => {
                   <Image
                     source={
                       {
-                        "testUri": "../../../assets/icons/file_document.png",
+                        "testUri": "../../../src/assets/icons/png/file_document.png",
                       }
                     }
                     style={

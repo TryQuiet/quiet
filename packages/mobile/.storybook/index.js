@@ -15,6 +15,7 @@ configure(() => {
   require('../src/components/ContextMenu/ContextMenu.stories')
   require('../src/components/ConfirmationBox/ConfirmationBox.stories')
   require('../src/components/CreateCommunity/CreateCommunity.stories')
+  require('../src/components/ServerOffer/ServerOffer.stories')
   require('../src/components/Appbar/Appbar.stories')
   require('../src/components/Registration/UsernameRegistration.stories')
   require('../src/components/ChannelTile/ChannelTile.stories')
@@ -38,6 +39,7 @@ configure(() => {
   require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
   require('../src/components/FileAttachmentPreview/FileAttachmentPreview.stories')
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
+  require('../src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({

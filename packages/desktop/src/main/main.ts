@@ -15,13 +15,11 @@ import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 const contextMenu = require('electron-context-menu')
 import sodium from 'libsodium-wrappers-sumo'
-
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 remote.initialize()
 
 const logger = createLogger('main')
-
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 let updating = false
@@ -372,6 +370,8 @@ app.on('ready', async () => {
   } catch (e) {
     logger.error('Error occurred while trying to close hanging backend process', e)
   }
+
+  logger.info('Environment variables', JSON.stringify(process.env, null, 2))
 
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],

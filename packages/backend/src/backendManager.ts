@@ -157,6 +157,7 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
 
 export const runBackendDesktop = async (secret: string) => {
   logger.info('Running backend manager desktop')
+  logger.info('Environment Variables:', JSON.stringify(process.env, null, 2))
 
   const isDev = process.env.NODE_ENV === 'development'
   const webcrypto = new Crypto()
@@ -206,6 +207,9 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   logger.info('Running backend manager mobile')
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString()
+
+  // dump env vars for debugging
+  logger.info('Environment Variables:', JSON.stringify(process.env, null, 2))
 
   const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({

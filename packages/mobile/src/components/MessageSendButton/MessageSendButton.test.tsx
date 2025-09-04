@@ -41,7 +41,7 @@ describe('MessageSendButton component', () => {
           resizeMode="cover"
           source={
             {
-              "testUri": "../../../assets/icons/icon_send.png",
+              "testUri": "../../../src/assets/icons/png/icon_send.png",
             }
           }
           style={

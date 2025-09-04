@@ -3,8 +3,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { View, Image, StyleSheet } from 'react-native'
 import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
-import ExclamationMark from '../../../assets/icons/exclamationMark.png'
-import { Button } from '../Button/Button.component'
+import { icons } from '../../assets'
 import { PossibleImpersonationAttackComponentProps } from '../../screens/PossibleImpersonationAttack/PossibleImpersonationAttack.types'
 
 const classes = StyleSheet.create({
@@ -43,7 +42,7 @@ const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttack
     >
       <Appbar title={'Warning!'} back={handleBackButton} crossBackIcon />
       <View style={classes.mainWrapper}>
-        <Image source={ExclamationMark} style={classes.image} />
+        <Image source={icons.exclamationMark} style={classes.image} />
 
         <Typography fontSize={16} fontWeight={'medium'} style={classes.title}>
           Possible impersonation attack
