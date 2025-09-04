@@ -39,10 +39,10 @@ jobs:
           java-version: 17
 
       - name: "Set up NDK"
-        uses: nttld/setup-ndk@8c3b609ff4d54576ea420551943fd34b4d03b0dc # v1.2.0
+        uses: nttld/setup-ndk@afb4c9964b521afb97c864b7d40b11e6911bd410 # v1.5.0
         id: setup-ndk
         with:
-          ndk-version: r25b
+          ndk-version: r28c
           add-to-path: false
 
       - name: "Setup environment"
@@ -123,10 +123,10 @@ jobs:
           java-version: 17
 
       - name: "Set up NDK"
+        uses: nttld/setup-ndk@afb4c9964b521afb97c864b7d40b11e6911bd410 # v1.5.0
         id: setup-ndk
-        uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r25b
+          ndk-version: r28c
           add-to-path: false
 
       - name: "Setup environment"

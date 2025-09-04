@@ -1,5 +1,6 @@
 package com.quietmobile.Backend
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.os.Build
@@ -58,10 +59,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
          * rn‑bridge.
          */
         @JvmStatic
+        @SuppressLint("UnusedMethod")
         fun handleNodeMessages(channelName: String, msg: String?) {
             if (channelName == "_EVENTS_" && msg != null) {
                 try {
-                    val envelope = org.json.JSONObject(msg)
+                    val envelope = JSONObject(msg)
                     val event = envelope.optString("event", "")
                     val payloadStr = envelope.optString("payload", "")
                     if (event == "message" && payloadStr.isNotEmpty()) {
@@ -72,11 +74,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                                     if (payloadArr.length() > 1) payloadArr.getString(1) else null
                             if (nonce != null) {
                                 val response =
-                                        org.json.JSONObject()
+                                        JSONObject()
                                                 .put("event", "secret")
                                                 .put(
                                                         "payload",
-                                                        org.json.JSONObject()
+                                                        JSONObject()
                                                                 .put("type", "set-socket-secret")
                                                                 .put("secret", socketIOSecret)
                                                                 .put("nonce", nonce)
@@ -93,7 +95,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                                 "Received unhandled event: $event with payload: $payloadStr"
                         )
                     }
-                } catch (e: org.json.JSONException) {
+                } catch (_: JSONException) {
                     Log.d(
                             "BackendWorker",
                             "handleNodeMessages: JSONException while parsing message from backend"
@@ -164,17 +166,17 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val socketPort = Utils.getOpenPort(11000)
 
             val socketIOSecretBytes = sodium.randomBytesBuf(32)
-            BackendWorker.socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
+            socketIOSecret = sodium.sodiumBin2Hex(socketIOSecretBytes)
 
-            (applicationContext as MainApplication).setSocketPort(socketPort)
-            (applicationContext as MainApplication).setSocketIOSecret(BackendWorker.socketIOSecret)
+            (applicationContext as MainApplication).socketPort = socketPort
+            (applicationContext as MainApplication).socketIOSecret = socketIOSecret
 
             // Init nodejs project
             launch { nodeProject.init() }
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(socketPort, BackendWorker.socketIOSecret)
+                subscribePushNotifications(socketPort, socketIOSecret)
             }
 
             val dataPath = Utils.createDirectory(context)
