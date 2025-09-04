@@ -15,6 +15,7 @@
 ### Chores
 
 * Update QSS flag to QSS_ALLOWED and reconfigure enabled setting/checking [#2912](https://github.com/TryQuiet/quiet/issues/2912)
+* Change autoupdater text [#2971] (https://github.com/TryQuiet/quiet/issues/2971)
 
 ## [6.1.0]
 
