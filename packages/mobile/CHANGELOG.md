@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.2.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0...@quiet/mobile@6.2.0-alpha.0) (2025-09-04)
-
-
-### Bug Fixes
-
-* Keyboard avoiding on android, properly displaying send button on android, newline rendering in message component on mobile ([#2980](https://github.com/TryQuiet/quiet/issues/2980)) ([e71c4a0](https://github.com/TryQuiet/quiet/commit/e71c4a0245aa2d5f6b8d6f77eef341954eb48dfa))
-
-
-
-
-
 # Changelog
 
 ## [6.1.0]
