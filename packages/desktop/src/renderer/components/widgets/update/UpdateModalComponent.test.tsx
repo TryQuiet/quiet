@@ -9,7 +9,9 @@ describe('UpdateModal', () => {
       <UpdateModalComponent
         handleClose={jest.fn()}
         title={'Software update'}
-        message={'Update is available for Quiet.'}
+        message={
+          'UA new version of Quiet is ready. It will be installed the next time you restart the app, or you can update now.'
+        }
         buttons={[]}
         open
       />
@@ -116,7 +118,7 @@ describe('UpdateModal', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                     >
-                      Update is available for Quiet.
+                      UA new version of Quiet is ready. It will be installed the next time you restart the app, or you can update now.
                     </p>
                   </div>
                   <div
