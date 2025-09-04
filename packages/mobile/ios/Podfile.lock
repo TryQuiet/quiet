@@ -1109,10 +1109,11 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - RNScreens (3.29.0):
+  - RNScreens (3.33.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+    - React-RCTImage
   - RNShare (10.0.2):
     - React-Core
   - RNSVG (14.1.0):
@@ -1409,7 +1410,7 @@ SPEC CHECKSUMS:
   RNFileLogger: d5950915f40d89907abe26a4891a90591926d053
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 25b969a1ffc806b9f9ad2e170d4a3b049c6af85e
-  RNScreens: b582cb834dc4133307562e930e8fa914b8c04ef2
+  RNScreens: 90f1bb8c23ece6c5c2f5b36d8bf3a5c4680629cf
   RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
