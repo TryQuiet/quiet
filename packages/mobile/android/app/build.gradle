@@ -347,16 +347,12 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
+// Additional configuration
 project.ext.envConfigFiles = [
-    // Fallbacks by build type
     debug: ".env.development",
-    release: ".env.production",
-
-    // Explicit per-variant (flavor + buildType)
-    standardDebug: ".env.development",
-    storybookDebug: ".env.storybook",
-    standardRelease: ".env.staging",
-    storybookRelease: ".env.staging",
+    storybook: ".env.storybook",
+    release: ".env.staging",
+    prod: ".env.production",
 ]
 
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"

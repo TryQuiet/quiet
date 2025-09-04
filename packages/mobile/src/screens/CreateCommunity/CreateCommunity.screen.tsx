@@ -7,7 +7,12 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
 import ServerOfferDrawer from '../../components/ModalBottomDrawer/drawers/ServerOffer.drawer'
-import { QSS_ALLOWED } from '@env'
+import Config from 'react-native-config'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('CreateCommunityScreen')
+
+logger.info('Config:', JSON.stringify(Config, null, 2))
 
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
@@ -22,7 +27,7 @@ export const CreateCommunityScreen: FC = () => {
 
   const handleCommunityNameSubmit = useCallback((name: string) => {
     setPendingName(name)
-    if (QSS_ALLOWED === 'true') {
+    if (Config.QSS_ALLOWED === 'true') {
       setShowServerOffer(true)
     } else {
       handleServerOfferClose(false, false)

@@ -21,7 +21,6 @@ import {
 
 import { StoreKeys } from './store.keys'
 import { InitTransform } from './init/init.transform'
-import { NODE_ENV } from '@env'
 
 import { createLogger } from '../utils/logger'
 
@@ -66,7 +65,7 @@ const persistedReducer = persistReducer(
 export const sagaMiddleware = createSagaMiddleware()
 
 export const store = configureStore({
-  devTools: NODE_ENV === NodeEnv.Development,
+  devTools: process.env.NODE_ENV === NodeEnv.Development,
   middleware: [
     ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
     sagaMiddleware,
