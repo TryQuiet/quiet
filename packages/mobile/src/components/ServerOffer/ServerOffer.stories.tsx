@@ -2,7 +2,7 @@ import { storiesOf } from '@storybook/react-native'
 import React from 'react'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
-import { ServerOffer } from './ServerOffer.component'
+import { ServerOffer } from './CreatingOffer/ServerOffer.component'
 
 storiesOf('ServerOffer', module).add('Default', () => (
   <ServerOffer

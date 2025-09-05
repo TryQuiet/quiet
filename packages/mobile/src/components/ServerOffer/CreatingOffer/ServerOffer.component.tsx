@@ -1,10 +1,10 @@
 import React, { FC, useState, useCallback } from 'react'
 import { View, TouchableOpacity } from 'react-native'
-import { Button } from '../Button/Button.component'
-import { Typography } from '../Typography/Typography.component'
-import { defaultTheme } from '../../styles/themes/default.theme'
+import { Button } from '../../Button/Button.component'
+import { Typography } from '../../Typography/Typography.component'
+import { defaultTheme } from '../../../styles/themes/default.theme'
 // If you have a ServerBoxIcon for mobile, import it here and uncomment in the JSX
-import ServerBoxIcon from '../../assets/icons/svg/server-icon'
+import ServerBoxIcon from '../../../assets/icons/svg/server-icon'
 
 const CHECK_SIZE = 14
 const CHECK_BORDER = 2

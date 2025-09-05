@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { ModalBottomDrawer } from '../ModalBottomDrawer.component'
-import ServerOffer from '../../ServerOffer/ServerOffer.component'
+import ServerOffer from '../../ServerOffer/CreatingOffer/ServerOffer.component'
 
 export interface ServerOfferDrawerProps {
   visible: boolean
