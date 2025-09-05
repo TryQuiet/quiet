@@ -88,8 +88,8 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: app-standard-release.apk
-          path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-debug.apk
+          name: app-standard-debug.apk
+          path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
 
       - name: "Get release"
         id: get_release
@@ -113,7 +113,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-debug.apk
+          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
           asset_name: app-standard-debug.apk
           asset_content_type: application/.apk
 
