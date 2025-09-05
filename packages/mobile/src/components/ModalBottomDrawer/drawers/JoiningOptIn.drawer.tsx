@@ -4,16 +4,12 @@ import JoiningOptIn from '../../ServerOffer/JoiningOptIn/JoiningOptIn.component'
 import { communities } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 
-export interface JoiningOptInDrawerProps {
-  visible: boolean
-  onClose: (useServer: boolean) => void
-}
-
-export const JoiningOptInDrawer: React.FC<JoiningOptInDrawerProps> = ({ visible, onClose }) => {
+export const JoiningOptInDrawer: React.FC = () => {
   // Backdrop or swipe-down → treat as Leave Community
+  const dispatch = useDispatch()
   const waitingForOptIn = useSelector(communities.selectors.qssOptInRequested)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
-  const handleDrawerClose = useCallback(() => onClose(false), [onClose])
+  const handleDrawerClose = useCallback(() => dispatch(communities.actions.setQssOptInResponse(false)), [dispatch])
 
   const qssEndPoint =
     invitationCodes && 'qssEndPoint' in invitationCodes ? (invitationCodes as any).qssEndPoint : undefined
@@ -21,9 +17,9 @@ export const JoiningOptInDrawer: React.FC<JoiningOptInDrawerProps> = ({ visible,
   // When the child component fires an explicit decision, forward both values
   const handleChoice = useCallback(
     (useServer: boolean) => {
-      onClose(useServer)
+      dispatch(communities.actions.setQssOptInResponse(useServer))
     },
-    [onClose]
+    [dispatch]
   )
 
   return (

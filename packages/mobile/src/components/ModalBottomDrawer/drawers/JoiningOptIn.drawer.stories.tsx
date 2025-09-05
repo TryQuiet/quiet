@@ -6,18 +6,6 @@ import { ThemeProvider } from 'styled-components/native'
 import { JoiningOptInDrawer } from './JoiningOptIn.drawer'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 import { prepareStore } from '@quiet/state-manager'
-import { invitationCodes } from 'packages/state-manager/src/sagas/communities/communities.selectors'
-
-// Minimal reducer for mocking selectors
-const mockReducer = (
-  state = {
-    communities: {
-      qssOptInRequested: true,
-      invitationCodes: { qssEndPoint: 'mock-endpoint' },
-    },
-  },
-  action: any
-) => state
 
 const store = prepareStore({
   Communities: {
