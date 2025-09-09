@@ -1,20 +1,12 @@
-#define NAPI_VERSION 3
 #include "node_api.h"
 #include "uv.h"
 #include "rn-bridge.h"
-#define NM_F_BUILTIN 0x1
-#define NM_F_LINKED 0x2
 #include <map>
 #include <mutex>
 #include <queue>
 #include <string>
 #include <cstring>
 #include <cstdlib>
-
-
-/**
- * Some helper macros from node/test/addons-napi/common.h
- */
 
 // Empty value so that macros here are able to return NULL or void
 #define NAPI_RETVAL_NOTHING  // Intentionally blank #define
@@ -83,9 +75,6 @@ class Channel;
 std::mutex channelsMutex;
 std::map<std::string, Channel*> channels;
 
-/**
- * Channel class
- */
 class Channel {
 private:
     napi_env env = NULL;
@@ -333,7 +322,6 @@ napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 napi_value Init(napi_env env, napi_value exports) {
-    napi_status status;
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_METHOD("sendMessage", Method_SendMessage),
         DECLARE_NAPI_METHOD("registerChannel", Method_RegisterChannel),
@@ -355,5 +343,38 @@ void rn_bridge_notify(const char* channelName, const char *message) {
     channel->queueMessage(messageCopy);
 }
 
-NAPI_MODULE_X(rn_bridge, Init, NULL, NM_F_LINKED)
+extern "C" {                                                               
+    static napi_module _module = {                                               
+      NAPI_MODULE_VERSION,                                                     
+      NM_F_LINKED,                                                                   
+      __FILE__,                                                                
+      Init,                                                                 
+      "rn_bridge",                                                                
+      NULL,                                                                    
+      {0},                                                                     
+    };
 
+    NAPI_C_CTOR(_register_rn_bridge) { napi_module_register(&_module); }                                                                            
+}
+
+#if 0
+Before the 16KB Alignment, rn-bridge was linked to a libnode for NodeJS 12.19.0000
+
+we can no longer call NAPI_MODULE_X(rn_bridge, Init, NULL, NM_F_LINKED), the last
+two params are dropped when the macro expands in 18.20.4, meaning the crucial NM_F_LINKED
+gets ignored and nodejs can't bind "registerChannel" in Quiet JavaScript to
+Method_RegisterChannel defined here. 
+
+By unrolling macros in node_api.h we can register a working napi_module struct
+with NM_F_LINKED and pass that into napi_module_register. 
+
+In Node 18.20.4 napi_module_register in fact converts this older NAPI_MODULE API 
+to the newer NODE_MODULE_API so long as we pass in a pointer to a valid napi_module struct.
+
+// Registers a NAPI module.
+void NAPI_CDECL napi_module_register(napi_module* mod) {
+  node::node_module* nm =
+      new node::node_module(node::napi_module_to_node_module(mod));
+  node::node_module_register(nm);
+}
+#endif
