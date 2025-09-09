@@ -6,10 +6,6 @@ import { defaultTheme } from '../../../styles/themes/default.theme'
 // If you have a ServerBoxIcon for mobile, import it here and uncomment in the JSX
 import ServerBoxIcon from '../../../assets/icons/svg/server-icon'
 
-const CHECK_SIZE = 14
-const CHECK_BORDER = 2
-const CHECK_RADIUS = 2
-
 const SPACING_UNIT = 8
 const GAP_CONTENT = SPACING_UNIT * 3 // 24px;
 const GAP_TEXT = SPACING_UNIT * 2 // 16px;
@@ -41,6 +37,7 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
           alignItems: 'center',
           justifyContent: 'center',
           gap: GAP_CONTENT,
+          padding: 20,
         }}
       >
         {/* Text group */}
@@ -51,7 +48,7 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
           </View>
 
           {/* Title */}
-          <Typography fontSize={28} fontWeight={'bold'}>
+          <Typography fontSize={28} fontWeight={'bold'} style={{ textAlign: 'center' }}>
             This community is hosted on Quiet's Server
           </Typography>
 

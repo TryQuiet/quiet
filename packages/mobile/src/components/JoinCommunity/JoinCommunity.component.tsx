@@ -20,7 +20,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
   redirectionAction,
   invitationCode,
-  networkCreated,
+  hasReceivedResponse,
   ready = true,
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
@@ -70,11 +70,15 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   }, [invitationCode])
 
   useEffect(() => {
-    if (networkCreated) {
+    logger.info(`hasReceivedResponse changed: ${hasReceivedResponse}`)
+    if (hasReceivedResponse) {
+      logger.info('Resetting component state after receiving response')
       setInputError(undefined)
       setJoinCommunityInput('')
+      setLoading(false)
+      inputRef.current?.setNativeProps({ text: '' })
     }
-  }, [networkCreated])
+  }, [hasReceivedResponse])
 
   return (
     <>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react-native'
 import { View, Button } from 'react-native'
-import { Provider } from 'react-redux'
+import { Provider, useSelector } from 'react-redux'
 import { ThemeProvider } from 'styled-components/native'
 import { JoiningOptInDrawer } from './JoiningOptIn.drawer'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 import { prepareStore } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 
 const store = prepareStore({
   Communities: {
@@ -18,23 +19,17 @@ const JoiningOptInDrawerStory = () => {
   const [visible, setVisible] = useState(true)
   const [lastResult, setLastResult] = useState<{ useServer: boolean } | null>(null)
 
-  const handleClose = (useServer: boolean) => {
-    setVisible(false)
-    setLastResult({ useServer })
-  }
+  const qssOptInResponse = useSelector(communities.selectors.qssOptInResponse)
 
   return (
     <Provider store={store}>
       <ThemeProvider theme={defaultTheme}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 20 }}>
-          <Button title='Show Drawer' onPress={() => setVisible(true)} />
-          <JoiningOptInDrawer visible={visible} onClose={handleClose} />
+          <Button title='Show Drawer' onPress={() => store.dispatch(communities.actions.requestQssOptIn())} />
+          <JoiningOptInDrawer />
           {lastResult && (
             <View>
-              <Button
-                title={`Last: useServer=${lastResult.useServer ? 'true' : 'false'}`}
-                onPress={() => setLastResult(null)}
-              />
+              <Button title={`Last: useServer=${lastResult.useServer ? 'true' : 'false'}`} />
             </View>
           )}
         </View>

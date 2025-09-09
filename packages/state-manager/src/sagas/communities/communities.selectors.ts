@@ -59,6 +59,10 @@ export const qssOptInRequested = createSelector(communitiesSlice, reducerState =
   return reducerState.qssOptInRequested
 })
 
+export const qssOptInResponse = createSelector(communitiesSlice, reducerState => {
+  return reducerState.qssOptInResponse
+})
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
@@ -71,4 +75,5 @@ export const communitiesSelectors = {
   psk,
   isOwner,
   qssOptInRequested,
+  qssOptInResponse,
 }

@@ -29,10 +29,13 @@ const JoinCommunity = () => {
   }, [isConnected, currentCommunity, torBootstrapProcessSelector])
 
   useEffect(() => {
+    if (invitationCodes && joinCommunityModal.open) {
+      joinCommunityModal.handleClose()
+    }
     if (currentCommunity && joinCommunityModal.open) {
       joinCommunityModal.handleClose()
     }
-  }, [currentCommunity])
+  }, [invitationCodes, currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
     const joinCommunityPayload: JoinCommunityPayload = {
