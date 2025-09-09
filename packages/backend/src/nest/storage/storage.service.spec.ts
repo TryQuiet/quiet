@@ -5,7 +5,6 @@ import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quie
 import { Community, Identity, NetworkStats, PublicChannel, UserProfile } from '@quiet/types'
 
 import path from 'path'
-import { type PeerId } from '@libp2p/interface'
 import { TestModule } from '../common/test.module'
 import { libp2pInstanceParams } from '../common/utils'
 import { IpfsModule } from '../ipfs/ipfs.module'
@@ -25,6 +24,7 @@ import { createLogger } from '../common/logger'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
+import waitForExpect from 'wait-for-expect'
 
 const logger = createLogger('storageService:test')
 
@@ -108,6 +108,7 @@ describe('StorageService', () => {
   })
 
   afterEach(async () => {
+    jest.clearAllMocks()
     logger.info('Cleaning up after test:', expect.getState().currentTestName)
     await module.close()
     if (fs.existsSync(filePath)) {
@@ -168,20 +169,23 @@ describe('StorageService', () => {
     })
 
     it('addUserProfile should delegate to userProfileStore.setEntry', async () => {
-      const profile = { userId: 'bob', userData: null } as unknown as UserProfile
+      await storageService.init()
+      const profile = { userId: sigchainService.user.userId, userData: null } as unknown as UserProfile
       const setEntrySpy = jest.spyOn(userProfileStore, 'setEntry').mockResolvedValueOnce({} as unknown as any)
       await storageService.addUserProfile(profile)
-      expect(setEntrySpy).toHaveBeenCalledWith(profile.userId, profile)
+      await waitForExpect(async () => expect(setEntrySpy).toHaveBeenCalledWith(profile.userId, profile), 10_000)
     })
 
     it('addUserProfile should log and not throw when setEntry rejects', async () => {
+      await storageService.init()
       const profile = { userId: 'charlie', userData: null } as unknown as UserProfile
       jest.spyOn(userProfileStore, 'setEntry').mockRejectedValueOnce(new Error('deferred'))
       await expect(storageService.addUserProfile(profile)).resolves.not.toThrow()
     })
 
     it('should set and get identity via localDbService', async () => {
-      const identity = { userId: 'alice', nickname: 'Alice' } as unknown as Identity
+      await storageService.init()
+      const identity = { userId: sigchainService.user.userId, nickname: 'Alice' } as unknown as Identity
       const setIdentitySpy = jest.spyOn(localDbService, 'setIdentity').mockResolvedValueOnce()
       const getIdentitySpy = jest.spyOn(localDbService, 'getIdentity').mockResolvedValueOnce(identity)
       await storageService.setIdentity(identity)
@@ -192,6 +196,7 @@ describe('StorageService', () => {
     })
 
     it('updatePeerStore should merge existing and new peers', async () => {
+      await storageService.init()
       const existingPeerStats = {
         peerOld: {
           peerId: 'peerOld',
@@ -200,9 +205,10 @@ describe('StorageService', () => {
           connectionTime: 0,
         },
       } as Record<string, NetworkStats>
+      const userId = sigchainService.user.userId
       jest.spyOn(localDbService, 'getPeerStats').mockResolvedValue(existingPeerStats as any)
 
-      const members = [{ userId: 'user1' }]
+      const members = [{ userId }]
       jest.spyOn(sigchainService, 'getActiveChain').mockReturnValue({
         team: {
           members: () => members,
@@ -211,18 +217,18 @@ describe('StorageService', () => {
 
       const userProfiles = [
         {
-          userId: 'user1',
+          userId,
           userData: { onionAddress: 'addr1.onion', peerId: 'peer1' },
         },
       ] as any
       jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue(userProfiles)
 
-      const setPeerStatsSpy = jest.spyOn(localDbService, 'setPeerStats').mockImplementation(async () => {})
+      const setPeerStatsSpy = jest.spyOn(localDbService, 'setPeerStats')
 
       await storageService.updatePeerStore()
 
       const expectedMultiaddr = `/dns4/addr1.onion/tcp/80/ws/p2p/peer1`
-      expect(setPeerStatsSpy).toHaveBeenCalled()
+      await waitForExpect(async () => expect(setPeerStatsSpy).toHaveBeenCalledTimes(1), 5_000)
       const arg = setPeerStatsSpy.mock.calls[0][0]
       expect(arg['peer1']).toBeDefined()
       expect(arg['peer1'].peerId).toEqual('peer1')

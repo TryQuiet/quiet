@@ -1,13 +1,11 @@
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import * as uint8arrays from 'uint8arrays'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
-import fs from 'fs'
 import getPort from 'get-port'
 import { Agent } from 'https'
-import path from 'path'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { createPeerId, removeFilesFromDir } from '../common/utils'
+import { createPeerId } from '../common/utils'
 
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import {
@@ -24,12 +22,10 @@ import {
   FileMetadata,
   GetMessagesPayload,
   MessagesLoadedPayload,
-  NetworkDataPayload,
   NetworkInfo,
   NetworkStats,
   PushNotificationPayload,
   RemoveDownloadStatus,
-  SendMessagePayload,
   SocketActions,
   SocketEvents,
   AttachFilePayload,
@@ -55,7 +51,7 @@ import {
   InvitationData,
   SetUserProfileResponse,
 } from '@quiet/types'
-import { CONFIG_OPTIONS, QSS_ENABLED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -92,7 +88,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
-    @Inject(QSS_ENABLED) private readonly qssEnabled: boolean,
+    @Inject(QSS_ALLOWED) private readonly qssAllowed: boolean,
     @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string | undefined,
     private readonly socketService: SocketService,
     public readonly libp2pService: Libp2pService,
@@ -222,7 +218,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         this.logger.info('Loading sigchain for community', community.name)
         const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
-        const connected = await this.qssService.connect(!!community.qssEnabled, community.qssEndpoint)
+        if (community.qssEnabled) {
+          this.qssService.enableForCommunity(loadedSigchain.team!.id)
+        }
+        const connected = await this.qssService.connect(community.qssEndpoint)
         if (connected) {
           await this.qssService.signInToCommunity(loadedSigchain.team!.id, loadedSigchain)
         }
@@ -362,8 +361,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const peerId = await createPeerId()
     const peerIdJson: QuietPeerId = {
       id: peerId.peerId.toString(),
-      privKey: uint8ArrayToString(peerId.privKey.raw, 'base64'),
-      noiseKey: uint8ArrayToString(peerId.noiseKey, 'base64'),
+      privKey: uint8arrays.toString(peerId.privKey.raw, 'base64'),
     }
     this.logger.info(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
@@ -373,10 +371,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async createCommunityOnQss(community: Community, sigchain: SigChain): Promise<void> {
-    const connected = await this.qssService.connect(this.qssEnabled, this.qssEndpoint)
+  private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
+    const connected = await this.qssService.connect(this.qssEndpoint)
     if (connected) {
-      await this.qssService.createCommunity(community, sigchain)
+      await this.qssService.createCommunity(sigchain)
     }
   }
 
@@ -407,7 +405,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.team!.id,
-      qssEnabled: this.qssEnabled,
+      qssEnabled: this.qssAllowed,
       qssEndpoint: this.qssEndpoint,
     }
 
@@ -415,7 +413,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCurrentCommunityId(community.id)
 
     // purposely don't await
-    this.createCommunityOnQss(community, sigchain)
+    this.createCommunityOnQss(sigchain)
 
     await this.launchCommunity(community)
 
@@ -444,7 +442,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       inviteData.authData.teamId != null &&
       inviteData.qssEndpoint != null
     ) {
-      const connected = await this.qssService.connect(true, inviteData.qssEndpoint)
+      this.qssService.enableForCommunity(inviteData.authData.teamId)
+      const connected = await this.qssService.connect(inviteData.qssEndpoint)
       if (connected) {
         await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
       }
@@ -621,8 +620,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const peerIdData: CreatedLibp2pPeerId = {
       peerId: peerIdFromString(identity.networkInfo.peerId.id),
-      privKey: privateKeyFromRaw(Buffer.from(identity.networkInfo.peerId.privKey, 'base64')),
-      noiseKey: Buffer.from(identity.networkInfo.peerId.noiseKey, 'base64'),
+      privKey: privateKeyFromRaw(uint8arrays.fromString(identity.networkInfo.peerId.privKey, 'base64')),
     }
     const localAddress = createLibp2pAddress(onionAddress, peerIdData.peerId.toString())
 
@@ -644,10 +642,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const activeChain = this.sigChainService.getActiveChain()
     if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
       await setupStorage()
+      this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
     } else {
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
         await setupStorage()
+        this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
       })
     }
     if (await this.tor.isBootstrappingFinished()) {

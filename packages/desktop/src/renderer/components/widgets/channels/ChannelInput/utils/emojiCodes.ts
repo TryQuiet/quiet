@@ -1,4 +1,6 @@
 import { is } from 'ramda'
+import emojiDataJson from 'unicode-emoji-json'
+const emojiData = emojiDataJson as EmojiData
 
 // Emoji shortcode mapping
 export interface EmojiMapping {
@@ -1081,13 +1083,50 @@ function isLastWordProtected(text: string): boolean {
   return false
 }
 
+type EmojiInfo = {
+  name: string
+  slug: string
+  group: string
+  emoji_version: string
+  unicode_version: string
+  skin_tone_support: boolean
+  skin_tone_support_unicode_version?: string
+}
+
+type EmojiData = {
+  [emoji: string]: EmojiInfo
+}
+
+function supportsSkinTone(emoji: string): boolean {
+  const data: EmojiInfo = emojiData[emoji]
+  return data ? data.skin_tone_support : false
+}
+
+function getSkinToneEmoji(emoji: string): string {
+  if (supportsSkinTone(emoji)) {
+    const code = localStorage.getItem(SKIN_TONE_KEY)
+    if (code) {
+      // Need to convert the stored modifier to Unicode.
+      return emoji + String.fromCodePoint(parseInt(code, 16))
+    }
+  }
+  // If emoji doesn't support skin tone modifiers return it as is
+  return emoji
+}
+
+const SKIN_TONE_KEY = 'emojiPickerSkinTone'
+
+export function getEmojiFromShortcode(word: string) {
+  return getSkinToneEmoji(emojiShortcodes[word])
+}
+
 // -------------------------------------------
 // 5) While-typing replacement
 // -------------------------------------------
 function replaceIfEmoji(word: string, delimiter: string): { replaced: string; offset: number } {
   // shortcodes => always replace
   if (emojiShortcodes[word]) {
-    const replacedWord = emojiShortcodes[word]
+    const replacedWord = getEmojiFromShortcode(word)
     const offset = replacedWord.length - word.length
     return { replaced: replacedWord, offset }
   }
@@ -1097,7 +1136,7 @@ function replaceIfEmoji(word: string, delimiter: string): { replaced: string; of
     if (!delimiter) {
       return { replaced: word, offset: 0 }
     }
-    const replacedWord = emoticons[word]
+    const replacedWord = getSkinToneEmoji(emoticons[word])
     let offset = replacedWord.length - word.length
     // tests want an extra -1 if emoticon had trailing space/punct
     offset -= 1
@@ -1149,10 +1188,10 @@ function replaceAllEmojisInUnprotected(segment: string): string {
 
   return segment.replace(tokenRegex, match => {
     if (emojiShortcodes[match]) {
-      return emojiShortcodes[match]
+      return getEmojiFromShortcode(match)
     }
     if (emoticons[match]) {
-      return emoticons[match]
+      return getSkinToneEmoji(emoticons[match])
     }
     return match
   })

@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
 import { useModal } from '../../../containers/hooks'
 import { Community } from '@quiet/types'
 
@@ -61,7 +61,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, 
         <Typography variant='h4' className={classes.nickname}>
           {communityName}
         </Typography>
-        <ExpandMoreIcon fontSize='small' />
+        <ArrowDropDown fontSize='small' style={{ marginLeft: 4 }} />
       </Button>
     </IdentityPanelButtonStyled>
   )

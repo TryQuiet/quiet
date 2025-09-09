@@ -4,7 +4,7 @@ import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
 import { Level } from 'level'
 
-import { type Community, type NetworkInfo, NetworkStats, Identity, IdentityUpdatePayload } from '@quiet/types'
+import { type Community, NetworkStats, Identity } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
@@ -272,6 +272,7 @@ export class LocalDbService {
   /**
    * Pending heads helpers for OrbitDbService (per-address key version)
    */
+
   public async getPendingHeads(address?: string): Promise<Record<string, CID[]> | CID[]> {
     if (address) {
       let arr = (await this.get(`${LocalDBKeys.PENDING_HEADS}:${address}`)) || []
@@ -342,6 +343,61 @@ export class LocalDbService {
       await this.delete(key)
     } else {
       await this.put(key, arr)
+    }
+  }
+
+  /**
+   * Pending qss sync message helpers for QSSService
+   */
+
+  public async addPendingQssSyncMessage(address: string, hash: string): Promise<boolean> {
+    const key = `${LocalDBKeys.PENDING_QSS_SYNCS}:${address}`
+    const arr: string[] = (await this.get(key)) || []
+    if (!arr.includes(hash)) {
+      arr.push(hash)
+      await this.put(key, arr)
+      return true
+    }
+
+    return false
+  }
+
+  public async getPendingQssSyncMessages(): Promise<Record<string, string[]>> {
+    // Get all keys with the pending qss sync prefix
+    const result: Record<string, string[]> = {}
+    for await (const [key, value] of this.db.iterator({
+      gte: `${LocalDBKeys.PENDING_QSS_SYNCS}:`,
+      lte: `${LocalDBKeys.PENDING_QSS_SYNCS}:~`,
+    })) {
+      let arr: string[] = []
+      if (typeof value === 'string') {
+        try {
+          arr = JSON.parse(value)
+        } catch {
+          arr = []
+        }
+      } else {
+        arr = value
+      }
+      const addr = key.slice(`${LocalDBKeys.PENDING_QSS_SYNCS}:`.length)
+      result[addr] = arr ?? []
+    }
+    return result
+  }
+
+  public async removePendingQssSyncMessages(sentMessageHashes: Record<string, string[]>): Promise<void> {
+    const pendingHashes = await this.getPendingQssSyncMessages()
+    for (const [address, sentHashes] of Object.entries(sentMessageHashes)) {
+      let arr = pendingHashes[address]
+      for (const sentHash of sentHashes) {
+        arr = arr.filter(pendingHash => pendingHash !== sentHash)
+      }
+      const key = `${LocalDBKeys.PENDING_QSS_SYNCS}:${address}`
+      if (arr.length === 0) {
+        await this.delete(key)
+      } else {
+        await this.put(key, arr)
+      }
     }
   }
 }

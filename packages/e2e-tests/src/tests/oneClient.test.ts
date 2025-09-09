@@ -49,6 +49,7 @@ describe('One Client', () => {
     it('User opens app', async () => {
       await app.open()
     })
+
     it('Get opened app process data', () => {
       const processData = app.buildSetup.getProcessData()
       dataDirPath = processData.dataDirPath

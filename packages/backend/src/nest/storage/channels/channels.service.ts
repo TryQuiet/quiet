@@ -79,6 +79,16 @@ export class ChannelsService extends EventEmitter {
     this.logger.info(`Initialized ${ChannelsService.name}`)
   }
 
+  public updateMetadata(metadata: Record<string, any>): void {
+    if (this.channels == null) {
+      throw new Error('Channels database must be initialized before updating metadata!')
+    }
+    OrbitDbService.updateMetadata(this.channels, metadata)
+    for (const repo of this.publicChannelsRepos.values()) {
+      repo.store.updateMetadata(metadata)
+    }
+  }
+
   /**
    * Initialize the channels management database and individual channel stores in OrbitDB
    */
@@ -335,8 +345,10 @@ export class ChannelsService extends EventEmitter {
    * @returns Newly created ChannelStore
    */
   private async createChannelStore(channelData: PublicChannel): Promise<ChannelStore> {
-    const store = await this.moduleRef.create(ChannelStore, createContextId())
-    return await store.init(channelData, { sync: false })
+    let store = await this.moduleRef.create(ChannelStore, createContextId())
+    store = await store.init(channelData, { sync: false })
+    store.updateMetadata({ teamId: this.sigchainService.team.id })
+    return store
   }
 
   /**
@@ -710,7 +722,5 @@ export class ChannelsService extends EventEmitter {
     }
     this.channels = undefined
     this.publicChannelsRepos = new Map()
-
-    this.channels = undefined
   }
 }
