@@ -1,17 +1,16 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.2.0-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.2.0-alpha.4...@quiet/mobile@6.2.0-alpha.5) (2025-09-09)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
+
+## [unreleased]
+
+### Fixes
+
+* Fix newline formatting in messages on mobile
+* Fix issue with keyboard hiding message input on Android
+* Fix issue with message send button not displaying correctly on mobile
+
+### Chores
+
+* Bump Android SDK to 35, NDK to 28.2.13676358, and Gradle plugin to 8.5.1 [see Google Play deadline](https://developer.android.com/google/play/requirements/target-sdk)
 
 ## [6.1.0]
 
