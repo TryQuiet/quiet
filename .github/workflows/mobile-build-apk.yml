@@ -81,6 +81,16 @@ jobs:
           name: app-standard-release.apk
           path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
+      - name: "Build debug .apk"
+        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardDebug
+
+      - name: "Upload debug .apk to artifacts"
+        continue-on-error: true
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: app-standard-debug.apk
+          path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+
       - name: "Get release"
         id: get_release
         uses: bruceadams/get-release@v1.2.3
@@ -95,6 +105,16 @@ jobs:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
           asset_name: app-standard-release.apk
+          asset_content_type: application/.apk
+      
+      - name: "Upload debug release assets"
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+          asset_name: app-standard-debug.apk
           asset_content_type: application/.apk
 
       - name: Send Release Notificaton
