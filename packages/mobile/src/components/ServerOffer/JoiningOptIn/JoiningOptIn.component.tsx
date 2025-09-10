@@ -1,10 +1,17 @@
-import React, { FC, useState, useCallback } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import React, { FC, useState } from 'react'
+import { View, TouchableOpacity, Linking } from 'react-native'
 import { Button } from '../../Button/Button.component'
 import { Typography } from '../../Typography/Typography.component'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 // If you have a ServerBoxIcon for mobile, import it here and uncomment in the JSX
 import ServerBoxIcon from '../../../assets/icons/svg/server-icon'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('JoiningOptInComponent')
+
+const CHECK_SIZE = 14
+const CHECK_BORDER = 2
+const CHECK_RADIUS = 2
 
 const SPACING_UNIT = 8
 const GAP_CONTENT = SPACING_UNIT * 3 // 24px;
@@ -18,13 +25,16 @@ export interface JoiningOptInProps {
 }
 
 export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPoint }) => {
-  const handleUseServer = useCallback(() => {
-    onClose(true)
-  }, [onClose])
+  const [agreedToTOS, setAgreedToTOS] = useState(false)
 
-  const handleLeaveCommunity = useCallback(() => {
+  const handleUseServer = () => {
+    if (!agreedToTOS) return
+    onClose(true)
+  }
+
+  const handleLeaveCommunity = () => {
     onClose(false)
-  }, [onClose])
+  }
 
   if (!visible) return null
 
@@ -62,9 +72,63 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
 
         {/* Actions */}
         <View style={{ width: 'auto', gap: GAP_ACTIONS }}>
-          <Button title={"Use Quiet's Server"} onPress={handleUseServer} />
+          <Button title={"Use Quiet's Server"} onPress={handleUseServer} disabled={!agreedToTOS} />
           <Button title={'Leave Community'} onPress={handleLeaveCommunity} negative />
         </View>
+
+        {/* Don’t show again checkbox */}
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}
+          onPress={() => setAgreedToTOS(prev => !prev)}
+          testID={'server-offer-dont-show-again'}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <View
+            style={{
+              width: CHECK_SIZE,
+              height: CHECK_SIZE,
+              borderRadius: CHECK_RADIUS,
+              borderWidth: CHECK_BORDER,
+              borderColor: agreedToTOS ? defaultTheme.palette.typography.gray50 : defaultTheme.palette.input.border,
+              backgroundColor: agreedToTOS
+                ? defaultTheme.palette.typography.gray50
+                : defaultTheme.palette.background.white,
+              marginRight: 10,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            accessibilityRole='checkbox'
+            accessibilityState={{ checked: agreedToTOS }}
+          >
+            {agreedToTOS && (
+              <Typography
+                fontSize={10}
+                fontWeight={'bold'}
+                style={{
+                  color: defaultTheme.palette.main.white,
+                  lineHeight: CHECK_SIZE - CHECK_BORDER,
+                  textAlign: 'center',
+                }}
+              >
+                ✓
+              </Typography>
+            )}
+          </View>
+          <Typography fontSize={14} color={'subtitle'}>
+            Agree to the{' '}
+            <Typography
+              fontSize={14}
+              color={'subtitle'}
+              style={{ textDecorationLine: 'underline' }}
+              onPress={() => {
+                // Open the link using Linking API
+                Linking.openURL('https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use')
+              }}
+            >
+              Privacy Policy and Terms of Service
+            </Typography>
+          </Typography>
+        </TouchableOpacity>
       </View>
     </View>
   )
