@@ -37,7 +37,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch, currentCommunity, route.params?.code])
 
   useEffect(() => {
-    if (invitationCodes && !qssOptInRequested) {
+    if (invitationCodes && currentCommunity && !qssOptInRequested) {
       dispatch(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
