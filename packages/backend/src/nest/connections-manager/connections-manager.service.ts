@@ -116,8 +116,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
     )
 
-    this.logger.info('Environment Variables:', JSON.stringify(process.env, null, 2))
-
     await this.init()
   }
 
