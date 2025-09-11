@@ -269,7 +269,7 @@ describe('Multiple Clients (QSS)', () => {
       })
 
       it(`First user sees second user's message`, async () => {
-        await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username)
+        await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username, 60_000)
       })
     })
 

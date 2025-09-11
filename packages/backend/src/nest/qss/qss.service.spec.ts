@@ -15,7 +15,7 @@ import {
   CommunityOperationStatus,
   CreateCommunityStatus,
   CommunitySignInMessage,
-  QSSDataSyncMessage,
+  QSSLogEntrySyncMessage,
 } from './qss.types'
 import { createLogger } from '../common/logger'
 import { Community, Identity } from '@quiet/types'
@@ -522,8 +522,8 @@ describe('QSSService', () => {
     })
   })
 
-  describe('sendDataSyncMessage', () => {
-    it(`sends a successful data sync to QSS`, async () => {
+  describe('sendLogEntrySyncMessage', () => {
+    it(`sends a successful log sync to QSS`, async () => {
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -533,8 +533,8 @@ describe('QSSService', () => {
               return undefined
             }
             switch (event) {
-              case WebsocketEvents.DATA_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload!
+              case WebsocketEvents.LOG_ENTRY_SYNC:
+                const { teamId, hash, hashedDbId } = (payload as QSSLogEntrySyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
@@ -567,11 +567,11 @@ describe('QSSService', () => {
       )
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address)
-      const result = await qssService.sendDataSyncMessage(update)
+      const result = await qssService.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
-          WebsocketEvents.DATA_SYNC,
+          WebsocketEvents.LOG_ENTRY_SYNC,
           expect.objectContaining({
             ts: expect.any(Number),
             status: CommunityOperationStatus.SENDING,
@@ -581,18 +581,18 @@ describe('QSSService', () => {
               hashedDbId: expect.any(String),
               encEntry: expect.any(Object),
             },
-          } as QSSDataSyncMessage),
+          } as QSSLogEntrySyncMessage),
           true
         )
       })
       expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
 
-      const pendingMessages = await localDbService.getPendingQssSyncMessages()
+      const pendingMessages = await localDbService.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
     })
 
-    it(`fails to send data sync to QSS and writes pending message to local DB`, async () => {
+    it(`fails to send log sync to QSS and writes pending message to local DB`, async () => {
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -602,8 +602,8 @@ describe('QSSService', () => {
               return undefined
             }
             switch (event) {
-              case WebsocketEvents.DATA_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload!
+              case WebsocketEvents.LOG_ENTRY_SYNC:
+                const { teamId, hash, hashedDbId } = (payload as QSSLogEntrySyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
@@ -618,7 +618,7 @@ describe('QSSService', () => {
             }
           }
         )
-      addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssSyncMessage')
+      addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
       mockedCreateSocket.mockRestore()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('ws://localhost:3000')
@@ -638,14 +638,14 @@ describe('QSSService', () => {
       )
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address)
-      const result = await qssService.sendDataSyncMessage(update)
+      const result = await qssService.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
       await waitForExpect(async () => {
         expect(addPendingMessageSpy).toHaveBeenCalledTimes(1)
       })
       expect(mockedSendMessage).toHaveBeenCalledTimes(0)
 
-      const pendingMessages = await localDbService.getPendingQssSyncMessages()
+      const pendingMessages = await localDbService.getPendingQssLogSyncMessages()
       expect(pendingMessages[db.address].length).toBe(1)
     })
   })
