@@ -232,7 +232,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('No community name found in storage')
     }
 
-    await this.launchCommunity(community)
+    await this.launchCommunity(community.id)
   }
 
   public async closeSocket() {
@@ -415,7 +415,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // purposely don't await
     this.createCommunityOnQss(sigchain)
 
-    await this.launchCommunity(community)
+    await this.launchCommunity(community.id)
 
     const userProfile: UserProfile = {
       userId: identity.userId,
@@ -528,8 +528,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    this.launchCommunity(community)
-
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
@@ -548,7 +546,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseJoinCommunityPayload
   }
 
-  public async launchCommunity(community: Community) {
+  public async launchCommunity(id: string): Promise<void> {
+    const community: Community | undefined = await this.localDbService.getCommunity(id)
+    if (!community) {
+      this.logger.error('No community found in storage')
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LAUNCH_COMMUNITY,
+        message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
+        community: id,
+      })
+      return
+    }
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -681,11 +689,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)
     })
 
-    // TOOD: implement with multiple communities
-    // this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
-    //   this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
-    //   this.logger.info('Not implemented yet')
-    // })
+    this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
+      this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
+      this.launchCommunity(args.id)
+    })
 
     this.socketService.on(
       SocketActions.CREATE_COMMUNITY,

@@ -56,7 +56,7 @@ export const CreateCommunityScreen: FC = () => {
 
   const redirectionAction = useCallback(() => {
     dispatch(
-      navigationActions.navigation({
+      navigationActions.replaceScreen({
         screen: ScreenNames.JoinCommunityScreen,
       })
     )

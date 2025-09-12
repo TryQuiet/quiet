@@ -13,7 +13,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
   registerUsernameError,
   usernameRegistered,
-  fetching,
   currentUsername,
   handleBackButton,
   registeredUsers,
@@ -29,13 +28,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   const inputRef = useRef<TextInput>(null)
 
   useEffect(() => {
-    if (fetching) {
-      setLoading(true)
-      inputRef.current?.setNativeProps({ text: 'Registering username' })
-    }
-  }, [fetching])
-
-  useEffect(() => {
     if (registerUsernameError) {
       setLoading(false)
       setInputError(registerUsernameError)
@@ -47,13 +39,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
-    // cutting out unique username check for now
-    // if (registeredUsers && !isNewUser) {
-    //   const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
-    //   if (allUsersSet.has(name)) {
-    //     setInputError(`Username @${name} is already taken`)
-    //   }
-    // }
   }
 
   const onPress = () => {

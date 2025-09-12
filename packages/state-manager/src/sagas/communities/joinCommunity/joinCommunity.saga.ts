@@ -36,22 +36,6 @@ export function* joinCommunitySaga(
     inviteData: inviteData,
   }
 
-  if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
-    yield* put(communitiesActions.requestQssOptIn())
-    const qssOptInResponseAction: ReturnType<typeof communitiesActions.setQssOptInResponse> = yield* take(
-      communitiesActions.setQssOptInResponse
-    )
-    if (qssOptInResponseAction.payload) {
-      logger.info('User opted in to QSS')
-      communityCandidate.qssEnabled = true
-      communityCandidate.qssEndpoint = inviteData.qssEndpoint
-    } else {
-      logger.info('User opted out of QSS')
-      yield* put(communitiesActions.clearInvitationCodes())
-      return
-    }
-  }
-
   yield* put(communitiesActions.addNewCommunity(communityCandidate))
   yield* put(communitiesActions.setCurrentCommunity(communityId))
 
@@ -59,14 +43,36 @@ export function* joinCommunitySaga(
   const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
     identityActions.registerUsername
   )
-  const username = registerAction.payload.nickname
+
+  if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
+    yield* put(communitiesActions.requestQssOptIn())
+    const qssOptInResponseAction: ReturnType<typeof communitiesActions.setQssOptInResponse> = yield* take(
+      communitiesActions.setQssOptInResponse
+    )
+    if (qssOptInResponseAction.payload) {
+      logger.info('User opted in to QSS')
+      yield* put(
+        communitiesActions.updateCommunityData({
+          ...communityCandidate,
+          qssEnabled: true,
+          qssEndpoint: inviteData.qssEndpoint,
+        })
+      )
+    } else {
+      logger.info('User opted out of QSS')
+      yield* put(communitiesActions.clearInvitationCodes())
+      return
+    }
+  }
 
   const payload: InitCommunityPayload = {
     id: communityId,
     name: '',
     inviteData,
-    username: username,
+    username: registerAction.payload.nickname,
   }
+
+  logger.info('Updating backend with community data')
 
   const response: ResponseJoinCommunityPayload | undefined = yield* apply(
     socket,
@@ -84,7 +90,7 @@ export function* joinCommunitySaga(
   yield* put(communitiesActions.updateCommunityData(response.community))
   yield* put(identityActions.addNewIdentity(response.identity))
   yield* put(usersActions.setUserProfile(response.profile))
+  yield* put(communitiesActions.clearInvitationCodes())
   yield* put(communitiesActions.launchCommunity(response.community))
   // clearing invitation codes to mark that we are done with joining a community
-  yield* put(communitiesActions.clearInvitationCodes())
 }

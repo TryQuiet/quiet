@@ -36,29 +36,24 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     setInvitationCode(code)
   }, [dispatch, currentCommunity, route.params?.code])
 
-  useEffect(() => {
-    if (invitationCodes && currentCommunity && !qssOptInRequested) {
-      dispatch(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    }
-  }, [invitationCodes, qssOptInRequested])
-
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
       const payload: JoinCommunityPayload = {
         inviteData: data,
       }
       dispatch(communities.actions.joinCommunity(payload))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     },
     [dispatch]
   )
 
   const redirectionAction = useCallback(() => {
     dispatch(
-      navigationActions.navigation({
+      navigationActions.replaceScreen({
         screen: ScreenNames.CreateCommunityScreen,
       })
     )
@@ -68,7 +63,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     <JoinCommunity
       joinCommunityAction={joinCommunityAction}
       redirectionAction={redirectionAction}
-      hasReceivedResponse={hasReceivedResponse}
+      hasReceivedResponse={true}
       invitationCode={invitationCode}
       ready={isWebsocketConnected}
     />

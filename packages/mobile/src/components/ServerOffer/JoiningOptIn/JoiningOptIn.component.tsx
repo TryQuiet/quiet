@@ -18,6 +18,9 @@ const GAP_CONTENT = SPACING_UNIT * 3 // 24px;
 const GAP_TEXT = SPACING_UNIT * 2 // 16px;
 const GAP_ACTIONS = SPACING_UNIT * 2 // 16px;
 
+const serverHost = '' // You can pass the server host as a prop if needed
+const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use'
+
 export interface JoiningOptInProps {
   visible: boolean
   onClose: (useServer: boolean) => void
@@ -26,7 +29,10 @@ export interface JoiningOptInProps {
 
 export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPoint }) => {
   const [agreedToTOS, setAgreedToTOS] = useState(false)
-
+  const openLink = (url: string) => {
+    if (!url) return
+    Linking.openURL(url).catch(() => {})
+  }
   const handleUseServer = () => {
     if (!agreedToTOS) return
     onClose(true)
@@ -63,10 +69,16 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
           </Typography>
 
           {/* Body copy */}
-          <Typography fontSize={14} color={'subtitle'} style={{ textAlign: 'center', maxWidth: 320 }}>
-            This community's admins have added a server ({qssEndPoint ?? 'qss.tryquiet.org'}) for more speed and
-            reliability. Quiet will connect to the server without Tor, so this comes at the cost of Tor's anonymity
-            protection. Would you like to use the server or leave the community?
+          <Typography fontSize={14} style={{ marginBottom: 24, textAlign: 'center' }}>
+            This community uses a server {serverHost ? `(${serverHost} )` : ''}for messaging without Tor. By joining you
+            agree to this{' '}
+            <Typography
+              fontSize={14}
+              style={{ textDecorationLine: 'underline' }}
+              onPress={() => openLink(privacyPolicyUrl)}
+            >
+              Privacy Policy and Terms of Use.
+            </Typography>
           </Typography>
         </View>
 

@@ -18,12 +18,16 @@ export class CommunitiesState {
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
   public qssOptInRequested = false
   public qssOptInResponse: boolean | null = null
+  public connectionInProgress = false
 }
 
 export const communitiesSlice = createSlice({
   initialState: { ...new CommunitiesState() },
   name: StoreKeys.Communities,
   reducers: {
+    setConnectionInProgress: (state, action: PayloadAction<boolean>) => {
+      state.connectionInProgress = action.payload
+    },
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       logger.info('Setting current community', JSON.stringify(action.payload, null, 2))
       state.currentCommunity = action.payload

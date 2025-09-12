@@ -9,7 +9,10 @@ export const JoiningOptInDrawer: React.FC = () => {
   const dispatch = useDispatch()
   const waitingForOptIn = useSelector(communities.selectors.qssOptInRequested)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const handleDrawerClose = useCallback(() => dispatch(communities.actions.setQssOptInResponse(false)), [dispatch])
+  // Show the drawer if we are waiting for an opt-in decision and QSS is disabled for this community
+  const showDrawer = Boolean(waitingForOptIn && currentCommunity?.qssEnabled === false)
 
   const qssEndPoint =
     invitationCodes && 'qssEndPoint' in invitationCodes ? (invitationCodes as any).qssEndPoint : undefined
@@ -24,14 +27,14 @@ export const JoiningOptInDrawer: React.FC = () => {
 
   return (
     <ModalBottomDrawer
-      visible={waitingForOptIn}
+      visible={showDrawer}
       onClose={handleDrawerClose}
       title=''
       showHandle
       testIdPrefix='joining-opt-in-drawer'
       heightRatio={2 / 3}
     >
-      <JoiningOptIn visible={waitingForOptIn} onClose={handleChoice} qssEndPoint={qssEndPoint} />
+      <JoiningOptIn visible={showDrawer} onClose={handleChoice} qssEndPoint={qssEndPoint} />
     </ModalBottomDrawer>
   )
 }

@@ -182,6 +182,11 @@ export class LocalDbService {
     await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, communityId)
   }
 
+  public async getCommunity(id: string): Promise<Community | undefined> {
+    const communities = await this.get(LocalDBKeys.COMMUNITIES)
+    return communities?.[id]
+  }
+
   public async getCommunities(): Promise<Record<string, Community>> {
     return await this.get(LocalDBKeys.COMMUNITIES)
   }
