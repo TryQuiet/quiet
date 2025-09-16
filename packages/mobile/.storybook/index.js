@@ -41,7 +41,6 @@ configure(() => {
   require('../src/components/FileAttachmentPreview/FileAttachmentPreview.stories')
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
   require('../src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.stories')
-  require('../src/components/ModalBottomDrawer/drawers/JoiningOptIn.drawer.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({
