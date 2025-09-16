@@ -119,4 +119,5 @@ export function* customProtocolSaga(
 
   logger.info('Dispatching join community action', payload)
   yield* put(communities.actions.joinCommunity(payload))
+  yield* put(modalsActions.openModal({ name: ModalName.createUsernameModal }))
 }

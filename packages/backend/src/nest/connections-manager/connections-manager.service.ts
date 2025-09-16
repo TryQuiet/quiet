@@ -407,6 +407,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       teamId: sigchain.team!.id,
       qssEnabled: this.qssAllowed && payload.useServer,
       qssEndpoint: this.qssEndpoint,
+      tosAccepted: payload.tosAccepted,
     }
 
     await this.localDbService.setCommunity(community)

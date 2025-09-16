@@ -171,6 +171,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     setError,
     clearErrors,
     control,
+    reset,
   } = useForm<CreateUserValues>({
     mode: 'onTouched',
   })
@@ -199,8 +200,9 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
 
   React.useEffect(() => {
     if (!open) {
-      setValue('userName', '')
+      reset()
       setUserName('')
+      setParsedNameDiffers(false)
     }
   }, [open])
 

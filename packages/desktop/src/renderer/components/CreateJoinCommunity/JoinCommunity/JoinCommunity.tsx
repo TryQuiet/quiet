@@ -14,6 +14,7 @@ const JoinCommunity = () => {
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
@@ -23,16 +24,13 @@ const JoinCommunity = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !joinCommunityModal.open) {
+    if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, torBootstrapProcessSelector])
+  }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
 
   useEffect(() => {
     if (invitationCodes && joinCommunityModal.open) {
-      joinCommunityModal.handleClose()
-    }
-    if (currentCommunity && joinCommunityModal.open) {
       joinCommunityModal.handleClose()
     }
   }, [invitationCodes, currentCommunity])
@@ -42,6 +40,8 @@ const JoinCommunity = () => {
       inviteData: data,
     }
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
+    createUsernameModal.handleOpen()
+    joinCommunityModal.handleClose()
   }
 
   // From 'You can create a new community instead' link

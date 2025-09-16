@@ -73,6 +73,20 @@ export const communitiesSlice = createSlice({
       state.qssOptInResponse = action.payload
       state.qssOptInRequested = false
     },
+    setTermsOfServiceAccepted: (state, action: PayloadAction<{ communityId?: string; accepted: boolean }>) => {
+      const { communityId, accepted } = action.payload
+      if (communityId) {
+        const community = state.communities.entities[communityId]
+        if (community) {
+          communitiesAdapter.updateOne(state.communities, {
+            id: communityId,
+            changes: {
+              tosAccepted: accepted,
+            },
+          })
+        }
+      }
+    },
   },
 })
 

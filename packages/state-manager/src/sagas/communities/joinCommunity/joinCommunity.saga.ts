@@ -36,28 +36,20 @@ export function* joinCommunitySaga(
     inviteData: inviteData,
   }
 
-  yield* put(communitiesActions.addNewCommunity(communityCandidate))
-  yield* put(communitiesActions.setCurrentCommunity(communityId))
-
   logger.info('Waiting for user to register username')
   const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
     identityActions.registerUsername
   )
 
+  let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
   if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
     yield* put(communitiesActions.requestQssOptIn())
-    const qssOptInResponseAction: ReturnType<typeof communitiesActions.setQssOptInResponse> = yield* take(
-      communitiesActions.setQssOptInResponse
-    )
-    if (qssOptInResponseAction.payload) {
+    acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
+    if (acceptTerms.payload.accepted) {
       logger.info('User opted in to QSS')
-      yield* put(
-        communitiesActions.updateCommunityData({
-          ...communityCandidate,
-          qssEnabled: true,
-          qssEndpoint: inviteData.qssEndpoint,
-        })
-      )
+      communityCandidate.qssEnabled = true
+      communityCandidate.qssEndpoint = inviteData.qssEndpoint
+      communityCandidate.tosAccepted = true
     } else {
       logger.info('User opted out of QSS')
       yield* put(communitiesActions.clearInvitationCodes())
@@ -70,6 +62,7 @@ export function* joinCommunitySaga(
     name: '',
     inviteData,
     username: registerAction.payload.nickname,
+    tosAccepted: acceptTerms.payload.accepted,
   }
 
   logger.info('Updating backend with community data')
@@ -79,15 +72,13 @@ export function* joinCommunitySaga(
     socket.emitWithAck,
     applyEmitParams(SocketActions.JOIN_COMMUNITY, payload)
   )
-  logger.info('Response from backend', response)
+  logger.debug('Response from backend', response)
   if (!response) {
-    // TODO: We need to properly handle this case
     logger.error('Failed to join community - invalid response from backend')
     yield* put(communitiesActions.clearInvitationCodes())
-    yield* put(communitiesActions.deleteCommunity(communityId))
     return
   }
-  yield* put(communitiesActions.updateCommunityData(response.community))
+  yield* put(communitiesActions.addNewCommunity(response.community))
   yield* put(identityActions.addNewIdentity(response.identity))
   yield* put(usersActions.setUserProfile(response.profile))
   yield* put(communitiesActions.clearInvitationCodes())
