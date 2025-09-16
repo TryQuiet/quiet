@@ -79,9 +79,10 @@ export function* joinCommunitySaga(
     return
   }
   yield* put(communitiesActions.addNewCommunity(response.community))
+  yield* put(communitiesActions.setCurrentCommunity(response.community.id))
   yield* put(identityActions.addNewIdentity(response.identity))
   yield* put(usersActions.setUserProfile(response.profile))
-  yield* put(communitiesActions.clearInvitationCodes())
   yield* put(communitiesActions.launchCommunity(response.community))
   // clearing invitation codes to mark that we are done with joining a community
+  yield* put(communitiesActions.clearInvitationCodes())
 }

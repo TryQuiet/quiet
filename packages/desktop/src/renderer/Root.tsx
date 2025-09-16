@@ -33,7 +33,6 @@ import DuplicateModalContainer from './components/widgets/userLabel/duplicate/Du
 import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
-import JoiningOptInModal from './components/ServerOffer/JoiningOptIn/JoiningOptin.modal'
 import TermsOfService from './components/TermsOfService/TermsOfService'
 // Trigger lerna
 
@@ -61,7 +60,6 @@ export default () => {
                 <CreateCommunity />
                 <CreateUsername />
                 <TermsOfService />
-                <JoiningOptInModal />
                 <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />

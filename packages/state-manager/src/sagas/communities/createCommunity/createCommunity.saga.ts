@@ -72,6 +72,7 @@ export function* createCommunitySaga(
   }
 
   yield* put(communitiesActions.addNewCommunity(createCommunityResponse.community))
+  yield* put(communitiesActions.setCurrentCommunity(createCommunityResponse.community.id))
   yield* put(identityActions.addNewIdentity(createCommunityResponse.identity))
   yield* put(usersActions.setUserProfile(createCommunityResponse.profile))
   yield* put(publicChannelsActions.createGeneralChannel())

@@ -20,31 +20,7 @@ const TermsOfService = () => {
   const loadingPanelModal = useModal(ModalName.loadingPanel)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
 
-  useEffect(() => {
-    if (
-      currentCommunity &&
-      !currentCommunity?.tosAccepted &&
-      currentCommunity?.qssEnabled === true &&
-      currentIdentity &&
-      currentIdentity?.communityId == currentCommunity.id &&
-      !termsOfServiceModal.open
-    ) {
-      logger.info('Open terms of service modal')
-      termsOfServiceModal.handleOpen()
-    }
-    if (currentCommunity?.tosAccepted && termsOfServiceModal.open) {
-      logger.info('Close terms of service modal')
-      termsOfServiceModal.handleClose()
-    }
-  }, [currentCommunity])
-
   const handleChoice = (accepted: boolean) => {
-    dispatch(
-      communities.actions.setTermsOfServiceAccepted({
-        communityId: currentCommunity?.id,
-        accepted,
-      })
-    )
     if (accepted) {
       if (!currentCommunity) {
         loadingPanelModal.handleOpen()
@@ -54,6 +30,14 @@ const TermsOfService = () => {
       joinCommunityModal.handleOpen()
       loadingPanelModal.handleClose()
     }
+
+    dispatch(
+      communities.actions.setTermsOfServiceAccepted({
+        communityId: currentCommunity?.id,
+        accepted,
+      })
+    )
+
     termsOfServiceModal.handleClose()
   }
 
