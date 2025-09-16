@@ -66,6 +66,7 @@ const CreateCommunity = () => {
   const handleRedirection = () => {
     if (!joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
+      createCommunityModal.handleClose()
     } else {
       createCommunityModal.handleClose()
     }

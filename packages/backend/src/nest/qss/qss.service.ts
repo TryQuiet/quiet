@@ -442,7 +442,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     if (!success) {
-      await this.localDbService.addPendingQssSyncMessage(address, hash)
+      try {
+        await this.localDbService.addPendingQssSyncMessage(address, hash)
+      } catch (error) {
+        this.logger.error('Error while adding pending QSS sync message', error)
+      }
     }
 
     return success

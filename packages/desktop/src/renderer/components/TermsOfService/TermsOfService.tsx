@@ -50,6 +50,7 @@ const TermsOfService = () => {
         loadingPanelModal.handleOpen()
       }
     } else {
+      logger.info('User declined ToS, aborting join process')
       joinCommunityModal.handleOpen()
       loadingPanelModal.handleClose()
     }

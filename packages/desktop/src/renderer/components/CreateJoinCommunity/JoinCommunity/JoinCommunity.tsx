@@ -6,6 +6,9 @@ import PerformCommunityActionComponent from '../../../components/CreateJoinCommu
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('JoinCommunity')
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -25,6 +28,7 @@ const JoinCommunity = () => {
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
+      logger.info('Opening join community modal')
       joinCommunityModal.handleOpen()
     }
   }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
@@ -48,6 +52,7 @@ const JoinCommunity = () => {
   const handleRedirection = () => {
     if (!createCommunityModal.open) {
       createCommunityModal.handleOpen()
+      joinCommunityModal.handleClose()
     } else {
       joinCommunityModal.handleClose()
     }
