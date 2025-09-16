@@ -7,7 +7,7 @@ import { Appbar } from '../Appbar/Appbar.component'
 
 export type TermsOfServiceProps = {
   onAgree: () => void
-  onBack?: () => void
+  onBack: () => void
   serverHost?: string
 }
 
@@ -32,18 +32,21 @@ export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, serve
       <View
         style={{
           flex: 1,
+          justifyContent: 'center',
           padding: 20,
+          gap: 16,
         }}
       >
-        <Typography fontSize={14} style={{ marginBottom: 24 }}>
-          This community uses a server {serverHost ? `(${serverHost} )` : ''}for messaging without Tor. By joining you
-          agree to this{' '}
+        <Typography fontSize={14} style={{ marginBottom: 24, textAlign: 'center' }}>
+          This community uses a server {serverHost ? `(${serverHost} )` : ''}for end-to-end encrypted messaging without
+          Tor. By joining you agree to this{' '}
           <Text onPress={() => openLink(privacyPolicyUrl)} style={{ textDecorationLine: 'underline' }}>
             Privacy Policy and Terms of Use.
           </Text>
         </Typography>
-        <View style={{ marginTop: 12 }}>
-          <Button title={'Agree & Join'} onPress={onAgree} />
+        <View style={{ gap: 16 }}>
+          <Button title={'Agree & Continue'} onPress={onAgree} />
+          <Button title={'Leave Community'} onPress={onBack} negative />
         </View>
       </View>
     </View>

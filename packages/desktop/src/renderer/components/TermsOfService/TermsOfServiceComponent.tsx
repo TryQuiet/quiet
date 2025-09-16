@@ -16,12 +16,7 @@ const classes = {
   contentWrap: `${PREFIX}contentWrap`,
   actionsWrap: `${PREFIX}actions`,
   textWrap: `${PREFIX}text`,
-  dividerWrap: `${PREFIX}dividerWrap`,
   info: `${PREFIX}info`,
-  icon: `${PREFIX}icon`,
-  iconContainer: `${PREFIX}iconContainer`,
-  pill: `${PREFIX}pill`,
-  mutedAction: `${PREFIX}mutedAction`,
   useServerButton: `${PREFIX}useServerButton`,
   rejectButton: `${PREFIX}rejectButton`,
 }
@@ -50,10 +45,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     gap: theme.spacing(2),
   },
 
-  [`& .${classes.dividerWrap}`]: {
-    width: '100%',
-  },
-
   [`& .${classes.useServerButton}`]: {
     height: '50px',
     padding: theme.spacing(1.5, 2.5),
@@ -68,49 +59,10 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     color: theme.palette.text.secondary,
   },
 
-  [`& .${classes.iconContainer}`]: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '64px',
-    height: '64px',
-  },
-  [`& .${classes.icon}`]: {
-    width: 48,
-    height: 51,
-  },
-
-  [`& .${classes.pill}`]: {
-    ...theme.typography.subtitle2,
-
-    '& .MuiChip-root': {
-      height: 24,
-      borderRadius: 4,
-      backgroundColor: theme.palette.colors.lightPurple,
-      color: theme.palette.primary.main,
-      border: `1px solid ${theme.palette.colors.border03}`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-
-    '& .MuiChip-label': {
-      fontWeight: 500,
-      fontSize: '14px',
-      lineHeight: '20px',
-      padding: theme.spacing(0.5, 1),
-    },
-  },
-
   [`& .${classes.info}`]: {
     maxWidth: 520,
     color: theme.palette.text.secondary,
     ...theme.typography.body2,
-  },
-  [`& .${classes.mutedAction}`]: {
-    '& .MuiFormControlLabel-label': {
-      ...theme.typography.body2,
-    },
   },
 }))
 
@@ -135,7 +87,7 @@ export const TermsOfServiceComponent: React.FC<TermsOfServiceComponentProps> = (
         <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
           <Grid item>
             <Typography className={classes.info}>
-              This community uses a server ({qssEndPoint ?? 'qss.tryquiet.org'})for messaging without Tor. By joining
+              This community uses a server {qssEndPoint ? `(${qssEndPoint} )` : ''}for messaging without Tor. By joining
               you agree to this{' '}
               <Typography
                 component='span'
@@ -167,7 +119,7 @@ export const TermsOfServiceComponent: React.FC<TermsOfServiceComponentProps> = (
               data-testid='TermOfService-Abort'
               size='small'
             >
-              Reject
+              Leave Community
             </Button>
           </Grid>
         </StyledGrid>
