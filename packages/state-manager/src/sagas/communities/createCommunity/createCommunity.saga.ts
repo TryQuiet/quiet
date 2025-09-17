@@ -45,6 +45,7 @@ export function* createCommunitySaga(
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
   if (process.env.QSS_ALLOWED === 'true' && action.payload.useServer) {
+    yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
     if (!acceptTerms.payload.accepted) {
       logger.info('User did not accept terms of service, aborting community creation')

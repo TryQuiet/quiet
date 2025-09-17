@@ -20,7 +20,6 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const qssOptInRequested = useSelector(communities.selectors.qssOptInRequested)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
 
   const hasReceivedResponse = Boolean(invitationCodes === null)

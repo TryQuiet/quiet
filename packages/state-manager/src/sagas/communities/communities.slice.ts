@@ -16,9 +16,8 @@ export class CommunitiesState {
   public invitationCodes: InvitationData | null = null
   public currentCommunity = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
-  public qssOptInRequested = false
-  public qssOptInResponse: boolean | null = null
   public connectionInProgress = false
+  public tosRequested = false
 }
 
 export const communitiesSlice = createSlice({
@@ -65,15 +64,12 @@ export const communitiesSlice = createSlice({
       logger.info('Clearing invitation codes')
       state.invitationCodes = null
     },
-    requestQssOptIn: state => {
-      state.qssOptInRequested = true
-      state.qssOptInResponse = null
-    },
-    setQssOptInResponse: (state, action: PayloadAction<boolean>) => {
-      state.qssOptInResponse = action.payload
-      state.qssOptInRequested = false
+    requestTermsOfService: state => {
+      logger.info('Requesting terms of service acceptance')
+      state.tosRequested = true
     },
     setTermsOfServiceAccepted: (state, action: PayloadAction<{ communityId?: string; accepted: boolean }>) => {
+      state.tosRequested = false
       const { communityId, accepted } = action.payload
       if (communityId) {
         const community = state.communities.entities[communityId]

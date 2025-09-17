@@ -207,7 +207,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   }, [open])
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} testIdPrefix={'createUsername'}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={false} testIdPrefix={'createUsername'}>
       <StyledGrid container direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>

@@ -15,6 +15,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
+  const tosRequested = useSelector(communities.selectors.tosRequested)
   const usernameRegistered = Boolean(currentIdentity?.userId)
 
   const handleAction = (nickname: string) => {
@@ -23,6 +24,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.TermsOfServiceScreen }))
       return
     }
+    logger.info(`TosRequested: ${tosRequested}`)
     dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ConnectionProcessScreen }))
   }
 

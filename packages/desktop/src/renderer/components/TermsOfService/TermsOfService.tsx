@@ -6,7 +6,6 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
 import { shell } from 'electron'
-import { current } from 'immer'
 
 const logger = createLogger('TermsOfService')
 
@@ -14,11 +13,18 @@ const TermsOfService = () => {
   const dispatch = useDispatch()
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const tosRequested = useSelector(communities.selectors.tosRequested)
 
   const termsOfServiceModal = useModal(ModalName.termsOfServiceModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
+
+  useEffect(() => {
+    if (tosRequested) {
+      logger.info('ToS requested by state-manager, opening ToS modal')
+      termsOfServiceModal.handleOpen()
+    }
+  }, [tosRequested])
 
   const handleChoice = (accepted: boolean) => {
     if (accepted) {

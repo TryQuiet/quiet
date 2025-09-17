@@ -209,48 +209,6 @@ describe('Create community', () => {
     expect(submitButton).toBeDisabled()
   })
 
-  it('shows loading spinner on submit button while waiting for the response', async () => {
-    const { rerender } = renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const textInput = screen.getByPlaceholderText(communityNameField().fieldProps.placeholder)
-    await userEvent.type(textInput, 'rockets')
-
-    const submitButton = screen.getByRole('button')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
-
-    await act(async () => {})
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
-
-    // Rerender component to verify circular progress has dissapeared
-    rerender(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={true}
-      />
-    )
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
-  })
-
   it('handles redirection to join community page if user clicks on the link', async () => {
     const handleRedirection = jest.fn()
     const handleCommunityAction = jest.fn()

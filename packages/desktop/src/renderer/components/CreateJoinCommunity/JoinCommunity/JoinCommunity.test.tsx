@@ -66,7 +66,7 @@ describe('join community', () => {
     expect(createCommunityTitle).toBeVisible()
   })
 
-  it.skip('user goes from joning community to username registration, then comes back', async () => {
+  it('user goes from joning community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),

@@ -13,8 +13,8 @@ const CreateUsername = () => {
   const dispatch = useDispatch()
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
-  const termsOfServiceModal = useModal(ModalName.termsOfServiceModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
+  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
 
   const registerUsername = (nickname: string) => {
     logger.info('Register username', nickname)
@@ -25,17 +25,19 @@ const CreateUsername = () => {
     )
     logger.info('Set loading panel type', LoadingPanelType.Joining)
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
-    if (process.env.QSS_ALLOWED === 'true') {
-      logger.info('Open terms of service modal')
-      termsOfServiceModal.handleOpen()
-    } else {
-      logger.info('Open loading panel')
-      loadingPanelModal.handleOpen()
-    }
+    logger.info('Open loading panel')
+    loadingPanelModal.handleOpen()
     createUsernameModal.handleClose()
   }
 
-  return <CreateUsernameComponent {...createUsernameModal} registerUsername={registerUsername} />
+  const handleClose = () => {
+    createUsernameModal.handleClose()
+    joinCommunityModal.handleOpen()
+  }
+
+  return (
+    <CreateUsernameComponent {...createUsernameModal} handleClose={handleClose} registerUsername={registerUsername} />
+  )
 }
 
 export default CreateUsername

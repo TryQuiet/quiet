@@ -244,7 +244,7 @@ describe('Main', () => {
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1xjxipu-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-container TorStatusroot css-167z54u-MuiGrid-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container TorStatuswrapper css-1ki2u8z-MuiGrid-root"

@@ -17,8 +17,8 @@ const JoinCommunity = () => {
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
-  const createUsernameModal = useModal(ModalName.createUsernameModal)
 
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
@@ -32,12 +32,6 @@ const JoinCommunity = () => {
       joinCommunityModal.handleOpen()
     }
   }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
-
-  useEffect(() => {
-    if (invitationCodes && joinCommunityModal.open) {
-      joinCommunityModal.handleClose()
-    }
-  }, [invitationCodes, currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
     const joinCommunityPayload: JoinCommunityPayload = {

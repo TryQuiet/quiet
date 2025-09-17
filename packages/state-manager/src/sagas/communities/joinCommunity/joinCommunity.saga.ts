@@ -30,12 +30,6 @@ export function* joinCommunitySaga(
   // Setting invitationCodes to mark that we are in the process of joining a community
   yield* put(communitiesActions.setInvitationCodes(inviteData))
 
-  const communityCandidate: Community = {
-    id: communityId,
-    ownership: CommunityOwnership.User,
-    inviteData: inviteData,
-  }
-
   logger.info('Waiting for user to register username')
   const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
     identityActions.registerUsername
@@ -43,13 +37,10 @@ export function* joinCommunitySaga(
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
   if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
-    yield* put(communitiesActions.requestQssOptIn())
+    yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
     if (acceptTerms.payload.accepted) {
       logger.info('User opted in to QSS')
-      communityCandidate.qssEnabled = true
-      communityCandidate.qssEndpoint = inviteData.qssEndpoint
-      communityCandidate.tosAccepted = true
     } else {
       logger.info('User opted out of QSS')
       yield* put(communitiesActions.clearInvitationCodes())
