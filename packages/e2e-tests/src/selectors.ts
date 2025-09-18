@@ -894,6 +894,53 @@ export class ServerOfferModal {
   }
 }
 
+export class TermsOfServiceModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get agreeAndJoinButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='TermOfService-UseQuietServer']")),
+      5_000,
+      `Agree and Join button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get abortButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='TermOfService-Abort']")),
+      5_000,
+      `Leave Community button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    const button = await this.agreeAndJoinButton
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      timeoutMs,
+      `TermsOfServiceModalActions wasn't visible within timeout`,
+      500
+    )
+    return true
+  }
+
+  async chooseAgreeAndJoin() {
+    const button = await this.agreeAndJoinButton
+    await button.click()
+  }
+
+  async chooseAbort() {
+    const button = await this.abortButton
+    await button.click()
+  }
+}
+
 export class Channel {
   private readonly name: string
   private readonly driver: ThenableWebDriver

@@ -10,6 +10,7 @@ import {
   RegisterUsernameModal,
   Sidebar,
   ServerOfferModal,
+  TermsOfServiceModal,
 } from '../selectors'
 import { promiseWithRetries, sleep } from '../utils'
 import { UserTestData } from '../types'
@@ -110,6 +111,12 @@ describe('Multiple Clients (QSS)', () => {
         await registerModal.submit()
       })
 
+      it('Owner agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.owner.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
+      })
+
       it('Owner waits to join', async () => {
         const joinPanel = new JoiningLoadingPanel(users.owner.app.driver)
         await joinPanel.waitForJoinToComplete()
@@ -169,6 +176,12 @@ describe('Multiple Clients (QSS)', () => {
         await registerModal.typeUsername(users.user1.username)
         await registerModal.submit()
         logger.time(`[${app.name}] '${users.user1.username}' joining community time`)
+      })
+
+      it('First user agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.user1.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
       })
 
       it('First user waits to join', async () => {
@@ -259,6 +272,12 @@ describe('Multiple Clients (QSS)', () => {
         await registerModal.typeUsername(users.user2.username)
         await registerModal.submit()
         logger.time(`[${app.name}] '${users.user2.username}' joining community time`)
+      })
+
+      it('Second user agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.user2.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
       })
 
       it('Second user waits to join', async () => {
