@@ -397,7 +397,7 @@ export class JoiningLoadingPanel {
 
   get element() {
     return this.driver.wait(
-      this.driver.findElement(By.xpath('//div[@data-testid="joiningPanelComponent"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]')),
       15_000,
       `Joining loading panel element couldn't be located within timeout`,
       500
@@ -405,7 +405,15 @@ export class JoiningLoadingPanel {
   }
 
   async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
-    const panel = await this.element
+    // First check if the panel exists at all. In some flows (e.g., Not Now on server offer),
+    // the joining panel may never appear, which is OK.
+    const candidates = await this.driver.findElements(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
+    if (!candidates || candidates.length === 0) {
+      logger.warn('Joining loading panel not present; skipping wait')
+      return
+    }
+
+    const panel = candidates[0]
     await this.driver.wait(
       until.elementIsVisible(panel),
       visibleTimeoutMs,
@@ -422,7 +430,7 @@ export class JoiningLoadingPanel {
       )
     } catch (e) {
       if (e.message.includes('stale element reference')) {
-        logger.warn(`Join loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+        logger.warn(`Join loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
         throw e
       }
@@ -725,6 +733,20 @@ export class RegisterUsernameModal {
     )
     await submitButton.click()
   }
+
+  /**
+   * Closes the Create Username modal via header close button.
+   */
+  async close() {
+    const actionsRoot = await this.driver.wait(
+      until.elementLocated(By.xpath("//div[@data-testid='createUsernameModalActions']")),
+      10_000,
+      `CreateUsername modal actions couldn't be found within timeout`,
+      500
+    )
+    const closeBtn = await actionsRoot.findElement(By.css('button'))
+    await closeBtn.click()
+  }
 }
 
 export class JoinCommunityModal {
@@ -815,6 +837,22 @@ export class CreateCommunityModal {
       500
     )
     await communityNameInput.sendKeys(name)
+  }
+
+  async clearInput() {
+    const communityNameInput = await this.driver.wait(
+      this.driver.findElement(By.xpath('//input[@placeholder="Community name"]')),
+      10_000,
+      `Community name input couldn't be found within timeout`,
+      500
+    )
+    if (process.platform === 'darwin') {
+      await communityNameInput.sendKeys(Key.COMMAND + 'a')
+      await communityNameInput.sendKeys(Key.DELETE)
+    } else {
+      await communityNameInput.sendKeys(Key.CONTROL + 'a')
+      await communityNameInput.sendKeys(Key.DELETE)
+    }
   }
 
   async submit() {
@@ -1864,6 +1902,54 @@ export class Sidebar {
       `Connected badge for user ${nickname} was not visible within timeout`,
       500
     )
+  }
+
+  /**
+   * Returns the currently displayed community name from the identity panel.
+   * Tries the explicit test id first, then falls back to the styled class,
+   * and finally to the button text (older builds).
+   */
+  async getDisplayedCommunityName(): Promise<string> {
+    try {
+      const nameEl = await this.driver.wait(
+        until.elementLocated(By.xpath("//*[@data-testid='current-community-name']")),
+        3_000,
+        `Current community name element not found quickly; trying fallback`,
+        500
+      )
+      return await nameEl.getText()
+    } catch {
+      try {
+        const typ = await this.driver.wait(
+          until.elementLocated(By.xpath("//*[contains(@class,'IdentityPanelnickname')][1]")),
+          10_000,
+          `Identity panel nickname element couldn't be found within timeout`,
+          500
+        )
+        return await typ.getText()
+      } catch {
+        const btn = await this.driver.wait(
+          until.elementLocated(By.xpath("//button[@data-testid='settings-panel-button']")),
+          10_000,
+          `Community name button couldn't be found within timeout`,
+          500
+        )
+        return await btn.getText()
+      }
+    }
+  }
+
+  /**
+   * Current user's nickname shown in the sidebar user profile panel.
+   */
+  async getCurrentUserNickname(): Promise<string> {
+    const el = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='user-profile-nickname']")),
+      15_000,
+      `Current user nickname element couldn't be found within timeout`,
+      500
+    )
+    return await el.getText()
   }
 }
 
