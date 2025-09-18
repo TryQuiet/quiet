@@ -138,6 +138,11 @@ export class BuildSetup {
         QSS_ALLOWED: true,
         QSS_ENDPOINT: 'ws://127.0.0.1:3003',
       }
+    } else {
+      env = {
+        ...env,
+        QSS_ALLOWED: false,
+      }
     }
 
     if (process.platform === 'win32') {
