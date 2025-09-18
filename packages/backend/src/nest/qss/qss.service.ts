@@ -426,6 +426,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return undefined
     }
 
+    const authConn = this.qssAuthConnManager.getConnection(teamId)
+    if (authConn == null || !authConn.active) {
+      this.logger.warn('QSS not signed in, writing entry to dead letter queue', hash, teamId)
+      try {
+        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
+      } catch (e) {
+        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
+      }
+      return undefined
+    }
+
     this.logger.trace('Sending log sync message to QSS', hash, teamId)
     const dataSyncAck = await this.qssClient.sendMessage<QSSLogEntrySyncMessage>(
       WebsocketEvents.LOG_ENTRY_SYNC,
