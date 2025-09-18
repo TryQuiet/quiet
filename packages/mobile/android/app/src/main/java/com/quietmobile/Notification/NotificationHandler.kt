@@ -19,12 +19,8 @@ class NotificationHandler(private val context: Context) {
     /**
      * @param message - Object of type ChannelMessage
      */
-    fun notify(message: String?, username: String?) {
-        var channelId = ""
-        var channelName = ""
-        var content = ""
-
-        val _message: JSONObject = try {
+    fun notify(message: String, username: String?) {
+        val jsonMessage: JSONObject = try {
             JSONObject(message)
         } catch (e: JSONException) {
             Log.e("NOTIFICATION", "unexpected JSON exception", e)
@@ -35,30 +31,27 @@ class NotificationHandler(private val context: Context) {
         val user = String.format("@%s", username)
 
         try {
-
-            // Parse channel id
-            val _channelId = _message.getString("channelId")
-            channelId = String.format("#%s", _channelId)
+            val channelId = String.format("#%s", jsonMessage.getString("channelId"))
             // Parse channel name
-            var index = channelId.indexOf('_')
-            if(index == -1){
-                channelName = channelId
+            val index = channelId.indexOf('_')
+            val channelName = if(index == -1){
+                channelId
             }else{
-                channelName = channelId.substring(0,channelId.indexOf('_'))
+                channelId.substring(0,channelId.indexOf('_'))
             }
             // Parse message content
-            val _content = _message.getString("message")
-            content = String.format("%s", _content)
+            val content = String.format("%s", jsonMessage.getString("message"))
+            // Keep all notifications under application's group
+            val group = context.getString(R.string.app_name)
+            createGroup(group)
+
+            composeNotification(channelId, channelName, user, content, group)
+
         } catch (e: JSONException) {
             Log.e("NOTIFICATION", "incorrect NOTIFICATION payload", e)
             return
         }
 
-        // Keep all notifications under application's group
-        val group = context.getString(R.string.app_name)
-        createGroup(group)
-
-        composeNotification(channelId, channelName, user, content, group)
     }
 
     private fun createGroup(group: String) {
