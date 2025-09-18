@@ -62,7 +62,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     <JoinCommunity
       joinCommunityAction={joinCommunityAction}
       redirectionAction={redirectionAction}
-      hasReceivedResponse={true}
+      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
       invitationCode={invitationCode}
       ready={isWebsocketConnected}
     />

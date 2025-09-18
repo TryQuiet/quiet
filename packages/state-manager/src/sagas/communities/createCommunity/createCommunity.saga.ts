@@ -28,6 +28,7 @@ export function* createCommunitySaga(
   const communityId = generateId()
 
   logger.info('Community ID:', communityId)
+  logger.info('Use server:', action.payload.useServer)
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
 

@@ -10,17 +10,6 @@ const logger = createLogger('TermsOfServiceScreen')
 
 export const TermsOfServiceScreen: FC = () => {
   const dispatch = useDispatch()
-  const tosRequested = useSelector(communities.selectors.tosRequested)
-
-  useEffect(() => {
-    if (tosRequested) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.TermsOfServiceScreen,
-        })
-      )
-    }
-  }, [tosRequested, dispatch])
 
   const onAgree = () => {
     logger.info('User agreed to Terms of Service')
@@ -35,11 +24,7 @@ export const TermsOfServiceScreen: FC = () => {
   const onBack = () => {
     logger.info('User did not agree to Terms of Service')
     dispatch(communities.actions.setTermsOfServiceAccepted({ accepted: false }))
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.JoinCommunityScreen,
-      })
-    )
+    dispatch(navigationActions.pop())
   }
 
   return <TermsOfService onAgree={onAgree} onBack={onBack} />

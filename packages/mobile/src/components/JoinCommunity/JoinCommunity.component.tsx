@@ -36,7 +36,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
 
   const onPress = () => {
     Keyboard.dismiss()
-    setLoading(true)
+    // setLoading(true)
 
     if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
       setLoading(false)
@@ -64,7 +64,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     if (invitationCode) {
       setJoinCommunityInput(invitationCode)
       setInputError(undefined)
-      setLoading(true)
+      // setLoading(true)
       inputRef.current?.setNativeProps({ text: invitationCode })
     }
   }, [invitationCode])

@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { CreateCommunityPayload } from '@quiet/types'
+import { CreateCommunityPayload, LaunchCommunityPayload } from '@quiet/types'
 import { initSelectors } from '../../store/init/init.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -11,8 +11,6 @@ import Config from 'react-native-config'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('CreateCommunityScreen')
-
-logger.info('Config:', JSON.stringify(Config, null, 2))
 
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
@@ -26,6 +24,17 @@ export const CreateCommunityScreen: FC = () => {
   const [showServerOffer, setShowServerOffer] = useState(false)
 
   const handleCommunityNameSubmit = useCallback((name: string) => {
+    if (currentCommunity && currentIdentity) {
+      logger.warn('Network already created, ignoring create community request and launching existing community')
+      dispatch(communities.actions.launchCommunity({ id: currentCommunity.id } as LaunchCommunityPayload))
+      dispatch(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ChannelListScreen,
+        })
+      )
+      dispatch(navigationActions.clearBackStack())
+      return
+    }
     setPendingName(name)
     if (Config.QSS_ALLOWED === 'true') {
       setShowServerOffer(true)
@@ -42,11 +51,10 @@ export const CreateCommunityScreen: FC = () => {
           useServer,
         }
         dispatch(communities.actions.createCommunity(payload))
-        dispatch(
-          navigationActions.navigation({
-            screen: ScreenNames.UsernameRegistrationScreen,
-          })
-        )
+        if (useServer) {
+          dispatch(navigationActions.setPendingNavigation({ screen: ScreenNames.TermsOfServiceScreen }))
+        }
+        dispatch(navigationActions.navigation({ screen: ScreenNames.UsernameRegistrationScreen }))
       }
       setShowServerOffer(false)
       setPendingName(null)
