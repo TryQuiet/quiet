@@ -475,8 +475,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         inviteData.authData.teamId,
         true
       )
-
-      this.joinViaQSS(inviteData, joiningSigchain)
+      try {
+        this.joinViaQSS(inviteData, joiningSigchain)
+      } catch (error) {
+        this.logger.error(`Failed signing into qss community ${communityName}`, error)
+      }
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {

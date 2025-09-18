@@ -354,12 +354,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     )
 
     if (signInResponse == null) {
-      this.logger.error(`Error while signing in to community ${teamId} - Nullish response from QSS`)
-      return
+      throw new Error(`Error while signing in to community ${teamId} - Nullish response from QSS`)
     }
 
     if (signInResponse.status !== CommunityOperationStatus.SUCCESS) {
-      this.logger.error(
+      throw new Error(
         `Error while signing in to community ${teamId} - ${signInResponse.status}: ${signInResponse.reason ?? `Unknown QSS Error`}`
       )
     }
