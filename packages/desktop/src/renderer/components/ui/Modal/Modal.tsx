@@ -215,6 +215,7 @@ export const Modal: React.FC<IModalProps> = ({
                         return setStep(step - 1)
                       }
                     }}
+                    dataTestId={`${testIdPrefix}ModalBack`}
                   >
                     <BackIcon />
                   </IconButton>
@@ -226,6 +227,7 @@ export const Modal: React.FC<IModalProps> = ({
                           return handleClose({}, 'backdropClick')
                         }
                       }}
+                      dataTestId={`${testIdPrefix}ModalClose`}
                     >
                       <ClearIcon />
                     </IconButton>

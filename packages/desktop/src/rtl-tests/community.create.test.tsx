@@ -125,6 +125,9 @@ describe('User', () => {
     expect(createCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
+    const channel = await screen.findByText('#general')
+    expect(channel).toBeVisible()
+
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createCommunity",
@@ -168,15 +171,6 @@ describe('User', () => {
         "PublicChannels/cacheMessages",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "PublicChannels/setCurrentChannel",
-        "PublicChannels/clearUnreadChannel",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
       ]
     `)
   })

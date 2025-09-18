@@ -159,7 +159,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const [communityName, setCommunityName] = useState('...')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
-  // disabling waiting state because it is not needed
   const waitingForResponse = false
 
   if (hasReceivedResponse && formSent) {

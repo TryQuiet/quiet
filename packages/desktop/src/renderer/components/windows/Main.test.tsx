@@ -53,6 +53,7 @@ describe('Main', () => {
                           >
                             <h4
                               class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+                              data-testid="current-community-name"
                             >
                               community_1
                             </h4>
@@ -244,7 +245,7 @@ describe('Main', () => {
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-container TorStatusroot css-167z54u-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1xjxipu-MuiGrid-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container TorStatuswrapper css-1ki2u8z-MuiGrid-root"
@@ -279,6 +280,7 @@ describe('Main', () => {
                             Jdenticon
                             <p
                               class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-16d47hw-MuiTypography-root"
+                              data-testid="user-profile-nickname"
                             />
                             <span
                               class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"

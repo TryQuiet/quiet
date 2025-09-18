@@ -96,8 +96,8 @@ describe('Create community', () => {
     const createUsernameTitle = await screen.findByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
 
-    // Close username registration modal
-    const closeButton = await screen.findByTestId('createUsernameModalActions')
+    // Close username registration modal by clicking explicit close button
+    const closeButton = await screen.findByTestId('createUsernameModalClose')
     await userEvent.click(closeButton)
     expect(createCommunityTitle).toBeVisible()
   })

@@ -63,6 +63,7 @@ describe('OpenlinkModal', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      data-testid="ModalClose"
                       tabindex="0"
                       type="button"
                     >
