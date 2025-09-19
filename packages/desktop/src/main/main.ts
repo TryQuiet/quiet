@@ -371,8 +371,6 @@ app.on('ready', async () => {
     logger.error('Error occurred while trying to close hanging backend process', e)
   }
 
-  logger.info('Environment variables', JSON.stringify(process.env, null, 2))
-
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     env: {

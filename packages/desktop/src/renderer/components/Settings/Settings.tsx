@@ -23,7 +23,7 @@ const Settings = () => {
     leaveCommunity: LeaveCommunity,
   }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') {
     tabs.debug = DebugInfoComponent
   }
 

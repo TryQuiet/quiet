@@ -6,7 +6,7 @@ const path = require('path')
 const envFile = process.env.ENVFILE || '.env.production'
 const srcPath = path.resolve(envFile)
 const destDir = path.resolve('dist', 'main')
-const destPath = path.join('.env')
+const destPath = path.join(destDir, '.env')
 
 try {
   if (!fs.existsSync(srcPath)) {
@@ -22,6 +22,6 @@ try {
 
   console.log(`Copied ENVFILE to bundle: ${srcPath} -> ${destPath}`)
 } catch (err) {
-  console.error('Failed to copy ENVFILE into dist/main/mainEnvs.json:', err.message)
+  console.error(`Failed to copy ENVFILE into ${destPath}:`, err.message)
   process.exitCode = 1
 }
