@@ -62,15 +62,9 @@ jobs:
           sleep 3
           fluxbox &
 
-      - name: Before build
-        uses: ./.github/actions/before-build
-        with:
-          source-path: darwin
-          envfile: .env.e2e.qss
-
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --linux && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: ENVFILE=.env.e2e.qss npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet

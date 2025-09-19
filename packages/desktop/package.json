@@ -92,7 +92,7 @@
     "dist": "npm run distMac",
     "distMac": "export SOURCE_PATH=darwin && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
     "distUbuntu": "export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
-    "distUbuntu:qss": "export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:dev:dist && electron-builder --linux",
+    "distUbuntu:qss": "export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "eslint src --ext .ts,.tsx --config .eslintrc.js --fix",
