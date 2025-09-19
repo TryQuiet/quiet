@@ -21,6 +21,12 @@ runs:
       run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
       shell: bash
 
+    - name: "Pull libssl binary for Linux"
+      if: ${{ inputs.source-path == 'linux' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run pullLibs
+      shell: bash
+
+
     - name: "Copy tor binary for MacOS"
       if: ${{ inputs.source-path == 'darwin' }}
       run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesDarwin
