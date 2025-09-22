@@ -92,7 +92,7 @@ export const ServerOffer: FC<ServerOfferProps> = ({
         {/* Actions */}
         <View style={{ width: 'auto', gap: GAP_ACTIONS }}>
           <Button title={'Add server'} onPress={handleUseServer} />
-          <Button title={'Not now'} onPress={handleNotNow} negative />
+          <Button title={'No thanks'} onPress={handleNotNow} negative />
         </View>
 
         {/* Divider */}
