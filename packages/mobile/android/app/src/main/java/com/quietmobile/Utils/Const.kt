@@ -1,8 +1,6 @@
 package com.quietmobile.Utils
 
 object Const {
-    // App
-    const val TAG_NOTICE = "NOTICE"
     const val APK_LAST_UPDATED_TIME = "APK_LAST_UPDATE_TIME"
 
     // Worker
@@ -11,10 +9,6 @@ object Const {
     // Notifications
     const val FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID = "foreground.service.channel"
     const val INCOMING_MESSAGES_CHANNEL_ID = "incoming.messages.channel"
-
-    // Tor
-    const val TAG_TOR = "TOR"
-    const val TAG_TOR_ERR = "TOR_ERR"
 
     // NodeJS
     const val NODEJS_ASSETS_TAG = "NODEJS_ASSETS"

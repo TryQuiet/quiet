@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --mode=storybookDebug --appIdSuffix=storybook.debug",
@@ -67,7 +67,7 @@
     "react-native-progress": "5.0.1",
     "react-native-qrcode-svg": "^6.3.0",
     "react-native-safe-area-context": "^4.9.0",
-    "react-native-screens": "^3.29.0",
+    "react-native-screens": "3.33.0",
     "react-native-share": "^10.0.2",
     "react-native-svg": "^14.1.0",
     "react-native-url-polyfill": "^2.0.0",

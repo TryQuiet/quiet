@@ -3,8 +3,6 @@ package com.quietmobile.Utils
 import android.app.ActivityManager
 import android.content.Context
 
-fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-
 fun Context.isAppOnForeground(): Boolean {
     val activityManager =
         this.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
