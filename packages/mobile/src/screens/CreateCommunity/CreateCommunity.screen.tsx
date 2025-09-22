@@ -23,25 +23,37 @@ export const CreateCommunityScreen: FC = () => {
   const [pendingName, setPendingName] = useState<string | null>(null)
   const [showServerOffer, setShowServerOffer] = useState(false)
 
-  const handleCommunityNameSubmit = useCallback((name: string) => {
-    if (currentCommunity && currentIdentity) {
-      logger.warn('Network already created, ignoring create community request and launching existing community')
-      dispatch(communities.actions.launchCommunity({ id: currentCommunity.id } as LaunchCommunityPayload))
-      dispatch(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
-      dispatch(navigationActions.clearBackStack())
-      return
-    }
-    setPendingName(name)
-    if (Config.QSS_ALLOWED === 'true') {
-      setShowServerOffer(true)
-    } else {
-      handleServerOfferClose(false, false)
-    }
-  }, [])
+  const handleCommunityNameSubmit = useCallback(
+    (name: string) => {
+      if (currentCommunity && currentIdentity) {
+        logger.warn('Network already created, ignoring create community request and launching existing community')
+        dispatch(communities.actions.launchCommunity({ id: currentCommunity.id } as LaunchCommunityPayload))
+        dispatch(
+          navigationActions.replaceScreen({
+            screen: ScreenNames.ChannelListScreen,
+          })
+        )
+        dispatch(navigationActions.clearBackStack())
+        return
+      }
+
+      // Save name and open server offer when QSS is enabled
+      if (Config.QSS_ALLOWED === 'true') {
+        setPendingName(name)
+        setShowServerOffer(true)
+        return
+      }
+
+      // QSS disabled: proceed immediately without relying on pending state
+      const payload: CreateCommunityPayload = {
+        name,
+        useServer: false,
+      }
+      dispatch(communities.actions.createCommunity(payload))
+      dispatch(navigationActions.navigation({ screen: ScreenNames.UsernameRegistrationScreen }))
+    },
+    [currentCommunity, currentIdentity, dispatch]
+  )
 
   const handleServerOfferClose = useCallback(
     (useServer: boolean, _dontShowAgain: boolean) => {
