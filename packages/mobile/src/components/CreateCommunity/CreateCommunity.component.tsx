@@ -86,7 +86,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
                 ]}
               />
             </View>
-            <View style={{ marginTop: 32 }}>
+            <View style={{ marginTop: 32 + 12 }}>
               <Button onPress={onPress} title={'Continue'} loading={loading} />
             </View>
           </KeyboardAvoidingView>

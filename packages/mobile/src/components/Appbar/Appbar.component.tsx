@@ -3,7 +3,7 @@ import { View, Image, TouchableOpacity } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { StyledAppbar } from './Appbar.styles'
 import { AppbarProps } from './Appbar.types'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Appbar: FC<AppbarProps> = ({
@@ -15,9 +15,9 @@ export const Appbar: FC<AppbarProps> = ({
   contextMenu,
   crossBackIcon = false,
 }) => {
-  const arrow_icon = appImages.arrow_left
-  const cross_icon = appImages.icon_close
-  const menu_icon = appImages.dots
+  const arrow_icon = icons.arrow_left
+  const cross_icon = icons.icon_close
+  const menu_icon = icons.dots
   return (
     <StyledAppbar style={style}>
       <View style={{ flex: 1 }}>

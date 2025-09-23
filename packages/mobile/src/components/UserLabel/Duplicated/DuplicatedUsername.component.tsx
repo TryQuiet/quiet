@@ -4,7 +4,7 @@ import React from 'react'
 import { View, Image, StyleSheet } from 'react-native'
 import { Appbar } from '../../Appbar/Appbar.component'
 import { Typography } from '../../Typography/Typography.component'
-import ExclamationMark from '../../../../assets/icons/exclamationMark.png'
+import { icons } from '../../../assets'
 import UserLabel from '../UserLabel.component'
 import { UserLabelType } from '../UserLabel.types'
 
@@ -36,7 +36,7 @@ const DuplicatedUsernameComponent: React.FC<DuplicatedUsernameComponentProps> = 
     >
       <Appbar title={'Warning!'} back={handleBackButton} crossBackIcon />
       <View style={classes.mainWrapper}>
-        <Image source={ExclamationMark} style={classes.image} />
+        <Image source={icons.exclamationMark} style={classes.image} />
 
         <Typography fontSize={16} fontWeight={'medium'} style={classes.title}>
           Multiple users with same name

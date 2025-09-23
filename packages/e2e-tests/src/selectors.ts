@@ -827,6 +827,73 @@ export class CreateCommunityModal {
     await continueButton.click()
   }
 }
+
+export class ServerOfferModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get useServerButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='ServerOffer-UseQuietServer']")),
+      5_000,
+      `Use Quiet’s server button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get notNowButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='ServerOffer-NotNow']")),
+      5_000,
+      `Not now button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get dontShowAgainCheckbox() {
+    return this.driver.wait(
+      until.elementLocated(
+        By.xpath("//label[contains(@class,'ServerOfferComponent-mutedAction')]//input[@type='checkbox']")
+      ),
+      5_000,
+      `Don't show this again checkbox couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    const actions = await this.useServerButton
+    await this.driver.wait(
+      until.elementIsVisible(actions),
+      timeoutMs,
+      `ServerOfferModalActions wasn't visible within timeout`,
+      500
+    )
+    return true
+  }
+
+  async chooseUseServer() {
+    const button = await this.useServerButton
+    await button.click()
+  }
+
+  async chooseNotNow() {
+    const button = await this.notNowButton
+    await button.click()
+  }
+
+  async setDontShowAgain(checked: boolean) {
+    const checkbox = await this.dontShowAgainCheckbox
+    const isChecked = await checkbox.isSelected()
+    if (isChecked !== checked) {
+      await checkbox.click()
+    }
+  }
+}
+
 export class Channel {
   private readonly name: string
   private readonly driver: ThenableWebDriver

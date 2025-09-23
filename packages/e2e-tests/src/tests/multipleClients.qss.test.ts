@@ -9,6 +9,7 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
+  ServerOfferModal,
 } from '../selectors'
 import { promiseWithRetries, sleep } from '../utils'
 import { UserTestData } from '../types'
@@ -16,6 +17,7 @@ import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 
 const logger = createLogger('multipleClients:qss')
+let stageStartTime: number
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients (QSS)', () => {
@@ -53,19 +55,29 @@ describe('Multiple Clients (QSS)', () => {
 
   afterAll(async () => {
     for (const user of Object.values(users)) {
-      await user.app.close()
-      await user.app.cleanup()
+      try {
+        await user.app.close()
+        await user.app.cleanup()
+      } catch (error) {
+        logger.error(`Error cleaning up user ${user.username}:`, error)
+      }
     }
   })
 
   beforeEach(async () => {
     logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    stageStartTime = Date.now()
+  })
+
+  afterEach(async () => {
+    const duration = Date.now() - stageStartTime
+    logger.info(`${expect.getState().currentTestName} Test duration: ${duration}ms`)
   })
 
   describe('Stages:', () => {
     describe('Owner Opens App', () => {
       it('Owner opens the app with QSS enabled', async () => {
-        await users.owner.app.openWithRetries(undefined, true)
+        await users.owner.app.open(true)
       })
 
       it('Owner sees "join community" modal and switches to "create community" modal', async () => {
@@ -79,6 +91,16 @@ describe('Multiple Clients (QSS)', () => {
         expect(await createModal.isReady()).toBeTruthy()
         await createModal.typeCommunityName(communityName)
         await createModal.submit()
+      })
+
+      it('Owner sees "server offer" modal', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        expect(await serverOfferModal.isReady()).toBeTruthy()
+      })
+
+      it('Owner accepts server offer', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        await serverOfferModal.chooseUseServer()
       })
 
       it('Owner sees "register username" modal and submits valid username', async () => {
