@@ -148,7 +148,7 @@ describe('ServerOfferComponent', () => {
                         tabindex="0"
                         type="button"
                       >
-                        Not now
+                        No thanks
                         <span
                           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />

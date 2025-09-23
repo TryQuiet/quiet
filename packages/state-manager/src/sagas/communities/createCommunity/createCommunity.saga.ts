@@ -70,6 +70,8 @@ export function* createCommunitySaga(
   logger.debug('Response from backend', createCommunityResponse)
   if (!createCommunityResponse || !createCommunityResponse.community || !createCommunityResponse.identity) {
     logger.error('Failed to create community - invalid response from backend')
+    yield* put(communitiesActions.setCurrentCommunity(''))
+    yield* put(communitiesActions.deleteCommunity(communityId))
     return
   }
 

@@ -178,7 +178,7 @@ export const ServerOfferComponent: React.FC<ServerOfferComponentProps> = ({ open
               data-testid='ServerOffer-NotNow'
               size='small'
             >
-              Not now
+              No thanks
             </Button>
           </Grid>
         </StyledGrid>

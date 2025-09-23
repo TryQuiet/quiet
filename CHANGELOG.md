@@ -8,7 +8,7 @@
 * Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
 * Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
 * Adds warning UI for users attempting to join a QSS assist server enabled community [#2911](https://github.com/TryQuiet/quiet/issues/2911)
-
+* Adds UI for terms of service [#2911](https://github.com/TryQuiet/quiet/issues/2911)
 
 ### Fixes
 

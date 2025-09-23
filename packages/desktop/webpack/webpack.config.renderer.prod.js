@@ -60,6 +60,7 @@ module.exports = {
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html',
     }),
+    new webpack.EnvironmentPlugin(envKeys),
     new WebpackOnBuildPlugin(async () => {
       await new Promise((resolve, reject) => {
         spawn('npm', ['run', 'copyFonts'], {

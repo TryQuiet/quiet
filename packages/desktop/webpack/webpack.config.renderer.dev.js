@@ -64,6 +64,7 @@ module.exports = {
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html',
     }),
+    new webpack.EnvironmentPlugin(envKeys),
     new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {
         console.log('Starting main process...')
