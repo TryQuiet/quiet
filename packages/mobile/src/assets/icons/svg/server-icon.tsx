@@ -1,0 +1,41 @@
+import React, { memo } from 'react'
+import Svg, { Path } from 'react-native-svg'
+import { defaultTheme } from '../../../styles/themes/default.theme'
+import type { StyleProp, ViewStyle } from 'react-native'
+
+export interface ServerBoxIconProps {
+  size?: number
+  color?: string
+  style?: StyleProp<ViewStyle>
+  accessibilityLabel?: string
+  testID?: string
+}
+
+const ServerBoxIcon: React.FC<ServerBoxIconProps> = memo(function ServerBoxIcon({
+  size = 48,
+  color = defaultTheme.palette.typography.main,
+  style,
+  accessibilityLabel,
+  testID,
+}) {
+  // maintain aspect ratio based on original viewBox (49x51)
+  const height = (size * 51) / 49
+  return (
+    <Svg
+      width={size}
+      height={height}
+      viewBox='0 0 49 51'
+      fill='none'
+      style={style}
+      accessibilityLabel={accessibilityLabel}
+      testID={testID}
+    >
+      <Path
+        d='M12.5 8C11.3889 8 10.4444 8.38889 9.66667 9.16667C8.88889 9.94444 8.5 10.8889 8.5 12C8.5 13.1111 8.88889 14.0556 9.66667 14.8333C10.4444 15.6111 11.3889 16 12.5 16C13.6111 16 14.5556 15.6111 15.3333 14.8333C16.1111 14.0556 16.5 13.1111 16.5 12C16.5 10.8889 16.1111 9.94444 15.3333 9.16667C14.5556 8.38889 13.6111 8 12.5 8ZM12.5 34.6667C11.3889 34.6667 10.4444 35.0556 9.66667 35.8333C8.88889 36.6111 8.5 37.5556 8.5 38.6667C8.5 39.7778 8.88889 40.7222 9.66667 41.5C10.4444 42.2778 11.3889 42.6667 12.5 42.6667C13.6111 42.6667 14.5556 42.2778 15.3333 41.5C16.1111 40.7222 16.5 39.7778 16.5 38.6667C16.5 37.5556 16.1111 36.6111 15.3333 35.8333C14.5556 35.0556 13.6111 34.6667 12.5 34.6667ZM3.16667 0H45.8333C46.5889 0 47.2222 0.255556 47.7333 0.766667C48.2444 1.27778 48.5 1.91111 48.5 2.66667V21.3333C48.5 22.0889 48.2444 22.7222 47.7333 23.2333C47.2222 23.7444 46.5889 24 45.8333 24H3.16667C2.41111 24 1.77778 23.7444 1.26667 23.2333C0.755556 22.7222 0.5 22.0889 0.5 21.3333V2.66667C0.5 1.91111 0.755556 1.27778 1.26667 0.766667C1.77778 0.255556 2.41111 0 3.16667 0ZM5.83333 5.33333V18.6667H43.1667V5.33333H5.83333ZM3.16667 26.6667H45.8333C46.5889 26.6667 47.2222 26.9222 47.7333 27.4333C48.2444 27.9444 48.5 28.5778 48.5 29.3333V48C48.5 48.7556 48.2444 49.3889 47.7333 49.9C47.2222 50.4111 46.5889 50.6667 45.8333 50.6667H3.16667C2.41111 50.6667 1.77778 50.4111 1.26667 49.9C0.755556 49.3889 0.5 48.7556 0.5 48V29.3333C0.5 28.5778 0.755556 27.9444 1.26667 27.4333C1.77778 26.9222 2.41111 26.6667 3.16667 26.6667ZM5.83333 32V45.3333H43.1667V32H5.83333Z'
+        fill={color}
+      />
+    </Svg>
+  )
+})
+
+export default ServerBoxIcon

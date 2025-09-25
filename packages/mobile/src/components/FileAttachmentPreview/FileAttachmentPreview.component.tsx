@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Image, ScrollView, TouchableWithoutFeedback, View } from 'react-native'
 import { FileContent, FilePreviewData, imagesExtensions } from '@quiet/types'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
@@ -12,8 +12,8 @@ export interface FilePreviewComponentProps {
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
   const imageType = imagesExtensions.includes(fileData.ext)
-  const removePreviewIcon = appImages.icon_close
-  const fileIcon = appImages.file_document
+  const removePreviewIcon = icons.icon_close
+  const fileIcon = icons.file_document
 
   return (
     <View

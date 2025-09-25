@@ -4,7 +4,7 @@ import { View, Image, TouchableWithoutFeedback, Alert } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, FileAttachmentProps } from './FileAttachment.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { formatBytes } from '@quiet/state-manager'
 import { createLogger } from '../../utils/logger'
 
@@ -115,7 +115,7 @@ export const FileAttachment: FC<FileAttachmentProps & FileActionsProps> = ({
         </Typography>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
-            source={appImages.file_document}
+            source={icons.file_document}
             resizeMode='cover'
             resizeMethod='resize'
             style={{

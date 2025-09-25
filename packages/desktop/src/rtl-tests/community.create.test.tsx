@@ -49,6 +49,7 @@ describe('User', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
+    process.env.QSS_ALLOWED = 'false'
   })
 
   afterEach(() => {

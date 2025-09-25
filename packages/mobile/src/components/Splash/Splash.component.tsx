@@ -3,7 +3,7 @@ import { Image, View } from 'react-native'
 import deviceInfoModule from 'react-native-device-info'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 
 export const Splash: FC = () => {
   return (
@@ -17,7 +17,7 @@ export const Splash: FC = () => {
       testID='loading'
     >
       <Image
-        source={appImages.quiet_icon}
+        source={icons.quiet_icon}
         style={{
           marginTop: 20,
           marginBottom: 46,

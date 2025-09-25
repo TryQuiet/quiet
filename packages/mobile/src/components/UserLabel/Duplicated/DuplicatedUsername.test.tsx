@@ -88,7 +88,7 @@ describe('DuplicatedUsername component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/icon_close.png",
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
                     }
                   }
                   style={
@@ -150,7 +150,7 @@ describe('DuplicatedUsername component', () => {
           <Image
             source={
               {
-                "testUri": "../../../assets/icons/exclamationMark.png",
+                "testUri": "../../../src/assets/icons/png/exclamationMark.png",
               }
             }
             style={
@@ -275,7 +275,7 @@ describe('DuplicatedUsername component', () => {
                 <Image
                   source={
                     {
-                      "testUri": "../../../assets/icons/warning-icon.png",
+                      "testUri": "../../../src/assets/icons/png/icon_warning.png",
                     }
                   }
                   style={

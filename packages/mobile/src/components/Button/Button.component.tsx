@@ -18,7 +18,7 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
       <View
         style={{
           paddingVertical: 12,
-          marginVertical: !negative ? 12 : 0,
+          paddingHorizontal: 20,
           backgroundColor: disabled ? 'grey' : !negative ? defaultTheme.palette.main.brand : 'transparent',
           borderRadius: 8,
           justifyContent: 'center',

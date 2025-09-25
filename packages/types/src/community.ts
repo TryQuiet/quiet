@@ -44,6 +44,7 @@ export enum CommunityOwnership {
 
 export interface CreateCommunityPayload {
   name: string
+  useServer?: boolean
 }
 
 export interface JoinCommunityPayload {
@@ -72,6 +73,7 @@ export interface InitCommunityPayload {
   ownerOrbitDbIdentity?: string
   inviteData?: InvitationData | null
   username: string
+  useServer?: boolean
 }
 
 export interface ResponseLaunchCommunityPayload {

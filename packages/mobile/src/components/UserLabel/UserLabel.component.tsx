@@ -3,7 +3,7 @@ import { View, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { UserLabelProps, UserLabelType } from './UserLabel.types'
-import WarnIcon from '../../../assets/icons/warning-icon.png'
+import { icons } from '../../assets'
 
 const classes = StyleSheet.create({
   mainWrapper: {
@@ -55,7 +55,7 @@ const UserLabel: React.FC<UserLabelProps> = ({
     >
       <View style={classes.mainWrapper}>
         <View style={isUnregistered ? classes.wrapperGray : classes.wrapperRed}>
-          {!isUnregistered && <Image source={WarnIcon} style={classes.image} />}
+          {!isUnregistered && <Image source={icons.icon_warning} style={classes.image} />}
           <Typography fontSize={12} style={isUnregistered ? classes.textBlack : classes.textWhite}>
             {type}
           </Typography>

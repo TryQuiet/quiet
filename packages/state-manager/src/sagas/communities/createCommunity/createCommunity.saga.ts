@@ -56,6 +56,7 @@ export function* createCommunitySaga(
     id: communityId,
     name: action.payload.name,
     username,
+    useServer: action.payload.useServer,
   }
 
   const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(
@@ -66,6 +67,8 @@ export function* createCommunitySaga(
 
   if (!createCommunityResponse || !createCommunityResponse.community || !createCommunityResponse.identity) {
     logger.error('Failed to create community - invalid response from backend')
+    yield* put(communitiesActions.setCurrentCommunity(''))
+    yield* put(communitiesActions.deleteCommunity(communityId))
     return
   }
 
