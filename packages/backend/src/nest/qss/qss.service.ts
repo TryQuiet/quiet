@@ -15,7 +15,7 @@ import {
   CreateCommunity,
   CreateCommunityResponse,
   CreateCommunityStatus,
-  QSSDataSyncMessage,
+  QSSLogEntrySyncMessage,
   GeneratePublicKeysMessage,
   WebsocketEvents,
 } from './qss.types'
@@ -74,7 +74,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public async onModuleInit() {
     OrbitDbService.events.on('put', async (logUpdate: LogUpdate) => {
-      await this.sendDataSyncMessage(logUpdate)
+      await this.sendLogEntrySyncMessage(logUpdate)
     })
   }
 
@@ -88,13 +88,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     this.logger.info('Processing QSS data sync dead letter queue')
 
-    const unsentHashesByAddr = await this.localDbService.getPendingQssSyncMessages()
+    const unsentHashesByAddr = await this.localDbService.getPendingQssLogSyncMessages()
     const successes: Record<string, string[]> = {}
     for (const [address, unsentHashes] of Object.entries(unsentHashesByAddr)) {
       const successByAddr: string[] = []
       const unsentEntries: LogEntry[] = await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)
       for (const entry of unsentEntries) {
-        const success = await this.sendDataSyncMessage(logEntryToLogUpdate(entry, address))
+        const success = await this.sendLogEntrySyncMessage(logEntryToLogUpdate(entry, address))
         if (success) {
           successByAddr.push(entry.hash)
         }
@@ -104,7 +104,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       }
     }
     if (Object.keys(successes).length > 0) {
-      await this.localDbService.removePendingQssSyncMessages(successes)
+      await this.localDbService.removePendingQssLogSyncMessages(successes)
     }
   }
 
@@ -374,9 +374,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param update OrbitDB oplog entry update event
    * @return True if sent successfully, false if send failed, and undefined if the send was skipped
    */
-  public async sendDataSyncMessage(update: LogUpdate): Promise<boolean | undefined> {
+  public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
     if (!this.canConnect) {
-      this.logger.info(`Can't send data sync message to QSS because QSS is not enabled for this community`)
+      this.logger.info(`Can't send log sync message to QSS because QSS is not enabled for this community`)
       return
     }
 
@@ -390,7 +390,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         name: RoleName.MEMBER,
       })
 
-    const dataSyncMessage: QSSDataSyncMessage = {
+    const dataSyncMessage: QSSLogEntrySyncMessage = {
       ts: DateTime.utc().toMillis(),
       status: CommunityOperationStatus.SENDING,
       payload: {
@@ -401,7 +401,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       },
     }
 
-    return await this._sendDataSyncMessage(dataSyncMessage, update.addr)
+    return await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
   }
 
   /**
@@ -410,42 +410,54 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param dataSyncMessage Pending message we want to send to QSS
    * @returns True if sent successfully, false if send failed, and undefined if the send was skipped
    */
-  private async _sendDataSyncMessage(
-    dataSyncMessage: QSSDataSyncMessage,
+  private async _sendLogEntrySyncMessage(
+    dataSyncMessage: QSSLogEntrySyncMessage,
     address: string
   ): Promise<boolean | undefined> {
     const hash = dataSyncMessage.payload!.hash
     const teamId = dataSyncMessage.payload?.teamId
     if (!this.connected) {
       this.logger.warn('QSS not connected, writing entry to dead letter queue', hash, teamId)
-      await this.localDbService.addPendingQssSyncMessage(address, hash)
+      try {
+        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
+      } catch (e) {
+        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
+      }
       return undefined
     }
 
-    this.logger.trace('Sending data sync message to QSS', hash, teamId)
-    const dataSyncAck = await this.qssClient.sendMessage<QSSDataSyncMessage>(
-      WebsocketEvents.DATA_SYNC,
+    if (this.joinStatus(teamId) !== JoinStatus.JOINED) {
+      this.logger.warn('QSS not signed in, writing entry to dead letter queue', hash, teamId)
+      try {
+        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
+      } catch (e) {
+        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
+      }
+      return undefined
+    }
+
+    this.logger.trace('Sending log sync message to QSS', hash, teamId)
+    const dataSyncAck = await this.qssClient.sendMessage<QSSLogEntrySyncMessage>(
+      WebsocketEvents.LOG_ENTRY_SYNC,
       dataSyncMessage,
       true
     )
 
     let success = false
     if (dataSyncAck == null) {
-      this.logger.error('Error while sending a data sync to QSS', hash, teamId)
-      // TODO: add dead letter queue for failed syncs
+      this.logger.error('Error while sending a log sync to QSS', hash, teamId)
     } else if (dataSyncAck.status !== CommunityOperationStatus.SUCCESS) {
-      this.logger.error(`Error while sending a data sync to QSS - ${dataSyncAck.reason}`, hash, teamId)
-      // TODO: add dead letter queue for failed syncs
+      this.logger.error(`Error while sending a log sync to QSS - ${dataSyncAck.reason}`, hash, teamId)
     } else {
-      this.logger.debug('Successful data sync to QSS')
+      this.logger.debug('Successful log sync to QSS')
       success = true
     }
 
     if (!success) {
       try {
-        await this.localDbService.addPendingQssSyncMessage(address, hash)
-      } catch (error) {
-        this.logger.error('Error while adding pending QSS sync message', error)
+        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
+      } catch (e) {
+        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
       }
     }
 

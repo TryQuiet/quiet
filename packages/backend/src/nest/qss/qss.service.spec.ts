@@ -15,7 +15,7 @@ import {
   CommunityOperationStatus,
   CreateCommunityStatus,
   CommunitySignInMessage,
-  QSSDataSyncMessage,
+  QSSLogEntrySyncMessage,
 } from './qss.types'
 import { createLogger } from '../common/logger'
 import { Community, Identity } from '@quiet/types'
@@ -43,6 +43,7 @@ import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.mo
 import { IpfsModule } from '../ipfs/ipfs.module'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
+import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 
 describe('QSSService', () => {
   let store: Store
@@ -50,6 +51,7 @@ describe('QSSService', () => {
   let module: TestingModule
   let qssClient: QSSClient
   let qssService: QSSService
+  let qssAuthConnManager: QSSAuthConnectionManager
   let sigchainService: SigChainService
   let libp2pService: Libp2pService
   let ipfsService: IpfsService
@@ -58,6 +60,7 @@ describe('QSSService', () => {
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedSendMessage: any
+  let mockedJoinStatus: any
   let addPendingMessageSpy: any
   let mockedAllowed: any
   let community: Community
@@ -77,6 +80,7 @@ describe('QSSService', () => {
     }).compile()
     qssService = module.get<QSSService>(QSSService)
     qssClient = module.get<QSSClient>(QSSClient)
+    qssAuthConnManager = module.get<QSSAuthConnectionManager>(QSSAuthConnectionManager)
     libp2pService = await module.resolve(Libp2pService)
     libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
 
@@ -128,6 +132,9 @@ describe('QSSService', () => {
     addPendingMessageSpy = null
     if (mockedAllowed != null) {
       mockedAllowed.mockRestore()
+    }
+    if (mockedJoinStatus != null) {
+      mockedJoinStatus.mockRestore()
     }
   })
 
@@ -522,8 +529,9 @@ describe('QSSService', () => {
     })
   })
 
-  describe('sendDataSyncMessage', () => {
-    it(`sends a successful data sync to QSS`, async () => {
+  describe('sendLogEntrySyncMessage', () => {
+    it(`sends a successful log sync to QSS`, async () => {
+      mockedJoinStatus = jest.spyOn(qssService, 'joinStatus').mockReturnValue(JoinStatus.JOINED)
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -533,8 +541,8 @@ describe('QSSService', () => {
               return undefined
             }
             switch (event) {
-              case WebsocketEvents.DATA_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload!
+              case WebsocketEvents.LOG_ENTRY_SYNC:
+                const { teamId, hash, hashedDbId } = (payload as QSSLogEntrySyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
@@ -567,11 +575,11 @@ describe('QSSService', () => {
       )
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address)
-      const result = await qssService.sendDataSyncMessage(update)
+      const result = await qssService.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
-          WebsocketEvents.DATA_SYNC,
+          WebsocketEvents.LOG_ENTRY_SYNC,
           expect.objectContaining({
             ts: expect.any(Number),
             status: CommunityOperationStatus.SENDING,
@@ -581,18 +589,18 @@ describe('QSSService', () => {
               hashedDbId: expect.any(String),
               encEntry: expect.any(Object),
             },
-          } as QSSDataSyncMessage),
+          } as QSSLogEntrySyncMessage),
           true
         )
       })
       expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
 
-      const pendingMessages = await localDbService.getPendingQssSyncMessages()
+      const pendingMessages = await localDbService.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
     })
 
-    it(`fails to send data sync to QSS and writes pending message to local DB`, async () => {
+    it(`fails to send log sync to QSS and writes pending message to local DB`, async () => {
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -602,8 +610,8 @@ describe('QSSService', () => {
               return undefined
             }
             switch (event) {
-              case WebsocketEvents.DATA_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSDataSyncMessage).payload!
+              case WebsocketEvents.LOG_ENTRY_SYNC:
+                const { teamId, hash, hashedDbId } = (payload as QSSLogEntrySyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
@@ -618,7 +626,7 @@ describe('QSSService', () => {
             }
           }
         )
-      addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssSyncMessage')
+      addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
       mockedCreateSocket.mockRestore()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('ws://localhost:3000')
@@ -638,14 +646,14 @@ describe('QSSService', () => {
       )
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address)
-      const result = await qssService.sendDataSyncMessage(update)
+      const result = await qssService.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
       await waitForExpect(async () => {
         expect(addPendingMessageSpy).toHaveBeenCalledTimes(1)
       })
       expect(mockedSendMessage).toHaveBeenCalledTimes(0)
 
-      const pendingMessages = await localDbService.getPendingQssSyncMessages()
+      const pendingMessages = await localDbService.getPendingQssLogSyncMessages()
       expect(pendingMessages[db.address].length).toBe(1)
     })
   })
