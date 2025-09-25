@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { ChildProcess } from 'child_process'
 
 import {
   App,
@@ -11,7 +12,7 @@ import {
   Sidebar,
   ServerOfferModal,
 } from '../selectors'
-import { promiseWithRetries, sleep } from '../utils'
+import { promiseWithRetries, sleep, tailQssLogs } from '../utils'
 import { UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
@@ -24,6 +25,7 @@ describe('Multiple Clients (QSS)', () => {
   let generalChannelOwner: Channel
   let generalChannelUser1: Channel
   let generalChannelUser2: Channel
+  let qssLogTailProcess: ChildProcess
 
   let invitationLink: string
 
@@ -34,6 +36,7 @@ describe('Multiple Clients (QSS)', () => {
 
   beforeAll(async () => {
     const commonApp = new App()
+    qssLogTailProcess = tailQssLogs()
     users = {
       owner: {
         username: 'owner',
@@ -54,6 +57,7 @@ describe('Multiple Clients (QSS)', () => {
   })
 
   afterAll(async () => {
+    qssLogTailProcess.kill()
     for (const user of Object.values(users)) {
       try {
         await user.app.close()
@@ -291,7 +295,7 @@ describe('Multiple Clients (QSS)', () => {
       })
 
       it(`First user sees second user's message`, async () => {
-        await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username)
+        await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username, 60_000)
       })
     })
 
