@@ -426,8 +426,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return undefined
     }
 
-    const authConn = this.qssAuthConnManager.getConnection(teamId)
-    if (authConn == null || !authConn.active) {
+    if (this.joinStatus(teamId) !== JoinStatus.JOINED) {
       this.logger.warn('QSS not signed in, writing entry to dead letter queue', hash, teamId)
       try {
         await this.localDbService.addPendingQssLogSyncMessage(address, hash)

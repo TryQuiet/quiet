@@ -43,6 +43,7 @@ import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.mo
 import { IpfsModule } from '../ipfs/ipfs.module'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
+import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 
 describe('QSSService', () => {
   let store: Store
@@ -50,6 +51,7 @@ describe('QSSService', () => {
   let module: TestingModule
   let qssClient: QSSClient
   let qssService: QSSService
+  let qssAuthConnManager: QSSAuthConnectionManager
   let sigchainService: SigChainService
   let libp2pService: Libp2pService
   let ipfsService: IpfsService
@@ -58,6 +60,7 @@ describe('QSSService', () => {
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedSendMessage: any
+  let mockedJoinStatus: any
   let addPendingMessageSpy: any
   let mockedAllowed: any
   let community: Community
@@ -77,6 +80,7 @@ describe('QSSService', () => {
     }).compile()
     qssService = module.get<QSSService>(QSSService)
     qssClient = module.get<QSSClient>(QSSClient)
+    qssAuthConnManager = module.get<QSSAuthConnectionManager>(QSSAuthConnectionManager)
     libp2pService = await module.resolve(Libp2pService)
     libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
 
@@ -128,6 +132,9 @@ describe('QSSService', () => {
     addPendingMessageSpy = null
     if (mockedAllowed != null) {
       mockedAllowed.mockRestore()
+    }
+    if (mockedJoinStatus != null) {
+      mockedJoinStatus.mockRestore()
     }
   })
 
@@ -524,6 +531,7 @@ describe('QSSService', () => {
 
   describe('sendLogEntrySyncMessage', () => {
     it(`sends a successful log sync to QSS`, async () => {
+      mockedJoinStatus = jest.spyOn(qssService, 'joinStatus').mockReturnValue(JoinStatus.JOINED)
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
