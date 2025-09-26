@@ -24,6 +24,7 @@ export interface Community {
   qssEnabled?: boolean
   qssEndpoint?: string
   tosAccepted?: boolean
+  serverHosts?: string[]
 }
 
 export interface CommunityMetadata {
@@ -99,10 +100,16 @@ export interface ResponseLeaveCommunityPayload {
   id: string
 }
 
+export interface ServerAddedPayload {
+  id: string
+  serverHosts: string[]
+}
+
 // ----- Invites -----
 export interface RequestInvitePayload {
   id: Base58 | undefined
 }
+
 export interface ResponseInvitePayload {
   valid: boolean
   newInvite?: InviteResult

@@ -11,7 +11,7 @@ import { type InviteService } from './services/invites/invite.service'
 import { type UserService } from './services/members/user.service'
 import { type CryptoService } from './services/crypto/crypto.service'
 import { type UserWithSecrets } from '@localfirst/auth'
-import { type DeviceWithSecrets } from '@localfirst/auth'
+import { type DeviceWithSecrets, type Hash } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
@@ -122,7 +122,7 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(this.getChain({ teamName }))
   }
 
-  private handleChainUpdate = () => {
+  private handleChainUpdate = async () => {
     const users = this.getActiveChain()
       .team?.members()
       .map(user => ({
@@ -132,6 +132,17 @@ export class SigChainService extends EventEmitter {
         isDuplicated: false,
       })) as User[]
     this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+    const community = await this.localDbService.getCurrentCommunity()
+    if (community) {
+      const teamServerHosts = this.team.servers().map(s => s.host)
+      const communityHostsSet = new Set(community.serverHosts)
+      const teamHostsSet = new Set(teamServerHosts)
+      const setsAreEqual =
+        communityHostsSet.size === teamHostsSet.size && [...communityHostsSet].every(h => teamHostsSet.has(h))
+      if (!setsAreEqual && teamServerHosts.length > 0) {
+        this.socketService.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
+      }
+    }
     this.emit('updated')
     this.saveChain(this.activeChainTeamName!)
     this.logger.info('Chain updated, emitted updated event')

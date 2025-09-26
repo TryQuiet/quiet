@@ -35,8 +35,12 @@ export const communitiesSlice = createSlice({
       logger.info('Adding new community', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunityData: (state, action: PayloadAction<Community>) => {
+    updateCommunityData: (state, action: PayloadAction<Partial<Community>>) => {
       logger.info('Updating community data', JSON.stringify(action.payload, null, 2))
+      if (!action.payload.id) {
+        logger.error('Could not update community data, missing community ID')
+        return
+      }
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {

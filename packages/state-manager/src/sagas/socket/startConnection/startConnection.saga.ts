@@ -38,6 +38,7 @@ import {
   SocketEvents,
   AttachFilePayload,
   LaunchCommunityPayload,
+  ServerAddedPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -158,6 +159,11 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResult) => {
       logger.info(`${SocketEvents.CREATED_LONG_LIVED_LFA_INVITE}`, payload)
       emit(connectionActions.setLongLivedInvite(payload))
+    })
+
+    socket.on(SocketEvents.SERVER_ADDED, (payload: ServerAddedPayload) => {
+      logger.info(`${SocketEvents.SERVER_ADDED}`, payload)
+      emit(communitiesActions.updateCommunityData({ id: payload.id, serverHosts: payload.serverHosts }))
     })
 
     // Errors

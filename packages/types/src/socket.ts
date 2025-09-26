@@ -41,9 +41,9 @@ import {
   LaunchCommunityPayload,
   RequestInvitePayload,
   ResponseInvitePayload,
+  ServerAddedPayload,
 } from './community'
 import { ErrorPayload } from './errors'
-import { InviteResult } from '@localfirst/auth'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -114,6 +114,7 @@ export enum SocketEvents {
 
   // ====== Community ======
   COMMUNITY_LAUNCHED = 'communityLaunched',
+  SERVER_ADDED = 'serverAdded',
 
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
@@ -203,6 +204,7 @@ export interface SocketEventsMap {
 
   // ====== Community ======
   [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
+  [SocketEvents.SERVER_ADDED]: EmitEvent<ServerAddedPayload>
 
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>
