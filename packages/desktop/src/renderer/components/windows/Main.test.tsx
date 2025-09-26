@@ -53,6 +53,7 @@ describe('Main', () => {
                           >
                             <h4
                               class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+                              data-testid="current-community-name"
                             >
                               community_1
                             </h4>
@@ -279,6 +280,7 @@ describe('Main', () => {
                             Jdenticon
                             <p
                               class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-16d47hw-MuiTypography-root"
+                              data-testid="user-profile-nickname"
                             />
                             <span
                               class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"

@@ -54,6 +54,7 @@ describe('WarningModal', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      data-testid="ModalClose"
                       tabindex="0"
                       type="button"
                     >
@@ -84,7 +85,7 @@ describe('WarningModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-18sr2lk-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-d6kjg-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container WarningModalinfo css-1lym95h-MuiGrid-root"

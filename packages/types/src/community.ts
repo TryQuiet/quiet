@@ -23,6 +23,7 @@ export interface Community {
   teamId?: string
   qssEnabled?: boolean
   qssEndpoint?: string
+  tosAccepted?: boolean
 }
 
 export interface CommunityMetadata {
@@ -74,6 +75,7 @@ export interface InitCommunityPayload {
   inviteData?: InvitationData | null
   username: string
   useServer?: boolean
+  tosAccepted?: boolean
 }
 
 export interface ResponseLaunchCommunityPayload {

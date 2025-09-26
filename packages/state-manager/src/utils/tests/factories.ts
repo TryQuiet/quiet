@@ -4,7 +4,6 @@ import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
 import { createPeerIdTestHelper } from './helpers'
 import { DateTime } from 'luxon'
-import { communities, identity, messages, publicChannels, users, errors, connection } from '../..'
 import { generateChannelId } from '@quiet/common'
 import {
   ChannelMessage,
@@ -45,9 +44,24 @@ import {
   Community,
   SetUserProfilePayload,
   SetUserProfileResponse,
+  LaunchCommunityPayload,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
+import { communitiesActions } from '../../sagas/communities/communities.slice'
+import { communitiesSelectors } from '../../sagas/communities/communities.selectors'
+import { identityActions } from '../../sagas/identity/identity.slice'
+import { identitySelectors } from '../../sagas/identity/identity.selectors'
+import { usersActions } from '../../sagas/users/users.slice'
+import { usersSelectors } from '../../sagas/users/users.selectors'
+import { messagesActions } from '../../sagas/messages/messages.slice'
+import { messagesSelectors } from '../../sagas/messages/messages.selectors'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
+import { publicChannelsSelectors } from '../../sagas/publicChannels/publicChannels.selectors'
+import { errorsActions } from '../../sagas/errors/errors.slice'
+import { errorsSelectors } from '../../sagas/errors/errors.selectors'
+import { connectionActions } from '../../sagas/appConnection/connection.slice'
+import { connectionSelectors } from '../../sagas/appConnection/connection.selectors'
 
 const logger = createLogger('factories')
 
@@ -157,9 +171,9 @@ export const getReduxStoreFactory = async (store: Store) => {
 
   factory.setAdapter(new CustomReduxAdapter(store))
 
-  factory.define<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+  factory.define<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
     'Community',
-    communities.actions.addNewCommunity,
+    communitiesActions.addNewCommunity,
     {
       id: factory.sequence('Community.id', (n: number) => n.toString()),
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
@@ -167,11 +181,11 @@ export const getReduxStoreFactory = async (store: Store) => {
       ownership: CommunityOwnership.Owner,
     },
     {
-      afterCreate: async (payload: ReturnType<typeof communities.actions.addNewCommunity>['payload']) => {
+      afterCreate: async (payload: ReturnType<typeof communitiesActions.addNewCommunity>['payload']) => {
         // Set current community if there's no current community set yet
-        const currentCommunity = communities.selectors.currentCommunity(store.getState())
+        const currentCommunity = communitiesSelectors.currentCommunity(store.getState())
         if (!currentCommunity) {
-          store.dispatch(communities.actions.setCurrentCommunity(payload.id))
+          store.dispatch(communitiesActions.setCurrentCommunity(payload.id))
         }
         // Create 'general' channel
         await factory.create('PublicChannel', {
@@ -189,9 +203,9 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+  factory.define<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
     'Identity',
-    identity.actions.addNewIdentity,
+    identityActions.addNewIdentity,
     {
       communityId: factory.assoc('Community', 'id'),
       networkInfo: {
@@ -208,9 +222,9 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof users.actions.setUserProfile>['payload']>(
+  factory.define<ReturnType<typeof usersActions.setUserProfile>['payload']>(
     'UserProfile',
-    users.actions.setUserProfile,
+    usersActions.setUserProfile,
     {
       nickname: factory.sequence('UserProfile.nickname', (n: number) => `user_${n}`),
       photo: 'dGVzdAo=',
@@ -223,27 +237,27 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof users.actions.setUser>['payload']>('User', users.actions.setUser, {
+  factory.define<ReturnType<typeof usersActions.setUser>['payload']>('User', usersActions.setUser, {
     userId: factory.sequence('User.userId', (n: number) => `userId_${n}`),
     isRegistered: true,
     isDuplicated: false,
   })
 
-  factory.define<ReturnType<typeof users.actions.setUsers>['payload']>('RemoveUser', users.actions.setUsers, [
+  factory.define<ReturnType<typeof usersActions.setUsers>['payload']>('RemoveUser', usersActions.setUsers, [
     factory.assoc('User', 'userId'),
   ])
 
-  factory.define<ReturnType<typeof messages.actions.addPublicChannelsMessagesBase>['payload']>(
+  factory.define<ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>['payload']>(
     'PublicChannelsMessagesBase',
-    messages.actions.addPublicChannelsMessagesBase,
+    messagesActions.addPublicChannelsMessagesBase,
     {
       channelId: factory.assoc('PublicChannel', 'id'),
     }
   )
 
-  factory.define<ReturnType<typeof publicChannels.actions.setChannelSubscribed>['payload']>(
+  factory.define<ReturnType<typeof publicChannelsActions.setChannelSubscribed>['payload']>(
     'PublicChannelSubscription',
-    publicChannels.actions.setChannelSubscribed,
+    publicChannelsActions.setChannelSubscribed,
     {
       channelId: factory.assoc('PublicChannel', 'id'),
     }
@@ -251,7 +265,7 @@ export const getReduxStoreFactory = async (store: Store) => {
 
   factory.define(
     'PublicChannel',
-    publicChannels.actions.addChannel,
+    publicChannelsActions.addChannel,
     {
       channel: factory.sequence('PublicChannel.channel', (n: number) => {
         const name = `public-channel-${n}`
@@ -265,7 +279,7 @@ export const getReduxStoreFactory = async (store: Store) => {
       }),
     },
     {
-      afterCreate: async (payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']) => {
+      afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
           channelId: payload.channel.id,
         })
@@ -277,9 +291,9 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof messages.actions.addMessages>['payload']>(
+  factory.define<ReturnType<typeof messagesActions.addMessages>['payload']>(
     'AddMessages',
-    messages.actions.addMessages,
+    messagesActions.addMessages,
     {
       messages: [baseTypes.assoc('ChannelMessage')],
       isVerified: true,
@@ -288,7 +302,7 @@ export const getReduxStoreFactory = async (store: Store) => {
 
   factory.define(
     'TestMessage',
-    publicChannels.actions.test_message,
+    publicChannelsActions.test_message,
     {
       message: {
         id: factory.sequence('Message.id', (n: number) => `${n}`),
@@ -312,7 +326,7 @@ export const getReduxStoreFactory = async (store: Store) => {
       },
       afterCreate: async payload => {
         store.dispatch(
-          messages.actions.addMessages({
+          messagesActions.addMessages({
             messages: [payload.message],
           })
         )
@@ -321,43 +335,43 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof publicChannels.actions.cacheMessages>['payload']>(
+  factory.define<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
     'CacheMessages',
-    publicChannels.actions.cacheMessages,
+    publicChannelsActions.cacheMessages,
     {
       messages: [],
       channelId: factory.assoc('PublicChannel', 'id'),
     }
   )
 
-  factory.define<ReturnType<typeof messages.actions.test_message_verification_status>['payload']>(
+  factory.define<ReturnType<typeof messagesActions.test_message_verification_status>['payload']>(
     'MessageVerificationStatus',
-    messages.actions.test_message_verification_status,
+    messagesActions.test_message_verification_status,
     {
       message: factory.assoc('TestMessage'),
       isVerified: true,
     }
   )
 
-  factory.define<ReturnType<typeof messages.actions.addMessagesSendingStatus>['payload']>(
+  factory.define<ReturnType<typeof messagesActions.addMessagesSendingStatus>['payload']>(
     'MessageSendingStatus',
-    messages.actions.addMessagesSendingStatus,
+    messagesActions.addMessagesSendingStatus,
     {
       message: factory.assoc('TestMessage'),
       status: SendingStatus.Pending,
     }
   )
 
-  factory.define<ReturnType<typeof errors.actions.addError>['payload']>('Error', errors.actions.addError, {
+  factory.define<ReturnType<typeof errorsActions.addError>['payload']>('Error', errorsActions.addError, {
     type: 'community',
     code: 500,
     message: 'Community error',
     community: factory.assoc('Community', 'id'),
   })
 
-  factory.define<ReturnType<typeof connection.actions.setConnectionProcess>['payload']>(
+  factory.define<ReturnType<typeof connectionActions.setConnectionProcess>['payload']>(
     'setConnectionProcess',
-    connection.actions.setConnectionProcess,
+    connectionActions.setConnectionProcess,
     {
       info: ConnectionProcessInfo.INITIALIZING_IPFS,
       isOwner: true,
@@ -432,16 +446,13 @@ export const getSocketFactory = async () => {
     profile: baseTypes.assoc('UserProfile'),
   })
 
-  // TODO: implement with multiple community support
-  // factory.define<InitCommunityPayload>(SocketActions.LAUNCH_COMMUNITY, Object, {
-  //   id: 'launched-community-id',
-  //   name: 'Launched Community',
-  //   username: 'community-member',
-  // })
+  factory.define<LaunchCommunityPayload>(SocketActions.LAUNCH_COMMUNITY, Object, {
+    id: 'launched-community-id',
+  })
 
-  // factory.define<ResponseLaunchCommunityPayload>(`${SocketActions.LAUNCH_COMMUNITY}_response`, Object, {
-  //   id: 'launched-community-id',
-  // })
+  factory.define<ResponseLaunchCommunityPayload>(`${SocketActions.LAUNCH_COMMUNITY}_response`, Object, {
+    id: 'launched-community-id',
+  })
 
   // LEAVE_COMMUNITY has no payload
   factory.define(SocketActions.LEAVE_COMMUNITY, Object, {})

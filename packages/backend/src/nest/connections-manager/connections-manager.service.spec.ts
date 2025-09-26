@@ -124,8 +124,8 @@ describe('ConnectionsManagerService', () => {
     const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue('address')
 
     await Promise.all([
-      connectionsManagerService.launchCommunity(community),
-      connectionsManagerService.launchCommunity(community),
+      connectionsManagerService.launchCommunity(community.id),
+      connectionsManagerService.launchCommunity(community.id),
     ])
 
     expect(launchSpy).toBeCalledTimes(1)

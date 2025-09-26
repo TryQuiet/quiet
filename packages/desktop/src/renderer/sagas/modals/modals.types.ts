@@ -25,4 +25,5 @@ export enum ModalName {
   unregisteredUsernameModal = 'unregisteredUsernameModal',
   usernameTakenModal = 'usernameTakenModal',
   possibleImpersonationAttackModal = 'possibleImpersonationAttackModal',
+  termsOfServiceModal = 'termsOfServiceModal',
 }

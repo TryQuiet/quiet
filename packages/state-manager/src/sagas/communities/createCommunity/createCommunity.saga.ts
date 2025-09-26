@@ -28,6 +28,7 @@ export function* createCommunitySaga(
   const communityId = generateId()
 
   logger.info('Community ID:', communityId)
+  logger.info('Use server:', action.payload.useServer)
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
 
@@ -36,15 +37,6 @@ export function* createCommunitySaga(
     return
   }
 
-  yield* put(
-    communitiesActions.addNewCommunity({
-      id: communityId,
-      name: action.payload.name,
-      ownership: CommunityOwnership.Owner,
-    } as Community)
-  )
-  yield* put(communitiesActions.setCurrentCommunity(communityId))
-
   logger.info('Waiting for username registration')
 
   const registerAction: ReturnType<typeof identityActions.registerUsername> = yield* take(
@@ -52,11 +44,21 @@ export function* createCommunitySaga(
   )
   const username = registerAction.payload.nickname
 
+  let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
+  if (process.env.QSS_ALLOWED === 'true' && action.payload.useServer) {
+    yield* put(communitiesActions.requestTermsOfService())
+    acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
+    if (!acceptTerms.payload.accepted) {
+      logger.info('User did not accept terms of service, aborting community creation')
+      return
+    }
+  }
   const payload: InitCommunityPayload = {
     id: communityId,
     name: action.payload.name,
     username,
     useServer: action.payload.useServer,
+    tosAccepted: acceptTerms.payload.accepted,
   }
 
   const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(
@@ -65,6 +67,7 @@ export function* createCommunitySaga(
     applyEmitParams(SocketActions.CREATE_COMMUNITY, payload)
   )
 
+  logger.debug('Response from backend', createCommunityResponse)
   if (!createCommunityResponse || !createCommunityResponse.community || !createCommunityResponse.identity) {
     logger.error('Failed to create community - invalid response from backend')
     yield* put(communitiesActions.setCurrentCommunity(''))
@@ -72,7 +75,8 @@ export function* createCommunitySaga(
     return
   }
 
-  yield* put(communitiesActions.updateCommunityData(createCommunityResponse.community))
+  yield* put(communitiesActions.addNewCommunity(createCommunityResponse.community))
+  yield* put(communitiesActions.setCurrentCommunity(createCommunityResponse.community.id))
   yield* put(identityActions.addNewIdentity(createCommunityResponse.identity))
   yield* put(usersActions.setUserProfile(createCommunityResponse.profile))
   yield* put(publicChannelsActions.createGeneralChannel())

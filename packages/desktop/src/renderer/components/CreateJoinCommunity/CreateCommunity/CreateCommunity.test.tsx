@@ -96,8 +96,8 @@ describe('Create community', () => {
     const createUsernameTitle = await screen.findByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
 
-    // Close username registration modal
-    const closeButton = await screen.findByTestId('createUsernameModalActions')
+    // Close username registration modal by clicking explicit close button
+    const closeButton = await screen.findByTestId('createUsernameModalClose')
     await userEvent.click(closeButton)
     expect(createCommunityTitle).toBeVisible()
   })
@@ -207,48 +207,6 @@ describe('Create community', () => {
     const submitButton = result.queryByRole('button')
     expect(submitButton).not.toBeNull()
     expect(submitButton).toBeDisabled()
-  })
-
-  it('shows loading spinner on submit button while waiting for the response', async () => {
-    const { rerender } = renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const textInput = screen.getByPlaceholderText(communityNameField().fieldProps.placeholder)
-    await userEvent.type(textInput, 'rockets')
-
-    const submitButton = screen.getByRole('button')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
-
-    await act(async () => {})
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
-
-    // Rerender component to verify circular progress has dissapeared
-    rerender(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={true}
-      />
-    )
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
   })
 
   it('handles redirection to join community page if user clicks on the link', async () => {

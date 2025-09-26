@@ -13,15 +13,20 @@ import { createLogger } from '../../utils/logger'
 const logger = createLogger('communitiesSlice')
 
 export class CommunitiesState {
-  public invitationCodes: Record<string, InvitationData> = {}
+  public invitationCodes: InvitationData | null = null
   public currentCommunity = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
+  public connectionInProgress = false
+  public tosRequested = false
 }
 
 export const communitiesSlice = createSlice({
   initialState: { ...new CommunitiesState() },
   name: StoreKeys.Communities,
   reducers: {
+    setConnectionInProgress: (state, action: PayloadAction<boolean>) => {
+      state.connectionInProgress = action.payload
+    },
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       logger.info('Setting current community', JSON.stringify(action.payload, null, 2))
       state.currentCommunity = action.payload
@@ -53,11 +58,30 @@ export const communitiesSlice = createSlice({
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
       logger.info('Setting invitation codes', action.payload)
-      state.invitationCodes[action.payload.psk] = action.payload
+      state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {
       logger.info('Clearing invitation codes')
-      state.invitationCodes = {}
+      state.invitationCodes = null
+    },
+    requestTermsOfService: state => {
+      logger.info('Requesting terms of service acceptance')
+      state.tosRequested = true
+    },
+    setTermsOfServiceAccepted: (state, action: PayloadAction<{ communityId?: string; accepted: boolean }>) => {
+      state.tosRequested = false
+      const { communityId, accepted } = action.payload
+      if (communityId) {
+        const community = state.communities.entities[communityId]
+        if (community) {
+          communitiesAdapter.updateOne(state.communities, {
+            id: communityId,
+            changes: {
+              tosAccepted: accepted,
+            },
+          })
+        }
+      }
     },
   },
 })

@@ -28,7 +28,8 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
 
   const onPress = () => {
     Keyboard.dismiss()
-    setLoading(true)
+    // disabling loading because we support going back to create community screen now
+    // setLoading(true)
     if (createCommunityInput === undefined || createCommunityInput?.length === 0) {
       setLoading(false)
       setInputError('Community name can not be empty')

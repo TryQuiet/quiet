@@ -20,6 +20,7 @@ const CreateCommunity = () => {
 
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
   const [pendingCommunityName, setPendingCommunityName] = useState<string | null>(null)
   const [showServerOffer, setShowServerOffer] = useState(false)
 
@@ -44,6 +45,7 @@ const CreateCommunity = () => {
       setShowServerOffer(true)
     } else {
       dispatch(communities.actions.createCommunity({ name, useServer: false }))
+      createUsernameModal.handleOpen()
     }
   }
 
@@ -56,6 +58,7 @@ const CreateCommunity = () => {
       }
       logger.info('Creating community with payload:', payload)
       dispatch(communities.actions.createCommunity(payload))
+      createUsernameModal.handleOpen()
     }
   }
 
@@ -63,6 +66,7 @@ const CreateCommunity = () => {
   const handleRedirection = () => {
     if (!joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
+      createCommunityModal.handleClose()
     } else {
       createCommunityModal.handleClose()
     }

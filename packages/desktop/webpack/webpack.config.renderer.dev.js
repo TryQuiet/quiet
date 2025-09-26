@@ -54,6 +54,7 @@ module.exports = {
     index: './src/renderer/index.tsx',
   },
   plugins: [
+    new webpack.EnvironmentPlugin(envKeys),
     new HtmlWebpackPlugin({
       title: 'Quiet',
       template: 'src/renderer/index.html',
@@ -70,6 +71,17 @@ module.exports = {
         mainRunning = true
         await new Promise((resolve, reject) => {
           spawn('npm', ['run', 'copyFonts'], {
+            shell: true,
+            env: process.env,
+            stdio: 'inherit',
+          })
+            .on('close', code => {
+              resolve()
+            })
+            .on('error', spawnError => reject(spawnError))
+        })
+        await new Promise((resolve, reject) => {
+          spawn('npm', ['run', 'setMainEnvs'], {
             shell: true,
             env: process.env,
             stdio: 'inherit',

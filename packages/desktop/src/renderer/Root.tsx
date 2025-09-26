@@ -21,7 +21,6 @@ import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
-import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
@@ -34,6 +33,7 @@ import DuplicateModalContainer from './components/widgets/userLabel/duplicate/Du
 import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
+import TermsOfService from './components/TermsOfService/TermsOfService'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -59,6 +59,7 @@ export default () => {
                 <JoinCommunity />
                 <CreateCommunity />
                 <CreateUsername />
+                <TermsOfService />
                 <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />
