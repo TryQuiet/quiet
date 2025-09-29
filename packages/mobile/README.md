@@ -18,6 +18,17 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:  
     - Mac: `export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"`
     - Linux: `export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/`
+
+    Alternatively, the easiest way to install The Temurin 17 JDK on Mac and Linux systems is to use [`SDKMAn`](https://sdkman.io/). This program is similar to `nvm` but for JDKs and allows you to easily install and switch between multiple JDKs on a single system.
+
+    ```bash
+    # downloads and installs SDKMAN
+    curl -s "https://get.sdkman.io" | bash
+
+    # downloads + installs + configures JAVA_HOME for Temurin JDK 17
+    sdk install java 17.0.0-tem
+    ``` 
+
 1. Install [Android Studio](https://developer.android.com/studio), ensuring that all of the following items in the installation wizard are checked
     - Android SDK
     - Android SDK Platform
@@ -36,7 +47,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     export PATH=$PATH:$ANDROID_HOME/platform-tools
     ```
 
-1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35")
+1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35" or [API level 35](https://apilevels.com/))
 
     ```bash
     ls $ANDROID_HOME/platforms
@@ -79,11 +90,12 @@ It may be convenient to run the app from Android studio, for example if you are 
 
 1. Open Android Studio
     
-    If using nvm to manage node versions, you may need to open Android studio from a terminal which has the correct node version set. This is because Android Studio may not be able to find the correct node version if it is not set in the terminal.
-    ```
+    If using `nvm` to manage `node` versions, you may need relink the `node` installed by `nvm` in order to open Quiet in Android Studio.
+    
+    ```bash
     nvm install 18.20.4
     nvm use 18.20.4
-    open -a "Android Studio"
+    sudo ln -s "$(which node)" /usr/local/bin/node
     ```
 1. Open the `android` directory in Android Studio.
 1. If necessary, sync the Gradle files by hitting the "Sync Project with Gradle Files" button in the top right corner.
@@ -109,7 +121,7 @@ _See the `node-common` README for a more detailed description of file logging in
 
 Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
 
-```bash
+```js
 const watchFolders = [
   ...
   path.resolve(__dirname, '<path-to-linked-package>')

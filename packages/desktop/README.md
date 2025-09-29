@@ -11,10 +11,10 @@ Here are the steps:
 
 4. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies/submodules and trigger a prepublish script which builds them.
 
-```
+```bash
 npm i lerna@6.6.2
 npm i typescript@4.9.5
-npm i -g pnpm@9.12.1 // may be needed depending on configuration
+npm i -g pnpm@9.12.1 # may be needed depending on configuration
 npm install
 npm run pull:submodules
 npm run bootstrap
