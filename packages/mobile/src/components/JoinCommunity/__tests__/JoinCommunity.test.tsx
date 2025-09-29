@@ -4,7 +4,7 @@ import { JoinCommunity } from '../JoinCommunity.component'
 describe('JoinCommunity component', () => {
   it('renders component', () => {
     const { toJSON } = renderComponent(
-      <JoinCommunity joinCommunityAction={jest.fn()} redirectionAction={jest.fn()} networkCreated={false} />
+      <JoinCommunity joinCommunityAction={jest.fn()} redirectionAction={jest.fn()} hasReceivedResponse={false} />
     )
     expect(toJSON()).toMatchSnapshot()
   })
@@ -14,7 +14,7 @@ describe('JoinCommunity component', () => {
       <JoinCommunity
         joinCommunityAction={jest.fn()}
         redirectionAction={jest.fn()}
-        networkCreated={false}
+        hasReceivedResponse={false}
         ready={false}
       />
     )

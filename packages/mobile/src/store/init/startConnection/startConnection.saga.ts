@@ -27,12 +27,6 @@ export function* startConnectionSaga(
 ): Generator {
   const { dataPort, socketIOSecret } = action.payload
 
-  const isConnected = yield* select(initSelectors.isWebsocketConnected)
-  if (isConnected) {
-    logger.warn('Websocket is already connected. Skipping connection saga.')
-    return
-  }
-
   logger.info(`Starting connection saga on dataPort: ${dataPort}`)
 
   let _dataPort = dataPort

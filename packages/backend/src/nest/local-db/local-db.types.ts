@@ -22,6 +22,6 @@ export enum LocalDBKeys {
   USER_CONTEXTS = 'userContexts',
   KEYRINGS = 'keyrings',
   PENDING_HEADS = 'pendingHeads',
-  PENDING_QSS_SYNCS = 'pendingQssSyncs',
+  PENDING_QSS_LOG_SYNCS = 'pendingQssLogSyncs',
 }
 export type LocalDbStatus = 'opening' | 'open' | 'closing' | 'closed'

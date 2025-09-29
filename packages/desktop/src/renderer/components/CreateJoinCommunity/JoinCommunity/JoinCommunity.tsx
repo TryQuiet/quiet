@@ -6,6 +6,9 @@ import PerformCommunityActionComponent from '../../../components/CreateJoinCommu
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('JoinCommunity')
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -13,8 +16,9 @@ const JoinCommunity = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const invitationCodes = useSelector(communities.selectors.invitationCodes)
 
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
@@ -23,28 +27,26 @@ const JoinCommunity = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !joinCommunityModal.open) {
+    if (isConnected && !currentCommunity && !invitationCodes && !joinCommunityModal.open) {
+      logger.info('Opening join community modal')
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, torBootstrapProcessSelector])
-
-  useEffect(() => {
-    if (currentCommunity && joinCommunityModal.open) {
-      joinCommunityModal.handleClose()
-    }
-  }, [currentCommunity])
+  }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
 
   const handleCommunityAction = (data: InvitationData) => {
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
     dispatch(communities.actions.joinCommunity(joinCommunityPayload))
+    createUsernameModal.handleOpen()
+    joinCommunityModal.handleClose()
   }
 
   // From 'You can create a new community instead' link
   const handleRedirection = () => {
     if (!createCommunityModal.open) {
       createCommunityModal.handleOpen()
+      joinCommunityModal.handleClose()
     } else {
       joinCommunityModal.handleClose()
     }
@@ -62,7 +64,7 @@ const JoinCommunity = () => {
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
-      hasReceivedResponse={Boolean(currentIdentity)}
+      hasReceivedResponse={invitationCodes === null}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
     />

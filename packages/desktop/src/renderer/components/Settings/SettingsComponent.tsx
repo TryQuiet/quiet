@@ -69,7 +69,6 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
-
           <ListItemButton data-testid={'notifications-settings-tab'} onClick={() => handleChange('notifications')}>
             <ListItemText>Notifications</ListItemText>
             <ListItemIcon>
@@ -77,7 +76,6 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
-
           <ListItemButton data-testid={'invite-settings-tab'} onClick={() => handleChange('invite')}>
             <ListItemText>Add Members</ListItemText>
             <ListItemIcon>
@@ -107,7 +105,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </>
           )}
           <Divider />
-          {process.env.NODE_ENV === 'development' && (
+          {(process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') && (
             <ListItemButton data-testid={'debug-settings-tab'} onClick={() => handleChange('debug')}>
               <ListItemText>Debug</ListItemText>
               <ListItemIcon>

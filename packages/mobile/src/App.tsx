@@ -25,6 +25,7 @@ import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
 import { SplashScreen } from './screens/Splash/Splash.screen'
 import { SuccessScreen } from './screens/Success/Success.screen'
 import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
+import { TermsOfServiceScreen } from './screens/TermsOfService/TermsOfService.screen'
 
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -122,6 +123,7 @@ function App(): JSX.Element {
                 <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
+                <Screen component={TermsOfServiceScreen} name={ScreenNames.TermsOfServiceScreen} />
               </Navigator>
               <CommunityContextMenu />
               <ChannelContextMenu />

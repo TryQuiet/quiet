@@ -164,8 +164,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 519
-        versionName "6.1.0"
+        versionCode 526
+        versionName "6.2.0"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -262,7 +262,9 @@ android {
 }
 
 dependencies {
-    androidTestImplementation('com.wix:detox:27.1.0')
+    androidTestImplementation('com.wix:detox:+')
+    androidTestImplementation('androidx.test:core:1.7.0')
+    androidTestImplementation('androidx.test.ext:junit:1.1.1')
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
     implementation("com.facebook.react:react-android") // version set by the React Native Gradle Plugin in npm

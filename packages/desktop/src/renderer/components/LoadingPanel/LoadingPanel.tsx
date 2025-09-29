@@ -10,6 +10,7 @@ import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 import { LoadingPanelType, ErrorCodes, CommunityOwnership } from '@quiet/types'
 import { createLogger } from '../../logger'
+import { current } from 'immer'
 
 const logger = createLogger('LoadingPanel')
 

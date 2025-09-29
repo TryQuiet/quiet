@@ -26,9 +26,11 @@ export const defaultPalette = {
     white: '#ffffff',
     blue: '#2373EA',
     lightGray: '#B2B2B2',
+    darkPurple: '#461863',
   },
   input: {
     border: '#C4C4C4',
+    borderLightPurple: '#ECDCF5',
     backgroundDefault: '#ffffff',
     backgroundDisabled: '#EBEBEB',
   },
@@ -39,5 +41,6 @@ export const defaultPalette = {
     gray70: '#4C4C4C',
     blue: '#2373EA',
     lushSky: '#67BFD3',
+    lightPurple: '#F3E8FF',
   },
 }

@@ -19,32 +19,14 @@ import {
 } from '@quiet/types'
 import { composeInvitationDeepUrl } from '@quiet/common'
 import { act } from '@testing-library/react'
+import { createLogger } from './logger'
+
+const logger = createLogger('customProtocol.test')
 
 jest.setTimeout(20_000)
 
 describe('Opening app through custom protocol', () => {
   let socket: MockedSocket
-
-  const id = '00d045ab'
-
-  const community: Community = {
-    id: id,
-    name: '',
-    CA: {
-      rootCertString: '',
-      rootKeyString: '',
-    },
-    rootCa: '',
-    peerList: [],
-    onionAddress: '',
-    ownerCertificate: '',
-    ownership: CommunityOwnership.User,
-  }
-
-  const _identity: Partial<Identity> = {
-    communityId: id,
-    joinTimestamp: 0,
-  }
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -65,12 +47,19 @@ describe('Opening app through custom protocol', () => {
 
     const invitationCodes: InvitationData = {
       version: InvitationDataVersion.v1,
-      pairs: [{ peerId: 'abcdef', onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' }],
-      psk: '12345',
-      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
+      pairs: [
+        {
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+          onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd',
+        },
+      ],
+      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+      ownerOrbitDbIdentity: '018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0', // 64-char hex
     }
 
-    store.dispatch(communities.actions.customProtocol([composeInvitationDeepUrl(invitationCodes)]))
+    const deepUrl = composeInvitationDeepUrl(invitationCodes)
+    logger.info(`Deep link URL: ${deepUrl}`)
+    store.dispatch(communities.actions.customProtocol([deepUrl]))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
@@ -82,13 +71,6 @@ describe('Opening app through custom protocol', () => {
         </>,
         store
       )
-    })
-
-    await act(async () => {
-      store.dispatch(communities.actions.addNewCommunity(community))
-      store.dispatch(communities.actions.setCurrentCommunity(community.id))
-      // @ts-expect-error
-      store.dispatch(identity.actions.addNewIdentity(_identity))
     })
 
     // Confirm user is being redirected to username registration

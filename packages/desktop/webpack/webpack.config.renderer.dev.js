@@ -4,6 +4,9 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackOnBuildPlugin = require('./webpack-on-build-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const dotenvx = require('@dotenvx/dotenvx')
+const result = dotenvx.config({ path: process.env.ENVFILE || '.env.development' })
+const envKeys = result.parsed ? Object.keys(result.parsed) : []
 
 var mainRunning = false
 
@@ -11,57 +14,57 @@ module.exports = {
   mode: 'development',
   output: {
     path: path.resolve(__dirname, '../dist/main'),
-    filename: '[name].js'
+    filename: '[name].js',
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    plugins: [
-      new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })
-    ]
+    plugins: [new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })],
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         use: {
-          loader: 'ts-loader'
+          loader: 'ts-loader',
         },
-        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
+        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/],
       },
       {
         test: /\.m?js/,
         resolve: {
-          fullySpecified: false
-        }
+          fullySpecified: false,
+        },
       },
       {
         test: /\.css$/,
         use: {
-          loader: 'css-loader'
-        }
+          loader: 'css-loader',
+        },
       },
       {
         test: /\.(mp3|ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
         use: {
-          loader: 'file-loader'
-        }
-      }
-    ]
+          loader: 'file-loader',
+        },
+      },
+    ],
   },
   target: 'electron-renderer',
   entry: {
-    index: './src/renderer/index.tsx'
+    index: './src/renderer/index.tsx',
   },
   plugins: [
+    new webpack.EnvironmentPlugin(envKeys),
     new HtmlWebpackPlugin({
       title: 'Quiet',
-      template: 'src/renderer/index.html'
+      template: 'src/renderer/index.html',
     }),
     new HtmlWebpackPlugin({
       title: 'Quiet-splash',
       template: 'src/renderer/splashScreen/splash.html',
-      filename: 'splash.html'
+      filename: 'splash.html',
     }),
+    new webpack.EnvironmentPlugin(envKeys),
     new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {
         console.log('Starting main process...')
@@ -70,17 +73,28 @@ module.exports = {
           spawn('npm', ['run', 'copyFonts'], {
             shell: true,
             env: process.env,
-            stdio: 'inherit'
+            stdio: 'inherit',
           })
             .on('close', code => {
-              resolve();
+              resolve()
+            })
+            .on('error', spawnError => reject(spawnError))
+        })
+        await new Promise((resolve, reject) => {
+          spawn('npm', ['run', 'setMainEnvs'], {
+            shell: true,
+            env: process.env,
+            stdio: 'inherit',
+          })
+            .on('close', code => {
+              resolve()
             })
             .on('error', spawnError => reject(spawnError))
         })
         spawn('npm', ['run', 'start:main'], {
           shell: true,
           env: process.env,
-          stdio: 'inherit'
+          stdio: 'inherit',
         })
           .on('close', code => {
             mainRunning = false
@@ -88,13 +102,13 @@ module.exports = {
           })
           .on('error', spawnError => console.error(spawnError))
       }
-    })
+    }),
   ],
   devServer: {
     hot: true,
     devMiddleware: {
-      writeToDisk: true
-    }
+      writeToDisk: true,
+    },
   },
-  devtool: 'eval-source-map'
+  devtool: 'eval-source-map',
 }

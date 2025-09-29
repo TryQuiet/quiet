@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled } from 'typed-redux-saga'
+import { all, takeEvery, cancelled, takeLatest } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
@@ -14,8 +14,8 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
   try {
     yield all([
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
-      takeEvery(communitiesActions.createCommunity.type, createCommunitySaga, socket),
-      takeEvery(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
+      takeLatest(communitiesActions.createCommunity.type, createCommunitySaga, socket),
+      takeLatest(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
     ])
   } finally {
