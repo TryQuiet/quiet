@@ -18,9 +18,9 @@ const createTaskMock = (overrides: Partial<Task> = {}): Task => {
     cancel: () => undefined,
     setContext: () => undefined,
     ...overrides,
-  } as Task & { [TASK]?: boolean }
+  } as Task
 
-  task[TASK] = true
+  ;(task as any)[TASK] = true
 
   return task
 }
