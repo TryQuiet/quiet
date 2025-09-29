@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled, fork, cancel, join, take } from 'typed-redux-saga'
+import { all, takeEvery, cancelled, fork, cancel, take } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
@@ -30,7 +30,7 @@ type CreateCommunityAction = ReturnType<typeof communitiesActions.createCommunit
 type JoinCommunityAction = ReturnType<typeof communitiesActions.joinCommunity>
 type OnboardingAction = CreateCommunityAction | JoinCommunityAction
 
-function* handleCommunityOnboarding(socket: Socket): Generator {
+export function* handleCommunityOnboarding(socket: Socket): Generator {
   let activeTask: Task | undefined
 
   while (true) {
@@ -40,9 +40,11 @@ function* handleCommunityOnboarding(socket: Socket): Generator {
     ])) as OnboardingAction
 
     if (activeTask) {
-      logger.info('Cancelling active onboarding saga')
-      yield* cancel(activeTask)
-      yield* join(activeTask)
+      if (activeTask.isRunning()) {
+        logger.info('Cancelling active onboarding saga')
+        yield* cancel(activeTask)
+      }
+      activeTask = undefined
     }
 
     if (action.type === communitiesActions.createCommunity.type) {
