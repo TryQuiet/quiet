@@ -50,7 +50,6 @@ module.exports = {
     index: './src/renderer/index.tsx',
   },
   plugins: [
-    new webpack.EnvironmentPlugin(envKeys),
     new HtmlWebpackPlugin({
       title: 'Quiet',
       template: 'src/renderer/index.html',
@@ -60,7 +59,6 @@ module.exports = {
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html',
     }),
-    new webpack.EnvironmentPlugin(envKeys),
     new WebpackOnBuildPlugin(async () => {
       await new Promise((resolve, reject) => {
         spawn('npm', ['run', 'copyFonts'], {
