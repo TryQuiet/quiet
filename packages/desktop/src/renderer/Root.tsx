@@ -34,6 +34,7 @@ import UsernameTakenModalContainer from './components/widgets/usernameTakenModal
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 import TermsOfService from './components/TermsOfService/TermsOfService'
+import ServerAddedModal from './components/ServerAdded/ServerAddedModal'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -68,6 +69,7 @@ export default () => {
                 <ChannelContextMenu />
                 <UserProfileContextMenu />
                 <DeleteChannel />
+                <ServerAddedModal />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />

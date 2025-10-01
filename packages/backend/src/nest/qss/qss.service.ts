@@ -375,8 +375,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @return True if sent successfully, false if send failed, and undefined if the send was skipped
    */
   public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
-    if (!this.canConnect) {
-      this.logger.info(`Can't send log sync message to QSS because QSS is not enabled for this community`)
+    if (!this.isEnabledForCommunity(update.teamId)) {
       return
     }
 
@@ -472,5 +471,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     clearInterval(this._deadLetterQueueProcessor)
     this.qssAuthConnManager.close()
     this.qssClient.close()
+    this._qssEnabledByCommunity = new Map<string, boolean>()
+    this._connecting = false
   }
 }

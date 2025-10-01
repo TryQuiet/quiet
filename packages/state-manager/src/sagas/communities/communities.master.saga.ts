@@ -6,6 +6,8 @@ import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { initCommunitySaga, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
 import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
+import { addServerSaga } from './addServer/addServer.saga'
+import { updateCommunityDataSaga } from './updateCommunityData/updateCommunityData.saga'
 
 const logger = createLogger('communitiesMasterSage')
 
@@ -17,6 +19,8 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeLatest(communitiesActions.createCommunity.type, createCommunitySaga, socket),
       takeLatest(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
+      takeEvery(communitiesActions.addServer.type, addServerSaga, socket),
+      takeEvery(communitiesActions.updateCommunityData.type, updateCommunityDataSaga, socket),
     ])
   } finally {
     logger.info('communitiesMasterSaga stopping')

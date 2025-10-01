@@ -50,6 +50,9 @@ import {
   SetUserProfilePayload,
   InvitationData,
   SetUserProfileResponse,
+  ServerAddedPayload,
+  UpdateCommunityPayload,
+  ServerHost,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -218,7 +221,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         this.logger.info('Loading sigchain for community', community.name)
         const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
-        if (community.qssEnabled) {
+        if (community.qssEnabled && community.tosAccepted) {
           this.qssService.enableForCommunity(loadedSigchain.team!.id)
         }
         const connected = await this.qssService.connect(community.qssEndpoint)
@@ -405,18 +408,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.team!.id,
-      qssEnabled: this.qssAllowed && payload.useServer,
+      qssEnabled: this.qssAllowed && payload.useServer && payload.tosAccepted,
       qssEndpoint: this.qssEndpoint,
       tosAccepted: payload.tosAccepted,
+    }
+
+    if (community.qssEnabled) {
+      community.serverHosts = [{ hostUrl: this.qssEndpoint, accepted: true } as ServerHost]
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
     // purposely don't await
-    this.createCommunityOnQss(sigchain)
-
-    await this.launchCommunity(community.id)
+    if (community.qssEnabled) {
+      this.createCommunityOnQss(sigchain)
+    }
 
     const userProfile: UserProfile = {
       userId: identity.userId,
@@ -527,6 +534,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
+    }
+    if (community.qssEnabled && payload.tosAccepted && community.qssEndpoint) {
+      community.serverHosts = [{ hostUrl: community.qssEndpoint, accepted: true } as ServerHost]
     }
 
     await this.localDbService.setCommunity(community)
@@ -718,6 +728,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       callback(await this.leaveCommunity())
     })
 
+    this.socketService.on(SocketActions.UPDATE_COMMUNITY, async (payload: UpdateCommunityPayload) => {
+      this.logger.info(`socketService - ${SocketActions.UPDATE_COMMUNITY}`)
+      const community = await this.localDbService.getCommunity(payload.id)
+      if (!community) {
+        this.logger.error(`No community found with id ${payload.id}`)
+        return
+      }
+      await this.localDbService.setCommunity({ ...community, ...payload })
+    })
+
     // Local First Auth
 
     this.socketService.on(
@@ -758,6 +778,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActions.DELETE_CHANNEL,
       async (payload: DeleteChannelPayload, callback: (response: DeleteChannelResponse) => void) => {
+        if (payload.channelId.startsWith('addserver')) {
+          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, {
+            id: this.communityId,
+            serverHosts: ['qss.tryQuiet.com'],
+          })
+        }
+        if (payload.channelId.startsWith('addservers')) {
+          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, {
+            id: this.communityId,
+            serverHosts: ['qss.tryQuiet.com', 'qss2.tryQuiet.com'],
+          })
+        }
+        if (payload.channelId.startsWith('addourserver')) {
+          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, {
+            id: this.communityId,
+            serverHosts: [process.env.QSS_ENDPOINT || 'qss.tryQuiet.com'],
+          })
+        }
         callback(await this.storageService?.channels.deleteChannel(payload))
       }
     )

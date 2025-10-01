@@ -22,6 +22,8 @@ import {
   ResponseCreateCommunityPayload,
   SetUserProfileResponse,
   SetUserProfilePayload,
+  ServerAddedPayload,
+  UpdateCommunityPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -188,6 +190,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActions.LEAVE_COMMUNITY, callback)
       })
 
+      socket.on(SocketActions.UPDATE_COMMUNITY, async (payload: UpdateCommunityPayload) => {
+        this.logger.info(`socketService - ${SocketActions.UPDATE_COMMUNITY}`)
+        this.emit(SocketActions.UPDATE_COMMUNITY, payload)
+      })
+
       // ====== Users ======
 
       socket.on(
@@ -210,6 +217,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (invite: InviteResult) => {
         this.logger.info(`Created new long lived LFA invite code with id ${invite.id}`)
         this.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, invite)
+      })
+
+      socket.on(SocketEvents.SERVER_ADDED, async (payload: ServerAddedPayload) => {
+        this.logger.info(`socket.on - ${SocketEvents.SERVER_ADDED}`, payload)
+        this.emit(SocketEvents.SERVER_ADDED, payload)
       })
 
       // ====== Misc ======

@@ -24,7 +24,7 @@ export interface Community {
   qssEnabled?: boolean
   qssEndpoint?: string
   tosAccepted?: boolean
-  serverHosts?: string[]
+  serverHosts?: ServerHost[]
 }
 
 export interface CommunityMetadata {
@@ -40,6 +40,11 @@ export interface CommunityMetadata {
 export enum CommunityOwnership {
   Owner = 'owner',
   User = 'user',
+}
+
+export interface ServerHost {
+  hostUrl: string
+  accepted: boolean
 }
 
 // ----- Frontend Payloads -----
@@ -62,6 +67,8 @@ export interface LeaveCommunityPayload {
 }
 
 // ----- State-Manager <-> Backend Payloads -----
+export type UpdateCommunityPayload = { id: Community['id'] } & Partial<Omit<Community, 'id'>>
+
 export interface InitCommunityPayload {
   id: string
   name: string

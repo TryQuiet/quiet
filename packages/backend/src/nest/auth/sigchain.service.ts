@@ -131,16 +131,16 @@ export class SigChainService extends EventEmitter {
         isRegistered: true,
         isDuplicated: false,
       })) as User[]
-    this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
     const community = await this.localDbService.getCurrentCommunity()
     if (community) {
       const teamServerHosts = this.team.servers().map(s => s.host)
-      const communityHostsSet = new Set(community.serverHosts)
+      const communityHostsSet = new Set(community.serverHosts?.map(sh => sh.hostUrl) || [])
       const teamHostsSet = new Set(teamServerHosts)
       const setsAreEqual =
         communityHostsSet.size === teamHostsSet.size && [...communityHostsSet].every(h => teamHostsSet.has(h))
       if (!setsAreEqual && teamServerHosts.length > 0) {
-        this.socketService.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
+        this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
       }
     }
     this.emit('updated')

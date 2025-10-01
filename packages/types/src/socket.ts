@@ -42,6 +42,7 @@ import {
   RequestInvitePayload,
   ResponseInvitePayload,
   ServerAddedPayload,
+  UpdateCommunityPayload,
 } from './community'
 import { ErrorPayload } from './errors'
 
@@ -68,6 +69,7 @@ export enum SocketActions {
   JOIN_COMMUNITY = 'joinCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  UPDATE_COMMUNITY = 'updateCommunity',
 
   // ====== Channels ======
 
@@ -168,6 +170,7 @@ export interface SocketActionsMap {
     (response?: ResponseLaunchCommunityPayload) => void
   >
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
+  [SocketActions.UPDATE_COMMUNITY]: EmitEvent<UpdateCommunityPayload>
 
   // ====== Channels ======
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>

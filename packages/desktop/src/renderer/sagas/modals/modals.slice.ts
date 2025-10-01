@@ -38,7 +38,8 @@ export class ModalsInitialState {
   [ModalName.usernameTakenModal] = { open: false, args: {} };
   [ModalName.possibleImpersonationAttackModal] = { open: false, args: {} };
   [ModalName.breakingChangesWarning] = { open: false, args: {} };
-  [ModalName.termsOfServiceModal] = { open: false, args: {} }
+  [ModalName.termsOfServiceModal] = { open: false, args: {} };
+  [ModalName.serverAddedModal] = { open: false, args: {} }
 }
 
 export const modalsSlice = createSlice({

@@ -6,6 +6,8 @@ import {
   InvitationData,
   JoinCommunityPayload,
   LaunchCommunityPayload,
+  ServerAddedPayload,
+  UpdateCommunityPayload,
   type Community,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
@@ -35,12 +37,7 @@ export const communitiesSlice = createSlice({
       logger.info('Adding new community', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunityData: (state, action: PayloadAction<Partial<Community>>) => {
-      logger.info('Updating community data', JSON.stringify(action.payload, null, 2))
-      if (!action.payload.id) {
-        logger.error('Could not update community data, missing community ID')
-        return
-      }
+    updateCommunityData: (state, action: PayloadAction<UpdateCommunityPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
@@ -49,7 +46,6 @@ export const communitiesSlice = createSlice({
       })
     },
     deleteCommunity: (state, action: PayloadAction<string>) => {
-      logger.info('Deleting community', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.removeOne(state.communities, action.payload)
       if (state.currentCommunity === action.payload) {
         state.currentCommunity = ''
@@ -59,13 +55,12 @@ export const communitiesSlice = createSlice({
     createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => state,
     joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
+    addServer: (state, _action: PayloadAction<ServerAddedPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
-      logger.info('Setting invitation codes', action.payload)
       state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {
-      logger.info('Clearing invitation codes')
       state.invitationCodes = null
     },
     requestTermsOfService: state => {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react-native'
 import { View, Button } from 'react-native'
-import { UnexpectedServerDrawer } from './UnexpectedServer.drawer'
+import { ServerAddedDrawer } from './ServerAdded.drawer'
 
-const UnexpectedServerDrawerStory = () => {
+const ServerAddedDrawerStory = () => {
   const [visible, setVisible] = useState(true)
   const [lastResult, setLastResult] = useState<boolean | null>(null)
   const [serverHost, setServerHost] = useState('example.com')
@@ -20,7 +20,7 @@ const UnexpectedServerDrawerStory = () => {
         title='Change Server Host'
         onPress={() => setServerHost(serverHost === 'example.com' ? 'another.com' : 'example.com')}
       />
-      <UnexpectedServerDrawer visible={visible} onClose={handleClose} serverHost={serverHost} />
+      <ServerAddedDrawer />
       {lastResult !== null && (
         <View>
           <Button title={`Last: useServer=${lastResult ? 'true' : 'false'}`} onPress={() => setLastResult(null)} />
@@ -30,4 +30,4 @@ const UnexpectedServerDrawerStory = () => {
   )
 }
 
-storiesOf('Drawers/UnexpectedServerDrawer', module).add('default', () => <UnexpectedServerDrawerStory />)
+storiesOf('Drawers/ServerAddedDrawer', module).add('default', () => <ServerAddedDrawerStory />)

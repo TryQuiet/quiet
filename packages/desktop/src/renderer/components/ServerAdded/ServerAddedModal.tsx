@@ -13,26 +13,26 @@ import { communities } from '@quiet/state-manager'
 
 import { ServerAddedComponent } from './ServerAddedComponent'
 
-const ServerAddedModal = () => {
+export const ServerAddedModal = () => {
   const dispatch = useDispatch()
 
   const modal = useModal(ModalName.serverAddedModal)
 
+  const unacceptedServers = useSelector(communities.selectors.unacceptedServers)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const serverHosts = currentCommunity?.serverHosts || []
 
   useEffect(() => {
-    if (modal.open && serverHosts.length === 0) {
-      logger.warn('ServerAddedModal opened but no serverHosts found in current community, closing modal')
+    if (modal.open && unacceptedServers.length === 0) {
+      logger.warn('ServerAddedModal opened but no unacceptedServers found in current community, closing modal')
       modal.handleClose()
       return
     }
-    if (serverHosts.length > 0 && !modal.open && currentCommunity && !currentCommunity.qssEnabled) {
-      logger.warn('Opening ServerAddedModal because serverHosts unexpectedly found in current community')
+    if (unacceptedServers.length > 0 && !modal.open) {
+      logger.warn('Opening ServerAddedModal because unacceptedServers unexpectedly found in current community')
       modal.handleOpen()
       return
     }
-  }, [modal, serverHosts])
+  }, [modal, unacceptedServers])
 
   const handleChoose = useCallback(
     (useServer: boolean) => {
@@ -41,12 +41,15 @@ const ServerAddedModal = () => {
         return
       }
       if (useServer) {
-        dispatch(
-          communities.actions.updateCommunityData({
-            id: currentCommunity.id,
-            qssEnabled: true,
-          })
-        )
+        const updateCommunityPayload = {
+          id: currentCommunity.id,
+          qssEnabled: true,
+          serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
+        }
+        if (!currentCommunity.tosAccepted) {
+          dispatch(communities.actions.requestTermsOfService())
+        }
+        dispatch(communities.actions.updateCommunityData(updateCommunityPayload))
       } else {
         clearCommunity()
       }
@@ -55,5 +58,7 @@ const ServerAddedModal = () => {
     [currentCommunity, dispatch]
   )
 
-  return <ServerAddedComponent {...modal} onChoose={handleChoose} serverHosts={serverHosts} />
+  return <ServerAddedComponent {...modal} onChoose={handleChoose} serverHosts={unacceptedServers} />
 }
+
+export default ServerAddedModal

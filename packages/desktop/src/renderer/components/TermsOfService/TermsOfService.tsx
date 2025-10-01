@@ -6,6 +6,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
 import { shell } from 'electron'
+import { clearCommunity } from '../..'
 
 const logger = createLogger('TermsOfService')
 
@@ -33,8 +34,7 @@ const TermsOfService = () => {
       }
     } else {
       logger.info('User declined ToS, aborting join process')
-      joinCommunityModal.handleOpen()
-      loadingPanelModal.handleClose()
+      clearCommunity()
     }
 
     dispatch(

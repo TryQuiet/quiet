@@ -59,6 +59,14 @@ export const tosRequested = createSelector(communitiesSlice, reducerState => {
   return reducerState.tosRequested
 })
 
+export const serverHosts = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.serverHosts || []
+})
+
+export const unacceptedServers = createSelector(serverHosts, serverHosts => {
+  return serverHosts.filter(sh => !sh.accepted).map(sh => sh.hostUrl)
+})
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
@@ -71,4 +79,6 @@ export const communitiesSelectors = {
   psk,
   isOwner,
   tosRequested,
+  serverHosts,
+  unacceptedServers,
 }
