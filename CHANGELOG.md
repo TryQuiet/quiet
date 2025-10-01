@@ -14,6 +14,7 @@
 
 * Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
 * Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Users can now abort joining and creating communities halfway without issue [#3001](https://github.com/TryQuiet/quiet/issues/3001)
 
 ### Chores
 

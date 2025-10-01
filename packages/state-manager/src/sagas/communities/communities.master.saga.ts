@@ -1,11 +1,12 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled, takeLatest } from 'typed-redux-saga'
+import { all, takeEvery, cancelled, fork, cancel, take } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { initCommunitySaga, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
 import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
+import type { Task } from 'redux-saga'
 
 const logger = createLogger('communitiesMasterSage')
 
@@ -14,14 +15,44 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
   try {
     yield all([
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
-      takeLatest(communitiesActions.createCommunity.type, createCommunitySaga, socket),
-      takeLatest(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
+      fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
     ])
   } finally {
     logger.info('communitiesMasterSaga stopping')
     if (yield cancelled()) {
       logger.info('communitiesMasterSaga cancelled')
+    }
+  }
+}
+
+type CreateCommunityAction = ReturnType<typeof communitiesActions.createCommunity>
+type JoinCommunityAction = ReturnType<typeof communitiesActions.joinCommunity>
+type OnboardingAction = CreateCommunityAction | JoinCommunityAction
+
+export function* handleCommunityOnboarding(socket: Socket): Generator {
+  let activeTask: Task | undefined
+
+  while (true) {
+    const action = (yield* take([
+      communitiesActions.createCommunity.type,
+      communitiesActions.joinCommunity.type,
+    ])) as OnboardingAction
+
+    if (activeTask) {
+      if (activeTask.isRunning()) {
+        logger.info('Cancelling active onboarding saga')
+        yield* cancel(activeTask)
+      }
+      activeTask = undefined
+    }
+
+    if (action.type === communitiesActions.createCommunity.type) {
+      logger.info('Starting createCommunitySaga')
+      activeTask = yield* fork(createCommunitySaga, socket, action)
+    } else {
+      logger.info('Starting joinCommunitySaga')
+      activeTask = yield* fork(joinCommunitySaga, socket, action)
     }
   }
 }
