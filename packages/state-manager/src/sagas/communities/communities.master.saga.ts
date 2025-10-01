@@ -29,3 +29,34 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
     }
   }
 }
+
+type CreateCommunityAction = ReturnType<typeof communitiesActions.createCommunity>
+type JoinCommunityAction = ReturnType<typeof communitiesActions.joinCommunity>
+type OnboardingAction = CreateCommunityAction | JoinCommunityAction
+
+export function* handleCommunityOnboarding(socket: Socket): Generator {
+  let activeTask: Task | undefined
+
+  while (true) {
+    const action = (yield* take([
+      communitiesActions.createCommunity.type,
+      communitiesActions.joinCommunity.type,
+    ])) as OnboardingAction
+
+    if (activeTask) {
+      if (activeTask.isRunning()) {
+        logger.info('Cancelling active onboarding saga')
+        yield* cancel(activeTask)
+      }
+      activeTask = undefined
+    }
+
+    if (action.type === communitiesActions.createCommunity.type) {
+      logger.info('Starting createCommunitySaga')
+      activeTask = yield* fork(createCommunitySaga, socket, action)
+    } else {
+      logger.info('Starting joinCommunitySaga')
+      activeTask = yield* fork(joinCommunitySaga, socket, action)
+    }
+  }
+}
