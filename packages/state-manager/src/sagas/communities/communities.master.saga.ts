@@ -1,11 +1,12 @@
 import { type Socket } from '../../types'
-import { all, takeEvery, cancelled, takeLatest } from 'typed-redux-saga'
+import { all, takeEvery, cancelled, fork, cancel, take } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { initCommunitySaga, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
 import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
+import type { Task } from 'redux-saga'
 import { addServerSaga } from './addServer/addServer.saga'
 import { updateCommunityDataSaga } from './updateCommunityData/updateCommunityData.saga'
 
@@ -16,8 +17,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
   try {
     yield all([
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
-      takeLatest(communitiesActions.createCommunity.type, createCommunitySaga, socket),
-      takeLatest(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
+      fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
       takeEvery(communitiesActions.addServer.type, addServerSaga, socket),
       takeEvery(communitiesActions.updateCommunityData.type, updateCommunityDataSaga, socket),
