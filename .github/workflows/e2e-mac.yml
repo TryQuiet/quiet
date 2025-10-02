@@ -26,6 +26,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: darwin
+          envfile: .env.e2e
 
       - name: Build App Image
         working-directory: ./packages/desktop

@@ -4,7 +4,7 @@ import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 import { UsernameRegistrationProps, UsernameVariant } from './UsernameRegistration.types'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Appbar } from '../Appbar/Appbar.component'
@@ -13,7 +13,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
   registerUsernameError,
   usernameRegistered,
-  fetching,
   currentUsername,
   handleBackButton,
   registeredUsers,
@@ -29,13 +28,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   const inputRef = useRef<TextInput>(null)
 
   useEffect(() => {
-    if (fetching) {
-      setLoading(true)
-      inputRef.current?.setNativeProps({ text: 'Registering username' })
-    }
-  }, [fetching])
-
-  useEffect(() => {
     if (registerUsernameError) {
       setLoading(false)
       setInputError(registerUsernameError)
@@ -47,13 +39,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
-    // cutting out unique username check for now
-    // if (registeredUsers && !isNewUser) {
-    //   const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
-    //   if (allUsersSet.has(name)) {
-    //     setInputError(`Username @${name} is already taken`)
-    //   }
-    // }
   }
 
   const onPress = () => {
@@ -82,7 +67,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     }
   }, [variant, loading, userName])
 
-  const icon = appImages.icon_warning
+  const icon = icons.icon_warning
 
   return (
     <View
@@ -155,7 +140,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           </View>
         )}
 
-        <View style={{ marginTop: 20 }}>
+        <View style={{ marginTop: 20 + 12 }}>
           <Button
             disabled={Boolean(inputError) || loading}
             onPress={onPress}

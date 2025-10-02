@@ -214,6 +214,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             arguments: Array<String?>?,
             modulesPath: String?,
             dataPath: String?,
+            envVars: Array<String?>?
     ): Int?
 
     @Throws(Exception::class)
@@ -221,8 +222,6 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         val args: MutableList<String> = ArrayList(listOf(*input.split(" ").toTypedArray()))
 
         val scriptPath = nodeProject.projectPath + '/' + args[0]
-
-        // Remove script file name from arguments list
         args.removeAt(0)
 
         val command: MutableList<String> = ArrayList()
@@ -231,13 +230,17 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         command.add(scriptPath)
         command.addAll(args)
 
-        // Do not continue if nodejs project codebase is not yet accessible
+        val envVars = mutableListOf<String>()
+        envVars.add("QSS_ALLOWED=${BuildConfig.QSS_ALLOWED}")
+        envVars.add("QSS_ENDPOINT=${BuildConfig.QSS_ENDPOINT}")
+
         nodeProject.waitForInit()
 
         startNodeWithArguments(
                 command.toTypedArray(),
                 "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}",
-                dataPath
+                dataPath,
+                envVars.toTypedArray()
         )
     }
 

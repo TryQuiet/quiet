@@ -3,7 +3,7 @@ import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity, Anim
 import { Typography } from '../Typography/Typography.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { defaultPalette } from '../../styles/palettes/default.palette'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('contextMenu:component')
@@ -22,7 +22,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
 }) => {
   const [show, setShow] = React.useState<boolean>(false)
   const slidingAnimation = React.useRef(new Animated.Value(0)).current
-  const icon_close = appImages.icon_close
+  const icon_close = icons.icon_close
 
   const menuFadeIn = () => {
     setShow(true)
@@ -175,7 +175,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
 }
 
 export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
-  const icon_arrow = appImages.arrow_right_short
+  const icon_arrow = icons.arrow_right_short
   return (
     <TouchableOpacity onPress={action} testID={title}>
       <View

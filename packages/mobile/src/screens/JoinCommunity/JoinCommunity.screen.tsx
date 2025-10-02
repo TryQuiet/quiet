@@ -8,6 +8,9 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { JoinCommunityScreenProps } from './JoinCommunity.types'
 import { initSelectors } from '../../store/init/init.selectors'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('JoinCommunityScreen')
 
 export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -17,11 +20,9 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const invitationCodes = useSelector(communities.selectors.invitationCodes)
 
-  const networkCreated = Boolean(currentCommunity && currentIdentity)
-
-  const community = useSelector(communities.selectors.currentCommunity)
+  const hasReceivedResponse = Boolean(invitationCodes === null)
 
   // Handle deep linking (opening app with quiet://)
   useEffect(() => {
@@ -32,7 +33,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
     // Change component state
     setInvitationCode(code)
-  }, [dispatch, community, route.params?.code])
+  }, [dispatch, currentCommunity, route.params?.code])
 
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
@@ -51,7 +52,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const redirectionAction = useCallback(() => {
     dispatch(
-      navigationActions.navigation({
+      navigationActions.replaceScreen({
         screen: ScreenNames.CreateCommunityScreen,
       })
     )
@@ -61,7 +62,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     <JoinCommunity
       joinCommunityAction={joinCommunityAction}
       redirectionAction={redirectionAction}
-      networkCreated={networkCreated}
+      hasReceivedResponse={true} // always true to disable loading state feature bc not needed anymore
       invitationCode={invitationCode}
       ready={isWebsocketConnected}
     />

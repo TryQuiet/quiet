@@ -93,7 +93,7 @@ describe('DeleteChannel component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/arrow_left.png",
+                      "testUri": "../../../src/assets/icons/png/arrow_left.png",
                     }
                   }
                   style={
@@ -226,7 +226,7 @@ describe('DeleteChannel component', () => {
           <View
             style={
               {
-                "paddingTop": 16,
+                "paddingTop": 28,
               }
             }
           >
@@ -255,8 +255,8 @@ describe('DeleteChannel component', () => {
                   "backgroundColor": "#521C74",
                   "borderRadius": 8,
                   "justifyContent": "center",
-                  "marginVertical": 12,
                   "minHeight": 45,
+                  "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
                 }
@@ -284,7 +284,13 @@ describe('DeleteChannel component', () => {
               </Text>
             </View>
           </View>
-          <View>
+          <View
+            style={
+              {
+                "paddingTop": 24,
+              }
+            }
+          >
             <View
               accessibilityState={
                 {
@@ -310,8 +316,8 @@ describe('DeleteChannel component', () => {
                   "backgroundColor": "transparent",
                   "borderRadius": 8,
                   "justifyContent": "center",
-                  "marginVertical": 0,
                   "minHeight": 45,
+                  "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
                 }

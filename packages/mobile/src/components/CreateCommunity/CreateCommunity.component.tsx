@@ -28,7 +28,8 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
 
   const onPress = () => {
     Keyboard.dismiss()
-    setLoading(true)
+    // disabling loading because we support going back to create community screen now
+    // setLoading(true)
     if (createCommunityInput === undefined || createCommunityInput?.length === 0) {
       setLoading(false)
       setInputError('Community name can not be empty')
@@ -86,7 +87,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
                 ]}
               />
             </View>
-            <View style={{ marginTop: 32 }}>
+            <View style={{ marginTop: 32 + 12 }}>
               <Button onPress={onPress} title={'Continue'} loading={loading} />
             </View>
           </KeyboardAvoidingView>

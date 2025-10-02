@@ -11,7 +11,7 @@ export enum WebsocketEvents {
   AUTH_SYNC = 'auth-sync',
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
-  DATA_SYNC = 'data-sync',
+  LOG_ENTRY_SYNC = 'log-entry-sync',
 }
 
 /**
@@ -111,16 +111,29 @@ export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySi
   payload?: CommunitySignInPayload
 }
 
-export interface QSSDataSyncPayload {
+export interface QSSLogEntrySyncPayload {
   teamId: string
   hash: string
   hashedDbId: string
   encEntry: EncryptedAndSignedPayload
 }
 
-export interface QSSDataSyncMessage extends BaseWebsocketMessage<QSSDataSyncPayload> {
+export interface QSSLogEntrySyncMessage extends BaseWebsocketMessage<QSSLogEntrySyncPayload> {
   ts: number
   status: CommunityOperationStatus
   reason?: string
-  payload: QSSDataSyncPayload
+  payload: QSSLogEntrySyncPayload
+}
+
+export interface QSSLogEntrySyncResponsePayload {
+  teamId: string
+  hash: string
+  hashedDbId: string
+}
+
+export interface QSSLogEntrySyncResponseMessage extends BaseWebsocketMessage<QSSLogEntrySyncResponsePayload> {
+  ts: number
+  status: CommunityOperationStatus
+  reason?: string
+  payload: QSSLogEntrySyncResponsePayload
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.2.0]
+
+### Fixes
+
+* Fix newline formatting in messages on mobile
+* Fix issue with keyboard hiding message input on Android
+* Fix issue with message send button not displaying correctly on mobile
+
+### Chores
+
+* Bump Android SDK to 35, NDK to 28.2.13676358, and Gradle plugin to 8.5.1 [see Google Play deadline](https://developer.android.com/google/play/requirements/target-sdk)
+
 ## [6.1.0]
 
 ### Fixes

@@ -1,10 +1,10 @@
 import React, { FC, useCallback } from 'react'
 import { TouchableWithoutFeedback, View, Image } from 'react-native'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { AttachmentButtonProps } from './AttachmentButton.types'
 
 export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
-  const icon = appImages.paperclip_gray
+  const icon = icons.paperclip_gray
 
   return (
     <TouchableWithoutFeedback onPress={onPress} testID={'attach_file_button'}>

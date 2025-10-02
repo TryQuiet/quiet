@@ -52,7 +52,7 @@ describe('ConfirmationBox component', () => {
               resizeMode="cover"
               source={
                 {
-                  "testUri": "../../../assets/icons/icon_check_white.png",
+                  "testUri": "../../../src/assets/icons/png/icon_check_white.png",
                 }
               }
               style={
@@ -146,7 +146,7 @@ describe('ConfirmationBox component', () => {
               resizeMode="cover"
               source={
                 {
-                  "testUri": "../../../assets/icons/icon_check_white.png",
+                  "testUri": "../../../src/assets/icons/png/icon_check_white.png",
                 }
               }
               style={

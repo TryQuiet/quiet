@@ -17,4 +17,5 @@ export enum ScreenNames {
   SplashScreen = 'SplashScreen',
   SuccessScreen = 'SuccessScreen',
   UsernameRegistrationScreen = 'UsernameRegistrationScreen',
+  TermsOfServiceScreen = 'TermsOfServiceScreen',
 }

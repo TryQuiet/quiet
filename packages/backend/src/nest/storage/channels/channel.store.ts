@@ -116,7 +116,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     })
 
     this.auth.on('updated', async payload => {
-      await this.refreshMessageIds()
+      this.refreshMessageIds()
     })
 
     try {

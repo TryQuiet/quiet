@@ -159,7 +159,11 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const [communityName, setCommunityName] = useState('...')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
-  const waitingForResponse = formSent && !hasReceivedResponse
+  const waitingForResponse = false
+
+  if (hasReceivedResponse && formSent) {
+    setFormSent(false)
+  }
 
   const dictionary =
     communityOwnership === CommunityOwnership.Owner

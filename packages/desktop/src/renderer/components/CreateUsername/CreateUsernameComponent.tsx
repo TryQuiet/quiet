@@ -171,6 +171,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     setError,
     clearErrors,
     control,
+    reset,
   } = useForm<CreateUserValues>({
     mode: 'onTouched',
   })
@@ -199,13 +200,14 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
 
   React.useEffect(() => {
     if (!open) {
-      setValue('userName', '')
+      reset()
       setUserName('')
+      setParsedNameDiffers(false)
     }
   }, [open])
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} testIdPrefix={'createUsername'}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={false} testIdPrefix={'createUsername'}>
       <StyledGrid container direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>

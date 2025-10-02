@@ -178,7 +178,7 @@ describe('ContextMenu component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/icon_close.png",
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
                     }
                   }
                   style={
@@ -394,7 +394,7 @@ describe('ContextMenu component', () => {
                             resizeMode="cover"
                             source={
                               {
-                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                                "testUri": "../../../src/assets/icons/png/arrow_right_short.png",
                               }
                             }
                             style={
@@ -524,7 +524,7 @@ describe('ContextMenu component', () => {
                             resizeMode="cover"
                             source={
                               {
-                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                                "testUri": "../../../src/assets/icons/png/arrow_right_short.png",
                               }
                             }
                             style={
@@ -654,7 +654,7 @@ describe('ContextMenu component', () => {
                             resizeMode="cover"
                             source={
                               {
-                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                                "testUri": "../../../src/assets/icons/png/arrow_right_short.png",
                               }
                             }
                             style={
@@ -848,7 +848,7 @@ describe('ContextMenu component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/icon_close.png",
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
                     }
                   }
                   style={
@@ -1064,7 +1064,7 @@ describe('ContextMenu component', () => {
                             resizeMode="cover"
                             source={
                               {
-                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                                "testUri": "../../../src/assets/icons/png/arrow_right_short.png",
                               }
                             }
                             style={
@@ -1194,7 +1194,7 @@ describe('ContextMenu component', () => {
                             resizeMode="cover"
                             source={
                               {
-                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                                "testUri": "../../../src/assets/icons/png/arrow_right_short.png",
                               }
                             }
                             style={
@@ -1324,7 +1324,7 @@ describe('ContextMenu component', () => {
                             resizeMode="cover"
                             source={
                               {
-                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                                "testUri": "../../../src/assets/icons/png/arrow_right_short.png",
                               }
                             }
                             style={

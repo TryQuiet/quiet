@@ -6,15 +6,31 @@
 
 * Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
 * Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
+* Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
+* Adds warning UI for users attempting to join a QSS assist server enabled community [#2911](https://github.com/TryQuiet/quiet/issues/2911)
+* Adds UI for terms of service [#2911](https://github.com/TryQuiet/quiet/issues/2911)
 
 ### Fixes
 
 * Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
 * Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Users can now abort joining and creating communities halfway without issue [#3001](https://github.com/TryQuiet/quiet/issues/3001)
 
 ### Chores
 
 * Update QSS flag to QSS_ALLOWED and reconfigure enabled setting/checking [#2912](https://github.com/TryQuiet/quiet/issues/2912)
+
+## [6.2.0]
+
+### Fixes
+
+* Fix newline formatting in messages on mobile
+* Fix issue with keyboard hiding message input on Android
+* Fix issue with message send button not displaying correctly on mobile
+
+### Chores
+
+* Bump Android SDK to 35, NDK to 28.2.13676358, and Gradle plugin to 8.5.1 [see Google Play deadline](https://developer.android.com/google/play/requirements/target-sdk)
 
 ## [6.1.0]
 

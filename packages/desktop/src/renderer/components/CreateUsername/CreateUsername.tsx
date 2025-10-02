@@ -12,22 +12,9 @@ const logger = createLogger('CreateUsername')
 const CreateUsername = () => {
   const dispatch = useDispatch()
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
-
-  useEffect(() => {
-    if (currentCommunity && !currentIdentity?.userId && !createUsernameModal.open) {
-      logger.info('Open create username modal')
-      createUsernameModal.handleOpen()
-    }
-    if (currentIdentity?.userId && createUsernameModal.open) {
-      logger.info('Close create username modal')
-      createUsernameModal.handleClose()
-    }
-  }, [currentIdentity, currentCommunity])
+  const joinCommunityModal = useModal(ModalName.joinCommunityModal)
 
   const registerUsername = (nickname: string) => {
     logger.info('Register username', nickname)
@@ -40,9 +27,17 @@ const CreateUsername = () => {
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
     logger.info('Open loading panel')
     loadingPanelModal.handleOpen()
+    createUsernameModal.handleClose()
   }
 
-  return <CreateUsernameComponent {...createUsernameModal} registerUsername={registerUsername} />
+  const handleClose = () => {
+    createUsernameModal.handleClose()
+    joinCommunityModal.handleOpen()
+  }
+
+  return (
+    <CreateUsernameComponent {...createUsernameModal} handleClose={handleClose} registerUsername={registerUsername} />
+  )
 }
 
 export default CreateUsername
