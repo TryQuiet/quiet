@@ -164,6 +164,12 @@ export const DebugInfoComponent: React.FC = () => {
 
   // --- Debug Info Object ---
   const debugInfo = {
+    environment: {
+      node_env: process.env.NODE_ENV,
+      qss_enabled: process.env.QSS_ALLOWED,
+      qss_endpoint: process.env.QSS_ENDPOINT,
+      ENVFILE: process.env.ENVFILE,
+    },
     network: { connectedPeers, initializedCommunities, loadingPanelType, isCommunityInitialized },
     users: { userProfile, userProfiles, allUsers },
     identity: { currentIdentity, allIdentities, joinedCommunities, username, usernameTaken },
@@ -201,10 +207,6 @@ export const DebugInfoComponent: React.FC = () => {
           Summary
         </Typography>
         <table className={classes.table}>
-          <colgroup>
-            <col style={{ width: '45%' }} />
-            <col style={{ width: '55%' }} />
-          </colgroup>
           <tbody>
             <tr>
               <th className={classes.th}>Connected Peers</th>
@@ -447,6 +449,29 @@ export const DebugInfoComponent: React.FC = () => {
                       </tr>
                     ) : null
                   )}
+              </tbody>
+            </table>
+          </Paper>
+        </details>
+      </Grid>
+      <Grid item className={classes.section}>
+        <details open>
+          <summary className={classes.summary}>Environment Variables</summary>
+          <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
+            <table className={classes.table}>
+              <colgroup>
+                <col style={{ width: '50%' }} />
+                <col style={{ width: '50%' }} />
+              </colgroup>
+              <tbody>
+                {Object.entries(process.env)
+                  .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+                  .map(([key, value]) => (
+                    <tr key={key}>
+                      <th className={classes.th}>{key}</th>
+                      <td className={classes.td}>{String(value)}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </Paper>

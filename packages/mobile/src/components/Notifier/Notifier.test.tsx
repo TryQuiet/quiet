@@ -4,7 +4,7 @@ import { fireEvent, screen } from '@testing-library/react-native'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 
 import { Notifier } from './Notifier.component'
 
@@ -14,7 +14,7 @@ describe('Notifier component', () => {
       <Notifier
         onButtonPress={jest.fn()}
         onEmailPress={jest.fn()}
-        icon={appImages.update_graphics}
+        icon={icons.update_graphics}
         title={'Coming update will remove communities & messages'}
         message={
           'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! However, these changes required us to reset all communities, and both communities and messages will be lost on mobile. We apologize for the inconvenience, and please reach out immediately if you need help backing up messages.'
@@ -32,7 +32,7 @@ describe('Notifier component', () => {
       <Notifier
         onButtonPress={buttonCallback}
         onEmailPress={jest.fn()}
-        icon={appImages.update_graphics}
+        icon={icons.update_graphics}
         title={'Coming update will remove communities & messages'}
         message={
           'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! 🎉 However, these changes required us to reset all communities, and both communities and messages will be lost on mobile. 😥 We apologize for the inconvenience, and please reach out immediately if you need help backing up messages.'

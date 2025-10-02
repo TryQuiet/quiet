@@ -181,7 +181,7 @@ describe('UsernameRegistration', () => {
           <View
             style={
               {
-                "marginTop": 20,
+                "marginTop": 32,
               }
             }
           >
@@ -210,8 +210,8 @@ describe('UsernameRegistration', () => {
                   "backgroundColor": "#521C74",
                   "borderRadius": 8,
                   "justifyContent": "center",
-                  "marginVertical": 12,
                   "minHeight": 45,
+                  "paddingHorizontal": 20,
                   "paddingVertical": 12,
                   "width": undefined,
                 }
@@ -356,7 +356,7 @@ describe('UsernameRegistration', () => {
   //                 resizeMode="cover"
   //                 source={
   //                   {
-  //                     "testUri": "../../../assets/icons/icon_close.png",
+  //                     "testUri": "../../../assets/icons/png/icon_close.png",
   //                   }
   //                 }
   //                 style={

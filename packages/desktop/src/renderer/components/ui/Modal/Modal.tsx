@@ -89,7 +89,7 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
 
   [`& .${classes.withoutHeader}`]: {
     width: '100%',
-    height: '100vh',
+    height: '100dvh',
   },
 
   [`& .${classes.notFullPage}`]: {
@@ -174,7 +174,7 @@ export const Modal: React.FC<IModalProps> = ({
           className={classNames({
             [classes.header]: true,
             [classes.headerBorder]: addBorder,
-            [classes.none]: isTransparent,
+            [classes.none]: isTransparent || withoutHeader,
           })}
           direction='row'
           alignItems='center'
@@ -215,6 +215,7 @@ export const Modal: React.FC<IModalProps> = ({
                         return setStep(step - 1)
                       }
                     }}
+                    dataTestId={`${testIdPrefix}ModalBack`}
                   >
                     <BackIcon />
                   </IconButton>
@@ -226,6 +227,7 @@ export const Modal: React.FC<IModalProps> = ({
                           return handleClose({}, 'backdropClick')
                         }
                       }}
+                      dataTestId={`${testIdPrefix}ModalClose`}
                     >
                       <ClearIcon />
                     </IconButton>

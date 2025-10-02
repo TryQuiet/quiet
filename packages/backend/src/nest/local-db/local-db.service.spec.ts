@@ -399,23 +399,23 @@ describe('LocalDbService', () => {
       const hash2 = hash('', 'second hash')
 
       // Add one, then another, then check both
-      const added = await service.addPendingQssSyncMessage(ADDRESS, hash1)
+      const added = await service.addPendingQssLogSyncMessage(ADDRESS, hash1)
       expect(added).toBeTruthy()
-      let pendingMessages = await service.getPendingQssSyncMessages()
+      let pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
 
-      await service.addPendingQssSyncMessage(ADDRESS, hash2)
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.addPendingQssLogSyncMessage(ADDRESS, hash2)
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1, hash2] })
 
       // Remove one, should leave the other
-      await service.removePendingQssSyncMessages({ [ADDRESS]: [hash1] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS]: [hash1] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash2] })
 
       // Remove the last, should be empty
-      await service.removePendingQssSyncMessages({ [ADDRESS]: [hash2] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS]: [hash2] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
     })
 
@@ -424,23 +424,23 @@ describe('LocalDbService', () => {
       const hash2 = hash('', 'second hash')
 
       // Add one, then another, then check both
-      const added = await service.addPendingQssSyncMessage(ADDRESS, hash1)
+      const added = await service.addPendingQssLogSyncMessage(ADDRESS, hash1)
       expect(added).toBeTruthy()
-      let pendingMessages = await service.getPendingQssSyncMessages()
+      let pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
 
-      await service.addPendingQssSyncMessage(ADDRESS2, hash2)
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.addPendingQssLogSyncMessage(ADDRESS2, hash2)
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1], [ADDRESS2]: [hash2] })
 
       // Remove one, should leave the other
-      await service.removePendingQssSyncMessages({ [ADDRESS]: [hash1] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS]: [hash1] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS2]: [hash2] })
 
       // Remove the last, should be empty
-      await service.removePendingQssSyncMessages({ [ADDRESS2]: [hash2] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS2]: [hash2] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
     })
 
@@ -449,36 +449,36 @@ describe('LocalDbService', () => {
       const hash2 = hash('', 'second hash')
 
       // Add one, then another, then check both
-      const added = await service.addPendingQssSyncMessage(ADDRESS, hash1)
+      const added = await service.addPendingQssLogSyncMessage(ADDRESS, hash1)
       expect(added).toBeTruthy()
-      let pendingMessages = await service.getPendingQssSyncMessages()
+      let pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
 
-      await service.addPendingQssSyncMessage(ADDRESS2, hash2)
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.addPendingQssLogSyncMessage(ADDRESS2, hash2)
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1], [ADDRESS2]: [hash2] })
 
       // Remove one, should leave the other
-      await service.removePendingQssSyncMessages({ [ADDRESS2]: [hash1] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS2]: [hash1] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1], [ADDRESS2]: [hash2] })
     })
 
     it('does not add duplicate messages', async () => {
       const hash1 = hash('', 'first hash')
 
-      await service.addPendingQssSyncMessage(ADDRESS, hash1)
-      let pendingMessages = await service.getPendingQssSyncMessages()
+      await service.addPendingQssLogSyncMessage(ADDRESS, hash1)
+      let pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
 
       // Add again, still only one
-      await service.addPendingQssSyncMessage(ADDRESS, hash1)
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.addPendingQssLogSyncMessage(ADDRESS, hash1)
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
     })
 
     it('getPendingQssSyncMessages returns empty array if no pending messages', async () => {
-      const pendingMessages = await service.getPendingQssSyncMessages()
+      const pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
     })
 
@@ -486,18 +486,18 @@ describe('LocalDbService', () => {
       const hash1 = hash('', 'first hash')
       const hash2 = hash('', 'second hash')
 
-      await service.addPendingQssSyncMessage(ADDRESS, hash1)
-      let pendingMessages = await service.getPendingQssSyncMessages()
+      await service.addPendingQssLogSyncMessage(ADDRESS, hash1)
+      let pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
 
       // Remove a message that isn't present
-      await service.removePendingQssSyncMessages({ [ADDRESS]: [hash2] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS]: [hash2] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({ [ADDRESS]: [hash1] })
 
       // Remove the real one
-      await service.removePendingQssSyncMessages({ [ADDRESS]: [hash1] })
-      pendingMessages = await service.getPendingQssSyncMessages()
+      await service.removePendingQssLogSyncMessages({ [ADDRESS]: [hash1] })
+      pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
     })
   })

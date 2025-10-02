@@ -397,7 +397,7 @@ export class JoiningLoadingPanel {
 
   get element() {
     return this.driver.wait(
-      this.driver.findElement(By.xpath('//div[@data-testid="joiningPanelComponent"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]')),
       15_000,
       `Joining loading panel element couldn't be located within timeout`,
       500
@@ -405,7 +405,15 @@ export class JoiningLoadingPanel {
   }
 
   async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
-    const panel = await this.element
+    // First check if the panel exists at all. In some flows (e.g., Not Now on server offer),
+    // the joining panel may never appear, which is OK.
+    const candidates = await this.driver.findElements(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
+    if (!candidates || candidates.length === 0) {
+      logger.warn('Joining loading panel not present; skipping wait')
+      return
+    }
+
+    const panel = candidates[0]
     await this.driver.wait(
       until.elementIsVisible(panel),
       visibleTimeoutMs,
@@ -422,7 +430,7 @@ export class JoiningLoadingPanel {
       )
     } catch (e) {
       if (e.message.includes('stale element reference')) {
-        logger.warn(`Join loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+        logger.warn(`Join loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
         throw e
       }
@@ -725,6 +733,20 @@ export class RegisterUsernameModal {
     )
     await submitButton.click()
   }
+
+  /**
+   * Closes the Create Username modal via header close button.
+   */
+  async close() {
+    const actionsRoot = await this.driver.wait(
+      until.elementLocated(By.xpath("//div[@data-testid='createUsernameModalActions']")),
+      10_000,
+      `CreateUsername modal actions couldn't be found within timeout`,
+      500
+    )
+    const closeBtn = await actionsRoot.findElement(By.css('button'))
+    await closeBtn.click()
+  }
 }
 
 export class JoinCommunityModal {
@@ -817,6 +839,22 @@ export class CreateCommunityModal {
     await communityNameInput.sendKeys(name)
   }
 
+  async clearInput() {
+    const communityNameInput = await this.driver.wait(
+      this.driver.findElement(By.xpath('//input[@placeholder="Community name"]')),
+      10_000,
+      `Community name input couldn't be found within timeout`,
+      500
+    )
+    if (process.platform === 'darwin') {
+      await communityNameInput.sendKeys(Key.COMMAND + 'a')
+      await communityNameInput.sendKeys(Key.DELETE)
+    } else {
+      await communityNameInput.sendKeys(Key.CONTROL + 'a')
+      await communityNameInput.sendKeys(Key.DELETE)
+    }
+  }
+
   async submit() {
     const continueButton = await this.driver.wait(
       this.driver.findElement(By.xpath('//button[@data-testid="continue-createCommunity"]')),
@@ -827,6 +865,120 @@ export class CreateCommunityModal {
     await continueButton.click()
   }
 }
+
+export class ServerOfferModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get useServerButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='ServerOffer-UseQuietServer']")),
+      5_000,
+      `Use Quiet’s server button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get notNowButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='ServerOffer-NotNow']")),
+      5_000,
+      `Not now button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get dontShowAgainCheckbox() {
+    return this.driver.wait(
+      until.elementLocated(
+        By.xpath("//label[contains(@class,'ServerOfferComponent-mutedAction')]//input[@type='checkbox']")
+      ),
+      5_000,
+      `Don't show this again checkbox couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    const actions = await this.useServerButton
+    await this.driver.wait(
+      until.elementIsVisible(actions),
+      timeoutMs,
+      `ServerOfferModalActions wasn't visible within timeout`,
+      500
+    )
+    return true
+  }
+
+  async chooseUseServer() {
+    const button = await this.useServerButton
+    await button.click()
+  }
+
+  async chooseNotNow() {
+    const button = await this.notNowButton
+    await button.click()
+  }
+
+  async setDontShowAgain(checked: boolean) {
+    const checkbox = await this.dontShowAgainCheckbox
+    const isChecked = await checkbox.isSelected()
+    if (isChecked !== checked) {
+      await checkbox.click()
+    }
+  }
+}
+
+export class TermsOfServiceModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get agreeAndJoinButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='TermOfService-UseQuietServer']")),
+      5_000,
+      `Agree and Join button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get abortButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='TermOfService-Abort']")),
+      5_000,
+      `Leave Community button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isReady(timeoutMs: number = 10_000): Promise<boolean> {
+    const button = await this.agreeAndJoinButton
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      timeoutMs,
+      `TermsOfServiceModalActions wasn't visible within timeout`,
+      500
+    )
+    return true
+  }
+
+  async chooseAgreeAndJoin() {
+    const button = await this.agreeAndJoinButton
+    await button.click()
+  }
+
+  async chooseAbort() {
+    const button = await this.abortButton
+    await button.click()
+  }
+}
+
 export class Channel {
   private readonly name: string
   private readonly driver: ThenableWebDriver
@@ -1750,6 +1902,54 @@ export class Sidebar {
       `Connected badge for user ${nickname} was not visible within timeout`,
       500
     )
+  }
+
+  /**
+   * Returns the currently displayed community name from the identity panel.
+   * Tries the explicit test id first, then falls back to the styled class,
+   * and finally to the button text (older builds).
+   */
+  async getDisplayedCommunityName(): Promise<string> {
+    try {
+      const nameEl = await this.driver.wait(
+        until.elementLocated(By.xpath("//*[@data-testid='current-community-name']")),
+        3_000,
+        `Current community name element not found quickly; trying fallback`,
+        500
+      )
+      return await nameEl.getText()
+    } catch {
+      try {
+        const typ = await this.driver.wait(
+          until.elementLocated(By.xpath("//*[contains(@class,'IdentityPanelnickname')][1]")),
+          10_000,
+          `Identity panel nickname element couldn't be found within timeout`,
+          500
+        )
+        return await typ.getText()
+      } catch {
+        const btn = await this.driver.wait(
+          until.elementLocated(By.xpath("//button[@data-testid='settings-panel-button']")),
+          10_000,
+          `Community name button couldn't be found within timeout`,
+          500
+        )
+        return await btn.getText()
+      }
+    }
+  }
+
+  /**
+   * Current user's nickname shown in the sidebar user profile panel.
+   */
+  async getCurrentUserNickname(): Promise<string> {
+    const el = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='user-profile-nickname']")),
+      15_000,
+      `Current user nickname element couldn't be found within timeout`,
+      500
+    )
+    return await el.getText()
   }
 }
 

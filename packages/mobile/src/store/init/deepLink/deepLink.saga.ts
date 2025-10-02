@@ -5,7 +5,7 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
-import { appImages } from '../../../assets'
+import { icons } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
 import _ from 'lodash'
@@ -49,7 +49,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
         screen: ScreenNames.ErrorScreen,
         params: {
           onPress: () => replaceScreen(ScreenNames.JoinCommunityScreen),
-          icon: appImages.quiet_icon_round,
+          icon: icons.quiet_icon_round,
           title: InvalidInvitationLinkError.TITLE,
           message: InvalidInvitationLinkError.MESSAGE,
         },
@@ -71,7 +71,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
         screen: ScreenNames.ErrorScreen,
         params: {
           onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
-          icon: appImages.quiet_icon_round,
+          icon: icons.quiet_icon_round,
           title: AlreadyBelongToCommunityWarning.TITLE,
           message: AlreadyBelongToCommunityWarning.MESSAGE,
         },
@@ -105,7 +105,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
         screen: ScreenNames.ErrorScreen,
         params: {
           onPress: () => replaceScreen(ScreenNames.UsernameRegistrationScreen),
-          icon: appImages.quiet_icon_round,
+          icon: icons.quiet_icon_round,
           title: JoiningAnotherCommunityWarning.TITLE,
           message: JoiningAnotherCommunityWarning.MESSAGE,
         },

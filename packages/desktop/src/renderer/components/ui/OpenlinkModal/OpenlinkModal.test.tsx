@@ -24,7 +24,7 @@ describe('OpenlinkModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1on48p8-MuiModal-root"
+          class="MuiModal-root css-1l68gny-MuiModal-root"
           role="presentation"
         >
           <div
@@ -63,6 +63,7 @@ describe('OpenlinkModal', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
+                      data-testid="ModalClose"
                       tabindex="0"
                       type="button"
                     >

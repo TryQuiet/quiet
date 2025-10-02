@@ -178,10 +178,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
-      // socket.on(SocketActions.LAUNCH_COMMUNITY, async (payload: LaunchCommunityPayload) => {
-      //   this.logger.info(`Launching community ${payload.id}`)
-      //   this.emit(SocketActions.LAUNCH_COMMUNITY, payload)
-      // })
+      socket.on(SocketActions.LAUNCH_COMMUNITY, async (payload: LaunchCommunityPayload) => {
+        this.logger.info(`Launching community ${payload.id}`)
+        this.emit(SocketActions.LAUNCH_COMMUNITY, payload)
+      })
 
       socket.on(SocketActions.LEAVE_COMMUNITY, (callback: (closed: boolean) => void) => {
         this.logger.info('Leaving community')

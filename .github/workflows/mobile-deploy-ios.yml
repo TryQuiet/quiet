@@ -50,7 +50,7 @@ jobs:
           cd ./packages/mobile/ios
           pod install
         shell: bash
-        
+
       - name: Remove bitcode from Tor.framework
         run: |
           cd ./packages/mobile/ios

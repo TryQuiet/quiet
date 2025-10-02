@@ -85,38 +85,11 @@ export function* customProtocolSaga(
     return
   }
 
-  let joiningInProgress = false
-
-  const invitationCodes = yield* select(communities.selectors.invitationCodes)
-  switch (data.version) {
-    case InvitationDataVersion.v1:
-    case InvitationDataVersion.v2:
-    case InvitationDataVersion.v3:
-      joiningInProgress = Boolean(Object.keys(invitationCodes).length !== 0)
-      break
-  }
-
-  const connectingWithAnotherCommunity = joiningInProgress
-
-  if (connectingWithAnotherCommunity) {
-    logger.warn('Displaying error (user is already connecting to another community).')
-    yield* put(
-      modalsActions.openModal({
-        name: ModalName.warningModal,
-        args: {
-          title: JoiningAnotherCommunityWarning.TITLE,
-          subtitle: JoiningAnotherCommunityWarning.MESSAGE,
-        },
-      })
-    )
-    logger.info('Returning because user is already connecting to another community')
-    return
-  }
-
   const payload: JoinCommunityPayload = {
     inviteData: data,
   }
 
   logger.info('Dispatching join community action', payload)
   yield* put(communities.actions.joinCommunity(payload))
+  yield* put(modalsActions.openModal({ name: ModalName.createUsernameModal }))
 }

@@ -1003,8 +1003,8 @@ describe('Channel', () => {
       Array [
         "Connection/setTorInitialized",
         "Communities/launchCommunity",
-        "Communities/setCurrentCommunity",
         "Connection/setLastConnectedTime",
+        "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Messages/lazyLoading",

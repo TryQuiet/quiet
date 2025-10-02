@@ -68,23 +68,18 @@ export const invitationUrl = createSelector(
   longLivedInvite,
   (communityPsk, currentCommunity, sortedPeerList, longLivedInvite) => {
     if (!sortedPeerList || sortedPeerList?.length === 0) {
-      logger.warn('invitationUrl: No sorted peer list available or it is empty')
       return ''
     }
     if (!communityPsk) {
-      logger.warn('invitationUrl: Community PSK is not available')
       return ''
     }
     if (!longLivedInvite) {
-      logger.warn('invitationUrl: Long-lived invite is not available')
       return ''
     }
     if (!currentCommunity) {
-      logger.warn('invitationUrl: Current community is not available')
       return ''
     }
     if (!currentCommunity.name) {
-      logger.warn('invitationUrl: Current community name is not available')
       return ''
     }
     const initialPeers = sortedPeerList.slice(0, 3)

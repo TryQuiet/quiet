@@ -35,6 +35,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: win32
+          envfile: .env.e2e
 
       - name: electron-builder
         working-directory: ./packages/desktop
