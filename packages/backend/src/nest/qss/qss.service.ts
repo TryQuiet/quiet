@@ -40,9 +40,8 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
-import { CompoundError } from '@quiet/types'
-import fastq, { queueAsPromised } from 'fastq'
-import { TimedQueue } from '../common/timed-queue'
+import { Community, CompoundError, InvitationDataV3 } from '@quiet/types'
+import { LocalDbEvents } from '../local-db/local-db.types'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -64,7 +63,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    *
    * Map of team ID to enabled status
    */
-  private _qssEnabledByCommunity = new Map<string, boolean>()
+  private _qssEnabledByCommunity = new Set<string>()
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -125,11 +124,25 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _configureEventHandlers(): void {
+    this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
+      this.logger.debug('Community stored, attempting to authenticate with QSS')
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    })
+
     this.qssClient.on(QSSEvents.QSS_CONNECTED, async (): Promise<void> => {
       this.logger.debug('QSS connected, handling appropriate authentication operation')
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    })
+
+    this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
       const community = await this.localDbService.getCurrentCommunity()
       if (community == null) {
-        this.logger.error('Community is null, skipping qss operation reprocessing')
+        this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
+        return
+      }
+
+      if (!this.isEnabledForCommunity(community)) {
+        this.logger.trace('QSS not enabled for this community, skipping sign in', community.teamId)
         return
       }
 
@@ -140,9 +153,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       ) {
         await this.createCommunity(this.sigChainService.activeChain)
       } else {
-        const teamId = this.sigChainService.activeChain.team != null ? this.sigChainService.team.id : community.teamId!
+        const teamId =
+          this.sigChainService.activeChain.team != null
+            ? this.sigChainService.team.id
+            : (community.inviteData as InvitationDataV3).authData!.teamId!
         const teamName =
           this.sigChainService.activeChain.team != null ? this.sigChainService.team.teamName : community.name
+        this.logger.trace('QSS Sign in', teamId, teamName)
         await this.signInToCommunity(teamId, this.sigChainService.activeChain, teamName)
       }
     })
@@ -182,8 +199,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param teamId ID of the team we are checking enabled on
    * @returns True if QSS is enabled for this community
    */
-  public isEnabledForCommunity(teamId: string): boolean {
-    return this._qssEnabledByCommunity.get(teamId) ?? false
+  public isEnabledForCommunity(community: Community): boolean {
+    return community.qssEnabled ?? false
   }
 
   /**
@@ -192,7 +209,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param teamId ID of the team we are enabling QSS for
    */
   public enableForCommunity(teamId: string): void {
-    this._qssEnabledByCommunity.set(teamId, true)
+    this.logger.warn('ENABLING QSS', teamId)
+    this._qssEnabledByCommunity.add(teamId)
     if (!this.canConnect) {
       this.logger.warn(
         `QSS is enabled on this community but your app doesn't allow QSS.  To allow QSS pass in the ${QSS_ALLOWED} flag.`
@@ -427,11 +445,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   ): Promise<QSSOperationResult> {
     if (!this.canConnect) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
-      return QSSOperationResult.DISABLED
-    }
-
-    if (!this.isEnabledForCommunity(teamId)) {
-      this.logger.warn(`Attempting to sign in to a community that isn't QSS enabled!`)
       return QSSOperationResult.DISABLED
     }
 

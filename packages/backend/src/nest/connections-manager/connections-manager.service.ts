@@ -377,6 +377,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
+    this.qssService.enableForCommunity(sigchain.team!.id)
     const status = await this.qssService.connect(this.qssEndpoint)
     // if (status !== QSSOperationResult.DISABLED) {
     //   await this.qssService.createCommunity(sigchain)

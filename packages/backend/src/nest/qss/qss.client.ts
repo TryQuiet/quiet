@@ -62,7 +62,7 @@ export class QSSClient extends EventEmitter {
       this.logger.info(`Creating and connecting client socket`)
       this._clientSocket = connect(this.qssEndpoint, {
         autoConnect: false,
-        forceNew: true,
+        forceNew: false,
         transports: CLIENT_TRANSPORTS,
       })
       // wait for socket to connect with QSS instance
