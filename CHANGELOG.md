@@ -13,6 +13,7 @@
 ### Fixes
 
 * Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
+* Warning modal background color is now reactive to theme selection [#2958](https://github.com/TryQuiet/quiet/issues/2958)
 * Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
 * Users can now abort joining and creating communities halfway without issue [#3001](https://github.com/TryQuiet/quiet/issues/3001)
 
