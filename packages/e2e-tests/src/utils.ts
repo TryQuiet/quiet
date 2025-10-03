@@ -1,5 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, execSync, type ChildProcessWithoutNullStreams } from 'child_process'
+import { spawn, exec, execSync, type ChildProcessWithoutNullStreams, ChildProcess } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
@@ -137,6 +137,11 @@ export class BuildSetup {
         ...env,
         QSS_ALLOWED: true,
         QSS_ENDPOINT: 'ws://127.0.0.1:3003',
+      }
+    } else {
+      env = {
+        ...env,
+        QSS_ALLOWED: false,
       }
     }
 
@@ -337,6 +342,25 @@ export class BuildSetup {
       resourcesPath,
     }
   }
+}
+
+export const tailQssLogs = (): ChildProcess => {
+  const child = spawn('docker compose', ['-f', 'docker-compose.quiet.yml', 'logs', '-f', 'qss-quiet'], {
+    cwd: path.join('../../3rd-party/qss/app/'),
+    shell: true,
+  })
+
+  child.stdout!.on('data', (data: Buffer) => {
+    console.log(data.toString('utf-8'))
+  })
+  child.stderr!.on('data', (data: Buffer) => {
+    console.log(data.toString('utf-8'))
+  })
+  child.on('error', (error: Error) => {
+    logger.error('Error on docker log tailer', JSON.stringify(error))
+  })
+
+  return child
 }
 
 const quietAppImage = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {

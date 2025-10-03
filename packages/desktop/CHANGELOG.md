@@ -1,14 +1,32 @@
 # Changelog
 
+## [6.2.0]
+
+### Fixes
+
+* Fix newline formatting in messages on mobile
+* Fix issue with keyboard hiding message input on Android
+* Fix issue with message send button not displaying correctly on mobile
+
+### Chores
+
+* Bump Android SDK to 35, NDK to 28.2.13676358, and Gradle plugin to 8.5.1 [see Google Play deadline](https://developer.android.com/google/play/requirements/target-sdk)
+
 ## [6.1.0]
 
 ### Fixes
 
+* Leaving a community on android and then immediately creating/joining a new one no longer fails to reinitialize [#2940](https://github.com/TryQuiet/quiet/issues/2940)
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
 * User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
+* Fixed some race conditions with user profiles and message verification that could cause some messages to never display [#2847](https://github.com/TryQuiet/quiet/issues/2847)
+* Fixed automatic updates on mac [#2965](https://github.com/TryQuiet/quiet/issues/2965)
+* Fixed tor binary path detection on locally distributables [#2964](https://github.com/TryQuiet/quiet/issues/2964)
+* Fixed channel metadata syncing [#2968](https://github.com/TryQuiet/quiet/issues/2968)
 
 ### Features
 
+* Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
 * User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
 

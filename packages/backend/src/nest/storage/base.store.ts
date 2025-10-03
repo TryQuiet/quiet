@@ -2,6 +2,7 @@ import { type KeyValueType, type EventsType } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import { createLogger } from '../common/logger'
 import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
+import { KeyValueIndexedValidatedType } from './orbitDb/keyValueIndexedValidated'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
 
 const logger = createLogger('store')
@@ -49,6 +50,17 @@ export abstract class EncryptedKeyValueStoreBase<EncryptedType, DecryptedType> e
   KeyValueType<EncryptedType>
 > {
   protected store: KeyValueType<EncryptedType> | undefined
+  abstract encryptEntry(value: DecryptedType): Promise<EncryptedAndSignedPayload>
+  abstract decryptEntry(value: EncryptedType): Promise<DecryptedType>
+  abstract setEntry(key: string, value: DecryptedType): Promise<EncryptedType>
+  abstract getEntry(key?: string): Promise<DecryptedType | null>
+}
+
+export abstract class EncryptedKeyValueIndexedValidatedStoreBase<EncryptedType, DecryptedType> extends StoreBase<
+  EncryptedType,
+  KeyValueIndexedValidatedType<EncryptedType>
+> {
+  protected store: KeyValueIndexedValidatedType<EncryptedType> | undefined
   abstract encryptEntry(value: DecryptedType): Promise<EncryptedAndSignedPayload>
   abstract decryptEntry(value: EncryptedType): Promise<DecryptedType>
   abstract setEntry(key: string, value: DecryptedType): Promise<EncryptedType>

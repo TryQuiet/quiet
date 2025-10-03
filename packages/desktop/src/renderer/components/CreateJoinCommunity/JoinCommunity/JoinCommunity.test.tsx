@@ -4,7 +4,7 @@ import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
+import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -20,11 +20,13 @@ import { CommunityOwnership } from '@quiet/types'
 import {
   Site,
   QUIET_JOIN_PAGE,
-  validInvitationCodeTestData,
   getValidInvitationUrlTestData,
   PSK_PARAM_KEY,
   validInvitationDatav1,
 } from '@quiet/common'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('JoinCommunity.test')
 
 describe('join community', () => {
   const { code, data } = getValidInvitationUrlTestData(validInvitationDatav1[0])
@@ -66,7 +68,7 @@ describe('join community', () => {
     expect(createCommunityTitle).toBeVisible()
   })
 
-  it.skip('user goes from joning community to username registration, then comes back', async () => {
+  it('user goes from joning community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -94,20 +96,23 @@ describe('join community', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(joinCommunityInput, validCode)
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
 
-    // Close username registration modal
-    const closeButton = await screen.findByTestId('createUsernameModalActions')
+    // Close username registration modal by clicking explicit close button
+    const closeButton = await screen.findByTestId('createUsernameModalClose')
     await userEvent.click(closeButton)
-    expect(joinCommunityTitle).toBeVisible()
+    // Re-query after closing modal as the DOM node is re-created
+    const joinCommunityTitleAgain = await screen.findByText(dictionary.header)
+    expect(joinCommunityTitleAgain).toBeVisible()
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {
+    const { store } = await prepareStore()
     const handleCommunityAction = jest.fn()
 
     const component = (
@@ -123,12 +128,12 @@ describe('join community', () => {
       />
     )
 
-    const result = renderComponent(component)
+    const result = renderComponent(component, store)
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, validCode)
+
+    await userEvent.type(textInput!, validCode)
 
     const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
@@ -140,6 +145,7 @@ describe('join community', () => {
   it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
     'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
     async (invitationLink: string) => {
+      const { store } = await prepareStore()
       const registrarUrl = new URL(invitationLink)
 
       const handleCommunityAction = jest.fn()
@@ -157,7 +163,7 @@ describe('join community', () => {
         />
       )
 
-      const result = renderComponent(component)
+      const result = renderComponent(component, store)
 
       const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
       expect(textInput).not.toBeNull()
@@ -173,6 +179,7 @@ describe('join community', () => {
   )
 
   it('trims whitespaces from registrar url', async () => {
+    const { store } = await prepareStore()
     const registrarUrl = validCode + '     '
 
     const handleCommunityAction = jest.fn()
@@ -190,7 +197,7 @@ describe('join community', () => {
       />
     )
 
-    const result = renderComponent(component)
+    const result = renderComponent(component, store)
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
@@ -217,6 +224,7 @@ describe('join community', () => {
     [`${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
     [`${Site.MAIN_PAGE}/share?${validCode}`, InviteLinkErrors.InvalidCode],
   ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
+    const { store } = await prepareStore()
     const handleCommunityAction = jest.fn()
 
     renderComponent(
@@ -229,7 +237,8 @@ describe('join community', () => {
         isConnectionReady={true}
         isCloseDisabled={true}
         hasReceivedResponse={false}
-      />
+      />,
+      store
     )
 
     const input = screen.getByPlaceholderText('Invite link')
@@ -245,6 +254,7 @@ describe('join community', () => {
   })
 
   it('blocks submit button if connection is not ready', async () => {
+    const { store } = await prepareStore()
     const handleCommunityAction = jest.fn()
 
     const component = (
@@ -260,7 +270,7 @@ describe('join community', () => {
       />
     )
 
-    const result = renderComponent(component)
+    const result = renderComponent(component, store)
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
@@ -274,7 +284,8 @@ describe('join community', () => {
     expect(handleCommunityAction).not.toBeCalled()
   })
 
-  it('shows loading spinner on submit button while waiting for the response', async () => {
+  // no longer relevant since we switched to non-blocking joinCommunity action
+  it.skip('shows loading spinner on submit button while waiting for the response', async () => {
     const { rerender } = renderComponent(
       <PerformCommunityActionComponent
         open={true}
@@ -317,6 +328,7 @@ describe('join community', () => {
   })
 
   it('handles redirection to create community page if user clicks on the link', async () => {
+    const { store } = await prepareStore()
     const handleRedirection = jest.fn()
 
     const component = (
@@ -332,7 +344,7 @@ describe('join community', () => {
       />
     )
 
-    const result = renderComponent(component)
+    const result = renderComponent(component, store)
 
     const switchLink = result.queryByText('create a new community')
     expect(switchLink).not.toBeNull()

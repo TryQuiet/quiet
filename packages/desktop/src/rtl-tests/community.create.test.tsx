@@ -1,20 +1,10 @@
 import { generateChannelId } from '@quiet/common'
-import { publicChannels, getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
-import {
-  SocketActions,
-  SocketEvents,
-  socketEventData,
-  ChannelsReplicatedPayload,
-  InitCommunityPayload,
-  ResponseLaunchCommunityPayload,
-  ResponseCreateCommunityPayload,
-  CommunityOwnership,
-} from '@quiet/types'
+import { getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
+import { SocketActions, socketEventData } from '@quiet/types'
 import { screen } from '@testing-library/dom'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 import { AnyAction } from 'redux'
 import MockedSocket from 'socket.io-mock'
 import { take } from 'typed-redux-saga'
@@ -49,6 +39,7 @@ describe('User', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
+    process.env.QSS_ALLOWED = 'false'
   })
 
   afterEach(() => {
@@ -130,43 +121,43 @@ describe('User', () => {
     await userEvent.type(createUsernameInput, 'alice')
     await userEvent.click(createUsernameButton)
 
-    // Wait for the actions that updates the store
-    await act(async () => {
-      // Little workaround
-      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
-    })
-
     // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
+    const channel = await screen.findByText('#general')
+    expect(channel).toBeVisible()
+
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createCommunity",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",
-        "Communities/updateCommunityData",
+        "Modals/closeModal",
+        "Communities/addNewCommunity",
+        "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
         "Users/setUserProfile",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",
         "Communities/launchCommunity",
         "PublicChannels/setCurrentChannel",
-        "Communities/setCurrentCommunity",
         "Connection/createInvite",
         "PublicChannels/clearUnreadChannel",
-        "Files/checkForMissingFiles",
-        "Network/addInitializedCommunity",
         "Modals/closeModal",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
+        "Communities/setCurrentCommunity",
+        "Files/checkForMissingFiles",
+        "Network/addInitializedCommunity",
         "Connection/setLongLivedInvite",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/addChannel",
@@ -176,15 +167,10 @@ describe('User', () => {
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/addMessages",
-        "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
+        "PublicChannels/cacheMessages",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "PublicChannels/setCurrentChannel",
-        "PublicChannels/clearUnreadChannel",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/resetCurrentPublicChannelCache",
       ]
     `)
   })

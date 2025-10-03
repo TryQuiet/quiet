@@ -22,6 +22,7 @@ const classes = {
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
+  color: theme.palette.text.primary,
   border: 'none',
 
   [`& .${classes.info}`]: {
@@ -42,10 +43,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {
     marginTop: 24,
     marginBottom: 16,
+    color: theme.palette.text.primary,
   },
 
   [`& .${classes.subTitle}`]: {
     marginBottom: 32,
+    color: theme.palette.text.primary,
   },
 }))
 

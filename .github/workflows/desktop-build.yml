@@ -66,6 +66,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: ${{ matrix.source_path }}
+          envfile: .env.development
 
       - name: Build desktop preview
         shell: bash

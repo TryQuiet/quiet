@@ -17,7 +17,6 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
-import { myUserProfile } from 'packages/state-manager/src/sagas/users/userProfile/userProfile.selectors'
 import {
   DownloadStatus,
   DownloadState,
@@ -38,6 +37,8 @@ const classes = {
   th: `${PREFIX}th`,
   td: `${PREFIX}td`,
   json: `${PREFIX}json`,
+  summary: `${PREFIX}summary`,
+  summarySmall: `${PREFIX}summarySmall`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -94,6 +95,18 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-all',
   },
+  [`& .${classes.summary}`]: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontWeight: 500,
+    fontSize: 18,
+  },
+  [`& .${classes.summarySmall}`]: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontWeight: 500,
+    fontSize: 16,
+  },
 }))
 
 export const DebugInfoComponent: React.FC = () => {
@@ -130,7 +143,6 @@ export const DebugInfoComponent: React.FC = () => {
   const channelsStatus = useSelector(publicChannels.selectors.channelsStatus)
 
   // --- Messages ---
-  const currentPublicChannelMessagesEntities = useSelector(messages.selectors.currentPublicChannelMessagesEntities)
   const messagesSendingStatus = useSelector(messages.selectors.messagesSendingStatus)
   const messagesVerificationStatus = useSelector(messages.selectors.messagesVerificationStatus)
 
@@ -152,6 +164,12 @@ export const DebugInfoComponent: React.FC = () => {
 
   // --- Debug Info Object ---
   const debugInfo = {
+    environment: {
+      node_env: process.env.NODE_ENV,
+      qss_enabled: process.env.QSS_ALLOWED,
+      qss_endpoint: process.env.QSS_ENDPOINT,
+      ENVFILE: process.env.ENVFILE,
+    },
     network: { connectedPeers, initializedCommunities, loadingPanelType, isCommunityInitialized },
     users: { userProfile, userProfiles, allUsers },
     identity: { currentIdentity, allIdentities, joinedCommunities, username, usernameTaken },
@@ -163,7 +181,7 @@ export const DebugInfoComponent: React.FC = () => {
       pendingGeneralChannelRecreation,
       channelsStatus,
     },
-    messages: { currentPublicChannelMessagesEntities, messagesSendingStatus, messagesVerificationStatus },
+    messages: { messagesSendingStatus, messagesVerificationStatus },
     connection: {
       lastConnectedTime,
       torBootstrapProcess,
@@ -179,20 +197,16 @@ export const DebugInfoComponent: React.FC = () => {
   return (
     <StyledGrid container direction='column' className={classes.root}>
       <Grid item className={classes.section}>
-        <Typography variant='h3' gutterBottom>
+        <Typography variant='h4' gutterBottom>
           Debug Information
         </Typography>
         <Divider sx={{ mb: 2 }} />
       </Grid>
       <Grid item className={classes.section}>
-        <Typography variant='h5' gutterBottom>
+        <Typography variant='h6' gutterBottom>
           Summary
         </Typography>
         <table className={classes.table}>
-          <colgroup>
-            <col style={{ width: '45%' }} />
-            <col style={{ width: '55%' }} />
-          </colgroup>
           <tbody>
             <tr>
               <th className={classes.th}>Connected Peers</th>
@@ -222,9 +236,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- User Profiles Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>
-            User Profiles
-          </summary>
+          <summary className={classes.summary}>User Profiles</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
             <table className={classes.table}>
               <thead>
@@ -254,7 +266,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- Communities Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>Communities</summary>
+          <summary className={classes.summary}>Communities</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
             <table className={classes.table}>
               <thead>
@@ -282,7 +294,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- Connection Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>Peer Stats</summary>
+          <summary className={classes.summary}>Peer Stats</summary>
           <table className={classes.table}>
             <tbody>
               <tr>
@@ -322,9 +334,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- Peer Stats Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>
-            Peer Stats Table
-          </summary>
+          <summary className={classes.summary}>Peer Stats Table</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
             <table className={classes.table}>
               <thead>
@@ -356,9 +366,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- Public Channels Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>
-            Public Channels
-          </summary>
+          <summary className={classes.summary}>Public Channels</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
             <table className={classes.table}>
               <thead>
@@ -400,7 +408,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- Settings Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>Settings</summary>
+          <summary className={classes.summary}>Settings</summary>
           <table className={classes.table}>
             <tbody>
               <tr>
@@ -418,9 +426,7 @@ export const DebugInfoComponent: React.FC = () => {
       {/* --- Files Section --- */}
       <Grid item className={classes.section}>
         <details open>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 18 }}>
-            File Downloads
-          </summary>
+          <summary className={classes.summary}>File Downloads</summary>
           <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
             <table className={classes.table}>
               <thead>
@@ -438,7 +444,7 @@ export const DebugInfoComponent: React.FC = () => {
                         <td className={classes.td}>{file.cid}</td>
                         <td className={classes.td}>{file.downloadState}</td>
                         <td className={classes.td}>
-                          {file.downloadProgress != null ? `${file.downloadProgress}%` : '-'}
+                          {file.downloadProgress != null ? `${JSON.stringify(file.downloadProgress, null, 2)}` : '-'}
                         </td>
                       </tr>
                     ) : null
@@ -448,10 +454,33 @@ export const DebugInfoComponent: React.FC = () => {
           </Paper>
         </details>
       </Grid>
+      <Grid item className={classes.section}>
+        <details open>
+          <summary className={classes.summary}>Environment Variables</summary>
+          <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none' }}>
+            <table className={classes.table}>
+              <colgroup>
+                <col style={{ width: '50%' }} />
+                <col style={{ width: '50%' }} />
+              </colgroup>
+              <tbody>
+                {Object.entries(process.env)
+                  .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+                  .map(([key, value]) => (
+                    <tr key={key}>
+                      <th className={classes.th}>{key}</th>
+                      <td className={classes.td}>{String(value)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </Paper>
+        </details>
+      </Grid>
       {/* --- Raw JSON Section --- */}
       <Grid item className={classes.section}>
         <details>
-          <summary style={{ cursor: 'pointer', color: '#1976d2', fontWeight: 500, fontSize: 16 }}>Raw JSON</summary>
+          <summary className={classes.summarySmall}>Raw JSON</summary>
           <pre className={classes.json}>{JSON.stringify(debugInfo, null, 2)}</pre>
         </details>
       </Grid>

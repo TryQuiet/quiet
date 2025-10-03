@@ -126,6 +126,13 @@ export interface MessagesLoadedPayload {
   isVerified?: boolean
 }
 
+export interface VerifyMessagesPayload {
+  messageIds?: string[]
+  channelId?: string
+  messages?: ChannelMessage[]
+  currentChannel?: boolean
+}
+
 export interface CacheMessagesPayload {
   messages: ChannelMessage[]
   channelId: string

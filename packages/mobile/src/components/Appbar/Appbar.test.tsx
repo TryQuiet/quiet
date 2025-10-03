@@ -84,7 +84,7 @@ describe('Appbar component', () => {
                 resizeMode="cover"
                 source={
                   {
-                    "testUri": "../../../assets/icons/arrow_left.png",
+                    "testUri": "../../../src/assets/icons/png/arrow_left.png",
                   }
                 }
                 style={
@@ -336,7 +336,7 @@ describe('Appbar component', () => {
                 resizeMode="contain"
                 source={
                   {
-                    "testUri": "../../../assets/icons/dots.png",
+                    "testUri": "../../../src/assets/icons/png/dots.png",
                   }
                 }
                 style={

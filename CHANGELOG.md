@@ -2,29 +2,54 @@
 
 ## [unreleased]
 
+### Features
+
+* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
+* Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
+* Adds warning UI for users attempting to join a QSS assist server enabled community [#2911](https://github.com/TryQuiet/quiet/issues/2911)
+* Adds UI for terms of service [#2911](https://github.com/TryQuiet/quiet/issues/2911)
+
 ### Fixes
 
 * Minor design fixes on the left side panel [2948](https://github.com/TryQuiet/quiet/issues/2948)
 * Warning modal background color is now reactive to theme selection [#2958](https://github.com/TryQuiet/quiet/issues/2958)
+* Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Users can now abort joining and creating communities halfway without issue [#3001](https://github.com/TryQuiet/quiet/issues/3001)
 
 ### Chores
 
 * Update QSS flag to QSS_ALLOWED and reconfigure enabled setting/checking [#2912](https://github.com/TryQuiet/quiet/issues/2912)
 
+## [6.2.0]
+
+### Fixes
+
+* Fix newline formatting in messages on mobile
+* Fix issue with keyboard hiding message input on Android
+* Fix issue with message send button not displaying correctly on mobile
+
+### Chores
+
+* Bump Android SDK to 35, NDK to 28.2.13676358, and Gradle plugin to 8.5.1 [see Google Play deadline](https://developer.android.com/google/play/requirements/target-sdk)
+
 ## [6.1.0]
 
 ### Fixes
 
+* Leaving a community on android and then immediately creating/joining a new one no longer fails to reinitialize [#2940](https://github.com/TryQuiet/quiet/issues/2940)
 * Abrupt closes properly clean up resources and save data [#2921](https://github.com/TryQuiet/quiet/issues/2921)
 * User Profile photo size limits now more strictly enforced [#2892](https://github.com/TryQuiet/quiet/issues/2892)
-* Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Fixed some race conditions with user profiles and message verification that could cause some messages to never display [#2847](https://github.com/TryQuiet/quiet/issues/2847)
+* Fixed automatic updates on mac [#2965](https://github.com/TryQuiet/quiet/issues/2965)
+* Fixed tor binary path detection on locally distributables [#2964](https://github.com/TryQuiet/quiet/issues/2964)
+* Fixed channel metadata syncing [#2968](https://github.com/TryQuiet/quiet/issues/2968)
 
 ### Features
 
+* Adds new debugging tools in development mode [#2956](https://github.com/TryQuiet/quiet/issues/2956)
 * User profiles and their connection status now appear in the sidebar [#2920](https://github.com/TryQuiet/quiet/issues/2920)
 * In development mode, a debug panel now exposes some state parameters to assist debugging [#2924](https://github.com/TryQuiet/quiet/issues/2924)
-* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
-* Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
 
 ### Security
 

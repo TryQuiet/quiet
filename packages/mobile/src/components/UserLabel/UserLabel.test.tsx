@@ -55,7 +55,7 @@ describe('UserLabel component', () => {
           <Image
             source={
               {
-                "testUri": "../../../assets/icons/warning-icon.png",
+                "testUri": "../../../src/assets/icons/png/icon_warning.png",
               }
             }
             style={

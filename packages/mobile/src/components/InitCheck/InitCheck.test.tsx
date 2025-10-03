@@ -20,7 +20,7 @@ describe('InitCheck component', () => {
         <Image
           source={
             {
-              "testUri": "../../../assets/icons/check_circle_green.png",
+              "testUri": "../../../src/assets/icons/png/check_circle_green.png",
             }
           }
           style={

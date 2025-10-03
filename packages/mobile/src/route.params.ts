@@ -1,25 +1,27 @@
 import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
+import { InvitationData } from '@quiet/types'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
+  [ScreenNames.TermsOfServiceScreen]:
+    | {
+        inviteData?: InvitationData
+        communityName?: string
+        nickname?: string
+      }
+    | undefined
   [ScreenNames.QRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
-  [ScreenNames.UsernameRegistrationScreen]:
-    | {
-        fetching: boolean
-      }
-    | undefined
   [ScreenNames.ChannelListScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
-  [ScreenNames.ConnectionProcessScreen]: undefined
   [ScreenNames.DeleteChannelScreen]: {
     channelName: string
     channelId: string
@@ -51,11 +53,7 @@ export type RootStackParamList = {
     title: string
     message?: string
   }
-  [ScreenNames.UsernameRegistrationScreen]:
-    | {
-        fetching: boolean
-      }
-    | undefined
+  [ScreenNames.UsernameRegistrationScreen]: undefined
 }
 
 export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.DeleteChannelScreen>
@@ -78,3 +76,5 @@ export type PossibleImpersonationAttackRouteProps = RouteProp<
   ScreenNames.PossibleImpersonationAttackScreen
 >
 export type UsernameRegistrationRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameRegistrationScreen>
+
+export type TermsOfServiceRouteProps = RouteProp<RootStackParamList, ScreenNames.TermsOfServiceScreen>

@@ -4,8 +4,6 @@ apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
 
-import com.android.build.OutputFile
-
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -85,19 +83,7 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-/**
- * Set this to true to create two separate APKs instead of one:
- *   - An APK that only works on ARM devices
- *   - An APK that only works on x86 devices
- * The advantage is the size of the APK is reduced by about 4MB.
- * Upload all the APKs to the Play Store and people will download
- * the correct one based on the CPU architecture of their device.
- */
-def enableSeparateBuildPerCPUArchitecture = false
-
-/**
- * Run Proguard to shrink the Java bytecode in release builds.
- */
+// Run Proguard to shrink the Java bytecode in release builds.
 def enableProguardInReleaseBuilds = false
 
 /**
@@ -121,14 +107,6 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
-
-def _nodeTargetSdkVersion = ((rootProject?.ext?.properties?.targetSdkVersion) ?: 22)
-def _nodeMinSdkVersion = ((rootProject?.ext?.properties?.minSdkVersion) ?: 16)
-def _compileNativeModulesSdkVersion = _nodeMinSdkVersion
-if (_compileNativeModulesSdkVersion<21) {
-    // 21 is the minimum sdk version Node is built with.
-    _compileNativeModulesSdkVersion=21
-}
 
 /**
  * Architectures to build native code for.
@@ -167,18 +145,12 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
-        pickFirst 'lib/x86/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
         pickFirst 'lib/arm64-v8a/libc++_shared.so'
-        pickFirst 'lib/x86/libfbjni.so'
-        pickFirst 'lib/x86_64/libfbjni.so'
-        pickFirst 'lib/armeabi-v7a/libfbjni.so'
         pickFirst 'lib/arm64-v8a/libfbjni.so'
 
         jniLibs {
@@ -192,18 +164,14 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 511
-        versionName "6.1.0-alpha.3"
+        versionCode 526
+        versionName "6.2.0"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         ndk {
+            //noinspection ChromeOsAbiSupport
             abiFilters "arm64-v8a"
-        }
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
         }
         externalNativeBuild {
             cmake {
@@ -214,8 +182,9 @@ android {
     splits {
         abi {
             reset()
-            enable enableSeparateBuildPerCPUArchitecture
+            enable false
             universalApk false  // If true, also generate a universal APK
+            //noinspection ChromeOsAbiSupport
             include (*reactNativeArchitectures())
         }
     }
@@ -282,7 +251,7 @@ android {
             // https://developer.android.com/studio/build/configure-apk-splits.html
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
             def versionCodes = ["arm64-v8a": 1]
-            def abi = output.getFilter(OutputFile.ABI)
+            def abi = output.getFilter("ABI")
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
@@ -294,16 +263,13 @@ android {
 
 dependencies {
     androidTestImplementation('com.wix:detox:+')
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-
+    androidTestImplementation('androidx.test:core:1.7.0')
+    androidTestImplementation('androidx.test.ext:junit:1.1.1')
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
-
-    // The version of react-native is set by the React Native Gradle Plugin
-    implementation("com.facebook.react:react-android")
-
+    implementation("com.facebook.react:react-android") // version set by the React Native Gradle Plugin in npm
     implementation("com.facebook.react:flipper-integration")
-
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     if (enableHermes) {
         //noinspection GradleDynamicVersion
@@ -311,33 +277,29 @@ dependencies {
             exclude group:'com.facebook.fbjni'
         }
     } else {
-        implementation jscFlavor
+        implementation(jscFlavor)
     }
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
-    implementation "androidx.core:core-ktx:1.9.0"
-
-    implementation 'com.google.code.gson:gson:2.9.1'
-
-    implementation project(':react-native-fs')
-
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("com.google.code.gson:gson:2.13.1")
+    implementation(project(":react-native-fs"))
+    implementation(group: 'commons-io', name: 'commons-io', version: '2.20.0')
 
     // Websockets connection
-    implementation ('io.socket:socket.io-client:2.0.0') {
+    implementation ('io.socket:socket.io-client:2.1.2') {
         exclude group: 'org.json', module: 'json'
     }
 
     // Work manager
-    implementation("androidx.work:work-runtime:2.7.1")
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation("androidx.work:work-runtime:2.10.3")
+    implementation("androidx.work:work-runtime-ktx:2.10.3")
 
     // For animated GIF support
-    implementation 'com.facebook.fresco:fresco:2.6.0'
-    implementation 'com.facebook.fresco:animated-gif:2.6.0'
-    implementation "com.goterl:lazysodium-android:5.1.0@aar"
-    implementation "net.java.dev.jna:jna:5.12.1@aar"
+    implementation("com.facebook.fresco:fresco:3.6.0")
+    implementation("com.facebook.fresco:animated-gif:3.6.0")
+    implementation("com.goterl:lazysodium-android:5.2.0@aar")
+    implementation("net.java.dev.jna:jna:5.17.0@aar")
 }
 
 // Run this once to be able to run the application with BUCK

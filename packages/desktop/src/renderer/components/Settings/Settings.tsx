@@ -15,13 +15,16 @@ import { DebugInfoComponent } from '../debugInfo/debugInfoComponent'
 const Settings = () => {
   const modal = useModal(ModalName.accountSettingsModal)
 
-  const tabs = {
+  const tabs: Record<string, React.ComponentType<any>> = {
     about: About,
     notifications: Notifications,
     invite: Invite,
     qrcode: QRCode,
     leaveCommunity: LeaveCommunity,
-    debug: DebugInfoComponent,
+  }
+
+  if (process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') {
+    tabs.debug = DebugInfoComponent
   }
 
   const leaveCommunityModal = useModal(ModalName.leaveCommunity)

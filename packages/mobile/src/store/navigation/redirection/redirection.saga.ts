@@ -4,7 +4,7 @@ import { initSelectors } from '../../init/init.selectors'
 import { navigationSelectors } from '../navigation.selectors'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { APP_READY_CHANNEL, identity } from '@quiet/state-manager'
+import { APP_READY_CHANNEL, communities, identity } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
 import { createLogger } from '../../../utils/logger'
 
@@ -53,6 +53,15 @@ export function* redirectionSaga(): Generator {
       })
     )
     return
+  }
+
+  const currentCommunity = yield* select(communities.selectors.currentCommunity)
+  const currentIdentity = yield* select(identity.selectors.currentIdentity)
+
+  if (currentCommunity && !currentIdentity) {
+    logger.info('INIT_NAVIGATION: User abandoned username registration. Clearing current community.')
+    yield* put(communities.actions.deleteCommunity(currentCommunity.id))
+    yield* put(communities.actions.setCurrentCommunity(''))
   }
 
   logger.info('INIT_NAVIGATION: Switching to the join community screen.')

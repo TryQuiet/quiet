@@ -23,6 +23,7 @@ import { DBOptions, StorageEvents } from '../storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { EncryptedMessage } from './messages/messages.types'
 import { UserProfileStore } from '../userProfile/userProfile.store'
+import { SigChainService } from '../../auth/sigchain.service'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
@@ -38,7 +39,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService,
     private readonly messagesService: MessagesService,
-    private readonly userProfileStore: UserProfileStore
+    private readonly userProfileStore: UserProfileStore,
+    private readonly auth: SigChainService
   ) {
     super()
   }
@@ -111,6 +113,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         }
       }
       await this.refreshMessageIds()
+    })
+
+    this.auth.on('updated', async payload => {
+      this.refreshMessageIds()
     })
 
     try {

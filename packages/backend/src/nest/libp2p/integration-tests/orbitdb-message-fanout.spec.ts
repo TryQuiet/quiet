@@ -22,6 +22,7 @@ import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { StorageEvents } from '../../storage/storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
+import { InviteResult } from '@localfirst/auth'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
@@ -217,6 +218,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
   let libp2pNodeParams: Libp2pNodeParams[] = []
   const publicChannels: PublicChannel[] = []
   let timeToLastSync: number | undefined
+  let inviteResult: InviteResult
 
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
@@ -225,7 +227,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
 
     // Create sigChain that all other peers will join
     await sigchainServiceA.createChain(teamName, 'user0', true)
-    const inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
+    inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
     for (let i = 1; i < modules.length; i++) {
@@ -533,29 +535,106 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     )
   })
 
-  it('owner gracefully disconnects with all peers', async () => {
-    logger.info('gracefully disconnects')
-    const libp2pService = modules[0].get(Libp2pService)
-    if (libp2pService.connectedPeers.size === 0) {
-      logger.info('No connected peers to disconnect from.')
-      return
+  it('creates a brand new peer, fully disconnected', async () => {
+    logger.info('creates a new peer, gets channels from qss mock, fails to decrypt, then joins and reindexes')
+    const newPeerModule = await spawnTestModules(1)
+    expect(newPeerModule.length).toBe(1)
+    modules.push(newPeerModule[0])
+    const sigchainService = await modules[N_PEERS].resolve(SigChainService)
+    await sigchainService.createChainFromInvite(`user${N_PEERS}`, teamName, inviteResult.seed, undefined, true)
+    // Create libp2p instances (in-memory transport)
+    libp2pNodeParams = await spawnLibp2pInstancesInMemory(newPeerModule)
+
+    const ipfsService = modules[N_PEERS].get(IpfsService)
+    const orbitDbService = modules[N_PEERS].get(OrbitDbService)
+    const libp2pService = modules[N_PEERS].get(Libp2pService)
+    const channelsService = modules[N_PEERS].get(ChannelsService)
+    const localDbService = modules[N_PEERS].get(LocalDbService)
+    await localDbService.open()
+    await ipfsService.createInstance()
+    await ipfsService.start()
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    await channelsService.init()
+
+    libp2pService.pauseDialQueue()
+    eventTimelines[N_PEERS] = []
+    attachEventListeners(await modules[N_PEERS].get(Libp2pService), eventTimeline, `${N_PEERS}`)
+    attachEventListeners(await modules[N_PEERS].get(Libp2pService), eventTimelines[N_PEERS], `${N_PEERS}`)
+  })
+
+  it('injects entries into new peer and cannot decrypt them', async () => {
+    logger.info('injects entries into new peer and cannot decrypt them')
+    const peer0IPFS = modules[0].get(IpfsService).ipfsInstance!
+    const peer0Entries: LogEntry[] = []
+    for await (const entry of peer0IPFS.blockstore.getAll()) {
+      const decoded = await Entry.decode(entry.block)
+      if (decoded.id && decoded.id.startsWith('/orbitdb/')) {
+        peer0Entries.push(decoded)
+      }
     }
-    await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('PEER_DISCONNECTED events did not occur within expected time.'))
-      }, 10_000)
-      const allDisconnected = async () => {
-        if (timelinesInclude(eventTimelines.slice(1), Libp2pEvents.PEER_DISCONNECTED)) {
-          clearTimeout(timeout)
-          resolve()
-        }
+    logger.info(
+      'Entries to inject into new peer:',
+      peer0Entries.map(e => ({ id: e.id, hash: e.hash }))
+    )
+    const newPeerOrbitDbService = modules[N_PEERS].get(OrbitDbService)
+    const newPeerChannelsService = modules[N_PEERS].get(ChannelsService)
+    expect(newPeerOrbitDbService).toBeDefined()
+    // new peer has no channels yet
+    expect((await newPeerChannelsService.getChannels()).length).toBe(0)
+    await newPeerOrbitDbService.ingestEntries(peer0Entries)
+
+    // new peer cannot decrypt the entries
+    expect((await newPeerChannelsService.getChannels()).length).toBe(0)
+
+    // new peer has entries in its blockstore
+    const newPeerIPFS = modules[N_PEERS].get(IpfsService).ipfsInstance!
+    const newPeerEntries: LogEntry[] = []
+    for await (const entry of newPeerIPFS.blockstore.getAll()) {
+      const decoded = await Entry.decode(entry.block)
+      if (decoded.id && decoded.id.startsWith('/orbitdb/')) {
+        newPeerEntries.push(decoded)
       }
-      for (const libp2pService of modules.map(module => module.get(Libp2pService))) {
-        libp2pService.once(Libp2pEvents.PEER_DISCONNECTED, () => {
-          allDisconnected()
-        })
-      }
-      modules[0].get(Libp2pService).hangUpPeers()
+    }
+    expect(newPeerEntries.length).toBe(peer0Entries.length)
+  })
+
+  it('connects to the existing network and reindexes', async () => {
+    // new peer connects to original peer
+    const libp2pService = modules[N_PEERS].get(Libp2pService)
+    await libp2pService.dialPeer(modules[0].get(Libp2pService).localAddress)
+    // Wait for the peer to be connected (AUTH_JOINED)
+    await new Promise<void>(resolve => {
+      libp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+        logger.info(`peer ${N_PEERS} connected`)
+        resolve()
+      })
     })
+
+    await Promise.all(
+      modules.map(async module => {
+        const channelsService = module.get(ChannelsService)
+        await channelsService.startSync()
+      })
+    )
+
+    await waitForExpect(
+      async () => {
+        expect(await channelsSynced([modules[0].get(ChannelsService), modules[N_PEERS].get(ChannelsService)])).toBe(
+          true
+        )
+      },
+      10000,
+      1000
+    )
+    // new peer should eventually show the same channels and messages as the original peer
+    await waitForExpect(
+      async () => {
+        expect(
+          await channelEntriesSynced([modules[0].get(ChannelsService), modules[N_PEERS].get(ChannelsService)])
+        ).toBe(true)
+      },
+      10000,
+      1000
+    )
   })
 })

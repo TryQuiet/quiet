@@ -19,21 +19,19 @@ import com.quietmobile.Utils.Const
 class MainApplication : Application(), ReactApplication {
 
     override val reactNativeHost: ReactNativeHost =
-            object : DefaultReactNativeHost(this) {
-                override fun getPackages(): List<ReactPackage> =
-                        PackageList(this).packages.apply {
-                            // Packages that cannot be autolinked yet can be added manually here, for example:
-                            // add(MyReactNativePackage())
-                            add(CommunicationModulePackage())
-                        }
+        object : DefaultReactNativeHost(this) {
+            override fun getPackages(): List<ReactPackage> =
+                PackageList(this).packages.apply {
+                    // Packages that cannot be autolinked yet can be added manually here, for example:
+                    // add(MyReactNativePackage())
+                    add(CommunicationModulePackage())
+                }
 
-                override fun getJSMainModuleName(): String = "index"
-
-                override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
-
-                override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-                override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
-            }
+            override fun getJSMainModuleName(): String = "index"
+            override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+            override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+            override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
+        }
 
     override val reactHost: ReactHost
         get() = getDefaultReactHost(this.applicationContext, reactNativeHost)
@@ -51,24 +49,8 @@ class MainApplication : Application(), ReactApplication {
         createNotificationChannel()
     }
 
-    private var socketPort: Int = 0
-    private var socketIOSecret: String = ""
-
-    fun getSocketPort(): Int {
-        return socketPort
-    }
-
-    fun setSocketPort(value: Int) {
-        this.socketPort = value
-    }
-
-    fun getSocketIOSecret(): String {
-        return socketIOSecret
-    }
-
-    fun setSocketIOSecret(value: String) {
-        this.socketIOSecret = value
-    }
+    var socketPort: Int = 0
+    var socketIOSecret: String = ""
 
     private fun createForegroundServiceNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
@@ -76,7 +58,8 @@ class MainApplication : Application(), ReactApplication {
         val name: CharSequence = getString(R.string.foreground_service_channel_name)
         val description = getString(R.string.foreground_service_channel_description)
         val importance = NotificationManager.IMPORTANCE_HIGH
-        val channel = NotificationChannel(Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID, name, importance)
+        val channel =
+            NotificationChannel(Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID, name, importance)
         channel.description = description
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this
@@ -85,8 +68,6 @@ class MainApplication : Application(), ReactApplication {
     }
 
     private fun createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         val name: CharSequence = getString(R.string.notification_channel_name)
         val description = getString(R.string.notification_channel_description)
         val importance = NotificationManager.IMPORTANCE_HIGH

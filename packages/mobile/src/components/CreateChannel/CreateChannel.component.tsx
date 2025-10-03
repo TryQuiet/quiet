@@ -10,7 +10,7 @@ import { Button } from '../Button/Button.component'
 import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 
 export interface CreateChannelProps {
   createChannelAction: (name: string) => void
@@ -70,7 +70,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
     }
   }, [clearComponent])
 
-  const warning_icon = appImages.icon_warning
+  const warning_icon = icons.icon_warning
 
   return (
     <View
@@ -129,7 +129,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 + 12 }}>
           <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
         </View>
       </KeyboardAvoidingView>
