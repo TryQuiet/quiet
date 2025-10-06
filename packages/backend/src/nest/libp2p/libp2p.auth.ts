@@ -332,7 +332,7 @@ export class Libp2pAuth {
     } as ConnectionParams)
 
     // Set up auth connection event handlers.
-    authConnection.on('connected', async () => {
+    authConnection.on('connected', () => {
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
@@ -345,7 +345,7 @@ export class Libp2pAuth {
           ) {
             this.sigChainService.roles.addMember((authConnection._context.peer as Member).userId, RoleName.MEMBER)
           }
-          await this.handleJoinViaQSS()
+          this.handleJoinViaQSS()
         } else {
           this.logger.error('Cannot emit sync event, team is null')
         }
@@ -361,7 +361,7 @@ export class Libp2pAuth {
       })
     })
 
-    authConnection.on('joined', async payload => {
+    authConnection.on('joined', payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
       this.logger.info(`Joined team ${team.teamName} (userid: ${user.userId})!`)
@@ -388,9 +388,9 @@ export class Libp2pAuth {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
     })
 
-    authConnection.on('updated', async payload => {
+    authConnection.on('updated', payload => {
       this.emit(Libp2pEvents.AUTH_UPDATED, payload)
-      await this.handleJoinViaQSS()
+      this.handleJoinViaQSS()
     })
 
     // Handle errors from local or remote sources.

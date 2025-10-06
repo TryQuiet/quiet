@@ -87,7 +87,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     // Catch issues with the connection to the frontend closing and causing issues with peer connections
     // by redialing after the new connection is established
-    this.serverIoProvider.io.engine.on('connection_error', async err => {
+    this.serverIoProvider.io.engine.on('connection_error', err => {
       this.logger.error(
         'Server IO experienced a connection error with frontend',
         err.message,
@@ -95,7 +95,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         err.context,
         err
       )
-      this.serverIoProvider.io.on('connection', async socket => {
+      this.serverIoProvider.io.on('connection', socket => {
         this.logger.warn('Redialing all known peers due to a server IO reconnect')
       })
     })

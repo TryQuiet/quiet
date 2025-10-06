@@ -88,8 +88,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   public async onModuleInit() {
-    OrbitDbService.events.on('put', async (logUpdate: LogUpdate) => {
-      await this.sendLogEntrySyncMessage(logUpdate)
+    OrbitDbService.events.on('put', (logUpdate: LogUpdate) => {
+      void this.sendLogEntrySyncMessage(logUpdate)
     })
   }
 

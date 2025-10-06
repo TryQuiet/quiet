@@ -695,11 +695,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   private attachSocketServiceListeners() {
     // Community
-    this.socketService.on(SocketActions.CONNECTION, async () => {
+    this.socketService.on(SocketActions.CONNECTION, () => {
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)
     })
 
-    this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
+    this.socketService.on(SocketActions.LAUNCH_COMMUNITY, (args: LaunchCommunityPayload) => {
       this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
       this.launchCommunity(args.id)
     })

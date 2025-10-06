@@ -58,7 +58,7 @@ export class QSSAuthConnection extends EventEmitter {
   }
 
   private _setupEventHandlers(): void {
-    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, async () => {
+    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, () => {
       this.logger.warn('QSS disconnected, closing auth connection', this.teamId)
       this.stop(true)
       this._authConnection = undefined
@@ -198,7 +198,7 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     // handle joined events
-    this._authConnection.on('joined', async payload => {
+    this._authConnection.on('joined', payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
       this.logger.info(`${sigChain.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`)
@@ -218,7 +218,7 @@ export class QSSAuthConnection extends EventEmitter {
       } else {
         this._joinStatus = JoinStatus.JOINED
       }
-      await this.sigChainService.saveChain(team.teamName)
+      void this.sigChainService.saveChain(team.teamName)
       this.emit(QSSEvents.QSS_AUTH_JOINED) // tell other services that we've joined via QSS
     })
 
@@ -226,7 +226,7 @@ export class QSSAuthConnection extends EventEmitter {
       this.logger.trace(`Auth state change`, payload)
     })
 
-    this._authConnection.on('updated', async head => {
+    this._authConnection.on('updated', head => {
       this.logger.trace('Received sync message, team graph updated', head)
     })
 

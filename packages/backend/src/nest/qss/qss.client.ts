@@ -89,12 +89,12 @@ export class QSSClient extends EventEmitter {
       return
     }
 
-    this.clientSocket.on('connect', async (): Promise<void> => {
+    this.clientSocket.on('connect', (): void => {
       this.logger.debug('QSS connected!', this.clientSocket?.id)
       this.emit(QSSEvents.QSS_CONNECTED)
     })
 
-    this.clientSocket.on('disconnect', async (): Promise<void> => {
+    this.clientSocket.on('disconnect', (): void => {
       this.logger.debug('QSS disconnected!')
       this.emit(QSSEvents.QSS_DISCONNECTED)
       this.clientSocket?.close()
