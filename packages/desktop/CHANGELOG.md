@@ -1,20 +1,25 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.3.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.1.0-alpha.3...@quiet/desktop@6.3.0-alpha.0) (2025-10-06)
-
+## [6.3.0]
 
 ### Features
 
-* **2803:** Write orbitdb sync data to QSS ([#2914](https://github.com/TryQuiet/quiet/issues/2914)) ([bfbfd92](https://github.com/TryQuiet/quiet/commit/bfbfd925feb35abf4bb6f04d2ed27b08a58b14cb))
+* Adds support for syncing OrbitDB entries to QSS [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Persist SkinTone choices and use in emoji shortcodes [#2794](https://github.com/TryQuiet/quiet/issues/2794)
+* Adds UI for assist server opt in [#2910](https://github.com/TryQuiet/quiet/issues/2910)
+* Adds UI for terms of service [#2911](https://github.com/TryQuiet/quiet/issues/2911)
 
+### Fixes
 
+* Minor design fixes on the left side panel [#2948](https://github.com/TryQuiet/quiet/issues/2948)
+* Warning modal background color is now reactive to theme selection [#2958](https://github.com/TryQuiet/quiet/issues/2958)
+* Fixes crashes on QSS disconnects [#2803](https://github.com/TryQuiet/quiet/issues/2803)
+* Users can now abort joining and creating communities halfway without issue [#3001](https://github.com/TryQuiet/quiet/issues/3001)
 
+### Chores
 
-
-# Changelog
+* Update QSS flag to QSS_ALLOWED and reconfigure enabled setting/checking [#2912](https://github.com/TryQuiet/quiet/issues/2912)
+* Update libraries to comply with 16kB page size for Android native code [#2905](https://github.com/TryQuiet/quiet/issues/2905)
 
 ## [6.2.0]
 
@@ -64,6 +69,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Adds a hook for Quiet Storage Service (QSS) to inject entries into OrbitDB [#2807](https://github.com/TryQuiet/quiet/issues/2807)
 * Adds an event for when a local put occurs [#2802](https://github.com/TryQuiet/quiet/issues/2802)
+* Adds support for QSS auth syncing [#2760](https://github.com/TryQuiet/quiet/issues/2760)
 
 ### Fixes
 
@@ -73,6 +79,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Breaking
 
 * Adds key commitment scheme to address the "invisible salamanders" attack [#2711](https://github.com/TryQuiet/quiet/issues/2711)
+* Adds team ID to encrypted OrbitDB entries
 
 ## [5.1.2]
 
