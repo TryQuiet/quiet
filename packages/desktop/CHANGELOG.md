@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [6.3.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.1.0-alpha.3...@quiet/desktop@6.3.0-alpha.0) (2025-10-06)
+
+
+### Features
+
+* **2803:** Write orbitdb sync data to QSS ([#2914](https://github.com/TryQuiet/quiet/issues/2914)) ([bfbfd92](https://github.com/TryQuiet/quiet/commit/bfbfd925feb35abf4bb6f04d2ed27b08a58b14cb))
+
+
+
+
+
 # Changelog
 
 ## [6.2.0]
