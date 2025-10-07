@@ -1,5 +1,5 @@
 import { Keyset } from '3rd-party/auth/packages/auth/dist'
-import { CompoundError } from '@quiet/types'
+import { Community, CompoundError } from '@quiet/types'
 import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
 
 export enum ReprocessableOperation {
@@ -42,6 +42,13 @@ export enum QSSOperationResult {
   DISABLED = 'DISABLED',
   ERROR = 'ERROR',
   SUCCESS = 'SUCCESS',
+}
+
+export interface QSSInitStatus {
+  communityInitialized: boolean
+  qssEnabled: boolean
+  qssSetup: boolean
+  community?: Community
 }
 
 export interface BaseWebsocketMessage<T extends object | undefined> {

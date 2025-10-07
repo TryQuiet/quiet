@@ -180,6 +180,22 @@ export class LocalDbService extends EventEmitter {
     await this.put(LocalDBKeys.COMMUNITIES, communities)
   }
 
+  public async updateCommunity(id: string, updates: Partial<Community>) {
+    this.logger.info('Updating community', id, updates)
+    let communities: { [id: string]: Community } = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    if (!Object.keys(communities).includes(id)) {
+      throw new Error(`No community found for id, can't update`)
+    }
+    communities[id] = {
+      ...communities[id],
+      ...updates,
+    }
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+  }
+
   public async setCurrentCommunityId(communityId: string) {
     this.logger.info('Setting current community id', communityId)
     await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, communityId)

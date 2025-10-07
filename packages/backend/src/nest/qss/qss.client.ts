@@ -31,10 +31,12 @@ export class QSSClient extends EventEmitter {
   }
 
   public get connected(): boolean {
-    return this.clientSocket != null && this.clientSocket.active && this.clientSocket.connected
+    const socket = this.getClientSocket()
+    this.logger.warn(socket, socket?.active, socket?.connected)
+    return socket != null && socket.active && socket.connected
   }
 
-  public get clientSocket(): ClientSocket | undefined {
+  public getClientSocket(): ClientSocket | undefined {
     return this._clientSocket
   }
 
@@ -55,7 +57,7 @@ export class QSSClient extends EventEmitter {
       // check for an existing socket instance and, if connected, return that socket and move on
       if (this.connected) {
         this.logger.warn('createSocket was already called and the socket is active!')
-        return this.clientSocket!
+        return this._clientSocket!
       }
 
       // create a new websocket to QSS
@@ -80,7 +82,7 @@ export class QSSClient extends EventEmitter {
    * Wait for QSS socket connection to finish connecting
    */
   private async _waitForConnect(): Promise<void> {
-    if (this.clientSocket == null) {
+    if (this._clientSocket == null) {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
 
@@ -89,25 +91,25 @@ export class QSSClient extends EventEmitter {
       return
     }
 
-    this.clientSocket.on('connect', (): void => {
-      this.logger.debug('QSS connected!', this.clientSocket?.id)
+    this._clientSocket.on('connect', (): void => {
+      this.logger.debug('QSS connected!', this._clientSocket?.id)
       this.emit(QSSEvents.QSS_CONNECTED)
     })
 
-    this.clientSocket.on('disconnect', (): void => {
+    this._clientSocket.on('disconnect', (): void => {
       this.logger.debug('QSS disconnected!')
       this.emit(QSSEvents.QSS_DISCONNECTED)
-      this.clientSocket?.close()
+      this._clientSocket?.close()
     })
 
     // forward Quiet websocket events from the socket connection to the client's own emitter
-    this.clientSocket.onAny((eventName: string, ...args: any[]): void => {
+    this._clientSocket.onAny((eventName: string, ...args: any[]): void => {
       if (Object.values(WebsocketEvents).includes(eventName as any)) {
         this.emit(eventName, ...args)
       }
     })
 
-    this.clientSocket.connect()
+    this._clientSocket.connect()
     let count = 20
     while (!this.connected) {
       if (count < 0) {
@@ -132,15 +134,16 @@ export class QSSClient extends EventEmitter {
    */
   public async sendMessage<T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> {
     this.logger.debug(`Sending message`, event)
+    const socket = this.getClientSocket()
     try {
       if (!this.connected) {
         throw new QSSNotInitializedError(`Must run createSocket first!`)
       }
       if (withAck) {
-        return (await this.clientSocket!.emitWithAck(event, payload)) as T
+        return (await socket!.emitWithAck(event, payload)) as T
       }
 
-      this.clientSocket!.emit(event, payload)
+      socket!.emit(event, payload)
     } catch (e) {
       this.logger.error('Error while sending message to QSS', e)
     }
@@ -151,12 +154,13 @@ export class QSSClient extends EventEmitter {
    * Close our socket connection with QSS
    */
   public close(): void {
-    if (this.clientSocket == null) {
+    const socket = this.getClientSocket()
+    if (socket == null) {
       this.logger.trace(`Client socket wasn't open!`)
       return
     }
 
     this.logger.info(`Closing client socket`)
-    this.clientSocket.close()
+    socket.close()
   }
 }

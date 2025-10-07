@@ -218,8 +218,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
-        const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
-        this.launchCommunityQSS(loadedSigchain, community)
+        await this.sigChainService.loadChain(community.name, true)
+        this.qssService.connect(community.qssEndpoint)
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
       }
@@ -228,16 +228,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     await this.launchCommunity(community.id)
-  }
-
-  private async launchCommunityQSS(sigChain: SigChain, community: Community): Promise<void> {
-    if (community.qssEnabled) {
-      this.qssService.enableForCommunity(sigChain.team!.id)
-    }
-    const status = await this.qssService.connect(community.qssEndpoint)
-    // if (status !== QSSOperationResult.DISABLED) {
-    //   await this.qssService.signInToCommunity(sigChain.team!.id, sigChain)
-    // }
   }
 
   public async closeSocket() {
@@ -376,14 +366,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
-    this.qssService.enableForCommunity(sigchain.team!.id)
-    const status = await this.qssService.connect(this.qssEndpoint)
-    // if (status !== QSSOperationResult.DISABLED) {
-    //   await this.qssService.createCommunity(sigchain)
-    // }
-  }
-
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
 
@@ -420,7 +402,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCurrentCommunityId(community.id)
 
     // purposely don't await
-    this.createCommunityOnQss(sigchain)
+    this.qssService.connect(this.qssEndpoint)
 
     await this.launchCommunity(community.id)
 
@@ -442,18 +424,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
-  private async joinViaQSS(inviteData: InvitationData, sigChain: SigChain) {
+  private async joinViaQSS(inviteData: InvitationData) {
     if (
       inviteData.version === InvitationDataVersion.v3 &&
       inviteData.qssEnabled &&
       inviteData.authData.teamId != null &&
       inviteData.qssEndpoint != null
     ) {
-      this.qssService.enableForCommunity(inviteData.authData.teamId)
-      const status = await this.qssService.connect(inviteData.qssEndpoint)
-      // if (status === QSSOperationResult.SUCCESS) {
-      //   await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
-      // }
+      await this.qssService.connect(inviteData.qssEndpoint)
     }
   }
 
@@ -474,7 +452,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
     ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
-      const joiningSigchain = await this.sigChainService.createChainFromInvite(
+      await this.sigChainService.createChainFromInvite(
         payload.username,
         communityName,
         inviteData.authData.seed,
@@ -482,7 +460,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         true
       )
       try {
-        this.joinViaQSS(inviteData, joiningSigchain)
+        this.joinViaQSS(inviteData)
       } catch (error) {
         this.logger.error(`Failed signing into qss community ${communityName}`, error)
       }

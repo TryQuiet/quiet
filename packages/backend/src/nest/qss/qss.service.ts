@@ -23,6 +23,7 @@ import {
   ReprocessableOperationDescription,
   ReprocessableOperation,
   AuthSyncMessage,
+  QSSInitStatus,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
@@ -57,13 +58,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Interval for retrying/reconnecting to QSS
    */
   private _reconnectQueueProcessor: NodeJS.Timeout
-
-  /**
-   * Is QSS enabled for this community?
-   *
-   * Map of team ID to enabled status
-   */
-  private _qssEnabledByCommunity = new Set<string>()
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -135,19 +129,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
 
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
-      const community = await this.localDbService.getCurrentCommunity()
-      if (community == null) {
+      const initStatus = await this.getQssInitStatus()
+      if (!initStatus.communityInitialized || initStatus.community == null) {
         this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
         return
       }
 
-      if (!this.isEnabledForCommunity(community)) {
-        this.logger.trace('QSS not enabled for this community, skipping sign in', community.teamId)
+      if (!initStatus.qssEnabled) {
+        this.logger.trace('QSS not enabled for this community, skipping sign in')
         return
       }
 
       if (
-        community.qssSetup == null &&
+        initStatus.qssSetup == null &&
         this.sigChainService.activeChain.team != null &&
         this.sigChainService.users.getAllUsers().length === 1
       ) {
@@ -156,9 +150,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         const teamId =
           this.sigChainService.activeChain.team != null
             ? this.sigChainService.team.id
-            : (community.inviteData as InvitationDataV3).authData!.teamId!
+            : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
         const teamName =
-          this.sigChainService.activeChain.team != null ? this.sigChainService.team.teamName : community.name
+          this.sigChainService.activeChain.team != null ? this.sigChainService.team.teamName : initStatus.community.name
         this.logger.trace('QSS Sign in', teamId, teamName)
         await this.signInToCommunity(teamId, this.sigChainService.activeChain, teamName)
       }
@@ -194,27 +188,26 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   /**
-   * Check if QSS is enabled for a given community by its sigchain team ID
+   * Check if QSS is enabled for the current community by its sigchain team ID
    *
-   * @param teamId ID of the team we are checking enabled on
-   * @returns True if QSS is enabled for this community
+   * @returns True if QSS is enabled for the current community
    */
-  public isEnabledForCommunity(community: Community): boolean {
-    return community.qssEnabled ?? false
-  }
+  public async getQssInitStatus(): Promise<QSSInitStatus> {
+    const community = await this.localDbService.getCurrentCommunity()
+    const status: QSSInitStatus = {
+      communityInitialized: false,
+      qssEnabled: false,
+      qssSetup: false,
+      community,
+    }
+    if (community == null) {
+      return status
+    }
 
-  /**
-   * Enabled QSS functionality for a given community
-   *
-   * @param teamId ID of the team we are enabling QSS for
-   */
-  public enableForCommunity(teamId: string): void {
-    this.logger.warn('ENABLING QSS', teamId)
-    this._qssEnabledByCommunity.add(teamId)
-    if (!this.canConnect) {
-      this.logger.warn(
-        `QSS is enabled on this community but your app doesn't allow QSS.  To allow QSS pass in the ${QSS_ALLOWED} flag.`
-      )
+    return {
+      ...status,
+      qssEnabled: community.qssEnabled ?? false,
+      qssSetup: community.qssSetup ?? false,
     }
   }
 
@@ -324,8 +317,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       throw new Error(`Team on this sigchain is nullish!`)
     }
 
-    this.enableForCommunity(sigChain.team.id)
-
     if (!this.connected) {
       this.logger.warn(`Can't create community on QSS because the client hasn't connected`)
       return false
@@ -402,10 +393,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     const community = await this.localDbService.getCurrentCommunity()
-    this.localDbService.setCommunity({
-      ...community!,
-      qssSetup: true,
-    })
+    this.localDbService.updateCommunity(community!.id, { qssSetup: true })
 
     // start the auth sync connection with QSS now that we've successfully added the community
     await this.qssAuthConnManager.startNewConnection(sigChain.team.id)
@@ -481,6 +469,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
     this.qssAuthConnManager.startNewConnection(teamId, teamName)
+    const community = await this.localDbService.getCurrentCommunity()
+    this.localDbService.updateCommunity(community!.id, { qssSetup: true })
     return QSSOperationResult.SUCCESS
   }
 
