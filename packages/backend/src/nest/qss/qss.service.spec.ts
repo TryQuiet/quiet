@@ -202,7 +202,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain)
+      const created = await qssService.createCommunity(sigchainService.activeChain, community)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -272,7 +272,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain)
+      const created = await qssService.createCommunity(sigchainService.activeChain, community)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -325,7 +325,7 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain)
+      const created = await qssService.createCommunity(sigchainService.activeChain, community)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -401,7 +401,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeFalsy()
       expect(qssService.canConnect).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain)
+      const created = await qssService.createCommunity(sigchainService.activeChain, community)
       expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
       expect(mockedSendMessage).toHaveBeenCalledTimes(0)
       expect(created).toBeFalsy()

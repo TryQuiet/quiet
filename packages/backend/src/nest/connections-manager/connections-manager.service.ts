@@ -375,10 +375,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
+  private async createCommunityOnQss(sigchain: SigChain, community: Community): Promise<void> {
     const connected = await this.qssService.connect(this.qssEndpoint)
     if (connected) {
-      await this.qssService.createCommunity(sigchain)
+      await this.qssService.createCommunity(sigchain, community)
     }
   }
 
@@ -414,16 +414,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       tosAccepted: payload.tosAccepted,
     }
 
-    if (community.qssEnabled) {
-      community.serverHosts = [{ hostUrl: this.qssEndpoint, accepted: true } as ServerHost]
-    }
-
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
     // purposely don't await
     if (community.qssEnabled) {
-      this.createCommunityOnQss(sigchain)
+      this.createCommunityOnQss(sigchain, community)
     }
 
     const userProfile: UserProfile = {
