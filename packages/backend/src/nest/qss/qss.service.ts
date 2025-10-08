@@ -34,6 +34,7 @@ import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
+import { Community } from '@quiet/types'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -220,9 +221,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Add a community to QSS and start syncing our chain with QSS
    *
    * @param sigChain Sigchain for this community
+   * @param community Community metadata for this community
    * @returns True if successfully created
    */
-  public async createCommunity(sigChain: SigChain): Promise<boolean> {
+  public async createCommunity(sigChain: SigChain, community: Community): Promise<boolean> {
     if (!this.canConnect) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
@@ -271,6 +273,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (host === '127.0.0.1') {
       host = 'localhost'
     }
+
+    await this.localDbService.setCommunity({
+      ...community,
+      qssEnabled: true,
+      serverHosts: [{ hostUrl: host, accepted: true }],
+    } as Community)
 
     const lfaServer: Server = {
       host,

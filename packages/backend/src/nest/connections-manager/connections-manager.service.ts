@@ -5,8 +5,9 @@ import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { createPeerId } from '../common/utils'
+import * as url from 'node:url'
 
+import { createPeerId } from '../common/utils'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
@@ -535,8 +536,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
     }
+
     if (community.qssEnabled && payload.tosAccepted && community.qssEndpoint) {
-      community.serverHosts = [{ hostUrl: community.qssEndpoint, accepted: true } as ServerHost]
+      if (this.qssEndpoint) {
+        let host = url.parse(this.qssEndpoint).hostname
+        if (host === '127.0.0.1') {
+          host = 'localhost'
+        }
+        if (host) {
+          community.serverHosts = [{ hostUrl: host, accepted: true }]
+        }
+      }
     }
 
     await this.localDbService.setCommunity(community)
