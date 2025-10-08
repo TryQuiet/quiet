@@ -784,24 +784,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActions.DELETE_CHANNEL,
       async (payload: DeleteChannelPayload, callback: (response: DeleteChannelResponse) => void) => {
-        if (payload.channelId.startsWith('addserver')) {
-          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, {
-            id: this.communityId,
-            serverHosts: ['qss.tryQuiet.com'],
-          })
-        }
-        if (payload.channelId.startsWith('addservers')) {
-          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, {
-            id: this.communityId,
-            serverHosts: ['qss.tryQuiet.com', 'qss2.tryQuiet.com'],
-          })
-        }
-        if (payload.channelId.startsWith('addourserver')) {
-          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, {
-            id: this.communityId,
-            serverHosts: [process.env.QSS_ENDPOINT || 'qss.tryQuiet.com'],
-          })
-        }
         callback(await this.storageService?.channels.deleteChannel(payload))
       }
     )
