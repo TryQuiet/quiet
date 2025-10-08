@@ -457,6 +457,10 @@ export const getSocketFactory = async () => {
   // LEAVE_COMMUNITY has no payload
   factory.define(SocketActions.LEAVE_COMMUNITY, Object, {})
 
+  factory.define(SocketActions.UPDATE_COMMUNITY, Object, {
+    id: 'community-id',
+  })
+
   // Messages events
   factory.define<SendMessagePayload>(SocketActions.SEND_MESSAGE, Object, {
     message: {

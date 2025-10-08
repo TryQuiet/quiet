@@ -51,7 +51,6 @@ import {
   SetUserProfilePayload,
   InvitationData,
   SetUserProfileResponse,
-  ServerAddedPayload,
   UpdateCommunityPayload,
   ServerHost,
 } from '@quiet/types'
@@ -540,7 +539,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           host = 'localhost'
         }
         if (host) {
-          community.serverHosts = [{ hostUrl: host, accepted: true }]
+          community.serverHosts = [{ hostUrl: host, accepted: true } as ServerHost]
         }
       }
     }
