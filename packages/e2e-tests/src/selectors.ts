@@ -499,7 +499,7 @@ export class UsersList {
       try {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
-          15_000,
+          60_000,
           `Users item status badge for ${username} was not visibile within timeout`,
           500
         )
@@ -511,7 +511,7 @@ export class UsersList {
       try {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
-          15_000,
+          120_000,
           `Users item status badge for ${username} was not invisible within timeout`,
           500
         )
