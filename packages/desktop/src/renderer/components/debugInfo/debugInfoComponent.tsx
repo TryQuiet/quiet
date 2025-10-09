@@ -1,4 +1,5 @@
 import React from 'react'
+import { useState } from 'react'
 import {
   network,
   users,
@@ -12,6 +13,7 @@ import {
   files,
 } from '@quiet/state-manager'
 import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -110,6 +112,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 }))
 
 export const DebugInfoComponent: React.FC = () => {
+  const dispatch = useDispatch()
+  const [serverHostsInput, setServerHostsInput] = useState('')
+
   // --- Network ---
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
@@ -192,6 +197,18 @@ export const DebugInfoComponent: React.FC = () => {
     },
     settings: { notificationsOption, notificationsSound },
     files: { downloadStatuses },
+  }
+
+  const handleAddServer = () => {
+    if (!currentCommunity?.id) return
+    const hosts = serverHostsInput
+      .split(',')
+      .map(h => h.trim())
+      .filter(Boolean)
+    if (hosts.length > 0) {
+      dispatch(communities.actions.addServer({ id: currentCommunity.id, serverHosts: hosts }))
+      setServerHostsInput('')
+    }
   }
 
   return (
@@ -451,6 +468,38 @@ export const DebugInfoComponent: React.FC = () => {
                   )}
               </tbody>
             </table>
+          </Paper>
+        </details>
+        {/* --- Add Server Section --- */}
+        <details open>
+          <summary className={classes.summary}>Add Server to Community</summary>
+          <Paper elevation={0} sx={{ background: 'none', boxShadow: 'none', p: 2, mt: 1 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <input
+                type='text'
+                placeholder='Comma separated server hosts'
+                value={serverHostsInput}
+                onChange={e => setServerHostsInput(e.target.value)}
+                style={{ flex: 1, padding: 6, borderRadius: 4, border: '1px solid #ccc', fontSize: 14 }}
+              />
+              <button
+                onClick={handleAddServer}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 4,
+                  background: '#1976d2',
+                  color: '#fff',
+                  border: 'none',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Add Server
+              </button>
+            </div>
+            <Typography variant='body2' color='textSecondary'>
+              Enter a comma separated list of server host URLs to add to the current community.
+            </Typography>
           </Paper>
         </details>
       </Grid>

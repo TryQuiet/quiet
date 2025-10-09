@@ -27,22 +27,28 @@ const TermsOfService = () => {
     }
   }, [tosRequested])
 
-  const handleChoice = (accepted: boolean) => {
-    if (accepted) {
-      if (!currentCommunity) {
-        loadingPanelModal.handleOpen()
-      }
-    } else {
-      logger.info('User declined ToS, aborting join process')
-      clearCommunity()
-    }
-
+  const handleChoice = async (accepted: boolean) => {
     dispatch(
       communities.actions.setTermsOfServiceAccepted({
         communityId: currentCommunity?.id,
         accepted,
       })
     )
+
+    if (accepted) {
+      if (!currentCommunity) {
+        loadingPanelModal.handleOpen()
+      }
+    } else {
+      if (!currentCommunity) {
+        logger.info('User declined ToS, aborting join process')
+        joinCommunityModal.handleOpen()
+        loadingPanelModal.handleClose()
+      } else {
+        logger.info('User declined ToS, clearing community data')
+        await clearCommunity()
+      }
+    }
 
     termsOfServiceModal.handleClose()
   }

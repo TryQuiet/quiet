@@ -1,17 +1,14 @@
 import React, { useCallback, useEffect } from 'react'
-
 import { useDispatch, useSelector } from 'react-redux'
+
 import { createLogger } from '../../logger'
-
-const logger = createLogger('ServerAddedModal')
-
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { clearCommunity } from '../..'
-
 import { communities } from '@quiet/state-manager'
-
 import { ServerAddedComponent } from './ServerAddedComponent'
+
+const logger = createLogger('ServerAddedModal')
 
 export const ServerAddedModal = () => {
   const dispatch = useDispatch()
@@ -35,7 +32,7 @@ export const ServerAddedModal = () => {
   }, [modal, unacceptedServers])
 
   const handleChoose = useCallback(
-    (useServer: boolean) => {
+    async (useServer: boolean) => {
       if (!currentCommunity) {
         logger.warn('No current community found when handling server choice')
         return
@@ -51,7 +48,7 @@ export const ServerAddedModal = () => {
         }
         dispatch(communities.actions.updateCommunityData(updateCommunityPayload))
       } else {
-        clearCommunity()
+        await clearCommunity()
       }
       modal.handleClose()
     },

@@ -5,11 +5,14 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { TermsOfService } from '../../components/TermsOfService/TermsOfService.component'
 import { createLogger } from '../../utils/logger'
+import { nativeServicesActions } from '../../store/nativeServices/nativeServices.slice'
 
 const logger = createLogger('TermsOfServiceScreen')
 
 export const TermsOfServiceScreen: FC = () => {
   const dispatch = useDispatch()
+
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
   const onAgree = () => {
     logger.info('User agreed to Terms of Service')
@@ -23,6 +26,10 @@ export const TermsOfServiceScreen: FC = () => {
 
   const onBack = () => {
     logger.info('User did not agree to Terms of Service')
+    if (currentCommunity) {
+      dispatch(nativeServicesActions.leaveCommunity())
+      return
+    }
     dispatch(communities.actions.setTermsOfServiceAccepted({ accepted: false }))
     dispatch(navigationActions.pop())
   }

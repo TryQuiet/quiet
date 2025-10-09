@@ -48,20 +48,33 @@ ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
   store.dispatch(socketActions.startConnection({ dataPort: parseInt(dataPort), socketIOSecret }))
 })
 
-const container = document.getElementById('root')
-if (!container) throw new Error('No root html element!')
-let root = createRoot(container)
-root.render(<Root />)
+export function renderApp() {
+  const container = document.getElementById('root')
+  if (!container) throw new Error('No root html element!')
+  const root = createRoot(container)
+  root.render(<Root />)
+}
 
-export const clearCommunity = async () => {
+logger.info('NODE_ENV', process.env.NODE_ENV)
+// Only call renderApp if not running in a test environment
+if (process.env.NODE_ENV !== 'test') {
+  renderApp()
+}
+
+// TODO: this is a bit hacky, should be moved into a saga
+export const clearCommunity = async (remount: boolean = true) => {
   persistor.pause()
   await persistor.flush()
   await persistor.purge()
   store.dispatch(communities.actions.resetApp('payload'))
   ipcRenderer.send('clear-community')
-  root.unmount()
-  root = createRoot(container)
-  root.render(<Root />)
+  if (remount) {
+    const container = document.getElementById('root')
+    if (!container) throw new Error('No root html element!')
+    const root = createRoot(container)
+    root.unmount()
+    renderApp()
+  }
   persistor.persist()
 }
 
