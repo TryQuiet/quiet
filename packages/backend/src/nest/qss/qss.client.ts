@@ -32,7 +32,6 @@ export class QSSClient extends EventEmitter {
 
   public get connected(): boolean {
     const socket = this.getClientSocket()
-    this.logger.warn(socket, socket?.active, socket?.connected)
     return socket != null && socket.active && socket.connected
   }
 

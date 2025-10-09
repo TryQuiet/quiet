@@ -431,7 +431,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       inviteData.authData.teamId != null &&
       inviteData.qssEndpoint != null
     ) {
-      await this.qssService.connect(inviteData.qssEndpoint)
+      await this.qssService.connect(inviteData.qssEndpoint, true)
     }
   }
 

@@ -141,7 +141,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       }
 
       if (
-        initStatus.qssSetup == null &&
+        !(initStatus.qssSetup ?? false) &&
         this.sigChainService.activeChain.team != null &&
         this.sigChainService.users.getAllUsers().length === 1
       ) {
@@ -208,6 +208,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       ...status,
       qssEnabled: community.qssEnabled ?? false,
       qssSetup: community.qssSetup ?? false,
+      communityInitialized: true,
     }
   }
 
@@ -222,17 +223,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     return authConnection?.joinStatus ?? JoinStatus.NOT_STARTED
   }
 
-  public async connect(qssEndpoint: string | undefined): Promise<QSSOperationResult> {
+  public async connect(qssEndpoint: string | undefined, enabledOverride: boolean = false): Promise<QSSOperationResult> {
     let connStatus: QSSOperationResult
     try {
-      connStatus = await this._connectImpl(qssEndpoint)
+      connStatus = await this._connectImpl(qssEndpoint, enabledOverride)
     } catch (e) {
       this.logger.error('Error while connecting to QSS', e)
       connStatus = QSSOperationResult.ERROR
     }
 
     if (this._reconnectQueueProcessor == null) {
-      this._reconnectQueueProcessor = setInterval(this.connect, QSS_RECONNECT_DELAY_MS, qssEndpoint)
+      this._reconnectQueueProcessor = setInterval(this.connect, QSS_RECONNECT_DELAY_MS, qssEndpoint, enabledOverride)
     }
 
     return connStatus
@@ -244,7 +245,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
    * @returns True if connection was successful
    */
-  private async _connectImpl(qssEndpoint: string | undefined): Promise<QSSOperationResult> {
+  private async _connectImpl(qssEndpoint: string | undefined, enabledOverride: boolean): Promise<QSSOperationResult> {
     // wait for existing socket to finish connecting, if present
     if (this._connecting) {
       this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
@@ -265,6 +266,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (!this.canConnect) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
       return QSSOperationResult.DISABLED
+    }
+
+    if (!enabledOverride) {
+      const initStatus = await this.getQssInitStatus()
+      if (!initStatus.communityInitialized) {
+        this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
+        return QSSOperationResult.ERROR
+      }
+
+      if (!initStatus.qssEnabled) {
+        this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
+        return QSSOperationResult.DISABLED
+      }
     }
 
     // wait for our socket to finish connecting
@@ -483,6 +497,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
     if (!this.canConnect) {
       this.logger.info(`Can't send log sync message to QSS because QSS is not enabled for this community`)
+      return
+    }
+
+    const initStatus = await this.getQssInitStatus()
+
+    if (!initStatus.qssEnabled) {
+      this.logger.trace(`Can't sync to QSS because QSS is disabled on this community`)
       return
     }
 

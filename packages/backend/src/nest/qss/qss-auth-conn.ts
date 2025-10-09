@@ -181,7 +181,7 @@ export class QSSAuthConnection extends EventEmitter {
     // handle connected events and update the sigchain/join status
     this._authConnection.on('connected', () => {
       this._active = true
-      if (this.sigChainService.activeChainTeamName != null) {
+      if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
         const team = sigChain.team!
