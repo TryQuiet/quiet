@@ -276,7 +276,7 @@ describe('Multiple Clients (QSS)', () => {
 
       it('First user sees owner in user list as offline', async () => {
         const userList = new UsersList(users.user1.app.driver)
-        const userListOwner = await userList.getUser(users.owner.username)
+        const userListOwner = await userList.getUser(users.owner.username, UserListStatus.OFFLINE)
         expect(userListOwner.status).toBe(UserListStatus.OFFLINE)
       })
     })
