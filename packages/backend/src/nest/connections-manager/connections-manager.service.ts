@@ -281,6 +281,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.closeSocket()
 
+    if (this.qssService) {
+      this.logger.info('Closing QSS service')
+      this.qssService.close()
+    }
+
     if (this.tor && !options.saveTor) {
       this.logger.info('Killing tor')
       await this.tor.kill()
@@ -301,10 +306,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.localDbService) {
       this.logger.info('Closing local DB')
       await this.localDbService.close()
-    }
-    if (this.qssService) {
-      this.logger.info('Closing QSS service')
-      this.qssService.close()
     }
   }
 

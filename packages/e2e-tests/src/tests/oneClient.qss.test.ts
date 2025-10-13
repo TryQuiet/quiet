@@ -14,6 +14,7 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
+import { sleep } from '../utils'
 // no direct selenium imports needed – use selectors
 
 const logger = createLogger('oneClient:qss')
@@ -47,7 +48,7 @@ describe('One Client (QSS)', () => {
     logger.info(`░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
   })
 
-  describe('Abort Creation Midway (at Create Username)', () => {
+  describe('Abort Creation Midway (at Create Username) >', () => {
     it('Opens app with QSS enabled', async () => {
       await app.open(true)
     })
@@ -131,12 +132,13 @@ describe('One Client (QSS)', () => {
     })
   })
 
-  describe('Abort Join Midway (via invitation link)', () => {
+  describe('Abort Join Midway (via invitation link) >', () => {
     it('Leaves community to return to Join screen', async () => {
       const settingsModal = await new Sidebar(app.driver).openSettings()
       expect(await settingsModal.isReady()).toBeTruthy()
       await settingsModal.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
       await settingsModal.leaveCommunityButton()
+      await sleep(90_000)
     })
 
     it('Starts join and closes Create Username modal to abort', async () => {
@@ -173,50 +175,68 @@ describe('One Client (QSS)', () => {
       expect(await joinModalAgain.isReady()).toBeTruthy()
     })
 
-    it('Creates a NEW community after aborts; verifies names are from the second run', async () => {
-      const joinModal = new JoinCommunityModal(app.driver)
-      expect(await joinModal.isReady()).toBeTruthy()
-      await joinModal.switchToCreateCommunity()
+    describe('Creates a NEW community after aborts; verifies names are from the second run >', () => {
+      it('Switches to create community window', async () => {
+        const joinModal = new JoinCommunityModal(app.driver)
+        expect(await joinModal.isReady()).toBeTruthy()
+        await joinModal.switchToCreateCommunity()
+      })
 
-      const createModal = new CreateCommunityModal(app.driver)
-      expect(await createModal.isReady()).toBeTruthy()
-      await createModal.clearInput()
-      await createModal.typeCommunityName(communityNameAfterJoinAbort)
-      await createModal.submit()
+      it('Enters the new community name and submits', async () => {
+        const createModal = new CreateCommunityModal(app.driver)
+        expect(await createModal.isReady()).toBeTruthy()
+        await createModal.clearInput()
+        await createModal.typeCommunityName(communityNameAfterJoinAbort)
+        await createModal.submit()
+      })
 
-      const serverOffer = new ServerOfferModal(app.driver)
-      expect(await serverOffer.isReady()).toBeTruthy()
-      await serverOffer.chooseUseServer()
+      it('Enables the server on the server offer page', async () => {
+        const serverOffer = new ServerOfferModal(app.driver)
+        expect(await serverOffer.isReady()).toBeTruthy()
+        await serverOffer.chooseUseServer()
+      })
 
-      const registerModal = new RegisterUsernameModal(app.driver)
-      expect(await registerModal.isReady()).toBeTruthy()
-      await registerModal.clearInput()
-      await registerModal.typeUsername(ownerAfterJoinAbort)
-      await registerModal.submit()
+      it('Registers the new username', async () => {
+        const registerModal = new RegisterUsernameModal(app.driver)
+        expect(await registerModal.isReady()).toBeTruthy()
+        await registerModal.clearInput()
+        await registerModal.typeUsername(ownerAfterJoinAbort)
+        await registerModal.submit()
+      })
 
-      const tosModal = new TermsOfServiceModal(app.driver)
-      expect(await tosModal.isReady()).toBeTruthy()
-      await tosModal.chooseAgreeAndJoin()
+      it('Accepts the TOS', async () => {
+        const tosModal = new TermsOfServiceModal(app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
+      })
 
-      const joinPanel = new JoiningLoadingPanel(app.driver)
-      await joinPanel.waitForJoinToComplete()
+      it('Waits to join', async () => {
+        const joinPanel = new JoiningLoadingPanel(app.driver)
+        await joinPanel.waitForJoinToComplete()
+      })
 
-      generalChannel = new Channel(app.driver, generalChannelName)
-      expect(await generalChannel.isReady()).toBeTruthy()
+      it('Sees the general channel', async () => {
+        generalChannel = new Channel(app.driver, generalChannelName)
+        expect(await generalChannel.isReady()).toBeTruthy()
+      })
 
-      const commNameRaw = await new Sidebar(app.driver).getDisplayedCommunityName()
-      const commName = commNameRaw.trim().toLowerCase()
-      expect(commName).toBe(communityNameAfterJoinAbort.toLowerCase())
-      expect(commName).not.toBe(communityNameAfterCreationAbort.toLowerCase())
+      it('Sees the new community name in the sidebar', async () => {
+        const commNameRaw = await new Sidebar(app.driver).getDisplayedCommunityName()
+        const commName = commNameRaw.trim().toLowerCase()
+        expect(commName).toBe(communityNameAfterJoinAbort.toLowerCase())
+        expect(commName).not.toBe(communityNameAfterCreationAbort.toLowerCase())
+      })
 
-      const sidebar = new Sidebar(app.driver)
-      const currentUser = (await sidebar.getCurrentUserNickname()).trim().toLowerCase()
-      expect(currentUser).toBe(ownerAfterJoinAbort.toLowerCase())
-      expect(currentUser).not.toBe('guest-qss')
+      it('Sees the new username in the sidebar', async () => {
+        const sidebar = new Sidebar(app.driver)
+        const currentUser = (await sidebar.getCurrentUserNickname()).trim().toLowerCase()
+        expect(currentUser).toBe(ownerAfterJoinAbort.toLowerCase())
+        expect(currentUser).not.toBe('guest-qss')
+      })
     })
   })
 
-  describe('Creation Without Server (Not Now): ToS not shown', () => {
+  describe('Creation Without Server (Not Now): ToS not shown >', () => {
     const communityNameNoServer = 'qss-noserver'
 
     it('Resets state', async () => {
