@@ -1,4 +1,3 @@
-import 'typeface-roboto'
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
