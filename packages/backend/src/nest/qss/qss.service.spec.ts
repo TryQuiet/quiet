@@ -171,6 +171,7 @@ describe('QSSService', () => {
 
   describe('connect', () => {
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
@@ -178,6 +179,7 @@ describe('QSSService', () => {
     })
 
     it(`doesn't connect to QSS when not enabled and an endpoint string is provided`, async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(false)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
@@ -185,6 +187,7 @@ describe('QSSService', () => {
     })
 
     it(`doesn't connect to QSS when enabled but endpoint string is undefined`, async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect(undefined)
       expect(qssService.connected).toBeFalsy()
@@ -192,6 +195,7 @@ describe('QSSService', () => {
     })
 
     it(`doesn't connect to QSS when enabled but endpoint string is empty`, async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('')
       expect(qssService.connected).toBeFalsy()
