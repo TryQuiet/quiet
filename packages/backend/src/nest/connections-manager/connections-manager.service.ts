@@ -421,6 +421,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.createCommunityOnQss(sigchain, community)
     }
 
+    await this.launchCommunity(community.id)
+
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,

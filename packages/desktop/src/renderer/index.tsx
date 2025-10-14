@@ -1,5 +1,5 @@
 import React from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, Root as ReactDomRoot } from 'react-dom/client'
 import { ipcRenderer } from 'electron'
 import Root, { persistor } from './Root'
 import store from './store'
@@ -48,10 +48,17 @@ ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
   store.dispatch(socketActions.startConnection({ dataPort: parseInt(dataPort), socketIOSecret }))
 })
 
+let container: HTMLElement | null = null
+let root: ReactDomRoot | null = null
 export function renderApp() {
-  const container = document.getElementById('root')
-  if (!container) throw new Error('No root html element!')
-  const root = createRoot(container)
+  if (!container) {
+    container = document.getElementById('root')
+    if (!container) throw new Error('No root html element!')
+  }
+  if (root) {
+    root.unmount()
+  }
+  root = createRoot(container)
   root.render(<Root />)
 }
 
@@ -69,10 +76,6 @@ export const clearCommunity = async (remount: boolean = true) => {
   store.dispatch(communities.actions.resetApp('payload'))
   ipcRenderer.send('clear-community')
   if (remount) {
-    const container = document.getElementById('root')
-    if (!container) throw new Error('No root html element!')
-    const root = createRoot(container)
-    root.unmount()
     renderApp()
   }
   persistor.persist()
