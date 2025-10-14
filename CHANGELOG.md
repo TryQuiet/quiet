@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Features
+
+* Added warning popup when a server was unexpectedly added to chain [#2907](https://github.com/TryQuiet/quiet/issues/2907)
+
 ## [6.3.0]
 
 ### Features
