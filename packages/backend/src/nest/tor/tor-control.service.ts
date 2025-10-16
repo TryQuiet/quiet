@@ -85,7 +85,7 @@ export class TorControl {
         reject('Timeout while sending command to Tor')
       }, 5000)
 
-      this.connection?.on('data', async data => {
+      this.connection?.on('data', data => {
         const dataArray = data.toString().split(/\r?\n/)
 
         if (dataArray[0].startsWith('250')) {

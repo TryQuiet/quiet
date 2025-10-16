@@ -187,7 +187,7 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
       stream.destroy()
     })
 
-    stream.socket.once('unexpected-response', (req: http.ClientRequest) => {
+    stream.socket.on('unexpected-response', (req: http.ClientRequest) => {
       this.metrics.events?.increment({ [`${this.addr} unexpected-response`]: true })
       _log.error('unexpected response - %d %s', req.req.statusCode, req.req.statusMessage)
     })

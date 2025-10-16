@@ -25,3 +25,6 @@ export enum LocalDBKeys {
   PENDING_QSS_LOG_SYNCS = 'pendingQssLogSyncs',
 }
 export type LocalDbStatus = 'opening' | 'open' | 'closing' | 'closed'
+export enum LocalDbEvents {
+  COMMUNITY_ADDED = 'COMMUNITY_ADDED',
+}

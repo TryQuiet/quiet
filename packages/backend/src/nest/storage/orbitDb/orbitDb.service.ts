@@ -131,7 +131,7 @@ export class OrbitDbService {
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
 
-    store.events.on('update', async (entry: LogEntry) => {
+    store.events.on('update', (entry: LogEntry) => {
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
         OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
       }

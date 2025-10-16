@@ -1,3 +1,4 @@
+import { WebElement } from 'selenium-webdriver'
 import { App } from './selectors'
 
 export interface UserTestData {
@@ -19,4 +20,14 @@ export interface RetryConfig {
 export interface TimeoutMetadata {
   id: NodeJS.Timeout
   promise: Promise<unknown>
+}
+
+export enum UserListStatus {
+  ONLINE = 'ONLINE',
+  OFFLINE = 'OFFLINE',
+  NOT_FOUND = 'NOT_FOUND',
+}
+export interface UserListItem {
+  element: WebElement | undefined
+  status: UserListStatus
 }
