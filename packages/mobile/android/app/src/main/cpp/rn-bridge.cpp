@@ -7,6 +7,7 @@
 #include <string>
 #include <cstring>
 #include <cstdlib>
+#include <utility>
 
 // Empty value so that macros here are able to return NULL or void
 #define NAPI_RETVAL_NOTHING  // Intentionally blank #define
@@ -77,9 +78,9 @@ std::map<std::string, Channel*> channels;
 
 class Channel {
 private:
-    napi_env env = NULL;
-    napi_ref function_ref = NULL;
-    uv_async_t* queue_uv_handle = NULL;
+    napi_env env = nullptr;
+    napi_ref function_ref = nullptr;
+    uv_async_t* queue_uv_handle = nullptr;
     std::mutex uvhandleMutex;
     std::mutex queueMutex;
     std::queue<char*> messageQueue;
@@ -87,13 +88,13 @@ private:
     bool initialized = false;
 
 public:
-    Channel(std::string name) : name(name) {};
+    explicit Channel(std::string name) : name(std::move(name)) {};
 
     // Set up the channel's NAPI data. This method can be called
     // only once per channel.
     void setNapiRefs(napi_env& env, napi_ref& function_ref) {
         this->uvhandleMutex.lock();
-        if (this->queue_uv_handle == NULL) {
+        if (this->queue_uv_handle == nullptr) {
             this->env = env;
             this->function_ref = function_ref;
 
@@ -103,7 +104,7 @@ public:
             initialized = true;
             uv_async_send(this->queue_uv_handle);
         } else {
-            napi_throw_error(env, NULL, "Channel already exists.");
+            napi_throw_error(env, nullptr, "Channel already exists.");
         }
         this->uvhandleMutex.unlock();
     };
@@ -123,7 +124,7 @@ public:
     // Process one message at the time, to simplify synchronization between
     // threads and minimize lock retention.
     void flushQueue() {
-        char* message = NULL;
+        char* message = nullptr;
         bool empty = true;
 
         this->queueMutex.lock();
@@ -134,7 +135,7 @@ public:
         }
         this->queueMutex.unlock();
 
-        if (message != NULL) {
+        if (message != nullptr) {
             this->invokeNodeListener(message);
             free(message);
         }
@@ -172,7 +173,8 @@ public:
     };
 };
 
-char* datadir_path = NULL;
+char* datadir_path = nullptr;
+
 /*
  * Called by the react-native plug-in to register the datadir,
  * representing a writable path. Expected to be called once,
@@ -184,7 +186,7 @@ void rn_register_node_data_dir_path(const char* path) {
     strncpy(datadir_path, path, pathLength);
 }
 
-rn_bridge_cb embedder_callback=NULL;
+rn_bridge_cb embedder_callback = nullptr;
 
 /**
  * Called by the React Native plug-in to register the callback
@@ -197,9 +199,9 @@ void rn_register_bridge_cb(rn_bridge_cb _cb) {
 /**
  * Return an existing channel or create a new one if it doesn't exist already.
  */
-Channel* GetOrCreateChannel(std::string channelName) {
+Channel* GetOrCreateChannel(const std::string& channelName) {
     channelsMutex.lock();
-    Channel* channel = NULL;
+    Channel* channel = nullptr;
     auto it = channels.find(channelName);
     if (it != channels.end()) {
         channel = it->second;
@@ -215,7 +217,7 @@ Channel* GetOrCreateChannel(std::string channelName) {
  * Flush the specific channel queue
  */
 void FlushMessageQueue(uv_async_t* handle) {
-    Channel* channel = (Channel*)handle->data;
+    auto* channel = (Channel*)handle->data;
     channel->flushQueue();
 }
 
@@ -225,7 +227,7 @@ void FlushMessageQueue(uv_async_t* handle) {
 napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
     size_t argc = 2;
     napi_value args[argc];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
     NAPI_ASSERT(env, argc == 2, "Wrong number of arguments.");
 
     // args[0] is the channel name
@@ -236,7 +238,7 @@ napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
 
     size_t length;
     size_t length_copied;
-    NAPI_CALL(env, napi_get_value_string_utf8(env, channel_name, NULL, 0, &length));
+    NAPI_CALL(env, napi_get_value_string_utf8(env, channel_name, nullptr, 0, &length));
 
     std::unique_ptr<char[]> unique_channelname_buf(new char[length + 1]());
     char* channel_name_utf8 = unique_channelname_buf.get();
@@ -264,7 +266,7 @@ napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
     size_t argc = 2;
     napi_value args[argc];
 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
     NAPI_ASSERT(env, argc == 2, "Wrong number of arguments.");
 
     // TODO: arguments parsing and string conversion is done several times,
@@ -278,7 +280,7 @@ napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
 
     size_t length;
     size_t length_copied;
-    NAPI_CALL(env, napi_get_value_string_utf8(env, channel_name, NULL, 0, &length));
+    NAPI_CALL(env, napi_get_value_string_utf8(env, channel_name, nullptr, 0, &length));
     std::unique_ptr<char[]> unique_channelname_buf(new char[length + 1]());
     char* channel_name_utf8 = unique_channelname_buf.get();
     NAPI_CALL(env, napi_get_value_string_utf8(env, channel_name, channel_name_utf8, length + 1, &length_copied));
@@ -301,9 +303,8 @@ napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
     NAPI_ASSERT(env, length_copied == length, "Couldn't fully copy the message.");
 
     NAPI_ASSERT(env, embedder_callback, "No callback is set in native code to receive the message.");
-    if (embedder_callback) {
-        embedder_callback(channel_name_utf8, msg_buf);
-    }
+    embedder_callback(channel_name_utf8, msg_buf);
+
     return nullptr;
 }
 
@@ -311,7 +312,7 @@ napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
  * Get the registered datadir
  */
 napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
-  NAPI_ASSERT(env, datadir_path!=NULL, "Data directory not set from native side.");
+  NAPI_ASSERT(env, datadir_path!=nullptr, "Data directory not set from native side.");
   napi_value return_datadir;
   size_t str_len = strlen(datadir_path);
   NAPI_CALL(env, napi_create_string_utf8(env, datadir_path, str_len, &return_datadir));
@@ -335,7 +336,7 @@ napi_value Init(napi_env env, napi_value exports) {
  * This method is the public API called by the React Native plugin
  */
 void rn_bridge_notify(const char* channelName, const char *message) {
-    int messageLength=strlen(message);
+    size_t messageLength = strlen(message);
     char* messageCopy = (char*)calloc(sizeof(char),messageLength + 1);
     strncpy(messageCopy, message, messageLength);
 
@@ -350,8 +351,8 @@ extern "C" {
       __FILE__,                                                                
       Init,                                                                 
       "rn_bridge",                                                                
-      NULL,                                                                    
-      {0},                                                                     
+      nullptr,
+      {nullptr},
     };
 
     NAPI_C_CTOR(_register_rn_bridge) { napi_module_register(&_module); }                                                                            
