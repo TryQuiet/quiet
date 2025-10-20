@@ -31,7 +31,6 @@
     "@quiet/logger": "^2.0.2-alpha.0",
     "@quiet/state-manager": "^2.0.2-alpha.3",
     "@quiet/types": "^2.0.2-alpha.1",
-    "@peculiar/webcrypto": "^1.4.3",
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
