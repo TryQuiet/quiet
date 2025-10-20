@@ -1,4 +1,5 @@
 GEM
+  remote: https://rubygems.org/
   specs:
     CFPropertyList (3.0.7)
       base64
