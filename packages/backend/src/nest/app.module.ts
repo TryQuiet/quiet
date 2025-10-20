@@ -149,11 +149,11 @@ export class AppModule {
               }
             })
 
-            io.engine.on('connection_error', async err => {
+            io.engine.on('connection_error', err => {
               _ioLogger.error('Server IO connection error', err.message, err.code, err.context, err)
             })
 
-            io.on('connection', async socket => {
+            io.on('connection', socket => {
               _ioLogger.info(`New server io connection`, socket.conn.transport.name, socket.client.conn.remoteAddress)
               socket.conn.on('close', reason => {
                 _ioLogger.warn('Underlying connection closed on server IO', reason)
@@ -161,7 +161,7 @@ export class AppModule {
               socket.on('disconnect', reason => {
                 _ioLogger.warn('Client disconnected from server IO', reason)
               })
-              socket.on('error', async err => {
+              socket.on('error', err => {
                 _ioLogger.error('Error on server IO client connection', err)
               })
 

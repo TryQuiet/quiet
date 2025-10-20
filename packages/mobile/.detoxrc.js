@@ -17,6 +17,19 @@ module.exports = {
         'cd android && ENVFILE=../.env.development ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
       reversePorts: [8081],
     },
+    'android.e2e': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      build:
+        'cd android && ENVFILE=../.env.e2e ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+    },
+    'android.e2e.qss': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
+      build:
+        'cd android && ENVFILE=../.env.e2e.qss ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+      reversePorts: [8081],
+    },
     'android.storybook': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/storybook/debug/app-storybook-debug.apk',
@@ -35,6 +48,18 @@ module.exports = {
       binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
       build:
         'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
+    },
+    'ios.e2e': {
+      type: 'ios.app',
+      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
+      build:
+        'ENVFILE=.env.e2e xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
+    },
+    'ios.e2e.qss': {
+      type: 'ios.app',
+      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
+      build:
+        'ENVFILE=.env.e2e.qss xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
     },
     'ios.storybook': {
       type: 'ios.app',
@@ -59,8 +84,8 @@ module.exports = {
     simulator_ci: {
       type: 'ios.simulator',
       device: {
-        type: 'iPhone 15'
-      }
+        type: 'iPhone 15',
+      },
     },
     attached: {
       type: 'android.attached',
@@ -92,6 +117,16 @@ module.exports = {
         },
       },
     },
+    'ios.sim.e2e.qss': {
+      device: 'simulator',
+      app: 'ios.e2e.qss',
+      artifacts: {
+        rootDir: './e2e/artifacts/ios',
+        plugins: {
+          instruments: 'all',
+        },
+      },
+    },
     'ios.sim.debug.ci': {
       device: 'simulator_ci',
       app: 'ios.debug',
@@ -116,9 +151,43 @@ module.exports = {
       device: 'simulator',
       app: 'ios.release',
     },
+    'ios.att.e2e': {
+      device: 'attached',
+      app: 'ios.e2e',
+      artifacts: {
+        rootDir: './e2e/artifacts/ios',
+        plugins: {
+          instruments: 'all',
+        },
+      },
+    },
+    'ios.att.e2e.qss': {
+      device: 'attached',
+      app: 'ios.e2e.qss',
+      artifacts: {
+        rootDir: './e2e/artifacts/ios',
+        plugins: {
+          instruments: 'all',
+        },
+      },
+    },
     'android.att.debug': {
       device: 'attached',
       app: 'android.debug',
+      artifacts: {
+        rootDir: './e2e/artifacts/android',
+      },
+    },
+    'android.att.e2e': {
+      device: 'attached',
+      app: 'android.e2e',
+      artifacts: {
+        rootDir: './e2e/artifacts/android',
+      },
+    },
+    'android.att.e2e.qss': {
+      device: 'attached',
+      app: 'android.e2e.qss',
       artifacts: {
         rootDir: './e2e/artifacts/android',
       },
@@ -137,6 +206,13 @@ module.exports = {
     'android.emu.debug': {
       device: 'emulator',
       app: 'android.debug',
+      artifacts: {
+        rootDir: './e2e/artifacts/android',
+      },
+    },
+    'android.emu.debug.qss': {
+      device: 'emulator',
+      app: 'android.debug.qss',
       artifacts: {
         rootDir: './e2e/artifacts/android',
       },

@@ -58,7 +58,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, 
         classes={{ root: classes.button }}
         data-testid={'settings-panel-button'}
       >
-        <Typography variant='h4' className={classes.nickname}>
+        <Typography variant='h4' className={classes.nickname} data-testid='current-community-name'>
           {communityName}
         </Typography>
         <ArrowDropDown fontSize='small' style={{ marginLeft: 4 }} />

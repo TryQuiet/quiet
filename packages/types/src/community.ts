@@ -23,6 +23,8 @@ export interface Community {
   teamId?: string
   qssEnabled?: boolean
   qssEndpoint?: string
+  tosAccepted?: boolean
+  qssSetup?: boolean
 }
 
 export interface CommunityMetadata {
@@ -44,6 +46,7 @@ export enum CommunityOwnership {
 
 export interface CreateCommunityPayload {
   name: string
+  useServer?: boolean
 }
 
 export interface JoinCommunityPayload {
@@ -72,6 +75,8 @@ export interface InitCommunityPayload {
   ownerOrbitDbIdentity?: string
   inviteData?: InvitationData | null
   username: string
+  useServer?: boolean
+  tosAccepted?: boolean
 }
 
 export interface ResponseLaunchCommunityPayload {

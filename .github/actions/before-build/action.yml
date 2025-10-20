@@ -4,6 +4,10 @@ inputs:
   source-path:
     description: 'OS name (linux | darwin | win32)'
     required: true
+  envfile:
+    description: 'Env file to use (.env.production | .env.development | .env.e2e | .env.e2e.qss)'
+    required: false
+    default: '.env.production'
 
 runs:
   using: "composite"
@@ -12,19 +16,25 @@ runs:
       run: cd packages/backend && npm run webpack:prod
       shell: bash
 
-    - name: "Pull tor binary for Linux"
+    - name: "Copy tor binary for Linux"
       if: ${{ inputs.source-path == 'linux' }}
-      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries && npm run setMainEnvs
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
       shell: bash
 
-    - name: "Pull tor binary for MacOS"
+    - name: "Pull libssl binary for Linux"
+      if: ${{ inputs.source-path == 'linux' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run pullLibs
+      shell: bash
+
+
+    - name: "Copy tor binary for MacOS"
       if: ${{ inputs.source-path == 'darwin' }}
-      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesDarwin && npm run setMainEnvs
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesDarwin
       shell: bash
 
-    - name: "Pull tor binary for Windows"
+    - name: "Copy tor binary for Windows"
       if: ${{ inputs.source-path == 'win32' }}
-      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin && npm run setMainEnvs
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin
       shell: bash
 
     - name: "Verify test mode setup"
@@ -33,6 +43,11 @@ runs:
 
     - name: "Verify bucket setup"
       run: echo $S3_BUCKET
+      shell: bash
+
+    - name: "Set ENVFILE"
+      if: ${{ inputs.envfile != '' }}
+      run: echo "ENVFILE=${{ inputs.envfile }}" >> $GITHUB_ENV && export ENVFILE=${{ inputs.envfile }}
       shell: bash
 
     - name: "Build the project"

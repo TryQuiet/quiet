@@ -41,7 +41,7 @@ export const QRCode: FC<QRCodeProps> = ({ value, svgRef, shareCode, handleBackBu
             this community.
           </Typography>
         </View>
-        <View style={{ marginTop: 16, width: 124 }}>
+        <View style={{ marginTop: 16 + 12, width: 124 }}>
           <Button title={'Share code'} onPress={shareCode} />
         </View>
       </View>

@@ -103,7 +103,7 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
             }}
           />
         )}
-        <Typography variant='body2' className={classes.nickname}>
+        <Typography variant='body2' className={classes.nickname} data-testid='user-profile-nickname'>
           {username}
         </Typography>
       </Button>

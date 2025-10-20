@@ -88,7 +88,6 @@ project.ext.react = [
         enableHermes: false,  // clean and rebuild if changing
 ]
 
-
 // Run Proguard to shrink the Java bytecode in release builds.
 def enableProguardInReleaseBuilds = false
 
@@ -169,8 +168,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 519
-        versionName "6.1.0"
+        versionCode 528
+        versionName "6.3.0"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty("testBuildType", "debug")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -270,9 +269,11 @@ dependencies {
     androidTestImplementation("com.wix:detox:20.17.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation fileTree(dir: "libs", include: ["*.jar", "*.so"])
-    implementation("com.facebook.react:react-android")
     // version set by the React Native Gradle Plugin in npm
+    implementation("com.facebook.react:react-android")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    androidTestImplementation('androidx.test:core:1.7.0')
+    androidTestImplementation('androidx.test.ext:junit:1.1.1')
     if (enableHermes) {
         //noinspection GradleDynamicVersion
         implementation("com.facebook.react:hermes-engine:+") { // From node_modules

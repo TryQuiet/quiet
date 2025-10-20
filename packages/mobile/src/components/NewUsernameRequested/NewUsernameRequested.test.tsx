@@ -90,7 +90,7 @@ describe('NewUsernameRequested component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/icon_close.png",
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
                     }
                   }
                   style={
@@ -196,8 +196,8 @@ describe('NewUsernameRequested component', () => {
                 "backgroundColor": "#521C74",
                 "borderRadius": 8,
                 "justifyContent": "center",
-                "marginVertical": 12,
                 "minHeight": 45,
+                "paddingHorizontal": 20,
                 "paddingVertical": 12,
                 "width": 100,
               }

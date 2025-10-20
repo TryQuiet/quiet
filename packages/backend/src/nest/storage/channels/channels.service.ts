@@ -136,13 +136,13 @@ export class ChannelsService extends EventEmitter {
       }
     )
 
-    this.channels.events.on('update', async (entry: LogEntry) => {
+    this.channels.events.on('update', (entry: LogEntry) => {
       const channelId = entry.payload.key
       const operation = entry.payload.op
       this.logger.info('public-channels database updated', channelId, operation)
 
       this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
-      await this.broadcastCurrentChannels()
+      this.broadcastCurrentChannels()
     })
 
     this.sigchainService.on('updated', async payload => {

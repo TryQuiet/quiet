@@ -3,14 +3,14 @@ import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 import { MessageType, DisplayableMessage } from '@quiet/types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
 import { FileAttachment } from '../FileAttachment/FileAttachment.component'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
+import Markdown, { MarkdownIt, ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
@@ -40,6 +40,16 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
 }) => {
+  const pushBr = (str: string) => {
+    const afterSplit = str
+      .split('\n')
+      .map(e => {
+        if (e === '') return '<br>'
+        return e
+      })
+      .join('\n')
+    return afterSplit
+  }
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
@@ -94,6 +104,14 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
               {children}
             </Typography>
           ),
+          html_inline: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => {
+            // we check that the parent array contans a td because <br> in paragraph setting will create a html_inlinde surrounded by a soft break, try removing the clause to see what happens (double spacing on the <br> between 'top one' and 'bottom one')
+            if (node.content.trim() === '<br>' && hasParents(parent, 'td')) {
+              return <Text key={node.key}>{'\n'}</Text>
+            }
+
+            return null
+          },
         }
 
         const containsLatex = /\$\$(.+)\$\$/.test(message.message)
@@ -108,7 +126,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
         }
         return (
           <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
-            {message.message}
+            {pushBr(message.message)}
           </Markdown>
         )
     }
@@ -157,7 +175,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             <Image
               resizeMode='cover'
               resizeMethod='resize'
-              source={appImages.quiet_icon}
+              source={icons.quiet_icon}
               style={{ width: 37, height: 37 }}
             />
           ) : (
@@ -259,6 +277,7 @@ const markdownStyle = StyleSheet.create({
 const md = MarkdownIt({
   typographer: false,
   linkify: true,
+  html: true,
 })
 
 export const Message = React.memo(MessageInner)

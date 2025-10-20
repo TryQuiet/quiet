@@ -55,7 +55,7 @@ jobs:
 
       - name: Start QSS docker
         run: npm run start:qss
-        
+
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
@@ -64,7 +64,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: ENVFILE=.env.e2e.qss npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
@@ -76,6 +76,13 @@ jobs:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test multipleClients.qss.test.ts
+
+      - name: Run one client with QSS test
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test oneClient.qss.test.ts
 
       - name: Stop QSS docker
         if: always()

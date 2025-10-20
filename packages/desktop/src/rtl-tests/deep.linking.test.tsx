@@ -90,16 +90,16 @@ describe('Deep linking', () => {
         "Communities/customProtocol",
         "Communities/joinCommunity",
         "Communities/setInvitationCodes",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
+        "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
-        "Communities/updateCommunityData",
+        "Communities/addNewCommunity",
+        "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
         "Users/setUserProfile",
         "Communities/launchCommunity",
-        "Communities/setCurrentCommunity",
         "Communities/clearInvitationCodes",
+        "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
       ]
@@ -126,16 +126,16 @@ describe('Deep linking', () => {
         "Communities/customProtocol",
         "Communities/joinCommunity",
         "Communities/setInvitationCodes",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
+        "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
-        "Communities/updateCommunityData",
+        "Communities/addNewCommunity",
+        "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
         "Users/setUserProfile",
         "Communities/launchCommunity",
-        "Communities/setCurrentCommunity",
         "Communities/clearInvitationCodes",
+        "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/customProtocol",
@@ -155,9 +155,10 @@ describe('Deep linking', () => {
         return undefined
       }
     }
-    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // Spy on emit, and manually mock emitWithAck
+    const spyEmitWithAck = jest.fn(mockEmitImpl)
     // @ts-ignore
-    socket.emitWithAck = mockEmitImpl
+    socket.emitWithAck = spyEmitWithAck
     const { store, runSaga } = await prepareStore({}, socket)
     logger.info('Store prepared')
 
@@ -188,22 +189,21 @@ describe('Deep linking', () => {
     await act(async () => {})
     logger.info('act done')
 
-    // expect community to have been created
+    // expect community to not have been created
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
         "Communities/setInvitationCodes",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
+        "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/clearInvitationCodes",
-        "Communities/deleteCommunity",
       ]
     `)
-    const originalPair = communities.selectors.invitationCodes(store.getState())
-    logger.info('originalPair', originalPair)
+    // Check that either emit or emitWithAck was called
+    expect(spyEmitWithAck).toHaveBeenCalledTimes(1)
+
     // Redo the action to provoke renewed saga runs
     logger.info('dispatching second custom protocol')
     store.dispatch(
@@ -212,33 +212,25 @@ describe('Deep linking', () => {
     logger.info('second custom protocol dispatched')
     store.dispatch(identity.actions.registerUsername(registerUsernamePayload))
     await act(async () => {})
+
     logger.info('act done')
-
-    const currentPair = communities.selectors.invitationCodes(store.getState())
-    logger.info('currentPair', currentPair)
-
-    expect(originalPair).toEqual(currentPair)
-
+    expect(spyEmitWithAck).toHaveBeenCalledTimes(2)
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
         "Communities/setInvitationCodes",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
+        "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/clearInvitationCodes",
-        "Communities/deleteCommunity",
         "Communities/customProtocol",
         "Communities/joinCommunity",
         "Communities/setInvitationCodes",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
+        "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/clearInvitationCodes",
-        "Communities/deleteCommunity",
       ]
     `)
   })

@@ -71,6 +71,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { SigChain } from '../auth/sigchain'
+import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -217,14 +218,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
-        const loadedSigchain = await this.sigChainService.loadChain(community.name, true)
-        if (community.qssEnabled) {
-          this.qssService.enableForCommunity(loadedSigchain.team!.id)
-        }
-        const connected = await this.qssService.connect(community.qssEndpoint)
-        if (connected) {
-          await this.qssService.signInToCommunity(loadedSigchain.team!.id, loadedSigchain)
-        }
+        await this.sigChainService.loadChain(community.name, true)
+        this.qssService.connect(community.qssEndpoint)
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
       }
@@ -232,7 +227,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('No community name found in storage')
     }
 
-    await this.launchCommunity(community)
+    await this.launchCommunity(community.id)
   }
 
   public async closeSocket() {
@@ -286,6 +281,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.closeSocket()
 
+    if (this.qssService) {
+      this.logger.info('Closing QSS service')
+      this.qssService.close()
+    }
+
     if (this.tor && !options.saveTor) {
       this.logger.info('Killing tor')
       await this.tor.kill()
@@ -306,10 +306,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.localDbService) {
       this.logger.info('Closing local DB')
       await this.localDbService.close()
-    }
-    if (this.qssService) {
-      this.logger.info('Closing QSS service')
-      this.qssService.close()
     }
   }
 
@@ -371,13 +367,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
-    const connected = await this.qssService.connect(this.qssEndpoint)
-    if (connected) {
-      await this.qssService.createCommunity(sigchain)
-    }
-  }
-
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
 
@@ -405,17 +394,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.team!.id,
-      qssEnabled: this.qssAllowed,
+      qssEnabled: this.qssAllowed && payload.useServer,
       qssEndpoint: this.qssEndpoint,
+      tosAccepted: payload.tosAccepted,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
     // purposely don't await
-    this.createCommunityOnQss(sigchain)
+    this.qssService.connect(this.qssEndpoint)
 
-    await this.launchCommunity(community)
+    await this.launchCommunity(community.id)
 
     const userProfile: UserProfile = {
       userId: identity.userId,
@@ -435,18 +425,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
-  private async joinViaQSS(inviteData: InvitationData, sigChain: SigChain) {
+  private async joinViaQSS(inviteData: InvitationData) {
     if (
       inviteData.version === InvitationDataVersion.v3 &&
       inviteData.qssEnabled &&
       inviteData.authData.teamId != null &&
       inviteData.qssEndpoint != null
     ) {
-      this.qssService.enableForCommunity(inviteData.authData.teamId)
-      const connected = await this.qssService.connect(inviteData.qssEndpoint)
-      if (connected) {
-        await this.qssService.signInToCommunity(inviteData.authData.teamId, sigChain, inviteData.authData.communityName)
-      }
+      await this.qssService.connect(inviteData.qssEndpoint, true)
     }
   }
 
@@ -467,15 +453,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
     ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
-      const joiningSigchain = await this.sigChainService.createChainFromInvite(
+      await this.sigChainService.createChainFromInvite(
         payload.username,
         communityName,
         inviteData.authData.seed,
         inviteData.authData.teamId,
         true
       )
-
-      this.joinViaQSS(inviteData, joiningSigchain)
+      try {
+        this.joinViaQSS(inviteData)
+      } catch (error) {
+        this.logger.error(`Failed signing into qss community ${communityName}`, error)
+      }
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {
@@ -528,8 +517,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    this.launchCommunity(community)
-
     const userProfile: UserProfile = {
       userId: identity.userId,
       nickname: payload.username,
@@ -548,7 +535,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseJoinCommunityPayload
   }
 
-  public async launchCommunity(community: Community) {
+  public async launchCommunity(id: string): Promise<void> {
+    const community: Community | undefined = await this.localDbService.getCommunity(id)
+    if (!community) {
+      this.logger.error('No community found in storage')
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.LAUNCH_COMMUNITY,
+        message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
+        community: id,
+      })
+      return
+    }
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -677,15 +674,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   private attachSocketServiceListeners() {
     // Community
-    this.socketService.on(SocketActions.CONNECTION, async () => {
+    this.socketService.on(SocketActions.CONNECTION, () => {
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)
     })
 
-    // TOOD: implement with multiple communities
-    // this.socketService.on(SocketActions.LAUNCH_COMMUNITY, async (args: LaunchCommunityPayload) => {
-    //   this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
-    //   this.logger.info('Not implemented yet')
-    // })
+    this.socketService.on(SocketActions.LAUNCH_COMMUNITY, (args: LaunchCommunityPayload) => {
+      this.logger.info(`socketService - ${SocketActions.LAUNCH_COMMUNITY}`)
+      this.launchCommunity(args.id)
+    })
 
     this.socketService.on(
       SocketActions.CREATE_COMMUNITY,

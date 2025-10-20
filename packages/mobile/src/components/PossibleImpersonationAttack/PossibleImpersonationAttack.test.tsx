@@ -92,7 +92,7 @@ describe('PossibleImpersonationAttack component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/icon_close.png",
+                      "testUri": "../../../src/assets/icons/png/icon_close.png",
                     }
                   }
                   style={
@@ -154,7 +154,7 @@ describe('PossibleImpersonationAttack component', () => {
           <Image
             source={
               {
-                "testUri": "../../../assets/icons/exclamationMark.png",
+                "testUri": "../../../src/assets/icons/png/exclamationMark.png",
               }
             }
             style={

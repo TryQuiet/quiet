@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { ChildProcess } from 'child_process'
 
 import {
   App,
@@ -9,19 +10,24 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
+  ServerOfferModal,
+  TermsOfServiceModal,
+  UsersList,
 } from '../selectors'
-import { promiseWithRetries, sleep } from '../utils'
-import { UserTestData } from '../types'
+import { promiseWithRetries, tailQssLogs } from '../utils'
+import { UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 
 const logger = createLogger('multipleClients:qss')
+let stageStartTime: number
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients (QSS)', () => {
   let generalChannelOwner: Channel
   let generalChannelUser1: Channel
   let generalChannelUser2: Channel
+  let qssLogTailProcess: ChildProcess
 
   let invitationLink: string
 
@@ -32,6 +38,7 @@ describe('Multiple Clients (QSS)', () => {
 
   beforeAll(async () => {
     const commonApp = new App()
+    qssLogTailProcess = tailQssLogs()
     users = {
       owner: {
         username: 'owner',
@@ -52,20 +59,31 @@ describe('Multiple Clients (QSS)', () => {
   })
 
   afterAll(async () => {
+    qssLogTailProcess.kill()
     for (const user of Object.values(users)) {
-      await user.app.close()
-      await user.app.cleanup()
+      try {
+        await user.app.close()
+        await user.app.cleanup()
+      } catch (error) {
+        logger.error(`Error cleaning up user ${user.username}:`, error)
+      }
     }
   })
 
   beforeEach(async () => {
     logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    stageStartTime = Date.now()
+  })
+
+  afterEach(async () => {
+    const duration = Date.now() - stageStartTime
+    logger.info(`${expect.getState().currentTestName} Test duration: ${duration}ms`)
   })
 
   describe('Stages:', () => {
     describe('Owner Opens App', () => {
       it('Owner opens the app with QSS enabled', async () => {
-        await users.owner.app.openWithRetries(undefined, true)
+        await users.owner.app.open(true)
       })
 
       it('Owner sees "join community" modal and switches to "create community" modal', async () => {
@@ -81,11 +99,27 @@ describe('Multiple Clients (QSS)', () => {
         await createModal.submit()
       })
 
+      it('Owner sees "server offer" modal', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        expect(await serverOfferModal.isReady()).toBeTruthy()
+      })
+
+      it('Owner accepts server offer', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        await serverOfferModal.chooseUseServer()
+      })
+
       it('Owner sees "register username" modal and submits valid username', async () => {
         const registerModal = new RegisterUsernameModal(users.owner.app.driver)
         expect(await registerModal.isReady()).toBeTruthy()
         await registerModal.typeUsername(users.owner.username)
         await registerModal.submit()
+      })
+
+      it('Owner agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.owner.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
       })
 
       it('Owner waits to join', async () => {
@@ -149,6 +183,12 @@ describe('Multiple Clients (QSS)', () => {
         logger.time(`[${app.name}] '${users.user1.username}' joining community time`)
       })
 
+      it('First user agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.user1.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
+      })
+
       it('First user waits to join', async () => {
         const joinPanel = new JoiningLoadingPanel(users.user1.app.driver)
         await joinPanel.waitForJoinToComplete()
@@ -172,6 +212,28 @@ describe('Multiple Clients (QSS)', () => {
         }
         await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         await generalChannelUser1.sendMessage(users.user1.messages[0], users.user1.username)
+      })
+
+      it('First user sees user list', async () => {
+        const userList = new UsersList(users.user1.app.driver)
+        expect(await userList.isReady()).toBeTruthy()
+      })
+
+      it('First user sees owner in user list as online', async () => {
+        const userList = new UsersList(users.user1.app.driver)
+        const userListOwner = await userList.getUser(users.owner.username)
+        expect(userListOwner.status).toBe(UserListStatus.ONLINE)
+      })
+
+      it('Owner sees user list', async () => {
+        const userList = new UsersList(users.owner.app.driver)
+        expect(await userList.isReady()).toBeTruthy()
+      })
+
+      it('Owner sees first user in user list as online', async () => {
+        const userList = new UsersList(users.owner.app.driver)
+        const userListFirstUser = await userList.getUser(users.user1.username)
+        expect(userListFirstUser.status).toBe(UserListStatus.ONLINE)
       })
 
       it("First user's message is visible in a channel", async () => {
@@ -211,6 +273,12 @@ describe('Multiple Clients (QSS)', () => {
       it("First user's message is visible in a channel", async () => {
         await generalChannelUser1.getMessageIdsByText(users.user1.messages[1], users.user1.username)
       })
+
+      it('First user sees owner in user list as offline', async () => {
+        const userList = new UsersList(users.user1.app.driver)
+        const userListOwner = await userList.getUser(users.owner.username, UserListStatus.OFFLINE)
+        expect(userListOwner.status).toBe(UserListStatus.OFFLINE)
+      })
     })
 
     describe('Second User Joins', () => {
@@ -239,9 +307,32 @@ describe('Multiple Clients (QSS)', () => {
         logger.time(`[${app.name}] '${users.user2.username}' joining community time`)
       })
 
+      it('Second user agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.user2.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
+      })
+
       it('Second user waits to join', async () => {
         const joinPanel = new JoiningLoadingPanel(users.user2.app.driver)
         await joinPanel.waitForJoinToComplete()
+      })
+
+      it('Second user sees user list', async () => {
+        const userList = new UsersList(users.user2.app.driver)
+        expect(await userList.isReady()).toBeTruthy()
+      })
+
+      it('Second user sees first user in user list as online', async () => {
+        const userList = new UsersList(users.user2.app.driver)
+        const userListFirstUser = await userList.getUser(users.user1.username)
+        expect(userListFirstUser.status).toBe(UserListStatus.ONLINE)
+      })
+
+      it('First user sees second user in user list as online', async () => {
+        const userList = new UsersList(users.user1.app.driver)
+        const secondUser = await userList.getUser(users.user2.username)
+        expect(secondUser.status).toBe(UserListStatus.ONLINE)
       })
 
       it('Second user sees general channel', async () => {
@@ -269,13 +360,19 @@ describe('Multiple Clients (QSS)', () => {
       })
 
       it(`First user sees second user's message`, async () => {
-        await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username)
+        await generalChannelUser1.getMessageIdsByText(users.user2.messages[0], users.user2.username, 60_000)
       })
     })
 
     describe('First User Leaves', () => {
       it('First user goes offline', async () => {
         await users.user1.app.close()
+      })
+
+      it('Second user sees first user in user list as offline', async () => {
+        const userList = new UsersList(users.user2.app.driver)
+        const userListFirstUser = await userList.getUser(users.user1.username, UserListStatus.OFFLINE)
+        expect(userListFirstUser.status).toBe(UserListStatus.OFFLINE)
       })
     })
 
@@ -285,7 +382,12 @@ describe('Multiple Clients (QSS)', () => {
         await users.owner.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.owner.app.driver)
         await debugModal.close()
-        await sleep(30000)
+      })
+
+      it('Second user sees owner in user list as online', async () => {
+        const userList = new UsersList(users.user2.app.driver)
+        const userListOwner = await userList.getUser(users.owner.username)
+        expect(userListOwner.status).toBe(UserListStatus.ONLINE)
       })
 
       it(`Owner can see the second user's message`, async () => {
@@ -311,7 +413,18 @@ describe('Multiple Clients (QSS)', () => {
         await users.user1.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.owner.app.driver)
         await debugModal.close()
-        await sleep(30000)
+      })
+
+      it('First user sees second user in user list as online', async () => {
+        const userList = new UsersList(users.user1.app.driver)
+        const secondUser = await userList.getUser(users.user2.username)
+        expect(secondUser.status).toBe(UserListStatus.ONLINE)
+      })
+
+      it('First user sees owner in user list as online', async () => {
+        const userList = new UsersList(users.user1.app.driver)
+        const userListOwner = await userList.getUser(users.owner.username)
+        expect(userListOwner.status).toBe(UserListStatus.ONLINE)
       })
 
       it("Second user's message is visible in a channel for first user", async () => {

@@ -4,7 +4,7 @@ import { ConfirmationBoxProps } from './ConfirmationBox.types'
 import { Typography } from '../Typography/Typography.component'
 
 import { defaultPalette } from '../../styles/palettes/default.palette'
-import { appImages } from '../../assets'
+import { icons } from '../../assets'
 
 export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => {
   const [visible, setVisible] = useState<boolean>(false)
@@ -34,7 +34,7 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
     toggle ? fadeIn() : fadeOut()
   }, [toggle])
 
-  const icon = appImages.icon_check_white
+  const icon = icons.icon_check_white
 
   let style: StyleProp<ViewStyle> = {
     bottom: 35,
