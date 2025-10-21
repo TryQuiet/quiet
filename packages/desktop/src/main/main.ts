@@ -1,5 +1,5 @@
 import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, Menu, ipcMain, session, dialog } from 'electron'
+import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
@@ -208,6 +208,11 @@ export const createWindow = async () => {
     }
   })
 
+  electronLocalshortcut.register(mainWindow, 'F10', async () => {
+    logger.info('Opening hCaptcha')
+    await openHCaptcha('014cd3a6-34c8-49ea-8896-55047514ddb2')
+  })
+
   mainWindow.setMinimumSize(600, 400)
   /* eslint-disable */
   mainWindow.loadURL(
@@ -255,6 +260,183 @@ export const createWindow = async () => {
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
   logger.info('Created mainWindow')
+}
+
+export async function openHCaptcha(siteKey: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let settled = false
+    const captchaSession = session.fromPartition('persist:hcaptcha')
+    const permissionHandler = (_wc: any, _perm: string, cb: (decision: boolean) => void) => cb(false)
+    captchaSession.setPermissionRequestHandler(permissionHandler)
+
+    const hostWindow = isBrowserWindow(mainWindow) ? mainWindow : null
+    let overlayView: BrowserView | null = null
+    let modalWindow: BrowserWindow | null = null
+    const hostWindowListeners: Array<{ event: string; listener: (...args: any[]) => void }> = []
+
+    const registerHostWindowListener = (event: string, listener: (...args: any[]) => void) => {
+      if (hostWindow && !hostWindow.isDestroyed()) {
+        hostWindow.on(event as any, listener)
+        hostWindowListeners.push({ event, listener })
+      }
+    }
+
+    const removeHostWindowListeners = () => {
+      if (!hostWindow || hostWindow.isDestroyed()) return
+      for (const { event, listener } of hostWindowListeners) {
+        hostWindow.removeListener(event as any, listener)
+      }
+      hostWindowListeners.length = 0
+    }
+
+    const cleanup = () => {
+      captchaSession.setPermissionRequestHandler(null)
+      removeHostWindowListeners()
+
+      if (overlayView) {
+        if (hostWindow && !hostWindow.isDestroyed()) {
+          try {
+            hostWindow.removeBrowserView(overlayView)
+          } catch (error) {
+            logger.warn('Failed to remove hCaptcha overlay', error)
+          }
+        }
+        overlayView = null
+      }
+
+      if (modalWindow && !modalWindow.isDestroyed()) {
+        modalWindow.destroy()
+      }
+      modalWindow = null
+
+      if (hostWindow && !hostWindow.isDestroyed()) {
+        hostWindow.webContents.focus()
+      }
+    }
+
+    let solvedHandler: ((event: Electron.IpcMainEvent, token: string) => void) | null = null
+    let failedHandler: ((event: Electron.IpcMainEvent, message: string) => void) | null = null
+
+    const resolveOnce = (token: string) => {
+      if (settled) return
+      settled = true
+      if (failedHandler) {
+        ipcMain.removeListener('hcaptcha:error', failedHandler)
+      }
+      cleanup()
+      resolve(token)
+    }
+
+    const rejectOnce = (message: string) => {
+      if (settled) return
+      settled = true
+      if (solvedHandler) {
+        ipcMain.removeListener('hcaptcha:solved', solvedHandler)
+      }
+      cleanup()
+      reject(new Error(message))
+    }
+
+    solvedHandler = (_event, token) => resolveOnce(token)
+    failedHandler = (_event, message) => rejectOnce(message)
+
+    ipcMain.once('hcaptcha:solved', solvedHandler)
+    ipcMain.once('hcaptcha:error', failedHandler)
+
+    const dataServerPort = ports?.dataServer
+    if (!dataServerPort) {
+      rejectOnce('Captcha server not ready')
+      return
+    }
+    const captchaUrl = `http://127.0.0.1:${dataServerPort}/hcaptcha?sitekey=${encodeURIComponent(siteKey)}`
+
+    if (hostWindow) {
+      overlayView = new BrowserView({
+        webPreferences: {
+          preload: path.join(__dirname, 'preload.captcha.js'),
+          contextIsolation: true,
+          nodeIntegration: false,
+          sandbox: false,
+          partition: 'persist:hcaptcha',
+        },
+      })
+
+      overlayView.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+      overlayView.webContents.on('will-navigate', event => event.preventDefault())
+      overlayView.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
+        if (errorCode === -3 /* ERR_ABORTED */) return
+        rejectOnce(`Captcha load failed (${errorCode}): ${errorDescription}`)
+      })
+      overlayView.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+        logger.debug(`hCaptcha overlay console [${level}] ${message} (${sourceId}:${line})`)
+      })
+
+      const updateBounds = () => {
+        if (!overlayView || !hostWindow || hostWindow.isDestroyed()) return
+        const { width, height } = hostWindow.getContentBounds()
+        overlayView.setBounds({ x: 0, y: 0, width, height })
+      }
+
+      hostWindow.addBrowserView(overlayView)
+      overlayView.setAutoResize({ width: true, height: true })
+      updateBounds()
+
+      registerHostWindowListener('resize', updateBounds)
+      registerHostWindowListener('enter-full-screen', updateBounds)
+      registerHostWindowListener('leave-full-screen', updateBounds)
+      registerHostWindowListener('focus', updateBounds)
+      registerHostWindowListener('closed', () => rejectOnce('Parent window closed'))
+
+      overlayView.webContents.once('did-finish-load', () => {
+        overlayView?.webContents.focus()
+      })
+
+      overlayView.webContents.loadURL(captchaUrl).catch(error => {
+        rejectOnce(error?.message ?? 'Failed to load captcha')
+      })
+
+      return
+    }
+
+    modalWindow = new BrowserWindow({
+      width: 420,
+      height: 520,
+      resizable: false,
+      minimizable: false,
+      maximizable: false,
+      modal: true,
+      parent: hostWindow ?? undefined,
+      show: false,
+      autoHideMenuBar: true,
+      title: 'Human verification',
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.captcha.js'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        partition: 'persist:hcaptcha',
+      },
+    })
+
+    modalWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+    modalWindow.webContents.on('will-navigate', event => event.preventDefault())
+    modalWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
+      if (errorCode === -3 /* ERR_ABORTED */) return
+      rejectOnce(`Captcha load failed (${errorCode}): ${errorDescription}`)
+    })
+    modalWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+      logger.debug(`hCaptcha modal console [${level}] ${message} (${sourceId}:${line})`)
+    })
+    modalWindow.on('closed', () => {
+      rejectOnce('Captcha window closed')
+    })
+
+    modalWindow.loadURL(captchaUrl).catch(error => {
+      rejectOnce(error?.message ?? 'Failed to load captcha')
+    })
+
+    modalWindow.once('ready-to-show', () => modalWindow?.show())
+  })
 }
 
 const isNetworkError = (errorObject: { message: string }) => {
@@ -384,12 +566,79 @@ app.on('ready', async () => {
       STATIC_LOG_ID: process.env.STATIC_LOG_ID,
       QSS_ALLOWED: process.env.QSS_ALLOWED ?? 'false',
       QSS_ENDPOINT: process.env.QSS_ENDPOINT,
+      HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
+      HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
 
+  const solveCaptcha = async (siteKey?: string) => {
+    const resolvedSiteKey = siteKey ?? process.env.HCAPTCHA_SITEKEY
+    if (!resolvedSiteKey) {
+      const message = 'Missing hCaptcha site key'
+      logger.error(message)
+      if (backendProcess) {
+        backendProcess.send({ type: 'hcaptcha-error', message })
+      }
+      throw new Error(message)
+    }
+
+    const forwardCaptchaToken = async (token: string) => {
+      const dataServerPort = ports?.dataServer
+      if (!dataServerPort) {
+        logger.warn('Unable to forward hCaptcha token – data server port unavailable')
+        return
+      }
+
+      try {
+        const response = await fetch(`http://127.0.0.1:${dataServerPort}/hcaptcha/verify`, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        })
+
+        if (!response.ok) {
+          const errorBody = await response.text().catch(() => '')
+          throw new Error(`Local verification endpoint returned ${response.status}: ${errorBody}`)
+        }
+      } catch (error) {
+        logger.error('Failed to forward hCaptcha token to local verification endpoint', error)
+      }
+    }
+
+    try {
+      const token = await openHCaptcha(resolvedSiteKey)
+      await forwardCaptchaToken(token)
+      if (backendProcess) {
+        backendProcess.send({ type: 'hcaptcha-token', token })
+      }
+      if (isBrowserWindow(mainWindow)) {
+        mainWindow.webContents.send('hcaptcha:token', token)
+      }
+      return token
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Captcha challenge failed'
+      logger.error('hCaptcha challenge failed', error)
+      if (backendProcess) {
+        backendProcess.send({ type: 'hcaptcha-error', message })
+      }
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error(message)
+    }
+  }
+
   function isReadyForSecretMessage(msg: any): msg is { type: string; nonce: string } {
     return msg && typeof msg === 'object' && msg.type === 'readyForSecret' && typeof msg.nonce === 'string'
+  }
+
+  function isCaptchaRequestMessage(msg: unknown): msg is { type: 'request-hcaptcha'; siteKey?: string } {
+    return (
+      typeof msg === 'object' && msg !== null && 'type' in msg && (msg as { type: string }).type === 'request-hcaptcha'
+    )
   }
 
   let sentSecret = false
@@ -401,7 +650,18 @@ app.on('ready', async () => {
       backendProcess?.send({ type: 'set-socket-secret', secret: SOCKET_IO_SECRET, nonce: msg.nonce })
       mainWindow?.webContents.send('socketIOSecret', SOCKET_IO_SECRET)
       SOCKET_IO_SECRET = undefined // Clear the secret after sending it
+      return
     }
+
+    if (isCaptchaRequestMessage(msg)) {
+      solveCaptcha(msg.siteKey).catch(error => {
+        logger.error('Error while handling hCaptcha request from backend', error)
+      })
+    }
+  })
+
+  ipcMain.handle('hcaptcha:request', async (_event, args: { siteKey?: string } = {}) => {
+    return solveCaptcha(args.siteKey)
   })
 
   backendProcess.on('close', (code, signal) => {
