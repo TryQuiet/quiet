@@ -9,12 +9,14 @@ import {
   type InitCommunityPayload,
   InvitationDataVersion,
   JoinCommunityPayload,
+  LoadingPanelType,
   ResponseJoinCommunityPayload,
   SocketActions,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { usersActions } from '../../users/users.slice'
+import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('joinCommunitySaga')
 
@@ -36,6 +38,7 @@ export function* joinCommunitySaga(
   )
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
+  let hcaptchaToken: ReturnType<typeof communitiesActions.hcaptchaTokenReceived> | undefined = undefined
   if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
     yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
@@ -46,6 +49,7 @@ export function* joinCommunitySaga(
       yield* put(communitiesActions.clearInvitationCodes())
       return
     }
+    hcaptchaToken = yield* take(communitiesActions.hcaptchaTokenReceived)
   }
 
   const payload: InitCommunityPayload = {
@@ -54,9 +58,12 @@ export function* joinCommunitySaga(
     inviteData,
     username: registerAction.payload.nickname,
     tosAccepted: acceptTerms.payload.accepted,
+    hcaptchaToken: hcaptchaToken?.payload.token,
   }
 
   logger.info('Updating backend with community data')
+  logger.info('Set loading panel type', LoadingPanelType.Joining)
+  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
 
   const response: ResponseJoinCommunityPayload | undefined = yield* apply(
     socket,
@@ -67,6 +74,7 @@ export function* joinCommunitySaga(
   if (!response) {
     logger.error('Failed to join community - invalid response from backend')
     yield* put(communitiesActions.clearInvitationCodes())
+    yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
     return
   }
   yield* put(communitiesActions.addNewCommunity(response.community))

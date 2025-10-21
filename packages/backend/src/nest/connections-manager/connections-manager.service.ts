@@ -371,10 +371,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async createCommunityOnQss(sigchain: SigChain): Promise<void> {
+  private async createCommunityOnQss(sigchain: SigChain, token: string): Promise<void> {
     const connected = await this.qssService.connect(this.qssEndpoint)
     if (connected) {
-      await this.qssService.createCommunity(sigchain)
+      await this.qssService.createCommunity(sigchain, token)
     }
   }
 
@@ -414,7 +414,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCurrentCommunityId(community.id)
 
     // purposely don't await
-    this.createCommunityOnQss(sigchain)
+    if (community.qssEnabled && payload.hcaptchaToken) {
+      this.createCommunityOnQss(sigchain, payload.hcaptchaToken)
+    }
 
     await this.launchCommunity(community.id)
 

@@ -33,6 +33,13 @@ const LoadingPanel = () => {
   const isCurrentCommunityInitialized = useSelector(network.selectors.isCurrentCommunityInitialized)
 
   useEffect(() => {
+    if (message === LoadingPanelType.Failed) {
+      loadingPanelModal.handleClose()
+      dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
+    }
+  }, [message])
+
+  useEffect(() => {
     logger.info(
       'Checking if joining completed',
       JSON.stringify({ isJoiningCompletedSelector, areMessages, areChannels, isCurrentCommunityInitialized }, null, 2)

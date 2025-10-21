@@ -5,7 +5,7 @@ import TermsOfServiceComponent from './TermsOfServiceComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
-import { shell } from 'electron'
+import { shell, ipcRenderer } from 'electron'
 
 const logger = createLogger('TermsOfService')
 
@@ -26,7 +26,7 @@ const TermsOfService = () => {
     }
   }, [tosRequested])
 
-  const handleChoice = (accepted: boolean) => {
+  const handleChoice = async (accepted: boolean) => {
     if (accepted) {
       if (!currentCommunity) {
         loadingPanelModal.handleOpen()
@@ -45,6 +45,14 @@ const TermsOfService = () => {
     )
 
     termsOfServiceModal.handleClose()
+
+    if (accepted) {
+      try {
+        await ipcRenderer.invoke('hcaptcha:request')
+      } catch (error) {
+        logger.error('Failed to launch hCaptcha challenge', error)
+      }
+    }
   }
 
   const openURL = () => {

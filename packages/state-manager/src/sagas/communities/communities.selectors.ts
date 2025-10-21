@@ -59,6 +59,10 @@ export const tosRequested = createSelector(communitiesSlice, reducerState => {
   return reducerState.tosRequested
 })
 
+export const captchaRequested = createSelector(communitiesSlice, reducerState => {
+  return reducerState.captchaRequested
+})
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
@@ -71,4 +75,5 @@ export const communitiesSelectors = {
   psk,
   isOwner,
   tosRequested,
+  captchaRequested,
 }

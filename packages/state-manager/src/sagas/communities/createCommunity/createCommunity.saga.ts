@@ -8,6 +8,7 @@ import {
   type Community,
   CommunityOwnership,
   type InitCommunityPayload,
+  LoadingPanelType,
   ResponseCreateCommunityPayload,
   SocketActions,
 } from '@quiet/types'
@@ -16,6 +17,7 @@ import { generateId } from '../../../utils/cryptography/cryptography'
 import { identityActions } from '../../identity/identity.slice'
 import { usersActions } from '../../users/users.slice'
 import { connectionActions } from '../../appConnection/connection.slice'
+import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('createCommunitySaga')
 
@@ -45,6 +47,7 @@ export function* createCommunitySaga(
   const username = registerAction.payload.nickname
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
+  let hcaptchaToken: ReturnType<typeof communitiesActions.hcaptchaTokenReceived> | undefined = undefined
   if (process.env.QSS_ALLOWED === 'true' && action.payload.useServer) {
     yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
@@ -52,15 +55,19 @@ export function* createCommunitySaga(
       logger.info('User did not accept terms of service, aborting community creation')
       return
     }
+    hcaptchaToken = yield* take(communitiesActions.hcaptchaTokenReceived)
   }
+
   const payload: InitCommunityPayload = {
     id: communityId,
     name: action.payload.name,
     username,
     useServer: action.payload.useServer,
     tosAccepted: acceptTerms.payload.accepted,
+    hcaptchaToken: hcaptchaToken?.payload.token,
   }
-
+  logger.info('Set loading panel type', LoadingPanelType.Joining)
+  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
   const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(
     socket,
     socket.emitWithAck,
@@ -72,6 +79,7 @@ export function* createCommunitySaga(
     logger.error('Failed to create community - invalid response from backend')
     yield* put(communitiesActions.setCurrentCommunity(''))
     yield* put(communitiesActions.deleteCommunity(communityId))
+    yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
     return
   }
 

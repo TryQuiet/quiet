@@ -18,6 +18,7 @@ export class CommunitiesState {
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
   public connectionInProgress = false
   public tosRequested = false
+  public captchaRequested = false
 }
 
 export const communitiesSlice = createSlice({
@@ -82,6 +83,12 @@ export const communitiesSlice = createSlice({
           })
         }
       }
+    },
+    requestHCaptchaToken: state => {
+      state.captchaRequested = true
+    },
+    hcaptchaTokenReceived: (state, _action: PayloadAction<{ token: string }>) => {
+      state.captchaRequested = false
     },
   },
 })

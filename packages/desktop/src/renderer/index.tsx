@@ -48,6 +48,10 @@ ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
   store.dispatch(socketActions.startConnection({ dataPort: parseInt(dataPort), socketIOSecret }))
 })
 
+ipcRenderer.on('hcaptcha:token', (_event, token: string) => {
+  store.dispatch(communities.actions.hcaptchaTokenReceived({ token }))
+})
+
 const container = document.getElementById('root')
 if (!container) throw new Error('No root html element!')
 let root = createRoot(container)

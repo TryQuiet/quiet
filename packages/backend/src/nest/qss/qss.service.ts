@@ -222,7 +222,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param sigChain Sigchain for this community
    * @returns True if successfully created
    */
-  public async createCommunity(sigChain: SigChain): Promise<boolean> {
+  public async createCommunity(sigChain: SigChain, token: string): Promise<boolean> {
     if (!this.canConnect) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
