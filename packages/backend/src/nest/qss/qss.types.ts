@@ -1,6 +1,20 @@
 import { Keyset } from '3rd-party/auth/packages/auth/dist'
-import { CompoundError } from '@quiet/types'
+import { Community, CompoundError } from '@quiet/types'
 import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
+
+export enum ReprocessableOperation {
+  CREATE_COMMUNITY = 'CREATE_COMMUNITY',
+  SIGN_IN = 'SIGN_IN',
+}
+
+/**
+ * Config for operations that need to be reprocessed
+ */
+export interface ReprocessableOperationDescription {
+  teamId: string
+  operation: ReprocessableOperation
+  arguments: Parameters<any>
+}
 
 /**
  * Quiet-specific websocket event types
@@ -19,6 +33,22 @@ export enum WebsocketEvents {
  */
 export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
+  QSS_CONNECTED = 'qssConnected',
+  QSS_DISCONNECTED = 'qssDisconnected',
+  QSS_HANDLE_SIGN_IN = 'qssHandleSignIn',
+}
+
+export enum QSSOperationResult {
+  DISABLED = 'DISABLED',
+  ERROR = 'ERROR',
+  SUCCESS = 'SUCCESS',
+}
+
+export interface QSSInitStatus {
+  communityInitialized: boolean
+  qssEnabled: boolean
+  qssSetup: boolean
+  community?: Community
 }
 
 export interface BaseWebsocketMessage<T extends object | undefined> {

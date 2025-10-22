@@ -100,6 +100,7 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
       onClick={handleOpenMenu}
     >
       <StyledBadge
+        slotProps={{ badge: { 'data-testid': `${userProfile.nickname}-user-link-status-badge` } as any }}
         overlap='circular'
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         variant='dot'

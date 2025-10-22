@@ -2,7 +2,7 @@ import { By, Key, type ThenableWebDriver, type WebElement, until } from 'seleniu
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
-import { MessageIds, RetryConfig } from './types'
+import { MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
@@ -404,7 +404,7 @@ export class JoiningLoadingPanel {
     )
   }
 
-  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
+  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
     // First check if the panel exists at all. In some flows (e.g., Not Now on server offer),
     // the joining panel may never appear, which is OK.
     const candidates = await this.driver.findElements(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
@@ -434,6 +434,96 @@ export class JoiningLoadingPanel {
       } else {
         throw e
       }
+    }
+  }
+}
+
+export class UsersList {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//ul[@data-testid="usersList"]')),
+      15_000,
+      `Users list couldn't be located within timeout`,
+      500
+    )
+  }
+
+  async isReady(): Promise<boolean> {
+    await this.driver.wait(
+      until.elementIsVisible(this.element),
+      15_000,
+      `Users list was not visibile within timeout`,
+      500
+    )
+    return true
+  }
+
+  async getUser(username: string, expectedState: UserListStatus = UserListStatus.ONLINE): Promise<UserListItem> {
+    logger.debug('Getting user list item', username)
+    let status: UserListStatus = UserListStatus.NOT_FOUND
+
+    let userItem: WebElement
+    try {
+      userItem = await this.driver.wait(
+        until.elementLocated(By.xpath(`//div[@data-testid="${username}-user-link"]`)),
+        60_000,
+        `Users item for ${username} couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(userItem),
+        120_000,
+        `Users item for ${username} was not visibile within timeout`,
+        500
+      )
+    } catch (e) {
+      return {
+        element: undefined,
+        status,
+      }
+    }
+
+    const statusBadge = await this.driver.wait(
+      until.elementLocated(By.xpath(`//span[@data-testid="${username}-user-link-status-badge"]`)),
+      15_000,
+      `Users item status badge for ${username} couldn't be located within timeout`,
+      500
+    )
+
+    if (expectedState === UserListStatus.ONLINE) {
+      try {
+        await this.driver.wait(
+          until.elementIsVisible(statusBadge),
+          60_000,
+          `Users item status badge for ${username} was not visibile within timeout`,
+          500
+        )
+        status = UserListStatus.ONLINE
+      } catch (e) {
+        status = UserListStatus.OFFLINE
+      }
+    } else {
+      try {
+        await this.driver.wait(
+          until.elementIsNotVisible(statusBadge),
+          120_000,
+          `Users item status badge for ${username} was not invisible within timeout`,
+          500
+        )
+        status = UserListStatus.OFFLINE
+      } catch (e) {
+        status = UserListStatus.ONLINE
+      }
+    }
+
+    return {
+      element: userItem,
+      status,
     }
   }
 }

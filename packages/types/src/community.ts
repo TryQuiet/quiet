@@ -24,6 +24,7 @@ export interface Community {
   qssEnabled?: boolean
   qssEndpoint?: string
   tosAccepted?: boolean
+  qssSetup?: boolean
 }
 
 export interface CommunityMetadata {

@@ -5,9 +5,12 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { randomInt } from 'crypto'
 import EventEmitter from 'events'
+import * as uint8arrays from 'uint8arrays'
 
 import { createLogger } from '../common/logger'
 import { QSSAuthConnection } from './qss-auth-conn'
+import { QSSClient } from './qss.client'
+import { AuthSyncMessage, WebsocketEvents } from './qss.types'
 
 @Injectable()
 export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDestroy {
@@ -18,8 +21,12 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
 
   private readonly logger = createLogger('qss:auth:conn:manager')
 
-  constructor(private readonly moduleRef: ModuleRef) {
+  constructor(
+    private readonly qssClient: QSSClient,
+    private readonly moduleRef: ModuleRef
+  ) {
     super()
+    this._configureEventHandlers()
   }
 
   /**
@@ -27,6 +34,28 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    */
   public onModuleDestroy() {
     this.close(true)
+  }
+
+  private _configureEventHandlers(): void {
+    // pass auth sync messages received on the websocket to the auth connection
+    this.qssClient.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
+      try {
+        if (message.payload?.message == null) {
+          throw new Error(`Missing message`)
+        }
+
+        const authConnection = this.getConnection(message.payload.teamId)
+        if (authConnection == null || !authConnection.active) {
+          throw new Error(
+            `Auth connection for team ${message.payload.teamId} wasn't initialized, can't process auth sync message`
+          )
+        }
+
+        authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
+      } catch (e) {
+        this.logger.error(`Error handling auth sync message`, e)
+      }
+    })
   }
 
   /**
