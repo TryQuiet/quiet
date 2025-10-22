@@ -414,6 +414,25 @@ export class Libp2pAuth {
       this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
       this.closeAuthConnection(peerId, false)
     }
+
+    if (this.joinStatus !== JoinStatus.JOINED) {
+      return
+    }
+
+    /**
+     * We need to manually reset the join status in the case where the status is stuck on an intermediate state like
+     * JOINING when disconnecting (for example this can happen when the user you are connecting to doesn't have your
+     * information in their chain yet resulting in an invalid device error)
+     */
+    const oldJoinStatus = this.joinStatus
+    if (this.sigChainService.team == null) {
+      this.joinStatus = JoinStatus.NOT_STARTED
+    } else if (this.joinedViaQSS(this.sigChainService.team.id)) {
+      this.joinStatus = JoinStatus.PENDING_MEMBER
+    } else {
+      this.joinStatus = JoinStatus.PENDING
+    }
+    this.logger.debug('Reset join status on disconnect', oldJoinStatus, this.joinStatus)
   }
 
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {

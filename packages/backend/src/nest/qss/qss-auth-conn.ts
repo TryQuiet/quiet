@@ -188,6 +188,7 @@ export class QSSAuthConnection extends EventEmitter {
         const user = sigChain.user
         authConnection.emit('sync', { team, user })
         this._joinStatus = JoinStatus.JOINED
+        this.logger.trace(`Server info`, this.sigChainService.activeChain.server.getServers())
       }
     })
 
