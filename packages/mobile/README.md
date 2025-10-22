@@ -220,7 +220,7 @@ const watchFolders = [
      echo "export NODE_BINARY=$(which node)" > .xcode.env.local
      ```
 
-     If XCode is giving an error when building for the iOS simualtor that says "Command PhaseScriptExecution failed with a nonzero exit code" when archiving" you need to clean and rebuild the project. See: 
+     If XCode is giving an error when building for the iOS simualtor that says **"Command PhaseScriptExecution failed with a nonzero exit code" when archiving" you need to clean and rebuild the project.** See: 
 
      https://stackoverflow.com/questions/62245176/command-phasescriptexecution-failed-with-a-nonzero-exit-code-when-archiving
 

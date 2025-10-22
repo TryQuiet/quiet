@@ -346,8 +346,8 @@ napi_value Init(napi_env env, napi_value exports) {
  * This method is the public API called by the React Native plugin
  */
 void rn_bridge_notify(const char* channelName, const char *message) {
-    int messageLength=strlen(message);
-    char* messageCopy = (char*)calloc(sizeof(char),messageLength + 1);
+    size_t messageLength = strlen(message);
+    char* messageCopy = (char*) calloc(sizeof(char),messageLength + 1);
     strncpy(messageCopy, message, messageLength);
 
     Channel* channel = GetOrCreateChannel(std::string(channelName));

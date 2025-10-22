@@ -13,7 +13,7 @@ ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 target 'Quiet' do
   config = use_native_modules!
 
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v408.17.4/Tor.podspec'
+  pod 'Tor', '~> 408'
 
 
   use_react_native!(
@@ -48,9 +48,21 @@ target 'Quiet' do
         # https://stackoverflow.com/questions/63607158/xcode-building-for-ios-simulator-but-linking-in-an-object-file-built-for-ios-f
         config.build_settings["ONLY_ACTIVE_ARCH"] = "YES"
         config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+        config.build_settings["HEADER_SEARCH_PATHS"] ||= "$(inherited) "
+        config.build_settings["HEADER_SEARCH_PATHS"] << '"$(PODS_TARGET_SRCROOT)" '
+        config.build_settings['HEADER_SEARCH_PATHS'] << '"$(PODS_ROOT)/Headers/Private/React-bridging" '
 
       end
     end
+
+    installer.generated_projects.each do |project|
+      project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.1'
+        end
+      end
+    end
+
 
   end
 end
