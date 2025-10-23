@@ -50,6 +50,16 @@ interface SecretMessage {
   nonce: string
 }
 
+interface CaptchaTokenMessage {
+  type: 'hcaptcha-token'
+  token: string
+}
+
+interface CaptchaErrorMessage {
+  type: 'hcaptcha-error'
+  message: string
+}
+
 let secretReceived = false
 
 function isSecretMessage(msg: any): msg is SecretMessage {
@@ -60,6 +70,14 @@ function isSecretMessage(msg: any): msg is SecretMessage {
     typeof msg.secret === 'string' &&
     typeof msg.nonce === 'string'
   )
+}
+
+function isCaptchaTokenMessage(msg: any): msg is CaptchaTokenMessage {
+  return msg && typeof msg === 'object' && msg.type === 'hcaptcha-token' && typeof msg.token === 'string'
+}
+
+function isCaptchaErrorMessage(msg: any): msg is CaptchaErrorMessage {
+  return msg && typeof msg === 'object' && msg.type === 'hcaptcha-error' && typeof msg.message === 'string'
 }
 function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManager: () => ConnectionsManagerService) {
   let shuttingDown = false
@@ -199,6 +217,12 @@ export const runBackendDesktop = async (secret: string) => {
         await shutdown.initiateShutdown(1, 'leaveCommunity error')
       }
       if (process.send) process.send('leftCommunity')
+    }
+    if (isCaptchaTokenMessage(message)) {
+      connectionsManager.getQssService().hcaptchaToken = message.token
+    }
+    if (isCaptchaErrorMessage(message)) {
+      connectionsManager.getQssService().handleHcaptchaError(message.message)
     }
   })
 }

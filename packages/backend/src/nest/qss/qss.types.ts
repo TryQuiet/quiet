@@ -67,6 +67,7 @@ export interface CreateCommunityPayload {
   community: QSSCommunity
   teamKeyring: string
   userId: string
+  hcaptchaToken?: string
 }
 
 export interface CreateCommunity {
@@ -132,6 +133,7 @@ export interface GeneratePublicKeysMessage extends BaseWebsocketMessage<Generate
 export interface CommunitySignInPayload {
   teamId: string
   userId: string
+  hcaptchaToken?: string
 }
 
 export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {
@@ -166,4 +168,9 @@ export interface QSSLogEntrySyncResponseMessage extends BaseWebsocketMessage<QSS
   status: CommunityOperationStatus
   reason?: string
   payload: QSSLogEntrySyncResponsePayload
+}
+
+export interface hcaptchaToken {
+  token: string
+  timestamp: number
 }

@@ -580,37 +580,14 @@ app.on('ready', async () => {
       if (backendProcess) {
         backendProcess.send({ type: 'hcaptcha-error', message })
       }
-      throw new Error(message)
-    }
-
-    const forwardCaptchaToken = async (token: string) => {
-      const dataServerPort = ports?.dataServer
-      if (!dataServerPort) {
-        logger.warn('Unable to forward hCaptcha token – data server port unavailable')
-        return
+      if (isBrowserWindow(mainWindow)) {
+        mainWindow.webContents.send('hcaptcha:error', message)
       }
-
-      try {
-        const response = await fetch(`http://127.0.0.1:${dataServerPort}/hcaptcha/verify`, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
-        })
-
-        if (!response.ok) {
-          const errorBody = await response.text().catch(() => '')
-          throw new Error(`Local verification endpoint returned ${response.status}: ${errorBody}`)
-        }
-      } catch (error) {
-        logger.error('Failed to forward hCaptcha token to local verification endpoint', error)
-      }
+      return
     }
 
     try {
       const token = await openHCaptcha(resolvedSiteKey)
-      await forwardCaptchaToken(token)
       if (backendProcess) {
         backendProcess.send({ type: 'hcaptcha-token', token })
       }
@@ -624,10 +601,6 @@ app.on('ready', async () => {
       if (backendProcess) {
         backendProcess.send({ type: 'hcaptcha-error', message })
       }
-      if (error instanceof Error) {
-        throw error
-      }
-      throw new Error(message)
     }
   }
 

@@ -122,51 +122,6 @@ export class AppModule {
               _ioLogger.warn('HCAPTCHA_TEMPLATE_PATH missing - /hcaptcha endpoint disabled')
             }
 
-            _app.post('/hcaptcha/verify', async (req, res) => {
-              const token = req.body?.token
-              if (typeof token !== 'string' || token.trim().length === 0) {
-                res.status(400).json({ error: 'Missing hCaptcha token' })
-                return
-              }
-
-              const forwardEndpoint = process.env.HCAPTCHA_FORWARD_ENDPOINT
-              if (!forwardEndpoint) {
-                _ioLogger.info('Received hCaptcha token. Forward endpoint not configured; skipping proxy.')
-                res.json({ ok: true })
-                return
-              }
-
-              try {
-                const response = await fetch(forwardEndpoint, {
-                  method: 'POST',
-                  headers: {
-                    'content-type': 'application/json',
-                  },
-                  body: JSON.stringify({ token }),
-                })
-
-                if (!response.ok) {
-                  const text = await response.text().catch(() => '')
-                  _ioLogger.error('hCaptcha upstream verification failed', response.status, text)
-                  res
-                    .status(502)
-                    .json({ error: 'Verification upstream returned error', status: response.status, body: text })
-                  return
-                }
-
-                let payload: any = null
-                try {
-                  payload = await response.json()
-                } catch (error) {
-                  _ioLogger.warn('hCaptcha upstream returned non-JSON payload', error)
-                }
-
-                res.json({ ok: true, upstream: payload ?? true })
-              } catch (error) {
-                _ioLogger.error('Failed to forward hCaptcha token to upstream', error)
-                res.status(502).json({ error: 'Failed to reach verification upstream' })
-              }
-            })
             const server = createServer(_app)
             const io = new SocketIO<SocketActionsMap, SocketEventsMap>(server, {
               cors: {
