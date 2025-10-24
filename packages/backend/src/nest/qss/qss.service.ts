@@ -443,51 +443,53 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return false
     }
 
-    // Generating the QSS LFA keyset for this community
-    this.logger.info(`Getting server keys for this team`)
-    const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
-      ts: DateTime.utc().toMillis(),
-      status: CommunityOperationStatus.SENDING,
-      payload: {
-        teamId: sigChain.team.id,
-      },
-    }
-    const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(
-      WebsocketEvents.GEN_PUB_KEYS,
-      qssGeneratePublicKeysMessage,
-      true
-    )
-
-    // if we couldn't create QSS' LFA keys for this community we should eject
-    if (
-      generateKeysResponse == null ||
-      generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
-      generateKeysResponse.payload == null ||
-      generateKeysResponse.payload.teamId != sigChain.team.id ||
-      generateKeysResponse.payload.keys == null
-    ) {
-      this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
-      return false
-    }
-
     // we need to normalize the hostname for QSS when running locally before adding the server to the chain
     let host = url.parse(this._qssEndpoint).hostname!
     if (host === '127.0.0.1') {
       host = 'localhost'
     }
 
-    const lfaServer: Server = {
-      host,
-      keys: generateKeysResponse.payload.keys,
-    }
+    // if we don't already have this server in our chain we need to generate keys and add it
+    if (!sigChain.team.hasServer(host)) {
+      // Generating the QSS LFA keyset for this community
+      this.logger.info(`Getting server keys for this team`)
+      const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SENDING,
+        payload: {
+          teamId: sigChain.team.id,
+        },
+      }
+      const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(
+        WebsocketEvents.GEN_PUB_KEYS,
+        qssGeneratePublicKeysMessage,
+        true
+      )
 
-    // add this QSS server/cluster to our chain using the keys we generated earlier
-    this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
-    sigChain.server.addServer(lfaServer)
+      // if we couldn't create QSS' LFA keys for this community we should eject
+      if (
+        generateKeysResponse == null ||
+        generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
+        generateKeysResponse.payload == null ||
+        generateKeysResponse.payload.teamId != sigChain.team.id ||
+        generateKeysResponse.payload.keys == null
+      ) {
+        this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
+        return false
+      }
+
+      const lfaServer: Server = {
+        host,
+        keys: generateKeysResponse.payload.keys,
+      }
+
+      // add this QSS server/cluster to our chain using the keys we generated earlier
+      this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
+      sigChain.server.addServer(lfaServer)
+    }
 
     const serializedSigChain: Uint8Array = sigChain.save()
     const serializedKeyring: Uint8Array = uint8arrays.fromString(JSON.stringify(sigChain.team.teamKeyring()), 'utf8')
-
     // send the serialized chain and team keys to QSS
     const qssCreateCommunityMessage: CreateCommunity = {
       ts: DateTime.utc().toMillis(),
@@ -500,12 +502,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
       },
     }
-    const token = await this.ensureHcaptchaToken('create-community')
-    if (token == null) {
-      this.logger.warn('No hCaptcha token available, cannot create community on QSS')
-      return false
+
+    if (!(process.env.IS_E2E === 'true')) {
+      const token = await this.ensureHcaptchaToken('create-community')
+      if (token == null) {
+        this.logger.warn('No hCaptcha token available, cannot create community on QSS')
+        return false
+      }
+      qssCreateCommunityMessage.payload.hcaptchaToken = token
     }
-    qssCreateCommunityMessage.payload.hcaptchaToken = token
 
     const createCommunityResponse = await this.qssClient.sendMessage<CreateCommunityResponse>(
       WebsocketEvents.CREATE_COMMUNITY,

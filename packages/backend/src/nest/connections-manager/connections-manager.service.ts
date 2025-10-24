@@ -406,9 +406,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    if (payload.hcaptchaToken) {
-      this.qssService.hcaptchaToken = payload.hcaptchaToken
-    }
     this.qssService.connect(this.qssEndpoint)
 
     await this.launchCommunity(community.id)

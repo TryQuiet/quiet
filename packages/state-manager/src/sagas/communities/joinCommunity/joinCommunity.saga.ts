@@ -38,7 +38,6 @@ export function* joinCommunitySaga(
   )
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
-  let hcaptchaToken: ReturnType<typeof communitiesActions.hcaptchaTokenReceived> | undefined = undefined
   if (inviteData?.version === InvitationDataVersion.v3 && (inviteData?.qssEnabled || inviteData?.qssEndpoint)) {
     yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
@@ -49,7 +48,6 @@ export function* joinCommunitySaga(
       yield* put(communitiesActions.clearInvitationCodes())
       return
     }
-    hcaptchaToken = yield* take(communitiesActions.hcaptchaTokenReceived)
   }
 
   const payload: InitCommunityPayload = {
@@ -58,7 +56,6 @@ export function* joinCommunitySaga(
     inviteData,
     username: registerAction.payload.nickname,
     tosAccepted: acceptTerms.payload.accepted,
-    hcaptchaToken: hcaptchaToken?.payload.token,
   }
 
   logger.info('Updating backend with community data')

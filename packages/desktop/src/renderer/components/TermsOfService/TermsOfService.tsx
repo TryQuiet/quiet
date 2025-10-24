@@ -45,14 +45,6 @@ const TermsOfService = () => {
     )
 
     termsOfServiceModal.handleClose()
-
-    if (accepted) {
-      try {
-        await ipcRenderer.invoke('hcaptcha:request')
-      } catch (error) {
-        logger.error('Failed to launch hCaptcha challenge', error)
-      }
-    }
   }
 
   const openURL = () => {

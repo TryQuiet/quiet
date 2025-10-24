@@ -47,7 +47,6 @@ export function* createCommunitySaga(
   const username = registerAction.payload.nickname
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
-  let hcaptchaToken: ReturnType<typeof communitiesActions.hcaptchaTokenReceived> | undefined = undefined
   if (process.env.QSS_ALLOWED === 'true' && action.payload.useServer) {
     yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
@@ -55,7 +54,6 @@ export function* createCommunitySaga(
       logger.info('User did not accept terms of service, aborting community creation')
       return
     }
-    hcaptchaToken = yield* take(communitiesActions.hcaptchaTokenReceived)
   }
 
   const payload: InitCommunityPayload = {
@@ -64,8 +62,8 @@ export function* createCommunitySaga(
     username,
     useServer: action.payload.useServer,
     tosAccepted: acceptTerms.payload.accepted,
-    hcaptchaToken: hcaptchaToken?.payload.token,
   }
+
   logger.info('Set loading panel type', LoadingPanelType.Joining)
   yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
   const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(

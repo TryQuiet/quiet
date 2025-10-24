@@ -77,7 +77,6 @@ export interface InitCommunityPayload {
   username: string
   useServer?: boolean
   tosAccepted?: boolean
-  hcaptchaToken?: string
 }
 
 export interface ResponseLaunchCommunityPayload {
