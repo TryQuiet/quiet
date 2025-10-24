@@ -100,6 +100,7 @@ export enum SocketActions {
    * data into the backend.
    */
   LOAD_MIGRATION_DATA = 'loadMigrationData',
+  HCAPTCHA_TOKEN_RECEIVED = 'hcaptchaTokenReceived',
 }
 
 // -----------------------------------------------------------------------------
@@ -189,6 +190,9 @@ export interface SocketActionsMap {
     RequestInvitePayload,
     (response?: ResponseInvitePayload) => void
   >
+
+  // ====== Misc ======
+  [SocketActions.HCAPTCHA_TOKEN_RECEIVED]: EmitEvent<string>
 }
 
 // -----------------------------------------------------------------------------

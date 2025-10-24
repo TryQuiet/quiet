@@ -7,6 +7,7 @@ import { initCommunitySaga, launchCommunitySaga } from './launchCommunity/launch
 import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import type { Task } from 'redux-saga'
+import { captchaRelaySaga } from './captchaRelay.saga'
 
 const logger = createLogger('communitiesMasterSage')
 
@@ -17,6 +18,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
       fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
+      takeEvery(communitiesActions.hcaptchaTokenReceived.type, captchaRelaySaga, socket),
     ])
   } finally {
     logger.info('communitiesMasterSaga stopping')
