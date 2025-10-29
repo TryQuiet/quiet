@@ -265,6 +265,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._qssEndpoint = qssEndpoint ?? this._qssEndpoint
     if (!this.canConnect) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
+      this._connecting = false
       return QSSOperationResult.DISABLED
     }
 

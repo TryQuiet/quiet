@@ -78,10 +78,10 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.redialQueue = new TimedQueue({
       start: true,
       concurrency: 10,
-      backoffFactor: 1.35,
+      backoffFactor: 1.25,
       fuzzFactor: 0.05,
-      baseDelayMs: 10_000,
-      maxDelayMs: 30_000,
+      baseDelayMs: 8_000,
+      maxDelayMs: 20_000,
       rolloverAtMaxDelay: true,
     })
 
@@ -175,7 +175,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     if (this.libp2pInstance == null) {
       this.logger.warn('Libp2p not initialized, dialing after delay', peerAddress)
-      await this.redialPeerAfterDelay(peerAddress, 20_000)
+      await this.redialPeerAfterDelay(peerAddress, 4_000)
       return
     }
 
@@ -572,16 +572,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       // update peer stats
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       const peerStats: Record<string, NetworkStats> = {}
+      const remoteAddr = connection != null ? connection[0].remoteAddr.toString() : undefined
       peerStats[remotePeerId] = {
         ...(peerPrevStats ?? {}),
         peerId: remotePeerId,
+        address: remoteAddr,
         connectionTime: peerPrevStats?.connectionTime ?? 0,
         lastSeen: DateTime.utc().valueOf(),
       } as NetworkStats
       await this.localDbService.updatePeerStats(peerStats)
 
       if (connection) {
-        const remoteAddr = connection[0].remoteAddr.toString()
         this.connectedPeers.set(remotePeerId, {
           peerId: remotePeerId,
           address: remoteAddr,
@@ -634,7 +635,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       const address = peerPrevStats?.address
       if (address != null) {
-        await this.redialPeerAfterDelay(address, 30_000)
+        this.logger.trace('Redialing disconnected peer after delay', address)
+        await this.redialPeerAfterDelay(address, 20_000)
       } else {
         this.logger.warn('No address found for this peer ID, skipping redial', remotePeerId)
       }
@@ -660,7 +662,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.info('Queueing peers for initial dialing')
     this.ensureDialQueueInterval()
 
-    this._connectedPeersInterval = setInterval(() => {
+    this._connectedPeersInterval = setInterval(async () => {
       const connections: Libp2pConnectedPeer[] = []
       for (const [peerId, peer] of this.connectedPeers.entries()) {
         connections.push({
@@ -673,6 +675,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionCount: this.connectedPeers.size,
         connections,
       })
+      const peerStats = await this.localDbService.getPeerStats()
+      this.logger.info(`Current Peer Stats:`, peerStats)
     }, 60_000)
 
     this.logger.info(`Initialized libp2p for peer ${peerId.peerId.toString()}`)

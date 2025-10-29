@@ -415,7 +415,7 @@ export class Libp2pAuth {
       this.closeAuthConnection(peerId, false)
     }
 
-    if (this.joinStatus !== JoinStatus.JOINED) {
+    if (this.joinStatus === JoinStatus.JOINED) {
       return
     }
 

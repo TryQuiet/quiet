@@ -148,7 +148,11 @@ export class LocalDbService extends EventEmitter {
    * @returns A promise that resolves to an array of sorted peer multiaddr.
    */
   public async getSortedPeers(includeLocalPeerAddress: boolean = true): Promise<string[]> {
-    const entries = (await this.get(LocalDBKeys.PEERS)) || {}
+    const entries = await this.getPeerStats()
+    if (entries == null) {
+      return []
+    }
+
     const stats: NetworkStats[] = Object.values(entries)
     const addresses: string[] = stats
       .map((peer: NetworkStats) => peer.address)
