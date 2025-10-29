@@ -264,6 +264,7 @@ export const createWindow = async () => {
 
 export async function openHCaptcha(siteKey: string): Promise<string> {
   return new Promise((resolve, reject) => {
+    logger.info('Opening hCaptcha with siteKey:', siteKey)
     let settled = false
     const captchaSession = session.fromPartition('persist:hcaptcha')
     const permissionHandler = (_wc: any, _perm: string, cb: (decision: boolean) => void) => cb(false)
@@ -574,6 +575,7 @@ app.on('ready', async () => {
 
   const solveCaptcha = async (siteKey?: string) => {
     const resolvedSiteKey = siteKey ?? process.env.HCAPTCHA_SITEKEY
+    logger.info('hCaptcha requested, siteKey:', resolvedSiteKey)
     if (!resolvedSiteKey) {
       const message = 'Missing hCaptcha site key'
       logger.error(message)
@@ -588,9 +590,6 @@ app.on('ready', async () => {
 
     try {
       const token = await openHCaptcha(resolvedSiteKey)
-      if (backendProcess) {
-        backendProcess.send({ type: 'hcaptcha-token', token })
-      }
       if (isBrowserWindow(mainWindow)) {
         mainWindow.webContents.send('hcaptcha:token', token)
       }
@@ -598,8 +597,8 @@ app.on('ready', async () => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Captcha challenge failed'
       logger.error('hCaptcha challenge failed', error)
-      if (backendProcess) {
-        backendProcess.send({ type: 'hcaptcha-error', message })
+      if (isBrowserWindow(mainWindow)) {
+        mainWindow.webContents.send('hcaptcha:error', message)
       }
     }
   }
@@ -627,7 +626,7 @@ app.on('ready', async () => {
     }
 
     if (isCaptchaRequestMessage(msg)) {
-      solveCaptcha(msg.siteKey).catch(error => {
+      solveCaptcha().catch(error => {
         logger.error('Error while handling hCaptcha request from backend', error)
       })
     }

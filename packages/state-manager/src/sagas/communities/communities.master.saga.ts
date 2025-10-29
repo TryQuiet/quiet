@@ -18,7 +18,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
       fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
-      takeEvery(communitiesActions.hcaptchaTokenReceived.type, captchaRelaySaga, socket),
+      takeEvery(captchaActions.setHcaptchaFormResponse.type, captchaRelaySaga, socket),
     ])
   } finally {
     logger.info('communitiesMasterSaga stopping')

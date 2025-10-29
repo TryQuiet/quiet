@@ -218,12 +218,6 @@ export const runBackendDesktop = async (secret: string) => {
       }
       if (process.send) process.send('leftCommunity')
     }
-    if (isCaptchaTokenMessage(message)) {
-      connectionsManager.getQssService().hcaptchaToken = message.token
-    }
-    if (isCaptchaErrorMessage(message)) {
-      connectionsManager.getQssService().handleHcaptchaError(message.message)
-    }
   })
 }
 

@@ -9,6 +9,7 @@ import {
   type Community,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { HCaptchaFormResponse } from 'packages/types/src/captcha'
 
 const logger = createLogger('communitiesSlice')
 
@@ -83,12 +84,6 @@ export const communitiesSlice = createSlice({
           })
         }
       }
-    },
-    requestHCaptchaToken: state => {
-      state.captchaRequested = true
-    },
-    hcaptchaTokenReceived: (state, _action: PayloadAction<{ token: string }>) => {
-      state.captchaRequested = false
     },
   },
 })

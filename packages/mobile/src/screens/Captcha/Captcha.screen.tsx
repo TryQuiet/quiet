@@ -1,14 +1,14 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ConfirmHcaptcha from '@hcaptcha/react-native-hcaptcha'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useIsFocused, useRoute } from '@react-navigation/native'
 import { CaptchaRouteProps } from '../../route.params'
-import { navigationActions } from '../../store/navigation/navigation.slice'
-import { communities } from '@quiet/state-manager'
+import { captcha } from '@quiet/state-manager'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 import Config from 'react-native-config'
+import ModalBottomDrawer from '../../components/ModalBottomDrawer/ModalBottomDrawer.component'
 
 const logger = createLogger('CaptchaScreen')
 
@@ -34,6 +34,8 @@ export const CaptchaScreen: FC = () => {
 
   const siteKey = Config.HCAPTCHA_SITEKEY ?? '10000000-ffff-ffff-ffff-000000000001'
   const reason = route.params?.reason ?? 'verification'
+
+  const captchaRequested = useSelector(captcha.selectors.captchaRequested)
 
   const copy = useMemo(() => {
     switch (reason) {
@@ -81,7 +83,7 @@ export const CaptchaScreen: FC = () => {
         logger.info(logMessage)
       }
       captchaRef.current?.hide()
-      dispatch(navigationActions.pop())
+      // dispatch(navigationActions.pop())
     },
     [dispatch]
   )
@@ -90,7 +92,7 @@ export const CaptchaScreen: FC = () => {
     (token: string) => {
       logger.info('hCaptcha solved successfully')
       captchaRef.current?.hide()
-      dispatch(communities.actions.hcaptchaTokenReceived({ token }))
+      dispatch(communities.actions.setHcaptchaFormResponse({ token }))
       closeScreen()
     },
     [closeScreen, dispatch]
@@ -150,40 +152,42 @@ export const CaptchaScreen: FC = () => {
   logger.info('Rendering CaptchaScreen for siteKey ' + siteKey)
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>{copy.title}</Text>
-        <Text style={styles.description}>{copy.description}</Text>
-        {status === 'loading' && (
-          <View style={styles.indicatorRow}>
-            <ActivityIndicator color={defaultTheme.palette.background.lushSky} />
-            <Text style={styles.secondaryText}>Loading challenge…</Text>
-          </View>
-        )}
-        {errorMessage && (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>{errorMessage}</Text>
-            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-              <Text style={styles.retryLabel}>Try again</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        <TouchableOpacity
-          onPress={() => closeScreen('Captcha screen cancelled via button')}
-          style={styles.cancelButton}
-        >
-          <Text style={styles.cancelLabel}>Cancel</Text>
-        </TouchableOpacity>
+    <ModalBottomDrawer visible={captchaRequested} onClose={closeScreen}>
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>{copy.title}</Text>
+          <Text style={styles.description}>{copy.description}</Text>
+          {status === 'loading' && (
+            <View style={styles.indicatorRow}>
+              <ActivityIndicator color={defaultTheme.palette.background.lushSky} />
+              <Text style={styles.secondaryText}>Loading challenge…</Text>
+            </View>
+          )}
+          {errorMessage && (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                <Text style={styles.retryLabel}>Try again</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={() => closeScreen('Captcha screen cancelled via button')}
+            style={styles.cancelButton}
+          >
+            <Text style={styles.cancelLabel}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+        <ConfirmHcaptcha
+          ref={captchaRef}
+          siteKey={siteKey}
+          onMessage={handleMessage}
+          languageCode={route.params?.languageCode}
+          passiveSiteKey={false}
+          size={'normal'}
+        />
       </View>
-      <ConfirmHcaptcha
-        ref={captchaRef}
-        siteKey={siteKey}
-        onMessage={handleMessage}
-        languageCode={route.params?.languageCode}
-        passiveSiteKey={false}
-        size={'normal'}
-      />
-    </View>
+    </ModalBottomDrawer>
   )
 }
 

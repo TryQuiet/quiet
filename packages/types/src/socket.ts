@@ -44,6 +44,7 @@ import {
 } from './community'
 import { ErrorPayload } from './errors'
 import { InviteResult } from '@localfirst/auth'
+import { HCaptchaFormResponse } from './captcha'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -94,13 +95,16 @@ export enum SocketActions {
 
   VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE = 'validateOrCreateLongLivedLfaInvite',
 
+  // ====== Captcha ======
+  HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
+  HCAPTCHA_REQUEST = 'hcaptchaRequest',
+
   // ====== Misc ======
   /**
    * For moving data from the frontend to the backend. Load migration
    * data into the backend.
    */
   LOAD_MIGRATION_DATA = 'loadMigrationData',
-  HCAPTCHA_TOKEN_RECEIVED = 'hcaptchaTokenReceived',
 }
 
 // -----------------------------------------------------------------------------
@@ -145,6 +149,10 @@ export enum SocketEvents {
   MIGRATION_DATA_REQUIRED = 'migrationDataRequired',
   PUSH_NOTIFICATION = 'pushNotification',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
+
+  // ====== Captcha ======
+  HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
+  HCAPTCHA_REQUEST = 'hcaptchaRequest',
 }
 
 type EmitEvent<Payload, Callback = (response: any) => void> = (payload: Payload, callback?: Callback) => void
@@ -191,8 +199,11 @@ export interface SocketActionsMap {
     (response?: ResponseInvitePayload) => void
   >
 
+  // ====== Captcha ======
+  [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
+  [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<void>
+
   // ====== Misc ======
-  [SocketActions.HCAPTCHA_TOKEN_RECEIVED]: EmitEvent<string>
 }
 
 // -----------------------------------------------------------------------------
@@ -237,4 +248,8 @@ export interface SocketEventsMap {
   [SocketEvents.MIGRATION_DATA_REQUIRED]: EmitEvent<string[]>
   [SocketEvents.PUSH_NOTIFICATION]: EmitEvent<PushNotificationPayload>
   [SocketEvents.CONNECTION_PROCESS_INFO]: EmitEvent<string>
+
+  // ====== Captcha ======
+  [SocketEvents.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
+  [SocketEvents.HCAPTCHA_REQUEST]: EmitEvent<void>
 }

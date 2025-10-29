@@ -39,6 +39,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { hash } from '@localfirst/crypto'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
+import { CaptchaService } from '../captcha/captcha.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
@@ -74,7 +75,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     private readonly qssAuthConnManager: QSSAuthConnectionManager,
     private readonly sigChainService: SigChainService,
     private readonly localDbService: LocalDbService,
-    private readonly orbitDbService: OrbitDbService
+    private readonly orbitDbService: OrbitDbService,
+    private readonly captchaService: CaptchaService
   ) {
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
@@ -91,102 +93,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     OrbitDbService.events.on('put', (logUpdate: LogUpdate) => {
       void this.sendLogEntrySyncMessage(logUpdate)
     })
-  }
-
-  get hcaptchaToken(): string | null {
-    if (this._hcaptchaToken == null) {
-      return null
-    }
-
-    // if the token is older than 2 minutes we should discard it
-    const now = DateTime.utc().toMillis()
-    if (now - this._hcaptchaToken.timestamp > 2 * 60 * 1000) {
-      this._hcaptchaToken = null
-      return null
-    }
-
-    return this._hcaptchaToken.token
-  }
-
-  set hcaptchaToken(token: string | null) {
-    if (token == null) {
-      this._hcaptchaToken = null
-      this.flushHcaptchaWaiters(null)
-      return
-    }
-    this._hcaptchaToken = {
-      token,
-      timestamp: DateTime.utc().toMillis(),
-    }
-    this.flushHcaptchaWaiters(token)
-  }
-
-  private flushHcaptchaWaiters(token: string | null) {
-    if (this._hcaptchaWaiters.length === 0) {
-      this._hcaptchaRequestPending = false
-      return
-    }
-
-    const waiters = [...this._hcaptchaWaiters]
-    this._hcaptchaWaiters = []
-    this._hcaptchaRequestPending = false
-
-    waiters.forEach(waiter => {
-      try {
-        waiter(token)
-      } catch (error) {
-        this.logger.error('Failed to notify hCaptcha waiter', error)
-      }
-    })
-  }
-
-  public handleHcaptchaError(message: string) {
-    this.logger.warn(`hCaptcha verification failed: ${message}`)
-    this._hcaptchaToken = null
-    this.flushHcaptchaWaiters(null)
-  }
-
-  private async requestHcaptchaToken(reason: string): Promise<string | null> {
-    const existing = this.hcaptchaToken
-    if (existing) {
-      return existing
-    }
-
-    this.logger.info('Requesting hCaptcha token from renderer process')
-    if (!process.send) {
-      this.logger.warn('Cannot request hCaptcha token: IPC channel unavailable')
-      return null
-    }
-
-    return await new Promise(resolve => {
-      const onToken = (token: string | null) => {
-        clearTimeout(timeoutId)
-        resolve(token)
-      }
-
-      const timeoutId = setTimeout(() => {
-        this._hcaptchaWaiters = this._hcaptchaWaiters.filter(waiter => waiter !== onToken)
-        this._hcaptchaRequestPending = false
-        resolve(null)
-      }, this.hcaptchaRequestTimeoutMs)
-
-      this._hcaptchaWaiters.push(onToken)
-
-      if (!this._hcaptchaRequestPending) {
-        this._hcaptchaRequestPending = true
-        process.send?.({ type: 'request-hcaptcha', reason })
-      }
-    })
-  }
-
-  private async ensureHcaptchaToken(context: string): Promise<string | null> {
-    const token = this.hcaptchaToken
-    if (token) {
-      return token
-    }
-    const received_token = await this.requestHcaptchaToken(context)
-    this.logger.info('Received hCaptcha token from renderer', received_token)
-    return received_token
   }
 
   /**
@@ -449,6 +355,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       host = 'localhost'
     }
 
+    const token = await this.captchaService.ensureHcaptchaToken()
+    if (token == null) {
+      this.logger.warn('No hCaptcha token available, cannot create community on QSS')
+      return false
+    }
+
     // if we don't already have this server in our chain we need to generate keys and add it
     if (!sigChain.team.hasServer(host)) {
       // Generating the QSS LFA keyset for this community
@@ -458,6 +370,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         status: CommunityOperationStatus.SENDING,
         payload: {
           teamId: sigChain.team.id,
+          hcaptchaToken: token,
         },
       }
       const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(
@@ -501,15 +414,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         },
         teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
       },
-    }
-
-    if (!(process.env.IS_E2E === 'true')) {
-      const token = await this.ensureHcaptchaToken('create-community')
-      if (token == null) {
-        this.logger.warn('No hCaptcha token available, cannot create community on QSS')
-        return false
-      }
-      qssCreateCommunityMessage.payload.hcaptchaToken = token
     }
 
     const createCommunityResponse = await this.qssClient.sendMessage<CreateCommunityResponse>(
@@ -573,12 +477,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return QSSOperationResult.ERROR
     }
 
-    const token = await this.ensureHcaptchaToken('sign-in')
-    if (token == null) {
-      this.logger.warn('No hCaptcha token available, cannot sign in to QSS')
-      return QSSOperationResult.ERROR
-    }
-
     // send a sign in message to QSS for this community and check for a successful response
     this.logger.info(`Signing in to community`, teamId)
     const qssSignInMessage: CommunitySignInMessage = {
@@ -587,7 +485,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       payload: {
         userId: (sigChain.context as MemberContext).user.userId,
         teamId,
-        hcaptchaToken: token,
       },
     }
     const signInResponse = await this.qssClient.sendMessage<CommunitySignInMessage>(
