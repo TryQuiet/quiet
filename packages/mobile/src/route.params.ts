@@ -15,13 +15,6 @@ export type RootStackParamList = {
         nickname?: string
       }
     | undefined
-  [ScreenNames.CaptchaScreen]:
-    | {
-        siteKey?: string
-        reason?: string
-        languageCode?: string
-      }
-    | undefined
   [ScreenNames.QRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
@@ -85,4 +78,3 @@ export type PossibleImpersonationAttackRouteProps = RouteProp<
 export type UsernameRegistrationRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameRegistrationScreen>
 
 export type TermsOfServiceRouteProps = RouteProp<RootStackParamList, ScreenNames.TermsOfServiceScreen>
-export type CaptchaRouteProps = RouteProp<RootStackParamList, ScreenNames.CaptchaScreen>

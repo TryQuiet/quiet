@@ -19,7 +19,6 @@ export const TermsOfServiceScreen: FC = () => {
         screen: ScreenNames.ConnectionProcessScreen,
       })
     )
-    dispatch(navigationActions.navigation({ screen: ScreenNames.CaptchaScreen }))
   }
 
   const onBack = () => {

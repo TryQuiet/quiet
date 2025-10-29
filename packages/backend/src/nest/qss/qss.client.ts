@@ -3,14 +3,25 @@
  */
 import { Inject, Injectable } from '@nestjs/common'
 import { connect, type Socket as ClientSocket } from 'socket.io-client'
+import { DateTime } from 'luxon'
 
 import { createLogger } from '../common/logger'
 import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
-import { QSSConnectionError, QSSEvents, QSSNotInitializedError, WebsocketEvents } from './qss.types'
+import {
+  CaptchaVerifyMessage,
+  CaptchaVerifyResponse,
+  CommunityOperationStatus,
+  GetCaptchaSiteKeyResponse,
+  QSSConnectionError,
+  QSSEvents,
+  QSSNotInitializedError,
+  WebsocketEvents,
+} from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
 import { CompoundError } from '@quiet/types'
 import EventEmitter from 'node:events'
+import { CaptchaService } from '../captcha/captcha.service'
 
 @Injectable()
 export class QSSClient extends EventEmitter {
@@ -18,6 +29,7 @@ export class QSSClient extends EventEmitter {
    * Socket.io socket instance
    */
   private _clientSocket: ClientSocket | undefined = undefined
+  private _captchaVerified = false
 
   private readonly logger = createLogger(`qss:client`)
 
@@ -25,7 +37,8 @@ export class QSSClient extends EventEmitter {
     // environment variable that determines if we are using QSS
     @Inject(QSS_ALLOWED) private qssAllowed: boolean,
     // environment variable that determines what endpoint we connect to QSS on
-    @Inject(QSS_ENDPOINT) private qssEndpoint: string
+    @Inject(QSS_ENDPOINT) private qssEndpoint: string,
+    private readonly captchaService: CaptchaService
   ) {
     super()
   }
@@ -33,6 +46,10 @@ export class QSSClient extends EventEmitter {
   public get connected(): boolean {
     const socket = this.getClientSocket()
     return socket != null && socket.active && socket.connected
+  }
+
+  public get captchaVerified(): boolean {
+    return this._captchaVerified
   }
 
   public getClientSocket(): ClientSocket | undefined {
@@ -147,6 +164,84 @@ export class QSSClient extends EventEmitter {
       this.logger.error('Error while sending message to QSS', e)
     }
     return undefined
+  }
+
+  public async getCaptchaSiteKey(): Promise<string | null> {
+    this.logger.debug('Requesting hCaptcha site key from QSS')
+    try {
+      const response = await this.sendMessage<GetCaptchaSiteKeyResponse>(
+        WebsocketEvents.GET_CAPTCHA_SITE_KEY,
+        {
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.SENDING,
+        },
+        true
+      )
+      if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.siteKey) {
+        this.logger.debug('Received hCaptcha site key from QSS')
+        return response.payload.siteKey
+      } else {
+        this.logger.warn(`Failed to get hCaptcha site key from QSS: ${response?.reason ?? 'no reason provided'}`)
+        return null
+      }
+    } catch (e) {
+      this.logger.error('Error while requesting hCaptcha site key from QSS', e)
+      return null
+    }
+  }
+
+  public async verifyCaptchaToken(): Promise<boolean> {
+    if (!this.captchaService.hcaptchaToken) {
+      this.logger.debug('No hCaptcha token available to verify')
+      return false
+    }
+
+    if (!this.connected) {
+      this.logger.debug('QSS client not connected, cannot verify hCaptcha token')
+      return false
+    }
+
+    this.logger.debug('Verifying hCaptcha token with QSS')
+    try {
+      const response = await this.sendMessage<CaptchaVerifyResponse>(
+        WebsocketEvents.VERIFY_CAPTCHA,
+        {
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.SENDING,
+          payload: { token: this.captchaService.hcaptchaToken },
+        },
+        true
+      )
+      if (response?.status === CommunityOperationStatus.SUCCESS) {
+        this._captchaVerified = true
+        this.logger.debug('hCaptcha token successfully verified with QSS')
+        return true
+      } else {
+        this.logger.warn(`hCaptcha token verification with QSS failed: ${response?.reason ?? 'no reason provided'}`)
+        return false
+      }
+    } catch (e) {
+      this.logger.error('Error while verifying hCaptcha token with QSS', e)
+      return false
+    }
+  }
+
+  public async requestCaptchaVerification(): Promise<boolean> {
+    this._captchaVerified = false
+    const siteKey = await this.getCaptchaSiteKey()
+    if (siteKey == null) {
+      this.logger.warn('Cannot request captcha verification without a site key')
+      return false
+    }
+
+    const token = await this.captchaService.ensureHcaptchaToken(siteKey)
+    if (token == null) {
+      this.logger.warn('Failed to obtain hCaptcha token for verification')
+      return false
+    }
+
+    const verified = await this.verifyCaptchaToken()
+    return verified
   }
 
   /**

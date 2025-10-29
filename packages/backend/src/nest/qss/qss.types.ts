@@ -1,7 +1,6 @@
 import { Keyset } from '3rd-party/auth/packages/auth/dist'
 import { Community, CompoundError } from '@quiet/types'
 import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
-
 export enum ReprocessableOperation {
   CREATE_COMMUNITY = 'CREATE_COMMUNITY',
   SIGN_IN = 'SIGN_IN',
@@ -26,6 +25,8 @@ export enum WebsocketEvents {
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
   LOG_ENTRY_SYNC = 'log-entry-sync',
+  VERIFY_CAPTCHA = 'verify-captcha',
+  GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
 }
 
 /**
@@ -133,7 +134,6 @@ export interface GeneratePublicKeysMessage extends BaseWebsocketMessage<Generate
 export interface CommunitySignInPayload {
   teamId: string
   userId: string
-  hcaptchaToken?: string
 }
 
 export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {
@@ -170,7 +170,22 @@ export interface QSSLogEntrySyncResponseMessage extends BaseWebsocketMessage<QSS
   payload: QSSLogEntrySyncResponsePayload
 }
 
-export interface hcaptchaToken {
+export interface CaptchaVerifyPayload {
   token: string
-  timestamp: number
+}
+
+export interface CaptchaVerifyMessage extends BaseWebsocketMessage<CaptchaVerifyPayload> {
+  payload: CaptchaVerifyPayload
+}
+
+export interface CaptchaVerifyResponse extends BaseWebsocketMessage<undefined> {}
+
+export interface GetCaptchaSiteKeyMessage extends BaseWebsocketMessage<undefined> {}
+
+export interface GetCaptchaSiteKeyResponsePayload {
+  siteKey: string
+}
+
+export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptchaSiteKeyResponsePayload> {
+  payload?: GetCaptchaSiteKeyResponsePayload
 }

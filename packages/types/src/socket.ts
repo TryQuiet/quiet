@@ -44,7 +44,7 @@ import {
 } from './community'
 import { ErrorPayload } from './errors'
 import { InviteResult } from '@localfirst/auth'
-import { HCaptchaFormResponse } from './captcha'
+import { HCaptchaFormResponse, HCaptchaRequest } from './captcha'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -201,7 +201,7 @@ export interface SocketActionsMap {
 
   // ====== Captcha ======
   [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
-  [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<void>
+  [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
 
   // ====== Misc ======
 }
@@ -251,5 +251,5 @@ export interface SocketEventsMap {
 
   // ====== Captcha ======
   [SocketEvents.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
-  [SocketEvents.HCAPTCHA_REQUEST]: EmitEvent<void>
+  [SocketEvents.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
 }

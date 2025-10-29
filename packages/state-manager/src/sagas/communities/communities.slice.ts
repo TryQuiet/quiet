@@ -9,7 +9,6 @@ import {
   type Community,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
-import { HCaptchaFormResponse } from 'packages/types/src/captcha'
 
 const logger = createLogger('communitiesSlice')
 

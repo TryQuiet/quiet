@@ -1,9 +1,13 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
-import { SocketActions, SocketEvents } from '@quiet/types'
-import SocketService from '../socket/socket.service'
+import { HCaptchaFormResponse, SocketActions, SocketEvents } from '@quiet/types'
+import { SocketService } from '../socket/socket.service'
+import { createLogger } from '../common/logger'
+import { QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
+import { ServerIoProviderTypes } from '../types'
 
+const logger = createLogger('CaptchaService')
 @Injectable()
 export class CaptchaService extends EventEmitter implements OnModuleInit {
   private readonly hcaptchaRequestTimeoutMs = 30 * 1000 // 30 seconds
@@ -23,12 +27,16 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
   async onModuleInit() {
     this.socketService.on(SocketEvents.HCAPTCHA_FORM_RESPONSE, (payload: HCaptchaFormResponse) => {
       if (!payload.token) {
-        this.logger.warn('Received empty hCaptcha token from client')
+        logger.warn('Received empty hCaptcha token from client')
         this.hcaptchaToken = null
         return
       }
       this.hcaptchaToken = payload.token
     })
+  }
+
+  get hcaptchaRequestPending(): boolean {
+    return this._hcaptchaRequestPending
   }
 
   get hcaptchaToken(): string | null {
@@ -73,26 +81,26 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
       try {
         waiter(token)
       } catch (error) {
-        this.logger.error('Failed to notify hCaptcha waiter', error)
+        logger.error('Failed to notify hCaptcha waiter', error)
       }
     })
   }
 
   public handleHcaptchaError(message: string) {
-    this.logger.warn(`hCaptcha verification failed: ${message}`)
+    logger.warn(`hCaptcha verification failed: ${message}`)
     this._hcaptchaToken = null
     this.flushHcaptchaWaiters(null)
   }
 
-  private async requestHcaptchaToken(): Promise<string | null> {
+  private async requestHcaptchaToken(siteKey: string): Promise<string | null> {
     const existing = this.hcaptchaToken
     if (existing) {
       return existing
     }
 
-    this.logger.info('Requesting hCaptcha token from renderer process')
+    logger.info('Requesting hCaptcha token from renderer process')
     if (!process.send) {
-      this.logger.warn('Cannot request hCaptcha token: IPC channel unavailable')
+      logger.warn('Cannot request hCaptcha token: IPC channel unavailable')
       return null
     }
 
@@ -112,43 +120,21 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
 
       if (!this._hcaptchaRequestPending) {
         this._hcaptchaRequestPending = true
-        process.send?.({ type: 'request-hcaptcha' })
-        this.serverIoProvider.emit(SocketActions.HCAPTCHA_REQUEST)
+        // desktop app: send IPC message to renderer
+        process.send?.({ type: 'request-hcaptcha', siteKey })
+        // mobile app: emit socket event to redux
+        this.serverIoProvider.io.emit(SocketActions.HCAPTCHA_REQUEST, { sitekey: siteKey })
       }
     })
   }
 
-  private async ensureHcaptchaToken(): Promise<string | null> {
+  public async ensureHcaptchaToken(siteKey: string): Promise<string | null> {
     const token = this.hcaptchaToken
     if (token) {
       return token
     }
-    const received_token = await this.requestHcaptchaToken()
-    this.logger.info('Received hCaptcha token from renderer', received_token)
+    const received_token = await this.requestHcaptchaToken(siteKey)
+    logger.info('Received hCaptcha token from renderer', received_token)
     return received_token
-  }
-
-  private async getSiteKey(): Promise<string | null> {
-    if (process.env.HCAPTCHA_SITE_KEY) {
-      return process.env.HCAPTCHA_SITE_KEY
-    }
-
-    if (!this.qssEndpoint) {
-      this.logger.warn('No QSS endpoint configured, cannot get hCaptcha site key')
-      return null
-    }
-
-    try {
-      const response = await fetch(`${this.qssEndpoint}/captcha/sitekey`)
-      if (!response.ok) {
-        this.logger.warn(`Failed to get hCaptcha site key: ${response.status} ${response.statusText}`)
-        return null
-      }
-      const data = await response.json()
-      return data.siteKey
-    } catch (error) {
-      this.logger.error('Error fetching hCaptcha site key', error)
-      return null
-    }
   }
 }

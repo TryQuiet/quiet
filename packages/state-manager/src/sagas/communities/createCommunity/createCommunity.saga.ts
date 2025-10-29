@@ -55,10 +55,6 @@ export function* createCommunitySaga(
       logger.info('User did not accept terms of service, aborting community creation')
       return
     }
-    yield* put(communitiesActions.requestHCaptchaToken())
-    const hcaptchaAction: ReturnType<typeof captchaActions.setHcaptchaFormResponse> = yield* take(
-      captchaActions.setHcaptchaFormResponse
-    )
   }
 
   const payload: InitCommunityPayload = {

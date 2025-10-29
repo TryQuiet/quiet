@@ -20,11 +20,7 @@ import {
   WebsocketEvents,
   QSSOperationResult,
   QSSEvents,
-  ReprocessableOperationDescription,
-  ReprocessableOperation,
-  AuthSyncMessage,
   QSSInitStatus,
-  hcaptchaToken,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
@@ -43,7 +39,7 @@ import { CaptchaService } from '../captcha/captcha.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
-import { Community, CompoundError, InvitationDataV3 } from '@quiet/types'
+import { CompoundError, InvitationDataV3 } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 
 @Injectable()
@@ -60,11 +56,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Interval for retrying/reconnecting to QSS
    */
   private _reconnectQueueProcessor: NodeJS.Timeout
-
-  private _hcaptchaToken: hcaptchaToken | null = null
-  private _hcaptchaWaiters: Array<(token: string | null) => void> = []
-  private _hcaptchaRequestPending = false
-  private readonly hcaptchaRequestTimeoutMs = 2 * 60 * 1000
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -148,7 +139,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         return
       }
 
-      if (this._hcaptchaWaiters.length > 0) {
+      if (this.captchaService.hcaptchaRequestPending) {
         this.logger.debug('hCaptcha request pending, deferring QSS sign in until token is available')
         return
       }
@@ -349,16 +340,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return false
     }
 
+    if (!this.qssClient.captchaVerified) {
+      await this.qssClient.requestCaptchaVerification()
+    }
+
     // we need to normalize the hostname for QSS when running locally before adding the server to the chain
     let host = url.parse(this._qssEndpoint).hostname!
     if (host === '127.0.0.1') {
       host = 'localhost'
-    }
-
-    const token = await this.captchaService.ensureHcaptchaToken()
-    if (token == null) {
-      this.logger.warn('No hCaptcha token available, cannot create community on QSS')
-      return false
     }
 
     // if we don't already have this server in our chain we need to generate keys and add it
@@ -370,7 +359,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         status: CommunityOperationStatus.SENDING,
         payload: {
           teamId: sigChain.team.id,
-          hcaptchaToken: token,
         },
       }
       const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(

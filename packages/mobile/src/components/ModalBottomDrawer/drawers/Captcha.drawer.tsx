@@ -2,13 +2,11 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ConfirmHcaptcha from '@hcaptcha/react-native-hcaptcha'
 import { useDispatch, useSelector } from 'react-redux'
-import { useIsFocused, useRoute } from '@react-navigation/native'
-import { CaptchaRouteProps } from '../../route.params'
+import { useIsFocused } from '@react-navigation/native'
 import { captcha } from '@quiet/state-manager'
-import { defaultTheme } from '../../styles/themes/default.theme'
-import { createLogger } from '../../utils/logger'
-import Config from 'react-native-config'
-import ModalBottomDrawer from '../../components/ModalBottomDrawer/ModalBottomDrawer.component'
+import { defaultTheme } from '../../../styles/themes/default.theme'
+import { createLogger } from '../../../utils/logger'
+import ModalBottomDrawer from '../ModalBottomDrawer.component'
 
 const logger = createLogger('CaptchaScreen')
 
@@ -23,39 +21,20 @@ interface HCaptchaMessageEvent {
   reset: () => void
 }
 
-export const CaptchaScreen: FC = () => {
+export const CaptchaDrawer: FC = () => {
   const dispatch = useDispatch()
-  const route = useRoute<CaptchaRouteProps>()
   const isFocused = useIsFocused()
 
   const captchaRef = useRef<ConfirmHcaptcha | null>(null)
   const [status, setStatus] = useState<CaptchaStatus>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const siteKey = Config.HCAPTCHA_SITEKEY ?? '10000000-ffff-ffff-ffff-000000000001'
-  const reason = route.params?.reason ?? 'verification'
-
   const captchaRequested = useSelector(captcha.selectors.captchaRequested)
+  const siteKey = useSelector(captcha.selectors.siteKey)
 
-  const copy = useMemo(() => {
-    switch (reason) {
-      case 'create-community':
-        return {
-          title: 'Verify before creating',
-          description: 'Complete the challenge so we can create your community.',
-        }
-      case 'sign-in':
-        return {
-          title: 'Verify your identity',
-          description: 'Complete the challenge to continue signing in.',
-        }
-      default:
-        return {
-          title: 'Prove you are human',
-          description: 'Complete the challenge to continue.',
-        }
-    }
-  }, [reason])
+  const visible = useMemo(() => {
+    return captchaRequested && siteKey !== ''
+  }, [captchaRequested, siteKey])
 
   useEffect(() => {
     if (!isFocused) {
@@ -92,7 +71,7 @@ export const CaptchaScreen: FC = () => {
     (token: string) => {
       logger.info('hCaptcha solved successfully')
       captchaRef.current?.hide()
-      dispatch(communities.actions.setHcaptchaFormResponse({ token }))
+      dispatch(captcha.actions.setHcaptchaFormResponse({ token }))
       closeScreen()
     },
     [closeScreen, dispatch]
@@ -152,11 +131,11 @@ export const CaptchaScreen: FC = () => {
   logger.info('Rendering CaptchaScreen for siteKey ' + siteKey)
 
   return (
-    <ModalBottomDrawer visible={captchaRequested} onClose={closeScreen}>
+    <ModalBottomDrawer visible={true} onClose={closeScreen} heightRatio={1}>
       <View style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.title}>{copy.title}</Text>
-          <Text style={styles.description}>{copy.description}</Text>
+          <Text style={styles.title}>Prove you are human</Text>
+          <Text style={styles.description}>Complete the challenge to continue.</Text>
           {status === 'loading' && (
             <View style={styles.indicatorRow}>
               <ActivityIndicator color={defaultTheme.palette.background.lushSky} />
@@ -182,7 +161,6 @@ export const CaptchaScreen: FC = () => {
           ref={captchaRef}
           siteKey={siteKey}
           onMessage={handleMessage}
-          languageCode={route.params?.languageCode}
           passiveSiteKey={false}
           size={'normal'}
         />
@@ -191,7 +169,7 @@ export const CaptchaScreen: FC = () => {
   )
 }
 
-export default CaptchaScreen
+export default CaptchaDrawer
 
 const styles = StyleSheet.create({
   container: {

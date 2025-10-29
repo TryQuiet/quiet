@@ -38,10 +38,13 @@ import {
   SocketEvents,
   AttachFilePayload,
   LaunchCommunityPayload,
+  HCaptchaRequest,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
 import { InviteResult } from '@localfirst/auth'
+import { captchaActions } from '../../captcha/captcha.slice'
+import { captchaMasterSaga } from '../../captcha/captchaMasterSaga'
 
 const logger = createLogger('startConnectionSaga')
 
@@ -86,6 +89,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof usersActions.updateUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
+    | ReturnType<typeof captchaActions.requestHCaptchaToken>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketEvents.COMMUNITY_LAUNCHED, (payload: LaunchCommunityPayload) => {
@@ -184,6 +188,12 @@ export function subscribe(socket: Socket) {
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
+
+    socket.on(SocketEvents.HCAPTCHA_REQUEST, (payload: HCaptchaRequest) => {
+      logger.info(`${SocketEvents.HCAPTCHA_REQUEST}`, payload)
+      emit(captchaActions.requestHCaptchaToken(payload))
+    })
+
     return () => undefined
   })
 }
@@ -218,6 +228,7 @@ export function* useIO(socket: Socket): Generator {
       fork(appMasterSaga, socket),
       fork(connectionMasterSaga, socket),
       fork(errorsMasterSaga),
+      fork(captchaMasterSaga, socket),
     ])
   } finally {
     logger.info('useIO stopping')

@@ -626,7 +626,7 @@ app.on('ready', async () => {
     }
 
     if (isCaptchaRequestMessage(msg)) {
-      solveCaptcha().catch(error => {
+      solveCaptcha(msg.siteKey).catch(error => {
         logger.error('Error while handling hCaptcha request from backend', error)
       })
     }

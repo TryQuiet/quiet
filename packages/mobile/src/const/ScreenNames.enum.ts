@@ -1,5 +1,4 @@
 export enum ScreenNames {
-  CaptchaScreen = 'CaptchaScreen',
   ChannelListScreen = 'ChannelList',
   ChannelScreen = 'ChannelScreen',
   ConnectionProcessScreen = 'ConnectionProcessScreen',
