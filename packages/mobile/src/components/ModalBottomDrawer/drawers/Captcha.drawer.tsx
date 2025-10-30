@@ -131,7 +131,7 @@ export const CaptchaDrawer: FC = () => {
   logger.info('Rendering CaptchaScreen for siteKey ' + siteKey)
 
   return (
-    <ModalBottomDrawer visible={true} onClose={closeScreen} heightRatio={1}>
+    <ModalBottomDrawer visible={visible} onClose={closeScreen} heightRatio={1}>
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.title}>Prove you are human</Text>

@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
-import { HCaptchaFormResponse, SocketActions, SocketEvents } from '@quiet/types'
+import { HCaptchaFormResponse, HCaptchaRequest, SocketActions, SocketEvents } from '@quiet/types'
 import { SocketService } from '../socket/socket.service'
 import { createLogger } from '../common/logger'
 import { QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
@@ -123,7 +123,7 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
         // desktop app: send IPC message to renderer
         process.send?.({ type: 'request-hcaptcha', siteKey })
         // mobile app: emit socket event to redux
-        this.serverIoProvider.io.emit(SocketActions.HCAPTCHA_REQUEST, { sitekey: siteKey })
+        this.serverIoProvider.io.emit(SocketActions.HCAPTCHA_REQUEST, { siteKey } as HCaptchaRequest)
       }
     })
   }
