@@ -127,6 +127,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
     })
 
+    this.qssClient.on(QSSEvents.QSS_CAPTCHA_VERIFIED, (): void => {
+      this.logger.debug('QSS captcha verified')
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    })
+
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
       const initStatus = await this.getQssInitStatus()
       if (!initStatus.communityInitialized || initStatus.community == null) {

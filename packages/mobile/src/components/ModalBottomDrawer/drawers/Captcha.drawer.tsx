@@ -2,7 +2,6 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ConfirmHcaptcha from '@hcaptcha/react-native-hcaptcha'
 import { useDispatch, useSelector } from 'react-redux'
-import { useIsFocused } from '@react-navigation/native'
 import { captcha } from '@quiet/state-manager'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 import { createLogger } from '../../../utils/logger'
@@ -23,7 +22,6 @@ interface HCaptchaMessageEvent {
 
 export const CaptchaDrawer: FC = () => {
   const dispatch = useDispatch()
-  const isFocused = useIsFocused()
 
   const captchaRef = useRef<ConfirmHcaptcha | null>(null)
   const [status, setStatus] = useState<CaptchaStatus>('idle')
@@ -33,11 +31,13 @@ export const CaptchaDrawer: FC = () => {
   const siteKey = useSelector(captcha.selectors.siteKey)
 
   const visible = useMemo(() => {
+    logger.info(`captchaRequested: ${captchaRequested}`)
+    logger.info(`siteKey: ${siteKey}`)
     return captchaRequested && siteKey !== ''
   }, [captchaRequested, siteKey])
 
   useEffect(() => {
-    if (!isFocused) {
+    if (!visible) {
       return
     }
 
@@ -54,7 +54,7 @@ export const CaptchaDrawer: FC = () => {
       setStatus('idle')
       setErrorMessage(null)
     }
-  }, [isFocused])
+  }, [visible])
 
   const closeScreen = useCallback(
     (logMessage?: string) => {
@@ -62,7 +62,7 @@ export const CaptchaDrawer: FC = () => {
         logger.info(logMessage)
       }
       captchaRef.current?.hide()
-      // dispatch(navigationActions.pop())
+      dispatch(captcha.actions.setHcaptchaFormResponse({ error: 'Challenge refused' }))
     },
     [dispatch]
   )
@@ -72,7 +72,6 @@ export const CaptchaDrawer: FC = () => {
       logger.info('hCaptcha solved successfully')
       captchaRef.current?.hide()
       dispatch(captcha.actions.setHcaptchaFormResponse({ token }))
-      closeScreen()
     },
     [closeScreen, dispatch]
   )
@@ -128,8 +127,6 @@ export const CaptchaDrawer: FC = () => {
     [closeScreen, handleSolved]
   )
 
-  logger.info('Rendering CaptchaScreen for siteKey ' + siteKey)
-
   return (
     <ModalBottomDrawer visible={visible} onClose={closeScreen} heightRatio={1}>
       <View style={styles.container}>
@@ -157,13 +154,7 @@ export const CaptchaDrawer: FC = () => {
             <Text style={styles.cancelLabel}>Cancel</Text>
           </TouchableOpacity>
         </View>
-        <ConfirmHcaptcha
-          ref={captchaRef}
-          siteKey={siteKey}
-          onMessage={handleMessage}
-          passiveSiteKey={false}
-          size={'normal'}
-        />
+        <ConfirmHcaptcha ref={captchaRef} siteKey={siteKey} onMessage={handleMessage} size={'normal'} />
       </View>
     </ModalBottomDrawer>
   )

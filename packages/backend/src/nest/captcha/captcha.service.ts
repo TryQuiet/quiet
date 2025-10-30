@@ -134,4 +134,10 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
     logger.info('Received hCaptcha token from renderer', received_token)
     return received_token
   }
+
+  public reset() {
+    logger.info('Resetting hCaptcha token and pending requests')
+    this._hcaptchaToken = null
+    this.flushHcaptchaWaiters(null)
+  }
 }

@@ -8,6 +8,7 @@ import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
 import {
+  BaseWebsocketMessage,
   CaptchaVerifyMessage,
   CaptchaVerifyResponse,
   CommunityOperationStatus,
@@ -19,7 +20,7 @@ import {
 } from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
-import { CompoundError } from '@quiet/types'
+import { CaptchaErrorMessages, CompoundError } from '@quiet/types'
 import EventEmitter from 'node:events'
 import { CaptchaService } from '../captcha/captcha.service'
 
@@ -50,6 +51,13 @@ export class QSSClient extends EventEmitter {
 
   public get captchaVerified(): boolean {
     return this._captchaVerified
+  }
+
+  private set captchaVerified(value: boolean) {
+    this._captchaVerified = value
+    if (value) {
+      this.emit(QSSEvents.QSS_CAPTCHA_VERIFIED, value)
+    }
   }
 
   public getClientSocket(): ClientSocket | undefined {
@@ -115,6 +123,7 @@ export class QSSClient extends EventEmitter {
     this._clientSocket.on('disconnect', (): void => {
       this.logger.debug('QSS disconnected!')
       this.emit(QSSEvents.QSS_DISCONNECTED)
+      this.captchaVerified = false
       this._clientSocket?.close()
     })
 
@@ -148,7 +157,11 @@ export class QSSClient extends EventEmitter {
    * @param withAck If true expect and return an ack response
    * @returns A response object if `withAck` is true, otherwise undefined
    */
-  public async sendMessage<T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> {
+  public async sendMessage<T extends BaseWebsocketMessage<object | undefined>>(
+    event: WebsocketEvents,
+    payload: object | undefined,
+    withAck = false
+  ): Promise<T | undefined> {
     this.logger.debug(`Sending message`, event)
     const socket = this.getClientSocket()
     try {
@@ -156,7 +169,14 @@ export class QSSClient extends EventEmitter {
         throw new QSSNotInitializedError(`Must run createSocket first!`)
       }
       if (withAck) {
-        return (await socket!.emitWithAck(event, payload)) as T
+        const response = (await socket!.emitWithAck(event, payload)) as T
+        if (response?.reason === CaptchaErrorMessages.CATCHA_VERIFICATION_REQUIRED) {
+          this.captchaVerified = false
+          void this.requestCaptchaVerification().catch(error => {
+            this.logger.error('Failed to request captcha verification after captcha requirement', error)
+          })
+        }
+        return response
       }
 
       socket!.emit(event, payload)
@@ -191,13 +211,20 @@ export class QSSClient extends EventEmitter {
   }
 
   public async verifyCaptchaToken(): Promise<boolean> {
+    if (this.captchaVerified) {
+      this.logger.debug('Captcha token already verified')
+      return true
+    }
+
     if (!this.captchaService.hcaptchaToken) {
       this.logger.debug('No hCaptcha token available to verify')
+      this.captchaVerified = false
       return false
     }
 
     if (!this.connected) {
       this.logger.debug('QSS client not connected, cannot verify hCaptcha token')
+      this.captchaVerified = false
       return false
     }
 
@@ -213,21 +240,24 @@ export class QSSClient extends EventEmitter {
         true
       )
       if (response?.status === CommunityOperationStatus.SUCCESS) {
-        this._captchaVerified = true
+        this.captchaVerified = true
+        this.captchaService.hcaptchaToken = null
         this.logger.debug('hCaptcha token successfully verified with QSS')
         return true
       } else {
         this.logger.warn(`hCaptcha token verification with QSS failed: ${response?.reason ?? 'no reason provided'}`)
+        this.captchaVerified = false
         return false
       }
     } catch (e) {
       this.logger.error('Error while verifying hCaptcha token with QSS', e)
+      this.captchaVerified = false
       return false
     }
   }
 
   public async requestCaptchaVerification(): Promise<boolean> {
-    this._captchaVerified = false
+    this.captchaVerified = false
     const siteKey = await this.getCaptchaSiteKey()
     if (siteKey == null) {
       this.logger.warn('Cannot request captcha verification without a site key')

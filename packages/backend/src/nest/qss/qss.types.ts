@@ -37,6 +37,7 @@ export enum QSSEvents {
   QSS_CONNECTED = 'qssConnected',
   QSS_DISCONNECTED = 'qssDisconnected',
   QSS_HANDLE_SIGN_IN = 'qssHandleSignIn',
+  QSS_CAPTCHA_VERIFIED = 'qssCaptchaVerified',
 }
 
 export enum QSSOperationResult {
