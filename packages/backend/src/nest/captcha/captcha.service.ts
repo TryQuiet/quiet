@@ -99,10 +99,6 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
     }
 
     logger.info('Requesting hCaptcha token from renderer process')
-    if (!process.send) {
-      logger.warn('Cannot request hCaptcha token: IPC channel unavailable')
-      return null
-    }
 
     return await new Promise(resolve => {
       const onToken = (token: string | null) => {
@@ -123,7 +119,8 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
         // desktop app: send IPC message to renderer
         process.send?.({ type: 'request-hcaptcha', siteKey })
         // mobile app: emit socket event to redux
-        this.serverIoProvider.io.emit(SocketActions.HCAPTCHA_REQUEST, { siteKey } as HCaptchaRequest)
+        logger.info('Emitting HCAPTCHA_REQUEST event to state-manager')
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_REQUEST, { siteKey } as HCaptchaRequest)
       }
     })
   }
