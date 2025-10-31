@@ -1,6 +1,7 @@
 /**
  * Abstraction layer for interacting with QSS
  */
+import { Mutex } from 'async-mutex'
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
@@ -25,6 +26,7 @@ import {
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
 import EventEmitter from 'node:events'
+
 import { sleep } from '../common/sleep'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
@@ -56,6 +58,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Interval for retrying/reconnecting to QSS
    */
   private _reconnectQueueProcessor: NodeJS.Timeout
+
+  /**
+   * Mutexes for createCommunity per teamId
+   */
+  private _communityMutexes: Map<string, Mutex> = new Map()
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -133,38 +140,53 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
 
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
-      const initStatus = await this.getQssInitStatus()
-      if (!initStatus.communityInitialized || initStatus.community == null) {
-        this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
-        return
+      const sigChain = this.sigChainService.activeChain
+
+      if (!sigChain.team || !sigChain.team.id) {
+        this.logger.error('sigChain.team or sigChain.team.id is missing in createCommunity')
+        return false
+      }
+      const teamId = sigChain.team.id
+
+      let mutex = this._communityMutexes.get(teamId)
+      if (!mutex) {
+        mutex = new Mutex()
+        this._communityMutexes.set(teamId, mutex)
       }
 
-      if (!initStatus.qssEnabled) {
-        this.logger.trace('QSS not enabled for this community, skipping sign in')
-        return
-      }
+      await mutex.runExclusive(async () => {
+        const initStatus = await this.getQssInitStatus()
+        if (!initStatus.communityInitialized || initStatus.community == null) {
+          this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
+          return
+        }
 
-      if (this.captchaService.hcaptchaRequestPending) {
-        this.logger.debug('hCaptcha request pending, deferring QSS sign in until token is available')
-        return
-      }
+        if (!initStatus.qssEnabled) {
+          this.logger.trace('QSS not enabled for this community, skipping sign in')
+          return
+        }
 
-      if (
-        !(initStatus.qssSetup ?? false) &&
-        this.sigChainService.activeChain.team != null &&
-        this.sigChainService.users.getAllUsers().length === 1
-      ) {
-        await this.createCommunity(this.sigChainService.activeChain)
-      } else {
-        const teamId =
-          this.sigChainService.activeChain.team != null
-            ? this.sigChainService.team.id
-            : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
-        const teamName =
-          this.sigChainService.activeChain.team != null ? this.sigChainService.team.teamName : initStatus.community.name
-        this.logger.trace('QSS Sign in', teamId, teamName)
-        await this.signInToCommunity(teamId, this.sigChainService.activeChain, teamName)
-      }
+        if (this.captchaService.hcaptchaRequestPending) {
+          this.logger.debug('hCaptcha request pending, deferring QSS sign in until token is available')
+          return
+        }
+
+        if (
+          !(initStatus.qssSetup ?? false) &&
+          sigChain.team != null &&
+          this.sigChainService.users.getAllUsers().length === 1
+        ) {
+          await this.createCommunity(sigChain)
+        } else {
+          const teamId =
+            sigChain.team != null
+              ? sigChain.team.id
+              : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
+          const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
+          this.logger.trace('QSS Sign in', teamId, teamName)
+          await this.signInToCommunity(teamId, sigChain, teamName)
+        }
+      })
     })
   }
 
@@ -315,7 +337,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async createCommunity(sigChain: SigChain): Promise<boolean> {
     let created: boolean = false
     try {
-      created = await this._createCommunityImpl(sigChain)
+      return await this._createCommunityImpl(sigChain)
     } catch (e) {
       created = false
       this.logger.error('Failed to create community on QSS', e)
@@ -391,7 +413,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
       // add this QSS server/cluster to our chain using the keys we generated earlier
       this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
-      sigChain.server.addServer(lfaServer)
+      if (!sigChain.team.hasServer(host)) {
+        sigChain.server.addServer(lfaServer)
+      }
     }
 
     const serializedSigChain: Uint8Array = sigChain.save()
