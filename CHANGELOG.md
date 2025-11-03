@@ -1,5 +1,11 @@
 # Changelog
 
+[unreleased]
+
+### Chores
+
+* Change autoupdater text [#2971] (https://github.com/TryQuiet/quiet/issues/2971)
+
 ## [6.3.0]
 
 ### Features
