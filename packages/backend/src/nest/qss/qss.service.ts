@@ -62,7 +62,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Mutexes for createCommunity per teamId
    */
-  private _communityMutexes: Map<string, Mutex> = new Map()
+  private _signInMutex: Mutex = new Mutex()
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -140,21 +140,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
 
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
-      const sigChain = this.sigChainService.activeChain
-
-      if (!sigChain.team || !sigChain.team.id) {
-        this.logger.error('sigChain.team or sigChain.team.id is missing in createCommunity')
-        return false
-      }
-      const teamId = sigChain.team.id
-
-      let mutex = this._communityMutexes.get(teamId)
-      if (!mutex) {
-        mutex = new Mutex()
-        this._communityMutexes.set(teamId, mutex)
-      }
-
-      await mutex.runExclusive(async () => {
+      await this._signInMutex.runExclusive(async () => {
         const initStatus = await this.getQssInitStatus()
         if (!initStatus.communityInitialized || initStatus.community == null) {
           this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
@@ -168,6 +154,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
         if (this.captchaService.hcaptchaRequestPending) {
           this.logger.debug('hCaptcha request pending, deferring QSS sign in until token is available')
+          return
+        }
+
+        let sigChain: SigChain
+        try {
+          sigChain = this.sigChainService.activeChain
+        } catch (e) {
+          this.logger.error('No active sigchain present, cannot perform QSS operations')
           return
         }
 
