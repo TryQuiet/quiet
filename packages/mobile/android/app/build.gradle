@@ -213,6 +213,11 @@ android {
             }
         }
     }
+    buildTypes.each {
+        it.buildConfigField 'String', 'SHOULD_RUN_BACKEND_WORKER', "\"true\""
+        it.buildConfigField 'String', 'QSS_ALLOWED', "\"false\""
+        it.buildConfigField 'String', 'QSS_ENDPOINT', "\"\""
+    }
     buildTypes {
         debug {
             signingConfig = signingConfigs.debug
@@ -320,6 +325,7 @@ project.ext.envConfigFiles = [
         release  : ".env.staging",
         prod     : ".env.production",
 ]
+
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
 

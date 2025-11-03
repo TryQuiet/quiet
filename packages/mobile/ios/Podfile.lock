@@ -1783,7 +1783,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - Tor (~> 408)
+  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v408.19.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1797,7 +1797,6 @@ SPEC REPOS:
     - SDWebImageWebPCoder
     - SocketRocket
     - SSZipArchive
-    - Tor
 
 EXTERNAL SOURCES:
   boost:
@@ -1967,6 +1966,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  Tor:
+    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v408.19.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2014,7 +2015,7 @@ SPEC CHECKSUMS:
   react-native-blob-util: 55bf7c1c4c90d138e45ddfeddbec0ec91d8df8c8
   react-native-config: 963b5efabc864cf69412e54b5de49b6a23e4af03
   react-native-document-picker: 3ffdb92f95177227477077cfebabf429ad4e73a4
-  react-native-image-picker: 82a9e4371e48c518a69882b3c54de11134196cd2
+  react-native-image-picker: e30ac59bc8d03359c677ca1b726a5017354fa17e
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
   react-native-webview: 0ab8d5073e09a9d0977323a83521535b91c87e31
@@ -2048,14 +2049,14 @@ SPEC CHECKSUMS:
   ReactCodegen: 09fce818e1bff09d32d8ff2a89f992caa2c0e11b
   ReactCommon: 06cde9e035d27f37e0e5d2bb23606e10aedd866b
   RNCAsyncStorage: b9f5f78da5d16a853fe3dc22e8268d932fc45a83
-  RNCClipboard: f6679d470d0da2bce2a37b0af7b9e0bf369ecda5
+  RNCClipboard: 9c4109320a09400ec127e4501c3106b595746205
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNFastImage: 642053def5aa66879887efc4be80315677cd4f26
   RNFileLogger: 095f4a8d57d63d9e53a1ee66fdf4ef9451575e1f
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: b64463a3d975bda9abc7dc1bbd7875c8217c1f40
-  RNScreens: 2ba531caee939381d31548ee22e61c51a0c3321c
+  RNScreens: d9f0da2296b6fcc5455ba976cd992518b1d096f0
   RNShare: 694e19d7f74ac4c04de3a8af0649e9ccc03bd8b1
   RNSVG: 2e59e14c2723a1967cd1bba71038a59142cbc616
   SDWebImage: 16309af6d214ba3f77a7c6f6fdda888cb313a50a
@@ -2063,9 +2064,9 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
-  Tor: 643811ad926f7e7bce1525f21b7645701678de48
+  Tor: d559b4cb481c26b0cd66a0fbd195161c8e68c9bc
   Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
 
-PODFILE CHECKSUM: 69fff56b3c8a554393bc6b8d7469b11d2d186bac
+PODFILE CHECKSUM: 98634ee4794756123178f158c830f91cf37f6039
 
 COCOAPODS: 1.15.2
