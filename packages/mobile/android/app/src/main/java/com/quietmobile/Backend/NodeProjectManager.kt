@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.AssetManager
+import android.os.Build
 import android.util.Log
 import com.quietmobile.Utils.Const
 import java.io.*
@@ -18,7 +19,7 @@ class NodeProjectManager(private val context: Context) {
     private var trashDirPath        : String = "$filesDirPath/${Const.NODEJS_TRASH_DIR}"
     var projectPath                 : String = "$filesDirPath/${Const.NODEJS_PROJECT_DIR}"
     var builtinModulesPath          : String = "$filesDirPath/nodejs-builtin_modules"
-    private var nativeAssetsPath    : String = Const.NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX + getCurrentABIName()
+    private var nativeAssetsPath    : String = Const.NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX + Build.SUPPORTED_ABIS[0]
 
     private lateinit var assetManager: AssetManager
 
@@ -27,8 +28,6 @@ class NodeProjectManager(private val context: Context) {
     private var previousLastUpdateTime: Long = 0
     private val initSemaphore = Semaphore(1)
     private var initCompleted = false
-
-    private external fun getCurrentABIName(): String?
 
     fun init() {
         if (wasAPKUpdated()) {
