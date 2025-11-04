@@ -37,12 +37,12 @@ import { RoleName } from '../auth/services/roles/roles'
 import { hash } from '@localfirst/crypto'
 import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
-import { CaptchaService } from '../captcha/captcha.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
-import { CompoundError, InvitationDataV3 } from '@quiet/types'
+import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
+import { SocketService } from '../socket/socket.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -74,7 +74,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     private readonly sigChainService: SigChainService,
     private readonly localDbService: LocalDbService,
     private readonly orbitDbService: OrbitDbService,
-    private readonly captchaService: CaptchaService
+    private readonly socketService: SocketService
   ) {
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
@@ -124,6 +124,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _configureEventHandlers(): void {
+    this.socketService.on(SocketActions.HCAPTCHA_REQUEST, (): void => {
+      this.logger.debug('hCaptcha request received')
+      this.qssClient.once(QSSEvents.QSS_CONNECTED, (): void => {
+        this.qssClient.requestCaptchaVerification().catch(error => {
+          this.logger.error('Failed to request captcha verification', error)
+        })
+      })
+
+      this.connect(this.qssEndpoint, true).catch(error => {
+        this.logger.error('Failed to connect to QSS on hCaptcha request', error)
+      })
+    })
+
     this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
       this.logger.debug('Community stored, attempting to authenticate with QSS')
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
@@ -149,11 +162,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
         if (!initStatus.qssEnabled) {
           this.logger.trace('QSS not enabled for this community, skipping sign in')
-          return
-        }
-
-        if (this.captchaService.hcaptchaRequestPending) {
-          this.logger.debug('hCaptcha request pending, deferring QSS sign in until token is available')
           return
         }
 
@@ -295,10 +303,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (!enabledOverride) {
       const initStatus = await this.getQssInitStatus()
-      if (!initStatus.communityInitialized) {
-        this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
-        return QSSOperationResult.ERROR
-      }
 
       if (!initStatus.qssEnabled) {
         this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)

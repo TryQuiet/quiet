@@ -154,7 +154,7 @@ export const CaptchaDrawer: FC = () => {
             <Text style={styles.cancelLabel}>Cancel</Text>
           </TouchableOpacity>
         </View>
-        <ConfirmHcaptcha ref={captchaRef} siteKey={siteKey} onMessage={handleMessage} size={'normal'} />
+        <ConfirmHcaptcha ref={captchaRef} siteKey={siteKey} onMessage={handleMessage} size={'invisible'} />
       </View>
     </ModalBottomDrawer>
   )

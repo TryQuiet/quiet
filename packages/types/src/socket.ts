@@ -153,6 +153,8 @@ export enum SocketEvents {
   // ====== Captcha ======
   HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
   HCAPTCHA_REQUEST = 'hcaptchaRequest',
+  HCAPTCHA_SITE_KEY = 'hcaptchaSiteKey',
+  HCAPTCHA_VERIFICATION_UPDATE = 'hcaptchaVerificationUpdate',
 }
 
 type EmitEvent<Payload, Callback = (response: any) => void> = (payload: Payload, callback?: Callback) => void
@@ -252,4 +254,6 @@ export interface SocketEventsMap {
   // ====== Captcha ======
   [SocketEvents.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
   [SocketEvents.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
+  [SocketEvents.HCAPTCHA_SITE_KEY]: EmitEvent<string>
+  [SocketEvents.HCAPTCHA_VERIFICATION_UPDATE]: EmitEvent<boolean>
 }

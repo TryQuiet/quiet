@@ -5,6 +5,7 @@ import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import {
+  CaptchaContexts,
   type Community,
   CommunityOwnership,
   type InitCommunityPayload,
@@ -48,12 +49,30 @@ export function* createCommunitySaga(
   const username = registerAction.payload.nickname
 
   let acceptTerms = { payload: { accepted: false } } as ReturnType<typeof communitiesActions.setTermsOfServiceAccepted>
-  if (process.env.QSS_ALLOWED === 'true' && action.payload.useServer) {
+  if (action.payload.useServer) {
     yield* put(communitiesActions.requestTermsOfService())
     acceptTerms = yield* take(communitiesActions.setTermsOfServiceAccepted)
     if (!acceptTerms.payload.accepted) {
       logger.info('User did not accept terms of service, aborting community creation')
       return
+    }
+    yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))
+    while (true) {
+      const hcaptchaFormResponse: ReturnType<typeof captchaActions.setHcaptchaFormResponse> = yield* take(
+        captchaActions.setHcaptchaFormResponse
+      )
+      if (hcaptchaFormResponse.payload.cancelled) {
+        logger.info('Captcha challenge was cancelled by the user, aborting community creation')
+        return
+      }
+      const captchaVerified = yield* take(captchaActions.setCaptchaVerified)
+      if (captchaVerified.payload) {
+        logger.info('Captcha verified')
+        break
+      } else {
+        logger.info('Captcha verification failed or was cancelled, retrying')
+        yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.RETRY }))
+      }
     }
   }
 

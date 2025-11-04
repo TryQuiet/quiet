@@ -1,12 +1,12 @@
 /**
  * QSS websocket client wrapper
  */
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { connect, type Socket as ClientSocket } from 'socket.io-client'
 import { DateTime } from 'luxon'
 
 import { createLogger } from '../common/logger'
-import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
+import { QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
 import {
   BaseWebsocketMessage,
   CaptchaVerifyMessage,
@@ -20,9 +20,10 @@ import {
 } from './qss.types'
 import { sleep } from '../common/sleep'
 import { CLIENT_TRANSPORTS } from './qss.const'
-import { CaptchaErrorMessages, CompoundError } from '@quiet/types'
+import { CaptchaErrorMessages, CompoundError, SocketEvents } from '@quiet/types'
 import EventEmitter from 'node:events'
 import { CaptchaService } from '../captcha/captcha.service'
+import { ServerIoProviderTypes } from '../types'
 
 @Injectable()
 export class QSSClient extends EventEmitter {
@@ -39,6 +40,7 @@ export class QSSClient extends EventEmitter {
     @Inject(QSS_ALLOWED) private qssAllowed: boolean,
     // environment variable that determines what endpoint we connect to QSS on
     @Inject(QSS_ENDPOINT) private qssEndpoint: string,
+    @Inject(SERVER_IO_PROVIDER) private readonly serverIoProvider: ServerIoProviderTypes,
     private readonly captchaService: CaptchaService
   ) {
     super()
@@ -58,6 +60,7 @@ export class QSSClient extends EventEmitter {
     if (value) {
       this.emit(QSSEvents.QSS_CAPTCHA_VERIFIED, value)
     }
+    this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, value)
   }
 
   public getClientSocket(): ClientSocket | undefined {
@@ -199,6 +202,7 @@ export class QSSClient extends EventEmitter {
       )
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.siteKey) {
         this.logger.debug('Received hCaptcha site key from QSS')
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_SITE_KEY, response.payload.siteKey)
         return response.payload.siteKey
       } else {
         this.logger.warn(`Failed to get hCaptcha site key from QSS: ${response?.reason ?? 'no reason provided'}`)

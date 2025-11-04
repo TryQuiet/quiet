@@ -89,7 +89,9 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof usersActions.updateUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
-    | ReturnType<typeof captchaActions.requestHCaptchaToken>
+    | ReturnType<typeof captchaActions.getTokenForSiteKey>
+    | ReturnType<typeof captchaActions.setSiteKey>
+    | ReturnType<typeof captchaActions.setCaptchaVerified>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketEvents.COMMUNITY_LAUNCHED, (payload: LaunchCommunityPayload) => {
@@ -190,8 +192,16 @@ export function subscribe(socket: Socket) {
     })
 
     socket.on(SocketEvents.HCAPTCHA_REQUEST, (payload: HCaptchaRequest) => {
-      logger.info(`${SocketEvents.HCAPTCHA_REQUEST}`, payload)
-      emit(captchaActions.requestHCaptchaToken(payload))
+      logger.info(`${SocketEvents.HCAPTCHA_REQUEST}`, JSON.stringify(payload))
+      emit(captchaActions.getTokenForSiteKey(payload))
+    })
+    socket.on(SocketEvents.HCAPTCHA_SITE_KEY, (payload: string) => {
+      logger.info(`${SocketEvents.HCAPTCHA_SITE_KEY}`, payload)
+      emit(captchaActions.setSiteKey(payload))
+    })
+    socket.on(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, (payload: boolean) => {
+      logger.info(`${SocketEvents.HCAPTCHA_VERIFICATION_UPDATE}`, payload)
+      emit(captchaActions.setCaptchaVerified(payload))
     })
 
     return () => undefined
