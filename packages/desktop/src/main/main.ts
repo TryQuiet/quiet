@@ -569,6 +569,7 @@ app.on('ready', async () => {
       QSS_ENDPOINT: process.env.QSS_ENDPOINT,
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
+      IS_E2E: process.env.IS_E2E ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
