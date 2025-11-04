@@ -144,7 +144,7 @@
     "wait-for-expect": "^3.0.2"
   },
   "resolve": {
-    "@types/react": "^17"
+    "@types/react": "^18"
   },
   "react-native": {
     "fs": "react-native-level-fs"
