@@ -58,13 +58,6 @@ export function* createCommunitySaga(
     }
     yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))
     while (true) {
-      const hcaptchaFormResponse: ReturnType<typeof captchaActions.setHcaptchaFormResponse> = yield* take(
-        captchaActions.setHcaptchaFormResponse
-      )
-      if (hcaptchaFormResponse.payload.cancelled) {
-        logger.info('Captcha challenge was cancelled by the user, aborting community creation')
-        return
-      }
       const captchaVerified = yield* take(captchaActions.setCaptchaVerified)
       if (captchaVerified.payload) {
         logger.info('Captcha verified')

@@ -121,6 +121,7 @@ export class QSSClient extends EventEmitter {
     this._clientSocket.on('connect', (): void => {
       this.logger.debug('QSS connected!', this._clientSocket?.id)
       this.emit(QSSEvents.QSS_CONNECTED)
+      this.captchaVerified = false
     })
 
     this._clientSocket.on('disconnect', (): void => {
