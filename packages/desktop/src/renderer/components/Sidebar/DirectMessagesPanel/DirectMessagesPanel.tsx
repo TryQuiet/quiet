@@ -48,7 +48,9 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
               userProfile={user}
               key={user.userId}
               userProfileContextMenu={userProfileContextMenu}
-              connected={!!(user.userData && user.userData.peerId && connectedPeers.includes(user.userData.peerId))}
+              connected={
+                user.userData != null && user.userData.peerId != null && connectedPeers.includes(user.userData.peerId)
+              }
             />
           ))}
       </List>
