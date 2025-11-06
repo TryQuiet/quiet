@@ -50,8 +50,12 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     })
 
     this.auth.on('updated', async payload => {
-      await this.flushDeferredEntries()
-      await this.store!.retryIndexingUnindexedEntries()
+      try {
+        await this.flushDeferredEntries()
+        await this.store!.retryIndexingUnindexedEntries()
+      } catch (err) {
+        logger.error('Failed to update user profiles:', err)
+      }
     })
 
     await this.store!.retryIndexingUnindexedEntries()

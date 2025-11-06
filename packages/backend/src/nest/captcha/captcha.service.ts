@@ -126,7 +126,7 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
   }
 
   public async ensureHcaptchaToken(siteKey: string): Promise<string | null> {
-    if (siteKey === '10000000-ffff-ffff-ffff-000000000001') {
+    if (process.env.IS_E2E === 'true') {
       // Test token from https://docs.hcaptcha.com/#test-key-set-publisher-or-pro-account
       return '10000000-aaaa-bbbb-cccc-000000000001'
     }

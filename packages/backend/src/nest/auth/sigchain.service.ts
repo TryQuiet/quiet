@@ -21,7 +21,7 @@ import { GetChainFilter } from './types'
 export class SigChainService extends EventEmitter {
   public activeChainTeamName: string | undefined
   private readonly logger = createLogger(SigChainService.name)
-  private chains: Map<string, SigChain> = new Map()
+  public chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
 
   constructor(

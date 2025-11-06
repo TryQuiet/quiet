@@ -147,11 +147,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
     })
 
-    this.qssClient.on(QSSEvents.QSS_CAPTCHA_VERIFIED, (): void => {
-      this.logger.debug('QSS captcha verified')
-      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
-    })
-
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
       await this._signInMutex.runExclusive(async () => {
         const initStatus = await this.getQssInitStatus()
@@ -366,7 +361,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     if (!this.qssClient.captchaVerified) {
-      await this.qssClient.requestCaptchaVerification()
+      this.qssClient.once(QSSEvents.QSS_CAPTCHA_VERIFIED, () => {
+        this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+      })
+      this.qssClient.requestCaptchaVerification().catch(() => {
+        this.logger.warn('Captcha verification failed')
+      })
+      return false
     }
 
     // we need to normalize the hostname for QSS when running locally before adding the server to the chain
@@ -542,6 +543,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (!initStatus.qssEnabled) {
       this.logger.trace(`Can't sync to QSS because QSS is disabled on this community`)
       return
+    }
+
+    if (!this.sigChainService.chains.has(update.teamId)) {
+      this.logger.warn(`No sigchain found for team ID ${update.teamId}, cannot sync log entry to QSS`)
+      return false
     }
 
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)

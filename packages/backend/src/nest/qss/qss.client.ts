@@ -56,11 +56,14 @@ export class QSSClient extends EventEmitter {
   }
 
   private set captchaVerified(value: boolean) {
+    const valueChanged = value !== this._captchaVerified
     this._captchaVerified = value
-    if (value) {
-      this.emit(QSSEvents.QSS_CAPTCHA_VERIFIED, value)
+    if (valueChanged) {
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, value)
+      if (value) {
+        this.emit(QSSEvents.QSS_CAPTCHA_VERIFIED, value)
+      }
     }
-    this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, value)
   }
 
   public getClientSocket(): ClientSocket | undefined {
@@ -215,16 +218,10 @@ export class QSSClient extends EventEmitter {
     }
   }
 
-  public async verifyCaptchaToken(): Promise<boolean> {
+  public async verifyCaptchaToken(token: string): Promise<boolean> {
     if (this.captchaVerified) {
       this.logger.debug('Captcha token already verified')
       return true
-    }
-
-    if (!this.captchaService.hcaptchaToken) {
-      this.logger.debug('No hCaptcha token available to verify')
-      this.captchaVerified = false
-      return false
     }
 
     if (!this.connected) {
@@ -240,7 +237,7 @@ export class QSSClient extends EventEmitter {
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { token: this.captchaService.hcaptchaToken },
+          payload: { token },
         },
         true
       )
@@ -275,7 +272,7 @@ export class QSSClient extends EventEmitter {
       return false
     }
 
-    const verified = await this.verifyCaptchaToken()
+    const verified = await this.verifyCaptchaToken(token)
     return verified
   }
 
