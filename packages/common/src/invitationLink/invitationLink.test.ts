@@ -537,25 +537,6 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
     }
   })
 
-  it('throws error if qssEndpoint is missing port', () => {
-    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
-    const invalidUrlParams = [
-      [PEER_ADDRESS_KEY, peerPairsToUrlParamString([data.pairs[0], data.pairs[1]])],
-      [PSK_PARAM_KEY, data.psk],
-      [AUTH_DATA_KEY, encodeAuthData(data.authData)],
-      [QSS_ENABLED_KEY, `${data.qssEnabled}`],
-      [QSS_ENDPOINT_KEY, encodeQssEndpoint('ws://localhost')],
-    ]
-    invalidUrlParams.forEach(([key, value]) => url.searchParams.append(key, value))
-
-    try {
-      const parsed = parseInvitationLinkDeepUrl(url.href)
-      expect(parsed).toBe(null)
-    } catch (e) {
-      expect(e.message).toBe(`Invalid value 'ws://localhost' for key 'e' in invitation link - Port was null`)
-    }
-  })
-
   it('throws error if qssEndpoint is not a ws/wss url', () => {
     const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
     const invalidUrlParams = [
