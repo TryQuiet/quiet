@@ -1,12 +1,12 @@
-import { type PayloadAction } from '@reduxjs/toolkit'
-import { type messagesActions } from '../../messages/messages.slice'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { messagesActions } from '../../messages/messages.slice'
 import { apply, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
+import { settingsSelectors } from '../../settings/settings.selectors'
 import { filesActions } from '../files.slice'
 import { applyEmitParams, type Socket } from '../../../types'
-import { DownloadFilePayload, DownloadState, MessageType, SocketActions } from '@quiet/types'
+import { type DownloadFilePayload, DownloadState, MessageType, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('autoDownloadFilesSaga')
@@ -29,6 +29,7 @@ export function* autoDownloadFilesSaga(
       continue
     }
     const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelId))
+    const maxAutodownloadSizeBytes = yield* select(settingsSelectors.maxAutodownloadBytes)
 
     const draft = channelMessages[message.id]
 
@@ -37,7 +38,7 @@ export function* autoDownloadFilesSaga(
 
     // Do not autodownload above certain size
     const messageMediaSize = message.media.size || 0
-    if (messageMediaSize > AUTODOWNLOAD_SIZE_LIMIT) {
+    if (messageMediaSize > maxAutodownloadSizeBytes) {
       yield* put(
         filesActions.updateDownloadStatus({
           mid: message.id,

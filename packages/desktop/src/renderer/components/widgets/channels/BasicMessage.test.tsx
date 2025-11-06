@@ -7,6 +7,7 @@ import { renderComponent, generateMessages } from '../../../testUtils'
 import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from '../../../store'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 describe('BasicMessage', () => {
   beforeEach(() => {
@@ -28,6 +29,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
             messages={messages}
             openUrl={jest.fn()}
           />
@@ -117,6 +119,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
             messages={messages}
             openUrl={jest.fn()}
           />
@@ -216,6 +219,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
             messages={messages}
             openUrl={jest.fn()}
           />
@@ -319,6 +323,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
             messages={[...message1, ...message2]}
             openUrl={jest.fn()}
           />

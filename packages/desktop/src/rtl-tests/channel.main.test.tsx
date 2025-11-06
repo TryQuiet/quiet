@@ -18,7 +18,7 @@ import {
   getReduxStoreFactory,
   messages,
   files,
-  AUTODOWNLOAD_SIZE_LIMIT,
+  DEFAULT_AUTODOWNLOAD_SIZE_LIMIT,
   network,
   generateMessageFactoryContentWithId,
   getBaseTypesFactory,
@@ -772,7 +772,7 @@ describe('Channel', () => {
           path: null,
           width: 100,
           height: 100,
-          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
         })
         return socket.socketClient.emit<DownloadStatus>(SocketEvents.DOWNLOAD_PROGRESS, {
           mid: payload.file.message.id,
@@ -915,7 +915,7 @@ describe('Channel', () => {
         id: messageId,
         channelId: generalId!,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     const baseTypesFactory = await getBaseTypesFactory()
@@ -939,8 +939,8 @@ describe('Channel', () => {
         cid: `attaching_${missingFile.cid}`,
         downloadState: DownloadState.Queued,
         downloadProgress: {
-          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
-          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          downloaded: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT / 2,
+          size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
           transferSpeed: 1024,
         },
       })
@@ -1161,7 +1161,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
         channelId: generalId!,
@@ -1277,7 +1277,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
         channelId: generalId!,
@@ -1399,7 +1399,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
         // @ts-expect-error
