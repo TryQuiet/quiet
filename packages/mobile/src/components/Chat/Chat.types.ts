@@ -41,6 +41,7 @@ export interface ChatProps extends UserLabelHandlers {
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  maxAutodownloadSizeBytes?: number
   imagePreview?: FileMetadata | null
   setImagePreview?: (media: FileMetadata | null) => void
   openImagePreview: (media: FileMetadata) => void

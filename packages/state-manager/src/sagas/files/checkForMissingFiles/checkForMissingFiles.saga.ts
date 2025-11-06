@@ -1,17 +1,15 @@
 import { applyEmitParams, type Socket } from '../../../types'
 import { select, apply, put, take } from 'typed-redux-saga'
-import { type PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { missingChannelFiles } from '../../messages/messages.selectors'
+import { settingsSelectors } from '../../settings/settings.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { filesActions } from '../files.slice'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
-import { type networkActions } from '../../network/network.slice'
-import { DownloadState, Identity, SocketActions } from '@quiet/types'
+import { DownloadState, SocketActions } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { networkSelectors } from '../../network/network.selectors'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 const logger = createLogger('checkForMissingFilesSaga')
@@ -49,6 +47,7 @@ export function* checkForMissingFilesSaga(
 
   for (const channel of channels) {
     const missingFiles = yield* select(missingChannelFiles(channel.id))
+    const maxAutodownloadSizeBytes = yield* select(settingsSelectors.maxAutodownloadBytes)
     logger.info(`Detected ${missingFiles.length} missing files in channel ${channel.id}`)
 
     if (missingFiles.length > 0) {
@@ -73,7 +72,7 @@ export function* checkForMissingFilesSaga(
 
         // Do not autodownload oversized files unless started manually
         const fileSize = file.size || 0
-        if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && fileSize > AUTODOWNLOAD_SIZE_LIMIT) {
+        if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && fileSize > maxAutodownloadSizeBytes) {
           continue
         }
 

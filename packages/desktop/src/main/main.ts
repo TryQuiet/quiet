@@ -59,7 +59,11 @@ ElectronStore.initRenderer()
 const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
-  logger.info('This is second instance. Quitting')
+  if (isDev) {
+    logger.warn('Second instance started with same DATA_DIR environment variable set. Quitting')
+  } else {
+    logger.info('This is second instance. Quitting')
+  }
   app.quit()
   app.exit()
 } else {

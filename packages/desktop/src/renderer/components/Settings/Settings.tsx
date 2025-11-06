@@ -5,6 +5,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 
 import { About } from '../widgets/Settings/About'
 import { Notifications } from './Tabs/Notifications/Notifications'
+import { Attachments } from './Tabs/Attachments/Attachments'
 import { Invite } from './Tabs/Invite/Invite'
 import { QRCode } from './Tabs/QRCode/QRCode'
 import { LeaveCommunity } from './Tabs/LeaveCommunity/LeaveCommunity'
@@ -18,6 +19,7 @@ const Settings = () => {
   const tabs: Record<string, React.ComponentType<any>> = {
     about: About,
     notifications: Notifications,
+    attachments: Attachments,
     invite: Invite,
     qrcode: QRCode,
     leaveCommunity: LeaveCommunity,

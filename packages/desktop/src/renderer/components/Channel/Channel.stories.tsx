@@ -11,6 +11,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 // Provide a user object that satisfies 'Identity'
 const validUser = {
@@ -840,6 +841,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
           }
         }
         pendingMessages={args.pendingMessages || {}}
+        maxAutodownloadSizeBytes={args.maxAutodownloadSizeBytes || DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         lazyLoading={args.lazyLoading || function (_load: boolean): void {}}
         onInputChange={args.onInputChange || function (_value: string): void {}}
         openUrl={args.openUrl || dummyFn}
