@@ -109,6 +109,14 @@ describe('One Client (QSS)', () => {
       const joinPanel = new JoiningLoadingPanel(app.driver)
       await joinPanel.waitForJoinToComplete()
 
+      // Verify we landed with the NEW community name and NEW username
+      generalChannel = new Channel(app.driver, generalChannelName)
+      expect(await generalChannel.isReady(30_000)).toBeTruthy()
+      const commNameRaw = await new Sidebar(app.driver).getDisplayedCommunityName()
+      const commName = commNameRaw.trim().toLowerCase()
+      expect(commName).toBe(communityNameAfterCreationAbort.toLowerCase())
+      expect(commName).not.toBe(communityNameAbort.toLowerCase())
+
       // Capture invitation link for join‑abort scenarios early to avoid cascading undefined errors
       const settingsModal = await new Sidebar(app.driver).openSettings()
       expect(await settingsModal.isReady()).toBeTruthy()
@@ -117,14 +125,6 @@ describe('One Client (QSS)', () => {
       invitationLink = await invitationLinkElement.getText()
       expect(invitationLink).toBeTruthy()
       await settingsModal.closeTabThenModal()
-
-      // Verify we landed with the NEW community name and NEW username
-      generalChannel = new Channel(app.driver, generalChannelName)
-      expect(await generalChannel.isReady()).toBeTruthy()
-      const commNameRaw = await new Sidebar(app.driver).getDisplayedCommunityName()
-      const commName = commNameRaw.trim().toLowerCase()
-      expect(commName).toBe(communityNameAfterCreationAbort.toLowerCase())
-      expect(commName).not.toBe(communityNameAbort.toLowerCase())
 
       const sidebar = new Sidebar(app.driver)
       const currentUser = await sidebar.getCurrentUserNickname()
@@ -186,6 +186,7 @@ describe('One Client (QSS)', () => {
         const createModal = new CreateCommunityModal(app.driver)
         expect(await createModal.isReady()).toBeTruthy()
         await createModal.clearInput()
+        logger.info(`Typing ${communityNameAfterJoinAbort}`)
         await createModal.typeCommunityName(communityNameAfterJoinAbort)
         await createModal.submit()
       })
