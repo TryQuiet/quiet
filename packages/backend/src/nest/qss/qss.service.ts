@@ -545,20 +545,26 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return
     }
 
-    if (!this.sigChainService.chains.has(update.teamId)) {
-      this.logger.warn(`No sigchain found for team ID ${update.teamId}, cannot sync log entry to QSS`)
-      return false
+    let sigChain: SigChain
+    try {
+      sigChain = this.sigChainService.getChain({ teamId: update.teamId })
+    } catch (e) {
+      // TODO: when we have multiple teams, we want to check disk for the appropriate sigchain
+      // for now these log entries are from stale communities so we can just skip them
+      await this.localDbService.removePendingQssLogSyncMessages({ [update.addr]: [update.hash] })
+      this.logger.warn(
+        `No sigchain present for team ${update.teamId}, cannot send ${update.hash} log sync message to QSS`
+      )
+      return
     }
 
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
 
     this.logger.trace('Encrypting log entry', update.hash)
-    const encEntry: EncryptedAndSignedPayload = this.sigChainService
-      .getChain({ teamId: update.teamId })
-      .crypto.encryptAndSign(update.entry, {
-        type: EncryptionScopeType.ROLE,
-        name: RoleName.MEMBER,
-      })
+    const encEntry: EncryptedAndSignedPayload = sigChain.crypto.encryptAndSign(update.entry, {
+      type: EncryptionScopeType.ROLE,
+      name: RoleName.MEMBER,
+    })
 
     const dataSyncMessage: QSSLogEntrySyncMessage = {
       ts: DateTime.utc().toMillis(),
