@@ -167,7 +167,8 @@ export class QSSClient extends EventEmitter {
   public async sendMessage<T extends BaseWebsocketMessage<object | undefined>>(
     event: WebsocketEvents,
     payload: object | undefined,
-    withAck = false
+    withAck = false,
+    timeoutAck: number = 5000
   ): Promise<T | undefined> {
     this.logger.debug(`Sending message`, event)
     const socket = this.getClientSocket()
@@ -176,7 +177,7 @@ export class QSSClient extends EventEmitter {
         throw new QSSNotInitializedError(`Must run createSocket first!`)
       }
       if (withAck) {
-        const response = (await socket!.emitWithAck(event, payload)) as T
+        const response = (await socket!.timeout(timeoutAck).emitWithAck(event, payload)) as T
         if (response?.reason === CaptchaErrorMessages.CATCHA_VERIFICATION_REQUIRED) {
           this.captchaVerified = false
           void this.requestCaptchaVerification().catch(error => {
@@ -202,8 +203,10 @@ export class QSSClient extends EventEmitter {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
         },
-        true
+        true,
+        2000
       )
+      this.logger.info('Received response from QSS for hCaptcha site key request')
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.siteKey) {
         this.logger.debug('Received hCaptcha site key from QSS')
         this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_SITE_KEY, response.payload.siteKey)
