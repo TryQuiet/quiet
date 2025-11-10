@@ -93,6 +93,7 @@ describe('Deep linking', () => {
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Network/setLoadingPanelType",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -129,6 +130,7 @@ describe('Deep linking', () => {
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Network/setLoadingPanelType",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -198,7 +200,9 @@ describe('Deep linking', () => {
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Network/setLoadingPanelType",
         "Communities/clearInvitationCodes",
+        "Network/setLoadingPanelType",
       ]
     `)
     // Check that either emit or emitWithAck was called
@@ -223,14 +227,18 @@ describe('Deep linking', () => {
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Network/setLoadingPanelType",
         "Communities/clearInvitationCodes",
+        "Network/setLoadingPanelType",
         "Communities/customProtocol",
         "Communities/joinCommunity",
         "Communities/setInvitationCodes",
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/setUsername",
+        "Network/setLoadingPanelType",
         "Communities/clearInvitationCodes",
+        "Network/setLoadingPanelType",
       ]
     `)
   })
