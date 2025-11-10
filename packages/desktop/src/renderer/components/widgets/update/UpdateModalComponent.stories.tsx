@@ -41,7 +41,8 @@ const args: UpdateModalProps = {
     </Button>,
   ],
   title: 'Software update',
-  message: 'An update is available for Quiet.',
+  message:
+    'A new version of Quiet is ready. It will be installed the next time you restart the app, or you can update now.',
 }
 
 export const Component = Template.bind({})
