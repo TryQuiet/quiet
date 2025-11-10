@@ -41,9 +41,11 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       }
     )
 
-    this.store.events.on('update', async (entry: LogEntry) => {
-      this.emit(StorageEvents.USER_PROFILES_STORED, {
-        profiles: await this.getUserProfiles(),
+    this.store.events.on('update', (entry: LogEntry) => {
+      this.getUserProfiles().then((profiles: UserProfile[]) => {
+        this.emit(StorageEvents.USER_PROFILES_STORED, {
+          profiles,
+        })
       })
     })
 

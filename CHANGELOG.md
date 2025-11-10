@@ -5,6 +5,7 @@
 ### Features
 
 * Added warning popup when a server was unexpectedly added to chain [#2907](https://github.com/TryQuiet/quiet/issues/2907)
+* Change autoupdater text [#2971] (https://github.com/TryQuiet/quiet/issues/2971)
 
 ## [6.3.0]
 

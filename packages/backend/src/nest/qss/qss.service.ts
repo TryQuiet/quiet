@@ -18,6 +18,12 @@ import {
   QSSLogEntrySyncMessage,
   GeneratePublicKeysMessage,
   WebsocketEvents,
+  QSSOperationResult,
+  QSSEvents,
+  ReprocessableOperationDescription,
+  ReprocessableOperation,
+  AuthSyncMessage,
+  QSSInitStatus,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
@@ -34,7 +40,9 @@ import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import { Community } from '@quiet/types'
+import { QSS_RECONNECT_DELAY_MS } from './qss.const'
+import { Community, CompoundError, InvitationDataV3 } from '@quiet/types'
+import { LocalDbEvents } from '../local-db/local-db.types'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -47,11 +55,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    */
   private _deadLetterQueueProcessor: NodeJS.Timeout
   /**
-   * Is QSS enabled for this community?
-   *
-   * Map of team ID to enabled status
+   * Interval for retrying/reconnecting to QSS
    */
-  private _qssEnabledByCommunity = new Map<string, boolean>()
+  private _reconnectQueueProcessor: NodeJS.Timeout
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -67,6 +73,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
     this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
+    this.connect = this.connect.bind(this)
+    this._configureEventHandlers()
   }
 
   public onModuleDestroy() {
@@ -74,8 +82,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   public async onModuleInit() {
-    OrbitDbService.events.on('put', async (logUpdate: LogUpdate) => {
-      await this.sendLogEntrySyncMessage(logUpdate)
+    OrbitDbService.events.on('put', (logUpdate: LogUpdate) => {
+      void this.sendLogEntrySyncMessage(logUpdate)
     })
   }
 
@@ -109,11 +117,53 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
   }
 
+  private _configureEventHandlers(): void {
+    this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
+      this.logger.debug('Community stored, attempting to authenticate with QSS')
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    })
+
+    this.qssClient.on(QSSEvents.QSS_CONNECTED, async (): Promise<void> => {
+      this.logger.debug('QSS connected, handling appropriate authentication operation')
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    })
+
+    this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
+      const initStatus = await this.getQssInitStatus()
+      if (!initStatus.communityInitialized || initStatus.community == null) {
+        this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
+        return
+      }
+
+      if (!initStatus.qssEnabled) {
+        this.logger.trace('QSS not enabled for this community, skipping sign in')
+        return
+      }
+
+      if (
+        !(initStatus.qssSetup ?? false) &&
+        this.sigChainService.activeChain.team != null &&
+        this.sigChainService.users.getAllUsers().length === 1
+      ) {
+        await this.createCommunity(this.sigChainService.activeChain)
+      } else {
+        const teamId =
+          this.sigChainService.activeChain.team != null
+            ? this.sigChainService.team.id
+            : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
+        const teamName =
+          this.sigChainService.activeChain.team != null ? this.sigChainService.team.teamName : initStatus.community.name
+        this.logger.trace('QSS Sign in', teamId, teamName)
+        await this.signInToCommunity(teamId, this.sigChainService.activeChain, teamName)
+      }
+    })
+  }
+
   /**
    * Check if QSS is allowed and our websocket connection is active
    */
   public get connected(): boolean {
-    return this.canConnect && !!this.qssClient.clientSocket?.connected
+    return this.canConnect && this.qssClient.connected
   }
 
   /**
@@ -138,26 +188,27 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   /**
-   * Check if QSS is enabled for a given community by its sigchain team ID
+   * Check if QSS is enabled for the current community by its sigchain team ID
    *
-   * @param teamId ID of the team we are checking enabled on
-   * @returns True if QSS is enabled for this community
+   * @returns True if QSS is enabled for the current community
    */
-  public isEnabledForCommunity(teamId: string): boolean {
-    return this._qssEnabledByCommunity.get(teamId) ?? false
-  }
+  public async getQssInitStatus(): Promise<QSSInitStatus> {
+    const community = await this.localDbService.getCurrentCommunity()
+    const status: QSSInitStatus = {
+      communityInitialized: false,
+      qssEnabled: false,
+      qssSetup: false,
+      community,
+    }
+    if (community == null) {
+      return status
+    }
 
-  /**
-   * Enabled QSS functionality for a given community
-   *
-   * @param teamId ID of the team we are enabling QSS for
-   */
-  public enableForCommunity(teamId: string): void {
-    this._qssEnabledByCommunity.set(teamId, true)
-    if (!this.canConnect) {
-      this.logger.warn(
-        `QSS is enabled on this community but your app doesn't allow QSS.  To allow QSS pass in the ${QSS_ALLOWED} flag.`
-      )
+    return {
+      ...status,
+      qssEnabled: community.qssEnabled ?? false,
+      qssSetup: community.qssSetup ?? false,
+      communityInitialized: true,
     }
   }
 
@@ -172,13 +223,29 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     return authConnection?.joinStatus ?? JoinStatus.NOT_STARTED
   }
 
+  public async connect(qssEndpoint: string | undefined, enabledOverride: boolean = false): Promise<QSSOperationResult> {
+    let connStatus: QSSOperationResult
+    try {
+      connStatus = await this._connectImpl(qssEndpoint, enabledOverride)
+    } catch (e) {
+      this.logger.error('Error while connecting to QSS', e)
+      connStatus = QSSOperationResult.ERROR
+    }
+
+    if (this._reconnectQueueProcessor == null) {
+      this._reconnectQueueProcessor = setInterval(this.connect, QSS_RECONNECT_DELAY_MS, qssEndpoint, enabledOverride)
+    }
+
+    return connStatus
+  }
+
   /**
    * Connect the QSS client if enabled
    *
    * @param qssEndpoint Determined by the QSS_ENDPOINT env variable and data stored in community metadata and V3 invites
    * @returns True if connection was successful
    */
-  public async connect(qssEndpoint: string | undefined): Promise<boolean> {
+  private async _connectImpl(qssEndpoint: string | undefined, enabledOverride: boolean): Promise<QSSOperationResult> {
     // wait for existing socket to finish connecting, if present
     if (this._connecting) {
       this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
@@ -190,7 +257,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     // if we are already connected return true and move on
     if (this.connected) {
-      return true
+      return QSSOperationResult.SUCCESS
     }
 
     this._connecting = true
@@ -198,23 +265,36 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._qssEndpoint = qssEndpoint ?? this._qssEndpoint
     if (!this.canConnect) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
-      return false
+      return QSSOperationResult.DISABLED
+    }
+
+    if (!enabledOverride) {
+      const initStatus = await this.getQssInitStatus()
+      if (!initStatus.communityInitialized) {
+        this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
+        return QSSOperationResult.ERROR
+      }
+
+      if (!initStatus.qssEnabled) {
+        this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
+        return QSSOperationResult.DISABLED
+      }
     }
 
     // wait for our socket to finish connecting
-    let connected = false
+    let connStatus: QSSOperationResult
     try {
       this.logger.info(`Establishing connection with QSS`)
-      await this.qssClient.createSocket(this._qssEndpoint)
+      await this.qssClient.createSocketAndConnect(this._qssEndpoint)
       this.logger.info(`Connection established`)
-      connected = true
+      connStatus = QSSOperationResult.SUCCESS
     } catch (e) {
       this.logger.error(`Error while connecting to QSS`, e)
-      connected = false
+      connStatus = QSSOperationResult.ERROR
     }
 
     this._connecting = false
-    return connected
+    return connStatus
   }
 
   /**
@@ -224,7 +304,25 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param community Community metadata for this community
    * @returns True if successfully created
    */
-  public async createCommunity(sigChain: SigChain, community: Community): Promise<boolean> {
+  public async createCommunity(sigChain: SigChain): Promise<boolean> {
+    let created: boolean = false
+    try {
+      created = await this._createCommunityImpl(sigChain)
+    } catch (e) {
+      created = false
+      this.logger.error('Failed to create community on QSS', e)
+    }
+
+    return created
+  }
+
+  /**
+   * Add a community to QSS and start syncing our chain with QSS
+   *
+   * @param sigChain Sigchain for this community
+   * @returns True if successfully created
+   */
+  public async _createCommunityImpl(sigChain: SigChain): Promise<boolean> {
     if (!this.canConnect) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
@@ -233,8 +331,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (sigChain.team == null) {
       throw new Error(`Team on this sigchain is nullish!`)
     }
-
-    this.enableForCommunity(sigChain.team.id)
 
     if (!this.connected) {
       this.logger.warn(`Can't create community on QSS because the client hasn't connected`)
@@ -317,6 +413,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return false
     }
 
+    const community = await this.localDbService.getCurrentCommunity()
+    this.localDbService.updateCommunity(community!.id, { qssSetup: true })
+
     // start the auth sync connection with QSS now that we've successfully added the community
     await this.qssAuthConnManager.startNewConnection(sigChain.team.id)
     return true
@@ -329,20 +428,38 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @param sigChain Sigchain for this team
    * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async signInToCommunity(teamId: string, sigChain: SigChain, teamName?: string): Promise<void> {
+  public async signInToCommunity(teamId: string, sigChain: SigChain, teamName?: string): Promise<QSSOperationResult> {
+    let result: QSSOperationResult
+    try {
+      result = await this._signInToCommunityImpl(teamId, sigChain, teamName)
+    } catch (e) {
+      this.logger.error('Failed to sign in to QSS', e)
+      result = QSSOperationResult.ERROR
+    }
+
+    return result
+  }
+
+  /**
+   * Send a sign in message to QSS and start the auth sync connection with QSS for this community
+   *
+   * @param teamId ID of the team we are signing in to
+   * @param sigChain Sigchain for this team
+   * @param teamName Optional team name to pass in for filtering purposes
+   */
+  public async _signInToCommunityImpl(
+    teamId: string,
+    sigChain: SigChain,
+    teamName?: string
+  ): Promise<QSSOperationResult> {
     if (!this.canConnect) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
-      return
+      return QSSOperationResult.DISABLED
     }
 
     if (!this.connected) {
       this.logger.warn(`Can't sign in to community on QSS because the client hasn't connected`)
-      return
-    }
-
-    if (!this.isEnabledForCommunity(teamId)) {
-      this.logger.warn(`Attempting to sign in to a community that isn't QSS enabled!`)
-      return
+      return QSSOperationResult.ERROR
     }
 
     // send a sign in message to QSS for this community and check for a successful response
@@ -366,14 +483,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     if (signInResponse.status !== CommunityOperationStatus.SUCCESS) {
-      throw new Error(
-        `Error while signing in to community ${teamId} - ${signInResponse.status}: ${signInResponse.reason ?? `Unknown QSS Error`}`
-      )
+      const qssError = new Error(signInResponse.reason ?? `Unknown QSS Error`)
+      throw new CompoundError(`Error while signing in to community ${teamId} - ${signInResponse.status}`, qssError)
     }
 
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
     this.qssAuthConnManager.startNewConnection(teamId, teamName)
+    const community = await this.localDbService.getCurrentCommunity()
+    this.localDbService.updateCommunity(community!.id, { qssSetup: true })
+    return QSSOperationResult.SUCCESS
   }
 
   /**
@@ -385,6 +504,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
     if (!this.canConnect) {
       this.logger.info(`Can't send log sync message to QSS because QSS is not enabled for this community`)
+      return
+    }
+
+    const initStatus = await this.getQssInitStatus()
+
+    if (!initStatus.qssEnabled) {
+      this.logger.trace(`Can't sync to QSS because QSS is disabled on this community`)
       return
     }
 

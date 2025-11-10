@@ -25,6 +25,7 @@ export interface Community {
   qssEndpoint?: string
   tosAccepted?: boolean
   serverHosts?: ServerHost[]
+  qssSetup?: boolean
 }
 
 export interface CommunityMetadata {

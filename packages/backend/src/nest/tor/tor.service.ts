@@ -289,12 +289,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger.error(`Tor process. Error occurred`, data)
       })
 
-      this.process.stdout.on('data', (data: any) => {
+      this.process.stdout.on('data', async (data: any) => {
         const bootstrappedRegexp = /Bootstrapped 0/
         // TODO: Figure out if there's a way to get this working in tests
         // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
         if (bootstrappedRegexp.test(data.toString())) {
-          this.spawnHiddenServices()
+          await this.spawnHiddenServices()
           resolve()
         }
       })
