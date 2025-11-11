@@ -48,6 +48,7 @@ export interface QSSInitStatus {
   communityInitialized: boolean
   qssEnabled: boolean
   qssSetup: boolean
+  tosAccepted: boolean
   community?: Community
 }
 

@@ -154,9 +154,10 @@ describe('QSSService', () => {
   interface InitCommunitySettings {
     qssEnabled: boolean
     qssSetup: boolean
+    tosAccepted: boolean
   }
   const initCommunity = async (
-    settings: InitCommunitySettings = { qssEnabled: true, qssSetup: false }
+    settings: InitCommunitySettings = { qssEnabled: true, qssSetup: false, tosAccepted: true }
   ): Promise<Community> => {
     await localDbService.setCommunity({
       ...community,
@@ -201,6 +202,14 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeFalsy()
       expect(qssService.canConnect).toBeFalsy()
     })
+
+    it(`doesn't connect to QSS when enabled but TOS isn't accepted`, async () => {
+      await initCommunity({ tosAccepted: false, qssEnabled: true, qssSetup: false })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeFalsy()
+      expect(qssService.canConnect).toBeTruthy()
+    })
   })
 
   describe('createCommunity', () => {
@@ -241,7 +250,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain, community)
+      const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -316,7 +325,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain, community)
+      const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -374,7 +383,7 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
 
-      const created = await qssService.createCommunity(sigchainService.activeChain, community)
+      const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -603,7 +612,7 @@ describe('QSSService', () => {
 
   describe('sendLogEntrySyncMessage', () => {
     it(`sends a successful log sync to QSS`, async () => {
-      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await initCommunity({ qssEnabled: true, qssSetup: true, tosAccepted: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
 
@@ -677,7 +686,7 @@ describe('QSSService', () => {
     })
 
     it(`fails to send log sync to QSS and writes pending message to local DB`, async () => {
-      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await initCommunity({ qssEnabled: true, qssSetup: true, tosAccepted: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
 

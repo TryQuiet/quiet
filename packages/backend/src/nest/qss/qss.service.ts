@@ -20,9 +20,6 @@ import {
   WebsocketEvents,
   QSSOperationResult,
   QSSEvents,
-  ReprocessableOperationDescription,
-  ReprocessableOperation,
-  AuthSyncMessage,
   QSSInitStatus,
 } from './qss.types'
 import { DateTime } from 'luxon'
@@ -198,6 +195,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       communityInitialized: false,
       qssEnabled: false,
       qssSetup: false,
+      tosAccepted: false,
       community,
     }
     if (community == null) {
@@ -208,6 +206,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       ...status,
       qssEnabled: community.qssEnabled ?? false,
       qssSetup: community.qssSetup ?? false,
+      tosAccepted: community.tosAccepted ?? false,
       communityInitialized: true,
     }
   }
@@ -268,6 +267,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return QSSOperationResult.DISABLED
     }
 
+    const initStatus = await this.getQssInitStatus()
+    if (!initStatus.tosAccepted) {
+      this.logger.warn(`Can't connect to QSS until TOS is accepted`)
+      return QSSOperationResult.ERROR
+    }
+
     if (!enabledOverride) {
       const initStatus = await this.getQssInitStatus()
       if (!initStatus.communityInitialized) {
@@ -323,13 +328,24 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @returns True if successfully created
    */
   public async _createCommunityImpl(sigChain: SigChain): Promise<boolean> {
+    const initStatus = await this.getQssInitStatus()
     if (!this.canConnect) {
       this.logger.trace(`Can't create community on QSS because QSS is not initialized`)
       return false
     }
 
+    if (!initStatus.tosAccepted) {
+      this.logger.warn(`Can't create community on QSS until TOS is accepted`)
+      return false
+    }
+
     if (sigChain.team == null) {
       throw new Error(`Team on this sigchain is nullish!`)
+    }
+
+    if (initStatus.community == null) {
+      this.logger.warn(`Can't create community on QSS until the community is initialized locally`)
+      return false
     }
 
     if (!this.connected) {
@@ -371,7 +387,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     await this.localDbService.setCommunity({
-      ...community,
+      ...initStatus.community,
       qssEnabled: true,
       serverHosts: [{ hostUrl: host, accepted: true }],
     } as Community)
@@ -604,9 +620,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public close(): void {
     this.logger.info(`Closing QSS service`)
     clearInterval(this._deadLetterQueueProcessor)
+    clearInterval(this._reconnectQueueProcessor)
     this.qssAuthConnManager.close()
     this.qssClient.close()
-    this._qssEnabledByCommunity = new Map<string, boolean>()
     this._connecting = false
   }
 }
