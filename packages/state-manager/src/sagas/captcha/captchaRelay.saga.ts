@@ -9,7 +9,7 @@ const logger = createLogger('captchaRelaySaga')
 
 export function* captchaRelaySaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof captchaActions.setHcaptchaFormResponse>['payload']>
+  action: PayloadAction<ReturnType<typeof captchaActions.captchaFormResponse>['payload']>
 ): Generator {
   logger.info('Relaying hCaptcha token to server')
   yield* apply(socket, socket.emit, applyEmitParams(SocketActions.HCAPTCHA_FORM_RESPONSE, action.payload))

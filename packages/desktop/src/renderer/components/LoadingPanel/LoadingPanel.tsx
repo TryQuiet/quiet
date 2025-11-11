@@ -33,8 +33,9 @@ const LoadingPanel = () => {
 
   useEffect(() => {
     if (message === LoadingPanelType.Failed) {
-      loadingPanelModal.handleClose()
+      logger.info('Operation failed, returning to join community modal')
       dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
+      loadingPanelModal.handleClose()
     }
   }, [message])
 

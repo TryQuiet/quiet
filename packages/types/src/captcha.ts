@@ -8,6 +8,10 @@ export interface HCaptchaRequest {
   siteKey: string
 }
 
+export interface HCaptchaChallengeRequest {
+  context?: CaptchaContexts
+}
+
 export enum CaptchaErrorMessages {
   CATCHA_VERIFICATION_REQUIRED = 'Captcha verification required',
 }

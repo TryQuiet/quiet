@@ -39,6 +39,7 @@ import {
   AttachFilePayload,
   LaunchCommunityPayload,
   HCaptchaRequest,
+  HCaptchaChallengeRequest,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -89,7 +90,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof usersActions.updateUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
-    | ReturnType<typeof captchaActions.getTokenForSiteKey>
+    | ReturnType<typeof captchaActions.presentChallenge>
     | ReturnType<typeof captchaActions.setSiteKey>
     | ReturnType<typeof captchaActions.setCaptchaVerified>
   >(emit => {
@@ -191,9 +192,9 @@ export function subscribe(socket: Socket) {
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
 
-    socket.on(SocketEvents.HCAPTCHA_REQUEST, (payload: HCaptchaRequest) => {
-      logger.info(`${SocketEvents.HCAPTCHA_REQUEST}`, JSON.stringify(payload))
-      emit(captchaActions.getTokenForSiteKey(payload))
+    socket.on(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, (payload: HCaptchaChallengeRequest) => {
+      logger.info(`${SocketEvents.HCAPTCHA_CHALLENGE_REQUEST}`, JSON.stringify(payload))
+      emit(captchaActions.presentChallenge(payload))
     })
     socket.on(SocketEvents.HCAPTCHA_SITE_KEY, (payload: string) => {
       logger.info(`${SocketEvents.HCAPTCHA_SITE_KEY}`, payload)

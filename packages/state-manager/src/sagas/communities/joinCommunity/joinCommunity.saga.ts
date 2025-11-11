@@ -27,6 +27,8 @@ export function* joinCommunitySaga(
   logger.info('Starting joinCommunitySaga')
 
   const { inviteData } = action.payload as JoinCommunityPayload
+  logger.info('Set loading panel type', LoadingPanelType.Joining)
+  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
 
   const communityId = yield* call(generateId)
   // Setting invitationCodes to mark that we are in the process of joining a community
@@ -59,9 +61,6 @@ export function* joinCommunitySaga(
   }
 
   logger.info('Updating backend with community data')
-  logger.info('Set loading panel type', LoadingPanelType.Joining)
-  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
-
   const response: ResponseJoinCommunityPayload | undefined = yield* apply(
     socket,
     socket.emitWithAck,

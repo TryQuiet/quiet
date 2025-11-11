@@ -4,7 +4,6 @@ import {
   UserProfilesStoredEvent,
   UsersRemovedEvent,
   UsersUpdatedEvent,
-  type UserProfile,
 } from './user'
 import {
   type DeleteChannelPayload,
@@ -25,12 +24,7 @@ import {
   type DownloadFilePayload,
   type AttachFilePayload,
 } from './files'
-import {
-  type SendMessagePayload,
-  type GetMessagesPayload,
-  ChannelMessageIdsResponse,
-  PushNotificationPayload,
-} from './message'
+import { type GetMessagesPayload, ChannelMessageIdsResponse, PushNotificationPayload } from './message'
 import {
   type InitCommunityPayload,
   type LeaveCommunityPayload,
@@ -43,8 +37,7 @@ import {
   ResponseInvitePayload,
 } from './community'
 import { ErrorPayload } from './errors'
-import { InviteResult } from '@localfirst/auth'
-import { HCaptchaFormResponse, HCaptchaRequest } from './captcha'
+import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -151,8 +144,7 @@ export enum SocketEvents {
   CONNECTION_PROCESS_INFO = 'connectionProcess',
 
   // ====== Captcha ======
-  HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
-  HCAPTCHA_REQUEST = 'hcaptchaRequest',
+  HCAPTCHA_CHALLENGE_REQUEST = 'hcaptchaChallengeRequest',
   HCAPTCHA_SITE_KEY = 'hcaptchaSiteKey',
   HCAPTCHA_VERIFICATION_UPDATE = 'hcaptchaVerificationUpdate',
 }
@@ -252,8 +244,7 @@ export interface SocketEventsMap {
   [SocketEvents.CONNECTION_PROCESS_INFO]: EmitEvent<string>
 
   // ====== Captcha ======
-  [SocketEvents.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
-  [SocketEvents.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
+  [SocketEvents.HCAPTCHA_CHALLENGE_REQUEST]: EmitEvent<HCaptchaChallengeRequest>
   [SocketEvents.HCAPTCHA_SITE_KEY]: EmitEvent<string>
   [SocketEvents.HCAPTCHA_VERIFICATION_UPDATE]: EmitEvent<boolean>
 }

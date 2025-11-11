@@ -31,7 +31,7 @@ export class QSSClient extends EventEmitter {
    * Socket.io socket instance
    */
   private _clientSocket: ClientSocket | undefined = undefined
-  private _captchaVerified = false
+  public captchaVerified = false
 
   private readonly logger = createLogger(`qss:client`)
 
@@ -49,21 +49,6 @@ export class QSSClient extends EventEmitter {
   public get connected(): boolean {
     const socket = this.getClientSocket()
     return socket != null && socket.active && socket.connected
-  }
-
-  public get captchaVerified(): boolean {
-    return this._captchaVerified
-  }
-
-  private set captchaVerified(value: boolean) {
-    const valueChanged = value !== this._captchaVerified
-    this._captchaVerified = value
-    if (valueChanged) {
-      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, value)
-      if (value) {
-        this.emit(QSSEvents.QSS_CAPTCHA_VERIFIED, value)
-      }
-    }
   }
 
   public getClientSocket(): ClientSocket | undefined {
@@ -222,17 +207,6 @@ export class QSSClient extends EventEmitter {
   }
 
   public async verifyCaptchaToken(token: string): Promise<boolean> {
-    if (this.captchaVerified) {
-      this.logger.debug('Captcha token already verified')
-      return true
-    }
-
-    if (!this.connected) {
-      this.logger.debug('QSS client not connected, cannot verify hCaptcha token')
-      this.captchaVerified = false
-      return false
-    }
-
     this.logger.debug('Verifying hCaptcha token with QSS')
     try {
       const response = await this.sendMessage<CaptchaVerifyResponse>(
@@ -246,30 +220,42 @@ export class QSSClient extends EventEmitter {
       )
       if (response?.status === CommunityOperationStatus.SUCCESS) {
         this.captchaVerified = true
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, true)
         this.captchaService.hcaptchaToken = null
         this.logger.debug('hCaptcha token successfully verified with QSS')
         return true
       } else {
         this.logger.warn(`hCaptcha token verification with QSS failed: ${response?.reason ?? 'no reason provided'}`)
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
         this.captchaVerified = false
         return false
       }
     } catch (e) {
       this.logger.error('Error while verifying hCaptcha token with QSS', e)
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, false)
       this.captchaVerified = false
       return false
     }
   }
 
   public async requestCaptchaVerification(): Promise<boolean> {
-    this.captchaVerified = false
+    if (this.captchaVerified) {
+      this.logger.debug('Captcha already verified, skipping verification request')
+      this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, true)
+      return true
+    }
+
+    if (!this.connected) {
+      await this.createSocketAndConnect(this.qssEndpoint)
+    }
+
     const siteKey = await this.getCaptchaSiteKey()
     if (siteKey == null) {
       this.logger.warn('Cannot request captcha verification without a site key')
       return false
     }
 
-    const token = await this.captchaService.ensureHcaptchaToken(siteKey)
+    const token = await this.captchaService.getToken(siteKey)
     if (token == null) {
       this.logger.warn('Failed to obtain hCaptcha token for verification')
       return false

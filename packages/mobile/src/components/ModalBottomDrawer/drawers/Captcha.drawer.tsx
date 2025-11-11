@@ -62,7 +62,7 @@ export const CaptchaDrawer: FC = () => {
         logger.info(logMessage)
       }
       captchaRef.current?.hide()
-      dispatch(captcha.actions.setHcaptchaFormResponse({ error: 'Challenge refused' }))
+      dispatch(captcha.actions.captchaFormResponse({ error: 'Captcha screen cancelled by user' }))
     },
     [dispatch]
   )
@@ -71,7 +71,7 @@ export const CaptchaDrawer: FC = () => {
     (token: string) => {
       logger.info('hCaptcha solved successfully')
       captchaRef.current?.hide()
-      dispatch(captcha.actions.setHcaptchaFormResponse({ token }))
+      dispatch(captcha.actions.captchaFormResponse({ token }))
     },
     [closeScreen, dispatch]
   )
@@ -100,7 +100,9 @@ export const CaptchaDrawer: FC = () => {
 
       if (data === 'challenge-closed' || data === 'cancel') {
         logger.info('hCaptcha challenge closed by user')
-        closeScreen('User cancelled hCaptcha challenge')
+        setErrorMessage('Challenge was cancelled.')
+        setStatus('error')
+        captchaRef.current?.hide()
         return
       }
 

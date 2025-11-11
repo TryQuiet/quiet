@@ -49,10 +49,10 @@ ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
 })
 
 ipcRenderer.on('hcaptcha:token', (_event, token: string) => {
-  store.dispatch(captcha.actions.setHcaptchaFormResponse({ token }))
+  store.dispatch(captcha.actions.captchaFormResponse({ token }))
 })
 ipcRenderer.on('hcaptcha:error', (_event, message: string) => {
-  store.dispatch(captcha.actions.setHcaptchaFormResponse({ error: message }))
+  store.dispatch(captcha.actions.captchaFormResponse({ error: message }))
 })
 
 const container = document.getElementById('root')

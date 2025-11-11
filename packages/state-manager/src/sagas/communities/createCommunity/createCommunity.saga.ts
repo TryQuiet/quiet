@@ -6,8 +6,6 @@ import { communitiesActions } from '../communities.slice'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import {
   CaptchaContexts,
-  type Community,
-  CommunityOwnership,
   type InitCommunityPayload,
   LoadingPanelType,
   ResponseCreateCommunityPayload,
@@ -28,6 +26,7 @@ export function* createCommunitySaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.createCommunity>['payload']>
 ): Generator {
   logger.info('Creating community')
+  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Creating))
 
   const communityId = generateId()
 
@@ -56,15 +55,23 @@ export function* createCommunitySaga(
       logger.info('User did not accept terms of service, aborting community creation')
       return
     }
-    yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))
-    while (true) {
-      const captchaVerified = yield* take(captchaActions.setCaptchaVerified)
-      if (captchaVerified.payload) {
-        logger.info('Captcha verified')
-        break
-      } else {
-        logger.info('Captcha verification failed or was cancelled, retrying')
-        yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.RETRY }))
+    if (process.env.NODE_ENV !== 'test') {
+      yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))
+      while (true) {
+        const challengeResultAction: ReturnType<typeof captchaActions.setChallengeResult> = yield* take(
+          captchaActions.setChallengeResult
+        )
+        if (challengeResultAction.payload.cancelled === true) {
+          logger.info('Captcha challenge was cancelled, aborting community creation')
+          yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
+          return
+        } else if (challengeResultAction.payload.success) {
+          logger.info('Captcha challenge succeeded')
+          break
+        } else {
+          logger.info('Captcha challenge failed, presenting challenge again')
+          yield* put(captchaActions.presentChallenge({ context: CaptchaContexts.CREATE_COMMUNITY }))
+        }
       }
     }
   }
@@ -76,8 +83,6 @@ export function* createCommunitySaga(
     useServer: action.payload.useServer,
     tosAccepted: acceptTerms.payload.accepted,
   }
-  logger.info('Set loading panel type', LoadingPanelType.Joining)
-  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
   const createCommunityResponse: ResponseCreateCommunityPayload = yield* apply(
     socket,
     socket.emitWithAck,
@@ -87,8 +92,6 @@ export function* createCommunitySaga(
   logger.debug('Response from backend', createCommunityResponse)
   if (!createCommunityResponse || !createCommunityResponse.community || !createCommunityResponse.identity) {
     logger.error('Failed to create community - invalid response from backend')
-    yield* put(communitiesActions.setCurrentCommunity(''))
-    yield* put(communitiesActions.deleteCommunity(communityId))
     yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
     return
   }

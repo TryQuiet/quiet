@@ -25,7 +25,7 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.socketService.on(SocketEvents.HCAPTCHA_FORM_RESPONSE, (payload: HCaptchaFormResponse) => {
+    this.socketService.on(SocketActions.HCAPTCHA_FORM_RESPONSE, (payload: HCaptchaFormResponse) => {
       if (!payload.token) {
         logger.warn('Received empty hCaptcha token from client')
         this.hcaptchaToken = null
@@ -118,24 +118,18 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
         this._hcaptchaRequestPending = true
         // desktop app: send IPC message to renderer
         process.send?.({ type: 'request-hcaptcha', siteKey })
-        // mobile app: emit socket event to redux
-        logger.info('Emitting HCAPTCHA_REQUEST event to state-manager')
-        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_REQUEST, { siteKey } as HCaptchaRequest)
+        // mobile app: emit socket event to redux to show captcha modal
+        this.serverIoProvider.io.emit(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, {})
       }
     })
   }
 
-  public async ensureHcaptchaToken(siteKey: string): Promise<string | null> {
-    if (process.env.IS_E2E === 'true') {
-      // Test token from https://docs.hcaptcha.com/#test-key-set-publisher-or-pro-account
-      return '10000000-aaaa-bbbb-cccc-000000000001'
-    }
+  public async getToken(siteKey: string): Promise<string | null> {
     const token = this.hcaptchaToken
     if (token) {
       return token
     }
     const received_token = await this.requestHcaptchaToken(siteKey)
-    logger.info('Received hCaptcha token from renderer', received_token)
     return received_token
   }
 

@@ -15,7 +15,12 @@ export const siteKey = createSelector(captchaSlice, reducerState => {
   return reducerState.siteKey
 })
 
+export const captchaVerified = createSelector(captchaSlice, reducerState => {
+  return reducerState.captchaVerified
+})
+
 export const captchaSelectors = {
   captchaRequested,
   siteKey,
+  captchaVerified,
 }

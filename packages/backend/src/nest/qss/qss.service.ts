@@ -126,15 +126,21 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private _configureEventHandlers(): void {
     this.socketService.on(SocketActions.HCAPTCHA_REQUEST, (): void => {
       this.logger.debug('hCaptcha request received')
-      this.qssClient.once(QSSEvents.QSS_CONNECTED, (): void => {
+      if (!this.connected) {
+        this.qssClient.once(QSSEvents.QSS_CONNECTED, (): void => {
+          this.qssClient.requestCaptchaVerification().catch(error => {
+            this.logger.error('Failed to request captcha verification', error)
+          })
+        })
+
+        this.connect(this.qssEndpoint, true).catch(error => {
+          this.logger.error('Failed to connect to QSS on hCaptcha request', error)
+        })
+      } else {
         this.qssClient.requestCaptchaVerification().catch(error => {
           this.logger.error('Failed to request captcha verification', error)
         })
-      })
-
-      this.connect(this.qssEndpoint, true).catch(error => {
-        this.logger.error('Failed to connect to QSS on hCaptcha request', error)
-      })
+      }
     })
 
     this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
@@ -361,13 +367,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     if (!this.qssClient.captchaVerified) {
-      this.qssClient.once(QSSEvents.QSS_CAPTCHA_VERIFIED, () => {
-        this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
-      })
-      this.qssClient.requestCaptchaVerification().catch(() => {
-        this.logger.warn('Captcha verification failed')
-      })
-      return false
+      const verified = await this.qssClient.requestCaptchaVerification()
+      if (!verified) {
+        this.logger.warn(`Can't create community on QSS because captcha verification failed`)
+        return false
+      }
     }
 
     // we need to normalize the hostname for QSS when running locally before adding the server to the chain

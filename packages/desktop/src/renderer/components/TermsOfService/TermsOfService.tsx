@@ -5,7 +5,7 @@ import TermsOfServiceComponent from './TermsOfServiceComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
-import { shell, ipcRenderer } from 'electron'
+import { shell } from 'electron'
 
 const logger = createLogger('TermsOfService')
 

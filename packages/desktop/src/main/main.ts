@@ -590,7 +590,12 @@ app.on('ready', async () => {
     }
 
     try {
-      const token = await openHCaptcha(resolvedSiteKey)
+      let token: string
+      if (process.env.IS_E2E === 'true') {
+        token = '10000000-aaaa-bbbb-cccc-000000000001' // Test token from https://docs.hcaptcha.com/#test-key-set-publisher-or-pro-account
+      } else {
+        token = await openHCaptcha(resolvedSiteKey)
+      }
       if (isBrowserWindow(mainWindow)) {
         mainWindow.webContents.send('hcaptcha:token', token)
       }
