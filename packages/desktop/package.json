@@ -129,7 +129,6 @@
   "dependencies": {
     "@dotenvx/dotenvx": "1.39.0",
     "@electron/remote": "^2.0.8",
-    "@hcaptcha/react-hcaptcha": "^1.13.0",
     "@peculiar/webcrypto": "1.4.3",
     "@quiet/common": "^2.0.2-alpha.1",
     "@quiet/logger": "^2.0.2-alpha.0",
