@@ -224,7 +224,7 @@ void FlushMessageQueue(uv_async_t* handle) {
  * Register a channel and its listener
  */
 napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
-    size_t argc;
+    size_t argc = ARGC_CHANNEL_NAME_MSG;
     napi_value args[ARGC_CHANNEL_NAME_MSG];
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
     NAPI_ASSERT(env, argc == ARGC_CHANNEL_NAME_MSG, "Wrong number of arguments.");
@@ -262,7 +262,7 @@ napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
  * Send a message to React Native
  */
 napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
-    size_t argc;
+    size_t argc = ARGC_CHANNEL_NAME_MSG;
     napi_value args[ARGC_CHANNEL_NAME_MSG];
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
