@@ -60,6 +60,8 @@
 #define NAPI_CALL(env, the_call)                                         \
   NAPI_CALL_BASE(env, the_call, NULL)
 
+#define ARGC_CHANNEL_NAME_MSG 2
+
 /**
  * Forward declarations
  */
@@ -161,13 +163,12 @@ public:
         napi_value message;
         napi_create_string_utf8(this->env, msg, strlen(msg), &message);
 
-        size_t argc = 2;
-        napi_value argv[argc];
+        napi_value argv[ARGC_CHANNEL_NAME_MSG];
         argv[0] = channel_name;
         argv[1] = message;
 
         napi_value result;
-        napi_call_function(this->env, global, node_function, argc, argv, &result);
+        napi_call_function(this->env, global, node_function, ARGC_CHANNEL_NAME_MSG, argv, &result);
         napi_close_handle_scope(this->env, scope);
     };
 };
@@ -223,10 +224,10 @@ void FlushMessageQueue(uv_async_t* handle) {
  * Register a channel and its listener
  */
 napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
-    size_t argc = 2;
-    napi_value args[argc];
+    size_t argc;
+    napi_value args[ARGC_CHANNEL_NAME_MSG];
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
-    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments.");
+    NAPI_ASSERT(env, argc == ARGC_CHANNEL_NAME_MSG, "Wrong number of arguments.");
 
     // args[0] is the channel name
     napi_value channel_name = args[0];
@@ -261,11 +262,11 @@ napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
  * Send a message to React Native
  */
 napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
-    size_t argc = 2;
-    napi_value args[argc];
+    size_t argc;
+    napi_value args[ARGC_CHANNEL_NAME_MSG];
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
-    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments.");
+    NAPI_ASSERT(env, argc == ARGC_CHANNEL_NAME_MSG, "Wrong number of arguments.");
 
     // TODO: arguments parsing and string conversion is done several times,
     //       replace the duplicated code with a function or a macro.
