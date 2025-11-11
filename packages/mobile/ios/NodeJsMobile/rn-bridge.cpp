@@ -1,8 +1,6 @@
-#define NAPI_VERSION 3
 #include "node_api.h"
 #include "uv.h"
 #include "rn-bridge.h"
-#define NM_F_BUILTIN 0x1
 #define NM_F_LINKED 0x2
 #include <map>
 #include <mutex>
@@ -50,11 +48,6 @@
 #define NAPI_ASSERT(env, assertion, message)                             \
   NAPI_ASSERT_BASE(env, assertion, message, NULL)
 
-// Returns empty on failed assertion.
-// This is meant to be used inside functions with void return type.
-#define NAPI_ASSERT_RETURN_VOID(env, assertion, message)                 \
-  NAPI_ASSERT_BASE(env, assertion, message, NAPI_RETVAL_NOTHING)
-
 #define NAPI_CALL_BASE(env, the_call, ret_val)                           \
   do {                                                                   \
     if ((the_call) != napi_ok) {                                         \
@@ -66,10 +59,6 @@
 // Returns NULL if the_call doesn't return napi_ok.
 #define NAPI_CALL(env, the_call)                                         \
   NAPI_CALL_BASE(env, the_call, NULL)
-
-// Returns empty if the_call doesn't return napi_ok.
-#define NAPI_CALL_RETURN_VOID(env, the_call)                             \
-  NAPI_CALL_BASE(env, the_call, NAPI_RETVAL_NOTHING)
 
 /**
  * Forward declarations
@@ -326,6 +315,7 @@ napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
   napi_value return_datadir;
   size_t str_len = strlen(datadir_path);
   NAPI_CALL(env, napi_create_string_utf8(env, datadir_path, str_len, &return_datadir));
+  free(datadir_path);
   return return_datadir;
 }
 
@@ -333,7 +323,6 @@ napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 napi_value Init(napi_env env, napi_value exports) {
-    napi_status status;
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_METHOD("sendMessage", Method_SendMessage),
         DECLARE_NAPI_METHOD("registerChannel", Method_RegisterChannel),
@@ -347,7 +336,8 @@ napi_value Init(napi_env env, napi_value exports) {
  * This method is the public API called by the React Native plugin
  */
 void rn_bridge_notify(const char* channelName, const char *message) {
-    int messageLength=strlen(message);
+    size_t messageLength=strlen(message);
+    // free()'d in flushQueue()
     char* messageCopy = (char*)calloc(sizeof(char),messageLength + 1);
     strncpy(messageCopy, message, messageLength);
 
