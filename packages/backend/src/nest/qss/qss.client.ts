@@ -31,7 +31,7 @@ export class QSSClient extends EventEmitter {
    * Socket.io socket instance
    */
   private _clientSocket: ClientSocket | undefined = undefined
-  public captchaVerified = false
+  private _captchaVerified = false
 
   private readonly logger = createLogger(`qss:client`)
 
@@ -44,6 +44,14 @@ export class QSSClient extends EventEmitter {
     private readonly captchaService: CaptchaService
   ) {
     super()
+  }
+
+  public get captchaVerified(): boolean {
+    return this._captchaVerified
+  }
+
+  private set captchaVerified(value: boolean) {
+    this._captchaVerified = value
   }
 
   public get connected(): boolean {
