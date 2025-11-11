@@ -66,6 +66,13 @@ const LoadingPanel = () => {
     }
   }, [isConnected, currentCommunity, isChannelReplicated])
 
+  useEffect(() => {
+    if (isConnected && message === LoadingPanelType.StartingApplication) {
+      logger.info('Application started, closing loading panel')
+      loadingPanelModal.handleClose()
+    }
+  }, [isConnected, message])
+
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     shell.openExternal(url)
