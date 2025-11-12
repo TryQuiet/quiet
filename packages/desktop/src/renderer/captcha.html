@@ -19,10 +19,6 @@
         --text-primary: #1f1f1f;
         --text-secondary: #4c4c4c;
         --caption-color: #7f7f7f;
-        --button-bg: transparent;
-        --button-border: #d0d0d0;
-        --button-hover-bg: #f5f5f5;
-        --button-text: #1f1f1f;
         --error-color: #d13135;
         --focus-ring: rgba(82, 28, 116, 0.35);
       }
@@ -33,9 +29,6 @@
           --text-primary: #f8fafc;
           --text-secondary: #cfcfcf;
           --caption-color: #9ca3af;
-          --button-border: #4b4b4b;
-          --button-hover-bg: rgba(255, 255, 255, 0.08);
-          --button-text: #f8fafc;
         }
       }
 
@@ -45,7 +38,6 @@
         height: 100vh;
         background: var(--bg-color);
         color: var(--text-primary);
-        font-family: inherit;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -53,7 +45,6 @@
       }
 
       .screen {
-        position: relative;
         width: min(420px, 100%);
         display: flex;
         align-items: center;
@@ -75,7 +66,6 @@
         font-size: 28px;
         font-weight: 500;
         line-height: 34px;
-        color: var(--text-primary);
       }
 
       .screen__subtitle {
@@ -103,18 +93,9 @@
         font-size: 14px;
         color: var(--error-color);
         margin: 0;
-        text-align: center;
       }
 
-      .status-message[hidden] {
-        display: none;
-      }
-
-      .screen__actions {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
+      
 
       .button {
         display: inline-flex;
@@ -149,11 +130,9 @@
         padding: 8px 0;
         font-weight: 500;
         width: auto;
-        align-self: center;
       }
 
       .button--secondary:hover:not(:disabled) {
-        background: transparent;
         color: var(--text-primary);
       }
 

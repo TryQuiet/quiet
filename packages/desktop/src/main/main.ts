@@ -414,7 +414,7 @@ export async function openHCaptcha(siteKey: string): Promise<string> {
         preload: path.join(__dirname, 'preload.captcha.js'),
         contextIsolation: true,
         nodeIntegration: false,
-        sandbox: false,
+        sandbox: true,
         partition: 'persist:hcaptcha',
       },
     })
