@@ -425,7 +425,7 @@ export class Libp2pAuth {
      * information in their chain yet resulting in an invalid device error)
      */
     const oldJoinStatus = this.joinStatus
-    if (this.sigChainService.team == null) {
+    if (this.sigChainService.activeChainTeamName == null) {
       this.joinStatus = JoinStatus.NOT_STARTED
     } else if (this.joinedViaQSS(this.sigChainService.team.id)) {
       this.joinStatus = JoinStatus.PENDING_MEMBER
