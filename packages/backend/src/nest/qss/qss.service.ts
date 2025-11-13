@@ -124,6 +124,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _configureEventHandlers(): void {
+    this.on(QSSEvents.QSS_START_AUTH_CONN, (teamId: string, teamName?: string) => {
+      void this.qssAuthConnManager.startNewConnection(teamId, teamName)
+    })
+
     this.socketService.on(SocketActions.HCAPTCHA_REQUEST, (): void => {
       this.logger.debug('hCaptcha request received')
       if (!this.connected) {
@@ -451,8 +455,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const community = await this.localDbService.getCurrentCommunity()
     this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
 
-    // start the auth sync connection with QSS now that we've successfully added the community
-    await this.qssAuthConnManager.startNewConnection(sigChain.team.id)
+    this.emit(QSSEvents.QSS_START_AUTH_CONN, sigChain.team.id)
     return true
   }
 
@@ -524,7 +527,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    this.qssAuthConnManager.startNewConnection(teamId, teamName)
+    this.emit(QSSEvents.QSS_START_AUTH_CONN, teamId, teamName)
     const community = await this.localDbService.getCurrentCommunity()
     this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
     return QSSOperationResult.SUCCESS
