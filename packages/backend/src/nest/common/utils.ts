@@ -152,40 +152,26 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
   // Wrap path in quotes to handle spaces in path
-  let pathCandidate = path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
+  const pathCandidate = path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
   logger.info(`Checking for Tor binary at: ${pathCandidate}`)
   if (fs.existsSync(pathCandidate)) {
     return pathCandidate
-  } else if (basePath === '') {
+  } else {
     throw new Error(
       `Tor binary not found at ${pathCandidate}. Please ensure the Tor binary is installed and the path is correct.`
     )
-  } else {
-    logger.info(`Tor binary not found at ${pathCandidate}, trying local tor directory.`)
-    pathCandidate = path.join(torDirForPlatform(), `${binName}`.concat(ext))
   }
-  if (fs.existsSync(pathCandidate)) {
-    return pathCandidate
-  } else {
-    // check if the parent dir exists
-    if (fs.existsSync(path.dirname(pathCandidate))) {
-      throw new Error(
-        `Tor binary not found at ${pathCandidate}. Please ensure the Tor binary is installed and the path is correct.`
-      )
-    }
-  }
-  return `"${pathCandidate}"`
 }
 
 export const torDirForPlatform = (basePath?: string): string => {
-  let torPath: string
-  if (!basePath) {
-    basePath = path.join(process.cwd(), '..', '..', '3rd-party')
-    torPath = path.join(basePath, 'tor', process.platform)
+  const devPath = path.join(process.cwd(), '..', '..', '3rd-party', 'tor', process.platform)
+  const prodPath = basePath ? path.join(basePath, 'tor') : undefined
+  if (!prodPath || !fs.existsSync(prodPath)) {
+    logger.info(`Tor directory not found in ${basePath}, falling back to dev directory ${devPath}.`)
+    return devPath
   } else {
-    torPath = path.join(basePath, 'tor')
+    return prodPath
   }
-  return torPath
 }
 
 export const getUsersAddresses = async (users: UserData[]): Promise<string[]> => {
