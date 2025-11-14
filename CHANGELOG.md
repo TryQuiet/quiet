@@ -4,7 +4,12 @@
 
 ### Chores
 
-* Change autoupdater text [#2971] (https://github.com/TryQuiet/quiet/issues/2971)
+* Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
+
+### Fixes
+
+* Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
+* Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
 
 ## [6.3.0]
 
