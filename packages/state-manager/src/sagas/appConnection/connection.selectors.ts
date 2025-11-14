@@ -114,7 +114,6 @@ export const invitationUrl = createSelector(
           teamId,
         },
       }
-      logger.info('Added V3 invite data to the invite link')
     }
     return composeInvitationShareUrl(inviteData)
   }
@@ -126,7 +125,6 @@ export const isJoiningCompleted = createSelector(
   areMessagesLoaded,
   areChannelsLoaded,
   (isTorInit, isCommunityInitialized, areMessages, areChannels) => {
-    logger.info('isJoiningCompleted', JSON.stringify({ isCommunityInitialized, areMessages, areChannels }, null, 2))
     return !!(isCommunityInitialized && areChannels && areMessages)
   }
 )

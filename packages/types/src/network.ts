@@ -1,6 +1,8 @@
 export enum LoadingPanelType {
   StartingApplication = 'Starting Quiet',
   Joining = 'Connecting to peers',
+  Creating = 'Creating community',
+  Failed = 'Failed',
 }
 
 export type InvitationPair = {
