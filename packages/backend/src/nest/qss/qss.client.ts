@@ -271,6 +271,7 @@ export class QSSClient extends EventEmitter {
   private handleErrors(response?: BaseWebsocketMessage<object | undefined>): void {
     if (response?.reason === CaptchaErrorMessages.CATCHA_VERIFICATION_REQUIRED) {
       this.captchaVerified = false
+      this.emit(QSSEvents.QSS_CAPTCHA_REQUIRED)
     }
   }
 
