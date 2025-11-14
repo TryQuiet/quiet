@@ -23,9 +23,6 @@ const CreateUsername = () => {
         nickname,
       })
     )
-    logger.info('Set loading panel type', LoadingPanelType.Joining)
-    dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
-    logger.info('Open loading panel')
     loadingPanelModal.handleOpen()
     createUsernameModal.handleClose()
   }

@@ -67,10 +67,15 @@ describe('QSSService', () => {
   let mockedAllowed: any
   let community: Community
   let userIdentity: Identity
+  let mockedCaptchaVerified: jest.SpiedGetter<any> | undefined
 
   const teamName = 'foobar'
   const username = 'testuser'
   const logger = createLogger('qss:service:test')
+  const mockCaptchaVerification = () => {
+    mockedCaptchaVerified?.mockRestore()
+    mockedCaptchaVerified = jest.spyOn(qssClient, 'captchaVerified', 'get').mockReturnValue(true)
+  }
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -148,6 +153,10 @@ describe('QSSService', () => {
     }
     if (mockedJoinStatus != null) {
       mockedJoinStatus.mockRestore()
+    }
+    if (mockedCaptchaVerified != null) {
+      mockedCaptchaVerified.mockRestore()
+      mockedCaptchaVerified = undefined
     }
   })
 
@@ -241,6 +250,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
+      mockCaptchaVerification()
       const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -316,6 +326,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
+      mockCaptchaVerification()
       const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -374,6 +385,7 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
 
+      mockCaptchaVerification()
       const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -650,7 +662,8 @@ describe('QSSService', () => {
         })
       )
       const entry = await db.log.get(hash)
-      const update = logEntryToLogUpdate(entry, db.address)
+      const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
+      expect(update.teamId).toBe(sigchainService.team.id)
       const result = await qssService.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -725,7 +738,7 @@ describe('QSSService', () => {
         })
       )
       const entry = await db.log.get(hash)
-      const update = logEntryToLogUpdate(entry, db.address)
+      const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       const result = await qssService.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
       await waitForExpect(async () => {
