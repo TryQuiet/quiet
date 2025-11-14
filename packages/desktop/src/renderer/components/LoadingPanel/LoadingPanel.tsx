@@ -10,7 +10,6 @@ import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 import { LoadingPanelType, ErrorCodes, CommunityOwnership } from '@quiet/types'
 import { createLogger } from '../../logger'
-import { current } from 'immer'
 
 const logger = createLogger('LoadingPanel')
 
@@ -31,6 +30,14 @@ const LoadingPanel = () => {
   const areMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
   const areChannels = useSelector(publicChannels.selectors.areChannelsLoaded)
   const isCurrentCommunityInitialized = useSelector(network.selectors.isCurrentCommunityInitialized)
+
+  useEffect(() => {
+    if (message === LoadingPanelType.Failed) {
+      logger.info('Operation failed, returning to join community modal')
+      dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
+      loadingPanelModal.handleClose()
+    }
+  }, [message])
 
   useEffect(() => {
     logger.info(
@@ -58,6 +65,13 @@ const LoadingPanel = () => {
       }
     }
   }, [isConnected, currentCommunity, isChannelReplicated])
+
+  useEffect(() => {
+    if (isConnected && message === LoadingPanelType.StartingApplication) {
+      logger.info('Application started, closing loading panel')
+      loadingPanelModal.handleClose()
+    }
+  }, [isConnected, message])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

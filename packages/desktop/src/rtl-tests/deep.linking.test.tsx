@@ -89,8 +89,9 @@ describe('Deep linking', () => {
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Communities/setInvitationCodes",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/addNewCommunity",
@@ -125,8 +126,9 @@ describe('Deep linking', () => {
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Communities/setInvitationCodes",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/addNewCommunity",
@@ -194,11 +196,13 @@ describe('Deep linking', () => {
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Communities/setInvitationCodes",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/clearInvitationCodes",
+        "Network/setLoadingPanelType",
       ]
     `)
     // Check that either emit or emitWithAck was called
@@ -219,18 +223,22 @@ describe('Deep linking', () => {
       Array [
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Communities/setInvitationCodes",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/clearInvitationCodes",
+        "Network/setLoadingPanelType",
         "Communities/customProtocol",
         "Communities/joinCommunity",
-        "Communities/setInvitationCodes",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Communities/setInvitationCodes",
         "Identity/registerUsername",
         "Identity/setUsername",
         "Communities/clearInvitationCodes",
+        "Network/setLoadingPanelType",
       ]
     `)
   })

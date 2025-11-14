@@ -8,7 +8,7 @@ import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import type { Task } from 'redux-saga'
 
-const logger = createLogger('communitiesMasterSage')
+const logger = createLogger('communitiesMasterSaga')
 
 export function* communitiesMasterSaga(socket: Socket): Generator {
   logger.info('communitiesMasterSaga starting')

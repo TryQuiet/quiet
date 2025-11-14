@@ -4,16 +4,18 @@ import { Button } from '../Button/Button.component'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Appbar } from '../Appbar/Appbar.component'
+import { on } from 'events'
 
 export type TermsOfServiceProps = {
   onAgree: () => void
   onBack: () => void
+  onLeave: () => void
   serverHost?: string
 }
 
 const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use'
 
-export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, serverHost = '' }) => {
+export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, onLeave, serverHost = '' }) => {
   const openLink = (url: string) => {
     if (!url) return
     Linking.openURL(url).catch(() => {})
@@ -46,7 +48,7 @@ export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, serve
         </Typography>
         <View style={{ gap: 16 }}>
           <Button title={'Agree & Continue'} onPress={onAgree} />
-          <Button title={'Leave Community'} onPress={onBack} negative />
+          <Button title={'Leave Community'} onPress={onLeave} negative />
         </View>
       </View>
     </View>
