@@ -38,6 +38,7 @@ export enum QSSEvents {
   QSS_DISCONNECTED = 'qssDisconnected',
   QSS_HANDLE_SIGN_IN = 'qssHandleSignIn',
   QSS_CAPTCHA_VERIFIED = 'qssCaptchaVerified',
+  QSS_CAPTCHA_REQUIRED = 'qssCaptchaRequired',
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
 }
 

@@ -171,12 +171,7 @@ export class QSSClient extends EventEmitter {
       }
       if (withAck) {
         const response = (await socket!.timeout(timeoutAck).emitWithAck(event, payload)) as T
-        if (response?.reason === CaptchaErrorMessages.CATCHA_VERIFICATION_REQUIRED) {
-          this.captchaVerified = false
-          void this.requestCaptchaVerification().catch(error => {
-            this.logger.error('Failed to request captcha verification after captcha requirement', error)
-          })
-        }
+        this.handleErrors(response)
         return response
       }
 
@@ -271,6 +266,12 @@ export class QSSClient extends EventEmitter {
 
     const verified = await this.verifyCaptchaToken(token)
     return verified
+  }
+
+  private handleErrors(response?: BaseWebsocketMessage<object | undefined>): void {
+    if (response?.reason === CaptchaErrorMessages.CATCHA_VERIFICATION_REQUIRED) {
+      this.captchaVerified = false
+    }
   }
 
   /**

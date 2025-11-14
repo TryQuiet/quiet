@@ -147,6 +147,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       }
     })
 
+    this.qssClient.on(QSSEvents.QSS_CAPTCHA_REQUIRED, (): void => {
+      this.logger.debug('Captcha required event received from QSS')
+      this.qssClient.requestCaptchaVerification().catch(error => {
+        this.logger.error('Failed to request captcha verification', error)
+      })
+    })
+
     this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
       this.logger.debug('Community stored, attempting to authenticate with QSS')
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
