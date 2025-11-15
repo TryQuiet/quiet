@@ -26,7 +26,7 @@ const TermsOfService = () => {
     }
   }, [tosRequested])
 
-  const handleChoice = (accepted: boolean) => {
+  const handleChoice = async (accepted: boolean) => {
     if (accepted) {
       if (!currentCommunity) {
         loadingPanelModal.handleOpen()

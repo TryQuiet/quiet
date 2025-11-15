@@ -104,6 +104,24 @@ export class AppModule {
             const _ioLogger = logger.extend('serverIoProvider')
             const _app = expressProvider
             _app.use(cors())
+            _app.use(express.json())
+
+            const captchaTemplatePath = process.env.HCAPTCHA_TEMPLATE_PATH
+            if (captchaTemplatePath) {
+              _app.get('/hcaptcha', (_req, res) => {
+                res.sendFile(captchaTemplatePath, err => {
+                  if (err) {
+                    _ioLogger.error('Failed to serve hCaptcha challenge', err)
+                    if (!res.headersSent) {
+                      res.status(500).send('Captcha challenge unavailable')
+                    }
+                  }
+                })
+              })
+            } else {
+              _ioLogger.warn('HCAPTCHA_TEMPLATE_PATH missing - /hcaptcha endpoint disabled')
+            }
+
             const server = createServer(_app)
             const io = new SocketIO<SocketActionsMap, SocketEventsMap>(server, {
               cors: {

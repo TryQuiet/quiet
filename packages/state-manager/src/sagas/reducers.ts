@@ -9,6 +9,7 @@ import { publicChannelsReducer } from './publicChannels/publicChannels.slice'
 import { settingsReducer } from './settings/settings.slice'
 import { StoreKeys } from './store.keys'
 import { usersReducer } from './users/users.slice'
+import { captchaReducer } from './captcha/captcha.slice'
 
 export const reducers = {
   [StoreKeys.PublicChannels]: publicChannelsReducer,
@@ -21,4 +22,5 @@ export const reducers = {
   [StoreKeys.Settings]: settingsReducer,
   [StoreKeys.Files]: filesReducer,
   [StoreKeys.Network]: networkReducer,
+  [StoreKeys.Captcha]: captchaReducer,
 }
