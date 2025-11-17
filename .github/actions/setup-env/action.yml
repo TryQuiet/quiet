@@ -45,16 +45,6 @@ runs:
       run: echo ${{ runner.os }}
       shell: bash
 
-    - name: "Disk usage before dependency install"
-      shell: bash
-      run: |
-        echo "=== df -h ==="
-        df -h
-        echo "=== df -ih (inodes) ==="
-        df -ih
-        echo "=== Workspace usage (top level) ==="
-        du -h -d1 .
-
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
       if: ${{ runner.os == 'Windows' }}
@@ -87,16 +77,6 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: "Disk usage after npm install"
-      shell: bash
-      run: |
-        echo "=== df -h ==="
-        df -h
-        echo "=== Largest paths under /home/runner ==="
-        du -xh /home/runner | sort -h | tail -40
-        echo "=== Largest paths in workspace ==="
-        du -xh . | sort -h | tail -40
-
     - name: "Build submodules"
       run: |
         npm run build:submodules:ci
@@ -111,3 +91,8 @@ runs:
             lerna bootstrap
         fi
       shell: bash
+
+    - name: "Cleanup npm/pnpm caches"
+      shell: bash
+      run: |
+        rm -rf ~/.npm/_cacache ~/.npm/_logs ~/.local/share/pnpm || true
