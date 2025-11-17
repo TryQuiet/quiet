@@ -28,6 +28,7 @@ export interface TextWithLinkProps {
       action: () => void
     },
   ]
+  disableWebDrag?: boolean
 }
 
 export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
@@ -35,11 +36,18 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
   tagPrefix = '%',
   links,
   testIdPrefix = '',
+  disableWebDrag,
   ...props
 }) => {
   const format = (action: () => void, label: string) => {
     return (
       <a
+        onDragStart={e => {
+          if (disableWebDrag) {
+            e.preventDefault()
+            e.stopPropagation()
+          }
+        }}
         href='#'
         className={classes.link}
         onClick={e => {
