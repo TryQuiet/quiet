@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest-m]
+        os: [ubuntu-22.04-m]
 
     steps:
       - name: "Print OS"
@@ -129,7 +129,7 @@ jobs:
   build-debug-apk:
     # Only run for ready PRs (not drafts)
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
 
     steps:
