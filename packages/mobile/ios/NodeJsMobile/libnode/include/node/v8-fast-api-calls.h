@@ -225,9 +225,11 @@
 #include <tuple>
 #include <type_traits>
 
-#include "v8-internal.h"  // NOLINT(build/include_directory)
-#include "v8.h"           // NOLINT(build/include_directory)
-#include "v8config.h"     // NOLINT(build/include_directory)
+#include "v8-internal.h"      // NOLINT(build/include_directory)
+#include "v8-local-handle.h"  // NOLINT(build/include_directory)
+#include "v8-typed-array.h"   // NOLINT(build/include_directory)
+#include "v8-value.h"         // NOLINT(build/include_directory)
+#include "v8config.h"         // NOLINT(build/include_directory)
 
 namespace v8 {
 
@@ -247,6 +249,15 @@ class CTypeInfo {
     kV8Value,
     kApiObject,  // This will be deprecated once all users have
                  // migrated from v8::ApiObject to v8::Local<v8::Value>.
+    kAny,        // This is added to enable untyped representation of fast
+                 // call arguments for test purposes. It can represent any of
+                 // the other types stored in the same memory as a union (see
+                 // the AnyCType struct declared below). This allows for
+                 // uniform passing of arguments w.r.t. their location
+                 // (in a register or on the stack), independent of their
+                 // actual type. It's currently used by the arm64 simulator
+                 // and can be added to the other simulators as well when fast
+                 // calls having both GP and FP params need to be supported.
   };
 
   // kCallbackOptionsType is not part of the Type enum
@@ -274,6 +285,17 @@ class CTypeInfo {
       Type type, SequenceType sequence_type = SequenceType::kScalar,
       Flags flags = Flags::kNone)
       : type_(type), sequence_type_(sequence_type), flags_(flags) {}
+
+  typedef uint32_t Identifier;
+  explicit constexpr CTypeInfo(Identifier identifier)
+      : CTypeInfo(static_cast<Type>(identifier >> 16),
+                  static_cast<SequenceType>((identifier >> 8) & 255),
+                  static_cast<Flags>(identifier & 255)) {}
+  constexpr Identifier GetId() const {
+    return static_cast<uint8_t>(type_) << 16 |
+           static_cast<uint8_t>(sequence_type_) << 8 |
+           static_cast<uint8_t>(flags_);
+  }
 
   constexpr Type GetType() const { return type_; }
   constexpr SequenceType GetSequenceType() const { return sequence_type_; }
@@ -320,6 +342,14 @@ struct FastApiTypedArray : public FastApiTypedArrayBase {
     T tmp;
     memcpy(&tmp, reinterpret_cast<T*>(data_) + index, sizeof(T));
     return tmp;
+  }
+
+  bool getStorageIfAligned(T** elements) const {
+    if (reinterpret_cast<uintptr_t>(data_) % alignof(T) != 0) {
+      return false;
+    }
+    *elements = reinterpret_cast<T*>(data_);
+    return true;
   }
 
  private:
@@ -383,6 +413,37 @@ class V8_EXPORT CFunctionInfo {
   const CTypeInfo* arg_info_;
 };
 
+struct FastApiCallbackOptions;
+
+// Provided for testing.
+struct AnyCType {
+  AnyCType() : int64_value(0) {}
+
+  union {
+    bool bool_value;
+    int32_t int32_value;
+    uint32_t uint32_value;
+    int64_t int64_value;
+    uint64_t uint64_value;
+    float float_value;
+    double double_value;
+    Local<Object> object_value;
+    Local<Array> sequence_value;
+    const FastApiTypedArray<int32_t>* int32_ta_value;
+    const FastApiTypedArray<uint32_t>* uint32_ta_value;
+    const FastApiTypedArray<int64_t>* int64_ta_value;
+    const FastApiTypedArray<uint64_t>* uint64_ta_value;
+    const FastApiTypedArray<float>* float_ta_value;
+    const FastApiTypedArray<double>* double_ta_value;
+    FastApiCallbackOptions* options_value;
+  };
+};
+
+static_assert(
+    sizeof(AnyCType) == 8,
+    "The AnyCType struct should have size == 64 bits, as this is assumed "
+    "by EffectControlLinearizer.");
+
 class V8_EXPORT CFunction {
  public:
   constexpr CFunction() : address_(nullptr), type_info_(nullptr) {}
@@ -439,10 +500,17 @@ class V8_EXPORT CFunction {
     return ArgUnwrap<F*>::Make(func);
   }
 
-  template <typename F>
-  V8_DEPRECATED("Use CFunctionBuilder instead.")
-  static CFunction MakeWithFallbackSupport(F* func) {
-    return ArgUnwrap<F*>::Make(func);
+  // Provided for testing purposes.
+  template <typename R, typename... Args, typename R_Patch,
+            typename... Args_Patch>
+  static CFunction Make(R (*func)(Args...),
+                        R_Patch (*patching_func)(Args_Patch...)) {
+    CFunction c_func = ArgUnwrap<R (*)(Args...)>::Make(func);
+    static_assert(
+        sizeof...(Args_Patch) == sizeof...(Args),
+        "The patching function must have the same number of arguments.");
+    c_func.address_ = reinterpret_cast<void*>(patching_func);
+    return c_func;
   }
 
   CFunction(const void* address, const CFunctionInfo* type_info);
@@ -462,10 +530,6 @@ class V8_EXPORT CFunction {
    public:
     static CFunction Make(R (*func)(Args...));
   };
-};
-
-struct ApiObject {
-  uintptr_t address;
 };
 
 /**
@@ -540,7 +604,8 @@ class CFunctionInfoImpl : public CFunctionInfo {
                       kReturnType == CTypeInfo::Type::kInt32 ||
                       kReturnType == CTypeInfo::Type::kUint32 ||
                       kReturnType == CTypeInfo::Type::kFloat32 ||
-                      kReturnType == CTypeInfo::Type::kFloat64,
+                      kReturnType == CTypeInfo::Type::kFloat64 ||
+                      kReturnType == CTypeInfo::Type::kAny,
                   "64-bit int and api object values are not currently "
                   "supported return types.");
   }
@@ -591,7 +656,7 @@ struct CTypeInfoTraits {};
   V(void, kVoid)                     \
   V(v8::Local<v8::Value>, kV8Value)  \
   V(v8::Local<v8::Object>, kV8Value) \
-  V(ApiObject, kApiObject)
+  V(AnyCType, kAny)
 
 // ApiObject was a temporary solution to wrap the pointer to the v8::Value.
 // Please use v8::Local<v8::Value> in new code for the arguments and
@@ -663,17 +728,19 @@ struct TypeInfoHelper<FastApiCallbackOptions&> {
 #define STATIC_ASSERT_IMPLIES(COND, ASSERTION, MSG) \
   static_assert(((COND) == 0) || (ASSERTION), MSG)
 
+}  // namespace internal
+
 template <typename T, CTypeInfo::Flags... Flags>
-class CTypeInfoBuilder {
+class V8_EXPORT CTypeInfoBuilder {
  public:
   using BaseType = T;
 
   static constexpr CTypeInfo Build() {
     constexpr CTypeInfo::Flags kFlags =
-        MergeFlags(TypeInfoHelper<T>::Flags(), Flags...);
-    constexpr CTypeInfo::Type kType = TypeInfoHelper<T>::Type();
+        MergeFlags(internal::TypeInfoHelper<T>::Flags(), Flags...);
+    constexpr CTypeInfo::Type kType = internal::TypeInfoHelper<T>::Type();
     constexpr CTypeInfo::SequenceType kSequenceType =
-        TypeInfoHelper<T>::SequenceType();
+        internal::TypeInfoHelper<T>::SequenceType();
 
     STATIC_ASSERT_IMPLIES(
         uint8_t(kFlags) & uint8_t(CTypeInfo::Flags::kAllowSharedBit),
@@ -701,8 +768,8 @@ class CTypeInfoBuilder {
         "TypedArrays are only supported from primitive types or void.");
 
     // Return the same type with the merged flags.
-    return CTypeInfo(TypeInfoHelper<T>::Type(),
-                     TypeInfoHelper<T>::SequenceType(), kFlags);
+    return CTypeInfo(internal::TypeInfoHelper<T>::Type(),
+                     internal::TypeInfoHelper<T>::SequenceType(), kFlags);
   }
 
  private:
@@ -714,6 +781,7 @@ class CTypeInfoBuilder {
   static constexpr CTypeInfo::Flags MergeFlags() { return CTypeInfo::Flags(0); }
 };
 
+namespace internal {
 template <typename RetBuilder, typename... ArgBuilders>
 class CFunctionBuilderWithFunction {
  public:
@@ -814,22 +882,57 @@ static constexpr CTypeInfo kTypeInfoFloat64 =
  * returns true on success. `type_info` will be used for conversions.
  */
 template <const CTypeInfo* type_info, typename T>
-bool V8_EXPORT V8_WARN_UNUSED_RESULT TryCopyAndConvertArrayToCppBuffer(
+V8_DEPRECATED(
+    "Use TryToCopyAndConvertArrayToCppBuffer<CTypeInfo::Identifier, T>()")
+bool V8_EXPORT V8_WARN_UNUSED_RESULT
+    TryCopyAndConvertArrayToCppBuffer(Local<Array> src, T* dst,
+                                      uint32_t max_length);
+
+template <>
+V8_DEPRECATED(
+    "Use TryToCopyAndConvertArrayToCppBuffer<CTypeInfo::Identifier, T>()")
+inline bool V8_WARN_UNUSED_RESULT
+    TryCopyAndConvertArrayToCppBuffer<&kTypeInfoInt32, int32_t>(
+        Local<Array> src, int32_t* dst, uint32_t max_length) {
+  return false;
+}
+
+template <>
+V8_DEPRECATED(
+    "Use TryToCopyAndConvertArrayToCppBuffer<CTypeInfo::Identifier, T>()")
+inline bool V8_WARN_UNUSED_RESULT
+    TryCopyAndConvertArrayToCppBuffer<&kTypeInfoFloat64, double>(
+        Local<Array> src, double* dst, uint32_t max_length) {
+  return false;
+}
+
+template <CTypeInfo::Identifier type_info_id, typename T>
+bool V8_EXPORT V8_WARN_UNUSED_RESULT TryToCopyAndConvertArrayToCppBuffer(
     Local<Array> src, T* dst, uint32_t max_length);
 
 template <>
-inline bool V8_WARN_UNUSED_RESULT
-TryCopyAndConvertArrayToCppBuffer<&kTypeInfoInt32, int32_t>(
-    Local<Array> src, int32_t* dst, uint32_t max_length) {
-  return CopyAndConvertArrayToCppBufferInt32(src, dst, max_length);
-}
+bool V8_EXPORT V8_WARN_UNUSED_RESULT
+TryToCopyAndConvertArrayToCppBuffer<CTypeInfoBuilder<int32_t>::Build().GetId(),
+                                    int32_t>(Local<Array> src, int32_t* dst,
+                                             uint32_t max_length);
 
 template <>
-inline bool V8_WARN_UNUSED_RESULT
-TryCopyAndConvertArrayToCppBuffer<&kTypeInfoFloat64, double>(
-    Local<Array> src, double* dst, uint32_t max_length) {
-  return CopyAndConvertArrayToCppBufferFloat64(src, dst, max_length);
-}
+bool V8_EXPORT V8_WARN_UNUSED_RESULT
+TryToCopyAndConvertArrayToCppBuffer<CTypeInfoBuilder<uint32_t>::Build().GetId(),
+                                    uint32_t>(Local<Array> src, uint32_t* dst,
+                                              uint32_t max_length);
+
+template <>
+bool V8_EXPORT V8_WARN_UNUSED_RESULT
+TryToCopyAndConvertArrayToCppBuffer<CTypeInfoBuilder<float>::Build().GetId(),
+                                    float>(Local<Array> src, float* dst,
+                                           uint32_t max_length);
+
+template <>
+bool V8_EXPORT V8_WARN_UNUSED_RESULT
+TryToCopyAndConvertArrayToCppBuffer<CTypeInfoBuilder<double>::Build().GetId(),
+                                    double>(Local<Array> src, double* dst,
+                                            uint32_t max_length);
 
 }  // namespace v8
 
