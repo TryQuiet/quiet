@@ -79,7 +79,7 @@ runs:
 
     - name: "Build submodules"
       run: |
-        npm run build:submodules
+        npm run build:submodules:ci
       shell: bash
 
     - name: "Bootstrap project"
