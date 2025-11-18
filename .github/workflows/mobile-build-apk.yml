@@ -7,6 +7,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+  workflow_dispatch:
+
 jobs:
   build-prod-apk:
     # needs: detox-android
@@ -127,9 +129,11 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-debug-apk:
-    # Only run for ready PRs (not drafts)
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    # Runs automatically on ready PRs, can also be triggered manually
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -186,5 +190,5 @@ jobs:
       - name: "Upload debug .apk to artifacts"
         uses: actions/upload-artifact@v4
         with:
-          name: Quiet-APK-${{steps.branch.outputs.branch_name}}-${{ github.event.pull_request.head.sha }}
+          name: Quiet-APK-${{steps.branch.outputs.branch_name}}-${{ github.event.pull_request.head.sha || github.sha }}
           path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
