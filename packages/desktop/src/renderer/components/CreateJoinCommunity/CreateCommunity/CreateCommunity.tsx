@@ -41,6 +41,7 @@ const CreateCommunity = () => {
       return
     }
     setPendingCommunityName(name)
+    logger.warn(process.env.QSS_ALLOWED)
     if (process.env.QSS_ALLOWED === 'true') {
       setShowServerOffer(true)
     } else {

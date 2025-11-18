@@ -16,6 +16,7 @@ import {
   CreateCommunityStatus,
   CommunitySignInMessage,
   QSSLogEntrySyncMessage,
+  QSSOperationResult,
 } from './qss.types'
 import { createLogger } from '../common/logger'
 import { Community, Identity } from '@quiet/types'
@@ -59,16 +60,22 @@ describe('QSSService', () => {
   let localDbService: LocalDbService
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
+  let mockedGetSocket: any
   let mockedSendMessage: any
   let mockedJoinStatus: any
   let addPendingMessageSpy: any
   let mockedAllowed: any
   let community: Community
   let userIdentity: Identity
+  let mockedCaptchaVerified: jest.SpiedGetter<any> | undefined
 
   const teamName = 'foobar'
   const username = 'testuser'
   const logger = createLogger('qss:service:test')
+  const mockCaptchaVerification = () => {
+    mockedCaptchaVerified?.mockRestore()
+    mockedCaptchaVerified = jest.spyOn(qssClient, 'captchaVerified', 'get').mockReturnValue(true)
+  }
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -91,19 +98,30 @@ describe('QSSService', () => {
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
 
+    let socket = {
+      ...new MockedSocket(),
+      close: () => {},
+      on: (event: string, callback: (...args: any[]) => void) => {},
+      emit: (event: string, payload: any) => {},
+      connected: false,
+      active: false,
+    } as any as ClientSocket
     mockedCreateSocket = jest
-      .spyOn(qssClient, 'createSocket')
+      .spyOn(qssClient, 'createSocketAndConnect')
       .mockImplementation(async (_qssEndpoint: string | undefined): Promise<ClientSocket> => {
-        const socket = {
+        socket = {
           ...new MockedSocket(),
           close: () => {},
           on: (event: string, callback: (...args: any[]) => void) => {},
           emit: (event: string, payload: any) => {},
           connected: true,
+          active: true,
         } as any as ClientSocket
-        qssClient.clientSocket = socket
         return socket
       })
+    mockedGetSocket = jest.spyOn(qssClient, 'getClientSocket').mockImplementation((): ClientSocket | undefined => {
+      return socket
+    })
     sigchainService = module.get<SigChainService>(SigChainService)
 
     community = await factory.create('Community', {
@@ -136,10 +154,33 @@ describe('QSSService', () => {
     if (mockedJoinStatus != null) {
       mockedJoinStatus.mockRestore()
     }
+    if (mockedCaptchaVerified != null) {
+      mockedCaptchaVerified.mockRestore()
+      mockedCaptchaVerified = undefined
+    }
   })
+
+  interface InitCommunitySettings {
+    qssEnabled: boolean
+    qssSetup: boolean
+  }
+  const initCommunity = async (
+    settings: InitCommunitySettings = { qssEnabled: true, qssSetup: false }
+  ): Promise<Community> => {
+    await localDbService.setCommunity({
+      ...community,
+      ...settings,
+    })
+    await localDbService.setCurrentCommunityId(community.id)
+
+    await localDbService.setIdentity(userIdentity)
+
+    return (await localDbService.getCurrentCommunity())!
+  }
 
   describe('connect', () => {
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
@@ -147,6 +188,7 @@ describe('QSSService', () => {
     })
 
     it(`doesn't connect to QSS when not enabled and an endpoint string is provided`, async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(false)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
@@ -154,6 +196,7 @@ describe('QSSService', () => {
     })
 
     it(`doesn't connect to QSS when enabled but endpoint string is undefined`, async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect(undefined)
       expect(qssService.connected).toBeFalsy()
@@ -161,6 +204,7 @@ describe('QSSService', () => {
     })
 
     it(`doesn't connect to QSS when enabled but endpoint string is empty`, async () => {
+      await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('')
       expect(qssService.connected).toBeFalsy()
@@ -170,6 +214,10 @@ describe('QSSService', () => {
 
   describe('createCommunity', () => {
     it(`creates a community on QSS`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -202,6 +250,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
+      mockCaptchaVerification()
       const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -241,10 +290,15 @@ describe('QSSService', () => {
       })
       expect(mockedSendMessage).toHaveBeenCalledTimes(3)
       expect(created).toBeTruthy()
-      expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeTruthy()
     })
 
     it(`fails to create community when failing to generate server keys`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -272,6 +326,7 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
 
+      mockCaptchaVerification()
       const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -289,10 +344,15 @@ describe('QSSService', () => {
       })
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
       expect(created).toBeFalsy()
-      expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeFalsy()
     })
 
     it(`fails to create community when create community request fails`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -325,6 +385,7 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
 
+      mockCaptchaVerification()
       const created = await qssService.createCommunity(sigchainService.activeChain)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -364,10 +425,15 @@ describe('QSSService', () => {
       })
       expect(mockedSendMessage).toBeCalledTimes(2)
       expect(created).toBeFalsy()
-      expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeFalsy()
     })
 
     it(`doesn't create a community when QSS is not connected`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -402,7 +468,9 @@ describe('QSSService', () => {
       expect(qssService.canConnect).toBeTruthy()
 
       const created = await qssService.createCommunity(sigchainService.activeChain)
-      expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssEnabled).toBeTruthy()
+      expect(initStatus.qssSetup).toBeFalsy()
       expect(mockedSendMessage).toHaveBeenCalledTimes(0)
       expect(created).toBeFalsy()
     })
@@ -410,6 +478,10 @@ describe('QSSService', () => {
 
   describe('signInToCommunity', () => {
     it(`signs into a community on QSS successfully`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -427,10 +499,8 @@ describe('QSSService', () => {
           }
         )
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
-      qssService.enableForCommunity(sigchainService.team.id)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
-      expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
 
       await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
       await waitForExpect(() => {
@@ -452,9 +522,15 @@ describe('QSSService', () => {
         expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.JOINED)
       })
       expect(mockedSendMessage).toHaveBeenCalledTimes(2)
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeTruthy()
     })
 
     it(`doesn't sign in to community when QSS is not connected`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -475,9 +551,15 @@ describe('QSSService', () => {
       await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
       expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.NOT_STARTED)
       expect(mockedSendMessage).toHaveBeenCalledTimes(0)
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeFalsy()
     })
 
-    it(`throws an error when sign in fails`, async () => {
+    it(`catches an error when sign in fails`, async () => {
+      await initCommunity()
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeFalsy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -496,14 +578,13 @@ describe('QSSService', () => {
           }
         )
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
-      qssService.enableForCommunity(sigchainService.team.id)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
-      expect(qssService.isEnabledForCommunity(sigchainService.team.id)).toBeTruthy()
 
       let error: Error | undefined = undefined
+      let result: QSSOperationResult | undefined = undefined
       try {
-        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+        result = await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
       } catch (e) {
         error = e
       }
@@ -522,15 +603,22 @@ describe('QSSService', () => {
           true
         )
       })
-      expect(error).toBeDefined()
-      expect(error?.message.includes('Error while signing in to community')).toBeTruthy()
+      expect(error).toBeUndefined()
+      expect(result).toBeDefined()
+      expect(result).toBe(QSSOperationResult.ERROR)
       expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.NOT_STARTED)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeFalsy()
     })
   })
 
   describe('sendLogEntrySyncMessage', () => {
     it(`sends a successful log sync to QSS`, async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeTruthy()
+
       mockedJoinStatus = jest.spyOn(qssService, 'joinStatus').mockReturnValue(JoinStatus.JOINED)
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
@@ -574,7 +662,8 @@ describe('QSSService', () => {
         })
       )
       const entry = await db.log.get(hash)
-      const update = logEntryToLogUpdate(entry, db.address)
+      const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
+      expect(update.teamId).toBe(sigchainService.team.id)
       const result = await qssService.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
@@ -601,6 +690,10 @@ describe('QSSService', () => {
     })
 
     it(`fails to send log sync to QSS and writes pending message to local DB`, async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const initStatusOrig = await qssService.getQssInitStatus()
+      expect(initStatusOrig.qssSetup).toBeTruthy()
+
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
         .mockImplementation(
@@ -645,7 +738,7 @@ describe('QSSService', () => {
         })
       )
       const entry = await db.log.get(hash)
-      const update = logEntryToLogUpdate(entry, db.address)
+      const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       const result = await qssService.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
       await waitForExpect(async () => {

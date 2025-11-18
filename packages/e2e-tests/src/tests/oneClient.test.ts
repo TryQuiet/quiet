@@ -117,44 +117,6 @@ describe('One Client', () => {
       await generalChannel.sendMessage('this shows up as sent', ownerUserName)
     })
   })
-  describe('User can open the app despite hanging backend process', () => {
-    let hangingProcess: any
-    afterAll(async () => {
-      // Ensure we clean up the hanging backend process after the test
-      if (hangingProcess) {
-        logger.info('Killing hanging backend process')
-        hangingProcess.kill('SIGKILL')
-      }
-    })
-    it('User closes the app but leaves hanging backend', async () => {
-      const forkArgvs = [
-        '-d',
-        `${await getPort()}`,
-        '-a',
-        `${dataDirPath}`,
-        '-r',
-        `${resourcesPath}`,
-        '-p',
-        'desktop',
-        '-scrt',
-        'test',
-      ]
-      const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
-      logger.info('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
-      hangingProcess = fork(backendBundlePath, forkArgvs)
-      await app.close({ forceSaveState: true })
-      logger.info('App closed, backend should be running')
-    })
-
-    it('Opens app again', async () => {
-      await app.open()
-    })
-
-    it('User sees "general channel" page', async () => {
-      const generalChannel = new Channel(app.driver, 'general')
-      expect(await generalChannel.isReady()).toBeTruthy()
-    })
-  })
 
   describe('User leaves community and recreates it', () => {
     it('Leave community', async () => {
@@ -246,6 +208,56 @@ describe('One Client', () => {
       expect(backendArgs).not.toMatch(/-scrt [a-f0-9]{64}/i)
     })
   })
+
+  describe('User can open the app despite hanging backend process', () => {
+    let hangingProcess: any
+    afterAll(async () => {
+      // Ensure we clean up the hanging backend process after the test
+      if (hangingProcess) {
+        logger.info('Killing hanging backend process')
+        hangingProcess.kill('SIGKILL')
+      }
+    })
+    it('User closes the app but leaves hanging backend', async () => {
+      const forkArgvs = [
+        '-d',
+        `${await getPort()}`,
+        '-a',
+        `${dataDirPath}`,
+        '-r',
+        `${resourcesPath}`,
+        '-p',
+        'desktop',
+        '-scrt',
+        'test',
+      ]
+      const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
+      logger.info('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
+      hangingProcess = fork(backendBundlePath, forkArgvs)
+      await app.close({ forceSaveState: true })
+      logger.info('App closed, backend should be running')
+    })
+
+    it('Opens app again', async () => {
+      await app.open()
+    })
+
+    it('User sees "general channel" page', async () => {
+      const generalChannel = new Channel(app.driver, 'general')
+      expect(await generalChannel.isReady()).toBeTruthy()
+    })
+
+    it('closes the app and kills hanging backend', async () => {
+      await app.close()
+      if (hangingProcess) {
+        logger.info('Killing hanging backend process')
+        hangingProcess.kill('SIGKILL')
+      }
+      hangingProcess = null
+      await app.waitForClosed()
+    })
+  })
+
   describe('App closing methods', () => {
     beforeEach(async () => {
       const opened = await app.isSessionOpen()
@@ -260,6 +272,11 @@ describe('One Client', () => {
       expect(await app.isSessionOpen()).toBe(true)
       await app.quitProgrammatically()
 
+      await app.waitForClosed(5000)
+      if (await app.isSessionOpen()) {
+        // may have triggered before app was ready
+        await app.quitProgrammatically()
+      }
       const opened = await app.isSessionOpen()
       expect(opened).toBe(false)
     })
@@ -278,6 +295,7 @@ describe('One Client', () => {
         expect(closed).toBe(false)
       } else {
         // On other platforms, app should be closed
+        await app.waitForClosed()
         const opened = await app.isSessionOpen()
         expect(opened).toBe(false)
       }
@@ -286,6 +304,7 @@ describe('One Client', () => {
     it('Force kills the app', async () => {
       expect(await app.isSessionOpen()).toBe(true)
       await app.terminateBackendProcess()
+      await app.waitForClosed()
       const opened = await app.isSessionOpen()
       expect(opened).toBe(false)
     })

@@ -430,6 +430,7 @@ describe('Channels panel', () => {
                     </div>
                     <span
                       class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      data-testid="user_2-user-link-status-badge"
                     />
                   </span>
                   <div
@@ -466,6 +467,7 @@ describe('Channels panel', () => {
                     </div>
                     <span
                       class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      data-testid="user_4-user-link-status-badge"
                     />
                   </span>
                   <div
@@ -502,6 +504,7 @@ describe('Channels panel', () => {
                     </div>
                     <span
                       class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      data-testid="user_6-user-link-status-badge"
                     />
                   </span>
                   <div
@@ -821,6 +824,7 @@ describe('Channels panel', () => {
                   </div>
                   <span
                     class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    data-testid="user_2-user-link-status-badge"
                   />
                 </span>
                 <div
@@ -857,6 +861,7 @@ describe('Channels panel', () => {
                   </div>
                   <span
                     class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    data-testid="user_4-user-link-status-badge"
                   />
                 </span>
                 <div
@@ -893,6 +898,7 @@ describe('Channels panel', () => {
                   </div>
                   <span
                     class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    data-testid="user_6-user-link-status-badge"
                   />
                 </span>
                 <div

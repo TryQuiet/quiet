@@ -27,5 +27,15 @@ export const TermsOfServiceScreen: FC = () => {
     dispatch(navigationActions.pop())
   }
 
-  return <TermsOfService onAgree={onAgree} onBack={onBack} />
+  const onLeave = () => {
+    logger.info('User chose to leave the community from Terms of Service screen')
+    dispatch(communities.actions.setTermsOfServiceAccepted({ accepted: false }))
+    dispatch(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.CreateCommunityScreen,
+      })
+    )
+  }
+
+  return <TermsOfService onAgree={onAgree} onBack={onBack} onLeave={onLeave} />
 }

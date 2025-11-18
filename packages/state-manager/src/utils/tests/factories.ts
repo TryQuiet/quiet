@@ -23,6 +23,7 @@ import {
   NetworkInfo,
   SendMessagePayload,
   SocketActions,
+  SocketEvents,
   AttachFilePayload,
   UserProfile,
   Identity,
@@ -45,6 +46,8 @@ import {
   SetUserProfilePayload,
   SetUserProfileResponse,
   LaunchCommunityPayload,
+  HCaptchaFormResponse,
+  HCaptchaRequest,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -607,6 +610,21 @@ export const getSocketFactory = async () => {
       valid: true,
     }
   )
+
+  // Captcha events
+  factory.define<HCaptchaFormResponse>(SocketActions.HCAPTCHA_FORM_RESPONSE, Object, {
+    token: 'test-hcaptcha-token',
+    error: undefined,
+    cancelled: false,
+  })
+
+  factory.define<HCaptchaRequest>(SocketActions.HCAPTCHA_REQUEST, Object, {
+    siteKey: 'test-site-key',
+  })
+
+  factory.define<string>(SocketEvents.HCAPTCHA_SITE_KEY, Object, () => 'test-site-key')
+
+  factory.define<boolean>(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, Object, () => true)
 
   return factory
 }

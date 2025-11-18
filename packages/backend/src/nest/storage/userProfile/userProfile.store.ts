@@ -41,15 +41,21 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       }
     )
 
-    this.store.events.on('update', async (entry: LogEntry) => {
-      this.emit(StorageEvents.USER_PROFILES_STORED, {
-        profiles: await this.getUserProfiles(),
+    this.store.events.on('update', (entry: LogEntry) => {
+      this.getUserProfiles().then((profiles: UserProfile[]) => {
+        this.emit(StorageEvents.USER_PROFILES_STORED, {
+          profiles,
+        })
       })
     })
 
     this.auth.on('updated', async payload => {
-      await this.flushDeferredEntries()
-      await this.store!.retryIndexingUnindexedEntries()
+      try {
+        await this.flushDeferredEntries()
+        await this.store!.retryIndexingUnindexedEntries()
+      } catch (err) {
+        logger.error('Failed to update user profiles:', err)
+      }
     })
 
     await this.store!.retryIndexingUnindexedEntries()

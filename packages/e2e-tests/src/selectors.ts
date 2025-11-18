@@ -2,7 +2,7 @@ import { By, Key, type ThenableWebDriver, type WebElement, until } from 'seleniu
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
-import { MessageIds, RetryConfig } from './types'
+import { MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
@@ -166,7 +166,7 @@ export class App {
   async quitProgrammatically() {
     await this.driver.executeScript("require('@electron/remote').app.quit();")
     this.isOpened = false
-    await sleep(2000)
+    await sleep(6000)
   }
 
   async terminateBackendProcess() {
@@ -290,6 +290,21 @@ export class App {
     }
   }
 
+  async waitForClosed(timeoutMs = 30000, pollInterval = 500): Promise<void> {
+    const startTime = Date.now()
+    let opened = true
+    while (Date.now() - startTime < timeoutMs) {
+      opened = await this.isSessionOpen()
+      if (!opened) {
+        return
+      }
+      await sleep(pollInterval)
+    }
+    if (opened) {
+      throw new Error(`App did not close within ${timeoutMs}ms`)
+    }
+  }
+
   /**
    * Returns true if the main window is visible (not hidden/minimized/destroyed).
    * On macOS, closing via X hides the window but does not quit the app.
@@ -380,11 +395,13 @@ export class WarningModal {
 
   async close() {
     const submitButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[@data-testid="warningModalSubmit"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="warningModalSubmit"]')),
       10_000,
       `Warning modal couldn't be closed within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(submitButton), 5_000)
+    await this.driver.wait(until.elementIsEnabled(submitButton), 5_000)
     await submitButton.click()
   }
 }
@@ -404,7 +421,7 @@ export class JoiningLoadingPanel {
     )
   }
 
-  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
+  async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
     // First check if the panel exists at all. In some flows (e.g., Not Now on server offer),
     // the joining panel may never appear, which is OK.
     const candidates = await this.driver.findElements(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
@@ -434,6 +451,96 @@ export class JoiningLoadingPanel {
       } else {
         throw e
       }
+    }
+  }
+}
+
+export class UsersList {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//ul[@data-testid="usersList"]')),
+      15_000,
+      `Users list couldn't be located within timeout`,
+      500
+    )
+  }
+
+  async isReady(): Promise<boolean> {
+    await this.driver.wait(
+      until.elementIsVisible(this.element),
+      15_000,
+      `Users list was not visibile within timeout`,
+      500
+    )
+    return true
+  }
+
+  async getUser(username: string, expectedState: UserListStatus = UserListStatus.ONLINE): Promise<UserListItem> {
+    logger.debug('Getting user list item', username)
+    let status: UserListStatus = UserListStatus.NOT_FOUND
+
+    let userItem: WebElement
+    try {
+      userItem = await this.driver.wait(
+        until.elementLocated(By.xpath(`//div[@data-testid="${username}-user-link"]`)),
+        60_000,
+        `Users item for ${username} couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(userItem),
+        120_000,
+        `Users item for ${username} was not visibile within timeout`,
+        500
+      )
+    } catch (e) {
+      return {
+        element: undefined,
+        status,
+      }
+    }
+
+    const statusBadge = await this.driver.wait(
+      until.elementLocated(By.xpath(`//span[@data-testid="${username}-user-link-status-badge"]`)),
+      15_000,
+      `Users item status badge for ${username} couldn't be located within timeout`,
+      500
+    )
+
+    if (expectedState === UserListStatus.ONLINE) {
+      try {
+        await this.driver.wait(
+          until.elementIsVisible(statusBadge),
+          60_000,
+          `Users item status badge for ${username} was not visibile within timeout`,
+          500
+        )
+        status = UserListStatus.ONLINE
+      } catch (e) {
+        status = UserListStatus.OFFLINE
+      }
+    } else {
+      try {
+        await this.driver.wait(
+          until.elementIsNotVisible(statusBadge),
+          120_000,
+          `Users item status badge for ${username} was not invisible within timeout`,
+          500
+        )
+        status = UserListStatus.OFFLINE
+      } catch (e) {
+        status = UserListStatus.ONLINE
+      }
+    }
+
+    return {
+      element: userItem,
+      status,
     }
   }
 }
@@ -671,7 +778,7 @@ export class RegisterUsernameModal {
 
   get usernameInput() {
     return this.driver.wait(
-      this.driver.findElement(By.xpath('//input[@name="userName"]')),
+      until.elementLocated(By.xpath('//input[@name="userName"]')),
       10_000,
       `Username input couldn't be found within timeout`,
       500
@@ -716,21 +823,25 @@ export class RegisterUsernameModal {
 
   async submit() {
     const submitButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[text()="Register"]')),
+      until.elementLocated(By.xpath('//button[text()="Register"]')),
       10_000,
       `Username registration submit button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(submitButton), 5_000)
+    await this.driver.wait(until.elementIsEnabled(submitButton), 5_000)
     await submitButton.click()
   }
 
   async submitUsernameTaken() {
     const submitButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[text()="Continue"]')),
+      until.elementLocated(By.xpath('//button[text()="Continue"]')),
       10_000,
       `Username taken registration submit button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(submitButton), 5_000)
+    await this.driver.wait(until.elementIsEnabled(submitButton), 5_000)
     await submitButton.click()
   }
 
@@ -776,31 +887,36 @@ export class JoinCommunityModal {
 
   async switchToCreateCommunity() {
     const link = await this.driver.wait(
-      this.driver.findElement(By.linkText('create a new community')),
+      until.elementLocated(By.linkText('create a new community')),
       10_000,
       `Create community button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(link), 5_000)
+    await this.driver.wait(until.elementIsEnabled(link), 5_000)
     await link.click()
   }
 
   async typeCommunityInviteLink(inviteLink: string) {
     const communityNameInput = await this.driver.wait(
-      this.driver.findElement(By.xpath('//input[@placeholder="Invite link"]')),
+      until.elementLocated(By.xpath('//input[@placeholder="Invite link"]')),
       10_000,
       `Invite link input couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(communityNameInput), 5_000)
     await communityNameInput.sendKeys(inviteLink)
   }
 
   async submit() {
     const continueButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[@data-testid="continue-joinCommunity"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="continue-joinCommunity"]')),
       10_000,
       `Join community continue button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(continueButton), 5_000)
+    await this.driver.wait(until.elementIsEnabled(continueButton), 5_000)
     await continueButton.click()
   }
 }
@@ -812,7 +928,7 @@ export class CreateCommunityModal {
 
   get element() {
     return this.driver.wait(
-      this.driver.findElement(By.xpath("//h3[text()='Create your community']")),
+      until.elementLocated(By.xpath("//h3[text()='Create your community']")),
       10_000,
       `Create community modal couldn't be found within timeout`,
       500
@@ -831,21 +947,25 @@ export class CreateCommunityModal {
 
   async typeCommunityName(name: string) {
     const communityNameInput = await this.driver.wait(
-      this.driver.findElement(By.xpath('//input[@placeholder="Community name"]')),
+      until.elementLocated(By.xpath('//input[@placeholder="Community name"]')),
       10_000,
       `Community name input couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(communityNameInput), 5_000)
+    await this.driver.wait(until.elementIsEnabled(communityNameInput), 5_000)
     await communityNameInput.sendKeys(name)
   }
 
   async clearInput() {
     const communityNameInput = await this.driver.wait(
-      this.driver.findElement(By.xpath('//input[@placeholder="Community name"]')),
+      until.elementLocated(By.xpath('//input[@placeholder="Community name"]')),
       10_000,
       `Community name input couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(communityNameInput), 5_000)
+    await this.driver.wait(until.elementIsEnabled(communityNameInput), 5_000)
     if (process.platform === 'darwin') {
       await communityNameInput.sendKeys(Key.COMMAND + 'a')
       await communityNameInput.sendKeys(Key.DELETE)
@@ -857,11 +977,13 @@ export class CreateCommunityModal {
 
   async submit() {
     const continueButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[@data-testid="continue-createCommunity"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="continue-createCommunity"]')),
       10_000,
       `Create community submit button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(continueButton), 5_000)
+    await this.driver.wait(until.elementIsEnabled(continueButton), 5_000)
     await continueButton.click()
   }
 }
@@ -1205,7 +1327,7 @@ export class Channel {
 
   get uploadFileInput() {
     return this.driver.wait(
-      this.driver.findElement(By.xpath('//*[@data-testid="uploadFileInput"]')),
+      until.elementLocated(By.xpath('//*[@data-testid="uploadFileInput"]')),
       15_000,
       `File attachment button for channel ${this.name} couldn't be found within timeout`,
       500
@@ -1428,11 +1550,12 @@ export class Channel {
   async waitForAvatar(username: string, messageId: string): Promise<WebElement> {
     logger.info(`Waiting for user's avatar with username ${username} for message with ID ${messageId}`)
     const avatarElement = await this.driver.wait(
-      this.driver.findElement(By.xpath(`//*[contains(@data-testid, "userAvatar-${username}-${messageId}")]`)),
+      until.elementLocated(By.xpath(`//*[contains(@data-testid, "userAvatar-${username}-${messageId}")]`)),
       15_000,
       `Avatar for user ${username} in channel ${this.name} couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(avatarElement), 5_000)
     if (avatarElement) {
       logger.info(`Found user's avatar with username ${username} for message with ID ${messageId}`)
       return avatarElement
@@ -1444,11 +1567,12 @@ export class Channel {
   async waitForDateLabel(username: string, messageId: string): Promise<WebElement> {
     logger.info(`Waiting for date for message with ID ${messageId}`)
     const dateElement = await this.driver.wait(
-      this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messageDateLabel-${username}-${messageId}")]`)),
+      until.elementLocated(By.xpath(`//*[contains(@data-testid, "messageDateLabel-${username}-${messageId}")]`)),
       15_000,
       `Message date label for user ${username} in channel ${this.name} couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(dateElement), 5_000)
     if (dateElement) {
       logger.info(`Found date label for message with ID ${messageId}`)
       return dateElement
@@ -1460,7 +1584,7 @@ export class Channel {
   async waitForMessageContentById(messageId: string): Promise<WebElement> {
     logger.info(`Waiting for content for message with ID ${messageId}`)
     const messageContentElement = await this.driver.wait(
-      this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-${messageId}")]`)),
+      until.elementLocated(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-${messageId}")]`)),
       45_000,
       `Message content element for message ID ${messageId} in channel ${this.name} couldn't be found within timeout`,
       500
@@ -1555,7 +1679,7 @@ export class Channel {
         // wait for the downloading placeholder to appear and then disappear
         try {
           const placeholderElement = await this.driver.wait(
-            this.driver.findElement(By.xpath(`//*[@class='ImageAttachmentPlaceholderplaceholder']`)),
+            until.elementLocated(By.xpath(`//*[@class='ImageAttachmentPlaceholderplaceholder']`)),
             20_000,
             `Image placeholder element for ${filename} in channel ${this.name} couldn't be found within timeout`,
             500
@@ -1782,12 +1906,15 @@ export class Sidebar {
   }
 
   async openSettings(): Promise<Settings> {
-    const button = await this.driver.wait(
-      this.driver.findElement(By.xpath('//span[@data-testid="settings-panel-button"]')),
+    await this.driver.wait(
+      until.elementLocated(By.xpath('//span[@data-testid="settings-panel-button"]')),
       10_000,
       `Community settings button couldn't be found within timeout`,
       500
     )
+    const button = await this.driver.findElement(By.xpath('//span[@data-testid="settings-panel-button"]'))
+    await this.driver.wait(until.elementIsVisible(button), 10_000)
+    await this.driver.wait(until.elementIsEnabled(button), 10_000)
     await button.click()
     return new Settings(this.driver)
   }
@@ -1807,25 +1934,30 @@ export class Sidebar {
 
   async addNewChannel(name: string): Promise<Channel> {
     const button = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[@data-testid="addChannelButton"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,
       `Add channel button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(button), 5_000)
+    await this.driver.wait(until.elementIsEnabled(button), 5_000)
     await button.click()
     const channelNameInput = await this.driver.wait(
-      this.driver.findElement(By.xpath('//input[@name="channelName"]')),
+      until.elementLocated(By.xpath('//input[@name="channelName"]')),
       5_000,
       `Add channel name input field couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(channelNameInput), 5_000)
+    await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
     await channelNameInput.sendKeys(name)
     const channelNameButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//button[@data-testid="channelNameSubmit"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="channelNameSubmit"]')),
       5_000,
       `Add channel submit button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(channelNameButton), 5_000)
     await channelNameButton.click()
     return new Channel(this.driver, name)
   }
@@ -1835,7 +1967,7 @@ export class Sidebar {
    */
   async getUserProfileByNickname(nickname: string) {
     return this.driver.wait(
-      this.driver.findElement(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
+      until.elementLocated(By.xpath(`//li[@data-testid='${nickname}-user-link']`)),
       10_000,
       `User profile for ${nickname} couldn't be found within timeout`,
       500
@@ -1974,7 +2106,7 @@ export class UpdateModal {
     logger.info('Found update modal root element')
     const closeButton = await this.driver.wait(
       updateModalRootElement.findElement(By.xpath("//*[self::div[@data-testid='ModalActions']]/button")),
-      10_000,
+      5_000,
       `Update modal close button couldn't be found within timeout`,
       500
     )
@@ -2023,11 +2155,12 @@ export class Settings {
   async getVersion() {
     await this.switchTab(SettingsModalTabName.ABOUT)
     const textWebElement = await this.driver.wait(
-      this.driver.findElement(By.xpath('//p[contains(text(),"Version")]')),
+      until.elementLocated(By.xpath('//p[contains(text(),"Version")]')),
       10_000,
       `App version couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(textWebElement), 5_000)
     const text = await textWebElement.getText()
 
     const version = this.formatVersionText(text)
@@ -2094,11 +2227,12 @@ export class Settings {
 
   async switchTab(name: SettingsModalTabName) {
     const tab = await this.driver.wait(
-      this.driver.findElement(By.xpath(`//div[@data-testid='${name}-settings-tab']`)),
+      until.elementLocated(By.xpath(`//div[@data-testid='${name}-settings-tab']`)),
       15_000,
       `Settings tab button for ${name} couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(tab), 5_000)
     await tab.click()
     await this.waitForTabToBeReady(name)
   }
@@ -2115,7 +2249,7 @@ export class Settings {
     await unlockButton.click()
 
     return await this.driver.wait(
-      this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']")),
+      until.elementLocated(By.xpath("//p[@data-testid='invitation-link']")),
       10_000,
       `Unhidden invitation link element couldn't be found within timeout`,
       500
@@ -2130,24 +2264,25 @@ export class Settings {
 
   async close() {
     const closeButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//div[@data-testid="close-settings-button"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="close-settings-button"]')),
       10_000,
       `Settings close button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(closeButton), 5_000)
     await closeButton.click()
   }
 
   async closeTab() {
     const closeTabButton = await this.driver.wait(
-      this.driver.findElement(By.xpath('//div[@data-testid="close-tab-button-box"]')).findElement(By.css('button')),
+      until.elementLocated(By.xpath('//div[@data-testid="close-tab-button-box"]//button')),
       10_000,
       `Settings tab close button couldn't be found within timeout`,
       500
     )
+    await this.driver.wait(until.elementIsVisible(closeTabButton), 5_000)
     await closeTabButton.click()
   }
-
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
     let locator: string | undefined = undefined
     switch (tabName) {
@@ -2171,7 +2306,7 @@ export class Settings {
     }
 
     const result = await this.driver.wait(
-      this.driver.findElement(By.xpath(locator!)),
+      until.elementLocated(By.xpath(locator!)),
       15_000,
       `Settings tab ${tabName} wasn't ready within timeout`,
       500

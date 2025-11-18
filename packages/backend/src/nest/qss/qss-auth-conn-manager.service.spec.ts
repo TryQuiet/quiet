@@ -33,7 +33,7 @@ describe('QSSAuthConnectionManager', () => {
     qssAuthConnManager = module.get<QSSAuthConnectionManager>(QSSAuthConnectionManager)
     qssClient = module.get<QSSClient>(QSSClient)
     jest
-      .spyOn(qssClient, 'createSocket')
+      .spyOn(qssClient, 'createSocketAndConnect')
       .mockImplementation(async (_qssEndpoint: string | undefined): Promise<ClientSocket> => {
         const socket = {
           ...new MockedSocket(),
@@ -41,12 +41,12 @@ describe('QSSAuthConnectionManager', () => {
           on: (event: string, callback: (...args: any[]) => void) => {},
           emit: (event: string, payload: any) => {},
         } as any as ClientSocket
-        qssClient.clientSocket = socket
+        // qssClient.clientSocket = socket
         return socket
       })
     sigchainService = module.get<SigChainService>(SigChainService)
     await sigchainService.createChain(teamName, username, true)
-    await qssClient.createSocket('')
+    await qssClient.createSocketAndConnect('')
   })
 
   afterEach(async () => {

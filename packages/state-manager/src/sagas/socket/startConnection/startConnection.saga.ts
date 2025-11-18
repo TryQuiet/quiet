@@ -38,10 +38,14 @@ import {
   SocketEvents,
   AttachFilePayload,
   LaunchCommunityPayload,
+  HCaptchaRequest,
+  HCaptchaChallengeRequest,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
 import { InviteResult } from '@localfirst/auth'
+import { captchaActions } from '../../captcha/captcha.slice'
+import { captchaMasterSaga } from '../../captcha/captchaMasterSaga'
 
 const logger = createLogger('startConnectionSaga')
 
@@ -86,6 +90,9 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof usersActions.updateUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
+    | ReturnType<typeof captchaActions.presentChallenge>
+    | ReturnType<typeof captchaActions.setSiteKey>
+    | ReturnType<typeof captchaActions.setCaptchaVerified>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketEvents.COMMUNITY_LAUNCHED, (payload: LaunchCommunityPayload) => {
@@ -184,6 +191,20 @@ export function subscribe(socket: Socket) {
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
+
+    socket.on(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, (payload: HCaptchaChallengeRequest) => {
+      logger.info(`${SocketEvents.HCAPTCHA_CHALLENGE_REQUEST}`, JSON.stringify(payload))
+      emit(captchaActions.presentChallenge(payload))
+    })
+    socket.on(SocketEvents.HCAPTCHA_SITE_KEY, (payload: string) => {
+      logger.info(`${SocketEvents.HCAPTCHA_SITE_KEY}`, payload)
+      emit(captchaActions.setSiteKey(payload))
+    })
+    socket.on(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, (payload: boolean) => {
+      logger.info(`${SocketEvents.HCAPTCHA_VERIFICATION_UPDATE}`, payload)
+      emit(captchaActions.setCaptchaVerified(payload))
+    })
+
     return () => undefined
   })
 }
@@ -218,6 +239,7 @@ export function* useIO(socket: Socket): Generator {
       fork(appMasterSaga, socket),
       fork(connectionMasterSaga, socket),
       fork(errorsMasterSaga),
+      fork(captchaMasterSaga, socket),
     ])
   } finally {
     logger.info('useIO stopping')

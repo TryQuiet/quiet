@@ -49,6 +49,8 @@ import { networkSelectors } from './sagas/network/network.selectors'
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
+import { captchaActions, captchaReducer } from './sagas/captcha/captcha.slice'
+import { captchaSelectors } from './sagas/captcha/captcha.selectors'
 export { LoadingPanelType } from './sagas/network/network.types'
 export type { Store } from './sagas/store.types'
 export type { TestStore, TestStoreState } from './utils/tests/types'
@@ -127,6 +129,12 @@ export const errors = {
   reducer: errorsReducer,
   actions: errorsActions,
   selectors: errorsSelectors,
+}
+
+export const captcha = {
+  reducer: captchaReducer,
+  actions: captchaActions,
+  selectors: captchaSelectors,
 }
 
 export const communities = {

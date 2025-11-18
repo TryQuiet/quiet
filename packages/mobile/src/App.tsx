@@ -55,6 +55,7 @@ import { UnregisteredUsernameContextMenu } from './components/ContextMenu/menus/
 import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUsernameRequested.screen'
 import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
+import { CaptchaDrawer } from './components/ModalBottomDrawer/drawers/Captcha.drawer'
 
 const logger = createLogger('app')
 
@@ -129,6 +130,7 @@ function App(): JSX.Element {
               <ChannelContextMenu />
               <InvitationContextMenu />
               <UnregisteredUsernameContextMenu />
+              <CaptchaDrawer />
               <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>

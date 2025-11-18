@@ -7,17 +7,20 @@ import { Level } from 'level'
 import { type Community, NetworkStats, Identity } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
-import { LocalDBKeys, LocalDbStatus } from './local-db.types'
+import { LocalDbEvents, LocalDBKeys, LocalDbStatus } from './local-db.types'
 import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
+import EventEmitter from 'events'
 
 @Injectable()
-export class LocalDbService {
+export class LocalDbService extends EventEmitter {
   peers: any
   private readonly logger = createLogger(LocalDbService.name)
-  constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
+  constructor(@Inject(LEVEL_DB) private readonly db: Level) {
+    super()
+  }
 
   public async close() {
     this.logger.info('Closing leveldb')
@@ -177,9 +180,26 @@ export class LocalDbService {
     await this.put(LocalDBKeys.COMMUNITIES, communities)
   }
 
+  public async updateCommunity(id: string, updates: Partial<Community>) {
+    this.logger.info('Updating community', id, updates)
+    let communities: { [id: string]: Community } = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    if (!Object.keys(communities).includes(id)) {
+      throw new Error(`No community found for id, can't update`)
+    }
+    communities[id] = {
+      ...communities[id],
+      ...updates,
+    }
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+  }
+
   public async setCurrentCommunityId(communityId: string) {
     this.logger.info('Setting current community id', communityId)
     await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, communityId)
+    this.emit(LocalDbEvents.COMMUNITY_ADDED, communityId)
   }
 
   public async getCommunity(id: string): Promise<Community | undefined> {

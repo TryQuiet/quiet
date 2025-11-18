@@ -104,6 +104,24 @@ export class AppModule {
             const _ioLogger = logger.extend('serverIoProvider')
             const _app = expressProvider
             _app.use(cors())
+            _app.use(express.json())
+
+            const captchaTemplatePath = process.env.HCAPTCHA_TEMPLATE_PATH
+            if (captchaTemplatePath) {
+              _app.get('/hcaptcha', (_req, res) => {
+                res.sendFile(captchaTemplatePath, err => {
+                  if (err) {
+                    _ioLogger.error('Failed to serve hCaptcha challenge', err)
+                    if (!res.headersSent) {
+                      res.status(500).send('Captcha challenge unavailable')
+                    }
+                  }
+                })
+              })
+            } else {
+              _ioLogger.warn('HCAPTCHA_TEMPLATE_PATH missing - /hcaptcha endpoint disabled')
+            }
+
             const server = createServer(_app)
             const io = new SocketIO<SocketActionsMap, SocketEventsMap>(server, {
               cors: {
@@ -149,11 +167,11 @@ export class AppModule {
               }
             })
 
-            io.engine.on('connection_error', async err => {
+            io.engine.on('connection_error', err => {
               _ioLogger.error('Server IO connection error', err.message, err.code, err.context, err)
             })
 
-            io.on('connection', async socket => {
+            io.on('connection', socket => {
               _ioLogger.info(`New server io connection`, socket.conn.transport.name, socket.client.conn.remoteAddress)
               socket.conn.on('close', reason => {
                 _ioLogger.warn('Underlying connection closed on server IO', reason)
@@ -161,7 +179,7 @@ export class AppModule {
               socket.on('disconnect', reason => {
                 _ioLogger.warn('Client disconnected from server IO', reason)
               })
-              socket.on('error', async err => {
+              socket.on('error', err => {
                 _ioLogger.error('Error on server IO client connection', err)
               })
 

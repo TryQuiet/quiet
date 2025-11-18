@@ -19,7 +19,6 @@ exports[`Libp2pAuth emits connected after syncing: event timeline after connecte
   "authStateChanged:synchronizing",
   "authStateChanged:synchronizing",
   "authUpdated",
-  "authStateChanged:connected",
   "authConnected",
   "authStateChanged:connected",
   "authStateChanged:connected",
@@ -37,8 +36,8 @@ exports[`Libp2pAuth emits connected after syncing: instanceA event timeline afte
   "authStateChanged:negotiating",
   "authStateChanged:synchronizing",
   "authUpdated",
-  "authStateChanged:connected",
   "authConnected",
+  "authStateChanged:connected",
   "authStateChanged:connected",
 ]
 `;
@@ -54,7 +53,6 @@ exports[`Libp2pAuth emits connected after syncing: instanceB event timeline afte
   "authStateChanged:negotiating",
   "authStateChanged:synchronizing",
   "authStateChanged:synchronizing",
-  "authStateChanged:connected",
   "authConnected",
 ]
 `;
@@ -69,8 +67,8 @@ exports[`Libp2pAuth gracefully disconnects: disconnectEventsA 1`] = `
   "authStateChanged:negotiating",
   "authStateChanged:synchronizing",
   "authUpdated",
-  "authStateChanged:connected",
   "authConnected",
+  "authStateChanged:connected",
   "authStateChanged:connected",
   "peerDisconnected",
 ]
@@ -87,8 +85,8 @@ exports[`Libp2pAuth gracefully disconnects: disconnectEventsB 1`] = `
   "authStateChanged:negotiating",
   "authStateChanged:synchronizing",
   "authStateChanged:synchronizing",
-  "authStateChanged:connected",
   "authConnected",
+  "authStateChanged:connected",
   "authDisconnected",
   "authStateChanged:disconnected",
   "peerDisconnected",
@@ -114,11 +112,11 @@ exports[`Libp2pAuth gracefully disconnects: eventTimeline after disconnection 1`
   "authStateChanged:synchronizing",
   "authStateChanged:synchronizing",
   "authUpdated",
-  "authStateChanged:connected",
   "authConnected",
   "authStateChanged:connected",
   "authStateChanged:connected",
   "authConnected",
+  "authStateChanged:connected",
   "authDisconnected",
   "authStateChanged:disconnected",
   "peerDisconnected",

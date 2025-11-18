@@ -14,6 +14,7 @@ import { SOCKS_PROXY_AGENT } from './nest/const'
 import { createLogger } from './nest/common/logger'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { randomBytes } from 'crypto'
+import { sleep } from './nest/common/sleep'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -49,6 +50,16 @@ interface SecretMessage {
   nonce: string
 }
 
+interface CaptchaTokenMessage {
+  type: 'hcaptcha-token'
+  token: string
+}
+
+interface CaptchaErrorMessage {
+  type: 'hcaptcha-error'
+  message: string
+}
+
 let secretReceived = false
 
 function isSecretMessage(msg: any): msg is SecretMessage {
@@ -59,6 +70,14 @@ function isSecretMessage(msg: any): msg is SecretMessage {
     typeof msg.secret === 'string' &&
     typeof msg.nonce === 'string'
   )
+}
+
+function isCaptchaTokenMessage(msg: any): msg is CaptchaTokenMessage {
+  return msg && typeof msg === 'object' && msg.type === 'hcaptcha-token' && typeof msg.token === 'string'
+}
+
+function isCaptchaErrorMessage(msg: any): msg is CaptchaErrorMessage {
+  return msg && typeof msg === 'object' && msg.type === 'hcaptcha-error' && typeof msg.message === 'string'
 }
 function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManager: () => ConnectionsManagerService) {
   let shuttingDown = false
@@ -125,15 +144,15 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
     await initiateShutdown(exitCode, signal + (exitCode ? ' (force close)' : ''))
   }
 
-  process.on('SIGINT', async () => handleTermSignal('SIGINT'))
-  process.on('SIGTERM', async () => handleTermSignal('SIGTERM'))
+  process.on('SIGINT', async () => await handleTermSignal('SIGINT'))
+  process.on('SIGTERM', async () => await handleTermSignal('SIGTERM'))
 
   process.on('uncaughtException', async (error: Error) => {
     if (error.message.includes('EPIPE')) {
       return
     }
     logger.error('Uncaught Exception thrown:', error)
-    initiateShutdown(1, 'uncaughtException')
+    await initiateShutdown(1, 'uncaughtException')
   })
 
   process.on('unhandledRejection', async (reason: any, promise) => {
@@ -146,7 +165,7 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
       reasonMsg = JSON.stringify(reason)
     }
     logger.error('Unhandled Rejection at:', promise, 'reason:', reasonMsg)
-    initiateShutdown(0, 'unhandledRejection')
+    await initiateShutdown(0, 'unhandledRejection')
   })
 
   return {
@@ -246,7 +265,7 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
 const platform = options.platform
 if (platform === 'desktop') {
   let ipcNonce: string | undefined = randomBytes(16).toString('hex')
-  process.on('message', async msg => {
+  process.on('message', msg => {
     if (secretReceived) return
     if (!isSecretMessage(msg)) return
 
@@ -262,11 +281,7 @@ if (platform === 'desktop') {
     runBackendDesktop(secret).catch(async error => {
       logger.error('Error occurred while initializing backend', error)
       // Prevent stopping process before getting output
-      await new Promise<void>(resolve => {
-        setTimeout(() => {
-          resolve()
-        }, 10000)
-      })
+      await sleep(10_000)
     })
   })
   process.send?.({ type: 'readyForSecret', nonce: ipcNonce })
