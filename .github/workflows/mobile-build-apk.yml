@@ -4,6 +4,8 @@ on:
   release:
     types: [prereleased, released]
 
+  push:
+
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
@@ -109,8 +111,11 @@ jobs:
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-debug-apk:
-    # Only run for ready PRs (not drafts)
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    # Runs on ready PRs, manual dispatches, and commits
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/'))
     runs-on: ubuntu-22.04
 
     steps:
