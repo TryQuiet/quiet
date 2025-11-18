@@ -109,7 +109,7 @@ jobs:
   build-debug-apk:
     # Only run for ready PRs (not drafts)
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -140,6 +140,17 @@ jobs:
       - name: "Prepare ndk configuration"
         run: |
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
+
+      - name: "Disk usage before Gradle build (debug job)"
+        run: |
+          echo "=== df -h ==="
+          df -h
+          echo "=== df -ih (inodes) ==="
+          df -ih
+          echo "=== Largest paths under /home/runner (GB sorted) ==="
+          du -xh /home/runner | sort -h | tail -40
+          echo "=== Largest paths in workspace (GB sorted) ==="
+          du -xh . | sort -h | tail -40
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
