@@ -155,6 +155,17 @@ jobs:
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
 
+      - name: "Disk usage after Gradle build (debug job)"
+        run: |
+          echo "=== df -h ==="
+          df -h
+          echo "=== df -ih (inodes) ==="
+          df -ih
+          echo "=== Largest paths under /home/runner (GB sorted) ==="
+          du -xh /home/runner | sort -h | tail -40
+          echo "=== Largest paths in workspace (GB sorted) ==="
+          du -xh . | sort -h | tail -40
+
       - name: Get branch name
         id: branch
         shell: bash
