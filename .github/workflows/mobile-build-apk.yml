@@ -156,6 +156,18 @@ jobs:
         with:
           submodules: false
 
+      - name: "Reclaim disk space (debug job)"
+        run: |
+          set -euxo pipefail
+          echo "=== Disk usage before cleanup ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
+          sudo rm -rf /usr/local/lib/android/sdk/{system-images,emulator,ndk}
+          echo "=== Disk usage after cleanup ==="
+          df -h
+
       - name: "Init submodules except 3rd-party/qss"
         run: git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
 
