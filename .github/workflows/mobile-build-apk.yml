@@ -190,7 +190,7 @@ jobs:
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
 
       - name: "Build debug .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew --warn assembleStandardDebug
+        run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
 
       - name: "Disk usage after Gradle build (debug job)"
         run: |
