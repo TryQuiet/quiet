@@ -26,15 +26,6 @@ jobs:
         with:
           submodules: false
 
-      - name: "Disk usage at start (debug job)"
-        run: |
-          echo "=== df -h ==="
-          df -h
-          echo "=== df -ih (inodes) ==="
-          df -ih
-          echo "=== Workspace usage (top level) ==="
-          du -h -d1 .
-
       - name: "Init submodules except 3rd-party/qss"
         run: git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
 
@@ -142,24 +133,11 @@ jobs:
     if: |
       (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           submodules: false
-
-      - name: "Reclaim disk space (debug job)"
-        run: |
-          set -euxo pipefail
-          echo "=== Disk usage before cleanup ==="
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
-          sudo rm -rf /usr/local/lib/android/sdk/{system-images,emulator,ndk}
-          echo "=== Disk usage after cleanup ==="
-          df -h
 
       - name: "Init submodules except 3rd-party/qss"
         run: git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
@@ -183,17 +161,6 @@ jobs:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
           cachePrefix: "mobile-debug-apk"
 
-      - name: "Disk usage before Gradle build (debug job)"
-        run: |
-          echo "=== df -h ==="
-          df -h
-          echo "=== df -ih (inodes) ==="
-          df -ih
-          echo "=== Largest paths under /home/runner (GB sorted) ==="
-          du -xh /home/runner | sort -h | tail -40
-          echo "=== Largest paths in workspace (GB sorted) ==="
-          du -xh . | sort -h | tail -40
-
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
 
@@ -203,17 +170,6 @@ jobs:
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
-
-      - name: "Disk usage after Gradle build (debug job)"
-        run: |
-          echo "=== df -h ==="
-          df -h
-          echo "=== df -ih (inodes) ==="
-          df -ih
-          echo "=== Largest paths under /home/runner (GB sorted) ==="
-          du -xh /home/runner | sort -h | tail -40
-          echo "=== Largest paths in workspace (GB sorted) ==="
-          du -xh . | sort -h | tail -40
 
       - name: Get branch name
         id: branch
