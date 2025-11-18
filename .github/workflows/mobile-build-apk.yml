@@ -106,7 +106,7 @@ jobs:
           asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
           asset_name: app-standard-release.apk
           asset_content_type: application/.apk
-      
+
       - name: "Upload debug release assets"
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
@@ -160,6 +160,17 @@ jobs:
       - name: "Prepare ndk configuration"
         run: |
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
+
+      - name: "Disk usage before Gradle build (debug job)"
+        run: |
+          echo "=== df -h ==="
+          df -h
+          echo "=== df -ih (inodes) ==="
+          df -ih
+          echo "=== Largest paths under /home/runner (GB sorted) ==="
+          du -xh /home/runner | sort -h | tail -40
+          echo "=== Largest paths in workspace (GB sorted) ==="
+          du -xh . | sort -h | tail -40
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
