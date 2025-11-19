@@ -17,6 +17,7 @@ import { communities, getReduxStoreFactory, network, publicChannels } from '@qui
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
 import { LoadingPanelType } from '@quiet/types'
+import { socketActions } from '../renderer/sagas/socket/socket.slice'
 
 jest.setTimeout(20_000)
 
@@ -62,6 +63,8 @@ describe('Restart app works correctly', () => {
       </>,
       store
     )
+
+    store.dispatch(socketActions.setConnected())
 
     await act(async () => {
       store.dispatch(network.actions.addInitializedCommunity(community.id))

@@ -9,12 +9,14 @@ import {
   type InitCommunityPayload,
   InvitationDataVersion,
   JoinCommunityPayload,
+  LoadingPanelType,
   ResponseJoinCommunityPayload,
   SocketActions,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { usersActions } from '../../users/users.slice'
+import { networkActions } from '../../network/network.slice'
 
 const logger = createLogger('joinCommunitySaga')
 
@@ -25,6 +27,8 @@ export function* joinCommunitySaga(
   logger.info('Starting joinCommunitySaga')
 
   const { inviteData } = action.payload as JoinCommunityPayload
+  logger.info('Set loading panel type', LoadingPanelType.Joining)
+  yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Joining))
 
   const communityId = yield* call(generateId)
   // Setting invitationCodes to mark that we are in the process of joining a community
@@ -57,7 +61,6 @@ export function* joinCommunitySaga(
   }
 
   logger.info('Updating backend with community data')
-
   const response: ResponseJoinCommunityPayload | undefined = yield* apply(
     socket,
     socket.emitWithAck,
@@ -67,6 +70,7 @@ export function* joinCommunitySaga(
   if (!response) {
     logger.error('Failed to join community - invalid response from backend')
     yield* put(communitiesActions.clearInvitationCodes())
+    yield* put(networkActions.setLoadingPanelType(LoadingPanelType.Failed))
     return
   }
   yield* put(communitiesActions.addNewCommunity(response.community))

@@ -10,6 +10,7 @@ export enum StoreKeys {
   Users = 'Users',
   Errors = 'Errors',
   Communities = 'Communities',
+  Captcha = 'Captcha',
   App = 'App',
   Connection = 'Connection',
   Settings = 'Settings',

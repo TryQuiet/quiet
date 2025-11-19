@@ -272,21 +272,20 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
   _currentModuleInstance = module;
 }
 
-- (void)sendMessageToNode:(NSString *)channelName:(NSString *)message {
+- (void)sendMessageToNode:(NSString *)channelName :(NSString *)message {
   const char *c_channelName = [channelName UTF8String];
   const char *c_message = [message UTF8String];
   rn_bridge_notify(c_channelName, c_message);
 }
 
-- (void)sendMessageBackToReact:(NSString *)channelName:(NSString *)message {
+- (void)sendMessageBackToReact:(NSString *)channelName :(NSString *)message {
   if (_currentModuleInstance != nil) {
     [_currentModuleInstance sendMessageBackToReact:channelName:message];
   }
 }
 
 // node's libUV requires all arguments being on contiguous memory.
-- (void)startEngineWithArguments:(NSArray *)
-                       arguments:(NSString *)builtinModulesPath {
+- (void)startEngineWithArguments:(NSArray *)arguments :(NSString *)builtinModulesPath {
 
   // Set the builtin_modules path to NODE_PATH
   NSString *nodePath = [[NSProcessInfo processInfo] environment][@"NODE_PATH"];

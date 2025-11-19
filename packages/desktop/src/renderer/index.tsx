@@ -5,7 +5,7 @@ import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import { socketActions } from './sagas/socket/socket.slice'
-import { communities } from '@quiet/state-manager'
+import { communities, captcha } from '@quiet/state-manager'
 import { createLogger } from './logger'
 
 const logger = createLogger('index')
@@ -46,6 +46,13 @@ ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
     return
   }
   store.dispatch(socketActions.startConnection({ dataPort: parseInt(dataPort), socketIOSecret }))
+})
+
+ipcRenderer.on('hcaptcha:token', (_event, token: string) => {
+  store.dispatch(captcha.actions.captchaFormResponse({ token }))
+})
+ipcRenderer.on('hcaptcha:error', (_event, message: string) => {
+  store.dispatch(captcha.actions.captchaFormResponse({ error: message }))
 })
 
 const container = document.getElementById('root')
