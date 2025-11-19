@@ -14,13 +14,13 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest-m]
+        os: [ubuntu-22.04-m]
 
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           submodules: 'recursive'
 

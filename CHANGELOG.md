@@ -10,6 +10,7 @@
 ### Chores
 
 * Change autoupdater text [#2971] (https://github.com/TryQuiet/quiet/issues/2971)
+* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
 
 ## [6.3.0]
 
