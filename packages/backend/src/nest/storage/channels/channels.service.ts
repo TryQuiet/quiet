@@ -146,12 +146,16 @@ export class ChannelsService extends EventEmitter {
     })
 
     this.sigchainService.on('updated', async payload => {
-      const currentChannelsCount = (await this.getChannels()).length
-      await this.channels!.retryIndexingUnindexedEntries()
-      const newChannelsCount = (await this.getChannels()).length
-
-      if (currentChannelsCount !== newChannelsCount) {
-        await this.broadcastCurrentChannels()
+      try {
+        const currentChannelsCount = (await this.getChannels()).length
+        await this.channels!.retryIndexingUnindexedEntries()
+        const newChannelsCount = (await this.getChannels()).length
+        if (currentChannelsCount !== newChannelsCount) {
+          await this.broadcastCurrentChannels()
+        }
+      } catch (e) {
+        this.logger.warn('Error when attempting to reindex on sigchain update', e)
+        return
       }
     })
 

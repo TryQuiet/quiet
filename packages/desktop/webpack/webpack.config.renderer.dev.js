@@ -15,6 +15,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, '../dist/main'),
     filename: '[name].js',
+    globalObject: 'self',
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
@@ -57,11 +58,19 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'Quiet',
       template: 'src/renderer/index.html',
+      chunks: ['index'],
     }),
     new HtmlWebpackPlugin({
       title: 'Quiet-splash',
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html',
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Quiet – hCaptcha',
+      template: 'src/renderer/captcha.html',
+      filename: 'captcha.html',
+      chunks: [],
+      inject: false,
     }),
     new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {

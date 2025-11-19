@@ -4,7 +4,6 @@ import {
   UserProfilesStoredEvent,
   UsersRemovedEvent,
   UsersUpdatedEvent,
-  type UserProfile,
 } from './user'
 import {
   type DeleteChannelPayload,
@@ -25,12 +24,7 @@ import {
   type DownloadFilePayload,
   type AttachFilePayload,
 } from './files'
-import {
-  type SendMessagePayload,
-  type GetMessagesPayload,
-  ChannelMessageIdsResponse,
-  PushNotificationPayload,
-} from './message'
+import { type GetMessagesPayload, ChannelMessageIdsResponse, PushNotificationPayload } from './message'
 import {
   type InitCommunityPayload,
   type LeaveCommunityPayload,
@@ -45,6 +39,7 @@ import {
   UpdateCommunityPayload,
 } from './community'
 import { ErrorPayload } from './errors'
+import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -95,6 +90,10 @@ export enum SocketActions {
   // ====== Local First Auth ======
 
   VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE = 'validateOrCreateLongLivedLfaInvite',
+
+  // ====== Captcha ======
+  HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
+  HCAPTCHA_REQUEST = 'hcaptchaRequest',
 
   // ====== Misc ======
   /**
@@ -147,6 +146,11 @@ export enum SocketEvents {
   MIGRATION_DATA_REQUIRED = 'migrationDataRequired',
   PUSH_NOTIFICATION = 'pushNotification',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
+
+  // ====== Captcha ======
+  HCAPTCHA_CHALLENGE_REQUEST = 'hcaptchaChallengeRequest',
+  HCAPTCHA_SITE_KEY = 'hcaptchaSiteKey',
+  HCAPTCHA_VERIFICATION_UPDATE = 'hcaptchaVerificationUpdate',
 }
 
 type EmitEvent<Payload, Callback = (response: any) => void> = (payload: Payload, callback?: Callback) => void
@@ -193,6 +197,12 @@ export interface SocketActionsMap {
     RequestInvitePayload,
     (response?: ResponseInvitePayload) => void
   >
+
+  // ====== Captcha ======
+  [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
+  [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
+
+  // ====== Misc ======
 }
 
 // -----------------------------------------------------------------------------
@@ -238,4 +248,9 @@ export interface SocketEventsMap {
   [SocketEvents.MIGRATION_DATA_REQUIRED]: EmitEvent<string[]>
   [SocketEvents.PUSH_NOTIFICATION]: EmitEvent<PushNotificationPayload>
   [SocketEvents.CONNECTION_PROCESS_INFO]: EmitEvent<string>
+
+  // ====== Captcha ======
+  [SocketEvents.HCAPTCHA_CHALLENGE_REQUEST]: EmitEvent<HCaptchaChallengeRequest>
+  [SocketEvents.HCAPTCHA_SITE_KEY]: EmitEvent<string>
+  [SocketEvents.HCAPTCHA_VERIFICATION_UPDATE]: EmitEvent<boolean>
 }

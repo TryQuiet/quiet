@@ -1,6 +1,7 @@
 /**
  * Abstraction layer for interacting with QSS
  */
+import { Mutex } from 'async-mutex'
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
@@ -25,6 +26,7 @@ import {
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
 import EventEmitter from 'node:events'
+
 import { sleep } from '../common/sleep'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
@@ -38,8 +40,9 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
-import { Community, CompoundError, InvitationDataV3 } from '@quiet/types'
+import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
+import { SocketService } from '../socket/socket.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -56,6 +59,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    */
   private _reconnectQueueProcessor: NodeJS.Timeout
 
+  /**
+   * Mutexes for createCommunity per teamId
+   */
+  private _signInMutex: Mutex = new Mutex()
+
   private readonly logger = createLogger(`qss:service`)
 
   constructor(
@@ -65,7 +73,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     private readonly qssAuthConnManager: QSSAuthConnectionManager,
     private readonly sigChainService: SigChainService,
     private readonly localDbService: LocalDbService,
-    private readonly orbitDbService: OrbitDbService
+    private readonly orbitDbService: OrbitDbService,
+    private readonly socketService: SocketService
   ) {
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
@@ -115,6 +124,36 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _configureEventHandlers(): void {
+    this.on(QSSEvents.QSS_START_AUTH_CONN, (teamId: string, teamName?: string) => {
+      void this.qssAuthConnManager.startNewConnection(teamId, teamName)
+    })
+
+    this.socketService.on(SocketActions.HCAPTCHA_REQUEST, (): void => {
+      this.logger.debug('hCaptcha request received')
+      if (!this.connected) {
+        this.qssClient.once(QSSEvents.QSS_CONNECTED, (): void => {
+          this.qssClient.requestCaptchaVerification().catch(error => {
+            this.logger.error('Failed to request captcha verification', error)
+          })
+        })
+
+        this.connect(this.qssEndpoint, true).catch(error => {
+          this.logger.error('Failed to connect to QSS on hCaptcha request', error)
+        })
+      } else {
+        this.qssClient.requestCaptchaVerification().catch(error => {
+          this.logger.error('Failed to request captcha verification', error)
+        })
+      }
+    })
+
+    this.qssClient.on(QSSEvents.QSS_CAPTCHA_REQUIRED, (): void => {
+      this.logger.debug('Captcha required event received from QSS')
+      this.qssClient.requestCaptchaVerification().catch(error => {
+        this.logger.error('Failed to request captcha verification', error)
+      })
+    })
+
     this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
       this.logger.debug('Community stored, attempting to authenticate with QSS')
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
@@ -126,33 +165,42 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
 
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
-      const initStatus = await this.getQssInitStatus()
-      if (!initStatus.communityInitialized || initStatus.community == null) {
-        this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
-        return
-      }
+      await this._signInMutex.runExclusive(async () => {
+        const initStatus = await this.getQssInitStatus()
+        if (!initStatus.communityInitialized || initStatus.community == null) {
+          this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
+          return
+        }
 
-      if (!initStatus.qssEnabled) {
-        this.logger.trace('QSS not enabled for this community, skipping sign in')
-        return
-      }
+        if (!initStatus.qssEnabled) {
+          this.logger.trace('QSS not enabled for this community, skipping sign in')
+          return
+        }
 
-      if (
-        !(initStatus.qssSetup ?? false) &&
-        this.sigChainService.activeChain.team != null &&
-        this.sigChainService.users.getAllUsers().length === 1
-      ) {
-        await this.createCommunity(this.sigChainService.activeChain)
-      } else {
-        const teamId =
-          this.sigChainService.activeChain.team != null
-            ? this.sigChainService.team.id
-            : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
-        const teamName =
-          this.sigChainService.activeChain.team != null ? this.sigChainService.team.teamName : initStatus.community.name
-        this.logger.trace('QSS Sign in', teamId, teamName)
-        await this.signInToCommunity(teamId, this.sigChainService.activeChain, teamName)
-      }
+        let sigChain: SigChain
+        try {
+          sigChain = this.sigChainService.activeChain
+        } catch (e) {
+          this.logger.error('No active sigchain present, cannot perform QSS operations')
+          return
+        }
+
+        if (
+          !(initStatus.qssSetup ?? false) &&
+          sigChain.team != null &&
+          this.sigChainService.users.getAllUsers().length === 1
+        ) {
+          await this.createCommunity(sigChain)
+        } else {
+          const teamId =
+            sigChain.team != null
+              ? sigChain.team.id
+              : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
+          const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
+          this.logger.trace('QSS Sign in', teamId, teamName)
+          await this.signInToCommunity(teamId, sigChain, teamName)
+        }
+      })
     })
   }
 
@@ -275,10 +323,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (!enabledOverride) {
       const initStatus = await this.getQssInitStatus()
-      if (!initStatus.communityInitialized) {
-        this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
-        return QSSOperationResult.ERROR
-      }
 
       if (!initStatus.qssEnabled) {
         this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
@@ -312,7 +356,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async createCommunity(sigChain: SigChain): Promise<boolean> {
     let created: boolean = false
     try {
-      created = await this._createCommunityImpl(sigChain)
+      return await this._createCommunityImpl(sigChain)
     } catch (e) {
       created = false
       this.logger.error('Failed to create community on QSS', e)
@@ -353,31 +397,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return false
     }
 
-    // Generating the QSS LFA keyset for this community
-    this.logger.info(`Getting server keys for this team`)
-    const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
-      ts: DateTime.utc().toMillis(),
-      status: CommunityOperationStatus.SENDING,
-      payload: {
-        teamId: sigChain.team.id,
-      },
-    }
-    const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(
-      WebsocketEvents.GEN_PUB_KEYS,
-      qssGeneratePublicKeysMessage,
-      true
-    )
-
-    // if we couldn't create QSS' LFA keys for this community we should eject
-    if (
-      generateKeysResponse == null ||
-      generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
-      generateKeysResponse.payload == null ||
-      generateKeysResponse.payload.teamId != sigChain.team.id ||
-      generateKeysResponse.payload.keys == null
-    ) {
-      this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
-      return false
+    if (!this.qssClient.captchaVerified) {
+      const verified = await this.qssClient.requestCaptchaVerification()
+      if (!verified) {
+        this.logger.warn(`Can't create community on QSS because captcha verification failed`)
+        return false
+      }
     }
 
     // we need to normalize the hostname for QSS when running locally before adding the server to the chain
@@ -390,20 +415,51 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       ...initStatus.community,
       qssEnabled: true,
       serverHosts: [{ hostUrl: host, accepted: true }],
-    } as Community)
+    })
 
-    const lfaServer: Server = {
-      host,
-      keys: generateKeysResponse.payload.keys,
+    // if we don't already have this server in our chain we need to generate keys and add it
+    if (!sigChain.team.hasServer(host)) {
+      // Generating the QSS LFA keyset for this community
+      this.logger.info(`Getting server keys for this team`)
+      const qssGeneratePublicKeysMessage: GeneratePublicKeysMessage = {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SENDING,
+        payload: {
+          teamId: sigChain.team.id,
+        },
+      }
+      const generateKeysResponse = await this.qssClient.sendMessage<GeneratePublicKeysMessage>(
+        WebsocketEvents.GEN_PUB_KEYS,
+        qssGeneratePublicKeysMessage,
+        true
+      )
+
+      // if we couldn't create QSS' LFA keys for this community we should eject
+      if (
+        generateKeysResponse == null ||
+        generateKeysResponse.status !== CommunityOperationStatus.SUCCESS ||
+        generateKeysResponse.payload == null ||
+        generateKeysResponse.payload.teamId != sigChain.team.id ||
+        generateKeysResponse.payload.keys == null
+      ) {
+        this.logger.error(`Failed to generate server keys!`, generateKeysResponse?.reason ?? 'Response was nullish')
+        return false
+      }
+
+      const lfaServer: Server = {
+        host,
+        keys: generateKeysResponse.payload.keys,
+      }
+
+      // add this QSS server/cluster to our chain using the keys we generated earlier
+      this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
+      if (!sigChain.team.hasServer(host)) {
+        sigChain.server.addServer(lfaServer)
+      }
     }
-
-    // add this QSS server/cluster to our chain using the keys we generated earlier
-    this.logger.info(`Got a valid keys response from QSS, adding it to the chain`, lfaServer)
-    sigChain.server.addServer(lfaServer)
 
     const serializedSigChain: Uint8Array = sigChain.save()
     const serializedKeyring: Uint8Array = uint8arrays.fromString(JSON.stringify(sigChain.team.teamKeyring()), 'utf8')
-
     // send the serialized chain and team keys to QSS
     const qssCreateCommunityMessage: CreateCommunity = {
       ts: DateTime.utc().toMillis(),
@@ -430,10 +486,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     const community = await this.localDbService.getCurrentCommunity()
-    this.localDbService.updateCommunity(community!.id, { qssSetup: true })
+    this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
 
-    // start the auth sync connection with QSS now that we've successfully added the community
-    await this.qssAuthConnManager.startNewConnection(sigChain.team.id)
+    this.emit(QSSEvents.QSS_START_AUTH_CONN, sigChain.team.id)
     return true
   }
 
@@ -505,9 +560,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    this.qssAuthConnManager.startNewConnection(teamId, teamName)
+    this.emit(QSSEvents.QSS_START_AUTH_CONN, teamId, teamName)
     const community = await this.localDbService.getCurrentCommunity()
-    this.localDbService.updateCommunity(community!.id, { qssSetup: true })
+    this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
     return QSSOperationResult.SUCCESS
   }
 
@@ -530,15 +585,26 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return
     }
 
+    let sigChain: SigChain
+    try {
+      sigChain = this.sigChainService.getChain({ teamId: update.teamId })
+    } catch (e) {
+      // TODO: when we have multiple teams, we want to check disk for the appropriate sigchain
+      // for now these log entries are from stale communities so we can just skip them
+      await this.localDbService.removePendingQssLogSyncMessages({ [update.addr]: [update.hash] })
+      this.logger.warn(
+        `No sigchain present for team ${update.teamId}, cannot send ${update.hash} log sync message to QSS`
+      )
+      return
+    }
+
     this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
 
     this.logger.trace('Encrypting log entry', update.hash)
-    const encEntry: EncryptedAndSignedPayload = this.sigChainService
-      .getChain({ teamId: update.teamId })
-      .crypto.encryptAndSign(update.entry, {
-        type: EncryptionScopeType.ROLE,
-        name: RoleName.MEMBER,
-      })
+    const encEntry: EncryptedAndSignedPayload = sigChain.crypto.encryptAndSign(update.entry, {
+      type: EncryptionScopeType.ROLE,
+      name: RoleName.MEMBER,
+    })
 
     const dataSyncMessage: QSSLogEntrySyncMessage = {
       ts: DateTime.utc().toMillis(),

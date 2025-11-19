@@ -105,6 +105,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     super()
   }
 
+  public getQssService(): QSSService {
+    return this.qssService
+  }
+
   async onModuleInit() {
     const webcrypto = new Crypto()
     // @ts-ignore
@@ -405,7 +409,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    // purposely don't await
     this.qssService.connect(this.qssEndpoint)
 
     await this.launchCommunity(community.id)

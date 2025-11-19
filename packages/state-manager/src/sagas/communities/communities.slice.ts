@@ -20,6 +20,7 @@ export class CommunitiesState {
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
   public connectionInProgress = false
   public tosRequested = false
+  public captchaRequested = false
 }
 
 export const communitiesSlice = createSlice({

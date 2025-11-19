@@ -35,6 +35,7 @@ import {
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav3 } from '@quiet/common'
 
 import { createLogger } from './logger'
+import { socketActions } from '../renderer/sagas/socket/socket.slice'
 
 const logger = createLogger('community.join.test')
 
@@ -232,6 +233,7 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/joinCommunity",
+        "Network/setLoadingPanelType",
         "Communities/setInvitationCodes",
         "Modals/openModal",
         "Modals/closeModal",
@@ -242,7 +244,6 @@ describe('User', () => {
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/sendIntroductionMessage",
-        "Network/setLoadingPanelType",
         "Modals/openModal",
         "Modals/closeModal",
         "Communities/addNewCommunity",
@@ -369,6 +370,8 @@ describe('join community - qss', () => {
       store
     )
 
+    store.dispatch(socketActions.setConnected())
+
     const mockEmitImpl = makeMockEmitImpl(socket, { qss: true })
 
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
@@ -421,6 +424,8 @@ describe('join community - qss', () => {
       store
     )
 
+    store.dispatch(socketActions.setConnected())
+
     const mockEmitImpl = makeMockEmitImpl(socket, { qss: true })
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
     // @ts-ignore
@@ -463,6 +468,8 @@ describe('join community - qss', () => {
       </>,
       store
     )
+
+    store.dispatch(socketActions.setConnected())
 
     const mockEmitImpl = makeMockEmitImpl(socket, { qss: true })
     jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)

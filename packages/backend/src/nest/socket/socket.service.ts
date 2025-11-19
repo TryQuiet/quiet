@@ -24,6 +24,7 @@ import {
   SetUserProfilePayload,
   ServerAddedPayload,
   UpdateCommunityPayload,
+  type HCaptchaFormResponse,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -228,6 +229,14 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(SocketActions.LOAD_MIGRATION_DATA, async (data: Record<string, any>) => {
         this.emit(SocketActions.LOAD_MIGRATION_DATA, data)
+      })
+
+      socket.on(SocketActions.HCAPTCHA_FORM_RESPONSE, async (payload: HCaptchaFormResponse) => {
+        this.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, payload)
+      })
+
+      socket.on(SocketActions.HCAPTCHA_REQUEST, async () => {
+        this.emit(SocketActions.HCAPTCHA_REQUEST)
       })
     })
 
