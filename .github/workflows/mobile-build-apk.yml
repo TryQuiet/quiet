@@ -35,6 +35,18 @@ jobs:
         with:
           path: packages/mobile
 
+      - name: "Reclaim disk space"
+        run: |
+          set -euxo pipefail
+          echo "=== Disk usage before cleanup ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
+          sudo rm -rf /usr/local/lib/android/sdk/{system-images,emulator,ndk}
+          echo "=== Disk usage after cleanup ==="
+          df -h
+
       - name: "Set up JDK"
         uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
         with:
@@ -141,6 +153,18 @@ jobs:
 
       - name: "Init submodules except 3rd-party/qss"
         run: git submodule update --init --recursive --depth 1 --jobs 8 -- ":(exclude)3rd-party/qss"
+
+      - name: "Reclaim disk space"
+        run: |
+          set -euxo pipefail
+          echo "=== Disk usage before cleanup ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "${AGENT_TOOLSDIRECTORY:-/opt/hostedtoolcache}/CodeQL"
+          sudo rm -rf /usr/local/lib/android/sdk/{system-images,emulator,ndk}
+          echo "=== Disk usage after cleanup ==="
+          df -h
 
       - name: "Set up JDK"
         uses: actions/setup-java@v3
