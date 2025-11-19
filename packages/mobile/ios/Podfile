@@ -12,7 +12,7 @@ ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 target 'Quiet' do
   config = use_native_modules!
 
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v408.19.1/Tor.podspec'
+  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v408.20.1/Tor.podspec'
 
 
   use_react_native!(
