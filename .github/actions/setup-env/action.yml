@@ -79,7 +79,7 @@ runs:
 
     - name: "Build submodules"
       run: |
-        npm run build:submodules
+        npm run build:submodules:ci
       shell: bash
 
     - name: "Bootstrap project"
@@ -91,3 +91,8 @@ runs:
             lerna bootstrap
         fi
       shell: bash
+
+    - name: "Cleanup npm/pnpm caches"
+      shell: bash
+      run: |
+        rm -rf ~/.npm/_cacache ~/.npm/_logs ~/.local/share/pnpm || true
