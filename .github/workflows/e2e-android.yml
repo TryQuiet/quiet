@@ -5,10 +5,10 @@ on: workflow_dispatch
 jobs:
   detox-android:
     timeout-minutes: 25
-    runs-on: [macos-13-xlarge]
+    runs-on: [macos-latest-xlarge]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           submodules: 'recursive'
           lfs: true

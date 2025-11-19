@@ -19,12 +19,12 @@ jobs:
             source_path: linux
             build_cmd: "--linux AppImage"
             artifact_glob: "packages/desktop/dist/*.AppImage"
-          - os: macos-13
+          - os: macos-latest
             target: macos
             source_path: darwin
             build_cmd: "--mac"
             artifact_glob: "packages/desktop/dist/*.dmg"
-          - os: windows-2022
+          - os: windows-latest
             target: win
             source_path: win32
             build_cmd: "--win"
@@ -35,7 +35,7 @@ jobs:
       TEST_MODE: true
       IS_LOCAL: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           submodules: recursive
 
@@ -218,7 +218,7 @@ jobs:
 
   build-macos-prod:
     # needs: run-e2e-tests-mac
-    runs-on: macos-13
+    runs-on: macos-latest
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
@@ -303,7 +303,7 @@ jobs:
 
   build-windows-prod:
     # needs: run-e2e-tests-win
-    runs-on: windows-2022
+    runs-on: windows-latest
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
