@@ -1,0 +1,119 @@
+min_version = "2024.9.5"
+
+[env]
+
+[hooks]
+
+[tools]
+# general dev/sdk tools & dependencies
+usage = "latest" # needed by mise for shell completions
+yq = "latest" # needed by mise for android-sdk
+git-lfs = "latest"
+
+# project-wide dependencies
+node = "18.20.4"
+npm = "10.7.0"
+"npm:lerna" = "6.6.2"
+"npm:typescript" = "4.9.5"
+"npm:pnpm" = "9.12.1"
+
+# android dependencies
+java = "temurin-17.0.17+10"
+android-sdk = "19"
+
+# ios dependencies
+xcodes = { version = "latest", os = ["macos"]}
+"ruby" = { version = "2.7.5", os = ["macos"]}
+
+[tasks.bootstrap]
+description = "Install base project dependencies (only needs to be run once per environment)"
+run = '''
+printf "\e[0;94;1m [*] Ensuring all mise tools are installed.\e[0m\n"
+# mise's yq has to be installed first due to a dependency issue in the android-sdk package
+mise install --jobs=1 yq
+
+# using the newly install yq, we can now install the rest of the tools
+mise exec -- mise install
+
+printf "\e[0;94;1m [*] Pulling submodules and Git LFS blobs.\e[0m\n"
+git submodule update --init --recursive --remote
+git lfs pull
+
+printf "\e[0;94;1m [*] Installing NPM dependencies.\e[0m\n"
+npm install
+npm run pull:submodules
+npm run bootstrap
+
+printf "\e[0;92;1m [*] Success!\e[0m\n"
+'''
+
+[tasks.bootstrap-android]
+confirm = "Have you read and accepted the Android SDK licenses?"
+description = "Install Android-specific dependencies (only needs to be run once per environment)"
+run = '''
+printf "\e[0;94;1m [*] Ensuring all mise tools are installed.\e[0m\n"
+mise install
+
+printf "\e[0;94;1m [*] Installing correct Android platform version.\e[0m\n"
+yes | sdkmanager --licenses
+sdkmanager "platforms;android-35" "build-tools;35.0.1"
+
+printf "\e[0;92;1m [*] Success!\e[0m\n"
+'''
+
+[tasks.bootstrap-ios]
+description = "Install iOS-specific dependencies (only needs to be run once per environment)"
+run = '''
+printf "\e[0;94;1m [*] Ensuring all mise tools are installed.\e[0m\n"
+mise install
+
+printf "\e[0;94;1m [*] Installing Xcode and iOS runtime.\e[0m\n"
+xcodes install 16.2.0
+xcodes select 16.2.0
+xcodes runtimes install 'iOS 18.4'
+
+printf "\e[0;94;1m [*] Installing Ruby and Cocoapods dependencies.\e[0m\n"
+pushd packages/mobile/ios
+gem install bundler -v 1.17.2
+bundle install
+bundle exec pod install
+echo "export NODE_BINARY=$(which node)" > .xcode.env.local
+
+printf "\e[0;94;1m [*] Installing ios-deploy CLI deployment tool from Homebrew.\e[0m\n"
+brew install -q ios-deploy
+
+printf "\e[0;92;1m [*] Success!\e[0m\n"
+'''
+
+[tasks.desktop]
+description = "Run a command from within the desktop project"
+dir = "{{cwd}}/packages/desktop"
+run = "npm run"
+
+[tasks.mobile]
+description = "Run a command from within the mobile project"
+dir = "{{cwd}}/packages/mobile"
+run = "npm run"
+
+[tasks.clean-data-dirs]
+confirm = "Delete all Quiet data directories (both production and development)?"
+description = "Clean all data directories left over from quiet installs"
+run = '''
+find ~/Library/Application\ Support -maxdepth 1 -type d \( -name "Quiet*" -o -name "e2e_*" \) -exec rm -rf {} +
+printf "\e[0;92;1m [*] Deleted all Quiet data directories.\e[0m\n"
+'''
+
+[tasks.start]
+description = "Start Quiet Desktop with the Quietdev data directory"
+run = '''
+npm run start:desktop
+'''
+
+[tasks.start-temp]
+description = "Start Quiet Desktop with a fresh random data directory"
+run = '''
+export DATA_DIR="Quiet$(printf "%04d" $(( RANDOM % 10000 )))"
+printf "\e[0;94;1m [*] New DATA_DIR: $DATA_DIR.\e[0m\n"
+
+npm run start:desktop
+'''
