@@ -58,10 +58,10 @@
 		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
-		1F42EAF02ED7843BF21AC8EB /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8516012E4A32FA95E006DB2 /* Pods_Quiet_QuietTests.framework */; };
+		238C21418E57A35E871F3031 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75DE4FB013B775C0BA12D844 /* Pods_Quiet.framework */; };
+		4F148A26E31171F07FE653C0 /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A658EA86518FE8FBE28F4AED /* Pods_Quiet_QuietTests.framework */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
-		E92F40F4F7FA8E0756F4FBB4 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC225279D074238C6BE1E4C5 /* Pods_Quiet.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,15 +75,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		00A416312EC2E9EE00ACC877 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 		1868C095292F8FE2001D6D5E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -633,12 +624,12 @@
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
 		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
 		2877B6088D1D81EF869D71D9 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
+		75DE4FB013B775C0BA12D844 /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F75CE6D1C7D3DA9F5BA6A76 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		955DC7572BD930B30014725B /* WebsocketSingleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsocketSingleton.swift; sourceTree = "<group>"; };
+		A658EA86518FE8FBE28F4AED /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E727FE0446E9E46CDECEC7FE /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
-		E8516012E4A32FA95E006DB2 /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FC225279D074238C6BE1E4C5 /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -648,7 +639,7 @@
 			files = (
 				18C5DE1329782326008036F4 /* leveldown.framework in Frameworks */,
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
-				1F42EAF02ED7843BF21AC8EB /* Pods_Quiet_QuietTests.framework in Frameworks */,
+				4F148A26E31171F07FE653C0 /* Pods_Quiet_QuietTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,7 +650,7 @@
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
 				18C5DE1829782334008036F4 /* leveldown.framework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
-				E92F40F4F7FA8E0756F4FBB4 /* Pods_Quiet.framework in Frameworks */,
+				238C21418E57A35E871F3031 /* Pods_Quiet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4731,8 +4722,8 @@
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
 				18C5DE1029782326008036F4 /* leveldown.framework */,
-				FC225279D074238C6BE1E4C5 /* Pods_Quiet.framework */,
-				E8516012E4A32FA95E006DB2 /* Pods_Quiet_QuietTests.framework */,
+				75DE4FB013B775C0BA12D844 /* Pods_Quiet.framework */,
+				A658EA86518FE8FBE28F4AED /* Pods_Quiet_QuietTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4833,7 +4824,6 @@
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
 				7253A52F091FC8122D730B2E /* [CP] Embed Pods Frameworks */,
 				A1AE2657AE5C40D18941D671 /* [CP] Copy Pods Resources */,
-				00A416312EC2E9EE00ACC877 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -5287,6 +5277,7 @@
 				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				ENABLE_BITCODE = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5390,6 +5381,7 @@
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CTYKSWN9T4;
 				ENABLE_BITCODE = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5456,6 +5448,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.5.0;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -5475,6 +5468,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				"ARCHS[sdk=*]" = "$(ARCHS_STANDARD)";
 				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
@@ -5506,7 +5500,6 @@
 				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -5597,7 +5590,6 @@
 				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -5630,6 +5622,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";

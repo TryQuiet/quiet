@@ -1685,7 +1685,7 @@ PODS:
   - SDWebImageAVIFCoder (0.11.1):
     - libavif/core (>= 0.11.0)
     - SDWebImage (~> 5.10)
-  - SDWebImageWebPCoder (0.14.6):
+  - SDWebImageWebPCoder (0.15.0):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
@@ -1783,7 +1783,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v408.20.1/Tor.podspec`)
+  - Tor (~> 408)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1797,6 +1797,7 @@ SPEC REPOS:
     - SDWebImageWebPCoder
     - SocketRocket
     - SSZipArchive
+    - Tor
 
 EXTERNAL SOURCES:
   boost:
@@ -1966,8 +1967,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  Tor:
-    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v408.20.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2061,12 +2060,12 @@ SPEC CHECKSUMS:
   RNSVG: 2e59e14c2723a1967cd1bba71038a59142cbc616
   SDWebImage: 16309af6d214ba3f77a7c6f6fdda888cb313a50a
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
-  SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
+  SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
-  Tor: da49578d75b6b50b1330cf6e66449369c81d2791
+  Tor: 7c856b8d6d0d2a50dd6492092556d389632685ac
   Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
 
-PODFILE CHECKSUM: 497911c8f4f2275611d84d9bc7d3b70da6d8e70c
+PODFILE CHECKSUM: 30d1c0d72dc7fb223286b7cb13a2e16153de54ff
 
 COCOAPODS: 1.15.2
