@@ -6,6 +6,10 @@
 
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
 
+### Fixes
+
+* DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
+ 
 ### Chores
 
 * Change autoupdater text [#2971] (https://github.com/TryQuiet/quiet/issues/2971)
