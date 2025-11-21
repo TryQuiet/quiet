@@ -16,6 +16,7 @@ import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter } from './types'
+import e from 'cors'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -30,6 +31,10 @@ export class SigChainService extends EventEmitter {
     private readonly socketService: SocketService
   ) {
     super()
+  }
+
+  get chainCount(): number {
+    return this.chains.size
   }
 
   get activeChain(): SigChain {
@@ -72,20 +77,21 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().device
   }
 
-  getActiveChain(): SigChain {
-    if (!this.activeChainTeamName) {
-      throw new Error('No active chain found!')
-    }
-    return this.getChain({ teamName: this.activeChainTeamName })
+  getActiveChain(throwError?: true | undefined): SigChain
+  getActiveChain(throwError: false): SigChain | undefined
+  getActiveChain(throwError = true): SigChain | undefined {
+    return this.getChain({ teamName: this.activeChainTeamName }, throwError as any)
   }
 
+  getChain(filter: GetChainFilter, throwError?: true | undefined): SigChain
+  getChain(filter: GetChainFilter, throwError: false): SigChain | undefined
   /**
    * Gets a chain by team name or ID
    * @param filter Filter query with either team name or team ID
    * @returns The chain for the team name or ID specified
    * @throws Error if the chain doesn't exist, if ID and name in filter, or no filter criteria provided
    */
-  getChain(filter: GetChainFilter): SigChain {
+  getChain(filter: GetChainFilter, throwError = true): SigChain | undefined {
     // reject filters with both team name and ID
     if (filter.teamName != null && filter.teamId != null) {
       throw new Error('Must provide only one of `teamName` or `teamId` in filter query, not both!')
@@ -102,10 +108,15 @@ export class SigChainService extends EventEmitter {
           return potentialChain
         }
       }
-      throw new Error(`No chain found for team ID ${filter.teamId}`)
+
+      if (throwError) {
+        throw new Error(`No chain found for team ID ${filter.teamId}`)
+      } else {
+        return undefined
+      }
     }
 
-    if (!this.chains.has(filter.teamName!)) {
+    if (!this.chains.has(filter.teamName!) && throwError) {
       throw new Error(`No chain found for team ${filter.teamName}`)
     }
     return this.chains.get(filter.teamName!)!
@@ -272,7 +283,7 @@ export class SigChainService extends EventEmitter {
   async saveChain(teamName: string): Promise<void> {
     this.logger.info(`Saving chain to disk`, teamName)
     await this._ensureDb()
-    const chain = this.getChain({ teamName })
+    const chain = this.getChain({ teamName })!
     await this.localDbService.setSigChain(chain, teamName)
   }
 

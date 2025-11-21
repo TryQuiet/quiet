@@ -4,7 +4,7 @@ import { yamux } from '@chainsafe/libp2p-yamux'
 import { mplex } from '@libp2p/mplex'
 import { FaultTolerance } from '@libp2p/interface-transport'
 import { identify, identifyPush } from '@libp2p/identify'
-import { type Libp2p } from '@libp2p/interface'
+import { KEEP_ALIVE, type Libp2p } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
@@ -539,15 +539,15 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.libp2pInstance.addEventListener('peer:identify', async event => {
       const identifyResult = event.detail
       this.logger.info(`Identified peer`, identifyResult.peerId.toString())
-      // if ((await this.libp2pInstance?.peerStore?.get(identifyResult.peerId))?.tags.has(KEEP_ALIVE)) {
-      //   return
-      // }
+      if ((await this.libp2pInstance?.peerStore?.get(identifyResult.peerId))?.tags.has(KEEP_ALIVE)) {
+        return
+      }
 
-      // await this.libp2pInstance?.peerStore?.patch(identifyResult.peerId, {
-      //   tags: {
-      //     [KEEP_ALIVE]: {},
-      //   },
-      // })
+      await this.libp2pInstance?.peerStore?.patch(identifyResult.peerId, {
+        tags: {
+          [KEEP_ALIVE]: {},
+        },
+      })
     })
 
     this.libp2pInstance.addEventListener('peer:discovery', peer => {

@@ -124,6 +124,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _configureEventHandlers(): void {
+    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, () => {
+      this.emit(QSSEvents.QSS_AUTH_JOINED)
+    })
+
     this.on(QSSEvents.QSS_START_AUTH_CONN, (teamId: string, teamName?: string) => {
       void this.qssAuthConnManager.startNewConnection(teamId, teamName)
     })
@@ -316,6 +320,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (!enabledOverride) {
       const initStatus = await this.getQssInitStatus()
+      if (!initStatus.communityInitialized) {
+        this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
+        return QSSOperationResult.ERROR
+      }
 
       if (!initStatus.qssEnabled) {
         this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
@@ -566,7 +574,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     } catch (e) {
       // TODO: when we have multiple teams, we want to check disk for the appropriate sigchain
       // for now these log entries are from stale communities so we can just skip them
-      await this.localDbService.removePendingQssLogSyncMessages({ [update.addr]: [update.hash] })
+      // await this.localDbService.removePendingQssLogSyncMessages({ [update.addr]: [update.hash] })
       this.logger.warn(
         `No sigchain present for team ${update.teamId}, cannot send ${update.hash} log sync message to QSS`
       )
