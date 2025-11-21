@@ -51,9 +51,6 @@
 		1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */; };
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
 		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
-		18C5DE1329782326008036F4 /* leveldown.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C5DE1029782326008036F4 /* leveldown.framework */; platformFilter = ios; };
-		18C5DE1829782334008036F4 /* leveldown.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C5DE1029782326008036F4 /* leveldown.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		18C5DE1929782334008036F4 /* leveldown.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 18C5DE1029782326008036F4 /* leveldown.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		18FD2A3D296F009E00A2B8C0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */; };
 		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
@@ -83,7 +80,6 @@
 			files = (
 				00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */,
 				1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */,
-				18C5DE1929782334008036F4 /* leveldown.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -613,7 +609,6 @@
 		1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommunicationBridge.m; sourceTree = "<group>"; };
 		1889CA4D26E763E1004ECFBD /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		189814392934CF70001F39E7 /* TorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandler.swift; sourceTree = "<group>"; };
-		18C5DE1029782326008036F4 /* leveldown.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = leveldown.framework; sourceTree = "<group>"; };
 		18FD2A33296EF98200A2B8C0 /* Quiet-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Quiet-Bridging-Header.h"; sourceTree = "<group>"; };
 		18FD2A34296F009E00A2B8C0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Quiet/Info.plist; sourceTree = "<group>"; };
 		18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Quiet/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -637,7 +632,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18C5DE1329782326008036F4 /* leveldown.framework in Frameworks */,
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
 				4F148A26E31171F07FE653C0 /* Pods_Quiet_QuietTests.framework in Frameworks */,
 			);
@@ -648,7 +642,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
-				18C5DE1829782334008036F4 /* leveldown.framework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
 				238C21418E57A35E871F3031 /* Pods_Quiet.framework in Frameworks */,
 			);
@@ -4721,7 +4714,6 @@
 			children = (
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
-				18C5DE1029782326008036F4 /* leveldown.framework */,
 				75DE4FB013B775C0BA12D844 /* Pods_Quiet.framework */,
 				A658EA86518FE8FBE28F4AED /* Pods_Quiet_QuietTests.framework */,
 			);
@@ -5036,9 +5028,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5097,9 +5093,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5114,9 +5114,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5131,9 +5135,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
