@@ -12,10 +12,9 @@ Here are the steps:
 4. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies/submodules and trigger a prepublish script which builds them.
 
 ```bash
-npm i lerna@6.6.2
-npm i typescript@4.9.5
+npm i lerna@6.6.2 typescript@4.9.5
 npm i -g pnpm@9.12.1 # may be needed depending on configuration
-npm install
+npm i
 npm run pull:submodules
 npm run bootstrap
 ```
@@ -24,7 +23,7 @@ If you run into problems please double check if you have exact version Node and 
 
 5. In project root run,
 
-```
+```bash
 npm run start:desktop
 ```
 
@@ -38,13 +37,13 @@ The project uses independent versioning which means each package has its own ver
 
 To create a release run:
 
-```
+```bash
 npm run lerna version <release-type>
 ```
 
 To build a prerelease version, run:
 
-```
+```bash
 npm run lerna version prerelease
 ```
 
@@ -59,24 +58,26 @@ Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory for d
 
 ### iOS 
 
-Quiet uses the [Tor.framework project](https://github.com/iCepa/Tor.framework) to get `tor` binaries that can be run on iOS devics and in the simulator. Relesaes can be found [here](https://github.com/iCepa/Tor.framework/releases/tag/v408.17.4) and are distributed as cocoapods. 
+Quiet uses the [Tor.framework project](https://github.com/iCepa/Tor.framework) to get `tor` binaries that can be run on iOS devics and in the simulator. Relesaes can be found [here](https://github.com/iCepa/Tor.framework/releases/) and are distributed as cocoapods. 
 
-Simply update the dependency in the `Podfile` found in `packages/mobile/ios` to a new release. In order to use `Tor.framework` `use_frameworks` has to be included in the `Podfile` too.
+In `packages/mobile/ios/Podfile` we define that we want the latest releae of `Tor.framework`'s series of releases for `tor` 0.4.8.x.
 
 ```ruby
-require_relative '../node_modules/react-native/scripts/react_native_pods'
+# ...
 
-platform :ios, '17.1'
-install! 'cocoapods', :deterministic_uuids => false
-use_frameworks!
+use_frameworks! :linkage => :static
+
+
 target 'Quiet' do
+  
   config = use_native_modules!
 
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v408.17.4/Tor.podspec'
-
+  pod 'Tor', '~> 408'
 ```
 
-Afterwards, in `packages/mobile/ios` run `pod install` to fetch the latest dependency.
+To get a later version, in `packages/mobile/ios` run `bundle exec pod update Tor` to fetch the latest dependency.
+
+When switching to `tor` 0.4.9.x (which is not out yet), change `pod 'Tor', '~> 408'` to `pod 'Tor', '~> 409'` and run `bundle exec pod install`.
 
 ----
 
@@ -96,13 +97,13 @@ To run multiple instances of Quiet for testing, run from the command line with t
 
 Use lerna to install additional npm packages
 
-```
+```bash
 npm run lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
 ```
 
 For example, if you want to install luxon in state-manager, use the following command:
 
-```
+```bash
 npm run lerna add luxon packages/state-manager
 ```
 
@@ -110,19 +111,19 @@ npm run lerna add luxon packages/state-manager
 
 Lerna takes care of all the packages. You can execute scripts is every package by simply running:
 
-```
+```bash
 npm run lerna run <script> --stream
 ```
 
 To limit script execution to specific package, add scope to the command
 
-```
+```bash
 npm run lerna run <script> --stream --scope <package-name>
 ```
 
 or multiple packages:
 
-```
+```bash
 npm run lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
 ```
 
@@ -144,9 +145,9 @@ Available package names are:
 
 Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
 
-```
+```js
 const watchFolders = [
-  ...
+  // ...
   path.resolve(__dirname, '<path-to-linked-package>')
 ]
 ```
@@ -157,7 +158,7 @@ If you need to compile the electron binary for local testing there are convenien
 
 ### Mac
 
-```
+```bash
 npm run distMac:local
 ```
 

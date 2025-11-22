@@ -54,6 +54,7 @@ target 'Quiet' do
       target.build_configurations.each do |config|
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = MIN_SUPPORTED_IPHONEOS_VERSION
+        config.build_settings['TARGETED_DEVICE_FAMILY'] = '1' # iphone only, iphone and ipad is '1,2'
       end
     end
   end

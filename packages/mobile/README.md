@@ -129,7 +129,7 @@ Metro requires additional step for locally linking packages. After running stand
 
 ```js
 const watchFolders = [
-  ...
+  // ...
   path.resolve(__dirname, '<path-to-linked-package>')
 ]
 ```
