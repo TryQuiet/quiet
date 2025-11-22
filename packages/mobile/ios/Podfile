@@ -1,42 +1,31 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
-# Specifically link these frameworks at runtime (things which'd mandate a normal use_frameworks! w/out static linkage)
+# Specifically link these targets @ runtime (things which'd mandate use_frameworks! w/out static linkage)
 BUILD_AS_DYNAMIC_FRAMEWORK = ['Tor']
-
 MIN_SUPPORTED_IPHONEOS_VERSION = '17.1'
-
 platform :ios, MIN_SUPPORTED_IPHONEOS_VERSION
-
-# Since 0.76, RN enables "new architecture" by default. explicitly disable since we aren't using it at this point in time
+# Since 0.76, RN enables "new architecture" by default. explicitly disable since Quiet doesn't use it yet 
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
 install! 'cocoapods', :deterministic_uuids => false,
   :parallel_pod_downloads => true,
   :parallel_pod_download_thread_pool_size => 40
-
 use_frameworks! :linkage => :static
 
-
 target 'Quiet' do
-  
+
   config = use_native_modules!
-
   pod 'Tor', '~> 408'
+  use_react_native!(:path => config[:reactNativePath])
 
-  use_react_native!(
-    :path => config[:reactNativePath],
-  )
-
-  target 'QuietTests' do
+  target 'QuietTests' do # pods for ios test suite go here...
     inherit! :complete
-    # put pods for testing here
   end
     
   pre_install do |installer|
     statically_linked = []
     installer.pod_targets.each do |target|
       if BUILD_AS_DYNAMIC_FRAMEWORK.include? target.name
-        
         def target.build_type;
           Pod::BuildType.dynamic_framework
         end
@@ -58,5 +47,4 @@ target 'Quiet' do
       end
     end
   end
-
 end
