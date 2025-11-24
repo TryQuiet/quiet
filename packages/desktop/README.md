@@ -7,6 +7,20 @@ Here are the steps:
 
 2. Install `mise` via your package manager or `mise`'s install script at https://mise.jdx.dev/getting-started.html
 
+
+```bash
+# mac 
+brew install mise 
+
+# debian 
+sudo apt update -y && sudo apt install -y curl
+sudo install -dm 755 /etc/apt/keyrings
+curl -fSs https://mise.jdx.dev/gpg-key.pub | sudo tee /etc/apt/keyrings/mise-archive-keyring.pub 1> /dev/null
+echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.pub arch=amd64] https://mise.jdx.dev/deb stable main" | sudo tee /etc/apt/sources.list.d/mise.list
+sudo apt update
+sudo apt install -y mise
+```
+
 4. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project via `mise`. It will take care of the package's dependencies/submodules and trigger a prepublish script which builds them.
 
 ```bash
