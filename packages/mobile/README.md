@@ -5,14 +5,55 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 ### Prerequisites
 
 1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
+1. If not on Mac (which comes preinstalled with `patch`), install `patch`, e.g. via your Linux package manager
+1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
 
 ## Android development
 
-1. Install the Android SDK and other needed tools via `mise`:
+1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
+1. Follow the instructions for running [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop) and confirm it runs
+1. If not on Mac, which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
+1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
+1. Install the [Temurin 17 JDK](https://adoptium.net/temurin) for [Mac](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=mac) (.pkg) or [Linux](https://adoptium.net/installation/linux/)
+1. Set `JAVA_HOME` to the Temurin install location by adding a line to your `.bashrc` or `.zshrc`:  
+    - Mac: `export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"`
+    - Linux: `export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/`
+
+    Alternatively, the easiest way to install The Temurin 17 JDK on Mac and Linux systems is to use [`SDKMAn`](https://sdkman.io/). This program is similar to `nvm` but for JDKs and allows you to easily install and switch between multiple JDKs on a single system.
+
+    ```bash
+    # downloads and installs SDKMAN
+    curl -s "https://get.sdkman.io" | bash
+
+    # downloads + installs + configures JAVA_HOME for Temurin JDK 17
+    sdk install java 17.0.0-tem
+    ``` 
+
+1. Install [Android Studio](https://developer.android.com/studio), ensuring that all of the following items in the installation wizard are checked
+    - Android SDK
+    - Android SDK Platform
+1. Point the $ANDROID_HOME environment variable in your `.bashrc` or `.zshrc` to your Android install
+    You can find it here:
+      - macOS: `~/Library/Android/sdk/`
+      - Linux: `~/Android/Sdk/`
+
+1. Ensure Android Studio's `platform-tools` directories are added to your `PATH`. 
+    
+    Your `.bashrc` or `.zshrc` should now include something like:
+    ```bash
+    export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64/"
+    export ANDROID_HOME=$HOME/Android/Sdk
+    export PATH=$PATH:$ANDROID_HOME/emulator
+    export PATH=$PATH:$ANDROID_HOME/platform-tools
     ```
-    mise bootstrap-android
+
+1. Confirm that the "Android 15 (VanillaIceCream)" SDK required by React Native has been installed (confusingly, it is also called "android-35" or [API level 35](https://apilevels.com/))
+
+    ```bash
+    ls $ANDROID_HOME/platforms
     ```
-  - *Note: You can also use the Android Studio SDK setup by overwriting `ANDROID_HOME` and your `PATH` as desired.*
+    You should see `android-35`. You may also need to select specific versions of the SDK or tools, but currently the default install is sufficient (see: [React Native setup instructions](https://reactnative.dev/docs/set-up-your-environment))
+
 1. Enable [Developer options](https://developer.android.com/studio/debug/dev-options#enable) and [USB debugging](https://developer.android.com/studio/debug/dev-options#Enable-debugging) on your Android phone and restart it
 1. Connect your phone to your dev machine via USB
 1. On Linux, follow [these instructions](https://reactnative.dev/docs/running-on-device?platform=android&os=linux#2-plug-in-your-device-via-usb-2) for authorizing your phone as a USB device (skip this step on Mac)
@@ -87,8 +128,9 @@ const watchFolders = [
 ]
 ```
 
-## iOS development (Mac required)
+## iOS development
 
+1. Have a Mac (Apple requires this)
 1. Create an account at [developer.apple.com](https://developer.apple.com) 
 1. Install Xcode Command Line Tools (required for Homebrew):
     
@@ -97,13 +139,30 @@ const watchFolders = [
     ```
 1. Install [Homebrew](https://brew.sh/)
 1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
-1. Install needed iOS dependencies via mise (expected Xcode and iOS platform versions)
+1. Install [Git Large File Storage (LFS)](https://git-lfs.com/)
 
     ```bash
-    mise bootstrap-ios
+    brew install git-lfs
+    ```
+
+1. Install Xcode 16.2 and Xcode Command Line Tools (**Note:** you must use Xcode version 16.2, but you should use the iOS runtime that corresponds to the iOS version in Settings > General > About on your iPhone. Use `xcodes runtimes` to list available runtimes.) 
+
+    ```bash
+    brew install xcodesorg/made/xcodes
+    xcodes install 16.2.0 
+    xcodes select 16.2.0
+    xcodes runtimes install "iOS 18.4"
     ```
     
-    The `xcodes` tool may ask for Apple Developer login credentials to download the correct versions.
+    You may need to wait for the "Verifying Runtime" modal to complete before running Quiet
+
+1. Initialize submodules in the project's root and pull files with Git LFS:
+
+    ```bash
+    git submodule update --init --recursive --remote 
+    git lfs pull 
+     # Note: it may be necessary to first run `git lfs install`
+    ```
 
 1. Confirm that submodules are properly initialized by checking that NodeMobile is a binary file, not text:
 
@@ -113,6 +172,52 @@ const watchFolders = [
     ```
     You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup step was not successful.
 
+1. In the project's root, bootstrap the project again (must be run *after* submodule initialization)
+
+    ```bash
+    npm run bootstrap
+    ```
+
+1. Install rbenv, a Ruby version manager, and set Ruby to the suggested version.
+
+    ```bash
+    brew install rbenv
+    rbenv init
+    rbenv install 2.7.5
+    rbenv global 2.7.5
+    ```
+
+1. Restart your terminal and confirm that you are using Ruby 2.7.5
+
+    ```bash
+    ruby --version
+    ```
+
+1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
+
+    ```bash
+    gem install bundler -v 1.17.2
+    bundle install
+    ```
+
+1. Install the pods for the iOS project.
+
+    ```bash
+    cd ios
+    bundle exec pod install 
+    ```
+
+1. In `packages/mobile`, create a `.xcode.env.local` file with your Node path:
+
+     ```bash
+     echo "export NODE_BINARY=$(which node)" > .xcode.env.local
+     ```
+
+1. Install `ios-deploy` for deploying to iOS devices from the command line
+
+     ```bash
+     brew install ios-deploy
+     ```
 1. Open the Quiet project in Xcode
 
     From the `packages/mobile` directory
