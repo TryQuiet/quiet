@@ -6,6 +6,7 @@ export interface MessageProps extends UserLabelHandlers {
   data: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatus?: DownloadStatus
+  maxAutodownloadSizeBytes?: number
   openImagePreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
 }

@@ -44,6 +44,7 @@ export interface ChannelComponentProps {
   newestMessage: ChannelMessage
   pendingMessages: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  maxAutodownloadSizeBytes: number
   lazyLoading: (load: boolean) => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -76,6 +77,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   newestMessage,
   pendingMessages,
   downloadStatuses = {},
+  maxAutodownloadSizeBytes,
   lazyLoading,
   onInputChange,
   onInputEnter,
@@ -228,6 +230,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             messages={messages.groups}
             pendingMessages={pendingMessages}
             downloadStatuses={downloadStatuses}
+            maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}

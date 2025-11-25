@@ -1,6 +1,0 @@
-framework module NodeMobile {
-  umbrella header "NodeMobile.h"
-
-  export *
-  module * { export * }
-}

@@ -2,7 +2,6 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Grid, useTheme } from '@mui/material'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 import ImageAttachment from '../../Channel/File/ImageAttachment/ImageAttachment'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
@@ -41,6 +40,7 @@ export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
   downloadStatus?: DownloadStatus
+  maxAutodownloadSizeBytes: number
   openUrl: (url: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
@@ -52,6 +52,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   message,
   pending,
   downloadStatus,
+  maxAutodownloadSizeBytes,
   uploadedFileModal,
   onMathMessageRendered,
   openUrl,
@@ -65,9 +66,10 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
     const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
 
     switch (message.type) {
-      case 2: // MessageType.Image (cypress tests incompatibility with enums)
+      case 2: {
+        // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
-        const fileDisplay = !isMalicious && (!size || size < AUTODOWNLOAD_SIZE_LIMIT)
+        const fileDisplay = !isMalicious && (!size || size < maxAutodownloadSizeBytes)
         return (
           <div
             className={classNames({
@@ -93,7 +95,9 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             )}
           </div>
         )
-      case 4: // MessageType.File
+      }
+      case 4: {
+        // MessageType.File
         return (
           <div
             className={classNames({
@@ -111,7 +115,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             />
           </div>
         )
-      default:
+      }
+      default: {
         if (!displayMathRegex.test(message.message)) {
           // Regular text message
           return (
@@ -133,6 +138,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             onMathMessageRendered={onMathMessageRendered}
           />
         )
+      }
     }
   }
 

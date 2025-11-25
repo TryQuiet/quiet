@@ -5,10 +5,16 @@
 ### Features
 
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
+* Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
 
+### Fixes
+
+* DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
+ 
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
+* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
 
 ### Fixes
 

@@ -76,6 +76,13 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
+          <ListItemButton data-testid={'attachments-settings-tab'} onClick={() => handleChange('attachments')}>
+            <ListItemText>Files and Images</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
           <ListItemButton data-testid={'invite-settings-tab'} onClick={() => handleChange('invite')}>
             <ListItemText>Add Members</ListItemText>
             <ListItemIcon>

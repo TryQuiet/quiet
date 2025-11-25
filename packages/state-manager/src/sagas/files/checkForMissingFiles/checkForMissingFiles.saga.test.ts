@@ -1,5 +1,5 @@
 import { setupCrypto } from '@quiet/identity'
-import { AUTODOWNLOAD_SIZE_LIMIT, connection } from '../../..'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT, connection } from '../../..'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -46,7 +46,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
@@ -127,7 +127,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
@@ -210,7 +210,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message1,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     const missingFilePending: FileMetadata = {
@@ -222,7 +222,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message2,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
@@ -339,7 +339,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 2048,
     }
 
     await factory.create('TestMessage', {
@@ -420,7 +420,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 2048,
     }
 
     await factory.create('TestMessage', {
@@ -500,7 +500,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
@@ -581,7 +581,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
@@ -662,7 +662,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelId,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     await factory.create('TestMessage', {
@@ -714,7 +714,7 @@ describe('checkForMissingFilesSaga', () => {
       .run()
   })
 
-  it.each([[AUTODOWNLOAD_SIZE_LIMIT + 1], [AUTODOWNLOAD_SIZE_LIMIT - 1024]])(
+  it.each([[DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1], [DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 1024]])(
     'resume downloading for file of any size if it is already in queue (%s)',
     async (size: number) => {
       const initialState = prepareStore().store

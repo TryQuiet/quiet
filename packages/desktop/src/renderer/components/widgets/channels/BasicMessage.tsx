@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import { Dictionary } from '@reduxjs/toolkit'
+import type { Dictionary } from '@reduxjs/toolkit'
 import classNames from 'classnames'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -11,17 +11,17 @@ import red from '@mui/material/colors/red'
 
 import Jdenticon from '../../Jdenticon/Jdenticon'
 
-import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
+import type { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
 
-import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import type { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
 import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
-import { UseModalType } from '../../../containers/hooks'
-import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
+import type { UseModalType } from '../../../containers/hooks'
+import { type HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
 import UserLabel from '../userLabel/UserLabel.component'
 import { DateTime } from 'luxon'
 
@@ -163,6 +163,7 @@ export interface BasicMessageProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   openUrl: (url: string) => void
   downloadStatuses?: Dictionary<DownloadStatus>
+  maxAutodownloadSizeBytes: number
   uploadedFileModal?: UseModalType<{
     src: string
   }>
@@ -175,6 +176,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   messages,
   pendingMessages = {},
   downloadStatuses = {},
+  maxAutodownloadSizeBytes,
   uploadedFileModal,
   onMathMessageRendered,
   openUrl,
@@ -186,11 +188,12 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
 }) => {
   const messageDisplayData: DisplayableMessage = messages[0]
 
-  const userLabel = messageDisplayData?.isDuplicated
-    ? UserLabelType.DUPLICATE
-    : !messageDisplayData?.isRegistered
-      ? UserLabelType.UNREGISTERED
-      : null
+  let userLabel = null
+  if (messageDisplayData?.isDuplicated) {
+    userLabel = UserLabelType.DUPLICATE
+  } else if (!messageDisplayData?.isRegistered) {
+    userLabel = UserLabelType.UNREGISTERED
+  }
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
@@ -272,6 +275,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       message={message}
                       pending={pending}
                       downloadStatus={downloadStatus}
+                      maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
                       uploadedFileModal={uploadedFileModal}
                       openUrl={openUrl}
                       openContainingFolder={openContainingFolder}

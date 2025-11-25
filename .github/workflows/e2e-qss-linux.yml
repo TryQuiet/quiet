@@ -18,7 +18,7 @@ jobs:
       IS_CI: true
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           submodules: 'recursive'
 
@@ -52,6 +52,9 @@ jobs:
           install-docker: true
           cachePrefix: "e2e-crossplatform-linux-qss"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
+
+      - name: Build qss
+        run: npm run build:qss
 
       - name: Start QSS docker
         run: npm run start:qss

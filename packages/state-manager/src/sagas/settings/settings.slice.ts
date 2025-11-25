@@ -1,10 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '../../constants'
 import { StoreKeys } from '../store.keys'
 import { NotificationsOptions, NotificationsSounds } from './settings.types'
 
 export class SettingsState {
   public notificationsOption: NotificationsOptions = NotificationsOptions.notifyForEveryMessage
   public notificationsSound: NotificationsSounds = NotificationsSounds.pow
+  public maxAutodownloadBytes: number = DEFAULT_AUTODOWNLOAD_SIZE_LIMIT // 20 MB
 }
 
 export const settingsSlice = createSlice({
@@ -16,6 +18,9 @@ export const settingsSlice = createSlice({
     },
     setNotificationsSound: (state, action: PayloadAction<NotificationsSounds>) => {
       state.notificationsSound = action.payload
+    },
+    setMaxAutodownloadBytes: (state, action: PayloadAction<number>) => {
+      state.maxAutodownloadBytes = action.payload
     },
   },
 })
