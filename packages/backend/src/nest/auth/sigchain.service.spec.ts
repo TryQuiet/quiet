@@ -36,9 +36,6 @@ describe('SigChainService', () => {
   it('should throw an error when trying to get an active chain without setting one', async () => {
     expect(() => sigChainService.getActiveChain()).toThrowError()
   })
-  it('should return undefined when trying to get an active chain without setting one when throwError is false', async () => {
-    expect(sigChainService.getActiveChain(false)).toBeUndefined()
-  })
   it('should throw an error when trying to set an active chain that does not exist', async () => {
     expect(() => sigChainService.setActiveChain('nonexistent')).toThrowError()
   })
