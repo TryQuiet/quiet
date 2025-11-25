@@ -283,7 +283,7 @@ export class SigChainService extends EventEmitter {
   async saveChain(teamName: string): Promise<void> {
     this.logger.info(`Saving chain to disk`, teamName)
     await this._ensureDb()
-    const chain = this.getChain({ teamName })!
+    const chain = this.getChain({ teamName })
     await this.localDbService.setSigChain(chain, teamName)
   }
 
