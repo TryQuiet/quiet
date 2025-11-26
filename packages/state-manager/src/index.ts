@@ -180,4 +180,5 @@ export default {
   reducers,
   storeKeys,
   settings,
+  network,
 }

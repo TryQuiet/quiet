@@ -36,8 +36,10 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
         {Object.values(userProfiles)
           .filter(user => !myUserProfile || user.userId !== myUserProfile.userId)
           .sort((a, b) => {
-            const aConnected = !!(a.userData && a.userData.peerId && connectedPeers.includes(a.userData.peerId))
-            const bConnected = !!(b.userData && b.userData.peerId && connectedPeers.includes(b.userData.peerId))
+            const aConnected =
+              a.userData != null && a.userData.peerId != null && connectedPeers.includes(a.userData.peerId)
+            const bConnected =
+              b.userData != null && b.userData.peerId != null && connectedPeers.includes(b.userData.peerId)
             if (aConnected === bConnected) {
               return a.nickname.localeCompare(b.nickname, undefined, { sensitivity: 'base' })
             }
@@ -48,9 +50,7 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
               userProfile={user}
               key={user.userId}
               userProfileContextMenu={userProfileContextMenu}
-              connected={
-                user.userData != null && user.userData.peerId != null && connectedPeers.includes(user.userData.peerId)
-              }
+              connected={user.userData?.peerId != null && connectedPeers.includes(user.userData.peerId)}
             />
           ))}
       </List>
