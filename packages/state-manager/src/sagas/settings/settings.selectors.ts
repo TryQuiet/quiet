@@ -8,7 +8,10 @@ export const getNotificationsOption = createSelector(settingsSlice, reducerState
 
 export const getNotificationsSound = createSelector(settingsSlice, reducerState => reducerState.notificationsSound)
 
+export const maxAutodownloadBytes = createSelector(settingsSlice, reducerState => reducerState.maxAutodownloadBytes)
+
 export const settingsSelectors = {
   getNotificationsOption,
   getNotificationsSound,
+  maxAutodownloadBytes: maxAutodownloadBytes,
 }

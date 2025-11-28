@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { DownloadState, DownloadStatus } from '@quiet/types'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { generateMessages, renderComponent } from '../../../testUtils'
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { screen } from '@testing-library/dom'
@@ -11,7 +11,15 @@ import NestedMessageContent, { NestedMessageContentProps } from './NestedMessage
 describe('NestedMessageContent', () => {
   it('renders message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        pending={false}
+        message={messages[0]}
+        openUrl={jest.fn()}
+      />
+    )
+
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -32,7 +40,14 @@ describe('NestedMessageContent', () => {
 
   it('renders pending message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        pending={true}
+        message={messages[0]}
+        openUrl={jest.fn()}
+      />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -64,7 +79,7 @@ describe('NestedMessageContent', () => {
         cid: 'abcd1234',
         width: 500,
         height: 600,
-        size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+        size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
         message: {
           id: 'string',
           channelId: 'general',
@@ -82,14 +97,27 @@ describe('NestedMessageContent', () => {
       },
     }
     const result = renderComponent(
-      <NestedMessageContent pending={false} message={message} downloadStatus={downloadStatus} openUrl={jest.fn()} />
+      <NestedMessageContent
+        pending={false}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        message={message}
+        downloadStatus={downloadStatus}
+        openUrl={jest.fn()}
+      />
     )
     expect(await screen.findByText('File not valid. Download canceled.')).toBeVisible()
   })
 
   it('renders info message', () => {
     const messages = generateMessages({ type: 3 })
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent
+        pending={true}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        message={messages[0]}
+        openUrl={jest.fn()}
+      />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -120,14 +148,21 @@ describe('NestedMessageContent', () => {
         cid: 'abcd1234',
         width: 500,
         height: 600,
-        size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+        size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
         message: {
           id: 'string',
           channelId: 'general',
         },
       },
     }
-    const result = renderComponent(<NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent
+        pending={false}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        message={message}
+        openUrl={jest.fn()}
+      />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -180,7 +215,7 @@ describe('NestedMessageContent', () => {
         cid: 'abcd1234',
         width: 500,
         height: 600,
-        size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
+        size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 2048,
         message: {
           id: 'string',
           channelId: 'general',
@@ -194,11 +229,12 @@ describe('NestedMessageContent', () => {
         cid: 'cid',
         downloadState: DownloadState.Downloading,
         downloadProgress: {
-          size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
-          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
+          size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 2048,
+          downloaded: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT / 2,
           transferSpeed: 1000,
         },
       },
+      maxAutodownloadSizeBytes: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT,
       openUrl: jest.fn(),
       openContainingFolder: jest.fn(),
       downloadFile: jest.fn(),

@@ -5,6 +5,7 @@ import { Message } from './Message.component'
 import { MessageType } from '@quiet/types'
 
 import { createLogger } from '../../utils/logger'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 const logger = createLogger('message:stories')
 
@@ -28,6 +29,7 @@ storiesOf('TestMessage', module)
             isRegistered: true,
           },
         ]}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         openUrl={() => {}}
         openImagePreview={() => {}}
         downloadFile={() => {}}
@@ -81,6 +83,7 @@ storiesOf('TestMessage', module)
             isRegistered: true,
           },
         ]}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         openUrl={openUrl}
         openImagePreview={() => {}}
         downloadFile={() => {}}
@@ -106,6 +109,7 @@ storiesOf('TestMessage', module)
             isRegistered: true,
           },
         ]}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         openUrl={() => {}}
         openImagePreview={() => {}}
         downloadFile={() => {}}
@@ -131,6 +135,7 @@ storiesOf('TestMessage', module)
             isRegistered: true,
           },
         ]}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         openUrl={() => {}}
         openImagePreview={() => {}}
         downloadFile={() => {}}

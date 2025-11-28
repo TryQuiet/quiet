@@ -52,6 +52,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   },
   pendingMessages = {},
   downloadStatuses = {},
+  maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
   imagePreview,
@@ -370,6 +371,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
           downloadFile={downloadFile}
           cancelDownload={cancelDownload}
           openImagePreview={openImagePreview}
+          maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
           openUrl={openUrl}
           pendingMessages={pendingMessages}
           duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
@@ -382,6 +384,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       downloadFile,
       cancelDownload,
       openImagePreview,
+      maxAutodownloadSizeBytes,
       openUrl,
       pendingMessages,
       duplicatedUsernameHandleBack,

@@ -10,7 +10,7 @@ import { type FactoryGirl } from 'factory-girl'
 import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import {
@@ -304,7 +304,7 @@ describe('autoDownloadFilesSaga', () => {
       path: null,
       name: 'file',
       ext: 'ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id,
         channelId: generalChannel.id,
@@ -361,7 +361,7 @@ describe('autoDownloadFilesSaga', () => {
       path: null,
       name: 'image',
       ext: 'jpg',
-      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id,
         channelId: generalChannel.id,

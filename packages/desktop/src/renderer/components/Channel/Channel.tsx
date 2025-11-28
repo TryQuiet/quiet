@@ -3,7 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { users, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
+import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -33,6 +33,7 @@ const Channel = () => {
   const newestCurrentChannelMessage = useSelector(publicChannels.selectors.newestCurrentChannelMessage)
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+  const maxAutodownloadSizeBytes = useSelector(settings.selectors.maxAutodownloadBytes)
 
   const community = useSelector(communities.selectors.currentCommunity)
 
@@ -58,12 +59,9 @@ const Channel = () => {
 
   const contextMenu = useContextMenu(MenuName.Channel)
 
-  const onInputChange = useCallback(
-    (_value: string) => {
-      // TODO https://github.com/TryQuiet/ZbayLite/issues/442
-    },
-    [dispatch]
-  )
+  const onInputChange = useCallback((_value: string) => {
+    // TODO https://github.com/TryQuiet/ZbayLite/issues/442
+  }, [])
 
   const onInputEnter = useCallback(
     (message: string) => {
@@ -204,6 +202,7 @@ const Channel = () => {
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
     downloadStatuses: downloadStatusesMapping,
+    maxAutodownloadSizeBytes,
     lazyLoading: lazyLoading,
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
