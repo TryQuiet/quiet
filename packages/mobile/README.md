@@ -106,7 +106,7 @@ It may be convenient to run the app from Android studio, for example if you are 
 Open a terminal window,
 
 ```bash
-adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
+adb logcat -v --color --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
 
 #### Telling Android Studio to use The Temurin JDK 

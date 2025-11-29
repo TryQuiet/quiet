@@ -1690,10 +1690,10 @@ PODS:
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
   - SSZipArchive (2.6.0)
-  - Tor (408.20.1):
-    - Tor/CTor (= 408.20.1)
-  - Tor/Core (408.20.1)
-  - Tor/CTor (408.20.1):
+  - Tor (408.21.1):
+    - Tor/CTor (= 408.21.1)
+  - Tor/Core (408.21.1)
+  - Tor/CTor (408.21.1):
     - Tor/Core
   - Yoga (0.0.0)
 
@@ -2063,7 +2063,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
-  Tor: 7c856b8d6d0d2a50dd6492092556d389632685ac
+  Tor: 1505b0cfa8b0ad7d48a2ab9d260ec47b21789a70
   Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
 
 PODFILE CHECKSUM: a7a711221aeaaf4d97508100b1304f1957c58f14

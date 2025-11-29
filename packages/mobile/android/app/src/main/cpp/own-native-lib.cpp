@@ -191,7 +191,7 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
   // Populate the args_buffer and argv.
   for (int i = 0; i < argument_count; i++) {
     const char *current_argument = env->GetStringUTFChars(
-        (jstring)env->GetObjectArrayElement(arguments, i), 0);
+        (jstring)env->GetObjectArrayElement(arguments, i), nullptr);
 
     // Copy current argument to its expected position in args_buffer
     strncpy(current_args_position, current_argument, strlen(current_argument));

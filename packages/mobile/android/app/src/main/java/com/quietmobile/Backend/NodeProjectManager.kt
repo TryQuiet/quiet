@@ -233,7 +233,7 @@ class NodeProjectManager(private val context: Context) {
                 line = reader.readLine()
             }
             reader.close()
-        } catch (e: FileNotFoundException) {
+        } catch (_: FileNotFoundException) {
             Log.d("NODE_ASSETS", "File not found: $filename")
         } catch (e: IOException) {
             lines = arrayListOf()
