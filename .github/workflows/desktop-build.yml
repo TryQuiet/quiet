@@ -239,7 +239,7 @@ jobs:
 
       - uses: actions-rs/toolchain
         with:
-          toolchain: nightly
+          toolchain: stable
           components: clippy
           override: true
 
