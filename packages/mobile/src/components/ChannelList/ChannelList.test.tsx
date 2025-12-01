@@ -267,7 +267,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
@@ -495,7 +501,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
@@ -723,7 +735,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
@@ -985,7 +1003,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
