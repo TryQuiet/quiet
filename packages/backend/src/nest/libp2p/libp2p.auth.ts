@@ -119,11 +119,18 @@ export class Libp2pAuth {
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamName != null) {
       this.logger.info(`Unblocking ${conns.length} connections now that we have an active chain`)
       this.joinStatus = this.sigChainService.getActiveChain()!.team != null ? JoinStatus.JOINED : JoinStatus.PENDING
-    } else if (this.joinStatus !== JoinStatus.JOINED && this.joinStatus !== JoinStatus.PENDING_MEMBER) {
-      return
     }
 
-    if (conns.length === 0) {
+    const activeChain = this.sigChainService.getActiveChain(false)
+    this.logger.trace(
+      'Join status (libp2p, qss)',
+      this.joinStatus,
+      activeChain != null && activeChain.team != null ? this.qssService.joinStatus(activeChain.team.id) : null
+    )
+    if (
+      conns.length === 0 ||
+      (this.joinStatus !== JoinStatus.JOINED && this.joinStatus !== JoinStatus.PENDING_MEMBER)
+    ) {
       return
     }
 
@@ -414,6 +421,31 @@ export class Libp2pAuth {
       this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
       this.closeAuthConnection(peerId, false)
     }
+
+    if (this.joinStatus === JoinStatus.JOINED) {
+      return
+    }
+
+    try {
+      this.sigChainService.getActiveChain()
+      this.sigChainService.team
+    } catch (e) {
+      this.joinStatus = JoinStatus.NOT_STARTED
+      return
+    }
+
+    /**
+     * We need to manually reset the join status in the case where the status is stuck on an intermediate state like
+     * JOINING when disconnecting (for example this can happen when the user you are connecting to doesn't have your
+     * information in their chain yet resulting in an invalid device error)
+     */
+    const oldJoinStatus = this.joinStatus
+    if (this.joinedViaQSS(this.sigChainService.team.id)) {
+      this.joinStatus = JoinStatus.PENDING_MEMBER
+    } else {
+      this.joinStatus = JoinStatus.PENDING
+    }
+    this.logger.debug('Reset join status on disconnect', oldJoinStatus, this.joinStatus)
   }
 
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {

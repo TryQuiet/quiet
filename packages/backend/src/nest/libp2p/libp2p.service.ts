@@ -153,12 +153,13 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    *
    * @param peerAddress Peer address to redial
    */
-  public redialPeerAfterDelay = async (peerAddress: string): Promise<void> => {
+  public redialPeerAfterDelay = async (peerAddress: string, delayMs?: number): Promise<void> => {
     await this.redialQueue.enqueue({
       key: peerAddress,
       task: async (): Promise<void> => {
         await this.dialPeer(peerAddress, { throwOnError: true, redialOnError: false })
       },
+      delayMs,
     })
   }
 
@@ -168,11 +169,18 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   ) => {
     const peerId = peerAddress.split('/').pop()!
     if (this.connectedPeers.has(peerId)) {
-      // this.logger.debug(`Already connected to peer address: ${peerAddress}`)
+      this.logger.trace(`Already connected to peer address: ${peerAddress}`)
       return
     }
-    // this.logger.debug(`Dialing peer address: ${peerAddress}`)
-    if (!peerAddress.includes(this.libp2pInstance?.peerId.toString() ?? '')) {
+
+    if (this.libp2pInstance == null) {
+      this.logger.warn('Libp2p not initialized, dialing after delay', peerAddress)
+      await this.redialPeerAfterDelay(peerAddress, 4_000)
+      return
+    }
+
+    this.logger.trace(`Dialing peer address: ${peerAddress}`)
+    if (!peerAddress.includes(this.libp2pInstance.peerId.toString())) {
       try {
         this.dialedPeers.add(peerAddress)
         const parsedMultiAddr = multiaddr(peerAddress)
@@ -182,9 +190,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         }
         await this.libp2pInstance?.dial(parsedMultiAddr)
       } catch (e) {
-        // let errorContext: Error | string = e
         if (!e.message.includes('Unexpected server response: 404')) {
-          // errorContext = e.message
           this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
         }
         if (options.redialOnError) {
@@ -224,10 +230,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       if (addr === this.localAddress) continue
       if (this.redialQueue.hasTask(addr)) continue
       if (this.connectedPeers.has(peerId)) continue
+      const delayMs = this.dialedPeers.has(addr) ? undefined : 0 // dial immediately if this is our first attempt at dialing this address
 
       await this.redialQueue.enqueue({
         key: addr,
-        delayMs: 0, // first attempt immediately
+        delayMs,
         task: async () => this.dialPeer(addr, { throwOnError: true, redialOnError: true }),
       })
     }
@@ -565,15 +572,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       // update peer stats
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       const peerStats: Record<string, NetworkStats> = {}
+      const remoteAddr = connection != null ? connection[0].remoteAddr.toString() : undefined
       peerStats[remotePeerId] = {
+        ...(peerPrevStats ?? {}),
         peerId: remotePeerId,
+        address: remoteAddr,
         connectionTime: peerPrevStats?.connectionTime ?? 0,
         lastSeen: DateTime.utc().valueOf(),
       } as NetworkStats
       await this.localDbService.updatePeerStats(peerStats)
 
       if (connection) {
-        const remoteAddr = connection[0].remoteAddr.toString()
         this.connectedPeers.set(remotePeerId, {
           peerId: remotePeerId,
           address: remoteAddr,
@@ -606,17 +615,16 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
       this.logger.info(`${localPeerId} has ${this.libp2pInstance.getConnections().length} open connections`)
 
-      const connectionStartTime = this.connectedPeers.get(remotePeerId)?.connectedAtSeconds
-      if (!connectionStartTime) {
-        this.logger.error(`No connection start time for peer ${remotePeerId}`)
-        return
-      }
-
+      let connectionStartTime = this.connectedPeers.get(remotePeerId)?.connectedAtSeconds
       const connectionEndTime: number = DateTime.utc().toSeconds()
+      if (connectionStartTime == null) {
+        this.logger.error(`No connection start time for peer ${remotePeerId}`)
+        connectionStartTime = connectionEndTime
+      }
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
-      this.logger.info(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
+      this.logger.info(`${localPeerId} is now connected to ${this.connectedPeers.size} peers`)
       const peerStat: NetworkDataPayload = {
         peer: remotePeerId,
         connectionDuration,
@@ -625,7 +633,15 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
       this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, peerStat)
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
-      if (!peerPrevStats) {
+      const address = peerPrevStats?.address
+      if (address != null) {
+        this.logger.trace('Redialing disconnected peer after delay', address)
+        await this.redialPeerAfterDelay(address, 20_000)
+      } else {
+        this.logger.warn('No address found for this peer ID, skipping redial', remotePeerId)
+      }
+
+      if (peerPrevStats == null) {
         this.logger.info(`No previous stats for peer ${remotePeerId}. Not updating stats`)
         return
       }
@@ -646,7 +662,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.info('Queueing peers for initial dialing')
     this.ensureDialQueueInterval()
 
-    this._connectedPeersInterval = setInterval(() => {
+    this._connectedPeersInterval = setInterval(async () => {
       const connections: Libp2pConnectedPeer[] = []
       for (const [peerId, peer] of this.connectedPeers.entries()) {
         connections.push({
@@ -659,6 +675,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         connectionCount: this.connectedPeers.size,
         connections,
       })
+      const peerStats = await this.localDbService.getPeerStats()
+      this.logger.info(`Current Peer Stats:`, peerStats)
     }, 60_000)
 
     this.logger.info(`Initialized libp2p for peer ${peerId.peerId.toString()}`)

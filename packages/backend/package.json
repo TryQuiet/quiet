@@ -197,7 +197,7 @@
     "uint8arrays": "^5.1.0",
     "utf-8-validate": "^5.0.2",
     "validator": "^13.11.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.3"
   },
   "overrides": {
     "level": "$level",
