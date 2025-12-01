@@ -52,6 +52,7 @@ const persistConfig = {
     StateManagerStoreKeys.Settings,
     StateManagerStoreKeys.Users,
     StateManagerStoreKeys.Connection,
+    StateManagerStoreKeys.Network,
     StoreKeys.App,
   ],
   transforms: [

@@ -23,7 +23,7 @@ export const networkSlice = createSlice({
       state.initializedCommunities = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
-      connectedPeersAdapter.upsertMany(state.connectedPeers, action.payload)
+      connectedPeersAdapter.addMany(state.connectedPeers, action.payload)
     },
     removeConnectedPeer: (state, action: PayloadAction<ConnectedPeers>) => {
       connectedPeersAdapter.removeOne(state.connectedPeers, action.payload[0])

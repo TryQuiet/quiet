@@ -323,9 +323,6 @@ const validateQssEndpoint: InvitationLinkUrlNamedParamValidatorFun<InvitationDat
     if (wsUrl.hostname == null || wsUrl.hostname === '') {
       errorDetails.push(`Hostname was null`)
     }
-    if (wsUrl.port == null || wsUrl.port === '') {
-      errorDetails.push(`Port was null`)
-    }
     if (wsUrl.protocol == null || wsUrl.protocol === '') {
       errorDetails.push(`Protocol was null`)
     } else if (wsUrl.protocol !== 'ws:' && wsUrl.protocol !== 'wss:') {

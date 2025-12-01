@@ -106,6 +106,10 @@ export class TimedQueue {
       this.logger.trace(`Task ${processDef.key} already scheduled – skipping`)
       return
     }
+    if (Object.keys(this.inProcess).includes(processDef.key)) {
+      this.logger.trace(`Task ${processDef.key} already running – skipping`)
+      return
+    }
     this.scheduled.add(processDef.key)
     await this.queue.push(processDef)
   }
