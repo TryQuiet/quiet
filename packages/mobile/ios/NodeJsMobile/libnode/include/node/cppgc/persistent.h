@@ -45,7 +45,7 @@ class PersistentBase {
   mutable const void* raw_ = nullptr;
   mutable PersistentNode* node_ = nullptr;
 
-  friend class PersistentRegionBase;
+  friend class PersistentRegion;
 };
 
 // The basic class from which all Persistent classes are generated.
@@ -118,10 +118,10 @@ class BasicPersistent final : public PersistentBase,
   template <typename U, typename MemberBarrierPolicy,
             typename MemberWeaknessTag, typename MemberCheckingPolicy,
             typename = std::enable_if_t<std::is_base_of<T, U>::value>>
-  BasicPersistent(
-      const internal::BasicMember<U, MemberBarrierPolicy, MemberWeaknessTag,
-                                  MemberCheckingPolicy>& member,
-      const SourceLocation& loc = SourceLocation::Current())
+  BasicPersistent(internal::BasicMember<U, MemberBarrierPolicy,
+                                        MemberWeaknessTag, MemberCheckingPolicy>
+                      member,
+                  const SourceLocation& loc = SourceLocation::Current())
       : BasicPersistent(member.Get(), loc) {}
 
   ~BasicPersistent() { Clear(); }
@@ -159,8 +159,9 @@ class BasicPersistent final : public PersistentBase,
             typename MemberWeaknessTag, typename MemberCheckingPolicy,
             typename = std::enable_if_t<std::is_base_of<T, U>::value>>
   BasicPersistent& operator=(
-      const internal::BasicMember<U, MemberBarrierPolicy, MemberWeaknessTag,
-                                  MemberCheckingPolicy>& member) {
+      internal::BasicMember<U, MemberBarrierPolicy, MemberWeaknessTag,
+                            MemberCheckingPolicy>
+          member) {
     return operator=(member.Get());
   }
 
@@ -291,12 +292,12 @@ template <typename T1, typename PersistentWeaknessPolicy,
           typename PersistentLocationPolicy, typename PersistentCheckingPolicy,
           typename T2, typename MemberWriteBarrierPolicy,
           typename MemberWeaknessTag, typename MemberCheckingPolicy>
-bool operator==(
-    const BasicPersistent<T1, PersistentWeaknessPolicy,
-                          PersistentLocationPolicy, PersistentCheckingPolicy>&
-        p,
-    const BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
-                      MemberCheckingPolicy>& m) {
+bool operator==(const BasicPersistent<T1, PersistentWeaknessPolicy,
+                                      PersistentLocationPolicy,
+                                      PersistentCheckingPolicy>& p,
+                BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
+                            MemberCheckingPolicy>
+                    m) {
   return p.Get() == m.Get();
 }
 
@@ -304,12 +305,12 @@ template <typename T1, typename PersistentWeaknessPolicy,
           typename PersistentLocationPolicy, typename PersistentCheckingPolicy,
           typename T2, typename MemberWriteBarrierPolicy,
           typename MemberWeaknessTag, typename MemberCheckingPolicy>
-bool operator!=(
-    const BasicPersistent<T1, PersistentWeaknessPolicy,
-                          PersistentLocationPolicy, PersistentCheckingPolicy>&
-        p,
-    const BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
-                      MemberCheckingPolicy>& m) {
+bool operator!=(const BasicPersistent<T1, PersistentWeaknessPolicy,
+                                      PersistentLocationPolicy,
+                                      PersistentCheckingPolicy>& p,
+                BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
+                            MemberCheckingPolicy>
+                    m) {
   return !(p == m);
 }
 
@@ -317,12 +318,12 @@ template <typename T1, typename MemberWriteBarrierPolicy,
           typename MemberWeaknessTag, typename MemberCheckingPolicy,
           typename T2, typename PersistentWeaknessPolicy,
           typename PersistentLocationPolicy, typename PersistentCheckingPolicy>
-bool operator==(
-    const BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
-                      MemberCheckingPolicy>& m,
-    const BasicPersistent<T1, PersistentWeaknessPolicy,
-                          PersistentLocationPolicy, PersistentCheckingPolicy>&
-        p) {
+bool operator==(BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
+                            MemberCheckingPolicy>
+                    m,
+                const BasicPersistent<T1, PersistentWeaknessPolicy,
+                                      PersistentLocationPolicy,
+                                      PersistentCheckingPolicy>& p) {
   return m.Get() == p.Get();
 }
 
@@ -330,12 +331,12 @@ template <typename T1, typename MemberWriteBarrierPolicy,
           typename MemberWeaknessTag, typename MemberCheckingPolicy,
           typename T2, typename PersistentWeaknessPolicy,
           typename PersistentLocationPolicy, typename PersistentCheckingPolicy>
-bool operator!=(
-    const BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
-                      MemberCheckingPolicy>& m,
-    const BasicPersistent<T1, PersistentWeaknessPolicy,
-                          PersistentLocationPolicy, PersistentCheckingPolicy>&
-        p) {
+bool operator!=(BasicMember<T2, MemberWeaknessTag, MemberWriteBarrierPolicy,
+                            MemberCheckingPolicy>
+                    m,
+                const BasicPersistent<T1, PersistentWeaknessPolicy,
+                                      PersistentLocationPolicy,
+                                      PersistentCheckingPolicy>& p) {
   return !(m == p);
 }
 
