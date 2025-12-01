@@ -598,8 +598,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -811,8 +811,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1038,8 +1038,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1265,8 +1265,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1478,8 +1478,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1691,8 +1691,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1929,8 +1929,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2142,8 +2142,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2355,8 +2355,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2568,8 +2568,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}

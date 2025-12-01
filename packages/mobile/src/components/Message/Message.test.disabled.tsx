@@ -67,8 +67,8 @@ describe('Message component', () => {
             >
               <RNSVGSvgView
                 align="xMidYMid"
-                bbHeight="37"
-                bbWidth="37"
+                bbHeight={37}
+                bbWidth={37}
                 focusable={false}
                 height={37}
                 meetOrSlice={0}
@@ -321,8 +321,8 @@ describe('Message component', () => {
             >
               <RNSVGSvgView
                 align="xMidYMid"
-                bbHeight="37"
-                bbWidth="37"
+                bbHeight={37}
+                bbWidth={37}
                 focusable={false}
                 height={37}
                 meetOrSlice={0}
