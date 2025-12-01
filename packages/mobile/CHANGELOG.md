@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.4.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.4.0-alpha.3...@quiet/mobile@6.4.0-alpha.4) (2025-12-01)
-
-
-### Reverts
-
-* Revert "Ios nodejsmobile 18.20.4 upgrade (#3021)" ([87077b3](https://github.com/TryQuiet/quiet/commit/87077b398cc744ac4efd226405c599ed0f3cab62)), closes [#3021](https://github.com/TryQuiet/quiet/issues/3021)
-
-
-
-
-
 # Changelog
 
 [unreleased]
