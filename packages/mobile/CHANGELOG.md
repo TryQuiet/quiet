@@ -1,25 +1,25 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.4.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0-alpha.3...@quiet/mobile@6.4.0-alpha.0) (2025-12-01)
-
-
-### Bug Fixes
-
-* Keyboard avoiding on android, properly displaying send button on android, newline rendering in message component on mobile ([#2980](https://github.com/TryQuiet/quiet/issues/2980)) ([4f0afa3](https://github.com/TryQuiet/quiet/commit/4f0afa30160cdc75f624e7246580438c7d2e7600))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-
-
-
-
-
 # Changelog
+
+[unreleased]
+
+### Features
+
+* Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
+* Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
+
+### Fixes
+
+* DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
+ 
+### Chores
+
+* Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
+* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
+
+### Fixes
+
+* Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
+* Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
 
 ## [6.3.0]
 
