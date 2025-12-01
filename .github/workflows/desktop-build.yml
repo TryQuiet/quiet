@@ -237,13 +237,9 @@ jobs:
         with:
           path: packages/desktop
 
-      - uses: actions-rs/components-nightly@254194ebf6ba07d2bb7cec8be76cee368d44fb90 # v1.1.1
+      - uses: actions-rs/toolchain
         with:
-          component: clippy
-
-      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
-        with:
-          toolchain: nightly-2020-08-28
+          toolchain: nightly
           components: clippy
           override: true
 
