@@ -26,6 +26,9 @@ import { IdentitiesWithStorage } from './identitiesWithStorage'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
+import { SigChainService } from '../../auth/sigchain.service'
+import { QSSLogEntrySyncMessage } from '../../qss/qss.types'
+import { LogUpdate } from './orbitdb.types'
 
 @Injectable()
 export class OrbitDbService {
@@ -38,7 +41,8 @@ export class OrbitDbService {
 
   constructor(
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
-    private readonly localDbService: LocalDbService
+    private readonly localDbService: LocalDbService,
+    private readonly sigChainService: SigChainService
   ) {}
 
   get orbitDb() {
@@ -228,6 +232,19 @@ export class OrbitDbService {
     // For each id, try to join heads (async, using joinQueue)
     const joinAll = Array.from(newHeads.entries()).map(([id, heads]) => this.joinHeads(id, heads))
     await Promise.all(joinAll)
+  }
+
+  public async handleFanoutMessage(message: QSSLogEntrySyncMessage): Promise<void> {
+    this.logger.debug('Ingesting fanout message, ', message.payload.hash)
+    try {
+      const logUpdate: LogUpdate = this.sigChainService.crypto.decryptAndVerify<LogUpdate>(
+        message.payload.encEntry.encrypted,
+        message.payload.encEntry.signature
+      ).contents
+      await this.ingestEntries([logUpdate.entry])
+    } catch (err) {
+      this.logger.error(`Failed to handle fanout log entry sync message`, err)
+    }
   }
 
   public async getLogEntriesByHashes(address: string, hashes: string[]): Promise<LogEntry[]> {

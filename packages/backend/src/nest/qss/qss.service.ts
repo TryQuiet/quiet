@@ -168,6 +168,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
     })
 
+    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: QSSLogEntrySyncMessage): Promise<void> => {
+      this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
+      this.orbitDbService.handleFanoutMessage(message)
+    })
+
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
       await this._signInMutex.runExclusive(async () => {
         const initStatus = await this.getQssInitStatus()
