@@ -2,7 +2,7 @@ import React, { FC, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
-import { styled, Grid, List, Typography, useTheme } from '@mui/material'
+import { styled, Grid, List, Typography, useTheme, CircularProgress } from '@mui/material'
 
 import { identity, users } from '@quiet/state-manager'
 import { UserProfile } from '@quiet/types'
@@ -12,6 +12,7 @@ import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
 import { MenuName } from '../../../../const/MenuNames.enum'
 import Jdenticon from '../../Jdenticon/Jdenticon'
 import { createLogger } from '../../../logger'
+import { useProfilePhoto } from '../../../../hooks/useProfilePhoto'
 
 const logger = createLogger('userProfileContextMenu:container')
 
@@ -174,6 +175,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
   const scrollbarRef = useRef(null)
   const [offset, setOffset] = useState(0)
   const theme = useTheme()
+  const { photoSrc, isLoading, useJdenticon } = useProfilePhoto(userProfile)
 
   const adjustOffset = () => {
     if (!contentRef?.clientWidth) return
@@ -211,8 +213,28 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                 >
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.photo ? (
-                        <img className={classes.profilePhoto} src={userProfile?.photo} alt={'User profile image'} />
+                      {photoSrc && !useJdenticon ? (
+                        <div style={{ position: 'relative' }}>
+                          <img className={classes.profilePhoto} src={photoSrc} alt={'User profile image'} />
+                          {isLoading && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '96px',
+                                height: '96px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: 'rgba(0, 0, 0, 0.5)',
+                                borderRadius: '8px',
+                              }}
+                            >
+                              <CircularProgress size={24} style={{ color: '#fff' }} />
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <Jdenticon
                           value={userId}
@@ -343,6 +365,7 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   const [offset, setOffset] = useState(0)
 
   const theme = useTheme()
+  const { photoSrc, isLoading, useJdenticon } = useProfilePhoto(userProfile)
 
   const adjustOffset = () => {
     if (!contentRef?.clientWidth) return
@@ -415,12 +438,28 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                       </Grid>
                     )}
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.photo ? (
-                        <img
-                          className={classes.profilePhoto}
-                          src={userProfile?.photo}
-                          alt={'Your user profile image'}
-                        />
+                      {photoSrc && !useJdenticon ? (
+                        <div style={{ position: 'relative' }}>
+                          <img className={classes.profilePhoto} src={photoSrc} alt={'Your user profile image'} />
+                          {isLoading && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '96px',
+                                height: '96px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: 'rgba(0, 0, 0, 0.5)',
+                                borderRadius: '8px',
+                              }}
+                            >
+                              <CircularProgress size={24} style={{ color: '#fff' }} />
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <Jdenticon
                           value={userId}

@@ -23,6 +23,7 @@ export const usersSlice = createSlice({
       state.saveUserProfileError = action.payload
       return state
     },
+    downloadProfilePhotos: state => state, // Trigger saga to check and download missing profile photos
     // Bootstraps initial user profiles from the server, wipes state and sets new profiles
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1

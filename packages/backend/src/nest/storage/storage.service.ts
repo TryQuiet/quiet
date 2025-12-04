@@ -10,6 +10,7 @@ import {
   UserData,
   NetworkStats,
   SetUserProfileResponse,
+  FileMetadata,
 } from '@quiet/types'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -18,6 +19,7 @@ import { removeFiles, removeDirs, createPaths, removeFilesFromDir } from '../com
 import { StorageEvents } from './storage.types'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
+import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { ChannelsService } from './channels/channels.service'
@@ -41,6 +43,7 @@ export class StorageService extends EventEmitter {
     public readonly localDbService: LocalDbService,
     public readonly ipfsService: IpfsService,
     public readonly orbitDbService: OrbitDbService,
+    public readonly filesManager: IpfsFileManagerService,
     public readonly userProfileStore: UserProfileStore,
     public readonly channelsService: ChannelsService,
     public readonly sigchainService: SigChainService
@@ -87,6 +90,9 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('Updating peer store')
     await this.updatePeerStore()
+
+    this.logger.info(`Initializing IPFS File Manager service`)
+    await this.filesManager.init()
 
     this.logger.info('Initialized storage')
     this.initialized = true
@@ -228,6 +234,10 @@ export class StorageService extends EventEmitter {
       return validationResponse
     }
     try {
+      if (profile.photoFile) {
+        this.logger.info('Uploading V2 profile photo to IPFS.')
+        await this.filesManager.attachFile(profile.photoFile)
+      }
       await this.userProfileStore.setEntry(profile.userId, profile)
     } catch (err) {
       // additions may be deferred if the user is not a member of the team

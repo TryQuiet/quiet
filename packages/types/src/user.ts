@@ -21,7 +21,12 @@ export interface UserProfileDisplayData {
 export interface UserProfile {
   userId: string
   nickname: string
-  photo?: string // base64 encoded image
+  /**
+   * @deprecated Use photoFile instead. This field is maintained for backward compatibility
+   * during migration from base64 to IPFS storage. New profile photos should use photoFile.
+   */
+  photo?: string
+  photoFile?: FileMetadata // IPFS CID reference to profile photo
   fileMetadata?: FileMetadata
   bio?: string
   userData?: UserData

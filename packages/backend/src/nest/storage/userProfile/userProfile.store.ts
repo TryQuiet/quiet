@@ -168,6 +168,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
         throw new Error('Invalid user profile')
       }
+
       const encEntry = await this.encryptEntry(userProfile)
       await this.getStore().put(key, encEntry)
       this.nicknameMaps.set(userProfile.userId, userProfile.nickname)
@@ -185,6 +186,9 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
    * @returns True if valid, false otherwise.
    */
   public static async validateUserProfile(userProfile: UserProfile): Promise<SetUserProfileResponse> {
+    if (userProfile?.photo !== undefined && userProfile?.photoFile !== undefined) {
+      return { success: false, error: 'Internal error: UserProfile cannot set both IPFS hash and base64 image' }
+    }
     try {
       if (userProfile?.photo) {
         const photoValidation = validatePhoto(userProfile.photo ?? '', userProfile.userId)
@@ -194,7 +198,10 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       }
     } catch (err) {
       logger.error('Error validating user profile:', userProfile.userId, err)
-      return { success: false, error: 'Internal error: Failed to validate user profile' }
+      return {
+        success: false,
+        error: 'Internal error: Failed to validate user profile',
+      }
     }
     return { success: true }
   }

@@ -89,6 +89,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof usersActions.updateUserProfiles>
+    | ReturnType<typeof usersActions.downloadProfilePhotos>
     | ReturnType<typeof appActions.loadMigrationData>
     | ReturnType<typeof captchaActions.presentChallenge>
     | ReturnType<typeof captchaActions.setSiteKey>
@@ -190,6 +191,8 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
+      // Trigger download of missing profile photos from IPFS
+      emit(usersActions.downloadProfilePhotos())
     })
 
     socket.on(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, (payload: HCaptchaChallengeRequest) => {
