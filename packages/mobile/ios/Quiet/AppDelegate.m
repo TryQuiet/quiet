@@ -91,7 +91,7 @@ static NSString *const platform = @"mobile";
     self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
 
     NSError *error = nil;
-    BOOL connected = [self.torController connect:&error];
+    // BOOL connected = [self.torController connect:&error];
 
     NSLog(@"Tor control port error %@", error);
 
@@ -168,8 +168,7 @@ static NSString *const platform = @"mobile";
 
     NSLog(@"Tor control port response message %@", message);
 
-    NSDictionary<NSString *, NSString *> *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:message, NSLocalizedDescriptionKey, nil];
-    BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
+    // BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
 
     *stop = YES;
     return YES;

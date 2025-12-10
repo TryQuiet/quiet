@@ -1,30 +1,17 @@
-#undef OPENSSL_LINUX
-#if defined(__linux) && !defined(__ANDROID__)
-# define OPENSSL_LINUX 1
-#endif
+/*
+ * Copyright 2019-2021 The OpenSSL Project Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License 2.0 (the "License").  You may not use
+ * this file except in compliance with the License.  You can obtain a copy
+ * in the file LICENSE in the source distribution or at
+ * https://www.openssl.org/source/license.html
+ */
 
-#if defined(OPENSSL_NO_ASM)
-# include "./opensslconf_no-asm.h"
-#else
-# include "./opensslconf_asm.h"
-#endif
+#ifndef OPENSSL_OPENSSLCONF_H
+# define OPENSSL_OPENSSLCONF_H
+# pragma once
 
-/* GOST is not included in all platform */
-#ifndef OPENSSL_NO_GOST
-# define OPENSSL_NO_GOST
-#endif
-/* HW_PADLOCK is not included in all platform */
-#ifndef OPENSSL_NO_HW_PADLOCK
-# define OPENSSL_NO_HW_PADLOCK
-#endif
-/* iOS app store won't allow getcontext, setcontext, makecontext */
-#if defined(__APPLE__) && defined(__MACH__)
-# include <TargetConditionals.h>
-# if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
-#  define OPENSSL_NO_ASYNC
-# endif
-#endif
-/* musl in Alpine Linux does not support getcontext etc.*/
-#if defined(OPENSSL_LINUX) && !defined(__GLIBC__) && !defined(__clang__)
-# define OPENSSL_NO_ASYNC
-#endif
+# include <openssl/configuration.h>
+# include <openssl/macros.h>
+
+#endif  /* OPENSSL_OPENSSLCONF_H */
