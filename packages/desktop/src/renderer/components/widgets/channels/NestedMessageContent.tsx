@@ -69,7 +69,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
       case 2: {
         // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
-        const fileDisplay = !isMalicious && (!size || size < maxAutodownloadSizeBytes)
+        const isDownloaded = Boolean(message?.media?.path)
+        const fileDisplay = !isMalicious && (isDownloaded || !size || size < maxAutodownloadSizeBytes)
         return (
           <div
             className={classNames({

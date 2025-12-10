@@ -1,21 +1,15 @@
 /*
- * Copyright 1995-2021 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.
  * Copyright (c) 2002, Oracle and/or its affiliates. All rights reserved
  *
- * Licensed under the Apache License 2.0 (the "License").  You may not use
+ * Licensed under the OpenSSL license (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
 
-#ifndef OPENSSL_SSL3_H
-# define OPENSSL_SSL3_H
-# pragma once
-
-# include <openssl/macros.h>
-# ifndef OPENSSL_NO_DEPRECATED_3_0
-#  define HEADER_SSL3_H
-# endif
+#ifndef HEADER_SSL3_H
+# define HEADER_SSL3_H
 
 # include <openssl/comp.h>
 # include <openssl/buffer.h>
@@ -212,7 +206,7 @@ extern "C" {
 # define SSL3_MD_CLIENT_FINISHED_CONST   "\x43\x4C\x4E\x54"
 # define SSL3_MD_SERVER_FINISHED_CONST   "\x53\x52\x56\x52"
 
-/* SSL3_VERSION is defined in prov_ssl.h */
+# define SSL3_VERSION                    0x0300
 # define SSL3_VERSION_MAJOR              0x03
 # define SSL3_VERSION_MINOR              0x00
 
@@ -220,6 +214,7 @@ extern "C" {
 # define SSL3_RT_ALERT                   21
 # define SSL3_RT_HANDSHAKE               22
 # define SSL3_RT_APPLICATION_DATA        23
+# define DTLS1_RT_HEARTBEAT              24
 
 /* Pseudo content types to indicate additional parameters */
 # define TLS1_RT_CRYPTO                  0x1000
@@ -270,7 +265,7 @@ extern "C" {
  * SSL3_CT_NUMBER is used to size arrays and it must be large enough to
  * contain all of the cert types defined for *either* SSLv3 and TLSv1.
  */
-# define SSL3_CT_NUMBER                  12
+# define SSL3_CT_NUMBER                  10
 
 # if defined(TLS_CT_NUMBER)
 #  if TLS_CT_NUMBER != SSL3_CT_NUMBER

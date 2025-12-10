@@ -5,6 +5,8 @@
 #ifndef INCLUDE_CPPGC_GARBAGE_COLLECTED_H_
 #define INCLUDE_CPPGC_GARBAGE_COLLECTED_H_
 
+#include <type_traits>
+
 #include "cppgc/internal/api-constants.h"
 #include "cppgc/platform.h"
 #include "cppgc/trace-trait.h"
@@ -13,6 +15,28 @@
 namespace cppgc {
 
 class Visitor;
+
+namespace internal {
+
+class GarbageCollectedBase {
+ public:
+  // Must use MakeGarbageCollected.
+  void* operator new(size_t) = delete;
+  void* operator new[](size_t) = delete;
+  // The garbage collector is taking care of reclaiming the object. Also,
+  // virtual destructor requires an unambiguous, accessible 'operator delete'.
+  void operator delete(void*) {
+#ifdef V8_ENABLE_CHECKS
+    internal::Abort();
+#endif  // V8_ENABLE_CHECKS
+  }
+  void operator delete[](void*) = delete;
+
+ protected:
+  GarbageCollectedBase() = default;
+};
+
+}  // namespace internal
 
 /**
  * Base class for managed objects. Only descendent types of `GarbageCollected`
@@ -50,23 +74,10 @@ class Visitor;
  * \endcode
  */
 template <typename T>
-class GarbageCollected {
+class GarbageCollected : public internal::GarbageCollectedBase {
  public:
   using IsGarbageCollectedTypeMarker = void;
   using ParentMostGarbageCollectedType = T;
-
-  // Must use MakeGarbageCollected.
-  void* operator new(size_t) = delete;
-  void* operator new[](size_t) = delete;
-  // The garbage collector is taking care of reclaiming the object. Also,
-  // virtual destructor requires an unambiguous, accessible 'operator delete'.
-  void operator delete(void*) {
-#ifdef V8_ENABLE_CHECKS
-    internal::Fatal(
-        "Manually deleting a garbage collected object is not allowed");
-#endif  // V8_ENABLE_CHECKS
-  }
-  void operator delete[](void*) = delete;
 
  protected:
   GarbageCollected() = default;
@@ -90,7 +101,7 @@ class GarbageCollected {
  * };
  * \endcode
  */
-class GarbageCollectedMixin {
+class GarbageCollectedMixin : public internal::GarbageCollectedBase {
  public:
   using IsGarbageCollectedMixinTypeMarker = void;
 
