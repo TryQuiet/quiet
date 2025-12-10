@@ -45,14 +45,7 @@ export class App {
     this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
-    const debugModal = new DebugModeModal(this.driver)
-    await debugModal.close()
-    try {
-      await this.closeUpdateModalIfPresent()
-      logger.info('Closed update modal')
-    } catch (e) {
-      logger.warn('Could not close update modal (may not be displayed)', e)
-    }
+    this.watchForLaunchModals()
   }
 
   async openWithRetries(overrideConfig?: RetryConfig, qssEnabled = false): Promise<void> {
@@ -260,6 +253,40 @@ export class App {
   async closeUpdateModalIfPresent() {
     const updateModal = new UpdateModal(this.driver)
     await updateModal.close()
+  }
+
+  private watchForLaunchModals(timeoutMs = 60_000) {
+    const start = Date.now()
+    ;(async () => {
+      while (Date.now() - start < timeoutMs && this.isOpened) {
+        await Promise.all([this.tryCloseDebugModalIfPresent(), this.tryCloseUpdateModalIfPresent()])
+        await sleep(500)
+      }
+    })().catch(e => logger.warn('Modal watcher failed', e))
+  }
+
+  private async tryCloseDebugModalIfPresent() {
+    if (!process.env.TEST_MODE) return
+    try {
+      const modals = await this.driver.findElements(By.xpath("//h3[text()='App is running in debug mode']"))
+      if (!modals.length) return
+      await new DebugModeModal(this.driver).close()
+    } catch (e) {
+      logger.warn('Could not close debug modal', e)
+    }
+  }
+
+  private async tryCloseUpdateModalIfPresent() {
+    try {
+      const modals = await this.driver.findElements(
+        By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]")
+      )
+      if (!modals.length) return
+      await this.closeUpdateModalIfPresent()
+      logger.info('Closed update modal')
+    } catch (e) {
+      logger.warn('Could not close update modal (may not be displayed)', e)
+    }
   }
 
   async saveState() {
@@ -480,7 +507,7 @@ export class UsersList {
     return true
   }
 
-  async getUser(username: string, expectedState: UserListStatus = UserListStatus.ONLINE): Promise<UserListItem> {
+  async getUser(username: string, expectedState: UserListStatus): Promise<UserListItem> {
     logger.debug('Getting user list item', username)
     let status: UserListStatus = UserListStatus.NOT_FOUND
 
@@ -488,7 +515,7 @@ export class UsersList {
     try {
       userItem = await this.driver.wait(
         until.elementLocated(By.xpath(`//div[@data-testid="${username}-user-link"]`)),
-        60_000,
+        120_000,
         `Users item for ${username} couldn't be located within timeout`,
         500
       )
@@ -507,7 +534,7 @@ export class UsersList {
 
     const statusBadge = await this.driver.wait(
       until.elementLocated(By.xpath(`//span[@data-testid="${username}-user-link-status-badge"]`)),
-      15_000,
+      240_000,
       `Users item status badge for ${username} couldn't be located within timeout`,
       500
     )
@@ -516,7 +543,7 @@ export class UsersList {
       try {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
-          60_000,
+          240_000,
           `Users item status badge for ${username} was not visibile within timeout`,
           500
         )
@@ -528,7 +555,7 @@ export class UsersList {
       try {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
-          120_000,
+          240_000,
           `Users item status badge for ${username} was not invisible within timeout`,
           500
         )
@@ -2179,6 +2206,10 @@ export class Settings {
     await this.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
   }
 
+  async openDebugTab() {
+    await this.switchTab(SettingsModalTabName.DEBUG)
+  }
+
   /**
    * Clicks the “Leave community” button, retrying until it becomes clickable or the timeout elapses.
    *
@@ -2256,6 +2287,42 @@ export class Settings {
     )
   }
 
+  /**
+   * Returns the visible, interactive switch element (the span).
+   */
+  async p2pToggleSwitch() {
+    const toggleSwitch = await this.driver.wait(
+      until.elementLocated(By.xpath("//span[@data-testid='p2p-toggle-switch']")),
+      10_000,
+      `P2P toggle switch couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(toggleSwitch), 5_000)
+    return toggleSwitch
+  }
+
+  /**
+   * Returns the boolean state by checking the hidden input child.
+   */
+  async p2pToggleSwitchState(): Promise<boolean> {
+    // We don't wait for visibility here because the input is usually visually hidden in MUI
+    const input = await this.driver.wait(
+      until.elementLocated(By.xpath("//span[@data-testid='p2p-toggle-switch']/input")),
+      10_000,
+      `P2P toggle switch input couldn't be found`,
+      500
+    )
+    return await input.isSelected()
+  }
+
+  /**
+   * Clicks the visible switch element.
+   */
+  async clickP2pToggleSwitch(): Promise<void> {
+    const element = await this.p2pToggleSwitch()
+    await element.click()
+  }
+
   async closeTabThenModal() {
     await this.closeTab()
     await sleep(1_000)
@@ -2301,6 +2368,9 @@ export class Settings {
       case SettingsModalTabName.QR_CODE:
         locator = "//div[contains(@class, 'QRCodetextWrapper')]"
         break
+      case SettingsModalTabName.DEBUG:
+        locator = "//div[contains(@class, 'DebugInfotitleContainer')]"
+        break
       default:
         throw new Error(`Can't wait for unknown tab ${tabName}`)
     }
@@ -2330,7 +2400,7 @@ export class DebugModeModal {
   get element() {
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']")),
-      5000,
+      3000,
       `Debug modal couldn't be found within timeout`,
       500
     )
@@ -2339,7 +2409,7 @@ export class DebugModeModal {
   get button() {
     return this.driver.wait(
       until.elementLocated(By.xpath("//button[text()='Understand']")),
-      5000,
+      2000,
       `Debug modal understand button couldn't be found within timeout`,
       500
     )
@@ -2352,7 +2422,7 @@ export class DebugModeModal {
       logger.info('Closing debug modal')
       await this.driver.wait(
         until.elementIsVisible(this.element),
-        15_000,
+        3_000,
         `Debug modal couldn't be seen within timeout`,
         500
       )

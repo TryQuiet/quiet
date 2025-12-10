@@ -163,7 +163,7 @@ export class QSSClient extends EventEmitter {
     withAck = false,
     timeoutAck: number = 5000
   ): Promise<T | undefined> {
-    this.logger.debug(`Sending message`, event, JSON.stringify(payload), `withAck: ${withAck}`)
+    this.logger.debug(`Sending message`, event, `withAck: ${withAck}`)
     const socket = this.getClientSocket()
     try {
       if (!this.connected) {

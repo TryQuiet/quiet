@@ -24,6 +24,7 @@ export class ConnectionState {
     text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
   public longLivedInvite: InviteResult | undefined = undefined
+  public p2pEnabled: boolean = true
 }
 
 export const connectionSlice = createSlice({
@@ -84,6 +85,10 @@ export const connectionSlice = createSlice({
       }
     },
     createInvite: (state, _action: PayloadAction<any>) => state,
+    toggleP2P: state => state,
+    setP2PEnabled: (state, action: PayloadAction<boolean>) => {
+      state.p2pEnabled = action.payload
+    },
   },
 })
 

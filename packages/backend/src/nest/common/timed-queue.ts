@@ -69,7 +69,7 @@ export class TimedQueue {
    * Start processing the queue
    */
   public start(): void {
-    this.logger.info(`Starting timed queue`)
+    this.logger.debug(`Starting timed queue`)
     if (!this.queue.running()) {
       this.queue.resume()
     }
@@ -81,14 +81,14 @@ export class TimedQueue {
    * @param cancelTasks If true cancel all in-progress tasks
    */
   public stop(cancelTasks = false): void {
-    this.logger.info(`Stopping timed queue`)
+    this.logger.debug(`Stopping timed queue`)
     if (this.queue.running()) {
       this.queue.pause()
       this.queue.empty()
     }
 
     if (cancelTasks) {
-      this.logger.info(`Stopping current tasks in timed queue`)
+      this.logger.debug(`Stopping current tasks in timed queue`)
       this.inProcess.forEach(async (task: NodeJS.Timeout | number) => {
         clearTimeout(task)
       })

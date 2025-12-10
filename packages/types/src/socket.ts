@@ -98,6 +98,7 @@ export enum SocketActions {
    * data into the backend.
    */
   LOAD_MIGRATION_DATA = 'loadMigrationData',
+  TOGGLE_P2P = 'toggleP2P',
 }
 
 // -----------------------------------------------------------------------------
@@ -198,6 +199,7 @@ export interface SocketActionsMap {
   [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
 
   // ====== Misc ======
+  [SocketActions.TOGGLE_P2P]: EmitEvent<boolean, (response: boolean) => void>
 }
 
 // -----------------------------------------------------------------------------

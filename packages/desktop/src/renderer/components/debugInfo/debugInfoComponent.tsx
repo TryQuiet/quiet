@@ -11,12 +11,14 @@ import {
   settings,
   files,
 } from '@quiet/state-manager'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
 import {
   DownloadStatus,
   DownloadState,
@@ -33,6 +35,7 @@ const PREFIX = 'DebugInfo'
 const classes = {
   root: `${PREFIX}root`,
   section: `${PREFIX}section`,
+  title: `${PREFIX}titleContainer`,
   table: `${PREFIX}table`,
   th: `${PREFIX}th`,
   td: `${PREFIX}td`,
@@ -51,6 +54,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     boxShadow: theme.shadows[2],
     overflowY: 'auto',
     maxHeight: '100vh',
+  },
+  [`& .${classes.title}`]: {
+    marginBottom: 16,
   },
   [`& .${classes.section}`]: {
     marginBottom: 24,
@@ -110,6 +116,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 }))
 
 export const DebugInfoComponent: React.FC = () => {
+  const dispatch = useDispatch()
   // --- Network ---
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
@@ -154,6 +161,7 @@ export const DebugInfoComponent: React.FC = () => {
   const connectionProcess = useSelector(connection.selectors.connectionProcess)
   const peerList = useSelector(connection.selectors.peerList)
   const longLivedInvite = useSelector(connection.selectors.longLivedInvite)
+  const p2pEnabled = useSelector(connection.selectors.p2pEnabled)
 
   // --- Settings ---
   const notificationsOption = useSelector(settings.selectors.getNotificationsOption)
@@ -196,7 +204,7 @@ export const DebugInfoComponent: React.FC = () => {
 
   return (
     <StyledGrid container direction='column' className={classes.root}>
-      <Grid item className={classes.section}>
+      <Grid item className={classes.title}>
         <Typography variant='h4' gutterBottom>
           Debug Information
         </Typography>
@@ -232,6 +240,21 @@ export const DebugInfoComponent: React.FC = () => {
             </tr>
           </tbody>
         </table>
+      </Grid>
+      <Grid item className={classes.section}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={p2pEnabled}
+              onClick={() => {
+                dispatch(connection.actions.toggleP2P())
+              }}
+              color='primary'
+              data-testid='p2p-toggle-switch'
+            />
+          }
+          label={p2pEnabled ? 'P2P enabled' : 'P2P disabled'}
+        />
       </Grid>
       {/* --- User Profiles Section --- */}
       <Grid item className={classes.section}>

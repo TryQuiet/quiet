@@ -25,6 +25,8 @@ export const connectionProcess = createSelector(connectionSlice, reducerState =>
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
 
+export const p2pEnabled = createSelector(connectionSlice, reducerState => reducerState.p2pEnabled)
+
 export const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
   if (reducerState.peersStats === undefined) {
@@ -140,4 +142,5 @@ export const connectionSelectors = {
   socketIOSecret,
   isJoiningCompleted,
   peerStats,
+  p2pEnabled,
 }
