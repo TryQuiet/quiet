@@ -626,5 +626,7 @@ export const getSocketFactory = async () => {
 
   factory.define<boolean>(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, Object, () => true)
 
+  factory.define<boolean>(SocketActions.TOGGLE_P2P, Object, () => true)
+
   return factory
 }
