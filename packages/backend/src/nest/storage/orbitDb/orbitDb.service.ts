@@ -43,7 +43,14 @@ export class OrbitDbService {
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     private readonly localDbService: LocalDbService,
     private readonly sigChainService: SigChainService
-  ) {}
+  ) {
+    OrbitDbService.events.on('update', (entry: LogEntry) => {
+      if (entry.identity == this.orbitDbInstance?.identity.hash) {
+        const store = this.stores[entry.id]
+        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
+      }
+    })
+  }
 
   get orbitDb() {
     if (this.orbitDbInstance == undefined) {
@@ -134,14 +141,6 @@ export class OrbitDbService {
     const storeAddress = (store as { address: string }).address
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
-
-    // FIXME: this still creates multiple listeners for the same event emitter because we reuse the class event emitter for all stores
-    store.events.on('update', (entry: LogEntry) => {
-      if (entry.identity == this.orbitDbInstance?.identity.hash && entry.id === store.address) {
-        this.logger.debug(`Store ${store.address} updated with entry ${entry.hash}`)
-        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
-      }
-    })
 
     await this.joinPendingHeads(storeAddress)
     return store
