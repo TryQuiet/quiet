@@ -89,6 +89,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public async onModuleInit() {
     OrbitDbService.events.on('put', (logUpdate: LogUpdate) => {
+      this.logger.debug('New log update detected, sending to QSS', logUpdate.hash)
       void this.sendLogEntrySyncMessage(logUpdate)
     })
   }
@@ -600,7 +601,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       payload: {
         teamId: update.teamId,
         hash: update.hash,
-        hashedDbId: hash('', update.id),
+        hashedDbId: update.id,
         encEntry,
       },
     }

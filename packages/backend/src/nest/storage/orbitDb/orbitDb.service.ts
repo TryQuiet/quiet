@@ -135,8 +135,10 @@ export class OrbitDbService {
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
 
+    // FIXME: this still creates multiple listeners for the same event emitter because we reuse the class event emitter for all stores
     store.events.on('update', (entry: LogEntry) => {
-      if (entry.identity == this.orbitDbInstance?.identity.hash) {
+      if (entry.identity == this.orbitDbInstance?.identity.hash && entry.id === store.address) {
+        this.logger.debug(`Store ${store.address} updated with entry ${entry.hash}`)
         OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
       }
     })
@@ -237,11 +239,11 @@ export class OrbitDbService {
   public async handleFanoutMessage(message: QSSLogEntrySyncMessage): Promise<void> {
     this.logger.debug('Ingesting fanout message, ', message.payload.hash)
     try {
-      const logUpdate: LogUpdate = this.sigChainService.crypto.decryptAndVerify<LogUpdate>(
+      const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
         message.payload.encEntry.encrypted,
         message.payload.encEntry.signature
       ).contents
-      await this.ingestEntries([logUpdate.entry])
+      await this.ingestEntries([logEntry])
     } catch (err) {
       this.logger.error(`Failed to handle fanout log entry sync message`, err)
     }
