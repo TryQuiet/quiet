@@ -19,7 +19,7 @@ jobs:
             source_path: linux
             build_cmd: "--linux AppImage"
             artifact_glob: "packages/desktop/dist/*.AppImage"
-          - os: macos-latest
+          - os: macos-15-intel
             target: macos
             source_path: darwin
             build_cmd: "--mac"
@@ -218,7 +218,7 @@ jobs:
 
   build-macos-prod:
     # needs: run-e2e-tests-mac
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
@@ -237,13 +237,9 @@ jobs:
         with:
           path: packages/desktop
 
-      - uses: actions-rs/components-nightly@254194ebf6ba07d2bb7cec8be76cee368d44fb90 # v1.1.1
-        with:
-          component: clippy
-
       - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
         with:
-          toolchain: nightly-2020-08-28
+          toolchain: stable
           components: clippy
           override: true
 

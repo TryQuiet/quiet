@@ -552,7 +552,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       throw new Error('libp2pInstance was not created')
     }
 
-    this.logger.debug(`Local peerId: ${peerId.peerId.toString()}`)
+    this.logger.info(`Local peerId: ${peerId.peerId.toString()}`)
     this.logger.debug(`Setting up libp2p event listeners`)
 
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)

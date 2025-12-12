@@ -26,7 +26,7 @@ class MemberBase {
  protected:
   struct AtomicInitializerTag {};
 
-  MemberBase() : raw_(nullptr) {}
+  MemberBase() = default;
   explicit MemberBase(const void* value) : raw_(value) {}
   MemberBase(const void* value, AtomicInitializerTag) { SetRawAtomic(value); }
 
@@ -46,10 +46,7 @@ class MemberBase {
   void ClearFromGC() const { raw_ = nullptr; }
 
  private:
-  // All constructors initialize `raw_`. Do not add a default value here as it
-  // results in a non-atomic write on some builds, even when the atomic version
-  // of the constructor is used.
-  mutable const void* raw_;
+  mutable const void* raw_ = nullptr;
 };
 
 // The basic class from which all Member classes are 'generated'.

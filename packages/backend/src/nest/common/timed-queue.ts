@@ -146,7 +146,7 @@ export class TimedQueue {
         if (e.message.includes('Unexpected server response: 404')) {
           errorContext = e.message
         }
-        this.logger.warn(
+        this.logger.debug(
           `Error while processing task with key ${processDef.key}, retrying with delay ${newDelayMs}ms`,
           errorContext
         )

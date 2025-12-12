@@ -4,6 +4,7 @@ class Utils: NSObject {
 
     @objc
     func generateSecret(length: Int) -> String {
+        var randomString: String = ""
         var bytes: [UInt8] = [UInt8](repeating: 0, count: length)
 
         let result = SecRandomCopyBytes(kSecRandomDefault, length, &bytes)
@@ -13,5 +14,7 @@ class Utils: NSObject {
         } else {
             fatalError("Unable to generate random byte.")
         }
+
+        return randomString
     }
 }

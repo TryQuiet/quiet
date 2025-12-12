@@ -1,6 +1,9 @@
+#define NAPI_VERSION 3
 #include "node_api.h"
 #include "uv.h"
 #include "rn-bridge.h"
+#define NM_F_BUILTIN 0x1
+#define NM_F_LINKED 0x2
 #include <map>
 #include <mutex>
 #include <queue>
@@ -8,7 +11,67 @@
 #include <cstring>
 #include <cstdlib>
 
-/*
+
+/**
+ * Some helper macros from node/test/addons-napi/common.h
+ */
+
+// Empty value so that macros here are able to return NULL or void
+#define NAPI_RETVAL_NOTHING  // Intentionally blank #define
+
+#define GET_AND_THROW_LAST_ERROR(env)                                    \
+  do {                                                                   \
+    const napi_extended_error_info *error_info;                          \
+    napi_get_last_error_info((env), &error_info);                        \
+    bool is_pending;                                                     \
+    napi_is_exception_pending((env), &is_pending);                       \
+    /* If an exception is already pending, don't rethrow it */           \
+    if (!is_pending) {                                                   \
+      const char* error_message = error_info->error_message != NULL ?    \
+        error_info->error_message :                                      \
+        "empty error message";                                           \
+      napi_throw_error((env), NULL, error_message);                      \
+    }                                                                    \
+  } while (0)
+
+#define NAPI_ASSERT_BASE(env, assertion, message, ret_val)               \
+  do {                                                                   \
+    if (!(assertion)) {                                                  \
+      napi_throw_error(                                                  \
+          (env),                                                         \
+        NULL,                                                            \
+          "assertion (" #assertion ") failed: " message);                \
+      return ret_val;                                                    \
+    }                                                                    \
+  } while (0)
+
+// Returns NULL on failed assertion.
+// This is meant to be used inside napi_callback methods.
+#define NAPI_ASSERT(env, assertion, message)                             \
+  NAPI_ASSERT_BASE(env, assertion, message, NULL)
+
+// Returns empty on failed assertion.
+// This is meant to be used inside functions with void return type.
+#define NAPI_ASSERT_RETURN_VOID(env, assertion, message)                 \
+  NAPI_ASSERT_BASE(env, assertion, message, NAPI_RETVAL_NOTHING)
+
+#define NAPI_CALL_BASE(env, the_call, ret_val)                           \
+  do {                                                                   \
+    if ((the_call) != napi_ok) {                                         \
+      GET_AND_THROW_LAST_ERROR((env));                                   \
+      return ret_val;                                                    \
+    }                                                                    \
+  } while (0)
+
+// Returns NULL if the_call doesn't return napi_ok.
+#define NAPI_CALL(env, the_call)                                         \
+  NAPI_CALL_BASE(env, the_call, NULL)
+
+// Returns empty if the_call doesn't return napi_ok.
+#define NAPI_CALL_RETURN_VOID(env, the_call)                             \
+  NAPI_CALL_BASE(env, the_call, NAPI_RETVAL_NOTHING)
+
+/**
  * Forward declarations
  */
 void FlushMessageQueue(uv_async_t* handle);
@@ -109,12 +172,13 @@ public:
         napi_value message;
         napi_create_string_utf8(this->env, msg, strlen(msg), &message);
 
-        napi_value argv[ARGC_CHANNEL_NAME_MSG];
+        size_t argc = 2;
+        napi_value argv[argc];
         argv[0] = channel_name;
         argv[1] = message;
 
         napi_value result;
-        napi_call_function(this->env, global, node_function, ARGC_CHANNEL_NAME_MSG, argv, &result);
+        napi_call_function(this->env, global, node_function, argc, argv, &result);
         napi_close_handle_scope(this->env, scope);
     };
 };
@@ -170,10 +234,10 @@ void FlushMessageQueue(uv_async_t* handle) {
  * Register a channel and its listener
  */
 napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
-    size_t argc = ARGC_CHANNEL_NAME_MSG;
-    napi_value args[ARGC_CHANNEL_NAME_MSG];
+    size_t argc = 2;
+    napi_value args[argc];
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
-    NAPI_ASSERT(env, argc == ARGC_CHANNEL_NAME_MSG, "Wrong number of arguments.");
+    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments.");
 
     // args[0] is the channel name
     napi_value channel_name = args[0];
@@ -208,11 +272,11 @@ napi_value Method_RegisterChannel(napi_env env, napi_callback_info info) {
  * Send a message to React Native
  */
 napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
-    size_t argc = ARGC_CHANNEL_NAME_MSG;
-    napi_value args[ARGC_CHANNEL_NAME_MSG];
+    size_t argc = 2;
+    napi_value args[argc];
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, NULL, NULL));
-    NAPI_ASSERT(env, argc == ARGC_CHANNEL_NAME_MSG, "Wrong number of arguments.");
+    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments.");
 
     // TODO: arguments parsing and string conversion is done several times,
     //       replace the duplicated code with a function or a macro.
@@ -262,7 +326,6 @@ napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
   napi_value return_datadir;
   size_t str_len = strlen(datadir_path);
   NAPI_CALL(env, napi_create_string_utf8(env, datadir_path, str_len, &return_datadir));
-  free(datadir_path);
   return return_datadir;
 }
 
@@ -270,6 +333,7 @@ napi_value Method_GetDataDir(napi_env env, napi_callback_info info) {
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 napi_value Init(napi_env env, napi_value exports) {
+    napi_status status;
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_METHOD("sendMessage", Method_SendMessage),
         DECLARE_NAPI_METHOD("registerChannel", Method_RegisterChannel),
@@ -283,8 +347,7 @@ napi_value Init(napi_env env, napi_value exports) {
  * This method is the public API called by the React Native plugin
  */
 void rn_bridge_notify(const char* channelName, const char *message) {
-    size_t messageLength=strlen(message);
-    // free()'d in flushQueue()
+    int messageLength=strlen(message);
     char* messageCopy = (char*)calloc(sizeof(char),messageLength + 1);
     strncpy(messageCopy, message, messageLength);
 
@@ -292,16 +355,5 @@ void rn_bridge_notify(const char* channelName, const char *message) {
     channel->queueMessage(messageCopy);
 }
 
-extern "C" {
-    static napi_module _module = {
-      NAPI_MODULE_VERSION,
-      NM_F_LINKED,
-      __FILE__,
-      Init,
-      "rn_bridge",
-      NULL,
-      {0},
-    };
+NAPI_MODULE_X(rn_bridge, Init, NULL, NM_F_LINKED)
 
-    NAPI_C_CTOR(_register_rn_bridge) { napi_module_register(&_module); }
-}

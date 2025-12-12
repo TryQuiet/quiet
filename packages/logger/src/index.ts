@@ -473,7 +473,7 @@ export class QuietLogger {
   private _getLogSetting(): LogSetting {
     if (this._canTrace()) {
       return LogSetting.TRACE
-    } else if (debug.enabled('*') || debug.enabled(this.name)) {
+    } else if (debug.enabled(this.name)) {
       return LogSetting.DEBUG
     }
 
@@ -486,24 +486,25 @@ export class QuietLogger {
    * @returns True if this logger can emit TRACE logs
    */
   private _canTrace(): boolean {
-    if (debug.enabled('*:trace')) {
-      return true
-    }
-    if (!debug.enabled(`${this.name}:trace`)) {
-      return false
+    const traceNamespace = `${this.name}:trace`
+
+    for (const skip of debug.skips) {
+      if (skip.test(traceNamespace)) {
+        return false
+      }
     }
 
     for (const debugName of debug.names) {
-      // `debug.names` can contain either strings or regular expressions. Guard against
-      // calling `.test()` on non‑RegExp values.
       const isRegExp = debugName instanceof RegExp
-      const nameStr = isRegExp ? debugName.toString() : (debugName as string)
+      const containsTrace = isRegExp
+        ? (debugName as RegExp).source.includes(':trace')
+        : (debugName as string).includes(':trace')
 
-      if (!nameStr.includes(':trace')) {
+      if (!containsTrace) {
         continue
       }
 
-      const matches = isRegExp ? (debugName as RegExp).test(`${this.name}:trace`) : nameStr === `${this.name}:trace`
+      const matches = isRegExp ? (debugName as RegExp).test(traceNamespace) : (debugName as string) === traceNamespace
 
       if (matches) {
         return true

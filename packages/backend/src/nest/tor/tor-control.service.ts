@@ -60,7 +60,7 @@ export class TorControl {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       try {
-        this.logger.info(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
+        this.logger.debug(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
         await this._connect()
         return
       } catch (e) {
@@ -103,16 +103,16 @@ export class TorControl {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
-    this.logger.info(`Sending tor command: ${command}`)
+    this.logger.debug(`Sending tor command: ${command}`)
     // Only send one command at a time.
     if (this.isSending) {
-      this.logger.info('Tor connection already established, waiting...')
+      this.logger.debug('Tor connection already established, waiting...')
     }
 
     // Wait for existing command to finish.
     while (this.isSending) {
       const timeout = 750
-      this.logger.info(`Waiting for ${timeout}ms to retry command...`)
+      this.logger.debug(`Waiting for ${timeout}ms to retry command...`)
       await new Promise(r => setTimeout(r, timeout))
     }
 
@@ -122,7 +122,7 @@ export class TorControl {
     const res = await this._sendCommand(command)
     this.disconnect()
     this.isSending = false
-    this.logger.info(`Tor command response: ${res.code} ${res.messages}`)
+    this.logger.debug(`Tor command response: ${res.code} ${res.messages}`)
     return res
   }
 }

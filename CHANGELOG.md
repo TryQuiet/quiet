@@ -11,6 +11,7 @@
 ### Fixes
 
 * DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
+* Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
 
 ### Chores
 

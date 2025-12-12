@@ -7,7 +7,6 @@
 
 #include <memory>
 
-#include "cppgc/source-location.h"
 #include "v8-platform.h"  // NOLINT(build/include_directory)
 #include "v8config.h"     // NOLINT(build/include_directory)
 
@@ -146,8 +145,7 @@ V8_EXPORT void ShutdownProcess();
 
 namespace internal {
 
-V8_EXPORT void Fatal(const std::string& reason = std::string(),
-                     const SourceLocation& = SourceLocation::Current());
+V8_EXPORT void Abort();
 
 }  // namespace internal
 
