@@ -23,6 +23,8 @@ const logger = createLogger('main')
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 let updating = false
+let rendererReady = false
+let quitting = false
 
 const updaterInterval = 15 * 60_000
 
@@ -154,6 +156,16 @@ export const applyDevTools = async () => {
   )
 }
 
+const requestStateSaveOrQuit = () => {
+  if (rendererReady && isBrowserWindow(mainWindow) && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send('force-save-state')
+    return
+  }
+
+  logger.info('Renderer not ready for state save, quitting immediately')
+  app.quit()
+}
+
 app.on('open-url', (event, url) => {
   // MacOS only
   logger.info('Event app.open-url', url)
@@ -232,6 +244,7 @@ export const createWindow = async () => {
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
     logger.info('Event mainWindow.closed')
+    rendererReady = false
     mainWindow = null
   })
   mainWindow.on('resize', () => {
@@ -512,10 +525,16 @@ app.on('ready', async () => {
     showSaveImageAs: true,
   })
 
+  if (quitting) {
+    logger.info('Quit requested before backend setup, skipping startup')
+    return
+  }
+
   ports = await getPorts()
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
+    rendererReady = true
     // Only send the secret to the renderer via IPC, not via URL
     if (splash && !splash.isDestroyed()) {
       const [width, height] = splash.getSize()
@@ -650,7 +669,7 @@ app.on('ready', async () => {
     logger.warn('Backend process close event', code, signal)
     backendProcess = null
     if (updating) return
-    mainWindow?.webContents.send('force-save-state')
+    requestStateSaveOrQuit()
   })
 
   backendProcess.on('error', e => {
@@ -853,6 +872,7 @@ app.on('activate', async () => {
 })
 
 app.on('before-quit', e => {
+  quitting = true
   if (backendProcess !== null) {
     logger.info('App before-quit intercepted waiting for backend to exit')
     if (!updating) {
