@@ -248,6 +248,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                     }}
                     value={field.value}
                     spellCheck={false}
+                    autoFocus
                   />
                 )}
               />
