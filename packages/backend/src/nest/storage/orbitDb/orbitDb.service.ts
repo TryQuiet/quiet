@@ -28,7 +28,6 @@ import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { SigChainService } from '../../auth/sigchain.service'
 import { QSSLogEntrySyncMessage } from '../../qss/qss.types'
-import { LogUpdate } from './orbitdb.types'
 
 @Injectable()
 export class OrbitDbService {
