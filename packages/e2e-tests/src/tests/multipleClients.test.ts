@@ -671,6 +671,7 @@ describe('Multiple Clients', () => {
 
       it('Owner sends another message after guest left the app and it is visible', async () => {
         logger.info('TEST 10')
+        await new Promise(res => setTimeout(res, 2000))
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
