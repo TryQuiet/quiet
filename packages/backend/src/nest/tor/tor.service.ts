@@ -71,7 +71,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async isBootstrappingFinished(): Promise<boolean> {
-    this.logger.info('Checking bootstrap status')
+    this.logger.debug('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
       this.logger.info('Bootstrapping finished!')
@@ -100,7 +100,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       this.initTimeout = setTimeout(async () => {
-        this.logger.info('Checking init timeout')
+        this.logger.debug('Checking init timeout')
         const bootstrapDone = await this.isBootstrappingFinished()
         if (!bootstrapDone) {
           this.initializedHiddenServices = new Map()
@@ -111,12 +111,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       const tryToSpawnTor = async () => {
         if (oldTorPid != null) {
-          this.logger.info(`Clearing out old tor process with pid ${oldTorPid}`)
           this.clearOldTorProcess(oldTorPid)
         }
 
         try {
-          this.logger.info('Clearing out hanging tor process(es)')
           this.clearHangingTorProcess()
         } catch (e) {
           this.logger.error('Error occured while trying to clear hanging tor processes', e)
@@ -213,6 +211,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public clearOldTorProcess(oldTorPid: number | null) {
+    this.logger.info(`Clearing old tor process ${oldTorPid}`)
     if (!oldTorPid) return
     child_process.exec(
       this.torProcessNameCommand(oldTorPid.toString()),
@@ -327,7 +326,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    this.logger.info(`Spawned hidden service with onion address ${onionAddress}`)
+    this.logger.debug(`Spawned hidden service with onion address ${onionAddress}`)
 
     const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
     this.hiddenServices.set(privKey, hiddenService)
@@ -381,7 +380,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async getInfo(getInfoTarget: GetInfoTorSignal) {
     try {
       const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
-      this.logger.info('GETINFO', getInfoTarget, response)
+      this.logger.debug('GETINFO', getInfoTarget, response)
     } catch (e) {
       this.logger.error('Could not get info', getInfoTarget, e)
     }
