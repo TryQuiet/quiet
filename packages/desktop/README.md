@@ -3,30 +3,44 @@
 Running the desktop version of Quiet should be straightforward on Mac and Linux. On Windows we recommend using git-bash or just wsl.
 Here are the steps:
 
-1. Install `patch` via your Linux package manager (you can skip this step on Mac because it is already installed)
+1. Linux users only: ensure `patch` is installed on your system
 
-2. Use `Node 18.20.4` and `npm 10.7.0`. We recommend [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh/) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
+## Manual Setup
+1. Use `Node 18.20.4` and `npm 10.7.0`. We recommend [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh/) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
 
-3. Install python3 and setuptools through your preferred method. (used by node-gyp)
+1. Install python3 and setuptools through your preferred method. (used by node-gyp)
 
-4. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies/submodules and trigger a prepublish script which builds them.
+1. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies/submodules and trigger a prepublish script which builds them.
 
-```bash
-npm i lerna@6.6.2
-npm i typescript@4.9.5
-npm i -g pnpm@9.12.1 # may be needed depending on configuration
-npm install
-npm run pull:submodules
-npm run bootstrap
-```
-
-If you run into problems please double check if you have exact version Node and NPM as listed in point 1.
-
-5. In project root run,
+    ```bash
+    npm i lerna@6.6.2
+    npm i typescript@4.9.5
+    npm i -g pnpm@9.12.1 # may be needed depending on configuration
+    npm install
+    npm run pull:submodules
+    npm run bootstrap
+    ```
+  
+    If you run into problems please double check if you have exact version Node and NPM as listed in point 1.
+  
+1. In project root run:
 
 ```
 npm run start:desktop
 ```
+
+## Setup with `mise`
+
+1. Install `mise` via your package manager or `mise`'s install script at https://mise.jdx.dev/getting-started.html
+
+1. Bootstrap the project with `mise`:
+
+    ```
+    mise bootstrap
+    ```
+
+    > [!NOTE]  
+    > If this command fails, please make sure you have the latest version of `mise` installed, and try re-running the command.
 
 ----
 

@@ -5,11 +5,25 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 ### Prerequisites
 
 1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
-1. If not on Mac (which comes preinstalled with `patch`), install `patch`, e.g. via your Linux package manager
-1. Install python3 and setuptools (used by node-gyp) through your preferred method. 
+
+Similar to the Desktop setup, you have a choice of using our `mise` bootstrap scripts or manually setting up each dependency.
 
 ## Android development
 
+### Setup with `mise`
+
+1. Install the Android SDK and other needed tools via `mise`:
+
+    ```bash
+    mise bootstrap-android
+    ```
+    
+    > [!NOTE]
+    > You can also use the Android Studio SDK setup by overwriting `ANDROID_HOME` and your `PATH` as desired.*
+
+### Setup manually
+
+1. Install python3 and setuptools (used by node-gyp) through your preferred method.
 1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 1. Follow the instructions for running [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop) and confirm it runs
 1. If not on Mac, which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
@@ -130,6 +144,27 @@ const watchFolders = [
 
 ## iOS development
 
+### Setup with `mise`
+
+1. Have a Mac (Apple requires this)
+1. Create an account at [developer.apple.com](https://developer.apple.com) 
+1. Install Xcode Command Line Tools (required for Homebrew):
+    
+    ```bash
+    xcode-select --install
+    ```
+1. Install [Homebrew](https://brew.sh/)
+1. Set up a development environment for Quiet Desktop using [these instructions](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and confirm you can run it
+1. Install the needed iOS dependencies via `mise`:
+    
+    ```bash
+    mise bootstrap-ios
+    ```
+    
+    > [!NOTE]
+    > The `xcodes` tool may ask for Apple Developer login credentials to download the correct versions.
+
+### Setup manually
 1. Have a Mac (Apple requires this)
 1. Create an account at [developer.apple.com](https://developer.apple.com) 
 1. Install Xcode Command Line Tools (required for Homebrew):
