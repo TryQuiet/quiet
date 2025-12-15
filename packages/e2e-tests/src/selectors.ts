@@ -72,6 +72,10 @@ export class App {
   async close(options?: { forceSaveState?: boolean }): Promise<void> {
     logger.info('Closing the app', this.buildSetup.dataDir)
 
+    // Signal any background watchers (e.g. modal watcher) to stop ASAP.
+    const wasOpened = this.isOpened
+    this.isOpened = false
+
     // 1. Detect whether an Electron window is still around.
     let sessionOpen = false
     try {
@@ -81,7 +85,7 @@ export class App {
     }
 
     // Nothing left to do?
-    if (!this.isOpened && !sessionOpen) {
+    if (!wasOpened && !sessionOpen) {
       logger.info('App already closed ensuring driver is shut down')
       try {
         await this.buildSetup.closeDriver()
@@ -89,12 +93,11 @@ export class App {
       } catch {
         /* ignore */
       }
-      this.isOpened = false
       return
     }
 
     // 2. Optionally persist state before quitting.
-    if (options?.forceSaveState && this.isOpened) {
+    if (options?.forceSaveState && wasOpened && sessionOpen) {
       try {
         await this.saveState()
         await this.waitForSavedState()
@@ -233,7 +236,6 @@ export class App {
         /* empty */
       }
     }
-    this.isOpened = false
     await sleep(2000)
   }
 
@@ -259,28 +261,59 @@ export class App {
     await updateModal.close()
   }
 
-  private watchForLaunchModals(timeoutMs = 5_000) {
+  private isNoSuchSessionError(error: unknown): boolean {
+    if (!error) return false
+    if (error instanceof Error) {
+      return error.name === 'NoSuchSessionError' || error.message.includes('invalid session id')
+    }
+    const anyError = error as { name?: unknown; message?: unknown }
+    return (
+      anyError.name === 'NoSuchSessionError' ||
+      (typeof anyError.message === 'string' && anyError.message.includes('invalid session id'))
+    )
+  }
+
+  private async hasActiveDriverSession(): Promise<boolean> {
+    try {
+      await this.driver.getSession()
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  private watchForLaunchModals(timeoutMs = 20_000) {
     const start = Date.now()
-    ;(async () => {
+    const watcher = (async () => {
       while (Date.now() - start < timeoutMs && this.isOpened) {
+        if (!(await this.hasActiveDriverSession())) return
         await Promise.all([this.tryCloseDebugModalIfPresent(), this.tryCloseUpdateModalIfPresent()])
         await sleep(500)
       }
-    })().catch(e => logger.warn('Modal watcher failed', e))
+    })()
+    this.modalWatcher = watcher
+    watcher
+      .catch(e => logger.warn('Modal watcher failed', e))
+      .finally(() => {
+        if (this.modalWatcher === watcher) this.modalWatcher = null
+      })
   }
 
   private async tryCloseDebugModalIfPresent() {
     if (!process.env.TEST_MODE) return
+    if (!this.isOpened) return
     try {
       const modals = await this.driver.findElements(By.xpath("//h3[text()='App is running in debug mode']"))
       if (!modals.length) return
       await new DebugModeModal(this.driver).close()
     } catch (e) {
+      if (this.isNoSuchSessionError(e)) return
       logger.warn('Could not close debug modal', e)
     }
   }
 
   private async tryCloseUpdateModalIfPresent() {
+    if (!this.isOpened) return
     try {
       const modals = await this.driver.findElements(
         By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]")
@@ -289,6 +322,7 @@ export class App {
       await this.closeUpdateModalIfPresent()
       logger.info('Closed update modal')
     } catch (e) {
+      if (this.isNoSuchSessionError(e)) return
       logger.warn('Could not close update modal (may not be displayed)', e)
     }
   }
