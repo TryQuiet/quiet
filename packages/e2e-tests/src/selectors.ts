@@ -45,6 +45,9 @@ export class App {
     this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
+    const startingPanel = new StartingLoadingPanel(this.driver)
+    const startingPanelLoaded = startingPanel.waitForLoadingToComplete()
+    await startingPanelLoaded
     this.watchForLaunchModals()
   }
 
@@ -357,7 +360,7 @@ export class StartingLoadingPanel {
   get element() {
     return this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]')),
-      15_000,
+      10_000,
       `Loading panel element couldn't be located within timeout`,
       500
     )
@@ -366,6 +369,7 @@ export class StartingLoadingPanel {
   async waitForLoadingToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
     try {
       const panel = await this.element
+      logger.info('Found element for starting loading panel, waiting for visibility')
       await this.driver.wait(
         until.elementIsVisible(panel),
         visibleTimeoutMs,
@@ -374,6 +378,7 @@ export class StartingLoadingPanel {
       )
     } catch (e) {
       logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+      return
     }
 
     try {
