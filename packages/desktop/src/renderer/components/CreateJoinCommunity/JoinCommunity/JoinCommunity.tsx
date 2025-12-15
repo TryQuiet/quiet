@@ -33,6 +33,13 @@ const JoinCommunity = () => {
     }
   }, [isConnected, currentCommunity, invitationCodes, torBootstrapProcessSelector])
 
+  useEffect(() => {
+    if (isConnected && currentCommunity && joinCommunityModal.open) {
+      logger.info('Closing join community modal since community is joined')
+      joinCommunityModal.handleClose()
+    }
+  }, [isConnected, currentCommunity, joinCommunityModal.open])
+
   const handleCommunityAction = (data: InvitationData) => {
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
