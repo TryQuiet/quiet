@@ -13,6 +13,7 @@ export class App {
   thenableWebDriver?: ThenableWebDriver
   buildSetup: BuildSetup
   isOpened: boolean
+  modalWatcher: Promise<void> | null = null
   retryConfig: RetryConfig = {
     attempts: 3,
     timeoutMs: 600000,
@@ -258,7 +259,7 @@ export class App {
     await updateModal.close()
   }
 
-  private watchForLaunchModals(timeoutMs = 60_000) {
+  private watchForLaunchModals(timeoutMs = 5_000) {
     const start = Date.now()
     ;(async () => {
       while (Date.now() - start < timeoutMs && this.isOpened) {
@@ -366,7 +367,7 @@ export class StartingLoadingPanel {
     )
   }
 
-  async waitForLoadingToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
+  async waitForLoadingToComplete(visibleTimeoutMs = 5_000, completionTimeoutMs = 30_000): Promise<void> {
     try {
       const panel = await this.element
       logger.info('Found element for starting loading panel, waiting for visibility')
@@ -381,21 +382,15 @@ export class StartingLoadingPanel {
       return
     }
 
-    try {
-      const panel = await this.element
-      await this.driver.wait(
-        until.elementIsNotVisible(panel),
-        completionTimeoutMs,
-        `Loading panel element didn't disappear within timeout`,
-        5_000
-      )
-    } catch (e) {
-      if (e.message.includes('stale element reference')) {
-        logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
-      } else {
-        throw e
-      }
-    }
+    await this.driver.wait(
+      async () => {
+        const elements = await this.driver.findElements(By.xpath('//div[@data-testid="startingPanelComponent"]'))
+        return elements.length === 0
+      },
+      completionTimeoutMs,
+      `Starting loading panel element wasn't removed from the DOM within timeout`,
+      1000
+    )
   }
 }
 
