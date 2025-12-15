@@ -402,8 +402,9 @@ export class StartingLoadingPanel {
   }
 
   async waitForLoadingToComplete(visibleTimeoutMs = 5_000, completionTimeoutMs = 30_000): Promise<void> {
+    let panel: WebElement
     try {
-      const panel = await this.element
+      panel = await this.element
       logger.info('Found element for starting loading panel, waiting for visibility')
       await this.driver.wait(
         until.elementIsVisible(panel),
@@ -416,15 +417,20 @@ export class StartingLoadingPanel {
       return
     }
 
-    await this.driver.wait(
-      async () => {
-        const elements = await this.driver.findElements(By.xpath('//div[@data-testid="startingPanelComponent"]'))
-        return elements.length === 0
-      },
-      completionTimeoutMs,
-      `Starting loading panel element wasn't removed from the DOM within timeout`,
-      1000
-    )
+    try {
+      await this.driver.wait(
+        until.elementIsNotVisible(panel),
+        completionTimeoutMs,
+        `Starting loading panel element didn't disappear within timeout`,
+        250
+      )
+    } catch (e) {
+      if (e.message?.includes('stale element reference')) {
+        logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
+      } else {
+        throw e
+      }
+    }
   }
 }
 
