@@ -614,11 +614,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       // update peer stats
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
       const peerStats: Record<string, NetworkStats> = {}
-      const remoteAddr = connection != null ? connection[0].remoteAddr.toString() : undefined
       peerStats[remotePeerId] = {
         ...(peerPrevStats ?? {}),
-        peerId: remotePeerId,
-        address: remoteAddr,
         connectionTime: peerPrevStats?.connectionTime ?? 0,
         lastSeen: DateTime.utc().valueOf(),
       } as NetworkStats
@@ -627,7 +624,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       if (connection) {
         this.connectedPeers.set(remotePeerId, {
           peerId: remotePeerId,
-          address: remoteAddr,
+          address: peerStats[remotePeerId].address,
           connectedAtSeconds: DateTime.utc().toSeconds(),
         } as Libp2pConnectedPeer)
       }

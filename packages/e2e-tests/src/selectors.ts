@@ -80,11 +80,12 @@ export class App {
     let sessionOpen = false
     try {
       sessionOpen = await this.isSessionOpen()
+      logger.info(`isSessionOpen: ${sessionOpen}`)
     } catch {
       /* swallowing – isSessionOpen throws if chromedriver is already gone */
     }
 
-    // Nothing left to do?
+    // App was already closed – nothing to do.
     if (!wasOpened && !sessionOpen) {
       logger.info('App already closed ensuring driver is shut down')
       try {
@@ -98,6 +99,7 @@ export class App {
 
     // 2. Optionally persist state before quitting.
     if (options?.forceSaveState && wasOpened && sessionOpen) {
+      logger.info('Saving state before closing')
       try {
         await this.saveState()
         await this.waitForSavedState()
@@ -108,6 +110,7 @@ export class App {
 
     // 3. Attempt a graceful quit *only* if we believe the renderer is alive.
     if (sessionOpen) {
+      logger.info('Attempting graceful app quit')
       try {
         await this.quitProgrammatically()
       } catch (e) {
@@ -136,17 +139,20 @@ export class App {
       logger.warn('App did not close gracefully, forcing shutdown')
     }
     try {
+      logger.info('Closing driver')
       await this.buildSetup.closeDriver()
     } catch {
       /* ignore */
     }
     try {
+      logger.info('Killing ChromeDriver')
       await this.buildSetup.killChromeDriver()
     } catch {
       /* ignore */
     }
 
     if (process.platform === 'win32') {
+      logger.info('Killing nine')
       this.buildSetup.killNine()
       await sleep(2_000)
     }
@@ -344,13 +350,17 @@ export class App {
 
   async isSessionOpen(): Promise<boolean> {
     try {
+      logger.info('Checking if session is open')
       // Try to get the session; if it fails, the app is not running
       await this.driver.getSession()
+      logger.info('Session is open, checking for windows')
       const windows = await this.driver.executeScript<number>(
         "return require('@electron/remote').BrowserWindow.getAllWindows().length"
       )
+      logger.info(`Number of windows: ${windows}`)
       return windows > 0
     } catch (e) {
+      logger.info('Session is not open', e)
       return false
     }
   }
