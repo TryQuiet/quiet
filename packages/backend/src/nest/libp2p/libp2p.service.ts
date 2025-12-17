@@ -593,9 +593,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.libp2pInstance.addEventListener('peer:connect', async event => {
       const remotePeerId = event.detail.toString()
       const connection = this.libp2pInstance?.getConnections(event.detail)
+      const remoteAddr = connection?.[0]?.remoteAddr?.toString()
       if (this.state === Libp2pState.Paused) {
         this.logger.warn(`Received connection from ${remotePeerId} while paused, hanging up`)
-        const remoteAddr = connection?.[0]?.remoteAddr?.toString()
         if (remoteAddr) {
           await this.hangUpPeer(remoteAddr)
         } else if (this.libp2pInstance) {
@@ -616,6 +616,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       const peerStats: Record<string, NetworkStats> = {}
       peerStats[remotePeerId] = {
         ...(peerPrevStats ?? {}),
+        peerId: remotePeerId,
         connectionTime: peerPrevStats?.connectionTime ?? 0,
         lastSeen: DateTime.utc().valueOf(),
       } as NetworkStats
@@ -624,7 +625,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       if (connection) {
         this.connectedPeers.set(remotePeerId, {
           peerId: remotePeerId,
-          address: peerStats[remotePeerId].address,
+          address: peerStats[remotePeerId].address || remoteAddr,
           connectedAtSeconds: DateTime.utc().toSeconds(),
         } as Libp2pConnectedPeer)
       }
