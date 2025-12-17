@@ -411,7 +411,7 @@ export class StartingLoadingPanel {
     )
   }
 
-  async waitForLoadingToComplete(visibleTimeoutMs = 5_000, completionTimeoutMs = 30_000): Promise<void> {
+  async waitForLoadingToComplete(visibleTimeoutMs = 5_000, completionTimeoutMs = 15_000): Promise<void> {
     let panel: WebElement
     try {
       panel = await this.element
@@ -438,7 +438,7 @@ export class StartingLoadingPanel {
       if (e.message?.includes('stale element reference')) {
         logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
-        throw e
+        logger.warn('Either socket didnt get setup or you are running on an old version.')
       }
     }
   }

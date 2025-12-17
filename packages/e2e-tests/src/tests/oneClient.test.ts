@@ -14,7 +14,6 @@ import path from 'path'
 import { createLogger } from '../logger'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
-import { sleep } from '../utils'
 
 const logger = createLogger('oneClient')
 
