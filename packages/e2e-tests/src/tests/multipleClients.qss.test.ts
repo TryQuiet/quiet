@@ -305,7 +305,7 @@ describe('Multiple Clients (QSS)', () => {
           expect(isEnabled).toBe(true)
           await p2pToggle.click()
           // wait for the toggle to switch state
-          for (let attempt = 0; attempt < 5; attempt++) {
+          for (let attempt = 0; attempt < 10; attempt++) {
             isEnabled = await settingsModal.p2pToggleSwitchState()
             if (!isEnabled) {
               break

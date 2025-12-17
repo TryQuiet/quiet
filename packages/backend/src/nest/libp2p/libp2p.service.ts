@@ -633,11 +633,13 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.logger.debug(`Local: ${localPeerId} is connected to ${this.connectedPeers.size} peers`)
       this.logger.debug(`Local: ${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
-      this.serverIoProvider.io.emit(SocketEvents.PEER_CONNECTED, {
+      const networkDataPayload: NetworkDataPayload = {
         peer: remotePeerId,
+        address: peerStats[remotePeerId].address,
         lastSeen: peerStats[remotePeerId].lastSeen,
         connectionDuration: 0,
-      } as NetworkDataPayload)
+      }
+      this.serverIoProvider.io.emit(SocketEvents.PEER_CONNECTED, networkDataPayload)
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId],
@@ -665,21 +667,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
       this.connectedPeers.delete(remotePeerId)
       this.logger.debug(`${localPeerId} is now connected to ${this.connectedPeers.size} peers`)
-      const peerStat: NetworkDataPayload = {
-        peer: remotePeerId,
-        connectionDuration,
-        lastSeen: connectionEndTime,
-      }
-      this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
-      this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, peerStat)
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
-      const address = peerPrevStats?.address
-      if (address != null) {
-        this.logger.trace('Redialing disconnected peer after delay', address)
-        await this.redialPeerAfterDelay(address, 20_000)
-      } else {
-        this.logger.warn('No address found for this peer ID, skipping redial', remotePeerId)
-      }
 
       if (peerPrevStats == null) {
         this.logger.debug(`No previous stats for peer ${remotePeerId}. Not updating stats`)
@@ -694,7 +682,16 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         lastSeen: connectionEndTime,
       } as NetworkStats
 
+      const address = peerPrevStats.address
       await this.localDbService.updatePeerStats(peerStats)
+      const peerStat: NetworkDataPayload = {
+        peer: remotePeerId,
+        address,
+        connectionDuration,
+        lastSeen: connectionEndTime,
+      }
+      this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
+      this.serverIoProvider.io.emit(SocketEvents.PEER_DISCONNECTED, peerStat)
     })
 
     this.logger.debug(`Starting libp2p`)

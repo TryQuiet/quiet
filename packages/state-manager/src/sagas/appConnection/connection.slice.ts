@@ -38,6 +38,7 @@ export const connectionSlice = createSlice({
       const _peerStats = state.peersStats || peersStatsAdapter.getInitialState()
       peersStatsAdapter.upsertOne(_peerStats, {
         peerId: action.payload.peer,
+        address: action.payload.address,
         lastSeen: action.payload.lastSeen,
         connectionTime: 0,
       })
@@ -47,6 +48,7 @@ export const connectionSlice = createSlice({
       const _peerStats = state.peersStats || peersStatsAdapter.getInitialState()
       peersStatsAdapter.upsertOne(_peerStats, {
         peerId: action.payload.peer,
+        address: action.payload.address,
         lastSeen: action.payload.lastSeen,
         connectionTime: prev + action.payload.connectionDuration,
       })
