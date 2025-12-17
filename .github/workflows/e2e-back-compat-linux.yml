@@ -72,7 +72,7 @@ jobs:
         if: ${{ steps.major-ver.outputs.match == 'false' }}
         with:
           timeout_minutes: 15
-          max_attempts: 3
+          max_attempts: 1
           command: |
             echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
             cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
