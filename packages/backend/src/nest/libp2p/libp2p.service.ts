@@ -244,7 +244,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     }
 
     for (const addr of sortedPeers) {
-      const peerId = addr.split('/').pop()!
+      const peerId = addr.split('/').pop()
+      if (peerId === undefined) continue
       if (addr === this.localAddress) continue
       if (this.redialQueue.hasTask(addr)) continue
       if (this.connectedPeers.has(peerId)) continue
@@ -402,8 +403,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    */
   public async redialPeers(peersToDial?: string[]) {
     const dialed = peersToDial ?? Array.from(this.dialedPeers)
-    const connectedAddrs = [...this.connectedPeers.values()].map(p => p.address)
-    const toDial = peersToDial ?? [...connectedAddrs, ...this.dialedPeers]
+    const sortedPeers = await this.localDbService.getSortedPeers(false)
+    const toDial = new Set(peersToDial ?? [...sortedPeers, ...this.dialedPeers])
 
     if (dialed.length === 0) {
       this.logger.debug('No peers to redial!')
@@ -415,7 +416,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     // TODO: Sort peers
     await this.hangUpPeers(dialed)
 
-    await this.dialPeers(toDial)
+    await this.dialPeers([...toDial])
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
@@ -619,15 +620,18 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         peerId: remotePeerId,
         connectionTime: peerPrevStats?.connectionTime ?? 0,
         lastSeen: DateTime.utc().valueOf(),
-      } as NetworkStats
+      }
       await this.localDbService.updatePeerStats(peerStats)
 
       if (connection) {
-        this.connectedPeers.set(remotePeerId, {
+        // Ensure address is always a string
+        const address = peerStats[remotePeerId].address || remoteAddr || ''
+        const connectedPeer: Libp2pConnectedPeer = {
           peerId: remotePeerId,
-          address: peerStats[remotePeerId].address || remoteAddr,
+          address,
           connectedAtSeconds: DateTime.utc().toSeconds(),
-        } as Libp2pConnectedPeer)
+        }
+        this.connectedPeers.set(remotePeerId, connectedPeer)
       }
 
       this.logger.debug(`Local: ${localPeerId} is connected to ${this.connectedPeers.size} peers`)

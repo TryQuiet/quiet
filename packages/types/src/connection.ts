@@ -7,14 +7,14 @@ export type ConnectedPeers = string[]
 // event.
 export interface NetworkDataPayload {
   peer: string
-  address: string // multiaddr
+  address?: string // multiaddr
   connectionDuration: number
   lastSeen: number
 }
 
 export interface NetworkStats {
   peerId: string
-  address: string // multiaddr
+  address?: string // multiaddr
   lastSeen: number // last time the peer was seen
   connectionTime: number // time spent connected
 }

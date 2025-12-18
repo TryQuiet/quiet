@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { peersStatsAdapter } from './connection.adapter'
-import { isCurrentCommunityInitialized } from '../network/network.selectors'
+import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { composeInvitationShareUrl, createLibp2pAddress, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
@@ -41,7 +41,8 @@ export const peerList = createSelector(
   userProfileSelectors.userProfiles,
   identitySelectors.currentPeerAddress,
   peerStats,
-  (userProfiles, localPeerAddress, stats) => {
+  connectedPeers,
+  (userProfiles, localPeerAddress, stats, connectedPeers) => {
     let arr: string[] = []
     if (userProfiles) {
       const profiles = Object.values(userProfiles)
@@ -54,7 +55,7 @@ export const peerList = createSelector(
         })
         .filter((address): address is string => address !== null && address !== undefined)
     }
-    const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress)
+    const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress, true, connectedPeers)
     return filteredAndSortedPeers
   }
 )
