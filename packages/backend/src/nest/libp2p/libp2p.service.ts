@@ -460,7 +460,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         addresses: { listen: params.listenAddresses },
         connectionMonitor: {
           abortConnectionOnPingFailure: true,
-          pingInterval: 20_000,
+          pingInterval: 60_000,
           enabled: true,
         } satisfies ConnectionMonitorInit,
         connectionProtector:
@@ -508,7 +508,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         },
         services: {
           auth: libp2pAuth(this.sigchainService, this.qssService, this),
-          ping: ping({ timeout: 30_000 }),
+          ping: ping(),
           pubsub: gossipsub({
             // neccessary to run a single peer
             allowPublishToZeroTopicPeers: true,

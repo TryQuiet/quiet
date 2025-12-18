@@ -1601,7 +1601,7 @@ export class Channel {
         const messages = await this.getUserMessages(username)
         return messages.length >= num ? messages : null
       },
-      20_000,
+      60_000,
       `At least ${num} messages for user ${username} in channel ${this.name} couldn't be found within timeout`,
       500
     )

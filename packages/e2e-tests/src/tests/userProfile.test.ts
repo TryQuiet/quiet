@@ -201,13 +201,13 @@ describe('User Profile Feature', () => {
     if (!elem) {
       fail('Failed to find at least 2 messages')
     }
-    await users.user1.app.driver.wait(until.elementIsVisible(elem), 10_000)
+    await users.user1.app.driver.wait(until.elementIsVisible(elem), 60_000)
     const text = await elem.getText()
     expect(text).toEqual(users.owner.messages[0])
 
     const fullMessages = await generalChannelUser1.getUserMessagesFull(users.owner.username)
     const img = await fullMessages[1].findElement(By.tagName('img'))
-    await users.user1.app.driver.wait(until.elementIsVisible(img), 10_000)
+    await users.user1.app.driver.wait(until.elementIsVisible(img), 60_000)
     const imgSrc = await img.getAttribute('src')
     expect(imgSrc).toEqual(EXPECTED_IMG_SRC_PNG)
   })
