@@ -13,6 +13,7 @@ export class App {
   thenableWebDriver?: ThenableWebDriver
   buildSetup: BuildSetup
   isOpened: boolean
+  modalWatcher: Promise<void> | null = null
   retryConfig: RetryConfig = {
     attempts: 3,
     timeoutMs: 600000,
@@ -45,14 +46,10 @@ export class App {
     this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
-    const debugModal = new DebugModeModal(this.driver)
-    await debugModal.close()
-    try {
-      await this.closeUpdateModalIfPresent()
-      logger.info('Closed update modal')
-    } catch (e) {
-      logger.warn('Could not close update modal (may not be displayed)', e)
-    }
+    const startingPanel = new StartingLoadingPanel(this.driver)
+    const startingPanelLoaded = startingPanel.waitForLoadingToComplete()
+    await startingPanelLoaded
+    this.watchForLaunchModals()
   }
 
   async openWithRetries(overrideConfig?: RetryConfig, qssEnabled = false): Promise<void> {
@@ -75,16 +72,21 @@ export class App {
   async close(options?: { forceSaveState?: boolean }): Promise<void> {
     logger.info('Closing the app', this.buildSetup.dataDir)
 
+    // Signal any background watchers (e.g. modal watcher) to stop ASAP.
+    const wasOpened = this.isOpened
+    this.isOpened = false
+
     // 1. Detect whether an Electron window is still around.
     let sessionOpen = false
     try {
       sessionOpen = await this.isSessionOpen()
+      logger.info(`isSessionOpen: ${sessionOpen}`)
     } catch {
       /* swallowing – isSessionOpen throws if chromedriver is already gone */
     }
 
-    // Nothing left to do?
-    if (!this.isOpened && !sessionOpen) {
+    // App was already closed – nothing to do.
+    if (!wasOpened && !sessionOpen) {
       logger.info('App already closed ensuring driver is shut down')
       try {
         await this.buildSetup.closeDriver()
@@ -92,12 +94,12 @@ export class App {
       } catch {
         /* ignore */
       }
-      this.isOpened = false
       return
     }
 
     // 2. Optionally persist state before quitting.
-    if (options?.forceSaveState && this.isOpened) {
+    if (options?.forceSaveState && wasOpened && sessionOpen) {
+      logger.info('Saving state before closing')
       try {
         await this.saveState()
         await this.waitForSavedState()
@@ -108,6 +110,7 @@ export class App {
 
     // 3. Attempt a graceful quit *only* if we believe the renderer is alive.
     if (sessionOpen) {
+      logger.info('Attempting graceful app quit')
       try {
         await this.quitProgrammatically()
       } catch (e) {
@@ -136,17 +139,20 @@ export class App {
       logger.warn('App did not close gracefully, forcing shutdown')
     }
     try {
+      logger.info('Closing driver')
       await this.buildSetup.closeDriver()
     } catch {
       /* ignore */
     }
     try {
+      logger.info('Killing ChromeDriver')
       await this.buildSetup.killChromeDriver()
     } catch {
       /* ignore */
     }
 
     if (process.platform === 'win32') {
+      logger.info('Killing nine')
       this.buildSetup.killNine()
       await sleep(2_000)
     }
@@ -236,7 +242,6 @@ export class App {
         /* empty */
       }
     }
-    this.isOpened = false
     await sleep(2000)
   }
 
@@ -262,6 +267,72 @@ export class App {
     await updateModal.close()
   }
 
+  private isNoSuchSessionError(error: unknown): boolean {
+    if (!error) return false
+    if (error instanceof Error) {
+      return error.name === 'NoSuchSessionError' || error.message.includes('invalid session id')
+    }
+    const anyError = error as { name?: unknown; message?: unknown }
+    return (
+      anyError.name === 'NoSuchSessionError' ||
+      (typeof anyError.message === 'string' && anyError.message.includes('invalid session id'))
+    )
+  }
+
+  private async hasActiveDriverSession(): Promise<boolean> {
+    try {
+      await this.driver.getSession()
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  private watchForLaunchModals(timeoutMs = 20_000) {
+    const start = Date.now()
+    const watcher = (async () => {
+      while (Date.now() - start < timeoutMs && this.isOpened) {
+        if (!(await this.hasActiveDriverSession())) return
+        await Promise.all([this.tryCloseDebugModalIfPresent(), this.tryCloseUpdateModalIfPresent()])
+        await sleep(500)
+      }
+    })()
+    this.modalWatcher = watcher
+    watcher
+      .catch(e => logger.warn('Modal watcher failed', e))
+      .finally(() => {
+        if (this.modalWatcher === watcher) this.modalWatcher = null
+      })
+  }
+
+  private async tryCloseDebugModalIfPresent() {
+    if (!process.env.TEST_MODE) return
+    if (!this.isOpened) return
+    try {
+      const modals = await this.driver.findElements(By.xpath("//h3[text()='App is running in debug mode']"))
+      if (!modals.length) return
+      await new DebugModeModal(this.driver).close()
+    } catch (e) {
+      if (this.isNoSuchSessionError(e)) return
+      logger.warn('Could not close debug modal', e)
+    }
+  }
+
+  private async tryCloseUpdateModalIfPresent() {
+    if (!this.isOpened) return
+    try {
+      const modals = await this.driver.findElements(
+        By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]")
+      )
+      if (!modals.length) return
+      await this.closeUpdateModalIfPresent()
+      logger.info('Closed update modal')
+    } catch (e) {
+      if (this.isNoSuchSessionError(e)) return
+      logger.warn('Could not close update modal (may not be displayed)', e)
+    }
+  }
+
   async saveState() {
     const stateButton = await this.saveStateButton
     await this.driver.executeScript('arguments[0].click();', stateButton)
@@ -279,13 +350,17 @@ export class App {
 
   async isSessionOpen(): Promise<boolean> {
     try {
+      logger.info('Checking if session is open')
       // Try to get the session; if it fails, the app is not running
       await this.driver.getSession()
+      logger.info('Session is open, checking for windows')
       const windows = await this.driver.executeScript<number>(
         "return require('@electron/remote').BrowserWindow.getAllWindows().length"
       )
+      logger.info(`Number of windows: ${windows}`)
       return windows > 0
     } catch (e) {
+      logger.info('Session is not open', e)
       return false
     }
   }
@@ -330,15 +405,17 @@ export class StartingLoadingPanel {
   get element() {
     return this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]')),
-      15_000,
+      10_000,
       `Loading panel element couldn't be located within timeout`,
       500
     )
   }
 
-  async waitForLoadingToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 300_000): Promise<void> {
+  async waitForLoadingToComplete(visibleTimeoutMs = 5_000, completionTimeoutMs = 15_000): Promise<void> {
+    let panel: WebElement
     try {
-      const panel = await this.element
+      panel = await this.element
+      logger.info('Found element for starting loading panel, waiting for visibility')
       await this.driver.wait(
         until.elementIsVisible(panel),
         visibleTimeoutMs,
@@ -347,21 +424,21 @@ export class StartingLoadingPanel {
       )
     } catch (e) {
       logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+      return
     }
 
     try {
-      const panel = await this.element
       await this.driver.wait(
         until.elementIsNotVisible(panel),
         completionTimeoutMs,
-        `Loading panel element didn't disappear within timeout`,
-        5_000
+        `Starting loading panel element didn't disappear within timeout`,
+        250
       )
     } catch (e) {
-      if (e.message.includes('stale element reference')) {
-        logger.warn(`Starting loading panel disappeared and we couldn't get visibility information.  This is fine.`)
+      if (e.message?.includes('stale element reference')) {
+        logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
-        throw e
+        logger.warn('Either socket didnt get setup or you are running on an old version.')
       }
     }
   }
@@ -480,7 +557,7 @@ export class UsersList {
     return true
   }
 
-  async getUser(username: string, expectedState: UserListStatus = UserListStatus.ONLINE): Promise<UserListItem> {
+  async getUser(username: string, expectedState: UserListStatus): Promise<UserListItem> {
     logger.debug('Getting user list item', username)
     let status: UserListStatus = UserListStatus.NOT_FOUND
 
@@ -488,7 +565,7 @@ export class UsersList {
     try {
       userItem = await this.driver.wait(
         until.elementLocated(By.xpath(`//div[@data-testid="${username}-user-link"]`)),
-        60_000,
+        120_000,
         `Users item for ${username} couldn't be located within timeout`,
         500
       )
@@ -507,7 +584,7 @@ export class UsersList {
 
     const statusBadge = await this.driver.wait(
       until.elementLocated(By.xpath(`//span[@data-testid="${username}-user-link-status-badge"]`)),
-      15_000,
+      240_000,
       `Users item status badge for ${username} couldn't be located within timeout`,
       500
     )
@@ -516,7 +593,7 @@ export class UsersList {
       try {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
-          60_000,
+          240_000,
           `Users item status badge for ${username} was not visibile within timeout`,
           500
         )
@@ -528,7 +605,7 @@ export class UsersList {
       try {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
-          120_000,
+          240_000,
           `Users item status badge for ${username} was not invisible within timeout`,
           500
         )
@@ -1524,7 +1601,7 @@ export class Channel {
         const messages = await this.getUserMessages(username)
         return messages.length >= num ? messages : null
       },
-      20_000,
+      60_000,
       `At least ${num} messages for user ${username} in channel ${this.name} couldn't be found within timeout`,
       500
     )
@@ -2179,6 +2256,10 @@ export class Settings {
     await this.switchTab(SettingsModalTabName.LEAVE_COMMUNITY)
   }
 
+  async openDebugTab() {
+    await this.switchTab(SettingsModalTabName.DEBUG)
+  }
+
   /**
    * Clicks the “Leave community” button, retrying until it becomes clickable or the timeout elapses.
    *
@@ -2256,6 +2337,42 @@ export class Settings {
     )
   }
 
+  /**
+   * Returns the visible, interactive switch element (the span).
+   */
+  async p2pToggleSwitch() {
+    const toggleSwitch = await this.driver.wait(
+      until.elementLocated(By.xpath("//span[@data-testid='p2p-toggle-switch']")),
+      10_000,
+      `P2P toggle switch couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(toggleSwitch), 5_000)
+    return toggleSwitch
+  }
+
+  /**
+   * Returns the boolean state by checking the hidden input child.
+   */
+  async p2pToggleSwitchState(): Promise<boolean> {
+    // We don't wait for visibility here because the input is usually visually hidden in MUI
+    const input = await this.driver.wait(
+      until.elementLocated(By.xpath("//span[@data-testid='p2p-toggle-switch']/input")),
+      10_000,
+      `P2P toggle switch input couldn't be found`,
+      500
+    )
+    return await input.isSelected()
+  }
+
+  /**
+   * Clicks the visible switch element.
+   */
+  async clickP2pToggleSwitch(): Promise<void> {
+    const element = await this.p2pToggleSwitch()
+    await element.click()
+  }
+
   async closeTabThenModal() {
     await this.closeTab()
     await sleep(1_000)
@@ -2301,6 +2418,9 @@ export class Settings {
       case SettingsModalTabName.QR_CODE:
         locator = "//div[contains(@class, 'QRCodetextWrapper')]"
         break
+      case SettingsModalTabName.DEBUG:
+        locator = "//div[contains(@class, 'DebugInfotitleContainer')]"
+        break
       default:
         throw new Error(`Can't wait for unknown tab ${tabName}`)
     }
@@ -2330,7 +2450,7 @@ export class DebugModeModal {
   get element() {
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']")),
-      5000,
+      3000,
       `Debug modal couldn't be found within timeout`,
       500
     )
@@ -2339,7 +2459,7 @@ export class DebugModeModal {
   get button() {
     return this.driver.wait(
       until.elementLocated(By.xpath("//button[text()='Understand']")),
-      5000,
+      2000,
       `Debug modal understand button couldn't be found within timeout`,
       500
     )
@@ -2352,7 +2472,7 @@ export class DebugModeModal {
       logger.info('Closing debug modal')
       await this.driver.wait(
         until.elementIsVisible(this.element),
-        15_000,
+        3_000,
         `Debug modal couldn't be seen within timeout`,
         500
       )

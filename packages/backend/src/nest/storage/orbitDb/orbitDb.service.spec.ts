@@ -19,6 +19,7 @@ import { spawnLibp2pInstancesInMemory } from '../../common/test-utils'
 import { Libp2pNodeParams } from '../../libp2p/libp2p.types'
 import { EventsType, IPFSAccessController, LogEntry } from '@orbitdb/core'
 import { LogUpdate } from './orbitdb.types'
+import { EventsWithStorage } from './eventsWithStorage'
 
 const logger = createLogger('messagesService:test')
 
@@ -99,6 +100,7 @@ describe('OrbitDbService', () => {
   it('emits put event when an update to a store is made by the client user', async () => {
     const store = await orbitDbService.open<EventsType<{ content: string }>>('test-store', {
       type: 'events',
+      Database: EventsWithStorage(),
       AccessController: IPFSAccessController({ write: ['*'] }),
       sync: false,
     })

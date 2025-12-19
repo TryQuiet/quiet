@@ -26,6 +26,8 @@ import { IdentitiesWithStorage } from './identitiesWithStorage'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
+import { SigChainService } from '../../auth/sigchain.service'
+import { QSSLogEntrySyncMessage } from '../../qss/qss.types'
 
 @Injectable()
 export class OrbitDbService {
@@ -38,8 +40,16 @@ export class OrbitDbService {
 
   constructor(
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
-    private readonly localDbService: LocalDbService
-  ) {}
+    private readonly localDbService: LocalDbService,
+    private readonly sigChainService: SigChainService
+  ) {
+    OrbitDbService.events.on('update', (entry: LogEntry) => {
+      if (entry.identity == this.orbitDbInstance?.identity.hash) {
+        const store = this.stores[entry.id]
+        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
+      }
+    })
+  }
 
   get orbitDb() {
     if (this.orbitDbInstance == undefined) {
@@ -130,12 +140,6 @@ export class OrbitDbService {
     const storeAddress = (store as { address: string }).address
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
-
-    store.events.on('update', (entry: LogEntry) => {
-      if (entry.identity == this.orbitDbInstance?.identity.hash) {
-        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
-      }
-    })
 
     await this.joinPendingHeads(storeAddress)
     return store
@@ -228,6 +232,19 @@ export class OrbitDbService {
     // For each id, try to join heads (async, using joinQueue)
     const joinAll = Array.from(newHeads.entries()).map(([id, heads]) => this.joinHeads(id, heads))
     await Promise.all(joinAll)
+  }
+
+  public async handleFanoutMessage(message: QSSLogEntrySyncMessage): Promise<void> {
+    this.logger.debug('Ingesting fanout message, ', message.payload.hash)
+    try {
+      const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
+        message.payload.encEntry.encrypted,
+        message.payload.encEntry.signature
+      ).contents
+      await this.ingestEntries([logEntry])
+    } catch (err) {
+      this.logger.error(`Failed to handle fanout log entry sync message`, err)
+    }
   }
 
   public async getLogEntriesByHashes(address: string, hashes: string[]): Promise<LogEntry[]> {

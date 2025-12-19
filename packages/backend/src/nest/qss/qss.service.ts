@@ -89,6 +89,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public async onModuleInit() {
     OrbitDbService.events.on('put', (logUpdate: LogUpdate) => {
+      this.logger.debug('New log update detected, sending to QSS', logUpdate.hash)
       void this.sendLogEntrySyncMessage(logUpdate)
     })
   }
@@ -166,6 +167,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.qssClient.on(QSSEvents.QSS_CONNECTED, async (): Promise<void> => {
       this.logger.debug('QSS connected, handling appropriate authentication operation')
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    })
+
+    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: QSSLogEntrySyncMessage): Promise<void> => {
+      this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
+      this.orbitDbService.handleFanoutMessage(message)
     })
 
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
@@ -595,7 +601,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       payload: {
         teamId: update.teamId,
         hash: update.hash,
-        hashedDbId: hash('', update.id),
+        hashedDbId: update.id,
         encEntry,
       },
     }

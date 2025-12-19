@@ -1,10 +1,10 @@
 import { WebElement } from 'selenium-webdriver'
 import { App } from './selectors'
 
-export interface UserTestData {
+export interface UserTestData<Messages = string[]> {
   username: string
   app: App
-  messages: string[]
+  messages: Messages
 }
 
 export interface MessageIds {
