@@ -25,6 +25,7 @@ export enum WebsocketEvents {
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
   LOG_ENTRY_SYNC = 'log-entry-sync',
+  LOG_ENTRY_FANOUT = 'log-entry-fanout',
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
 }

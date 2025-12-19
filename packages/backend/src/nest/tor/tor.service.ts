@@ -124,18 +124,61 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
 
-          this.interval = setInterval(async () => {
-            this.logger.info('Checking bootstrap interval')
-            const bootstrapDone = await this.isBootstrappingFinished()
-            if (bootstrapDone) {
+          const bootstrapIntervalMs = 2500
+          if (this.interval) {
+            this.logger.warn('Bootstrap interval already set; clearing before starting a new one')
+            clearInterval(this.interval)
+            this.interval = undefined
+          }
+
+          let tickInProgress = false
+          let tickCount = 0
+          let lastTickStartedAt = 0
+          this.logger.info('Starting bootstrap check interval', {
+            intervalMs: bootstrapIntervalMs,
+            torPids: this.getTorProcessIds(),
+            controlPort: this.controlPort,
+            socksPort: this.socksPort,
+          })
+
+          this.interval = setInterval(() => {
+            if (tickInProgress) {
+              this.logger.debug('Bootstrap interval tick skipped (previous still running)', {
+                tickCount,
+                lastTickStartedAt,
+              })
+              return
+            }
+
+            tickInProgress = true
+            tickCount += 1
+            lastTickStartedAt = Date.now()
+
+            void (async () => {
+              this.logger.info('Checking bootstrap interval', { tickCount })
+              const bootstrapDone = await this.isBootstrappingFinished()
+              if (!bootstrapDone) return
+
               this.logger.info(`Sending ${SocketEvents.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
-              // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
-              // this.logger.info('Attempting to redial peers (if possible)')
-              // this.emit(SocketActions.REDIAL_PEERS)
               clearInterval(this.interval)
-            }
-          }, 2500)
+              this.interval = undefined
+            })()
+              .catch(e => {
+                this.logger.error(
+                  `Bootstrap interval tick failed (tickCount=${tickCount}, startedAt=${lastTickStartedAt})`,
+                  e
+                )
+                this.logger.error('Bootstrap interval context', {
+                  torPids: this.getTorProcessIds(),
+                  controlPort: this.controlPort,
+                  socksPort: this.socksPort,
+                })
+              })
+              .finally(() => {
+                tickInProgress = false
+              })
+          }, bootstrapIntervalMs)
 
           this.logger.info(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
 

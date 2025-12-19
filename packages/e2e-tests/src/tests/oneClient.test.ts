@@ -14,7 +14,6 @@ import path from 'path'
 import { createLogger } from '../logger'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
-import { sleep } from '../utils'
 
 const logger = createLogger('oneClient')
 
@@ -269,10 +268,15 @@ describe('One Client', () => {
     })
 
     it('closes the app with quit event', async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000))
       expect(await app.isSessionOpen()).toBe(true)
       await app.quitProgrammatically()
 
-      await app.waitForClosed(5000)
+      try {
+        await app.waitForClosed(5000)
+      } catch (e) {
+        // expected if app was not ready when we tried to close
+      }
       if (await app.isSessionOpen()) {
         // may have triggered before app was ready
         await app.quitProgrammatically()
@@ -282,7 +286,10 @@ describe('One Client', () => {
     })
 
     it('Closes the app via window X button', async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000))
       expect(await app.isSessionOpen()).toBe(true)
+      const generalChannel = new Channel(app.driver, 'general')
+      expect(generalChannel.isReady()).toBeTruthy()
       await app.closeWindowViaX()
       if (process.platform === 'darwin') {
         // On macOS, window should be hidden but app still running
@@ -302,6 +309,7 @@ describe('One Client', () => {
     })
 
     it('Force kills the app', async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000))
       expect(await app.isSessionOpen()).toBe(true)
       await app.terminateBackendProcess()
       await app.waitForClosed()

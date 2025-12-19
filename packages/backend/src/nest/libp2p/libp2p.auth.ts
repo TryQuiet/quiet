@@ -426,9 +426,10 @@ export class Libp2pAuth {
       return
     }
 
+    let id: string
     try {
       this.sigChainService.getActiveChain()
-      this.sigChainService.team
+      id = this.sigChainService.team.id
     } catch (e) {
       this.joinStatus = JoinStatus.NOT_STARTED
       return
@@ -440,7 +441,7 @@ export class Libp2pAuth {
      * information in their chain yet resulting in an invalid device error)
      */
     const oldJoinStatus = this.joinStatus
-    if (this.joinedViaQSS(this.sigChainService.team.id)) {
+    if (this.joinedViaQSS(id)) {
       this.joinStatus = JoinStatus.PENDING_MEMBER
     } else {
       this.joinStatus = JoinStatus.PENDING

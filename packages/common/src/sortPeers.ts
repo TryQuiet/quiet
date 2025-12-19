@@ -17,10 +17,10 @@ export const filterAndSortPeers = (
   peersAddresses: string[],
   stats: NetworkStats[],
   localPeerAddress?: string,
-  includeLocalPeerAddress: boolean = true
+  includeLocalPeerAddress: boolean = true,
+  currentlyConnected: string[] = []
 ): string[] => {
   peersAddresses = filterValidAddresses(peersAddresses)
-  const currentlyConnected = [...stats].filter(peer => peer.connectionTime === 0)
   const lastSeenSorted = [...stats].sort((a, b) => {
     return b.lastSeen - a.lastSeen
   })
@@ -28,7 +28,9 @@ export const filterAndSortPeers = (
     return b.connectionTime - a.connectionTime
   })
 
-  const mostWantedPeers: NetworkStats[] = currentlyConnected
+  const mostWantedPeers: NetworkStats[] = stats.filter(stat => {
+    currentlyConnected.includes(stat.peerId)
+  })
 
   for (let i = 0; i < stats.length; i++) {
     const peerOne = lastSeenSorted[i]

@@ -266,9 +266,7 @@ export class StorageService extends EventEmitter {
       const existingStats = existingPeers[userData.peerId]
       if (existingStats) {
         peers[userData.peerId] = existingPeers[userData.peerId]
-        if (!existingPeers.address) {
-          peers[userData.peerId].address = multiaddr
-        }
+        peers[userData.peerId].address = multiaddr
       } else {
         peers[userData.peerId] = {
           peerId: userData.peerId,

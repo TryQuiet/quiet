@@ -17,6 +17,7 @@ export const ConnectionTransform = createTransform(
       },
       isTorInitialized: false,
       socketIOSecret: null,
+      p2pEnabled: true,
     }
   },
   { whitelist: [StoreKeys.Connection] }

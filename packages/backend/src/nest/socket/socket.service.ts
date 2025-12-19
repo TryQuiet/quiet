@@ -226,6 +226,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActions.HCAPTCHA_REQUEST, async () => {
         this.emit(SocketActions.HCAPTCHA_REQUEST)
       })
+
+      socket.on(SocketActions.TOGGLE_P2P, async (enabled: boolean, callback: (response: boolean) => void) => {
+        this.emit(SocketActions.TOGGLE_P2P, enabled, callback)
+      })
     })
 
     // Ensure the underlying connections get closed. See:
