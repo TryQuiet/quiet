@@ -5276,7 +5276,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
-				ENABLE_BITCODE = YES;
+				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -5380,7 +5380,7 @@
 				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CTYKSWN9T4;
-				ENABLE_BITCODE = YES;
+				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (
