@@ -12,6 +12,7 @@ interface ProfilePhotoProps {
   className?: string
   size?: number
   style?: React.CSSProperties
+  alt?: string
 }
 
 const hasProfilePhoto = (
@@ -27,7 +28,14 @@ const getProfilePhotoPath = (profile: UserProfile | undefined): string | undefin
   return undefined
 }
 
-export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({ userProfile, userId, className, size = 96, style }) => {
+export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
+  userProfile,
+  userId,
+  className,
+  size = 96,
+  style,
+  alt,
+}) => {
   const theme = useTheme()
   const profilePhotoPath = getProfilePhotoPath(userProfile)
 
@@ -39,12 +47,14 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({ userProfile, userId,
     ...style,
   }
 
+  const altText = alt || userProfile?.nickname || 'User profile'
+
   return (
     <>
       {userProfile?.photo ? (
-        <img className={className} src={userProfile.photo} alt={'User profile'} style={defaultStyle} />
+        <img className={className} src={userProfile.photo} alt={altText} style={defaultStyle} />
       ) : profilePhotoPath ? (
-        <img className={className} src={profilePhotoPath} alt={'User profile'} style={defaultStyle} />
+        <img className={className} src={profilePhotoPath} alt={altText} style={defaultStyle} />
       ) : (
         <Jdenticon
           value={userId}
