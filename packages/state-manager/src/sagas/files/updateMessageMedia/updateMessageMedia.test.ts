@@ -10,8 +10,9 @@ import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { updateMessageMediaSaga } from './updateMessageMedia'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { usersActions } from '../../users/users.slice'
 import { DateTime } from 'luxon'
-import { type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
+import { type Community, type Identity, MessageType, type PublicChannel, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
@@ -162,6 +163,51 @@ describe('downloadedFileSaga', () => {
           isVerified: true,
         })
       )
+      .run()
+  })
+
+  test('update profile photo media', async () => {
+    const id = 'profile-photo-id'
+    const cid = 'profile-photo-cid'
+
+    const metadata = {
+      cid,
+      path: 'dir/profile.png',
+      name: 'profile',
+      ext: 'png',
+      message: {
+        id,
+        channelId: PROFILE_PHOTO_CHANNEL_ID,
+      },
+    }
+
+    const userProfileWithPhoto = {
+      ...alice,
+      nickname: 'alice',
+      profilePhoto: {
+        cid,
+        path: null,
+      },
+    }
+
+    const updatedUserProfile = {
+      ...userProfileWithPhoto,
+      profilePhoto: metadata,
+    }
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
+      .withReducer(reducer)
+      .withState({
+        ...store.getState(),
+        Users: {
+          ...store.getState().Users,
+          userProfiles: {
+            [alice.userId]: userProfileWithPhoto,
+          },
+        },
+      })
+      .put(usersActions.updateUserProfiles([updatedUserProfile]))
       .run()
   })
 })

@@ -2,6 +2,8 @@ import { type EntityState } from '@reduxjs/toolkit'
 import { type FileMetadata } from './files'
 import { Base58, KeyMetadata } from '@localfirst/crdx'
 
+export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
+
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
 export interface PublicChannel {
@@ -67,7 +69,8 @@ export interface DisplayableMessage {
   media?: FileMetadata
   isRegistered: boolean
   isDuplicated: boolean
-  photo?: string // base64 encoded image
+  photo?: string // base64 encoded image, deprecated
+  profilePhoto?: FileMetadata
   pubkey?: string // deprecated
   signature?: string // deprecated
 }
