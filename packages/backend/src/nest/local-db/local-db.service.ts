@@ -425,4 +425,27 @@ export class LocalDbService extends EventEmitter {
       }
     }
   }
+
+  /**
+   * Set the last QSS log sync time for a given team
+   * @param teamId string team id
+   * @param timestamp number timestamp in milliseconds
+   */
+  public async setLastSyncTime(teamId: string, timestamp: number): Promise<void> {
+    await this.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${teamId}`, timestamp.toString())
+  }
+
+  /**
+   * Get the last QSS log sync time for a given team
+   * @param teamId string team id
+   * @returns number | null timestamp in milliseconds or null if not found
+   */
+  public async getLastSyncTime(teamId: string): Promise<number | null> {
+    const ts = await this.get(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${teamId}`)
+    if (ts === null) {
+      return null
+    }
+    const num = Number(ts)
+    return isNaN(num) ? null : num
+  }
 }

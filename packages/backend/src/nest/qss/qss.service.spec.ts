@@ -15,7 +15,7 @@ import {
   CommunityOperationStatus,
   CreateCommunityStatus,
   CommunitySignInMessage,
-  QSSLogEntrySyncMessage,
+  LogEntrySyncMessage,
   QSSOperationResult,
 } from './qss.types'
 import { createLogger } from '../common/logger'
@@ -630,7 +630,7 @@ describe('QSSService', () => {
             }
             switch (event) {
               case WebsocketEvents.LOG_ENTRY_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSLogEntrySyncMessage).payload!
+                const { teamId, hash, hashedDbId } = (payload as LogEntrySyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,
@@ -678,7 +678,7 @@ describe('QSSService', () => {
               hashedDbId: expect.any(String),
               encEntry: expect.any(Object),
             },
-          } as QSSLogEntrySyncMessage),
+          } as LogEntrySyncMessage),
           true
         )
       })
@@ -704,7 +704,7 @@ describe('QSSService', () => {
             }
             switch (event) {
               case WebsocketEvents.LOG_ENTRY_SYNC:
-                const { teamId, hash, hashedDbId } = (payload as QSSLogEntrySyncMessage).payload!
+                const { teamId, hash, hashedDbId } = (payload as LogEntrySyncMessage).payload!
                 return {
                   ts: DateTime.utc().toMillis(),
                   status: CommunityOperationStatus.SUCCESS,

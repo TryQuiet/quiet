@@ -23,6 +23,7 @@ export enum LocalDBKeys {
   KEYRINGS = 'keyrings',
   PENDING_HEADS = 'pendingHeads',
   PENDING_QSS_LOG_SYNCS = 'pendingQssLogSyncs',
+  LAST_QSS_LOG_SYNC_TIME = 'lastQssLogSyncTime',
 }
 export type LocalDbStatus = 'opening' | 'open' | 'closing' | 'closed'
 export enum LocalDbEvents {

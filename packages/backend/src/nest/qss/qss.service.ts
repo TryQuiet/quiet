@@ -16,12 +16,14 @@ import {
   CreateCommunity,
   CreateCommunityResponse,
   CreateCommunityStatus,
-  QSSLogEntrySyncMessage,
+  LogEntrySyncMessage,
   GeneratePublicKeysMessage,
   WebsocketEvents,
   QSSOperationResult,
   QSSEvents,
   QSSInitStatus,
+  LogEntryPullResponseMessage,
+  LogEntryPullPayload,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
@@ -63,6 +65,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Mutexes for createCommunity per teamId
    */
   private _signInMutex: Mutex = new Mutex()
+  private syncInterval: NodeJS.Timeout
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -169,7 +172,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
     })
 
-    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: QSSLogEntrySyncMessage): Promise<void> => {
+    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: LogEntrySyncMessage): Promise<void> => {
       this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
       this.orbitDbService.handleFanoutMessage(message)
     })
@@ -492,6 +495,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     let result: QSSOperationResult
     try {
       result = await this._signInToCommunityImpl(teamId, sigChain, teamName)
+      await this.pullAllLogEntriesForTeam(teamId)
+      this.startSyncInterval(teamId)
     } catch (e) {
       this.logger.error('Failed to sign in to QSS', e)
       result = QSSOperationResult.ERROR
@@ -595,7 +600,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       name: RoleName.MEMBER,
     })
 
-    const dataSyncMessage: QSSLogEntrySyncMessage = {
+    const dataSyncMessage: LogEntrySyncMessage = {
       ts: DateTime.utc().toMillis(),
       status: CommunityOperationStatus.SENDING,
       payload: {
@@ -616,7 +621,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @returns True if sent successfully, false if send failed, and undefined if the send was skipped
    */
   private async _sendLogEntrySyncMessage(
-    dataSyncMessage: QSSLogEntrySyncMessage,
+    dataSyncMessage: LogEntrySyncMessage,
     address: string
   ): Promise<boolean | undefined> {
     const hash = dataSyncMessage.payload!.hash
@@ -642,7 +647,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     this.logger.trace('Sending log sync message to QSS', hash, teamId)
-    const dataSyncAck = await this.qssClient.sendMessage<QSSLogEntrySyncMessage>(
+    const dataSyncAck = await this.qssClient.sendMessage<LogEntrySyncMessage>(
       WebsocketEvents.LOG_ENTRY_SYNC,
       dataSyncMessage,
       true
@@ -670,11 +675,91 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   /**
+   * Pull log entries from QSS for a given team.
+   *
+   * @param payload LogEntryPullPayload containing the teamId and options for pulling log entries.
+   * @returns A promise that resolves to a LogEntryPullResponseMessage containing the pulled log entries.
+   */
+  public async pullLogEntries(payload: LogEntryPullPayload): Promise<LogEntryPullResponseMessage> {
+    this.logger.info(`Pulling log entries from QSS for team ${payload.teamId}`)
+
+    const logEntryPullMessage = {
+      ts: DateTime.utc().toMillis(),
+      status: CommunityOperationStatus.SENDING,
+      payload,
+    }
+
+    const pullResponse = await this.qssClient.sendMessage<LogEntryPullResponseMessage>(
+      WebsocketEvents.LOG_ENTRY_PULL,
+      logEntryPullMessage,
+      true
+    )
+
+    if (pullResponse == null) {
+      this.logger.error('Error while pulling log entries from QSS - Nullish response', payload.teamId)
+      throw new Error('Nullish response from QSS')
+    }
+
+    this.logger.info(`Successfully pulled ${pullResponse.payload.entries.length} entries from QSS`, payload.teamId)
+    return pullResponse
+  }
+
+  public async pullAllLogEntriesForTeam(teamId: string): Promise<LogEntryPullResponseMessage> {
+    this.logger.info(`Pulling all log entries from QSS for team ${teamId}`)
+    const lastSyncTime = await this.localDbService.getLastSyncTime(teamId)
+    const userId = this.sigChainService.getChain({ teamId }).context.user.userId
+    let hasNextPage = true
+    let page = 0
+    let cursor: string | undefined = undefined
+    while (hasNextPage) {
+      const pullPayload: LogEntryPullPayload = {
+        teamId,
+        userId,
+        startTs: lastSyncTime ?? 0,
+        cursor,
+      }
+      this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
+      const pullResponse = await this.pullLogEntries(pullPayload)
+      // for (const entry of pullResponse.payload.entries) {
+      //   const logUpdate = await this.orbitDbService.handleFanoutBufferMessage(entry)
+      //   this.logger.info(`Processed pulled log entry ${logUpdate.hash} from QSS for team ${teamId}`)
+      // }
+      hasNextPage = pullResponse.payload.hasNextPage
+      cursor = pullResponse.payload.cursor
+      page += 1
+    }
+    const finalPullResponse: LogEntryPullResponseMessage = {
+      ts: DateTime.utc().toMillis(),
+      status: CommunityOperationStatus.SUCCESS,
+      payload: {
+        entries: [],
+        hasNextPage: false,
+      },
+    }
+    this.logger.info(`Completed pulling all log entries from QSS for team ${teamId}`)
+    return finalPullResponse
+  }
+
+  private startSyncInterval(teamId: string): void {
+    if (this.syncInterval != null) {
+      clearInterval(this.syncInterval)
+    }
+    this.syncInterval = setInterval(() => {
+      void this.pullAllLogEntriesForTeam(teamId).catch(error => {
+        this.logger.error(`Failed to pull log entries from QSS for team ${teamId}`, error)
+      })
+    }, 60_000)
+  }
+
+  /**
    * Close all open auth sync connections and the QSS websocket connection
    */
   public close(): void {
     this.logger.info(`Closing QSS service`)
     clearInterval(this._deadLetterQueueProcessor)
+    if (this.syncInterval != null) {
+      clearInterval(this.syncInterval)
+    }
     this.qssAuthConnManager.close()
     this.qssClient.close()
   }
