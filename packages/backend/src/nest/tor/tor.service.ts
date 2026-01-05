@@ -270,8 +270,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
             this.logger.error(`Tried killing old tor process. Failed.`, e)
           }
         } else {
-          this.logger.info(`Deleting ${this.torPidPath}`)
-          fs.unlinkSync(this.torPidPath)
+          if (fs.existsSync(this.torPidPath)) {
+            this.logger.info(`Deleting ${this.torPidPath}`)
+            fs.unlinkSync(this.torPidPath)
+          }
         }
       }
     )
