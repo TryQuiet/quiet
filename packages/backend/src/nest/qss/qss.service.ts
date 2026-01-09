@@ -45,6 +45,7 @@ import { QSS_RECONNECT_DELAY_MS } from './qss.const'
 import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
+import { Serializer } from './serializer.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -65,7 +66,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Mutexes for createCommunity per teamId
    */
   private _signInMutex: Mutex = new Mutex()
-  private syncInterval: NodeJS.Timeout
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -77,7 +77,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     private readonly sigChainService: SigChainService,
     private readonly localDbService: LocalDbService,
     private readonly orbitDbService: OrbitDbService,
-    private readonly socketService: SocketService
+    private readonly socketService: SocketService,
+    private readonly serializer: Serializer
   ) {
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
@@ -129,6 +130,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   private _configureEventHandlers(): void {
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, () => {
+      this.logger.debug('Auth connection joined via QSS')
       this.emit(QSSEvents.QSS_AUTH_JOINED)
     })
 
@@ -495,11 +497,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     let result: QSSOperationResult
     try {
       result = await this._signInToCommunityImpl(teamId, sigChain, teamName)
-      await this.pullAllLogEntriesForTeam(teamId)
-      this.startSyncInterval(teamId)
     } catch (e) {
       this.logger.error('Failed to sign in to QSS', e)
       result = QSSOperationResult.ERROR
+    }
+
+    // TODO: cleanup the connected listener
+    if (result === QSSOperationResult.SUCCESS) {
+      this.logger.info('Successfully signed in to QSS, pulling all log entries for team once connected', teamId)
+      this.qssAuthConnManager.getConnection(teamId)?.on(QSSEvents.QSS_AUTH_CONNECTED, async () => {
+        this.logger.info('connected event received, pulling all log entries for team', teamId)
+        await this.pullAllLogEntriesForTeam(teamId)
+      })
     }
 
     return result
@@ -720,11 +729,27 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       }
       this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
       const pullResponse = await this.pullLogEntries(pullPayload)
-      // for (const entry of pullResponse.payload.entries) {
-      //   const logUpdate = await this.orbitDbService.handleFanoutBufferMessage(entry)
-      //   this.logger.info(`Processed pulled log entry ${logUpdate.hash} from QSS for team ${teamId}`)
-      // }
+      const deserializedEntries = pullResponse.payload.entries.map(entry =>
+        this.serializer.deserialize(entry)
+      ) as EncryptedAndSignedPayload[]
+      const decryptedEntries = await Promise.all(
+        deserializedEntries.map(entry => {
+          const decrypted = this.sigChainService
+            .getChain({ teamId })
+            .crypto.decryptAndVerify<LogEntry>(entry.encrypted, entry.signature, false)
+          if (decrypted.isValid) {
+            return decrypted.contents
+          }
+          return null
+        })
+      )
+      try {
+        await this.orbitDbService.ingestEntries(decryptedEntries.filter(entry => entry != null) as LogEntry[])
+      } catch (e) {
+        this.logger.error('Failed to ingest pulled log entries from QSS into OrbitDB', e)
+      }
       hasNextPage = pullResponse.payload.hasNextPage
+
       cursor = pullResponse.payload.cursor
       page += 1
     }
@@ -740,26 +765,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     return finalPullResponse
   }
 
-  private startSyncInterval(teamId: string): void {
-    if (this.syncInterval != null) {
-      clearInterval(this.syncInterval)
-    }
-    this.syncInterval = setInterval(() => {
-      void this.pullAllLogEntriesForTeam(teamId).catch(error => {
-        this.logger.error(`Failed to pull log entries from QSS for team ${teamId}`, error)
-      })
-    }, 60_000)
-  }
-
   /**
    * Close all open auth sync connections and the QSS websocket connection
    */
   public close(): void {
     this.logger.info(`Closing QSS service`)
     clearInterval(this._deadLetterQueueProcessor)
-    if (this.syncInterval != null) {
-      clearInterval(this.syncInterval)
-    }
     this.qssAuthConnManager.close()
     this.qssClient.close()
   }

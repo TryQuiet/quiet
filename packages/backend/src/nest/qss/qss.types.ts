@@ -42,6 +42,7 @@ export enum QSSEvents {
   QSS_CAPTCHA_VERIFIED = 'qssCaptchaVerified',
   QSS_CAPTCHA_REQUIRED = 'qssCaptchaRequired',
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
+  QSS_AUTH_CONNECTED = 'qssAuthConnected',
 }
 
 export enum QSSOperationResult {
