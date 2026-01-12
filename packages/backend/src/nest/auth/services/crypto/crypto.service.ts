@@ -1,5 +1,5 @@
 /**
- * Handles invite-related chain operations
+ * Handles crypto-related chain operations
  */
 import * as bs58 from 'bs58'
 

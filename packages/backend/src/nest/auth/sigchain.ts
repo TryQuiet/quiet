@@ -12,6 +12,7 @@ import { ServerService } from './services/members/server.service'
 import { RoleName } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
+import { LockboxService } from './services/crypto/lockbox.service'
 
 const logger = createLogger('auth:sigchain')
 
@@ -23,6 +24,7 @@ class SigChain extends EventEmitter {
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
   private _server: ServerService | null = null
+  private _lockbox: LockboxService | null = null
 
   private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
     super()
@@ -158,6 +160,7 @@ class SigChain extends EventEmitter {
     this._invites = new InviteService(this)
     this._crypto = new CryptoService(this)
     this._server = new ServerService(this)
+    this._lockbox = new LockboxService(this)
   }
 
   public save(): Uint8Array {
@@ -189,6 +192,10 @@ class SigChain extends EventEmitter {
 
   get server(): ServerService {
     return this._server!
+  }
+
+  get lockbox(): LockboxService {
+    return this._lockbox!
   }
 
   static get lfa(): typeof auth {
