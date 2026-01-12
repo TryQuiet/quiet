@@ -7,6 +7,7 @@
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
 * Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
+* Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
 
 ### Fixes
 
