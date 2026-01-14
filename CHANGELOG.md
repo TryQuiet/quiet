@@ -7,6 +7,7 @@
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
 * Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
+* Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
 
 ### Fixes
 
