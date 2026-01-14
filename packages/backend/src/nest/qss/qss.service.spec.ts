@@ -16,6 +16,7 @@ import {
   CreateCommunityStatus,
   CommunitySignInMessage,
   LogEntrySyncMessage,
+  LogEntryPullResponseMessage,
   QSSOperationResult,
 } from './qss.types'
 import { createLogger } from '../common/logger'
@@ -521,7 +522,7 @@ describe('QSSService', () => {
       await waitForExpect(() => {
         expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.JOINED)
       })
-      expect(mockedSendMessage).toHaveBeenCalledTimes(2)
+      expect(mockedSendMessage).toHaveBeenCalledTimes(3)
       const initStatus = await qssService.getQssInitStatus()
       expect(initStatus.qssSetup).toBeTruthy()
     })
@@ -748,6 +749,82 @@ describe('QSSService', () => {
 
       const pendingMessages = await localDbService.getPendingQssLogSyncMessages()
       expect(pendingMessages[db.address].length).toBe(1)
+    })
+  })
+
+  describe('pullLatestLogEntries', () => {
+    let mockedPullLogEntries: jest.SpiedFunction<any>
+
+    beforeEach(async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+      // @ts-ignore
+      mockedPullLogEntries = jest.spyOn(qssService, 'pullLogEntries')
+    })
+
+    afterEach(() => {
+      mockedPullLogEntries.mockRestore()
+    })
+
+    it('pulls all log entries from QSS for a team with multiple pages', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      const entriesPage1 = [{ data: 'entry1' }, { data: 'entry2' }]
+      const entriesPage2 = [{ data: 'entry3' }]
+      mockedPullLogEntries
+        .mockResolvedValueOnce({
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.SUCCESS,
+          payload: {
+            entries: entriesPage1,
+            hasNextPage: true,
+            cursor: 'cursor1',
+          },
+        })
+        .mockResolvedValueOnce({
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.SUCCESS,
+          payload: {
+            entries: entriesPage2,
+            hasNextPage: false,
+            cursor: undefined,
+          },
+        })
+
+      const response = await qssService.pullLatestLogEntries(teamId)
+      expect(mockedPullLogEntries).toHaveBeenCalledTimes(2)
+      expect(response.status).toBe(CommunityOperationStatus.SUCCESS)
+      expect(response.payload.entries).toEqual([])
+      expect(response.payload.hasNextPage).toBe(false)
+    })
+
+    it('returns immediately if user is not a member', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
+      const response = await qssService.pullLatestLogEntries(teamId)
+      expect(mockedPullLogEntries).not.toHaveBeenCalled()
+      expect(response.status).toBe(CommunityOperationStatus.UNAUTHORIZED)
+      expect(response.payload.entries).toEqual([])
+      expect(response.payload.hasNextPage).toBe(false)
+    })
+
+    it('handles empty entries and no next page', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      mockedPullLogEntries.mockResolvedValueOnce({
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          entries: [],
+          hasNextPage: false,
+          cursor: undefined,
+        },
+      })
+      const response = await qssService.pullLatestLogEntries(teamId)
+      expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
+      expect(response.status).toBe(CommunityOperationStatus.SUCCESS)
+      expect(response.payload.entries).toEqual([])
+      expect(response.payload.hasNextPage).toBe(false)
     })
   })
 })
