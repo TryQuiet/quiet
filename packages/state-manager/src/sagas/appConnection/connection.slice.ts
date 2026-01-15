@@ -6,6 +6,7 @@ import {
   SetConnectionProcessInfoPayload,
   type NetworkDataPayload,
   type NetworkStats,
+  InviteResultWithSalt,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../../utils/logger'
@@ -23,7 +24,7 @@ export class ConnectionState {
     number: 5,
     text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
-  public longLivedInvite: InviteResult | undefined = undefined
+  public longLivedInvite: InviteResultWithSalt | undefined = undefined
   public p2pEnabled: boolean = true
 }
 
@@ -59,7 +60,7 @@ export const connectionSlice = createSlice({
     setTorInitialized: state => {
       state.isTorInitialized = true
     },
-    setLongLivedInvite: (state, action: PayloadAction<InviteResult | undefined>) => {
+    setLongLivedInvite: (state, action: PayloadAction<InviteResultWithSalt | undefined>) => {
       state.longLivedInvite = action.payload
     },
     setSocketIOSecret: (state, action: PayloadAction<string>) => {
