@@ -149,14 +149,16 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const authData = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
     }
 
@@ -201,14 +203,16 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const authData = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
       teamId,
     }
@@ -254,11 +258,12 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     try {
       const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
       expect(selectorInvitationUrl).toBe('')
@@ -294,11 +299,12 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     try {
       const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
       expect(selectorInvitationUrl).toBe('')
@@ -330,6 +336,7 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
@@ -357,6 +364,7 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )

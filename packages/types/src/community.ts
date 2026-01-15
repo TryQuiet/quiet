@@ -106,7 +106,7 @@ export interface RequestInvitePayload {
 }
 
 export interface InviteResultWithSalt extends InviteResult {
-  salt?: string
+  salt: string
 }
 
 export interface ResponseInvitePayload {

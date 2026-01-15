@@ -8,7 +8,6 @@ import {
   type NetworkStats,
   InviteResultWithSalt,
 } from '@quiet/types'
-import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('connectionSlice')
