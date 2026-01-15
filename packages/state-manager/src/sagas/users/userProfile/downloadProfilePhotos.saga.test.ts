@@ -23,8 +23,7 @@ describe('downloadProfilePhotosSaga', () => {
   }
 
   it('should trigger download if path is missing', async () => {
-    await expectSaga(downloadProfilePhotosSaga)
-      .dispatch(usersActions.updateUserProfiles([mockProfile]))
+    await expectSaga(downloadProfilePhotosSaga, usersActions.updateUserProfiles([mockProfile]))
       .put(filesActions.downloadFile(mockFileMetadata))
       .silentRun()
   })
@@ -38,8 +37,7 @@ describe('downloadProfilePhotosSaga', () => {
       },
     }
 
-    await expectSaga(downloadProfilePhotosSaga)
-      .dispatch(usersActions.updateUserProfiles([profileWithPath]))
+    await expectSaga(downloadProfilePhotosSaga, usersActions.updateUserProfiles([profileWithPath]))
       .not.put(filesActions.downloadFile(profileWithPath.profilePhoto))
       .silentRun()
   })
@@ -50,8 +48,7 @@ describe('downloadProfilePhotosSaga', () => {
       profilePhoto: undefined,
     }
 
-    await expectSaga(downloadProfilePhotosSaga)
-      .dispatch(usersActions.updateUserProfiles([profileWithoutPhoto]))
+    await expectSaga(downloadProfilePhotosSaga, usersActions.updateUserProfiles([profileWithoutPhoto]))
       .not.put.actionType(filesActions.downloadFile.type)
       .silentRun()
   })
