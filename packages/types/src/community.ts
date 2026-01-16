@@ -104,9 +104,14 @@ export interface ResponseLeaveCommunityPayload {
 export interface RequestInvitePayload {
   id: Base58 | undefined
 }
+
+export interface InviteResultWithSalt extends InviteResult {
+  salt: string
+}
+
 export interface ResponseInvitePayload {
   valid: boolean
-  newInvite?: InviteResult
+  newInvite?: InviteResultWithSalt
 }
 
 // ----- deprecated -----

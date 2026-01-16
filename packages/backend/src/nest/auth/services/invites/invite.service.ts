@@ -12,11 +12,12 @@ import {
   Keyset,
   ProofOfInvitation,
   UnixTimestamp,
+  invitation,
 } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { RoleName } from '../roles/roles'
 import { createLogger } from '../../../common/logger'
-import { PermissionsError } from '@quiet/types'
+import { PermissionsError, InviteResultWithSalt } from '@quiet/types'
 
 const logger = createLogger('auth:inviteService')
 
@@ -53,8 +54,14 @@ class InviteService extends ChainServiceBase {
     return invitation
   }
 
-  public createLongLivedUserInvite(): InviteResult {
-    return this.createUserInvite(DEFAULT_LONG_LIVED_VALID_FOR_MS, DEFAULT_LONG_LIVED_MAX_USES)
+  public createLongLivedUserInvite(): InviteResultWithSalt {
+    const invite = this.createUserInvite(DEFAULT_LONG_LIVED_VALID_FOR_MS, DEFAULT_LONG_LIVED_MAX_USES)
+    // Generate a base58 salt with same entropy as the invitation seed
+    const salt = invitation.randomSeed()
+    return {
+      ...invite,
+      salt,
+    }
   }
 
   public createDeviceInvite(validForMs: number = DEFAULT_INVITATION_VALID_FOR_MS, seed?: string): InviteResult {

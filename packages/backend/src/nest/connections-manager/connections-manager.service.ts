@@ -721,6 +721,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } else {
           try {
             const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
+
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })

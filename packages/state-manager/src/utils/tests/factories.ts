@@ -48,6 +48,7 @@ import {
   LaunchCommunityPayload,
   HCaptchaFormResponse,
   HCaptchaRequest,
+  InviteResultWithSalt,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -603,7 +604,7 @@ export const getSocketFactory = async () => {
   // Local First Auth
   factory.define<string>(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, Object, () => 'invite-code')
 
-  factory.define<{ valid: boolean; newInvite?: InviteResult }>(
+  factory.define<{ valid: boolean; newInvite?: InviteResultWithSalt }>(
     `${SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE}_response`,
     Object,
     {
