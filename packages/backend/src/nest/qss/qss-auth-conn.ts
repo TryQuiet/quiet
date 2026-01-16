@@ -217,6 +217,7 @@ export class QSSAuthConnection extends EventEmitter {
         } as MemberContext
         this.sigChainService.setActiveChain(team.teamName)
         this._joinStatus = JoinStatus.PENDING_MEMBER
+        this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
       } else {
         this._joinStatus = JoinStatus.JOINED
       }
