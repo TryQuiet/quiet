@@ -35,9 +35,7 @@ allprojects {
             url("$rootDir/../node_modules/jsc-android/dist")
         }
         google()
-        maven { url("https://www.jitpack.io") } // TODO is anything *still* using jitpack, maybe this can be removed
-        maven { url("https://raw.githubusercontent.com/guardianproject/gpmaven/master") }
-        maven { url("https://mvnrepository.com/artifact/commons-io/commons-io") }
         maven { url("$rootDir/../node_modules/detox/Detox-android") }
+        maven { url("https://mvnrepository.com/artifact/commons-io/commons-io") }
     }
 }
