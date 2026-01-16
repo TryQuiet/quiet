@@ -606,6 +606,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
         encodeAuthData({
           ...data.authData,
           communityName: '()_*',
+          salt: data.authData.salt,
         }),
       ],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
@@ -631,6 +632,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
         encodeAuthData({
           ...data.authData,
           teamId: undefined,
+          salt: data.authData.salt,
         }),
       ],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
@@ -656,6 +658,7 @@ describe(`Invitation link helper ${InvitationDataVersion.v3}`, () => {
         encodeAuthData({
           ...data.authData,
           teamId: '()_*',
+          salt: data.authData.salt,
         }),
       ],
       [QSS_ENABLED_KEY, `${data.qssEnabled}`],
