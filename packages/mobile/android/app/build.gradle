@@ -96,8 +96,12 @@ def enableProguardInReleaseBuilds = false
  * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
  * give correct results when using with locales other than en-US.  Note that
  * this variant is about 6MiB larger per architecture than default.
+ *
+ * Using this 16KB Aligned build from Maven Central
+ * https://github.com/react-native-community/jsc-android-buildscripts/pull/184
+ * https://repo1.maven.org/maven2/io/github/react-native-community/jsc-android-intl/
  */
-def jscFlavor = 'org.webkit:android-jsc-intl:+'
+def jscFlavor = "io.github.react-native-community:jsc-android-intl:2026004.0.1@aar"
 
 /**
  * Whether to enable the Hermes VM.
@@ -269,7 +273,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
-    androidTestImplementation('com.wix:detox:+')
+    androidTestImplementation("com.wix:detox:+")
     androidTestImplementation("androidx.test:core:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     // version set by the React Native Gradle Plugin in npm
@@ -279,7 +283,7 @@ dependencies {
     if (enableHermes) {
         //noinspection GradleDynamicVersion
         implementation("com.facebook.react:hermes-engine:+") { // From node_modules
-            exclude group: 'com.facebook.fbjni'
+            exclude group: "com.facebook.fbjni"
         }
     } else {
         implementation(jscFlavor)
