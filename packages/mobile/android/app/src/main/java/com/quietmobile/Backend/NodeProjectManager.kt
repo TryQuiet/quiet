@@ -15,11 +15,12 @@ import androidx.core.content.edit
 class NodeProjectManager(private val context: Context) {
 
     // Store nodejs project paths
-    private var filesDirPath        : String = context.filesDir.absolutePath
-    private var trashDirPath        : String = "$filesDirPath/${Const.NODEJS_TRASH_DIR}"
-    var projectPath                 : String = "$filesDirPath/${Const.NODEJS_PROJECT_DIR}"
-    var builtinModulesPath          : String = "$filesDirPath/nodejs-builtin_modules"
-    private var nativeAssetsPath    : String = Const.NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX + Build.SUPPORTED_ABIS[0]
+    private var filesDirPath: String = context.filesDir.absolutePath
+    private var trashDirPath: String = "$filesDirPath/${Const.NODEJS_TRASH_DIR}"
+    var projectPath: String = "$filesDirPath/${Const.NODEJS_PROJECT_DIR}"
+    var builtinModulesPath: String = "$filesDirPath/nodejs-builtin_modules"
+    private var nativeAssetsPath: String =
+        Const.NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX + Build.SUPPORTED_ABIS[0]
 
     private lateinit var assetManager: AssetManager
 

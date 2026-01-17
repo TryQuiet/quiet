@@ -35,7 +35,7 @@ class MainActivity : ReactActivity() {
      * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
      */
     override fun createReactActivityDelegate(): ReactActivityDelegate =
-            DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // pass null to super.onCreate https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
@@ -63,9 +63,17 @@ class MainActivity : ReactActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkNotificationsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Requesting the permission
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST_CODE)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                NOTIFICATION_PERMISSION_REQUEST_CODE
+            )
         }
     }
 
@@ -96,7 +104,7 @@ class MainActivity : ReactActivity() {
     @Throws(java.lang.Exception::class)
     private fun respondOnNotification(bundle: Bundle) {
         val channel = bundle.getString("channel")
-                ?: throw java.lang.Exception("respondOnNotification() failed because of missing channel")
+            ?: throw java.lang.Exception("respondOnNotification() failed because of missing channel")
 
         getCurrentReactContext { context: ReactContext ->
             emitSwitchChannelEvent(context, channel)
@@ -120,7 +128,7 @@ class MainActivity : ReactActivity() {
 
     private fun emitSwitchChannelEvent(reactContext: ReactContext, channel: String) {
         val deviceEventEmitter: RCTDeviceEventEmitter = reactContext.getJSModule(
-                RCTDeviceEventEmitter::class.java
+            RCTDeviceEventEmitter::class.java
         )
 
         deviceEventEmitter.emit("notification", channel)

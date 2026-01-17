@@ -296,7 +296,7 @@ napi_value Method_SendMessage(napi_env env, napi_callback_info info) {
     }
 
     length = length_copied = 0;
-    NAPI_CALL(env, napi_get_value_string_utf8(env, message, NULL, 0, &length));
+    NAPI_CALL(env, napi_get_value_string_utf8(env, message, nullptr, 0, &length));
     std::unique_ptr<char[]> unique_msg_buf(new char[length + 1]());
     char* msg_buf = unique_msg_buf.get();
     NAPI_CALL(env, napi_get_value_string_utf8(env, message, msg_buf, length + 1, &length_copied));

@@ -16,7 +16,6 @@ object Utils {
         return dataDirectory.absolutePath
     }
 
-    @JvmStatic
     suspend fun getOpenPort(starting: Int) = suspendCoroutine { continuation ->
         val port = checkPort(starting)
         continuation.resume(port)
@@ -26,7 +25,7 @@ object Utils {
         var isPortUsed = true
         var portToCheck = port
         while (isPortUsed) {
-            isPortUsed = isPortOpen( portToCheck)
+            isPortUsed = isPortOpen(portToCheck)
             if (isPortUsed) {
                 portToCheck++
             }
