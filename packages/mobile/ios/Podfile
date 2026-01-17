@@ -8,6 +8,10 @@ install! 'cocoapods', :deterministic_uuids => false,
   :parallel_pod_downloads => true,
   :parallel_pod_download_thread_pool_size => 40
 
+# React native 0.76 defaults to using new architecture
+# Disable New Architecture
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+
 target 'Quiet' do
   config = use_native_modules!
 
