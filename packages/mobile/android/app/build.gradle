@@ -4,6 +4,13 @@ apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
 
+
+react {
+    /* Autolinking */
+    autolinkLibrariesWithApp()
+}
+
+
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -306,6 +313,8 @@ dependencies {
     implementation("com.facebook.fresco:animated-gif:3.6.0")
     implementation("com.goterl:lazysodium-android:5.2.0@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
+
+    implementation("com.google.guava:guava:33.4.8-android")
 }
 
 // Run this once to be able to run the application with BUCK
@@ -324,7 +333,6 @@ project.ext.envConfigFiles = [
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
 repositories {
     mavenCentral()

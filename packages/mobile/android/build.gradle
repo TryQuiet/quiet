@@ -39,3 +39,5 @@ allprojects {
         maven { url("https://mvnrepository.com/artifact/commons-io/commons-io") }
     }
 }
+
+apply plugin: "com.facebook.react.rootproject"
