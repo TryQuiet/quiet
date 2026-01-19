@@ -202,6 +202,7 @@ export class QSSAuthConnection extends EventEmitter {
     // handle joined events
     authConnection.on('joined', payload => {
       const { team, user } = payload
+
       const sigChain = this.sigChainService.getActiveChain()
       this.logger.info(`${sigChain.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`)
       // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
@@ -217,6 +218,7 @@ export class QSSAuthConnection extends EventEmitter {
         } as MemberContext
         this.sigChainService.setActiveChain(team.teamName)
         this._joinStatus = JoinStatus.PENDING_MEMBER
+        this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
         this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
       } else {
         this._joinStatus = JoinStatus.JOINED

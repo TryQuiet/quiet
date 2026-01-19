@@ -723,7 +723,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
             const qssInitStatus = await this.qssService.getQssInitStatus()
             if (qssInitStatus.qssEnabled) {
               const salt = uint8arrays.toString(randomBytes(32), 'hex')
-              this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, 'foobar')
+              const lbs = this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, 'foobar')
+              this.logger.warn(lbs)
             }
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)

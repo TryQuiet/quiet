@@ -213,7 +213,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       })
     })
 
-    this.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, async (teamId: string) => {
+    this.qssAuthConnManager.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, async (teamId: string) => {
       this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
       const initStatus = await this.getQssInitStatus()
       const sigchain = this.sigChainService.getChain({ teamId })

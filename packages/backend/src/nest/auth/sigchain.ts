@@ -9,7 +9,7 @@ import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
 import { ServerService } from './services/members/server.service'
-import { RoleName } from './services/roles/roles'
+import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
@@ -87,7 +87,7 @@ class SigChain extends EventEmitter {
    */
   public static create(teamName: string, username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
-    const team: auth.Team = auth.createTeam(teamName, localUser)
+    const team: auth.Team = auth.createTeam(teamName, localUser, undefined, SELF_ASSIGN_ROLES)
     const adminContext = {
       user: localUser.user,
       device: localUser.device,
