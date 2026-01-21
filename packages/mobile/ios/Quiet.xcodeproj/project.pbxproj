@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */; };
+		00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		00E356F31AD99517003FC87E /* QuietTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* QuietTests.m */; };
 		03B674072E6103DC00A86655 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674042E6103DC00A86655 /* Rubik-Regular.ttf */; };
 		03B674082E6103DC00A86655 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674022E6103DC00A86655 /* Rubik-Medium.ttf */; };
@@ -40,9 +42,6 @@
 		1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; platformFilter = ios; };
 		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1842897C295466AA00CA5039 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; platformFilter = ios; };
-		1842897D295466B500CA5039 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		1842897E295466B500CA5039 /* NodeMobile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1868B952292E9211001D6D5E /* NodeRunner.mm */; };
 		1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868B953292E9211001D6D5E /* RNNodeJsMobile.m */; };
 		1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1868BCEC292E9212001D6D5E /* rn-bridge.cpp */; };
@@ -78,13 +77,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		1868C095292F8FE2001D6D5E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				00A416372EC2EC7F00ACC877 /* NodeMobile.xcframework in Embed Frameworks */,
 				1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */,
 				18C5DE1929782334008036F4 /* leveldown.framework in Embed Frameworks */,
-				1842897E295466B500CA5039 /* NodeMobile.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -92,6 +91,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NodeMobile.xcframework; path = NodeJsMobile/NodeMobile.xcframework; sourceTree = "<group>"; };
+		00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = NodeMobile.xcframework; path = NodeJsMobile/NodeMobile.xcframework; sourceTree = "<group>"; };
 		00E356EE1AD99517003FC87E /* QuietTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuietTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* QuietTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietTests.m; sourceTree = "<group>"; };
@@ -605,7 +606,6 @@
 		183C4BED296C7B8800BA2D8B /* rn-bridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "rn-bridge.h"; sourceTree = "<group>"; };
 		183C4BEE296C7B8800BA2D8B /* NodeRunner.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NodeRunner.hpp; sourceTree = "<group>"; };
 		183C4BEF296C7B8800BA2D8B /* RNNodeJsMobile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNNodeJsMobile.h; sourceTree = "<group>"; };
-		1842897B295466AA00CA5039 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = NodeJsMobile/NodeMobile.framework; sourceTree = "<group>"; };
 		1868B952292E9211001D6D5E /* NodeRunner.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NodeRunner.mm; sourceTree = "<group>"; };
 		1868B953292E9211001D6D5E /* RNNodeJsMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNNodeJsMobile.m; sourceTree = "<group>"; };
 		1868BCEC292E9212001D6D5E /* rn-bridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "rn-bridge.cpp"; sourceTree = "<group>"; };
@@ -638,7 +638,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				18C5DE1329782326008036F4 /* leveldown.framework in Frameworks */,
-				1842897C295466AA00CA5039 /* NodeMobile.framework in Frameworks */,
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
 				38AD376324628C6E27E70991 /* libPods-Quiet-QuietTests.a in Frameworks */,
 			);
@@ -648,9 +647,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
 				18C5DE1829782334008036F4 /* leveldown.framework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
-				1842897D295466B500CA5039 /* NodeMobile.framework in Frameworks */,
 				E479975299F0932FF690F805 /* libPods-Quiet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4688,10 +4687,10 @@
 			children = (
 				1868C096292F997A001D6D5E /* libnode */,
 				183C4BEE296C7B8800BA2D8B /* NodeRunner.hpp */,
-				183C4BEF296C7B8800BA2D8B /* RNNodeJsMobile.h */,
-				183C4BED296C7B8800BA2D8B /* rn-bridge.h */,
 				1868B952292E9211001D6D5E /* NodeRunner.mm */,
+				183C4BEF296C7B8800BA2D8B /* RNNodeJsMobile.h */,
 				1868B953292E9211001D6D5E /* RNNodeJsMobile.m */,
+				183C4BED296C7B8800BA2D8B /* rn-bridge.h */,
 				1868BCEC292E9212001D6D5E /* rn-bridge.cpp */,
 			);
 			path = NodeJsMobile;
@@ -4720,9 +4719,9 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
 				18C5DE1029782326008036F4 /* leveldown.framework */,
-				1842897B295466AA00CA5039 /* NodeMobile.framework */,
 				104C0D0FA8EF00192C60CAD7 /* libPods-Quiet.a */,
 				02AFA323BA7196A67E7A1133 /* libPods-Quiet-QuietTests.a */,
 			);
@@ -4760,6 +4759,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */,
 				13B07FAE1A68108700A75B9A /* Quiet */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* QuietTests */,
@@ -4822,7 +4822,6 @@
 				18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */,
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
-				18D742A42A41DAD8007D4C4E /* Remove Simulator Strips */,
 				7253A52F091FC8122D730B2E /* [CP] Embed Pods Frameworks */,
 				A1AE2657AE5C40D18941D671 /* [CP] Copy Pods Resources */,
 			);
@@ -4841,7 +4840,8 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1210;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
@@ -4932,7 +4932,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = "set -e\n\n# Fix for machines using nvm\nif [[ -s \"$HOME/.nvm/nvm.sh\" ]]; then\n. \"$HOME/.nvm/nvm.sh\"\nelif [[ -x \"$(command -v brew)\" && -s \"$(brew --prefix nvm)/nvm.sh\" ]]; then\n. \"$(brew --prefix nvm)/nvm.sh\"\nfi\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		03B673F82E60FE0000A86655 /* Inject Feature Flags */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5010,24 +5010,6 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\nset -ex\nNODEJS_ASSETS_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../nodejs-assets/ && pwd )\"\nNODEJS_BUILT_IN_MODULES_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../nodejs-modules/ && pwd )\"\nif [ -d \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" ]\nthen\nrm -rf \"$CODESIGNING_FOLDER_PATH/nodejs-project/\"\nfi\nif [ -d \"$CODESIGNING_FOLDER_PATH/builtin_modules/\" ]\nthen\nrm -rf \"$CODESIGNING_FOLDER_PATH/builtin_modules/\"\nfi\nrsync -av --delete \"$NODEJS_ASSETS_DIR/nodejs-project\" \"$CODESIGNING_FOLDER_PATH\"\nrsync -av --delete \"$NODEJS_BUILT_IN_MODULES_DIR/builtin_modules\" \"$CODESIGNING_FOLDER_PATH\"\n";
 		};
-		18D742A42A41DAD8007D4C4E /* Remove Simulator Strips */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Remove Simulator Strips";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d ! -name 'hermes.framework' | while read -r FRAMEWORK\ndo\n    FRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\n    FRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\n    echo \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\n    EXTRACTED_ARCHS=()\n\n    for ARCH in $ARCHS\n    do\n        echo \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\n        lipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\n        EXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\n    done\n\n    echo \"Merging extracted architectures: ${ARCHS}\"\n    lipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\n    rm \"${EXTRACTED_ARCHS[@]}\"\n\n    echo \"Replacing original executable with thinned version\"\n    rm \"$FRAMEWORK_EXECUTABLE_PATH\"\n    mv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
-		};
 		18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5054,9 +5036,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5115,9 +5101,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5132,9 +5122,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5149,9 +5143,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5286,7 +5284,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E727FE0446E9E46CDECEC7FE /* Pods-Quiet.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -5295,8 +5292,16 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Pods",
+					"$(PROJECT_DIR)/NodeJsMobile",
+					"$(PROJECT_DIR)/Frameworks",
+					"$(PROJECT_DIR)",
+				);
+				"FRAMEWORK_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods",
 					"$(PROJECT_DIR)/NodeJsMobile",
@@ -5380,7 +5385,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 116749B7D5552021F04BE739 /* Pods-Quiet.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -5391,7 +5395,8 @@
 				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CTYKSWN9T4;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods",
@@ -5523,7 +5528,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5599,7 +5604,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5621,6 +5626,7 @@
 				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
