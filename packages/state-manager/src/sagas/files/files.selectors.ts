@@ -11,6 +11,9 @@ export const downloadStatuses = createSelector(filesSlice, state =>
   downloadStatusAdapter.getSelectors().selectEntities(state.downloadStatus)
 )
 
+export const profilePhotos = createSelector(filesSlice, state => state.profilePhotos)
+
 export const filesSelectors = {
   downloadStatuses,
+  profilePhotos,
 }

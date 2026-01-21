@@ -1,6 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { UserProfile, User, SaveUserProfileActionPayload, DeleteUserProfileActionPayload } from '@quiet/types'
+import {
+  UserProfile,
+  User,
+  SaveUserProfileActionPayload,
+  DeleteUserProfileActionPayload,
+  FileMetadata,
+} from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('usersSlice')
@@ -40,10 +46,34 @@ export const usersSlice = createSlice({
       }
       for (const userProfile of action.payload) {
         if (state.userProfiles[userProfile.userId]) {
-          state.userProfiles[userProfile.userId] = {
-            ...state.userProfiles[userProfile.userId],
+          const existingProfile = state.userProfiles[userProfile.userId]
+
+          const updatedProfile = {
+            ...existingProfile,
             ...userProfile,
           }
+
+          // If CID is the same, preserve the existing path
+          if (
+            userProfile.profilePhoto?.cid &&
+            existingProfile.profilePhoto?.cid === userProfile.profilePhoto.cid &&
+            existingProfile.profilePhoto?.path
+          ) {
+            updatedProfile.profilePhoto = {
+              ...userProfile.profilePhoto,
+              path: existingProfile.profilePhoto.path,
+            }
+          }
+
+          // If CID changed, ensure path is null (it should be null from userProfile anyway, but let's be explicit)
+          if (userProfile.profilePhoto?.cid && existingProfile.profilePhoto?.cid !== userProfile.profilePhoto.cid) {
+            updatedProfile.profilePhoto = {
+              ...userProfile.profilePhoto,
+              path: null,
+            }
+          }
+
+          state.userProfiles[userProfile.userId] = updatedProfile
         } else {
           state.userProfiles[userProfile.userId] = userProfile
         }

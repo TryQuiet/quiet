@@ -1,4 +1,5 @@
 export * from './errors'
+export * from './channel'
 export * from './process'
 export * from './socket'
 export * from './identity'

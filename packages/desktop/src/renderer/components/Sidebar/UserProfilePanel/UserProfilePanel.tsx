@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { Identity, UserProfile } from '@quiet/types'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
-import Jdenticon from '../../Jdenticon/Jdenticon'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 
 const PREFIX = 'UserProfilePanel-'
 
@@ -88,21 +88,15 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
         classes={{ root: classes.button }}
         data-testid={'user-profile-menu-button'}
       >
-        {userProfile?.photo ? (
-          <img className={classes.profilePhoto} src={userProfile?.photo} alt={'Your user profile image'} />
-        ) : (
-          <Jdenticon
-            value={userID}
-            size='24'
-            style={{
-              width: '24px',
-              height: '24px',
-              background: theme.palette.background.paper,
-              borderRadius: '4px',
-              marginRight: '8px',
-            }}
-          />
-        )}
+        <ProfilePhoto
+          userProfile={userProfile}
+          userId={userID}
+          className={classes.profilePhoto}
+          size={24}
+          style={{
+            marginRight: '8px',
+          }}
+        />
         <Typography variant='body2' className={classes.nickname} data-testid='user-profile-nickname'>
           {username}
         </Typography>
