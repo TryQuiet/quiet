@@ -1,4 +1,3 @@
-
 #import "RNNodeJsMobile.h"
 #import "NodeRunner.hpp"
 #import <React/RCTEventDispatcher.h>
@@ -103,7 +102,7 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
   }
 }
 
--(void)sendMessageToNode:(NSString *)event:(NSString *)message
+-(void)sendMessageToNode:(NSString *)event :(NSString *)message
 {
   NSString * data = [NSString stringWithFormat:@"{ \"event\": \"%@\", \"payload\": \"%@\" }", event, message];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
@@ -111,7 +110,7 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
   });
 }
 
--(void) sendMessageBackToReact:(NSString*)channelName:(NSString*)message
+-(void) sendMessageBackToReact:(NSString*)channelName :(NSString*)message
 {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     [self.bridge.eventDispatcher sendAppEventWithName:@"nodejs-mobile-react-native-message"
