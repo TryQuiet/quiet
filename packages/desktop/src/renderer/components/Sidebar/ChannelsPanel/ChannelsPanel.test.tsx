@@ -419,15 +419,15 @@ describe('Channels panel', () => {
                   <span
                     class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
                   >
-                    <div
-                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                    <span
+                      class="UserProfileListItemavatar"
                     >
                       <img
                         alt="user_2"
-                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
                         src="dGVzdAo="
+                        style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
                       />
-                    </div>
+                    </span>
                     <span
                       class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
                       data-testid="user_2-user-link-status-badge"
@@ -456,15 +456,15 @@ describe('Channels panel', () => {
                   <span
                     class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
                   >
-                    <div
-                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                    <span
+                      class="UserProfileListItemavatar"
                     >
                       <img
                         alt="user_4"
-                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
                         src="dGVzdAo="
+                        style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
                       />
-                    </div>
+                    </span>
                     <span
                       class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
                       data-testid="user_4-user-link-status-badge"
@@ -493,15 +493,15 @@ describe('Channels panel', () => {
                   <span
                     class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
                   >
-                    <div
-                      class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                    <span
+                      class="UserProfileListItemavatar"
                     >
                       <img
                         alt="user_6"
-                        class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
                         src="dGVzdAo="
+                        style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
                       />
-                    </div>
+                    </span>
                     <span
                       class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
                       data-testid="user_6-user-link-status-badge"
@@ -813,15 +813,15 @@ describe('Channels panel', () => {
                 <span
                   class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
                 >
-                  <div
-                    class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                  <span
+                    class="UserProfileListItemavatar"
                   >
                     <img
                       alt="user_2"
-                      class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
                       src="dGVzdAo="
+                      style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
                     />
-                  </div>
+                  </span>
                   <span
                     class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
                     data-testid="user_2-user-link-status-badge"
@@ -850,15 +850,15 @@ describe('Channels panel', () => {
                 <span
                   class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
                 >
-                  <div
-                    class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                  <span
+                    class="UserProfileListItemavatar"
                   >
                     <img
                       alt="user_4"
-                      class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
                       src="dGVzdAo="
+                      style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
                     />
-                  </div>
+                  </span>
                   <span
                     class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
                     data-testid="user_4-user-link-status-badge"
@@ -887,15 +887,15 @@ describe('Channels panel', () => {
                 <span
                   class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
                 >
-                  <div
-                    class="MuiAvatar-root MuiAvatar-circular UserProfileListItemavatar css-1ap8qwv-MuiAvatar-root"
+                  <span
+                    class="UserProfileListItemavatar"
                   >
                     <img
                       alt="user_6"
-                      class="MuiAvatar-img css-1pqm26d-MuiAvatar-img"
                       src="dGVzdAo="
+                      style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
                     />
-                  </div>
+                  </span>
                   <span
                     class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
                     data-testid="user_6-user-link-status-badge"

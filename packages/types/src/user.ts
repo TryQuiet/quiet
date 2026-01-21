@@ -13,7 +13,8 @@ export interface User {
 }
 
 export interface UserProfileDisplayData {
-  photo?: string // base64 encoded image
+  photo?: string // base64 encoded image (legacy)
+  profilePhoto?: FileMetadata
   nickname: string
   bio?: string
 }
@@ -21,10 +22,11 @@ export interface UserProfileDisplayData {
 export interface UserProfile {
   userId: string
   nickname: string
-  photo?: string // base64 encoded image
+  photo?: string // base64 encoded image (legacy)
   fileMetadata?: FileMetadata
   bio?: string
   userData?: UserData
+  profilePhoto?: FileMetadata
 }
 
 // ----

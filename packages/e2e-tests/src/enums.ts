@@ -29,5 +29,6 @@ export enum SettingsModalTabName {
 export enum PhotoExt {
   GIF = 'gif',
   JPEG = 'jpeg',
+  JPG = 'jpg',
   PNG = 'png',
 }

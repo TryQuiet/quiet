@@ -804,9 +804,13 @@ export class UserProfileContextMenu {
         let i = 0
         while (i < 5) {
           const photoElement = await this.waitForPhoto()
+
+          logger.info(`found photoElement ${photoElement}`)
           const src = await photoElement.getAttribute('src')
 
-          if (src.includes(`image/${ext}`)) {
+          logger.info(`photoElement src ${src}`)
+
+          if (src.endsWith(ext)) {
             return src
           }
           i++

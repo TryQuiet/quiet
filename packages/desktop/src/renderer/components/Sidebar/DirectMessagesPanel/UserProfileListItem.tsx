@@ -5,11 +5,11 @@ import { Typography, ListItemButton, Avatar } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import ListItemText from '@mui/material/ListItemText'
 import { UserProfile } from '@quiet/types'
-import Jdenticon from '../../Jdenticon/Jdenticon'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { MenuName } from '../../../../const/MenuNames.enum'
 import { users } from '@quiet/state-manager'
 import { useSelector } from 'react-redux'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 
 const PREFIX = 'UserProfileListItem'
 
@@ -30,7 +30,9 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     minWidth: theme.componentSizes.statusIndicator.size,
     minHeight: theme.componentSizes.statusIndicator.size,
     borderRadius: '50%',
-    border: `${theme.componentSizes.statusIndicator.borderWidth}px solid ${theme.palette.colors?.sidebarBackground || theme.palette.background.default}`,
+    border: `${theme.componentSizes.statusIndicator.borderWidth}px solid ${
+      theme.palette.colors?.sidebarBackground || theme.palette.background.default
+    }`,
     boxSizing: 'border-box',
     right: theme.componentSizes.statusIndicator.position.right,
     bottom: theme.componentSizes.statusIndicator.position.bottom,
@@ -106,17 +108,13 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
         variant='dot'
         invisible={!connected}
       >
-        {userProfile.photo ? (
-          <Avatar className={classes.avatar} src={userProfile.photo} alt={userProfile.nickname} />
-        ) : (
-          <span className={classes.avatar}>
-            <Jdenticon
-              value={userProfile.userId}
-              size={theme.componentSizes.avatar.small.toString()}
-              style={{ borderRadius: 4 }}
-            />
-          </span>
-        )}
+        <span className={classes.avatar}>
+          <ProfilePhoto
+            userProfile={userProfile}
+            userId={userProfile.userId}
+            size={theme.componentSizes.avatar.small}
+          />
+        </span>
       </StyledBadge>
       <ListItemText
         primary={
