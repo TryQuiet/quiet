@@ -696,16 +696,16 @@ main() {
     
     # Download and install Tor binaries
     local latest_version=$(get_latest_tor_version)
-    log_info "Updating all Tor binaries to version $latest_version..."
+    log_info "Updating all Tor binaries to the version of tor in Tor Browser version $latest_version..."
     
     download_desktop_bundles "$latest_version"
-    download_android_apk "$latest_version"
+    # download_android_apk "$latest_version"
     extract_desktop_binaries
-    extract_android_binaries
+    # extract_android_binaries
     install_desktop_binaries
-    install_android_binaries
+    # install_android_binaries
     
-    log_success "All Tor binaries updated successfully to version $latest_version"
+    log_success "All Tor binaries updated successfully to the version of tor in Tor Browser version $latest_version"
 }
 
 # Run main function with all arguments
