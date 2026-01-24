@@ -39,7 +39,7 @@ import * as fs from 'fs'
 import { EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
-import { EncryptedAndSignedPayload, EncryptionScopeType, Signature } from '../auth/services/crypto/types'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
 import { Base58 } from '@localfirst/auth'
 import { RoleName } from '../auth/services/roles/roles'
 import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
@@ -800,16 +800,6 @@ describe('QSSService', () => {
       expect(response.payload.hasNextPage).toBe(false)
     })
 
-    it('returns immediately if user is not a member', async () => {
-      const teamId = sigchainService.activeChain.team!.id
-      jest.spyOn(sigchainService.activeChain.roles, 'amIMemberOfRole').mockReturnValue(false)
-      const response = await qssService.pullLatestLogEntries(teamId)
-      expect(mockedPullLogEntries).not.toHaveBeenCalled()
-      expect(response.status).toBe(CommunityOperationStatus.UNAUTHORIZED)
-      expect(response.payload.entries).toEqual([])
-      expect(response.payload.hasNextPage).toBe(false)
-    })
-
     it('handles empty entries and no next page', async () => {
       const teamId = sigchainService.activeChain.team!.id
       mockedPullLogEntries.mockResolvedValueOnce({
@@ -905,6 +895,71 @@ describe('QSSService', () => {
       // Only one actual pull should have happened
       expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
     })
+
+    it('stops log pull interval after successful pull', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+
+      mockedPullLogEntries.mockResolvedValueOnce({
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: { entries: [], hasNextPage: false },
+      })
+
+      // Start interval
+      // @ts-ignore - accessing private method for testing
+      qssService._startLogPullInterval(teamId)
+
+      // Verify interval was created
+      // @ts-ignore - accessing private property for testing
+      expect(qssService._logPullIntervals.has(teamId)).toBe(true)
+
+      // Wait for pull to complete and interval to be stopped
+      await waitForExpect(() => {
+        // @ts-ignore
+        expect(qssService._logPullIntervals.has(teamId)).toBe(false)
+      })
+
+      expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
+    })
+
+    it('retries log pull interval on failure', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+
+      mockedPullLogEntries
+        .mockResolvedValueOnce({
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.UNAUTHORIZED,
+          reason: 'Temporary error',
+        })
+        .mockResolvedValueOnce({
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.SUCCESS,
+          payload: { entries: [], hasNextPage: false },
+        })
+
+      // Start interval - this immediately triggers first pull
+      // @ts-ignore - accessing private method for testing
+      qssService._startLogPullInterval(teamId)
+
+      // Wait for first (immediate) pull to complete
+      await waitForExpect(() => {
+        expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
+      })
+
+      // Interval should still exist after failed pull
+      // @ts-ignore
+      expect(qssService._logPullIntervals.has(teamId)).toBe(true)
+
+      // Manually trigger second pull (simulating interval firing)
+      // @ts-ignore
+      await qssService._pullLatestLogEntriesForTeam(teamId)
+
+      expect(mockedPullLogEntries).toHaveBeenCalledTimes(2)
+
+      // Interval should be stopped after successful pull
+      // @ts-ignore
+      expect(qssService._logPullIntervals.has(teamId)).toBe(false)
+    })
   })
 
   describe('pullLogEntries', () => {
@@ -960,7 +1015,7 @@ describe('QSSService', () => {
       const serializer = (qssService as any).serializer
 
       // Create a valid encrypted message that CAN be decrypted
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
+      await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
         AccessController: MessagesAccessController({ write: ['*'] }),

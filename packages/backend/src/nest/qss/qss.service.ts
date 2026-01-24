@@ -515,7 +515,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     this._logPullInFlight.add(teamId)
     try {
-      await this.pullLatestLogEntries(teamId)
+      const response = await this.pullLatestLogEntries(teamId)
+      if (response.status === CommunityOperationStatus.SUCCESS) {
+        this._stopLogPullInterval(teamId)
+      }
     } catch (e) {
       this.logger.error('Failed to pull latest log entries for team', e)
     } finally {
@@ -788,18 +791,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const lastSyncTime = await this.localDbService.getLastSyncTime(teamId)
     const sigchain = this.sigChainService.getChain({ teamId })
     const userId = sigchain.context.user.userId
-    if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      this.logger.warn(`Current user is not a member of team ${teamId}, delaying pulling log entries from QSS`)
-      return {
-        ts: DateTime.utc().toMillis(),
-        status: CommunityOperationStatus.UNAUTHORIZED,
-        reason: `Current user is not a member of team ${teamId}`,
-        payload: {
-          entries: [],
-          hasNextPage: false,
-        },
-      }
-    }
+
     let hasNextPage = true
     let page = 0
     let cursor: string | undefined = undefined
@@ -813,6 +805,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
       const newSyncTime = DateTime.utc().toMillis()
       const pullResponse = await this.pullLogEntries(pullPayload)
+      if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
+        return pullResponse
+      }
       const deserializedEntries = pullResponse.payload.entries
         .map(entry => {
           try {
