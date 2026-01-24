@@ -39,7 +39,8 @@ import * as fs from 'fs'
 import { EventsType } from '@orbitdb/core'
 import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
 import { MessagesAccessController } from '../storage/channels/messages/orbitdb/MessagesAccessController'
-import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
+import { EncryptedAndSignedPayload, EncryptionScopeType, Signature } from '../auth/services/crypto/types'
+import { Base58 } from '@localfirst/auth'
 import { RoleName } from '../auth/services/roles/roles'
 import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 import { IpfsModule } from '../ipfs/ipfs.module'
@@ -825,6 +826,234 @@ describe('QSSService', () => {
       expect(response.status).toBe(CommunityOperationStatus.SUCCESS)
       expect(response.payload.entries).toEqual([])
       expect(response.payload.hasNextPage).toBe(false)
+    })
+
+    it('stores failed decryption entries in DLQ', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      const serializer = (qssService as any).serializer
+
+      // Create a valid encrypted payload that can't be decrypted (wrong key)
+      const mockEncryptedPayload: EncryptedAndSignedPayload = {
+        encrypted: {
+          contents: new Uint8Array([1, 2, 3, 4, 5]),
+          scope: {
+            type: EncryptionScopeType.ROLE,
+            name: 'MEMBER',
+            generation: 999, // Future generation key that doesn't exist
+          },
+        },
+        signature: {
+          signature: 'invalid-sig' as Base58,
+          author: { type: 'USER', name: 'unknown' } as any,
+        },
+        ts: Date.now(),
+        userId: 'unknown-user',
+        teamId,
+      }
+
+      // Mock pullLogEntries to return encrypted entries that will fail decryption
+      mockedPullLogEntries.mockResolvedValueOnce({
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          entries: [serializer.serialize(mockEncryptedPayload)],
+          hasNextPage: false,
+          cursor: undefined,
+        },
+      })
+
+      // Pull entries - should fail to decrypt and store in DLQ
+      await qssService.pullLatestLogEntries(teamId)
+
+      // Verify entry was added to DLQ
+      const dlqCount = await localDbService.getDLQDecryptCount(teamId)
+      expect(dlqCount).toBe(1)
+
+      const dlqEntries = await localDbService.getDLQDecryptEntries(teamId, serializer)
+      expect(dlqEntries.length).toBe(1)
+      expect(dlqEntries[0].entry.payload.encrypted.scope.generation).toBe(999)
+    })
+
+    it('skips concurrent pull when one is already in flight', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+
+      // Create a slow-resolving promise to simulate in-flight pull
+      let resolveFirst: () => void
+      const slowPromise = new Promise<LogEntryPullResponseMessage>(resolve => {
+        resolveFirst = () =>
+          resolve({
+            ts: DateTime.utc().toMillis(),
+            status: CommunityOperationStatus.SUCCESS,
+            payload: { entries: [], hasNextPage: false },
+          })
+      })
+
+      mockedPullLogEntries.mockReturnValueOnce(slowPromise)
+
+      // Start first pull (will be in flight)
+      // @ts-ignore - accessing private method for testing
+      const firstPull = qssService._pullLatestLogEntriesForTeam(teamId)
+
+      // Try second pull immediately - should skip
+      // @ts-ignore
+      await qssService._pullLatestLogEntriesForTeam(teamId)
+
+      // Resolve first pull
+      resolveFirst!()
+      await firstPull
+
+      // Only one actual pull should have happened
+      expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('pullLogEntries', () => {
+    beforeEach(async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+    })
+
+    it('throws error on nullish response from QSS', async () => {
+      mockedSendMessage = jest.spyOn(qssClient, 'sendMessage').mockResolvedValue(undefined)
+
+      const teamId = sigchainService.activeChain.team!.id
+      await expect(
+        qssService.pullLogEntries({
+          teamId,
+          userId: sigchainService.user.userId,
+          startTs: 0,
+        })
+      ).rejects.toThrow('Nullish response from QSS')
+    })
+
+    it('returns entries on successful response', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      const mockResponse: LogEntryPullResponseMessage = {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          entries: [Buffer.from('test')],
+          hasNextPage: false,
+        },
+      }
+      mockedSendMessage = jest.spyOn(qssClient, 'sendMessage').mockResolvedValue(mockResponse)
+
+      const result = await qssService.pullLogEntries({
+        teamId,
+        userId: sigchainService.user.userId,
+        startTs: 0,
+      })
+
+      expect(result.payload.entries.length).toBe(1)
+      expect(result.status).toBe(CommunityOperationStatus.SUCCESS)
+    })
+  })
+
+  describe('processDLQDecrypt', () => {
+    it('recovers entries from DLQ when sigchain updates', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+
+      const teamId = sigchainService.activeChain.team!.id
+      const serializer = (qssService as any).serializer
+
+      // Create a valid encrypted message that CAN be decrypted
+      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: MessagesAccessController({ write: ['*'] }),
+        sync: true,
+      })
+
+      const encryptedPayload = sigchainService.activeChain.crypto.encryptAndSign('test message for DLQ', {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      // Manually add to DLQ (simulating a previous failed decrypt)
+      await localDbService.addDLQDecryptEntry(teamId, encryptedPayload, serializer)
+
+      // Verify it's in the DLQ
+      expect(await localDbService.getDLQDecryptCount(teamId)).toBe(1)
+
+      // Mock ingestEntries to track what gets recovered
+      const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
+
+      // Trigger sigchain update which should process DLQ
+      sigchainService.emit('updated')
+
+      // Wait for async processing
+      await waitForExpect(async () => {
+        const remainingCount = await localDbService.getDLQDecryptCount(teamId)
+        expect(remainingCount).toBe(0)
+      })
+
+      // Verify entry was recovered and ingested
+      expect(ingestSpy).toHaveBeenCalled()
+      ingestSpy.mockRestore()
+    })
+
+    it('retries DLQ processing when sigchain updates during processing', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+
+      const teamId = sigchainService.activeChain.team!.id
+      const serializer = (qssService as any).serializer
+
+      const encryptedPayload = sigchainService.activeChain.crypto.encryptAndSign('test message', {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await localDbService.addDLQDecryptEntry(teamId, encryptedPayload, serializer)
+      expect(await localDbService.getDLQDecryptCount(teamId)).toBe(1)
+
+      const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
+
+      // Track processDLQDecrypt calls
+      // @ts-ignore
+      const processSpy = jest.spyOn(qssService, 'processDLQDecrypt')
+
+      // Trigger first update
+      sigchainService.emit('updated')
+
+      // Immediately trigger second update while first is processing
+      sigchainService.emit('updated')
+
+      await waitForExpect(async () => {
+        const remainingCount = await localDbService.getDLQDecryptCount(teamId)
+        expect(remainingCount).toBe(0)
+      })
+
+      // Should have been called at least twice (initial + retry)
+      expect(processSpy.mock.calls.length).toBeGreaterThanOrEqual(2)
+
+      ingestSpy.mockRestore()
+      processSpy.mockRestore()
+    })
+
+    it('skips processing when no active sigchain', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+
+      // Mock getActiveChain to return undefined
+      const getActiveChainSpy = jest.spyOn(sigchainService, 'getActiveChain').mockReturnValue(undefined)
+
+      const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries')
+
+      // Trigger sigchain update
+      sigchainService.emit('updated')
+
+      // Give it time to process
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // ingestEntries should not have been called
+      expect(ingestSpy).not.toHaveBeenCalled()
+
+      getActiveChainSpy.mockRestore()
+      ingestSpy.mockRestore()
     })
   })
 })

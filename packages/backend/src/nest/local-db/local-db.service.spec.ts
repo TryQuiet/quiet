@@ -14,6 +14,31 @@ import { LocalDBKeys } from './local-db.types'
 import { TestModule } from '../common/test.module'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
+import { Base58 } from '@localfirst/auth'
+
+// Simple mock serializer for testing that mirrors Serializer interface
+class MockSerializer {
+  serialize(payload: unknown): Buffer {
+    return Buffer.from(
+      JSON.stringify(payload, (_key, value) => {
+        if (value instanceof Uint8Array) {
+          return { __type: 'Uint8Array', data: Array.from(value) }
+        }
+        return value
+      })
+    )
+  }
+
+  deserialize(buffer: Buffer): unknown {
+    return JSON.parse(buffer.toString(), (_key, value) => {
+      if (value && value.__type === 'Uint8Array') {
+        return new Uint8Array(value.data)
+      }
+      return value
+    })
+  }
+}
 
 const logger = createLogger('LocalDbService:test')
 
@@ -499,6 +524,174 @@ describe('LocalDbService', () => {
       await service.removePendingQssLogSyncMessages({ [ADDRESS]: [hash1] })
       pendingMessages = await service.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
+    })
+  })
+
+  describe('last sync time', () => {
+    const TEAM_ID = 'team-abc'
+
+    afterEach(async () => {
+      await service.purge()
+    })
+
+    it('set / get last sync time', async () => {
+      const timestamp = Date.now()
+      await service.setLastSyncTime(TEAM_ID, timestamp)
+      const retrieved = await service.getLastSyncTime(TEAM_ID)
+      expect(retrieved).toBe(timestamp)
+    })
+
+    it('returns null when no timestamp exists', async () => {
+      const result = await service.getLastSyncTime('nonexistent-team')
+      expect(result).toBeNull()
+    })
+
+    it('returns null for invalid (NaN) stored value', async () => {
+      // Manually store invalid value
+      await service.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${TEAM_ID}`, 'not-a-number')
+      const result = await service.getLastSyncTime(TEAM_ID)
+      expect(result).toBeNull()
+    })
+
+    it('handles multiple teams independently', async () => {
+      const team1 = 'team-1'
+      const team2 = 'team-2'
+      const ts1 = 1000
+      const ts2 = 2000
+
+      await service.setLastSyncTime(team1, ts1)
+      await service.setLastSyncTime(team2, ts2)
+
+      expect(await service.getLastSyncTime(team1)).toBe(ts1)
+      expect(await service.getLastSyncTime(team2)).toBe(ts2)
+    })
+
+    it('overwrites existing timestamp', async () => {
+      const ts1 = 1000
+      const ts2 = 2000
+
+      await service.setLastSyncTime(TEAM_ID, ts1)
+      expect(await service.getLastSyncTime(TEAM_ID)).toBe(ts1)
+
+      await service.setLastSyncTime(TEAM_ID, ts2)
+      expect(await service.getLastSyncTime(TEAM_ID)).toBe(ts2)
+    })
+  })
+
+  describe('DLQ decrypt entries', () => {
+    const TEAM_ID = 'team-123'
+    let serializer: MockSerializer
+
+    const createMockPayload = (uniqueData: string): EncryptedAndSignedPayload => ({
+      encrypted: {
+        contents: new Uint8Array([1, 2, 3]),
+        scope: {
+          type: EncryptionScopeType.ROLE,
+          name: 'MEMBER',
+          generation: 1,
+        },
+      },
+      signature: {
+        signature: `sig-${uniqueData}` as Base58,
+        author: { type: 'USER', name: 'user1' } as any,
+      },
+      ts: Date.now(),
+      userId: 'user-1',
+      teamId: TEAM_ID,
+    })
+
+    beforeEach(() => {
+      serializer = new MockSerializer()
+    })
+
+    afterEach(async () => {
+      await service.purge()
+    })
+
+    it('add / get / remove DLQ decrypt entries', async () => {
+      const payload1 = createMockPayload('entry1')
+      const payload2 = createMockPayload('entry2')
+
+      // Add entries
+      await service.addDLQDecryptEntry(TEAM_ID, payload1, serializer)
+      await service.addDLQDecryptEntry(TEAM_ID, payload2, serializer)
+
+      // Get entries
+      const entries = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+      expect(entries.length).toBe(2)
+      expect(entries[0].entry.payload.signature.signature).toBe(payload1.signature.signature)
+
+      // Remove first entry
+      await service.removeDLQDecryptEntries(TEAM_ID, [entries[0]])
+      const remaining = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+      expect(remaining.length).toBe(1)
+
+      // Remove last entry
+      await service.removeDLQDecryptEntries(TEAM_ID, remaining)
+      const empty = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+      expect(empty.length).toBe(0)
+    })
+
+    it('does not add duplicate entries', async () => {
+      const payload = createMockPayload('same')
+
+      await service.addDLQDecryptEntry(TEAM_ID, payload, serializer)
+      await service.addDLQDecryptEntry(TEAM_ID, payload, serializer)
+
+      const entries = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+      expect(entries.length).toBe(1)
+    })
+
+    it('getDLQDecryptCount returns correct count', async () => {
+      expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(0)
+
+      await service.addDLQDecryptEntry(TEAM_ID, createMockPayload('a'), serializer)
+      expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(1)
+
+      await service.addDLQDecryptEntry(TEAM_ID, createMockPayload('b'), serializer)
+      expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(2)
+    })
+
+    it('respects limit option in getDLQDecryptEntries', async () => {
+      await service.addDLQDecryptEntry(TEAM_ID, createMockPayload('a'), serializer)
+      await service.addDLQDecryptEntry(TEAM_ID, createMockPayload('b'), serializer)
+      await service.addDLQDecryptEntry(TEAM_ID, createMockPayload('c'), serializer)
+
+      const limited = await service.getDLQDecryptEntries(TEAM_ID, serializer, { limit: 2 })
+      expect(limited.length).toBe(2)
+    })
+
+    it('filters by scope when using scope options', async () => {
+      const payload1 = createMockPayload('gen1')
+      payload1.encrypted.scope.generation = 1
+
+      const payload2 = createMockPayload('gen2')
+      payload2.encrypted.scope.generation = 2
+
+      await service.addDLQDecryptEntry(TEAM_ID, payload1, serializer)
+      await service.addDLQDecryptEntry(TEAM_ID, payload2, serializer)
+
+      const gen1Only = await service.getDLQDecryptEntries(TEAM_ID, serializer, {
+        scopeType: EncryptionScopeType.ROLE,
+        scopeGen: 1,
+      })
+      expect(gen1Only.length).toBe(1)
+      expect(gen1Only[0].entry.payload.encrypted.scope.generation).toBe(1)
+    })
+
+    it('handles entries with different team IDs independently', async () => {
+      const otherTeamId = 'team-456'
+
+      await service.addDLQDecryptEntry(TEAM_ID, createMockPayload('team1'), serializer)
+      await service.addDLQDecryptEntry(otherTeamId, createMockPayload('team2'), serializer)
+
+      const team1Entries = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+      const team2Entries = await service.getDLQDecryptEntries(otherTeamId, serializer)
+
+      expect(team1Entries.length).toBe(1)
+      expect(team2Entries.length).toBe(1)
+      expect(team1Entries[0].entry.payload.signature.signature).toContain('team1')
+      expect(team2Entries[0].entry.payload.signature.signature).toContain('team2')
     })
   })
 })

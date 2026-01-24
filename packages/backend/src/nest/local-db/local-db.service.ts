@@ -6,8 +6,16 @@ import { Level } from 'level'
 
 import { type Community, NetworkStats, Identity } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
 import { LEVEL_DB } from '../const'
-import { LocalDbEvents, LocalDBKeys, LocalDbStatus } from './local-db.types'
+import {
+  LocalDbEvents,
+  LocalDBKeys,
+  LocalDbStatus,
+  DLQDecryptEntry,
+  DLQDecryptGetOptions,
+  DLQSerializer,
+} from './local-db.types'
 import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
@@ -447,5 +455,136 @@ export class LocalDbService extends EventEmitter {
     }
     const num = Number(ts)
     return isNaN(num) ? null : num
+  }
+
+  /**
+   * Dead Letter Queue for failed decryption entries
+   */
+
+  private computeDLQHash(payload: EncryptedAndSignedPayload): string {
+    const data = JSON.stringify({
+      encrypted: Array.from(payload.encrypted.contents),
+      scope: payload.encrypted.scope,
+      signature: payload.signature,
+      ts: payload.ts,
+      userId: payload.userId,
+    })
+    // Use a simple hash to get a shorter unique identifier
+    let hash = 0
+    for (let i = 0; i < data.length; i++) {
+      const char = data.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(36)
+  }
+
+  public async addDLQDecryptEntry(
+    teamId: string,
+    entry: EncryptedAndSignedPayload,
+    serializer: DLQSerializer
+  ): Promise<void> {
+    const hash = this.computeDLQHash(entry)
+    const timestamp = Date.now()
+    const primaryKey = `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:${timestamp}:${hash}`
+    const scopeType = entry.encrypted.scope.type
+    const scopeGen = entry.encrypted.scope.generation
+    const indexKey = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${scopeType}:${scopeGen}:${hash}`
+
+    // Check for existing entry with same hash
+    for await (const [key] of this.db.iterator({
+      gte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:`,
+      lte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:~`,
+    })) {
+      if (key.endsWith(`:${hash}`)) {
+        this.logger.debug('DLQ entry already exists, skipping', hash)
+        return
+      }
+    }
+
+    const dlqEntry: DLQDecryptEntry = {
+      payload: entry,
+      addedAt: timestamp,
+    }
+    const serialized = serializer.serialize(dlqEntry)
+    // Store as base64 string since LevelDB values are stored as strings
+    const base64Value = serialized.toString('base64')
+    await this.put(primaryKey, base64Value)
+    await this.put(indexKey, primaryKey)
+    this.logger.debug('Added DLQ decrypt entry', { teamId, hash })
+  }
+
+  public async getDLQDecryptEntries(
+    teamId: string,
+    serializer: DLQSerializer,
+    opts?: DLQDecryptGetOptions
+  ): Promise<{ key: string; entry: DLQDecryptEntry }[]> {
+    const results: { key: string; entry: DLQDecryptEntry }[] = []
+    const limit = opts?.limit ?? 100
+
+    if (opts?.scopeType != null && opts?.scopeGen != null) {
+      // Use index for scoped query
+      const indexPrefix = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${opts.scopeType}:${opts.scopeGen}:`
+      for await (const [, primaryKey] of this.db.iterator({
+        gte: indexPrefix,
+        lte: `${indexPrefix}~`,
+      })) {
+        if (results.length >= limit) break
+        const base64Value = await this.get(primaryKey)
+        if (base64Value) {
+          try {
+            const buffer = Buffer.from(base64Value, 'base64')
+            const entry = serializer.deserialize(buffer) as DLQDecryptEntry
+            results.push({ key: primaryKey, entry })
+          } catch (e) {
+            this.logger.error('Failed to deserialize DLQ entry', e)
+          }
+        }
+      }
+    } else {
+      // Full scan
+      for await (const [key, value] of this.db.iterator({
+        gte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:`,
+        lte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:~`,
+      })) {
+        if (results.length >= limit) break
+        try {
+          const buffer = Buffer.from(value, 'base64')
+          const entry = serializer.deserialize(buffer) as DLQDecryptEntry
+          results.push({ key, entry })
+        } catch (e) {
+          this.logger.error('Failed to deserialize DLQ entry', e)
+        }
+      }
+    }
+
+    return results
+  }
+
+  public async removeDLQDecryptEntries(
+    teamId: string,
+    entries: { key: string; entry: DLQDecryptEntry }[]
+  ): Promise<void> {
+    for (const { key, entry } of entries) {
+      const hash = this.computeDLQHash(entry.payload)
+      const scopeType = entry.payload.encrypted.scope.type
+      const scopeGen = entry.payload.encrypted.scope.generation
+      const indexKey = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${scopeType}:${scopeGen}:${hash}`
+
+      await this.delete(key)
+      await this.delete(indexKey)
+    }
+    this.logger.debug('Removed DLQ decrypt entries', { teamId, count: entries.length })
+  }
+
+  public async getDLQDecryptCount(teamId: string): Promise<number> {
+    let count = 0
+    for await (const _ of this.db.iterator({
+      gte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:`,
+      lte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:~`,
+    })) {
+      count++
+    }
+    return count
   }
 }
