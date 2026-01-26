@@ -36,6 +36,7 @@ export enum WebsocketEvents {
 export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
   QSS_SELF_ASSIGN_MEMBER = 'qssSelfAssignMember',
+  QSS_FULLY_JOINED = 'qssFullyJoined',
   QSS_CONNECTED = 'qssConnected',
   QSS_DISCONNECTED = 'qssDisconnected',
   QSS_HANDLE_SIGN_IN = 'qssHandleSignIn',

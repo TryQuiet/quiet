@@ -71,6 +71,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { randomBytes } from '@localfirst/crypto'
+import { QSSEvents } from '../qss/qss.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -642,6 +643,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await setupStorage()
       this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
     } else {
+      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, async (payload: { teamId: string }) => {
+        this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, payload)
+        await setupStorage()
+        this.storageService.addTeamIdToDbMetas(payload.teamId)
+      })
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
         await setupStorage()
