@@ -643,10 +643,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await setupStorage()
       this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
     } else {
-      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, async (payload: { teamId: string }) => {
-        this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, payload)
+      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, async (teamId: string) => {
+        this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
         await setupStorage()
-        this.storageService.addTeamIdToDbMetas(payload.teamId)
+        this.storageService.addTeamIdToDbMetas(teamId)
+        this.logger.info('Fully joined event received, starting log entry pull interval', teamId)
+        this.qssService.startLogPullInterval(teamId)
       })
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
