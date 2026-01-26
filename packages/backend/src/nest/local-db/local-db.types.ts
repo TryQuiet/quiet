@@ -1,5 +1,7 @@
 import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
 
+export const DLQ_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
 export interface DLQDecryptEntry {
   payload: EncryptedAndSignedPayload
   addedAt: number

@@ -10,7 +10,7 @@ import { NetworkStats, Community } from '@quiet/types'
 
 import { LocalDbModule } from './local-db.module'
 import { LocalDbService } from './local-db.service'
-import { LocalDBKeys } from './local-db.types'
+import { LocalDBKeys, DLQ_TTL_MS } from './local-db.types'
 import { TestModule } from '../common/test.module'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
@@ -692,6 +692,62 @@ describe('LocalDbService', () => {
       expect(team2Entries.length).toBe(1)
       expect(team1Entries[0].entry.payload.signature.signature).toContain('team1')
       expect(team2Entries[0].entry.payload.signature.signature).toContain('team2')
+    })
+
+    it('removes expired entries during get (full scan)', async () => {
+      const payload = createMockPayload('expired')
+      await service.addDLQDecryptEntry(TEAM_ID, payload, serializer)
+
+      // Verify entry exists
+      expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(1)
+
+      // Mock Date.now to be past TTL
+      const originalNow = Date.now
+      Date.now = jest.fn(() => originalNow() + DLQ_TTL_MS + 1000)
+
+      try {
+        const entries = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+        expect(entries.length).toBe(0)
+
+        // Entry should be deleted
+        Date.now = originalNow
+        expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(0)
+      } finally {
+        Date.now = originalNow
+      }
+    })
+
+    it('removes expired entries during get (scoped query)', async () => {
+      const payload = createMockPayload('expired-scoped')
+      await service.addDLQDecryptEntry(TEAM_ID, payload, serializer)
+
+      expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(1)
+
+      const originalNow = Date.now
+      Date.now = jest.fn(() => originalNow() + DLQ_TTL_MS + 1000)
+
+      try {
+        const entries = await service.getDLQDecryptEntries(TEAM_ID, serializer, {
+          scopeType: EncryptionScopeType.ROLE,
+          scopeGen: 1,
+        })
+        expect(entries.length).toBe(0)
+
+        Date.now = originalNow
+        expect(await service.getDLQDecryptCount(TEAM_ID)).toBe(0)
+      } finally {
+        Date.now = originalNow
+      }
+    })
+
+    it('preserves fresh entries during get', async () => {
+      const payload = createMockPayload('fresh')
+      await service.addDLQDecryptEntry(TEAM_ID, payload, serializer)
+
+      // Entry is fresh, should be returned
+      const entries = await service.getDLQDecryptEntries(TEAM_ID, serializer)
+      expect(entries.length).toBe(1)
+      expect(entries[0].entry.payload.signature.signature).toBe(payload.signature.signature)
     })
   })
 })

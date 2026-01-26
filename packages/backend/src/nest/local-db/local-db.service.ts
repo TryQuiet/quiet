@@ -15,6 +15,7 @@ import {
   DLQDecryptEntry,
   DLQDecryptGetOptions,
   DLQSerializer,
+  DLQ_TTL_MS,
 } from './local-db.types'
 import { createLogger } from '../common/logger'
 import { SerializedSigChain, SigChainSaveData } from '../auth/types'
@@ -521,11 +522,12 @@ export class LocalDbService extends EventEmitter {
   ): Promise<{ key: string; entry: DLQDecryptEntry }[]> {
     const results: { key: string; entry: DLQDecryptEntry }[] = []
     const limit = opts?.limit ?? 100
+    const now = Date.now()
 
     if (opts?.scopeType != null && opts?.scopeGen != null) {
       // Use index for scoped query
       const indexPrefix = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${opts.scopeType}:${opts.scopeGen}:`
-      for await (const [, primaryKey] of this.db.iterator({
+      for await (const [indexKey, primaryKey] of this.db.iterator({
         gte: indexPrefix,
         lte: `${indexPrefix}~`,
       })) {
@@ -535,6 +537,12 @@ export class LocalDbService extends EventEmitter {
           try {
             const buffer = Buffer.from(base64Value, 'base64')
             const entry = serializer.deserialize(buffer) as DLQDecryptEntry
+            if (now - entry.addedAt > DLQ_TTL_MS) {
+              await this.delete(primaryKey)
+              await this.delete(indexKey)
+              this.logger.debug('Removed expired DLQ entry', { teamId, addedAt: entry.addedAt })
+              continue
+            }
             results.push({ key: primaryKey, entry })
           } catch (e) {
             this.logger.error('Failed to deserialize DLQ entry', e)
@@ -551,6 +559,16 @@ export class LocalDbService extends EventEmitter {
         try {
           const buffer = Buffer.from(value, 'base64')
           const entry = serializer.deserialize(buffer) as DLQDecryptEntry
+          if (now - entry.addedAt > DLQ_TTL_MS) {
+            const hash = this.computeDLQHash(entry.payload)
+            const scopeType = entry.payload.encrypted.scope.type
+            const scopeGen = entry.payload.encrypted.scope.generation
+            const indexKey = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${scopeType}:${scopeGen}:${hash}`
+            await this.delete(key)
+            await this.delete(indexKey)
+            this.logger.debug('Removed expired DLQ entry', { teamId, addedAt: entry.addedAt })
+            continue
+          }
           results.push({ key, entry })
         } catch (e) {
           this.logger.error('Failed to deserialize DLQ entry', e)
