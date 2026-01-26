@@ -22,7 +22,7 @@ import {
 } from '@orbitdb/core'
 import { HeliaLibp2p } from 'helia'
 import { OrbitDbStorage } from '../../types'
-import { IdentitiesWithStorage } from './identitiesWithStorage'
+import { IdentitiesWithStorage } from './identity/identitiesWithStorage'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
