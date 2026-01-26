@@ -168,7 +168,8 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
         throw new Error('Invalid user profile')
       }
-      const encEntry = await this.encryptEntry(userProfile)
+      const sanitizedProfile = UserProfileStore.sanitizeUserProfile(userProfile)
+      const encEntry = await this.encryptEntry(sanitizedProfile)
       await this.getStore().put(key, encEntry)
       this.nicknameMaps.set(userProfile.userId, userProfile.nickname)
       return encEntry
@@ -177,6 +178,30 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       this.deferredProfiles.push(userProfile)
       throw err
     }
+  }
+
+  /**
+   * Strips sensitive local path information from user profile metadata.
+   * @param userProfile The user profile to sanitize.
+   * @returns A sanitized copy of the user profile.
+   */
+  public static sanitizeUserProfile(userProfile: UserProfile): UserProfile {
+    const sanitized = { ...userProfile }
+    if (sanitized.profilePhoto) {
+      sanitized.profilePhoto = {
+        ...sanitized.profilePhoto,
+        path: null,
+        tmpPath: undefined,
+      }
+    }
+    if (sanitized.fileMetadata) {
+      sanitized.fileMetadata = {
+        ...sanitized.fileMetadata,
+        path: null,
+        tmpPath: undefined,
+      }
+    }
+    return sanitized
   }
 
   /**

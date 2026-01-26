@@ -9,7 +9,7 @@ import ListItemText from '@mui/material/ListItemText'
 
 import red from '@mui/material/colors/red'
 
-import Jdenticon from '../../Jdenticon/Jdenticon'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 
 import type { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
 
@@ -145,16 +145,16 @@ const formatMessageTime = (timestamp: number | string) => {
 }
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
-  const imgStyle = {
-    width: '36px',
-    height: '36px',
-    borderRadius: '4px',
-    marginRight: '8px',
-  }
-  return message.photo ? (
-    <img style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
-  ) : (
-    <Jdenticon value={message.userId} size='36' />
+  return (
+    <ProfilePhoto
+      userProfile={message}
+      userId={message.userId}
+      size={36}
+      style={{
+        borderRadius: '4px',
+        marginRight: '8px',
+      }}
+    />
   )
 }
 

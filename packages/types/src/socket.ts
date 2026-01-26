@@ -35,6 +35,7 @@ import {
   LaunchCommunityPayload,
   RequestInvitePayload,
   ResponseInvitePayload,
+  InviteResultWithSalt,
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
@@ -235,7 +236,7 @@ export interface SocketEventsMap {
   [SocketEvents.REMOVE_DOWNLOAD_STATUS]: EmitEvent<RemoveDownloadStatus>
 
   // ====== Invites ======
-  [SocketEvents.CREATED_LONG_LIVED_LFA_INVITE]: EmitEvent<any>
+  [SocketEvents.CREATED_LONG_LIVED_LFA_INVITE]: EmitEvent<InviteResultWithSalt>
 
   // ====== Network ======
   [SocketEvents.PEER_CONNECTED]: EmitEvent<any>

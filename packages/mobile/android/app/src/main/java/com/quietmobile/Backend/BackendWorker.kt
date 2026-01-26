@@ -59,7 +59,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
          * rn‑bridge.
          */
         @JvmStatic
-        @SuppressLint("UnusedMethod")
+        @Suppress("unused") // used in C++, but Android Studio can't see that
         fun handleNodeMessages(channelName: String, msg: String?) {
             if (channelName == "_EVENTS_" && msg != null) {
                 try {

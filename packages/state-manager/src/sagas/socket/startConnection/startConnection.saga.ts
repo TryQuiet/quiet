@@ -40,6 +40,7 @@ import {
   LaunchCommunityPayload,
   HCaptchaRequest,
   HCaptchaChallengeRequest,
+  InviteResultWithSalt,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -162,7 +163,7 @@ export function subscribe(socket: Socket) {
 
     // Local First Auth
 
-    socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResult) => {
+    socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (payload: InviteResultWithSalt) => {
       logger.info(`${SocketEvents.CREATED_LONG_LIVED_LFA_INVITE}`, payload)
       emit(connectionActions.setLongLivedInvite(payload))
     })

@@ -49,6 +49,7 @@ describe('createInvite', () => {
 
     const existingInvite = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
     }
     store.dispatch(connectionActions.setLongLivedInvite(existingInvite))
@@ -69,6 +70,7 @@ describe('createInvite', () => {
   it('create invite updates long lived invite when the existing invite data is undefined', async () => {
     const newInvite = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
     }
 
@@ -97,6 +99,7 @@ describe('createInvite', () => {
   it('create invite updates long lived invite when the existing invite data is defined but invalid', async () => {
     const newInvite = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       id: '5ah8uYodiwuwVybT' as Base58,
     }
 
@@ -109,6 +112,7 @@ describe('createInvite', () => {
     const store = prepareStore().store
     const existingInvite = {
       seed: '8ah8uYodiwuwVyb5',
+      salt: '8ah8uYodiwuwVyb5',
       id: '8ah8uYodiwuwVyb5' as Base58,
     }
     store.dispatch(connectionActions.setLongLivedInvite(existingInvite))

@@ -1,16 +1,19 @@
+MIN_SUPPORTED_IPHONEOS_VERSION = '17.1'
+
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
-platform :ios, '17.1'
-install! 'cocoapods', :deterministic_uuids => false
+platform :ios, MIN_SUPPORTED_IPHONEOS_VERSION
+
+install! 'cocoapods', :deterministic_uuids => false,
+  :parallel_pod_downloads => true,
+  :parallel_pod_download_thread_pool_size => 40
 
 target 'Quiet' do
   config = use_native_modules!
 
   pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec'
 
-  use_react_native!(
-    :path => config[:reactNativePath],
-  )
+  use_react_native!(:path => config[:reactNativePath],)
 
   target 'QuietTests' do
     inherit! :complete
@@ -29,6 +32,8 @@ target 'Quiet' do
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = MIN_SUPPORTED_IPHONEOS_VERSION
+        config.build_settings['TARGETED_DEVICE_FAMILY'] = '1' # iphone only, iphone and ipad is '1,2'
       end
     end
   end

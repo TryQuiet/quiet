@@ -99,8 +99,8 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         passDataToReact(WEBSOCKET_CONNECTION_CHANNEL, new Gson().toJson(websocketConnectionPayload));
     }
 
+    @SuppressWarnings("unused")
     @ReactMethod
-    @SuppressLint("UnusedMethod")
     private static void deleteBackendData() {
         Context context = reactContext.getApplicationContext();
         try {
