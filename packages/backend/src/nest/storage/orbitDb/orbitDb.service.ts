@@ -48,7 +48,6 @@ export class OrbitDbService {
     OrbitDbService.events.on('update', (entry: LogEntry) => {
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
         const store = this.stores[entry.id]
-        this.logger.warn(entry)
         OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
       }
     })
