@@ -153,7 +153,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       await this.localDbService.removePendingQssLogSyncMessages(successes)
     }
     if (successCount < entries.length) {
-      this.logger.warn(`Failed to send ${entries.length - successCount} entries to QSS, will retry later`)
+      this.logger.warn(`Failed to send ${entries.length - successCount} entries to QSS, will retry later...`)
     }
   }
 
@@ -592,20 +592,24 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once connected', teamId)
       const authConnection = this.qssAuthConnManager.getConnection(teamId)
-      // const startLogPullInterval = (): void => {
-      //   this.logger.info('Connected event received, starting log entry pull interval', teamId)
-      //   this._startLogPullInterval(teamId)
-      // }
+      const startLogPullInterval = (): void => {
+        if (!sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+          this.logger.warn('QSS is connected but user is not a member, will pull historical log entries on full join')
+          return
+        }
+        this.logger.info('Connected event received, starting log entry pull interval', teamId)
+        this.startLogPullInterval(teamId)
+      }
 
-      // authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, startLogPullInterval)
+      authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, startLogPullInterval)
       authConnection?.on(QSSEvents.QSS_DISCONNECTED, () => {
         this.logger.info('Disconnected event received, stopping log entry pull interval', teamId)
         this._stopLogPullInterval(teamId)
       })
 
-      // if (authConnection?.active) {
-      //   startLogPullInterval()
-      // }
+      if (authConnection?.active) {
+        startLogPullInterval()
+      }
     }
 
     return result
