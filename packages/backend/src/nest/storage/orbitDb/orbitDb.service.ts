@@ -19,21 +19,22 @@ import {
   LogEntry,
   Entry,
   DatabaseType,
+  LogType,
 } from '@orbitdb/core'
 import { HeliaLibp2p } from 'helia'
 import { OrbitDbStorage } from '../../types'
-import { IdentitiesWithStorage } from './identity/identitiesWithStorage'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { SigChainService } from '../../auth/sigchain.service'
 import { LogEntrySyncMessage } from '../../qss/qss.types'
+import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 
 @Injectable()
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | undefined = undefined
-  private stores: Record<string, any> = {}
-  public identities: IdentitiesType | undefined = undefined
+  private stores: Record<string, DatabaseType> = {}
+  public identities: any | undefined = undefined
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
@@ -41,11 +42,13 @@ export class OrbitDbService {
   constructor(
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     private readonly localDbService: LocalDbService,
-    private readonly sigChainService: SigChainService
+    private readonly sigChainService: SigChainService,
+    private readonly lfaIdentities: LFAIdentities
   ) {
     OrbitDbService.events.on('update', (entry: LogEntry) => {
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
         const store = this.stores[entry.id]
+        this.logger.warn(entry)
         OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
       }
     })
@@ -68,7 +71,7 @@ export class OrbitDbService {
 
     orbitDbUseAccessController(MessagesAccessController)
 
-    this.identities = await IdentitiesWithStorage(this.orbitDbDir, ipfs)
+    this.identities = this.lfaIdentities
 
     const peerId = ipfs.libp2p.peerId
     const orbitDb = await createOrbitDB({
@@ -252,7 +255,14 @@ export class OrbitDbService {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
 
-    return []
+    const entries: LogEntry[] = []
+    const store = this.stores[address]
+    for (const hash of hashes) {
+      const entry = await (store.log as LogType).get(hash)
+      entries.push(entry)
+    }
+
+    return entries
   }
 
   public static async createDefaultStorage(

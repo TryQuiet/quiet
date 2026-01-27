@@ -36,6 +36,10 @@ class CryptoService extends ChainServiceBase {
     })
   }
 
+  public sign(message: any): SignedEnvelope {
+    return this.sigChain.team!.sign(message)
+  }
+
   public encryptAndSign(message: any, scope: EncryptionScope): EncryptedAndSignedPayload {
     let encryptedPayload: EncryptedPayload
     switch (scope.type) {
@@ -54,8 +58,7 @@ class CryptoService extends ChainServiceBase {
         throw new Error(`Unknown encryption type ${scope.type} provided!`)
     }
 
-    const signature = this.sigChain.team!.sign(message)
-
+    const signature = this.sign(message)
     return {
       encrypted: encryptedPayload,
       signature: {

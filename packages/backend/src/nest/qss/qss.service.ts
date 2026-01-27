@@ -45,7 +45,7 @@ import { QSS_RECONNECT_DELAY_MS } from './qss.const'
 import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
-import { Serializer } from './serializer.service'
+import { Serializer } from '../common/serializer.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -130,22 +130,30 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.info('Processing QSS data sync dead letter queue')
 
     const unsentHashesByAddr = await this.localDbService.getPendingQssLogSyncMessages()
+    const entries = Object.entries(unsentHashesByAddr)
+    this.logger.info(`Found ${Object.entries(unsentHashesByAddr).length} unsent hashes to send to QSS`)
     const successes: Record<string, string[]> = {}
-    for (const [address, unsentHashes] of Object.entries(unsentHashesByAddr)) {
+    for (const [address, unsentHashes] of entries) {
       const successByAddr: string[] = []
       const unsentEntries: LogEntry[] = await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)
       for (const entry of unsentEntries) {
         const success = await this.sendLogEntrySyncMessage(logEntryToLogUpdate(entry, address))
         if (success) {
           successByAddr.push(entry.hash)
+        } else {
+          this.logger.warn(`Failed to send ${entry.hash} to QSS`)
         }
       }
       if (successByAddr.length > 0) {
         successes[address] = successByAddr
       }
     }
-    if (Object.keys(successes).length > 0) {
+    const successCount = Object.keys(successes).length
+    if (successCount > 0) {
       await this.localDbService.removePendingQssLogSyncMessages(successes)
+    }
+    if (successCount < entries.length) {
+      this.logger.warn(`Failed to send ${entries.length - successCount} entries to QSS, will retry later`)
     }
   }
 
@@ -550,7 +558,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   public startLogPullInterval(teamId: string): void {
-    this.logger.trace('Starting log pull interval', teamId)
+    this.logger.debug('Starting log pull interval', teamId)
     if (this._logPullIntervals.has(teamId)) {
       return
     }
@@ -744,7 +752,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return undefined
     }
 
-    this.logger.trace('Sending log sync message to QSS', hash, teamId)
+    this.logger.debug('Sending log sync message to QSS', hash, teamId)
     const dataSyncAck = await this.qssClient.sendMessage<LogEntrySyncMessage>(
       WebsocketEvents.LOG_ENTRY_SYNC,
       dataSyncMessage,
@@ -763,6 +771,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (!success) {
       try {
+        this.logger.warn('Adding QSS sync record to dead letter queue', address, hash)
         await this.localDbService.addPendingQssLogSyncMessage(address, hash)
       } catch (e) {
         this.logger.error('Failed to write pending QSS log sync message to local DB', e)

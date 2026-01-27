@@ -5,7 +5,7 @@ import { Injectable, Optional } from '@nestjs/common'
 import { addExtension, Packr } from 'msgpackr'
 import { type SerializerConfig, SerializerEncodingType, DEFAULT_PACKER_CONFIG } from '@quiet/types'
 import { DateTime } from 'luxon'
-import { createLogger } from '../common/logger'
+import { createLogger } from './logger'
 
 /**
  * Serialization helper class for converting between objects and buffers/uint8arrays without losing context
