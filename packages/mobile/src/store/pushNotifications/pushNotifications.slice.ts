@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { NotificationPermissionStatus, PushNotificationState } from './pushNotifications.types'
+import { NotificationPermissionStatus } from './pushNotifications.types'
 
-export class PushNotificationsState implements PushNotificationState {
+export class PushNotificationsState {
   permissionStatus: NotificationPermissionStatus = NotificationPermissionStatus.NotDetermined
   permissionRequested: boolean = false
   deviceToken: string | null = null

@@ -4,9 +4,3 @@ export enum NotificationPermissionStatus {
   Denied = 'denied',
   Provisional = 'provisional',
 }
-
-export interface PushNotificationState {
-  permissionStatus: NotificationPermissionStatus
-  permissionRequested: boolean
-  deviceToken: string | null
-}

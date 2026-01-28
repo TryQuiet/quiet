@@ -1,15 +1,13 @@
-import { all, fork, takeEvery, call, put, take, cancelled } from 'typed-redux-saga'
+import { all, fork, takeEvery, call, put, select, take, cancelled } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
-import { AppState, AppStateStatus, Platform } from 'react-native'
+import { NativeModules, AppState, AppStateStatus, Platform } from 'react-native'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
 import { pushNotificationsActions } from './pushNotifications.slice'
-import { requestPermissionSaga } from './requestPermission/requestPermission.saga'
-import { checkPermissionOnLaunchSaga } from './checkPermissionOnLaunch/checkPermissionOnLaunch.saga'
+import { pushNotificationsSelectors } from './pushNotifications.selectors'
 import {
   handlePermissionResultSaga,
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
-import { triggerPermissionRequestSaga } from './triggerPermissionRequest/triggerPermissionRequest.saga'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('pushNotificationsMasterSaga')
@@ -17,6 +15,27 @@ const logger = createLogger('pushNotificationsMasterSaga')
 // Event keys matching CommunicationModule.swift
 const NOTIFICATION_PERMISSION_RESULT = 'notificationPermissionResult'
 const DEVICE_TOKEN_RECEIVED = 'deviceTokenReceived'
+
+function* requestPermissionSaga(): Generator {
+  logger.info('Requesting iOS notification permission')
+  yield* call(NativeModules.CommunicationModule.requestNotificationPermission)
+}
+
+function* checkPermissionSaga(): Generator {
+  logger.info('Checking notification permission')
+  yield* call(NativeModules.CommunicationModule.checkNotificationPermission)
+}
+
+function* triggerPermissionRequestSaga(): Generator {
+  const alreadyRequested = yield* select(pushNotificationsSelectors.permissionRequested)
+  logger.info(`App opened. alreadyRequested=${alreadyRequested}`)
+
+  if (!alreadyRequested) {
+    yield* put(pushNotificationsActions.requestPermission())
+  } else {
+    yield* put(pushNotificationsActions.checkPermissionOnLaunch())
+  }
+}
 
 function createPermissionResultChannel() {
   return eventChannel<PermissionResultPayload>(emit => {
@@ -93,13 +112,15 @@ export function* pushNotificationsMasterSaga(): Generator {
 
   logger.info('pushNotificationsMasterSaga starting')
   try {
+    // Set up native event listeners before triggering any permission requests
+    yield* fork(watchPermissionResults)
+    yield* fork(watchDeviceToken)
+    yield* fork(watchAppState)
+
     yield* all([
       takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
-      takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionOnLaunchSaga),
+      takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
       fork(triggerPermissionRequestSaga),
-      fork(watchPermissionResults),
-      fork(watchDeviceToken),
-      fork(watchAppState),
     ])
   } finally {
     logger.info('pushNotificationsMasterSaga stopping')

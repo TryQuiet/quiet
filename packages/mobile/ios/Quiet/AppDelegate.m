@@ -286,7 +286,6 @@ static NSString *const platform = @"mobile";
   for (NSUInteger i = 0; i < [deviceToken length]; i++) {
     [token appendFormat:@"%02x", bytes[i]];
   }
-  NSLog(@"APNS Device Token: %@", token);
 
   // Send token to React Native via CommunicationModule
   dispatch_async(dispatch_get_main_queue(), ^{
