@@ -32,6 +32,9 @@ static NSString *const platform = @"mobile";
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
+  // Set notification center delegate
+  [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+
   // Call only once per nodejs thread
   [self createDataDirectory];
 
@@ -273,5 +276,27 @@ static NSString *const platform = @"mobile";
 }
 
 #endif
+
+#pragma mark - Push Notification Registration
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+  NSMutableString *token = [NSMutableString string];
+  const unsigned char *bytes = (const unsigned char *)[deviceToken bytes];
+  for (NSUInteger i = 0; i < [deviceToken length]; i++) {
+    [token appendFormat:@"%02x", bytes[i]];
+  }
+  NSLog(@"APNS Device Token: %@", token);
+
+  // Send token to React Native via CommunicationModule
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[self.bridge moduleForName:@"CommunicationModule"] sendDeviceToken:token];
+  });
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+  NSLog(@"Failed to register for remote notifications: %@", error.localizedDescription);
+}
 
 @end
