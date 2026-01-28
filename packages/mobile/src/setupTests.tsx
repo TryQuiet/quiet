@@ -45,6 +45,18 @@ jest.mock('redux-persist', () => {
 
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
 
+jest.mock('react-native', () => {
+  const rn = jest.requireActual('react-native')
+  rn.NativeModules.CommunicationModule = {
+    requestNotificationPermission: jest.fn(),
+    checkNotificationPermission: jest.fn(),
+    handleIncomingEvents: jest.fn(),
+  }
+  return rn
+})
+
+jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper')
+
 jest.mock('redux-persist-filesystem-storage', () => ({
   config: jest.fn()
 }))
