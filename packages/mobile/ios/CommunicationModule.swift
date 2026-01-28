@@ -41,7 +41,7 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
-  func requestNotificationPermission(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func requestNotificationPermission() {
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
       DispatchQueue.main.async {
         var body: [String: Any] = ["granted": granted]
@@ -52,13 +52,12 @@ class CommunicationModule: RCTEventEmitter {
         if granted {
           UIApplication.shared.registerForRemoteNotifications()
         }
-        resolve(nil)
       }
     }
   }
 
   @objc
-  func checkNotificationPermission(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func checkNotificationPermission() {
     UNUserNotificationCenter.current().getNotificationSettings { settings in
       let status: String
       switch settings.authorizationStatus {
@@ -77,7 +76,9 @@ class CommunicationModule: RCTEventEmitter {
       }
       DispatchQueue.main.async {
         self.sendEvent(withName: CommunicationModule.NOTIFICATION_PERMISSION_RESULT, body: ["status": status])
-        resolve(nil)
+        if status == "granted" {
+          UIApplication.shared.registerForRemoteNotifications()
+        }
       }
     }
   }
