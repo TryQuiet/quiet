@@ -1,4 +1,12 @@
-import { Identity, IdentityProvider } from '@orbitdb/core'
+/**
+ * OrbitDB identity provider that uses LFA for verification/signing rather than the standard
+ * OrbitDB model of identity.
+ *
+ * NOTE: This doesn't store ANY identity data in OrbitDB, all identification is handled
+ * ad hoc using the sigchain.
+ */
+
+import { IdentityProvider } from '@orbitdb/core'
 import { LFA_IDENTITY_PROVIDER_TYPE } from './const'
 import { Injectable } from '@nestjs/common'
 import { SigChainService } from '../../../../auth/sigchain.service'
@@ -19,10 +27,20 @@ class LFAIdentityProvider implements IdentityProvider {
 
   constructor(private readonly sigchainService: SigChainService) {}
 
+  /**
+   * Type of the identity provider
+   */
   get type(): string {
     return LFA_IDENTITY_PROVIDER_TYPE
   }
 
+  /**
+   * Verify and return the user ID from the sigchain
+   *
+   * @param userId LFA user ID
+   * @param teamId LFA team ID
+   * @returns User ID that is verified to be on the chain
+   */
   public async getId(userId: string, teamId: string): Promise<string> {
     try {
       const { user } = this.getUserAndChain(userId, teamId)
@@ -32,6 +50,13 @@ class LFAIdentityProvider implements IdentityProvider {
     }
   }
 
+  /**
+   * Generate a signature using your user's keys from the sigchain
+   *
+   * @param userId LFA user ID
+   * @param teamId LFA team ID
+   * @returns Signature generated using this user's keys
+   */
   public async signIdentity(userId: string, teamId: string): Promise<string> {
     try {
       const { user, sigchain } = this.getUserAndChain(userId, teamId)
@@ -47,6 +72,12 @@ class LFAIdentityProvider implements IdentityProvider {
     }
   }
 
+  /**
+   * Validate a given identity from OrbitDB against the sigchain
+   *
+   * @param identity LFAIdentity object to be verified
+   * @returns True if the identity matches what is on the sigchain
+   */
   public async verifyIdentity(identity: LFAIdentity): Promise<boolean> {
     try {
       this.getUserAndChain(identity.id, identity.teamId)
@@ -58,6 +89,14 @@ class LFAIdentityProvider implements IdentityProvider {
     }
   }
 
+  /**
+   * Validate a user is on the sigchain given a user ID and return the user record and chain
+   *
+   * @param userId LFA user ID
+   * @param teamId LFA team ID
+   * @param includeRemoved Include user record even if user is removed
+   * @returns User and sigchain
+   */
   public getUserAndChain(userId: string, teamId: string, includeRemoved: boolean = false): LFAUserAndChain {
     const sigchain = this.sigchainService.getChain({ teamId }, true)
     const user = sigchain.users.getUserById(userId, { includeRemoved, throwOnMissing: true })
@@ -67,6 +106,12 @@ class LFAIdentityProvider implements IdentityProvider {
     }
   }
 
+  /**
+   * Generate a reproducible signature for a given user's keys
+   *
+   * @param user User record from sigchain
+   * @returns Payload string for signing
+   */
   private _generateIdentitySignaturePayload(user: Member): string {
     return hash(user.userId, user.keys.signature)
   }

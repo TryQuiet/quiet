@@ -593,7 +593,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once connected', teamId)
       const authConnection = this.qssAuthConnManager.getConnection(teamId)
       const startLogPullInterval = (): void => {
-        if (!sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+        if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
           this.logger.warn('QSS is connected but user is not a member, will pull historical log entries on full join')
           return
         }

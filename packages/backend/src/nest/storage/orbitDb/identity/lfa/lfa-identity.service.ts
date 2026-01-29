@@ -1,3 +1,11 @@
+/**
+ * OrbitDB identity service that uses LFA for verification/signing rather than the standard
+ * OrbitDB model of identity.
+ *
+ * NOTE: This doesn't store ANY identity data in OrbitDB, all identification is handled
+ * ad hoc using the sigchain.
+ */
+
 import { CreateIdentityOptions, IdentitiesType, Identity, KeyStoreType } from '@orbitdb/core'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import EventEmitter from 'events'
@@ -18,10 +26,23 @@ class LFAIdentities extends EventEmitter {
     super()
   }
 
+  /**
+   * NOTE: this is intentionally returning an empty document as its just to support the original
+   * identity service type from OrbitDB and the returned value isn't used anywhere
+   */
   get keystore(): KeyStoreType {
     return {} as any
   }
 
+  /**
+   * "Create" an identity for use in OrbitDB
+   *
+   * NOTE: The identity object created is an extension/modification of the built-in Identity type
+   * used by OrbitDB and isn't stored permanently anywhere
+   *
+   * @param options Options/metdata used when "creating" a new OrbitDB identity
+   * @returns An LFAIdentity object containing necessary metadata for verification/signing of OrbitDB records
+   */
   public async createIdentity(options: CreateIdentityOptions): Promise<LFAIdentity> {
     if (options.id == null) {
       throw new Error('No ID provided on createIdentity')
@@ -58,6 +79,14 @@ class LFAIdentities extends EventEmitter {
     }
   }
 
+  /**
+   * Generate an LFAIdentity object given a combination of LFA user ID, team ID and key generation
+   *
+   * NOTE: This record is generated ad hoc from the current information on the sigchain
+   *
+   * @param hash A serialized object containing the LFA user ID, team ID and key generation used for a given entry
+   * @returns LFAIdentity object associated with a given user ID
+   */
   public async getIdentity(hash: string): Promise<LFAIdentity> {
     const bytes = uint8arrays.fromString(hash, 'hex')
     const identityMetadata = this.serializer.deserialize(bytes) as LFAIdentityMetadata
@@ -79,9 +108,15 @@ class LFAIdentities extends EventEmitter {
     }
   }
 
+  /**
+   * Verify that an identity record associated with an OrbitDB entry is valid and matches the info on
+   * the sigchain
+   *
+   * @param identity LFAIdentity record to verify with the sigchain
+   * @returns True if the user and its metadata matches the chain, otherwise this throws an error
+   */
   public async verifyIdentity(identity: LFAIdentity): Promise<boolean> {
-    const { user } = this.provider.getUserAndChain(identity.id, identity.teamId, false)
-    return true
+    return this.provider.verifyIdentity(identity)
   }
 
   public async sign(identity: LFAIdentity, data: string | Uint8Array): Promise<string> {

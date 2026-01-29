@@ -70,6 +70,9 @@ export class OrbitDbService {
 
     orbitDbUseAccessController(MessagesAccessController)
 
+    /**
+     * This overrides the built-in identity system to use our custom LFA-based identity service
+     */
     this.identities = this.lfaIdentities
 
     const peerId = ipfs.libp2p.peerId
