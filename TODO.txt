@@ -1,3 +1,0 @@
-When back at mac, remove the superflous classic-level binary from backend-bundle package,
-make necessary XCode project changes and then open PR
-DELETE THIS FILE WHEN PR
