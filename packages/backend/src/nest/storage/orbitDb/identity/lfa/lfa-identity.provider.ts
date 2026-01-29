@@ -20,6 +20,7 @@ import {
 import { Member } from '@localfirst/auth'
 import { hash } from '@localfirst/crypto'
 import { createLogger } from '../../../../common/logger'
+import { randomUUID } from 'crypto'
 
 @Injectable()
 class LFAIdentityProvider implements IdentityProvider {
@@ -53,6 +54,10 @@ class LFAIdentityProvider implements IdentityProvider {
   /**
    * Generate a signature using your user's keys from the sigchain
    *
+   * NOTE: We don't use the signatures for real so we just return an arbitrary string
+   *
+   * TODO: Actually do something with this signature or delete the signature logic
+   *
    * @param userId LFA user ID
    * @param teamId LFA team ID
    * @returns Signature generated using this user's keys
@@ -64,9 +69,13 @@ class LFAIdentityProvider implements IdentityProvider {
       if (userFromContext.userId !== user.userId || userFromContext.keys.signature.publicKey != user.keys.signature) {
         throw new Error('User ID and/or public signing key does not match context user')
       }
-      const signaturePayload = this._generateIdentitySignaturePayload(user)
-      const signedEnvelope = sigchain.crypto.sign(signaturePayload)
-      return signedEnvelope.signature
+      /**
+       * TODO: uncomment if we want to actually sign identity in OrbitDB
+       */
+      // const signaturePayload = this._generateIdentitySignaturePayload(user)
+      // const signedEnvelope = sigchain.crypto.sign(signaturePayload)
+      // return signedEnvelope.signature
+      return randomUUID()
     } catch (e) {
       throw new LFAIdentityProviderSignError(e)
     }
