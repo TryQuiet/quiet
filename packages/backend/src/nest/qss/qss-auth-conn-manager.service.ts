@@ -95,8 +95,8 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       id: randomInt(1_000_000),
     })
     authConnection.teamId = teamId
-    await authConnection.start(teamName)
     this.authConnMap.set(teamId, authConnection)
+    await authConnection.start(teamName)
   }
 
   /**

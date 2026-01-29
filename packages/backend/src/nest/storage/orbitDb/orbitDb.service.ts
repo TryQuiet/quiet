@@ -27,7 +27,7 @@ import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { SigChainService } from '../../auth/sigchain.service'
-import { QSSLogEntrySyncMessage } from '../../qss/qss.types'
+import { LogEntrySyncMessage } from '../../qss/qss.types'
 
 @Injectable()
 export class OrbitDbService {
@@ -234,7 +234,7 @@ export class OrbitDbService {
     await Promise.all(joinAll)
   }
 
-  public async handleFanoutMessage(message: QSSLogEntrySyncMessage): Promise<void> {
+  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<void> {
     this.logger.debug('Ingesting fanout message, ', message.payload.hash)
     try {
       const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
