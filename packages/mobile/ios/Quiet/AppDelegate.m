@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
+#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 #import <React/RCTLinkingManager.h>
 
 #import "RNNodeJsMobile.h"
@@ -28,6 +29,7 @@ static NSString *const platform = @"mobile";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   self.moduleName = @"QuietMobile";
+  self.dependencyProvider = [RCTAppDependencyProvider new];
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
@@ -166,7 +168,7 @@ static NSString *const platform = @"mobile";
 
     NSLog(@"Tor control port response message %@", message);
 
-    // BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
+    //  BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
 
     *stop = YES;
     return YES;
@@ -227,6 +229,11 @@ static NSString *const platform = @"mobile";
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  return [self bundleURL];
+}
+
+- (NSURL *)bundleURL
 {
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
