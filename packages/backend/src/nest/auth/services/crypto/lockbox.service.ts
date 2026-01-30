@@ -4,7 +4,7 @@
 import { InviteLockboxMetadata } from './types'
 import { ChainServiceBase } from '../chainServiceBase'
 import { SigChain } from '../../sigchain'
-import { Lockbox, createKeyset, lb as lockbox } from '@localfirst/auth'
+import { KeysetWithSecrets, Lockbox, createKeyset } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '../roles/roles'
 import { hash } from '@localfirst/crypto'
@@ -40,7 +40,7 @@ class LockboxService extends ChainServiceBase {
    * @param salt Random salt generated at the time of invite creation, used to create a key scope name
    * @returns Lockbox containing the MEMBER role keys encrypted using the invite seed
    */
-  public createInviteLockbox(seed: string, salt: string): Lockbox {
+  public createInviteLockboxes(seed: string, salt: string): Lockbox[] {
     logger.debug('Creating lockbox containing MEMBER role keys encrypted to invite-based keys')
     if (this.sigChain.team == null) {
       throw new Error('Error while creating invite lockbox - No team')
@@ -49,9 +49,7 @@ class LockboxService extends ChainServiceBase {
       throw new Error('Error while creating invite lockbox - User is missing MEMBER role')
     }
     const inviteKeyset = this.generateLockboxKeys(seed, salt)
-    const roleKeys = this.sigChain.team.roleKeys(RoleName.MEMBER)
-    const lb = lockbox.createLockbox(roleKeys, inviteKeyset.keys)
-    return lb
+    return this.sigChain.team.createLockbox(RoleName.MEMBER, inviteKeyset.keys)
   }
 }
 
