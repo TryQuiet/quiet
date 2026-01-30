@@ -260,7 +260,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
-            // Example: versionCode 2 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
+            // Example: versionCodes 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
             def versionCodes = ["arm64-v8a": 1]
             def abi = output.getFilter("ABI")
             if (abi != null) {  // null for the universal-debug, universal-release variants
