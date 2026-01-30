@@ -31,7 +31,9 @@ describe('lockbox', () => {
     expect(generatedKeys.keys.generation).toBe(0)
   })
   it('should create a lockbox encrypted to our generated keys', () => {
-    const lockbox = adminSigChain.lockbox.createInviteLockbox(seed, salt)
+    const lockboxes = adminSigChain.lockbox.createInviteLockboxes(seed, salt)
+    expect(lockboxes).toHaveLength(1)
+    const lockbox = lockboxes[0]
     expect(lockbox.recipient.name).toBe(generatedKeys.id)
     expect(lockbox.recipient.generation).toBe(0)
     expect(lockbox.contents.name).toBe(RoleName.MEMBER)
