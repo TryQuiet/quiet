@@ -1,3 +1,23 @@
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
+
+export const DLQ_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
+export interface DLQDecryptEntry {
+  payload: EncryptedAndSignedPayload
+  addedAt: number
+}
+
+export interface DLQDecryptGetOptions {
+  limit?: number
+  scopeType?: string
+  scopeGen?: number
+}
+
+export interface DLQSerializer {
+  serialize(payload: unknown): Buffer
+  deserialize(buffer: Buffer): unknown
+}
+
 export enum LocalDBKeys {
   // Record of Community objects
   COMMUNITIES = 'communities',
@@ -23,6 +43,9 @@ export enum LocalDBKeys {
   KEYRINGS = 'keyrings',
   PENDING_HEADS = 'pendingHeads',
   PENDING_QSS_LOG_SYNCS = 'pendingQssLogSyncs',
+  LAST_QSS_LOG_SYNC_TIME = 'lastQssLogSyncTime',
+  DLQ_DECRYPT = 'dlq:decrypt',
+  DLQ_DECRYPT_IDX = 'dlq:idx',
 }
 export type LocalDbStatus = 'opening' | 'open' | 'closing' | 'closed'
 export enum LocalDbEvents {

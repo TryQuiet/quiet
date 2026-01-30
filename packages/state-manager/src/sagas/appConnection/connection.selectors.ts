@@ -93,6 +93,7 @@ export const invitationUrl = createSelector(
       authData: {
         communityName: currentCommunity.name,
         seed: longLivedInvite.seed,
+        salt: longLivedInvite.salt,
       },
       version: InvitationDataVersion.v2,
     }

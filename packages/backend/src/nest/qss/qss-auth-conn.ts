@@ -97,6 +97,11 @@ export class QSSAuthConnection extends EventEmitter {
     return this._id
   }
 
+  public emit(event: string | symbol, ...args: any[]): boolean {
+    this.logger.debug(`Emitting event: ${event.toString()}`, args)
+    return super.emit(event, ...args)
+  }
+
   /**
    * Starts this auth sync connection with QSS.  If an existing connection is present we will either bypass this operation
    * if it is active or attempt to restart.
@@ -188,15 +193,17 @@ export class QSSAuthConnection extends EventEmitter {
         const user = sigChain.user
         authConnection.emit('sync', { team, user })
         this._joinStatus = JoinStatus.JOINED
-        this.emit(QSSEvents.QSS_AUTH_JOINED)
+        this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId)
         this.logger.trace(`Server info`, this.sigChainService.activeChain.server.getServers())
       }
+      this.emit(QSSEvents.QSS_AUTH_CONNECTED, this.teamId)
     })
 
     // set the connection to inactive when disconnecting
     authConnection.on('disconnected', event => {
       this.logger.info(`LFA Disconnected!`, event)
       this._active = false
+      this.emit(QSSEvents.QSS_DISCONNECTED, this.teamId)
     })
 
     // handle joined events
@@ -224,7 +231,7 @@ export class QSSAuthConnection extends EventEmitter {
         this._joinStatus = JoinStatus.JOINED
       }
       void this.sigChainService.saveChain(team.teamName)
-      this.emit(QSSEvents.QSS_AUTH_JOINED) // tell other services that we've joined via QSS
+      this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
     })
 
     authConnection.on('change', payload => {

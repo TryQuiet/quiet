@@ -1,3 +1,9 @@
 module.exports = {
-  assets: ['./src/assets/fonts', './src/assets/icons'],
+	assets: ['./assets/fonts', './assets/icons'],
+  project: {	
+	  ios: {},
+  	android: {
+    	packageName: 'com.quietmobile'
+  	},
+	},
 }

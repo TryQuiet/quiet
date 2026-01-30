@@ -15,5 +15,6 @@ export const displayableMessage = (message: ChannelMessage, profile: UserProfile
     isDuplicated: false,
     media: message.media,
     photo: profile.photo,
+    profilePhoto: profile.profilePhoto,
   }
 }
