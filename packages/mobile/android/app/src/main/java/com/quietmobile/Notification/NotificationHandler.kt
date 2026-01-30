@@ -34,9 +34,9 @@ class NotificationHandler(private val context: Context) {
             val channelId = String.format("#%s", jsonMessage.getString("channelId"))
             // Parse channel name
             val index = channelId.indexOf('_')
-            val channelName = if(index == -1){
+            val channelName = if (index == -1) {
                 channelId
-            }else{
+            } else {
                 channelId.substringBefore('_')
             }
             // Parse message content
@@ -91,7 +91,13 @@ class NotificationHandler(private val context: Context) {
         notificationManager.notify(id, groupBuilder.build())
     }
 
-    private fun composeNotification(channelId: String,channelName: String, user: String, content: String, group: String) {
+    private fun composeNotification(
+        channelId: String,
+        channelName: String,
+        user: String,
+        content: String,
+        group: String
+    ) {
         val id = channelId.hashCode()
 
         val intent = Intent(

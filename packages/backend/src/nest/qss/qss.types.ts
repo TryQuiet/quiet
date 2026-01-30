@@ -26,6 +26,7 @@ export enum WebsocketEvents {
   SIGN_IN_COMMUNITY = 'sign-in-community',
   LOG_ENTRY_SYNC = 'log-entry-sync',
   LOG_ENTRY_FANOUT = 'log-entry-fanout',
+  LOG_ENTRY_PULL = 'log-entry-pull',
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
   REGISTER_DEVICE_TOKEN = 'register-device-token',
@@ -42,6 +43,7 @@ export enum QSSEvents {
   QSS_CAPTCHA_VERIFIED = 'qssCaptchaVerified',
   QSS_CAPTCHA_REQUIRED = 'qssCaptchaRequired',
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
+  QSS_AUTH_CONNECTED = 'qssAuthConnected',
 }
 
 export enum QSSOperationResult {
@@ -148,31 +150,63 @@ export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySi
   payload?: CommunitySignInPayload
 }
 
-export interface QSSLogEntrySyncPayload {
+export interface LogEntrySyncPayload {
   teamId: string
   hash: string
   hashedDbId: string
   encEntry: EncryptedAndSignedPayload
 }
 
-export interface QSSLogEntrySyncMessage extends BaseWebsocketMessage<QSSLogEntrySyncPayload> {
+export interface LogEntrySyncMessage extends BaseWebsocketMessage<LogEntrySyncPayload> {
   ts: number
   status: CommunityOperationStatus
   reason?: string
-  payload: QSSLogEntrySyncPayload
+  payload: LogEntrySyncPayload
 }
 
-export interface QSSLogEntrySyncResponsePayload {
+export interface LogEntrySyncResponsePayload {
   teamId: string
   hash: string
   hashedDbId: string
 }
 
-export interface QSSLogEntrySyncResponseMessage extends BaseWebsocketMessage<QSSLogEntrySyncResponsePayload> {
+export interface LogEntrySyncResponseMessage extends BaseWebsocketMessage<LogEntrySyncResponsePayload> {
   ts: number
   status: CommunityOperationStatus
   reason?: string
-  payload: QSSLogEntrySyncResponsePayload
+  payload: LogEntrySyncResponsePayload
+}
+
+export interface LogEntryPullPayload {
+  teamId: string
+  userId: string
+  direction?: 'forward' | 'backward'
+  startTs?: number
+  endTs?: number
+  limit?: number
+  hash?: string
+  hashedDbId?: string
+  cursor?: string
+}
+
+export interface LogEntryPullMessage extends BaseWebsocketMessage<LogEntryPullPayload> {
+  ts: number
+  status: CommunityOperationStatus
+  reason?: string
+  payload: LogEntryPullPayload
+}
+
+export interface LogEntryPullResponsePayload {
+  cursor?: string
+  hasNextPage: boolean
+  entries: Buffer[]
+}
+
+export interface LogEntryPullResponseMessage extends BaseWebsocketMessage<LogEntryPullResponsePayload> {
+  ts: number
+  status: CommunityOperationStatus
+  reason?: string
+  payload: LogEntryPullResponsePayload
 }
 
 export interface CaptchaVerifyPayload {

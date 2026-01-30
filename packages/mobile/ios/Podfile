@@ -8,6 +8,10 @@ install! 'cocoapods', :deterministic_uuids => false,
   :parallel_pod_downloads => true,
   :parallel_pod_download_thread_pool_size => 40
 
+# React native 0.76 defaults to using new architecture
+# Disable New Architecture
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+
 target 'Quiet' do
   config = use_native_modules!
 
@@ -20,11 +24,20 @@ target 'Quiet' do
     # Pods for testing
   end
 
-  # Enables Flipper.
-  #
-  # Note that if you have use_frameworks! enabled, Flipper will not work and
-  # you should disable the next line.
-  # use_flipper!()
+
+  # Make all the other frameworks into static frameworks by overriding the static_framework? function to return true
+  pre_install do |installer|
+    installer.pod_targets.each do |target|
+      # Make some targets static as they throw errors if not
+      if target.name.eql?('RNScreens') || target.name.eql?('react-native-image-picker') or target.name.eql?('RNCClipboard')
+        def target.build_type;
+          Pod::BuildType.static_library
+        end
+      end
+    end
+  end
+
+
 
   post_install do |installer|
     react_native_post_install(installer)
@@ -34,6 +47,7 @@ target 'Quiet' do
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = MIN_SUPPORTED_IPHONEOS_VERSION
         config.build_settings['TARGETED_DEVICE_FAMILY'] = '1' # iphone only, iphone and ipad is '1,2'
+        config.build_settings["ONLY_ACTIVE_ARCH"] = "YES"
       end
     end
   end
