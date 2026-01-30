@@ -40,7 +40,7 @@ describe('ChannelList component', () => {
           },
           {
             name: 'qa',
-            id: 'design',
+            id: 'qa',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: 'Yesterday',
@@ -231,7 +231,7 @@ describe('ChannelList component', () => {
               },
               {
                 "date": "Yesterday",
-                "id": "design",
+                "id": "qa",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "qa",
                 "redirect": [MockFunction],
@@ -267,7 +267,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
@@ -495,7 +501,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
@@ -723,7 +735,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {
@@ -985,7 +1003,13 @@ describe('ChannelList component', () => {
               onLayout={[Function]}
               style={null}
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flex": 1,
+                  }
+                }
+              >
                 <View
                   accessibilityState={
                     {

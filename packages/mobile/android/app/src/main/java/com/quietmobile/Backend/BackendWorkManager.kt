@@ -11,15 +11,16 @@ class BackendWorkManager(private val context: Context) {
         val workManager = WorkManager
             .getInstance(context)
 
-        val statuses: ListenableFuture<List<WorkInfo>> = workManager.getWorkInfosByTag(Const.WORKER_TAG)
+        val statuses: ListenableFuture<List<WorkInfo>> =
+            workManager.getWorkInfosByTag(Const.WORKER_TAG)
 
-        var running  = false
+        var running = false
         var enqueued = false
 
         try {
             val workInfoList: List<WorkInfo> = statuses.get()
             for (workInfo in workInfoList) {
-                running  = workInfo.state == WorkInfo.State.RUNNING
+                running = workInfo.state == WorkInfo.State.RUNNING
                 enqueued = workInfo.state == WorkInfo.State.ENQUEUED
             }
         } catch (e: ExecutionException) {
@@ -28,8 +29,8 @@ class BackendWorkManager(private val context: Context) {
             e.printStackTrace()
         }
 
-        if(!running) {
-            if(enqueued) {
+        if (!running) {
+            if (enqueued) {
                 stop()
             }
 

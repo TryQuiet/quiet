@@ -106,8 +106,13 @@ It may be convenient to run the app from Android studio, for example if you are 
 Open a terminal window,
 
 ```bash
-adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
+adb logcat -v --color --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
+
+#### Telling Android Studio to use The Temurin JDK 
+
+[Some React Native packages](https://github.com/software-mansion/react-native-svg/issues/2703#issuecomment-2971893634) may build in the terminal with `npm run android` but aren't able to built in Android Studio.
+This can be fixed in Android Studio by going to the Settings -> "Build, Execution, Deployment" -> "Build Tools" -> "Gradle" and selecting the "Gradle JDK" dropdown menu. Select the Temurin SDK in place of what Android Studio is suggesting. 
 
 #### Quiet log files
 
@@ -123,7 +128,7 @@ Metro requires additional step for locally linking packages. After running stand
 
 ```js
 const watchFolders = [
-  ...
+  // ...
   path.resolve(__dirname, '<path-to-linked-package>')
 ]
 ```
@@ -207,9 +212,10 @@ const watchFolders = [
     bundle exec pod install 
     ```
 
-1. In `packages/mobile`, create a `.xcode.env.local` file with your Node path:
+1. In `packages/mobile/ios`, create a `.xcode.env.local` file with your Node path:
 
      ```bash
+     nvm alias default node
      echo "export NODE_BINARY=$(which node)" > .xcode.env.local
      ```
 

@@ -16,7 +16,6 @@ import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter } from './types'
-import e from 'cors'
 
 @Injectable()
 export class SigChainService extends EventEmitter {

@@ -25,7 +25,7 @@ let stageStartTime: number
 type OwnerMessages = {
   initialChannelMessage: string
   fanoutMessage: string
-  afterGuestLeftMessage: string
+  catchUpMessage: string
 }
 
 type User1Messages = {
@@ -36,6 +36,7 @@ type User1Messages = {
 type User2Messages = {
   initialChannelMessage: string
   followUpMessage: string
+  catchUpMessage: string
 }
 
 type MultipleClientsUsers = {
@@ -67,7 +68,7 @@ describe('Multiple Clients (QSS)', () => {
         messages: {
           initialChannelMessage: 'Hi',
           fanoutMessage: 'This message should fanout via QSS logs',
-          afterGuestLeftMessage: 'After guest left the app',
+          catchUpMessage: 'First user should catch up via QSS',
         },
         app: new App(),
       },
@@ -84,6 +85,7 @@ describe('Multiple Clients (QSS)', () => {
         messages: {
           initialChannelMessage: 'Hi everyone',
           followUpMessage: 'The owner should see this even without user1 online',
+          catchUpMessage: 'First user is offline but should catch up via QSS',
         },
         app: new App(),
       },
@@ -530,6 +532,65 @@ describe('Multiple Clients (QSS)', () => {
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
         await generalChannelUser1.getMessageIdsByText(
           users.user2.messages.followUpMessage,
+          users.user2.username,
+          120_000
+        )
+      })
+    })
+
+    describe('First User goes offline, others talk and go offline, and QSS catches first user up', () => {
+      it('First user goes offline', async () => {
+        await users.user1.app.close()
+      })
+
+      it('Owner sends a message', async () => {
+        await generalChannelOwner.isReady()
+        await generalChannelOwner.isMessageInputReady()
+        await generalChannelOwner.sendMessage(users.owner.messages.catchUpMessage, users.owner.username)
+      })
+
+      it('Second user sends a message', async () => {
+        await generalChannelUser2.isReady()
+        await generalChannelUser2.isMessageInputReady()
+        await generalChannelUser2.sendMessage(users.user2.messages.catchUpMessage, users.user2.username)
+      })
+
+      it("Owner's message is visible in a channel", async () => {
+        await generalChannelOwner.getMessageIdsByText(users.owner.messages.catchUpMessage, users.owner.username)
+      })
+
+      it('Second user sees owner message', async () => {
+        await generalChannelUser2.getMessageIdsByText(users.owner.messages.catchUpMessage, users.owner.username, 60_000)
+      })
+
+      it('Owner sees second user message', async () => {
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages.catchUpMessage, users.user2.username, 60_000)
+      })
+
+      it('Second user goes offline', async () => {
+        await users.user2.app.close()
+      })
+
+      it('Owner goes offline', async () => {
+        await users.owner.app.close()
+      })
+
+      it('First user comes back online', async () => {
+        await users.user1.app.open(true)
+      })
+
+      it('First user sees both messages sent while offline via QSS', async () => {
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
+        expect(await generalChannelUser1.isReady()).toBeTruthy()
+        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
+        await generalChannelUser1.getMessageIdsByText(
+          users.owner.messages.catchUpMessage,
+          users.owner.username,
+          120_000
+        )
+        await generalChannelUser1.getMessageIdsByText(
+          users.user2.messages.catchUpMessage,
           users.user2.username,
           120_000
         )

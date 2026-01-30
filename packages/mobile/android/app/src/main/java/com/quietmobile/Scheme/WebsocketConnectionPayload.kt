@@ -1,6 +1,6 @@
 package com.quietmobile.Scheme
 
-data class WebsocketConnectionPayload (
+data class WebsocketConnectionPayload(
     val dataPort: Int,
     val socketIOSecret: String
 )

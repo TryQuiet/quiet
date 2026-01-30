@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { ActivityIndicator, TouchableWithoutFeedback, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { ImageAttachmentProps } from './ImageAttachment.types'
-import FastImage from 'react-native-fast-image'
+import FastImage from '@d11/react-native-fast-image'
 
 export const ImageAttachment: FC<ImageAttachmentProps> = ({ media, openImagePreview }) => {
   const { path, width, height } = media

@@ -3,7 +3,7 @@ import { View } from 'react-native'
 import { SafeAreaModal } from '../SafeAreaModal/SafeAreaModal.component'
 
 import { FileMetadata } from '@quiet/types'
-import FastImage from 'react-native-fast-image'
+import FastImage from '@d11/react-native-fast-image'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 
 import { createLogger } from '../../utils/logger'

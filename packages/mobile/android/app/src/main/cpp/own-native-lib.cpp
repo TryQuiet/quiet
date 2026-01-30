@@ -9,7 +9,7 @@
 #include "rn-bridge.h"
 
 // cache the environment variable for the thread running node to call into java
-JNIEnv *cacheEnvPointer = NULL;
+JNIEnv *cacheEnvPointer = nullptr;
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
@@ -24,24 +24,6 @@ Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
 extern "C" int callIntoNode(int argc, char *argv[]) {
   const int exit_code = node::Start(argc, argv);
   return exit_code;
-}
-
-#if defined(__arm__)
-#define CURRENT_ABI_NAME "armeabi-v7a"
-#elif defined(__aarch64__)
-#define CURRENT_ABI_NAME "arm64-v8a"
-#elif defined(__i386__)
-#define CURRENT_ABI_NAME "x86"
-#elif defined(__x86_64__)
-#define CURRENT_ABI_NAME "x86_64"
-#else
-#error "Trying to compile for an unknown ABI."
-#endif
-
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_quietmobile_Backend_NodeProjectManager_getCurrentABIName(
-    JNIEnv *env, jobject /* this */) {
-  return env->NewStringUTF(CURRENT_ABI_NAME);
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -88,7 +70,7 @@ void *thread_stderr_func(void *) {
     buf[redirect_size] = 0;
     __android_log_write(ANDROID_LOG_ERROR, ADBTAG, buf);
   }
-  return 0;
+  return nullptr;
 }
 
 void *thread_stdout_func(void *) {
@@ -101,26 +83,31 @@ void *thread_stdout_func(void *) {
     buf[redirect_size] = 0;
     __android_log_write(ANDROID_LOG_INFO, ADBTAG, buf);
   }
-  return 0;
+  return nullptr;
 }
 
 int start_redirecting_stdout_stderr() {
   // set stdout as unbuffered.
-  setvbuf(stdout, 0, _IONBF, 0);
+  setvbuf(stdout, nullptr, _IONBF, 0);
   pipe(pipe_stdout);
   dup2(pipe_stdout[1], STDOUT_FILENO);
 
   // set stderr as unbuffered.
-  setvbuf(stderr, 0, _IONBF, 0);
+  setvbuf(stderr, nullptr, _IONBF, 0);
   pipe(pipe_stderr);
   dup2(pipe_stderr[1], STDERR_FILENO);
 
-  if (pthread_create(&thread_stdout, 0, thread_stdout_func, 0) == -1)
-    return -1;
+  int stdout_thread_create = pthread_create(&thread_stdout, nullptr, thread_stdout_func, nullptr);
+  if (stdout_thread_create != 0) // may return EAGAIN, EPERM or EINVAL on error
+    return stdout_thread_create;
+
   pthread_detach(thread_stdout);
 
-  if (pthread_create(&thread_stderr, 0, thread_stderr_func, 0) == -1)
-    return -1;
+  int stderr_thread_create = pthread_create(&thread_stderr, nullptr, thread_stderr_func, nullptr);
+
+  if (stderr_thread_create != 0)
+    return stderr_thread_create;
+
   pthread_detach(thread_stderr);
 
   return 0;
@@ -132,7 +119,7 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
     JNIEnv *env, jobject /* this */, jobjectArray arguments,
     jstring modulesPath, jstring dataPath, jobjectArray envVars) {
   // Set the builtin_modules path to NODE_PATH.
-  const char *path_path = env->GetStringUTFChars(modulesPath, 0);
+  const char *path_path = env->GetStringUTFChars(modulesPath, nullptr);
   const char *logs = "/logs";
   jstring logs_js = env->NewStringUTF(logs);
   jclass cls_StringBuilder = env->FindClass("java/lang/StringBuilder");
@@ -166,7 +153,7 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
     jsize env_count = env->GetArrayLength(envVars);
     for (int i = 0; i < env_count; i++) {
       const char *env_entry = env->GetStringUTFChars(
-          (jstring)env->GetObjectArrayElement(envVars, i), 0);
+          (jstring)env->GetObjectArrayElement(envVars, i), nullptr);
       // env_entry is in the form KEY=VALUE
       const char *eq_pos = strchr(env_entry, '=');
       if (eq_pos) {
@@ -185,16 +172,15 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
   jsize argument_count = env->GetArrayLength(arguments);
 
   // Compute byte size need for all arguments in contiguous memory.
-  int c_arguments_size = 0;
+  size_t c_arguments_size = 0;
   for (int i = 0; i < argument_count; i++) {
     c_arguments_size += strlen(env->GetStringUTFChars(
-        (jstring)env->GetObjectArrayElement(arguments, i), 0));
+        (jstring)env->GetObjectArrayElement(arguments, i), nullptr));
     c_arguments_size++; // for '\0'
   }
 
   // Stores arguments in contiguous memory.
-  char *args_buffer = (char *)calloc(c_arguments_size, sizeof(char));
-
+  char *args_buffer = (char *) calloc(c_arguments_size, sizeof(char));
   // argv to pass into node.
   char *argv[argument_count];
 
@@ -216,6 +202,8 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
     // Increment to the next argument's expected position.
     current_args_position += strlen(current_args_position) + 1;
   }
+
+  free(args_buffer);
 
   rn_register_bridge_cb(&rcv_message);
 
