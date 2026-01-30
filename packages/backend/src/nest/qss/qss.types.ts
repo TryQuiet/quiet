@@ -28,6 +28,7 @@ export enum WebsocketEvents {
   LOG_ENTRY_FANOUT = 'log-entry-fanout',
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
+  REGISTER_DEVICE_TOKEN = 'register-device-token',
 }
 
 /**

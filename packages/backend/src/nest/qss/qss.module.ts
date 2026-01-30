@@ -13,6 +13,6 @@ import { SocketModule } from '../socket/socket.module'
 @Module({
   imports: [SigChainModule, LocalDbModule, forwardRef(() => OrbitDbModule), CaptchaModule, SocketModule],
   providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection],
-  exports: [QSSService],
+  exports: [QSSService, QSSClient],
 })
 export class QSSModule {}
