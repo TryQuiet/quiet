@@ -96,7 +96,6 @@ function* watchDeviceToken(): Generator {
     while (true) {
       const { token } = yield* take(channel)
       logger.info('Received device token')
-      yield* put(pushNotificationsActions.setDeviceToken(token))
       yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
     }
   } finally {
