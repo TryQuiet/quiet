@@ -23,6 +23,8 @@ import {
   LIBP2P_DB_PATH,
   QSS_ALLOWED,
   QSS_ENDPOINT,
+  QPS_ALLOWED,
+  QPS_ENDPOINT,
 } from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
@@ -39,6 +41,7 @@ import { Level } from 'level'
 import { createLogger } from './common/logger'
 import { SocketActionsMap, SocketEventsMap } from '@quiet/types'
 import { QSSModule } from './qss/qss.module'
+import { QPSModule } from './qps/qps.module'
 import { verifyToken } from './common/token'
 import { OrbitDbModule } from './storage/orbitDb/orbitdb.module'
 
@@ -58,6 +61,7 @@ const logger = createLogger('appModule')
     ConnectionsManagerModule,
     TorModule,
     QSSModule,
+    QPSModule,
   ],
   providers: [
     {
@@ -231,6 +235,14 @@ export class AppModule {
           provide: QSS_ENDPOINT,
           useValue: process.env.QSS_ENDPOINT,
         },
+        {
+          provide: QPS_ALLOWED,
+          useValue: process.env.QPS_ALLOWED === 'true',
+        },
+        {
+          provide: QPS_ENDPOINT,
+          useValue: process.env.QPS_ENDPOINT,
+        },
       ],
       exports: [
         CONFIG_OPTIONS,
@@ -243,6 +255,8 @@ export class AppModule {
         LEVEL_DB,
         QSS_ALLOWED,
         QSS_ENDPOINT,
+        QPS_ALLOWED,
+        QPS_ENDPOINT,
       ],
     }
   }

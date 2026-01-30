@@ -8,6 +8,7 @@ import {
   handlePermissionResultSaga,
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
+import { pushNotifications } from '@quiet/state-manager'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('pushNotificationsMasterSaga')
@@ -96,6 +97,7 @@ function* watchDeviceToken(): Generator {
       const { token } = yield* take(channel)
       logger.info('Received device token')
       yield* put(pushNotificationsActions.setDeviceToken(token))
+      yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
     }
   } finally {
     if (yield cancelled()) {
