@@ -219,7 +219,7 @@ export class SigChainService extends EventEmitter {
     setActive: boolean
   ): Promise<SigChain> {
     this.logger.info('Creating chain from invite')
-    const sigChain = SigChain.createFromInvite(username, seed, teamName, teamId)
+    const sigChain = SigChain.createFromInvite(username, seed)
     this.addChain(sigChain, setActive, teamName, teamId)
     await this.saveChain(teamName)
     return sigChain

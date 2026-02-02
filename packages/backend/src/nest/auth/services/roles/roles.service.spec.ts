@@ -57,12 +57,7 @@ describe('roles', () => {
     expect(keysFromLockbox!['ROLE'][RoleName.MEMBER].length).toBe(1)
   })
   it('should create second user who is not admin', () => {
-    secondSigChain = SigChain.createFromInvite(
-      secondUsername,
-      invite.seed,
-      adminSigChain.team!.teamName,
-      adminSigChain.team!.id
-    )
+    secondSigChain = SigChain.createFromInvite(secondUsername, invite.seed)
     expect(secondSigChain).toBeDefined()
     expect(secondSigChain.context).toBeDefined()
     expect(secondSigChain.context.user.userName).toBe(secondUsername)
