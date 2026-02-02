@@ -4,7 +4,7 @@
 import { InviteLockboxMetadata } from './types'
 import { ChainServiceBase } from '../chainServiceBase'
 import { SigChain } from '../../sigchain'
-import { KeysetWithSecrets, Lockbox, createKeyset } from '@localfirst/auth'
+import { KeysetWithSecrets, Lockbox, createKeyset, role } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '../roles/roles'
 import { hash } from '@localfirst/crypto'
@@ -40,16 +40,16 @@ class LockboxService extends ChainServiceBase {
    * @param salt Random salt generated at the time of invite creation, used to create a key scope name
    * @returns Lockbox containing the MEMBER role keys encrypted using the invite seed
    */
-  public createInviteLockboxes(seed: string, salt: string): Lockbox[] {
-    logger.debug('Creating lockbox containing MEMBER role keys encrypted to invite-based keys')
+  public createInviteLockboxes(seed: string, salt: string, roleName: string | RoleName = RoleName.MEMBER): Lockbox[] {
+    logger.debug(`Creating lockbox containing ${roleName} role keys encrypted to invite-based keys`)
     if (this.sigChain.team == null) {
       throw new Error('Error while creating invite lockbox - No team')
     }
-    if (!this.sigChain.roles.memberHasRole(this.sigChain.context.user.userId, RoleName.MEMBER)) {
-      throw new Error('Error while creating invite lockbox - User is missing MEMBER role')
+    if (!this.sigChain.roles.memberHasRole(this.sigChain.context.user.userId, roleName)) {
+      throw new Error(`Error while creating invite lockbox - User is missing ${roleName} role`)
     }
     const inviteKeyset = this.generateLockboxKeys(seed, salt)
-    return this.sigChain.team.createLockbox(RoleName.MEMBER, inviteKeyset.keys)
+    return this.sigChain.team.createLockbox(roleName, inviteKeyset.keys)
   }
 
   /**
@@ -59,16 +59,20 @@ class LockboxService extends ChainServiceBase {
    * @param salt Random salt generated at the time of invite creation, used to create a key scope name
    * @returns MEMBER role keys pulled from invite lockbox
    */
-  public openInviteLockbox(seed: string, salt: string): KeysetWithSecrets {
-    logger.debug('Opening lockbox containing MEMBER role keys encrypted to invite-based keys')
+  public openInviteLockbox(
+    seed: string,
+    salt: string,
+    roleName: string | RoleName = RoleName.MEMBER
+  ): KeysetWithSecrets {
+    logger.debug(`Opening lockbox containing ${roleName} role keys encrypted to invite-based keys`)
     if (this.sigChain.team == null) {
       throw new Error('Error while opening invite lockbox - No team')
     }
-    if (this.sigChain.roles.memberHasRole(this.sigChain.context.user.userId, RoleName.MEMBER)) {
+    if (this.sigChain.roles.memberHasRole(this.sigChain.context.user.userId, roleName)) {
       throw new Error('Error while opening invite lockbox - Already has MEMBER role')
     }
     const inviteKeyset = this.generateLockboxKeys(seed, salt)
-    const roleKeys = this.sigChain.team.roleKeys(RoleName.MEMBER, undefined, inviteKeyset.keys)
+    const roleKeys = this.sigChain.team.roleKeys(roleName, undefined, inviteKeyset.keys)
     return roleKeys
   }
 }
