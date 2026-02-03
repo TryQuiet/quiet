@@ -22,7 +22,8 @@ import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { StorageEvents } from '../../storage/storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { InviteResult } from '@localfirst/auth'
+import { generateProof, InviteResult, MemberContext, redactDevice, redactKeys, Team } from '@localfirst/auth'
+import { RoleName } from '../../auth/services/roles/roles'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
@@ -220,6 +221,14 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
   let timeToLastSync: number | undefined
   let inviteResult: InviteResult
 
+  const initOrbitDb = async (i: number) => {
+    const ipfsService = modules[i].get(IpfsService)
+    const orbitDbService = modules[i].get(OrbitDbService)
+    const channelsService = modules[i].get(ChannelsService)
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    await channelsService.init()
+  }
+
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
     modules.push(...(await spawnTestModules(N_PEERS)))
@@ -242,15 +251,14 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     await Promise.all(
       modules.map(async (module, i) => {
         const ipfsService = module.get(IpfsService)
-        const orbitDbService = module.get(OrbitDbService)
         const libp2pService = module.get(Libp2pService)
-        const channelsService = module.get(ChannelsService)
         const localDbService = module.get(LocalDbService)
         await localDbService.open()
         await ipfsService.createInstance()
         await ipfsService.start()
-        await orbitDbService.create(ipfsService.ipfsInstance!)
-        await channelsService.init()
+        if (i === 0) {
+          await initOrbitDb(i)
+        }
         libp2pService.pauseDialQueue()
       })
     )
@@ -289,8 +297,9 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       logger.info(`dialed peer ${i}`)
       // Wait for the peer to be connected (AUTH_JOINED)
       await new Promise<void>(resolve => {
-        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, async () => {
           logger.info(`peer ${i} connected`)
+          await initOrbitDb(i)
           resolve()
         })
       })
@@ -541,7 +550,46 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(newPeerModule.length).toBe(1)
     modules.push(newPeerModule[0])
     const sigchainService = await modules[N_PEERS].resolve(SigChainService)
-    await sigchainService.createChainFromInvite(`user${N_PEERS}`, teamName, inviteResult.seed, undefined, true)
+    /**
+     * This is kind of janky but this is what is happening and why:
+     *
+     * With the introduction of LFA-based identity in OrbitDB you need an initialized sigchain (with a joined team) to
+     * be able to generate/validate identity objects.  Under normal circumstances we don't create/initialize our instance
+     * of OrbitDB until after joining the sigchain so to simulate the behavior of having OrbitDB data without the ability
+     * to decrypt is to manually pseudo-join^ the chain and then properly join using the invite in the later step where we get the
+     * ability to decrypt.
+     *
+     * ^What does pseudo-joining mean?  Basically we are doing the steps performed by the LFA connection when admitting a member
+     * and manually udpating everyone's team graphs to match the new user's since they're the only one that has their device on it.
+     * Once the new user connects to a peer over libp2p they will be able to authenticate and the existing peer will add the 'member'
+     * role so they can decrypt records in OrbitDB.
+     */
+    const username = `user${N_PEERS}`
+    const sigchain = await sigchainService.createChainFromInvite(username, teamName, inviteResult.seed, undefined, true)
+    const proof = generateProof(inviteResult.seed)
+    const adminSigchainService = modules[0].get(SigChainService)
+    adminSigchainService.activeChain.team!.admitMember(proof, redactKeys(sigchain.context.user.keys), username)
+    const teamBytes = adminSigchainService.activeChain.save()
+    const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
+    expect(teamKeyring).toBeDefined()
+    const userContext = {
+      device: sigchain.context.device,
+      user: sigchain.context.user,
+    }
+    const loadedTeam = new Team({
+      source: teamBytes,
+      context: userContext,
+      teamKeyring,
+    })
+    loadedTeam.join(teamKeyring)
+    sigchain.context = {
+      ...userContext,
+      team: loadedTeam,
+    }
+    const newUser = sigchain.users.getUserByName(username)
+    expect(newUser).toBeDefined()
+    expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
+
     // Create libp2p instances (in-memory transport)
     libp2pNodeParams = await spawnLibp2pInstancesInMemory(newPeerModule)
 
@@ -561,6 +609,33 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     attachEventListeners(await modules[N_PEERS].get(Libp2pService), eventTimeline, `${N_PEERS}`)
     attachEventListeners(await modules[N_PEERS].get(Libp2pService), eventTimelines[N_PEERS], `${N_PEERS}`)
   })
+
+  it(`merge new user's graph into the other sigchains`, async () => {
+    logger.info(`merge new user's graph into the other sigchains`)
+    const newestSigchainService = modules[N_PEERS].get(SigChainService)
+    const newestGraph = newestSigchainService.team.graph
+    for (let i = 0; i < modules.length - 1; i++) {
+      logger.info(`peer ${i} merging graph`)
+      const sigchainService = await modules[i].resolve(SigChainService)
+      sigchainService.team.merge(newestGraph)
+    }
+    // all peers should have the same graph head
+    const heads: Hash[][] = []
+    for (let i = 0; i < modules.length; i++) {
+      const sigchainService = await modules[i].resolve(SigChainService)
+      const head = sigchainService.getActiveChain().team?.graph.head
+      if (head !== undefined) {
+        heads.push(head)
+        logger.info(`peer ${i} has head:`, head)
+      }
+    }
+    if (heads.every(head => headsAreEqual(heads[0], head))) {
+      logger.info('all peers have the same graph head')
+    } else {
+      logger.error('failed to merge graphs!')
+      throw new Error('failed to merge graphs!')
+    }
+  }, 240_000)
 
   it('injects entries into new peer and cannot decrypt them', async () => {
     logger.info('injects entries into new peer and cannot decrypt them')
@@ -604,7 +679,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     await libp2pService.dialPeer(modules[0].get(Libp2pService).localAddress)
     // Wait for the peer to be connected (AUTH_JOINED)
     await new Promise<void>(resolve => {
-      libp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+      libp2pService.once(Libp2pEvents.AUTH_CONNECTED, async () => {
         logger.info(`peer ${N_PEERS} connected`)
         resolve()
       })
