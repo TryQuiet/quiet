@@ -23,5 +23,3 @@ if (fs.existsSync(substitutionDataFile)) {
     old_dlopen(_module,_filename);
   }
 }
-
-

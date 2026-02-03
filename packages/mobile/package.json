@@ -19,8 +19,7 @@
     "patch-state-manager": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -f -d ../state-manager -p0 < ./factory-girl.patch || true",
     "patch-react-native": "patch -f -p0 --forward --binary < ./react-native.patch || true",
     "patch-webview-crypto": "patch -f -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
-    "override-dlopen": "cd ./nodejs-assets/nodejs-project && cp ../override-dlopen-paths-preload.js ./ && cp ../override-dlopen-paths-data.json ./",
-    "prepare": "npm run prepare-backend-assets && npm run override-dlopen && npm run patch-react-native-file-logger && npm run patch-state-manager && npm run patch-react-native && npm run patch-webview-crypto && npm run build",
+    "prepare": "npm run prepare-backend-assets && npm run patch-react-native-file-logger && npm run patch-state-manager && npm run patch-react-native && npm run patch-webview-crypto && npm run build",
     "version": "react-native-version --skip-tag"
   },
   "dependencies": {
