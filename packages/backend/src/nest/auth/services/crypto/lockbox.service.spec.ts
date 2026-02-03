@@ -38,5 +38,9 @@ describe('lockbox', () => {
     expect(lockbox.recipient.generation).toBe(0)
     expect(lockbox.contents.name).toBe(RoleName.MEMBER)
     expect(lockbox.contents.type).toBe(EncryptionScopeType.ROLE)
+
+    const keysFromLockbox = adminSigChain.team?.allKeys(generatedKeys.keys)
+    expect(keysFromLockbox).toBeDefined()
+    expect(keysFromLockbox!['ROLE'][RoleName.MEMBER].length).toBe(1)
   })
 })
