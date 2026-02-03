@@ -5,7 +5,7 @@ export enum RoleName {
   MEMBER = 'member',
 }
 
-export const SELF_ASSIGN_ROLES: RoleName[] = [RoleName.MEMBER]
+export const SELF_ASSIGN_ROLES: (RoleName | string)[] = [RoleName.MEMBER]
 
 export type RoleMemberInfo = {
   id: string
