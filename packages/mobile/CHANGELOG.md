@@ -1,24 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.6.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0-alpha.3...@quiet/mobile@6.6.0-alpha.0) (2026-02-04)
-
-
-### Bug Fixes
-
-* Keyboard avoiding on android, properly displaying send button on android, newline rendering in message component on mobile ([#2980](https://github.com/TryQuiet/quiet/issues/2980)) ([4f0afa3](https://github.com/TryQuiet/quiet/commit/4f0afa30160cdc75f624e7246580438c7d2e7600))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -27,11 +6,16 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
 * Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
+* Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
+* Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
+* Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
 
 ### Fixes
 
 * DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
- 
+* Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
+* Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
+
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
