@@ -55,22 +55,7 @@ jest.mock('react-native', () => {
   return rn
 })
 
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper', () => {
-  const noop = jest.fn()
-  const apiProxy = new Proxy({}, { get: () => noop })
-  return {
-    __esModule: true,
-    default: new Proxy(
-      {},
-      {
-        get: (_target: any, prop: string) => {
-          if (prop === 'API') return apiProxy
-          return noop
-        },
-      }
-    ),
-  }
-})
+jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper')
 
 jest.mock('redux-persist-filesystem-storage', () => ({
   config: jest.fn(),
