@@ -1,3 +1,24 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [6.6.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0-alpha.3...@quiet/mobile@6.6.0-alpha.0) (2026-02-04)
+
+
+### Bug Fixes
+
+* Keyboard avoiding on android, properly displaying send button on android, newline rendering in message component on mobile ([#2980](https://github.com/TryQuiet/quiet/issues/2980)) ([4f0afa3](https://github.com/TryQuiet/quiet/commit/4f0afa30160cdc75f624e7246580438c7d2e7600))
+
+
+### Reverts
+
+* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
+
+
+
+
+
 # Changelog
 
 [unreleased]
