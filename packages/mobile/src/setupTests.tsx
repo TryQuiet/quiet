@@ -55,8 +55,6 @@ jest.mock('react-native', () => {
   return rn
 })
 
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper')
-
 jest.mock('redux-persist-filesystem-storage', () => ({
   config: jest.fn(),
 }))
