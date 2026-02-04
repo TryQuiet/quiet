@@ -19,7 +19,13 @@ describe('ChannelList component', () => {
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
-      <View>
+      <View
+        style={
+          {
+            "flex": 1,
+          }
+        }
+      >
         <View
           accessibilityState={
             {
@@ -251,7 +257,13 @@ describe('ChannelList component', () => {
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
-      <View>
+      <View
+        style={
+          {
+            "flex": 1,
+          }
+        }
+      >
         <View
           accessibilityState={
             {

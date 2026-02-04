@@ -23,18 +23,18 @@ ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin
 WORKDIR ${ANDROID_HOME}/cmdline-tools/latest/bin
 RUN yes | ./sdkmanager --licenses
 
-RUN ./sdkmanager --install "platforms;android-34" "platforms;android-33" "platforms;android-26" "build-tools;34.0.0" "build-tools;33.0.1" "cmake;3.22.1" "platform-tools"
+RUN ./sdkmanager --install "platforms;android-35" "platforms;android-34" "platforms;android-33" "platforms;android-26" "build-tools;35.0.0" "build-tools;34.0.0" "build-tools;33.0.1" "cmake;3.22.1" "platform-tools"
 
 # Install Android NDK
 WORKDIR ${ANDROID_HOME}
-RUN yes | wget -c https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
-RUN unzip android-ndk-r25b-linux.zip
+RUN yes | wget -c https://dl.google.com/android/repository/android-ndk-r28c-linux.zip
+RUN unzip android-ndk-r28c-linux.zip
 
-ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r25b
+ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r28c
 ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
 RUN mkdir /home/node/.gradle
 RUN chown -R 1000:1000 /home/node/.gradle
-RUN echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r25b >> /home/node/.gradle/gradle.properties
+RUN echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r28c >> /home/node/.gradle/gradle.properties
 
 WORKDIR /app/packages/mobile
