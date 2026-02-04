@@ -52,7 +52,7 @@ import {
   SetUserProfileResponse,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
-import { Libp2pService } from '../libp2p/libp2p.service'
+import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
 import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
@@ -250,8 +250,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Pausing!')
     await this.closeSocket()
     this.logger.info('Pausing libp2pService!')
-    this.peerInfo = await this.libp2pService?.pause()
-    this.logger.info('Found the following peer info on pause: ', this.peerInfo)
+    await this.libp2pService?.pause()
   }
 
   public async resume() {
@@ -722,6 +721,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } else {
           try {
             const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
+
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })
@@ -794,6 +794,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.storageService?.addUserProfile(payload.profile))
       }
     )
+
+    this.socketService.on(SocketActions.TOGGLE_P2P, async (payload: boolean, callback: (response: boolean) => void) => {
+      try {
+        if (payload) {
+          await this.libp2pService.resume()
+          await this.storageService.startSync()
+        } else {
+          await this.libp2pService.pause()
+          await this.storageService.stopSync()
+        }
+      } catch (e) {
+        this.logger.error('Error toggling libp2p service', e)
+      }
+
+      if (this.libp2pService.state === Libp2pState.Started) {
+        callback(true)
+      } else {
+        callback(false)
+      }
+    })
   }
 
   /**

@@ -17,6 +17,7 @@ import {
   CreateChannelPayload,
   ChannelSubscribedPayload,
   DeleteChannelPayload,
+  ConsumedChannelMessage,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -136,8 +137,8 @@ export class ChannelsService extends EventEmitter {
       }
     )
 
-    this.channels.events.on('update', (entry: LogEntry) => {
-      const channelId = entry.payload.key
+    this.channels.events.on('update', (entry: LogEntry<ConsumedChannelMessage>) => {
+      const channelId = entry.payload?.value?.channelId
       const operation = entry.payload.op
       this.logger.info('public-channels database updated', channelId, operation)
 

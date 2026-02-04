@@ -23,10 +23,12 @@ export enum SettingsModalTabName {
   NOTIFICATIONS = 'notifications',
   QR_CODE = 'qr-code',
   LEAVE_COMMUNITY = 'leave-community',
+  DEBUG = 'debug',
 }
 
 export enum PhotoExt {
   GIF = 'gif',
   JPEG = 'jpeg',
+  JPG = 'jpg',
   PNG = 'png',
 }

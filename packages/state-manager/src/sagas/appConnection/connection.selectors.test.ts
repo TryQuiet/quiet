@@ -41,6 +41,8 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.updateNetworkData({
         peer: '12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
+        address:
+          '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/80/ws/p2p/12D3KooWEHzmff5kZAvyU6Diq5uJG8QkWJxFNUcBLuWjxUGvxaqw',
         connectionDuration: 50,
         lastSeen: 1000,
       })
@@ -50,6 +52,8 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.updateNetworkData({
         peer: '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
+        address:
+          '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/80/ws/p2p/12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx',
         connectionDuration: 500,
         lastSeen: 900,
       })
@@ -59,6 +63,8 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.updateNetworkData({
         peer: '12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
+        address:
+          '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/80/ws/p2p/12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
         connectionDuration: 200,
         lastSeen: 500,
       })
@@ -68,6 +74,8 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.updateNetworkData({
         peer: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+        address:
+          '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/80/ws/p2p/12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
         connectionDuration: 100,
         lastSeen: 100,
       })
@@ -141,14 +149,16 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const authData = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
     }
 
@@ -193,14 +203,16 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const authData = {
       seed: '5ah8uYodiwuwVybT',
+      salt: '5ah8uYodiwuwVybT',
       communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
       teamId,
     }
@@ -246,11 +258,12 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     try {
       const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
       expect(selectorInvitationUrl).toBe('')
@@ -286,11 +299,12 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
-    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
+    expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     try {
       const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
       expect(selectorInvitationUrl).toBe('')
@@ -322,6 +336,7 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )
@@ -349,6 +364,7 @@ describe('communitiesSelectors', () => {
     store.dispatch(
       connectionActions.setLongLivedInvite({
         seed: '5ah8uYodiwuwVybT',
+        salt: '5ah8uYodiwuwVybT',
         id: '5ah8uYodiwuwVybT' as Base58,
       })
     )

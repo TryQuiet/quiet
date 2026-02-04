@@ -35,6 +35,7 @@ import {
   LaunchCommunityPayload,
   RequestInvitePayload,
   ResponseInvitePayload,
+  InviteResultWithSalt,
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
@@ -98,6 +99,7 @@ export enum SocketActions {
    * data into the backend.
    */
   LOAD_MIGRATION_DATA = 'loadMigrationData',
+  TOGGLE_P2P = 'toggleP2P',
 }
 
 // -----------------------------------------------------------------------------
@@ -198,6 +200,7 @@ export interface SocketActionsMap {
   [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
 
   // ====== Misc ======
+  [SocketActions.TOGGLE_P2P]: EmitEvent<boolean, (response: boolean) => void>
 }
 
 // -----------------------------------------------------------------------------
@@ -233,7 +236,7 @@ export interface SocketEventsMap {
   [SocketEvents.REMOVE_DOWNLOAD_STATUS]: EmitEvent<RemoveDownloadStatus>
 
   // ====== Invites ======
-  [SocketEvents.CREATED_LONG_LIVED_LFA_INVITE]: EmitEvent<any>
+  [SocketEvents.CREATED_LONG_LIVED_LFA_INVITE]: EmitEvent<InviteResultWithSalt>
 
   // ====== Network ======
   [SocketEvents.PEER_CONNECTED]: EmitEvent<any>

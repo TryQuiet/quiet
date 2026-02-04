@@ -24,6 +24,12 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   }
   return message.photo ? (
     <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
+  ) : message.profilePhoto?.path ? (
+    <Image
+      style={imgStyle}
+      source={{ uri: `file://${message.profilePhoto.path}` }}
+      alt={"Message author's profile image"}
+    />
   ) : (
     <Jdenticon value={message.userId} size={37} />
   )

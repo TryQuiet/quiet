@@ -6,8 +6,8 @@ import {
   SetConnectionProcessInfoPayload,
   type NetworkDataPayload,
   type NetworkStats,
+  InviteResultWithSalt,
 } from '@quiet/types'
-import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('connectionSlice')
@@ -23,7 +23,8 @@ export class ConnectionState {
     number: 5,
     text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
-  public longLivedInvite: InviteResult | undefined = undefined
+  public longLivedInvite: InviteResultWithSalt | undefined = undefined
+  public p2pEnabled: boolean = true
 }
 
 export const connectionSlice = createSlice({
@@ -37,6 +38,7 @@ export const connectionSlice = createSlice({
       const _peerStats = state.peersStats || peersStatsAdapter.getInitialState()
       peersStatsAdapter.upsertOne(_peerStats, {
         peerId: action.payload.peer,
+        address: action.payload.address,
         lastSeen: action.payload.lastSeen,
         connectionTime: 0,
       })
@@ -46,6 +48,7 @@ export const connectionSlice = createSlice({
       const _peerStats = state.peersStats || peersStatsAdapter.getInitialState()
       peersStatsAdapter.upsertOne(_peerStats, {
         peerId: action.payload.peer,
+        address: action.payload.address,
         lastSeen: action.payload.lastSeen,
         connectionTime: prev + action.payload.connectionDuration,
       })
@@ -56,7 +59,7 @@ export const connectionSlice = createSlice({
     setTorInitialized: state => {
       state.isTorInitialized = true
     },
-    setLongLivedInvite: (state, action: PayloadAction<InviteResult | undefined>) => {
+    setLongLivedInvite: (state, action: PayloadAction<InviteResultWithSalt | undefined>) => {
       state.longLivedInvite = action.payload
     },
     setSocketIOSecret: (state, action: PayloadAction<string>) => {
@@ -84,6 +87,10 @@ export const connectionSlice = createSlice({
       }
     },
     createInvite: (state, _action: PayloadAction<any>) => state,
+    toggleP2P: state => state,
+    setP2PEnabled: (state, action: PayloadAction<boolean>) => {
+      state.p2pEnabled = action.payload
+    },
   },
 })
 

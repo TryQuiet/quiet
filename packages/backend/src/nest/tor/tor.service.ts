@@ -71,7 +71,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async isBootstrappingFinished(): Promise<boolean> {
-    this.logger.info('Checking bootstrap status')
+    this.logger.debug('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
       this.logger.info('Bootstrapping finished!')
@@ -100,7 +100,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       this.initTimeout = setTimeout(async () => {
-        this.logger.info('Checking init timeout')
+        this.logger.debug('Checking init timeout')
         const bootstrapDone = await this.isBootstrappingFinished()
         if (!bootstrapDone) {
           this.initializedHiddenServices = new Map()
@@ -111,12 +111,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       const tryToSpawnTor = async () => {
         if (oldTorPid != null) {
-          this.logger.info(`Clearing out old tor process with pid ${oldTorPid}`)
           this.clearOldTorProcess(oldTorPid)
         }
 
         try {
-          this.logger.info('Clearing out hanging tor process(es)')
           this.clearHangingTorProcess()
         } catch (e) {
           this.logger.error('Error occured while trying to clear hanging tor processes', e)
@@ -126,18 +124,61 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
 
-          this.interval = setInterval(async () => {
-            this.logger.info('Checking bootstrap interval')
-            const bootstrapDone = await this.isBootstrappingFinished()
-            if (bootstrapDone) {
+          const bootstrapIntervalMs = 2500
+          if (this.interval) {
+            this.logger.warn('Bootstrap interval already set; clearing before starting a new one')
+            clearInterval(this.interval)
+            this.interval = undefined
+          }
+
+          let tickInProgress = false
+          let tickCount = 0
+          let lastTickStartedAt = 0
+          this.logger.info('Starting bootstrap check interval', {
+            intervalMs: bootstrapIntervalMs,
+            torPids: this.getTorProcessIds(),
+            controlPort: this.controlPort,
+            socksPort: this.socksPort,
+          })
+
+          this.interval = setInterval(() => {
+            if (tickInProgress) {
+              this.logger.debug('Bootstrap interval tick skipped (previous still running)', {
+                tickCount,
+                lastTickStartedAt,
+              })
+              return
+            }
+
+            tickInProgress = true
+            tickCount += 1
+            lastTickStartedAt = Date.now()
+
+            void (async () => {
+              this.logger.info('Checking bootstrap interval', { tickCount })
+              const bootstrapDone = await this.isBootstrappingFinished()
+              if (!bootstrapDone) return
+
               this.logger.info(`Sending ${SocketEvents.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
-              // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
-              // this.logger.info('Attempting to redial peers (if possible)')
-              // this.emit(SocketActions.REDIAL_PEERS)
               clearInterval(this.interval)
-            }
-          }, 2500)
+              this.interval = undefined
+            })()
+              .catch(e => {
+                this.logger.error(
+                  `Bootstrap interval tick failed (tickCount=${tickCount}, startedAt=${lastTickStartedAt})`,
+                  e
+                )
+                this.logger.error('Bootstrap interval context', {
+                  torPids: this.getTorProcessIds(),
+                  controlPort: this.controlPort,
+                  socksPort: this.socksPort,
+                })
+              })
+              .finally(() => {
+                tickInProgress = false
+              })
+          }, bootstrapIntervalMs)
 
           this.logger.info(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
 
@@ -213,6 +254,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public clearOldTorProcess(oldTorPid: number | null) {
+    this.logger.info(`Clearing old tor process ${oldTorPid}`)
     if (!oldTorPid) return
     child_process.exec(
       this.torProcessNameCommand(oldTorPid.toString()),
@@ -327,7 +369,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    this.logger.info(`Spawned hidden service with onion address ${onionAddress}`)
+    this.logger.debug(`Spawned hidden service with onion address ${onionAddress}`)
 
     const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
     this.hiddenServices.set(privKey, hiddenService)
@@ -381,7 +423,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async getInfo(getInfoTarget: GetInfoTorSignal) {
     try {
       const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
-      this.logger.info('GETINFO', getInfoTarget, response)
+      this.logger.debug('GETINFO', getInfoTarget, response)
     } catch (e) {
       this.logger.error('Could not get info', getInfoTarget, e)
     }

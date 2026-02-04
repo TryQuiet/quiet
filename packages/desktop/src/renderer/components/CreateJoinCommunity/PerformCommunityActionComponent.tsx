@@ -283,6 +283,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     }
                     type={revealInputValue ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
+                    autoFocus
                   />
                 )}
               />

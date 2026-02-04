@@ -23,6 +23,7 @@ import {
   SetUserProfileResponse,
   SetUserProfilePayload,
   type HCaptchaFormResponse,
+  InviteResultWithSalt,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -30,7 +31,7 @@ import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { createLogger } from '../common/logger'
 import type net from 'node:net'
-import { Base58, InviteResult } from '@localfirst/auth'
+import { Base58 } from '@localfirst/auth'
 
 /**
  * Handles socket connections with the state-manager.
@@ -202,13 +203,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(
         SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE,
-        async (inviteId: Base58, callback: (response: InviteResult | undefined) => void) => {
+        async (inviteId: Base58, callback: (response: InviteResultWithSalt | undefined) => void) => {
           this.logger.info(`Validating long lived LFA invite with ID ${inviteId} or creating a new one`)
           this.emit(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, inviteId, callback)
         }
       )
 
-      socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (invite: InviteResult) => {
+      socket.on(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, (invite: InviteResultWithSalt) => {
         this.logger.info(`Created new long lived LFA invite code with id ${invite.id}`)
         this.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, invite)
       })
@@ -225,6 +226,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(SocketActions.HCAPTCHA_REQUEST, async () => {
         this.emit(SocketActions.HCAPTCHA_REQUEST)
+      })
+
+      socket.on(SocketActions.TOGGLE_P2P, async (enabled: boolean, callback: (response: boolean) => void) => {
+        this.emit(SocketActions.TOGGLE_P2P, enabled, callback)
       })
     })
 

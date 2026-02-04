@@ -13,6 +13,7 @@ import {
 
 export class FilesState {
   public downloadStatus: EntityState<DownloadStatus> = downloadStatusAdapter.getInitialState()
+  public profilePhotos: Record<string, FileMetadata> = {}
 }
 
 export const filesSlice = createSlice({
@@ -31,6 +32,12 @@ export const filesSlice = createSlice({
     broadcastHostedFile: (state, _action: PayloadAction<FileMetadata>) => state,
     downloadFile: (state, _action: PayloadAction<FileMetadata>) => state,
     updateMessageMedia: (state, _action: PayloadAction<FileMetadata>) => state,
+    setProfilePhotoMetadata: (state, action: PayloadAction<{ messageId: string; fileMetadata: FileMetadata }>) => {
+      if (!state.profilePhotos) {
+        state.profilePhotos = {}
+      }
+      state.profilePhotos[action.payload.messageId] = action.payload.fileMetadata
+    },
     checkForMissingFiles: (state, _action: PayloadAction<CommunityId>) => state,
     deleteFilesFromChannel: (state, _action: PayloadAction<DeleteFilesFromChannelPayload>) => state,
   },
