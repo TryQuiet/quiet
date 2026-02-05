@@ -14,6 +14,6 @@ import { Serializer } from './serializer.service'
 @Module({
   imports: [SigChainModule, LocalDbModule, forwardRef(() => OrbitDbModule), CaptchaModule, SocketModule],
   providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection, Serializer],
-  exports: [QSSService, Serializer],
+  exports: [QSSService, QSSClient, Serializer],
 })
 export class QSSModule {}
