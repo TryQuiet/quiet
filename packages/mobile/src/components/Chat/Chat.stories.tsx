@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react-native'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
 import { Chat } from './Chat.component'
-import { DocumentPickerResponse } from 'react-native-document-picker'
+import { DocumentPickerResponse } from '@react-native-documents/picker'
 import { Asset } from 'react-native-image-picker'
 import { createLogger } from '../../utils/logger'
 

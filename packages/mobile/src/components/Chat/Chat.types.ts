@@ -9,7 +9,7 @@ import {
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
-import { DocumentPickerResponse } from 'react-native-document-picker'
+import { DocumentPickerResponse } from '@react-native-documents/picker'
 import { Asset } from 'react-native-image-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 

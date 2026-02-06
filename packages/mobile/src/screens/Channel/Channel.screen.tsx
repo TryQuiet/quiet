@@ -9,7 +9,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
-import { DocumentPickerResponse } from 'react-native-document-picker'
+import { DocumentPickerResponse } from '@react-native-documents/picker'
 import { Asset } from 'react-native-image-picker'
 import { getFilesData } from '@quiet/common'
 
