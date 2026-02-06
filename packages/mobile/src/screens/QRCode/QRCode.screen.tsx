@@ -16,7 +16,7 @@ const logger = createLogger('qrCode:screen')
 export const QRCodeScreen: FC = () => {
   const dispatch = useDispatch()
 
-  const svgRef = useRef<SVG>()
+  const svgRef = useRef<SVG>(null)
 
   const inviteLink = useSelector(connection.selectors.invitationUrl)
   const [invitationLink, setInvitationLink] = useState<string>(inviteLink)

@@ -74,7 +74,7 @@ const linking = {
   },
 }
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const dispatch = useDispatch()
 
   const confirmationBox = useConfirmationBox()

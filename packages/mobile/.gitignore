@@ -83,3 +83,6 @@ buck-out/
 # Detox
 /e2e/artifacts
 /e2e/visual-regressions/local
+
+# https://react-native-community.github.io/upgrade-helper/?from=0.77.3&to=0.78.0
+.kotlin/
