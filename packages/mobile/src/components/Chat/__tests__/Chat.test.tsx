@@ -34,6 +34,7 @@ describe('Chat component', () => {
       owner: '',
       timestamp: 0,
       id: '',
+      public: true,
     },
     pendingMessages: {},
     messages: {

@@ -16,12 +16,13 @@ import { NoCryptoEngineError } from '@quiet/types'
 import { posixJoin } from '../../../orbitDb/util'
 import { EncryptedMessage } from '../messages.types'
 import { createLogger } from '../../../../common/logger'
+import { SigChainService } from 'packages/backend/src/nest/auth/sigchain.service'
 
 const codec = dagCbor
 const hasher = sha256
 const hashStringEncoding = base58btc
 
-const logger = createLogger(`storage:channels:public:messages:orbitdb:access-control`)
+const logger = createLogger(`storage:channels:private:messages:orbitdb:access-control`)
 
 const AccessControlList = async ({
   storage,
@@ -42,10 +43,10 @@ const AccessControlList = async ({
   return hash
 }
 
-const type = 'messagesaccess'
+const type = 'privatemessagesaccess'
 
-export const MessagesAccessController =
-  ({ write }: { write: string[] }) =>
+export const PrivateMessagesAccessController =
+  ({ write, sigChainService }: { write: string[]; sigChainService: SigChainService }) =>
   async ({ orbitdb, identities, address }: { orbitdb: OrbitDBType; identities: IdentitiesType; address: string }) => {
     const storage = await ComposedStorage(
       await LRUStorage({ size: 1000 }),
@@ -83,6 +84,17 @@ export const MessagesAccessController =
         return false
       }
 
+      const sigchain = sigChainService.getChain({ teamId: entry.payload.value!.teamId })
+      if (!sigchain.channels.memberInChannel(id, entry.payload.value!.channelId)) {
+        logger.warn(
+          `User is not a member of the channel, skipping log append`,
+          id,
+          entry.payload.value!.teamId,
+          entry.payload.value!.channelId
+        )
+        return false
+      }
+
       return true
     }
 
@@ -94,4 +106,4 @@ export const MessagesAccessController =
     }
   }
 
-MessagesAccessController.type = type
+PrivateMessagesAccessController.type = type

@@ -18,11 +18,7 @@ export function* createChannelSaga(
   const response: CreateChannelResponse = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActions.CREATE_CHANNEL, {
-      id: action.payload.id,
-      name: action.payload.name,
-      description: action.payload.description,
-    })
+    applyEmitParams(SocketActions.CREATE_CHANNEL, action.payload)
   )
 
   if (response) {

@@ -18,7 +18,7 @@ import {
   type FileMetadata,
   type Identity,
   MessageType,
-  type PublicChannel,
+  type Channel,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
@@ -29,9 +29,9 @@ describe('addMessagesSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
-  let sailingChannel: PublicChannel
-  let barbequeChannel: PublicChannel
+  let generalChannel: Channel
+  let sailingChannel: Channel
+  let barbequeChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()
@@ -52,7 +52,7 @@ describe('addMessagesSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     sailingChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',
@@ -64,7 +64,7 @@ describe('addMessagesSaga', () => {
     ).channel
 
     barbequeChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'barbeque',
           description: 'Welcome to #barbeque',

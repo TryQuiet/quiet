@@ -1,12 +1,13 @@
-import { type PublicChannel } from '@quiet/types'
+import { type Channel } from '@quiet/types'
 import { ChannelStore } from '../storage/channels/channel.store'
 
-export interface PublicChannelsRepo {
+export interface ChannelRepo {
   store: ChannelStore
   eventsAttached: boolean
+  public: boolean
 }
 
-export type ChannelInfoResponse = Record<string, PublicChannel>
+export type ChannelInfoResponse = Record<string, Channel>
 
 export class StorageOptions {
   orbitDbDir?: string

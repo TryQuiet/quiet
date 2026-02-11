@@ -4,7 +4,7 @@ import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { CommunityOwnership, type PublicChannelStorage } from '@quiet/types'
+import { CommunityOwnership, type ChannelStorage } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { filesActions } from '../../files/files.slice'
 
@@ -70,7 +70,7 @@ export function* channelDeletionResponseSaga(
     const isUserOnGeneral = currentChannelId === generalChannel.id
 
     if (deletedGeneral && isUserOnGeneral) {
-      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
+      let newGeneralChannel: ChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
       while (!newGeneralChannel) {
         logger.warn('General channel has not been replicated yet')
         yield* delay(1000)

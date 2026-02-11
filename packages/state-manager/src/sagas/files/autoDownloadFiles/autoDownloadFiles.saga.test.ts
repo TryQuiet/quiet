@@ -18,7 +18,7 @@ import {
   type FileMetadata,
   type Identity,
   MessageType,
-  type PublicChannel,
+  type Channel,
   SocketActions,
 } from '@quiet/types'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
@@ -32,8 +32,8 @@ describe('autoDownloadFilesSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: PublicChannel
-  let generalChannel: PublicChannel
+  let sailingChannel: Channel
+  let generalChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()
@@ -53,7 +53,7 @@ describe('autoDownloadFilesSaga', () => {
     })
 
     sailingChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

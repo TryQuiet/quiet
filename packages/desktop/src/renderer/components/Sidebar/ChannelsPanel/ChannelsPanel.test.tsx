@@ -71,7 +71,7 @@ describe('Channels panel', () => {
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: name,
           description: `Welcome to #${name}`,

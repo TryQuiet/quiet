@@ -9,7 +9,7 @@ import {
   FileMetadata,
   Identity,
   MessageType,
-  PublicChannel,
+  Channel,
 } from '@quiet/types'
 
 import path from 'path'
@@ -50,7 +50,7 @@ describe('ChannelsService', () => {
   let peerId: PeerId
 
   let factory: FactoryGirl
-  let channel: PublicChannel
+  let channel: Channel
   let message: ChannelMessage
   let filePath: string
 
@@ -96,7 +96,7 @@ describe('ChannelsService', () => {
 
     await storageService.init()
 
-    channel = await factory.build<PublicChannel>('PublicChannel', {
+    channel = await factory.build<Channel>('Channel', {
       owner: aliceUserId,
     })
 
@@ -134,10 +134,10 @@ describe('ChannelsService', () => {
 
     it('creates several channels and only deletes one without affecting others', async () => {
       logger.info('Creating several channels and deleting one')
-      const channel1 = await factory.build<PublicChannel>('PublicChannel', {
+      const channel1 = await factory.build<Channel>('Channel', {
         owner: aliceUserId,
       })
-      const channel2 = await factory.build<PublicChannel>('PublicChannel', {
+      const channel2 = await factory.build<Channel>('Channel', {
         owner: aliceUserId,
       })
 
@@ -169,11 +169,11 @@ describe('ChannelsService', () => {
       expect(messages2?.messages[0].id).toBe(message2.id)
 
       const channel1DBHead = // eslint-disable-next-line no-unsafe-optional-chaining
-        (await channelsService.publicChannelsRepos.get(channel1.id)?.store.getStore().log.heads())[0]
+        (await channelsService.channelsRepos.get(channel1.id)?.store.getStore().log.heads())[0]
       logger.info('Channel 1 DB Head:', channel1DBHead)
       expect(channel1DBHead).toBeDefined()
       const channel2DBHead = // eslint-disable-next-line no-unsafe-optional-chaining
-        (await channelsService.publicChannelsRepos.get(channel2.id)?.store.getStore().log.heads())[0]
+        (await channelsService.channelsRepos.get(channel2.id)?.store.getStore().log.heads())[0]
       expect(channel2DBHead).toBeDefined()
       expect(channel1DBHead).not.toEqual(channel2DBHead)
 
@@ -195,7 +195,7 @@ describe('ChannelsService', () => {
 
       let channelDBDropped = false
       // Listen for channel DB drop event
-      channelsService.publicChannelsRepos
+      channelsService.channelsRepos
         .get(channel1.id)
         ?.store.getStore()
         .events.on('drop', () => {
@@ -246,7 +246,7 @@ describe('ChannelsService', () => {
     // skipping because we don't have a strong way to prevent a user from deleting a channel yet
     it.skip('delete channel as standard user', async () => {
       logger.info('Deleting channel as standard user')
-      const notOwnersChannel = await factory.build<PublicChannel>('PublicChannel', {
+      const notOwnersChannel = await factory.build<Channel>('Channel', {
         owner: 'notAlice',
       })
       await channelsService.subscribeToChannel(notOwnersChannel)
@@ -268,7 +268,7 @@ describe('ChannelsService', () => {
     it('is saved to db if passed signature verification', async () => {
       await channelsService.subscribeToChannel(channel)
 
-      const publicChannelRepo = channelsService.publicChannelsRepos.get(message.channelId)
+      const publicChannelRepo = channelsService.channelsRepos.get(message.channelId)
       expect(publicChannelRepo).not.toBeUndefined()
       const store = publicChannelRepo!.store
       const eventSpy = jest.spyOn(store, 'addEntry')

@@ -8,7 +8,7 @@ import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { checkForMessagesSaga } from './checkForMessages.saga'
 import { selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
-import { type Community, type Identity, type PublicChannel } from '@quiet/types'
+import { type Community, type Identity, type Channel } from '@quiet/types'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('checkForMessagesSaga', () => {
@@ -19,7 +19,7 @@ describe('checkForMessagesSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()

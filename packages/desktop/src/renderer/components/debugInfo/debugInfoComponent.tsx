@@ -22,7 +22,7 @@ import Switch from '@mui/material/Switch'
 import {
   DownloadStatus,
   DownloadState,
-  PublicChannel,
+  Channel,
   Dictionary,
   ChannelMessage,
   Community,

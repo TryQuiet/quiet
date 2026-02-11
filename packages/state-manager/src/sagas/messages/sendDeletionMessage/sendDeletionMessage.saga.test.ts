@@ -15,7 +15,7 @@ import {
   type Community,
   type Identity,
   MessageType,
-  type PublicChannel,
+  type Channel,
   UserProfile,
   type WriteMessagePayload,
 } from '@quiet/types'
@@ -29,8 +29,8 @@ describe('sendDeletionMessage', () => {
   let owner: Identity
   let ownerProfile: UserProfile
 
-  let photoChannel: PublicChannel
-  let generalChannel: PublicChannel
+  let photoChannel: Channel
+  let generalChannel: Channel
 
   let message: string
   let messagePayload: WriteMessagePayload
@@ -56,7 +56,7 @@ describe('sendDeletionMessage', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',

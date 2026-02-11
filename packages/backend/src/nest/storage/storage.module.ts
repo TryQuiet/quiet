@@ -7,7 +7,7 @@ import { CommunityMetadataStore } from './communityMetadata/communityMetadata.st
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { IpfsModule } from '../ipfs/ipfs.module'
 import { ChannelsService } from './channels/channels.service'
-import { MessagesService } from './channels/messages/messages.service'
+import { PublicChannelMessagesService } from './channels/messages/public-channel-messages.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { OrbitDbModule } from './orbitDb/orbitdb.module'
 import { CommonModule } from '../common/common.module'

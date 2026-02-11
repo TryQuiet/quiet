@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
-import { PublicChannel } from '@quiet/types'
+import { Channel } from '@quiet/types'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -85,7 +85,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface ChannelsListItemProps {
-  channel: PublicChannel
+  channel: Channel
   unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void

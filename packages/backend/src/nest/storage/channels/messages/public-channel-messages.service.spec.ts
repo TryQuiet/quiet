@@ -11,15 +11,15 @@ import { SigChainService } from '../../../auth/sigchain.service'
 import { createLogger } from '../../../common/logger'
 import { TestModule } from '../../../common/test.module'
 import { StorageModule } from '../../storage.module'
-import { MessagesService } from './messages.service'
+import { PublicChannelMessagesService } from './public-channel-messages.service'
 import { EncryptedMessage } from './messages.types'
 import { isEncryptedMessage } from '../../../validation/validators'
 
-const logger = createLogger('messagesService:test')
+const logger = createLogger('publicChannelMessagesService:test')
 
-describe('MessagesService', () => {
+describe('PublicChannelMessagesService', () => {
   let module: TestingModule
-  let messagesService: MessagesService
+  let messagesService: PublicChannelMessagesService
   let sigChainService: SigChainService
 
   let factory: FactoryGirl
@@ -39,7 +39,7 @@ describe('MessagesService', () => {
     sigChainService = await module.resolve(SigChainService)
     await sigChainService.createChain('test-community', 'alice', true)
     message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
-    messagesService = await module.resolve(MessagesService)
+    messagesService = await module.resolve(PublicChannelMessagesService)
   })
 
   describe('onSend', () => {

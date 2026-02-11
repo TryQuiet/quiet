@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quiet/state-manager'
-import { Community, Identity, NetworkStats, PublicChannel, UserProfile } from '@quiet/types'
+import { Community, Identity, NetworkStats, Channel, UserProfile } from '@quiet/types'
 
 import path from 'path'
 import { TestModule } from '../common/test.module'
@@ -43,10 +43,10 @@ describe('StorageService', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let channel: PublicChannel
+  let channel: Channel
   let alice: Identity
   let john: Identity
-  let channelio: PublicChannel
+  let channelio: Channel
   let filePath: string
   let utils: any
   let orbitDbDir: string
@@ -67,6 +67,7 @@ describe('StorageService', () => {
       owner: channel.owner,
       timestamp: channel.timestamp,
       id: channel.id,
+      public: true,
     }
 
     alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })

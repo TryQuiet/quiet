@@ -16,7 +16,7 @@ import {
   type FileMetadata,
   type Identity,
   SocketActions,
-  type PublicChannel,
+  type Channel,
 } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
@@ -32,7 +32,7 @@ describe('downloadFileSaga', () => {
 
   let message: string
 
-  let generalChannel: PublicChannel
+  let generalChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()

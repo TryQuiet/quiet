@@ -21,7 +21,7 @@ import {
   type FileMetadata,
   type Identity,
   MessageType,
-  type PublicChannel,
+  type Channel,
   SocketActions,
   type SendMessagePayload,
   ChannelMessage,
@@ -42,7 +42,7 @@ describe('sendMessageSaga', () => {
   let alice: Identity
   let socket: MockedSocket
 
-  let sailingChannel: PublicChannel
+  let sailingChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()
@@ -61,7 +61,7 @@ describe('sendMessageSaga', () => {
     })
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

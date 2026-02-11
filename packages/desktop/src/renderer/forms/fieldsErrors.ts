@@ -20,3 +20,7 @@ export enum ChannelNameErrors {
   NameTooLong = 'Channel name must have less than 20 characters',
   WrongCharacter = 'Channel name cannot contain any special characters',
 }
+
+export enum ChannelPublicPrivateErrors {
+  InvalidValue = `Visibility settings must be either 'public' or 'private'`,
+}

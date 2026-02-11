@@ -175,6 +175,7 @@ describe('Chat component list data', () => {
       owner: '',
       timestamp: 0,
       id: '',
+      public: true,
     },
     pendingMessages: {},
     messages: mockMessages,

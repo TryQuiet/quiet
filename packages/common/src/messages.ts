@@ -1,4 +1,4 @@
-import { PublicChannel } from '@quiet/types'
+import { Channel } from '@quiet/types'
 export const createdChannelMessage = (channelName: string): string => `Created #${channelName}`
 export const createdChannelMessageRegex = /^Created #(.+)$/
 
@@ -14,7 +14,7 @@ export const userJoinedMessageRegex =
 export const deleteChannelMessage = (channelName: string): string => `Deleted #${channelName}`
 export const deleteChannelMessageRegex = /^Deleted #(.+)$/
 
-export const verifyUserInfoMessage = (username: string, userId: string, channel: PublicChannel): string => {
+export const verifyUserInfoMessage = (username: string, userId: string, channel: Channel): string => {
   if (channel.name === 'general' && channel.owner !== userId) {
     return userJoinedMessage(username)
   } else {

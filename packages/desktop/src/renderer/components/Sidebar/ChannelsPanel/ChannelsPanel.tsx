@@ -2,12 +2,12 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import { useModal } from '../../../containers/hooks'
-import { PublicChannel, UserProfile } from '@quiet/types'
+import { Channel, UserProfile } from '@quiet/types'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
-  channels: PublicChannel[]
+  channels: Channel[]
   myUserProfile?: UserProfile
   userProfiles: Record<string, UserProfile>
   connectedPeers: string[]

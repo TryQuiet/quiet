@@ -9,7 +9,7 @@ import {
   type Community,
   type Identity,
   MessageType,
-  type PublicChannel,
+  type Channel,
   MessagesLoadedPayload,
   UserProfile,
   User,
@@ -34,8 +34,8 @@ describe('verifyMessage saga test', () => {
   let ownerProfile: UserProfile
   let bobProfile: UserProfile
 
-  let generalChannel: PublicChannel
-  let sportChannel: PublicChannel
+  let generalChannel: Channel
+  let sportChannel: Channel
 
   beforeAll(async () => {
     store = prepareStore().store
@@ -63,7 +63,7 @@ describe('verifyMessage saga test', () => {
 
     logger.info('create general channel')
     generalChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'general',
           description: 'Welcome to #general',
@@ -76,7 +76,7 @@ describe('verifyMessage saga test', () => {
 
     logger.info('create sport channel')
     sportChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'sport',
           description: 'Welcome to #sport',

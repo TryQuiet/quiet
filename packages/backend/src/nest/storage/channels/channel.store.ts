@@ -8,7 +8,7 @@ import {
   CompoundError,
   ConsumedChannelMessage,
   MessagesLoadedPayload,
-  PublicChannel,
+  Channel,
   PushNotificationPayload,
 } from '@quiet/types'
 
@@ -18,19 +18,21 @@ import { EventsWithStorage } from '../orbitDb/eventsWithStorage'
 import { MessagesAccessController } from './messages/orbitdb/MessagesAccessController'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import validate from '../../validation/validators'
-import { MessagesService } from './messages/messages.service'
+import { PublicChannelMessagesService } from './messages/public-channel-messages.service'
 import { DBOptions, StorageEvents } from '../storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { EncryptedMessage } from './messages/messages.types'
 import { UserProfileStore } from '../userProfile/userProfile.store'
 import { SigChainService } from '../../auth/sigchain.service'
+import { PrivateMessagesAccessController } from './messages/orbitdb/PrivateMessagesAccessController'
+import { PrivateChannelMessagesService } from './messages/private-channel-messages.service'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
  */
 @Injectable()
 export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChannelMessage> {
-  private channelData: PublicChannel
+  private channelData: Channel
   private _subscribing: boolean = false
 
   private logger: QuietLogger
@@ -38,7 +40,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   constructor(
     private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService,
-    private readonly messagesService: MessagesService,
+    private readonly messagesService: PublicChannelMessagesService,
+    private readonly privateMessagesService: PrivateChannelMessagesService,
     private readonly userProfileStore: UserProfileStore,
     private readonly auth: SigChainService
   ) {
@@ -54,7 +57,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * @param options Database options for OrbitDB
    * @returns Initialized ChannelStore instance
    */
-  public async init(channelData: PublicChannel, options: DBOptions): Promise<ChannelStore> {
+  public async init(channelData: Channel, options: DBOptions): Promise<ChannelStore> {
     if (this.store != null) {
       this.logger.warn(`Channel ${this.channelData.name} has already been initialized!`)
       return this
@@ -64,10 +67,13 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger = createLogger(`storage:channels:channelStore:${this.channelData.name}`)
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`)
 
+    const accessController = channelData.public
+      ? MessagesAccessController({ write: ['*'] })
+      : PrivateMessagesAccessController({ write: ['*'], sigChainService: this.auth })
     this.store = await this.orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${this.channelData.id}`, {
       type: 'events',
       Database: EventsWithStorage(),
-      AccessController: MessagesAccessController({ write: ['*'] }),
+      AccessController: accessController,
       sync: options.sync,
     })
 
@@ -101,13 +107,19 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
-      let message: ChannelMessage | undefined = undefined
+      let message: ChannelMessage | undefined | false = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
       } else {
-        message = await this.messagesService.onConsume(entry.payload.value!)
+        if (this.channelData.public) {
+          message = await this.messagesService.onConsume(entry.payload.value!)
+        } else {
+          message = await this.privateMessagesService.onConsume(entry.payload.value!)
+        }
         if (message == null) {
           this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
+        } else if (message == false) {
+          this.logger.trace(`Skipping processing message`, entry.payload.value.id, entry.payload.value.channelId)
         } else {
           await this._handleMessageOnUpdate(message)
         }
@@ -272,7 +284,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
       if (ids == null || ids?.includes(x.value.id)) {
         const decryptedMessage = await this.messagesService.onConsume(x.value)
-        if (decryptedMessage == null) {
+        if (decryptedMessage == null || decryptedMessage === false) {
           continue
         }
         messages.push(decryptedMessage)

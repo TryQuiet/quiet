@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useEnterPress } from '../../containers/hooks'
-import { PublicChannelStorage } from '@quiet/types'
+import { ChannelStorage } from '@quiet/types'
 
 interface ChannelItemProps {
-  item: PublicChannelStorage
+  item: ChannelStorage
   focused: boolean
   className: string
   classNameSelected: string

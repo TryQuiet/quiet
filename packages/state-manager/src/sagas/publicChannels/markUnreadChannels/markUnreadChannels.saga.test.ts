@@ -41,7 +41,7 @@ describe('markUnreadChannelsSaga', () => {
 
     // Automatically create channels
     for (const name of channelNames) {
-      const channel = await factory.create('PublicChannel', {
+      const channel = await factory.create('Channel', {
         channel: {
           name,
           description: `Welcome to #${name}`,

@@ -1,6 +1,6 @@
 import _ from 'validator'
 import joi from 'joi'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { ChannelMessage, Channel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
 import { createLogger } from '../common/logger'
@@ -96,6 +96,7 @@ const channelSchema = joi.object({
   timestamp: joi.number().required(),
   id: joi.string(),
   address: joi.string(),
+  public: joi.boolean().required(),
 })
 
 // TODO: make this validator more strict
@@ -135,7 +136,7 @@ export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
   return !value.error
 }
 
-export const isChannel = (channel: PublicChannel): boolean => {
+export const isChannel = (channel: Channel): boolean => {
   const value = channelSchema.validate(channel)
   return !value.error
 }

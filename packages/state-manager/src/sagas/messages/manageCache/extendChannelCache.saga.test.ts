@@ -11,7 +11,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../messages.slice'
 import { extendCurrentPublicChannelCacheSaga } from './extendChannelCache.saga'
 import { messagesSelectors } from '../messages.selectors'
-import { type ChannelMessage, type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
+import { type ChannelMessage, type Community, type Identity, MessageType, type Channel } from '@quiet/types'
 
 describe('extendCurrentPublicChannelCacheSaga', () => {
   let store: Store
@@ -20,7 +20,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()

@@ -7,10 +7,11 @@ import { OrbitDbService } from './orbitDb.service'
 import { CommunityMetadataStore } from '../communityMetadata/communityMetadata.store'
 import { UserProfileStore } from '../userProfile/userProfile.store'
 import { ChannelsService } from '../channels/channels.service'
-import { MessagesService } from '../channels/messages/messages.service'
+import { PublicChannelMessagesService } from '../channels/messages/public-channel-messages.service'
 import { CommonModule } from '../../common/common.module'
 import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
+import { PrivateChannelMessagesService } from '../channels/messages/private-channel-messages.service'
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
     CommunityMetadataStore,
     UserProfileStore,
     ChannelsService,
-    MessagesService,
+    PublicChannelMessagesService,
+    PrivateChannelMessagesService,
     LFAIdentityProvider,
     LFAIdentities,
   ],
@@ -34,7 +36,8 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
     CommunityMetadataStore,
     UserProfileStore,
     ChannelsService,
-    MessagesService,
+    PublicChannelMessagesService,
+    PrivateChannelMessagesService,
     LFAIdentityProvider,
     LFAIdentities,
   ],

@@ -30,6 +30,7 @@ storiesOf('Chat', module)
         owner: '',
         timestamp: 0,
         id: '',
+        public: true,
       }}
       messages={{
         count: 16,
@@ -275,6 +276,7 @@ storiesOf('Chat', module)
         owner: '',
         timestamp: 0,
         id: '',
+        public: true,
       }}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
@@ -318,6 +320,7 @@ storiesOf('Chat', module)
         owner: '',
         timestamp: 0,
         id: 'sticky-date-test',
+        public: true,
       }}
       messages={{
         count: 40,

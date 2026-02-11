@@ -14,7 +14,7 @@ import { filesActions } from '../../files/files.slice'
 import {
   type Community,
   type Identity,
-  type PublicChannel,
+  type Channel,
   SocketActions,
   DeleteChannelResponse,
   DeleteChannelPayload,
@@ -34,8 +34,8 @@ describe('deleteChannelSaga', () => {
   let community: Community
   let owner: Identity
 
-  let photoChannel: PublicChannel
-  let generalChannel: PublicChannel
+  let photoChannel: Channel
+  let generalChannel: Channel
 
   beforeEach(async () => {
     setupCrypto()
@@ -56,7 +56,7 @@ describe('deleteChannelSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',

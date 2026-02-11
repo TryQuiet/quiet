@@ -19,7 +19,7 @@ import {
   DownloadState,
   type FileMetadata,
   type Identity,
-  type PublicChannel,
+  type Channel,
   MessageType,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
@@ -32,7 +32,7 @@ describe('sendFileMessageSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: PublicChannel
+  let sailingChannel: Channel
 
   let message: string
 
@@ -50,7 +50,7 @@ describe('sendFileMessageSaga', () => {
     })
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

@@ -40,7 +40,7 @@ import {
   ConnectionProcessInfo,
   SetConnectionProcessInfoPayload,
   User,
-  PublicChannel,
+  Channel,
   TestMessage,
   Community,
   SetUserProfilePayload,
@@ -111,10 +111,11 @@ export const getBaseTypesFactory = async () => {
     ownership: CommunityOwnership.Owner,
   })
 
-  factory.define<PublicChannel>('PublicChannel', Object, {
-    id: factory.sequence('PublicChannel.id', (n: number) => generateChannelId(`publicChannel${n}`)),
-    name: factory.sequence('PublicChannel.name', (n: number) => `public-channel-${n}`),
-    description: factory.sequence('PublicChannel.description', (n: number) => `description-${n}`),
+  factory.define<Channel>('Channel', Object, {
+    id: factory.sequence('Channel.id', (n: number) => generateChannelId(`publicChannel${n}`)),
+    name: factory.sequence('Channel.name', (n: number) => `public-channel-${n}`),
+    description: factory.sequence('Channel.description', (n: number) => `description-${n}`),
+    public: true,
     owner: factory.assoc('User', 'userId'),
     timestamp: DateTime.utc().toSeconds(),
   })
@@ -192,7 +193,7 @@ export const getReduxStoreFactory = async (store: Store) => {
           store.dispatch(communitiesActions.setCurrentCommunity(payload.id))
         }
         // Create 'general' channel
-        await factory.create('PublicChannel', {
+        await factory.create('Channel', {
           communityId: payload.id,
           channel: {
             name: 'general',
@@ -255,7 +256,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     'PublicChannelsMessagesBase',
     messagesActions.addPublicChannelsMessagesBase,
     {
-      channelId: factory.assoc('PublicChannel', 'id'),
+      channelId: factory.assoc('Channel', 'id'),
     }
   )
 
@@ -263,12 +264,12 @@ export const getReduxStoreFactory = async (store: Store) => {
     'PublicChannelSubscription',
     publicChannelsActions.setChannelSubscribed,
     {
-      channelId: factory.assoc('PublicChannel', 'id'),
+      channelId: factory.assoc('Channel', 'id'),
     }
   )
 
   factory.define(
-    'PublicChannel',
+    'Channel',
     publicChannelsActions.addChannel,
     {
       channel: factory.sequence('PublicChannel.channel', (n: number) => {
@@ -344,7 +345,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     publicChannelsActions.cacheMessages,
     {
       messages: [],
-      channelId: factory.assoc('PublicChannel', 'id'),
+      channelId: factory.assoc('Channel', 'id'),
     }
   )
 
@@ -541,6 +542,7 @@ export const getSocketFactory = async () => {
       description: 'A channel used for tests',
       owner: 'test-owner',
       timestamp: Date.now(),
+      public: true,
     },
   })
 

@@ -12,7 +12,7 @@ import { updateMessageMediaSaga } from './updateMessageMedia'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { usersActions } from '../../users/users.slice'
 import { DateTime } from 'luxon'
-import { type Community, type Identity, MessageType, type PublicChannel, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
+import { type Community, type Identity, MessageType, type Channel, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
@@ -24,9 +24,9 @@ describe('downloadedFileSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: PublicChannel
+  let sailingChannel: Channel
 
-  let generalChannel: PublicChannel
+  let generalChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()
@@ -46,7 +46,7 @@ describe('downloadedFileSaga', () => {
     })
 
     sailingChannel = (
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

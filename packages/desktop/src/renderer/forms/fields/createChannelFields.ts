@@ -1,4 +1,4 @@
-import { FieldErrors, ChannelNameErrors } from '../fieldsErrors'
+import { FieldErrors, ChannelNameErrors, ChannelPublicPrivateErrors } from '../fieldsErrors'
 import { FieldData } from '../types'
 
 export const channelNameField = (name = 'channelName'): FieldData => {
@@ -14,6 +14,24 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       maxLength: {
         value: 20,
         message: ChannelNameErrors.NameTooLong,
+      },
+    },
+  }
+}
+
+export const channelPublicPrivateField = (name: 'public' | 'private' = 'public'): FieldData => {
+  return {
+    fieldProps: {
+      label: '',
+      name,
+      type: 'string',
+      placeholder: 'Select the desired channel visibility',
+    },
+    validation: {
+      required: FieldErrors.Required,
+      pattern: {
+        value: /^(\btrue\b|\bfalse\b)$/g,
+        message: ChannelPublicPrivateErrors.InvalidValue,
       },
     },
   }

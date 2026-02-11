@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActions } from '@quiet/types'
+import { CreateChannelPayload, ErrorCodes, ErrorMessages, Channel, SocketActions } from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { flushSync } from 'react-dom'
 import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../logger'
+import { is } from 'ramda'
 
 const logger = createLogger('createChannel')
 
@@ -45,7 +46,8 @@ export const CreateChannel = () => {
     }
   }
 
-  const createChannel = (name: string) => {
+  const createChannel = (name: string, isPublic: boolean) => {
+    logger.warn(`Creating ${isPublic ? 'public' : 'private'} channel...`)
     // Clear errors
     clearErrors()
     if (!user) {
@@ -60,6 +62,7 @@ export const CreateChannel = () => {
       )
       return
     }
+    logger.warn('Creating channel 2...')
     // Validate channel name
     if (channels.some(channel => channel.name === name)) {
       dispatch(
@@ -72,13 +75,16 @@ export const CreateChannel = () => {
       )
       return
     }
+    logger.warn('Creating channel 3...')
     const payload = {
       id: generateChannelId(name),
       name: name,
       description: `Welcome to #${name}`,
+      public: isPublic,
     } as CreateChannelPayload
     dispatch(publicChannels.actions.createChannel(payload))
     setNewChannel(payload)
+    logger.warn('Creating channel 4...')
   }
   return (
     <>

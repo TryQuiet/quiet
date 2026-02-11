@@ -9,13 +9,14 @@ import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
 import { RoleName } from '../../../auth/services/roles/roles'
 import { isConsumedChannelMessage, isEncryptedMessage, isMessage } from '../../../validation/validators'
+import { BaseMessagesService } from './base-messages.service'
 
 @Injectable()
-export class MessagesService extends EventEmitter {
-  private readonly logger = createLogger(`storage:channels:messagesService`)
+export class PublicChannelMessagesService extends BaseMessagesService {
+  protected readonly logger = createLogger(`storage:channels:publicChannelsMessagesService`)
 
-  constructor(private readonly sigChainService: SigChainService) {
-    super()
+  constructor(protected readonly sigChainService: SigChainService) {
+    super(sigChainService)
   }
 
   /**
@@ -32,9 +33,9 @@ export class MessagesService extends EventEmitter {
    * Handle processing of message consumed from OrbitDB
    *
    * @param message Message consumed from OrbitDB
-   * @returns Processed message
+   * @returns Processed message if decryptable, undefined if undecryptable and false if intentionally skip decryption
    */
-  public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | undefined> {
+  public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | undefined | false> {
     try {
       const decryptedMessage = this._decryptPublicChannelMessage(message)
       if (!this.validateMessage(decryptedMessage, message)) {

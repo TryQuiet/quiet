@@ -15,7 +15,7 @@ import {
   type Community,
   type FileMetadata,
   type Identity,
-  type PublicChannel,
+  type Channel,
   SocketActions,
   MessageType,
 } from '@quiet/types'
@@ -31,8 +31,8 @@ describe('broadcastHostedFileSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: PublicChannel
-  let generalChannel: PublicChannel
+  let sailingChannel: Channel
+  let generalChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()
@@ -51,7 +51,7 @@ describe('broadcastHostedFileSaga', () => {
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

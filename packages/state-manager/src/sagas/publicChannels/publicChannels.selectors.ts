@@ -17,8 +17,8 @@ import {
   MessageType,
   type MessagesDailyGroups,
   type MessagesGroupsType,
-  type PublicChannel,
-  type PublicChannelStatus,
+  type Channel,
+  type ChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
@@ -58,12 +58,13 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
     logger.error('No general channel')
     return
   }
-  const channel: PublicChannel = {
+  const channel: Channel = {
     name: draft.name,
     description: draft.description,
     owner: draft.owner,
     timestamp: draft.timestamp,
     id: draft.id,
+    public: draft.public,
   }
   return channel
 })
@@ -274,7 +275,7 @@ export const channelsStatusSorted = createSelector(selectState, state => {
 export const unreadChannels = createSelector(channelsStatus, status => {
   return Object.values(status)
     .filter(isDefined)
-    .reduce((result: string[], channel: PublicChannelStatus) => {
+    .reduce((result: string[], channel: ChannelStatus) => {
       if (channel.unread) {
         result.push(channel.id)
       }

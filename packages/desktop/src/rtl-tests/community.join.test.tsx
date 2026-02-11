@@ -59,6 +59,7 @@ const makeMockEmitImpl = (socket: MockedSocket, opts?: { qss?: boolean }) => {
               owner: 'owner',
               timestamp: 0,
               id: 'general',
+              public: true,
             },
           ],
         })

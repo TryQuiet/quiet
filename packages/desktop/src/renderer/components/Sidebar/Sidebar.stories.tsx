@@ -59,6 +59,7 @@ const args: IdentityPanelProps &
       description: 'General discussion channel',
       owner: 'aliceUserId',
       timestamp: Date.now(),
+      public: true,
     },
     {
       id: 'spooky',
@@ -66,6 +67,7 @@ const args: IdentityPanelProps &
       description: 'Spooky channel for Halloween discussions',
       owner: 'bobUserId',
       timestamp: Date.now(),
+      public: true,
     },
     {
       id: 'kalkan',
@@ -73,6 +75,7 @@ const args: IdentityPanelProps &
       description: 'Kalkan channel for discussions about Kalkan',
       owner: 'charlieUserId',
       timestamp: Date.now(),
+      public: true,
     },
   ],
   myUserProfile: {

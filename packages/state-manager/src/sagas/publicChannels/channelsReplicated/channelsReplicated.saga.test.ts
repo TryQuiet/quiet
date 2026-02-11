@@ -13,7 +13,7 @@ import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { type Community, type Identity, type PublicChannel } from '@quiet/types'
+import { type Community, type Identity, type Channel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
@@ -28,10 +28,10 @@ describe('channelsReplicatedSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: Channel
 
-  let sailingChannel: PublicChannel
-  let photoChannel: PublicChannel
+  let sailingChannel: Channel
+  let photoChannel: Channel
 
   beforeAll(async () => {
     setupCrypto()
@@ -53,7 +53,7 @@ describe('channelsReplicatedSaga', () => {
 
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     sailingChannel = (
-      await factory.build('PublicChannel', {
+      await factory.build('Channel', {
         communityId: community.id,
         channel: {
           name: 'sailing',
@@ -66,7 +66,7 @@ describe('channelsReplicatedSaga', () => {
     ).payload.channel
 
     photoChannel = (
-      await factory.build('PublicChannel', {
+      await factory.build('Channel', {
         communityId: community.id,
         channel: {
           name: 'photo',

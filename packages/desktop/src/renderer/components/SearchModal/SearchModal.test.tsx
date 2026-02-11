@@ -39,7 +39,7 @@ describe('Search Modal', () => {
     ]
 
     for (const channelMock of channelsMocks) {
-      await factory.create('PublicChannel', {
+      await factory.create('Channel', {
         channel: {
           name: channelMock.name,
           description: `Welcome to #${channelMock.name}`,

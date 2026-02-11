@@ -1,26 +1,23 @@
 import { type Store } from 'redux'
 
 import { connectionSelectors } from './connection.selectors'
-import { connectionActions } from './connection.slice'
-import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
+import { prepareStore } from '../../utils/tests/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
-import { Community, ConnectionProcessInfo, PublicChannel, type Identity, ChannelMessage } from '@quiet/types'
+import { Community, ConnectionProcessInfo, Channel, type Identity, ChannelMessage } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
-import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
+import { getReduxStoreFactory } from '../../utils/tests/factories'
 import { createLogger } from '../../utils/logger'
 import { communitiesActions } from '../communities/communities.slice'
-import { isOwner } from '../communities/communities.selectors'
-import factory, { FactoryGirl } from 'factory-girl'
-import { connect } from 'socket.io-client'
+import { FactoryGirl } from 'factory-girl'
 
 describe('connectionReducer', () => {
   let store: Store
   let factory: FactoryGirl
   let alice: Identity
   let community: Community
-  let generalChannel: PublicChannel
+  let generalChannel: Channel
   let generalChannelId: string
 
   beforeEach(async () => {

@@ -21,9 +21,9 @@ import {
   type Identity,
   INITIAL_CURRENT_CHANNEL_ID,
   type MarkUnreadChannelPayload,
-  type PublicChannelStatus,
-  type PublicChannelStorage,
-  type PublicChannelSubscription,
+  type ChannelStatus,
+  type ChannelStorage,
+  type ChannelSubscription,
   type SendInitialChannelMessagePayload,
   type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
@@ -39,12 +39,11 @@ export class PublicChannelsState {
 
   public pendingGeneralChannelRecreation = false
 
-  public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
+  public channels: EntityState<ChannelStorage> = publicChannelsAdapter.getInitialState()
 
-  public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
+  public channelsStatus: EntityState<ChannelStatus> = publicChannelsStatusAdapter.getInitialState()
 
-  public channelsSubscriptions: EntityState<PublicChannelSubscription> =
-    publicChannelsSubscriptionsAdapter.getInitialState()
+  public channelsSubscriptions: EntityState<ChannelSubscription> = publicChannelsSubscriptionsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({

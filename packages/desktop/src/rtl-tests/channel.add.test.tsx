@@ -5,7 +5,6 @@ import { screen, waitFor } from '@testing-library/dom'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '@quiet/types'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
@@ -15,18 +14,9 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import { getReduxStoreFactory, getSocketFactory, publicChannels } from '@quiet/state-manager'
-import {
-  ChannelsReplicatedPayload,
-  CreateChannelPayload,
-  ErrorMessages,
-  type MessagesLoadedPayload,
-  SendMessagePayload,
-  SocketActions,
-  SocketEvents,
-  type PublicChannel,
-} from '@quiet/types'
+import { CreateChannelPayload, SendMessagePayload, SocketActions } from '@quiet/types'
 
-import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
+import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { FieldErrors } from '../renderer/forms/fieldsErrors'
 
@@ -101,7 +91,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('PublicChannel', {
+        factory.create('Channel', {
           channel: {
             id: payload.id,
             name: payload.name,
@@ -295,7 +285,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('PublicChannel', {
+        factory.create('Channel', {
           channel: {
             id: payload.id,
             name: payload.name,
@@ -398,7 +388,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('PublicChannel', {
+        factory.create('Channel', {
           channel: {
             id: payload.id,
             name: payload.name,
