@@ -830,6 +830,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
         user={validUser}
         channelId='general'
         channelName='general'
+        isPublic={true}
         newestMessage={
           args.newestMessage || {
             id: '31',

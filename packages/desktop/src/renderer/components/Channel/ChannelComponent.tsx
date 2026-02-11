@@ -37,6 +37,7 @@ export interface ChannelComponentProps {
   user: UserProfile | undefined
   channelId: string
   channelName: string
+  isPublic: boolean
   messages: {
     count: number
     groups: MessagesDailyGroups
@@ -73,6 +74,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   user,
   channelId,
   channelName,
+  isPublic,
   messages,
   newestMessage,
   pendingMessages,
@@ -219,6 +221,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
+          isPublic={isPublic}
           openContextMenu={openContextMenu}
           enableContextMenu={enableContextMenu}
         />

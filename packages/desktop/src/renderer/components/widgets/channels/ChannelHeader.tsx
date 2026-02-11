@@ -2,11 +2,12 @@ import React from 'react'
 
 import classNames from 'classnames'
 
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -14,6 +15,7 @@ const classes = {
   root: `${PREFIX}root`,
   title: `${PREFIX}title`,
   subtitle: `${PREFIX}subtitle`,
+  subtitleSmall: `${PREFIX}subtitleSmall`,
   spendButton: `${PREFIX}spendButton`,
   actions: `${PREFIX}actions`,
   switch: `${PREFIX}switch`,
@@ -39,11 +41,16 @@ const Root = styled('div')(({ theme }) => ({
 
   [`& .${classes.title}`]: {
     fontSize: '1rem',
-    lineHeight: '1.66',
+    lineHeight: '1.68',
   },
 
   [`& .${classes.subtitle}`]: {
     fontSize: '0.8rem',
+  },
+
+  [`& .${classes.subtitleSmall}`]: {
+    fontSize: '0.7rem',
+    lineHeight: '0.9',
   },
 
   [`& .${classes.spendButton}`]: {
@@ -110,15 +117,18 @@ const Root = styled('div')(({ theme }) => ({
 
 export interface ChannelHeaderProps {
   channelName: string
+  isPublic: boolean
   openContextMenu?: () => void
   enableContextMenu: boolean
 }
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
+  isPublic,
   openContextMenu,
   enableContextMenu,
 }) => {
+  const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return (_: any) => {
@@ -154,18 +164,41 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
         <Grid item>
           <Grid item container alignItems='center'>
             <Grid item>
-              <Typography
-                noWrap
-                style={{ maxWidth: wrapperWidth }}
-                variant='subtitle1'
-                className={classNames({
-                  [classes.title]: true,
-                  [classes.bold]: true,
-                })}
-                data-testid={'channelTitle'}
-              >
-                {`#${channelName?.substring(0, 20)}`}
-              </Typography>
+              <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
+                <Typography
+                  noWrap
+                  style={{ maxWidth: wrapperWidth }}
+                  variant='subtitle1'
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.bold]: true,
+                  })}
+                  data-testid={'channelTitle'}
+                >
+                  {`#${channelName?.substring(0, 20)}`}
+                </Typography>
+                {!isPublic && (
+                  <LockOpenIcon
+                    htmlColor={theme.palette.colors.blue}
+                    className={classNames({
+                      [classes.title]: true,
+                    })}
+                  />
+                )}
+              </Grid>
+              {/* {!isPublic && (
+                <Typography
+                  noWrap
+                  style={{ maxWidth: wrapperWidth, color: theme.palette.colors.linkBlue }}
+                  variant='subtitle2'
+                  className={classNames({
+                    [classes.subtitleSmall]: true,
+                  })}
+                  data-testid={'channelIsPrivate'}
+                >
+                  private
+                </Typography>
+              )} */}
             </Grid>
           </Grid>
         </Grid>

@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, Grid, ListItemButton } from '@mui/material'
+import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { Channel } from '@quiet/types'
+import { useDispatch, useSelector } from 'react-redux'
+import { publicChannels } from '@quiet/state-manager'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
+import LockClosedIcon from '@mui/icons-material/Lock'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -17,6 +21,8 @@ const classes = {
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
   itemText: `${PREFIX}itemText`,
   disabled: `${PREFIX}disabled`,
+  lock: `${PREFIX}lock`,
+  lockNewMessages: `${PREFIX}lockNewMessages`,
 }
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
@@ -46,7 +52,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     opacity: 0.7,
     fontWeight: 300,
     paddingLeft: 16,
-    paddingRight: 16,
+    paddingRight: 2,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 215,
@@ -55,6 +61,15 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   },
 
   [`& .${classes.newMessages}`]: {
+    opacity: 1,
+    fontWeight: 600,
+  },
+
+  [`& .${classes.lock}`]: {
+    opacity: 0.7,
+  },
+
+  [`& .${classes.lockNewMessages}`]: {
     opacity: 1,
     fontWeight: 600,
   },
@@ -99,7 +114,10 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   setCurrentChannel,
   disabled = false,
 }) => {
+  const theme = useTheme()
+  const dispatch = useDispatch()
   const ref = useRef<HTMLDivElement>(null)
+  const hasMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
 
   return (
     <StyledListItemButton
@@ -117,7 +135,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
       <ListItemText
         primary={
           <Grid container alignItems='center'>
-            <Grid item>
+            <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
@@ -127,6 +145,23 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
               >
                 {`# ${channel.name}`}
               </Typography>
+              {!channel.public &&
+                (hasMessages ? (
+                  <LockOpenIcon
+                    style={{ ...theme.typography.body2 }}
+                    htmlColor={theme.palette.colors.blue}
+                    className={classNames(classes.lock, {
+                      [classes.newMessages]: unread,
+                    })}
+                  />
+                ) : (
+                  <LockClosedIcon
+                    htmlColor={theme.palette.colors.blue}
+                    className={classNames(classes.lock, {
+                      [classes.newMessages]: unread,
+                    })}
+                  />
+                ))}
             </Grid>
           </Grid>
         }
