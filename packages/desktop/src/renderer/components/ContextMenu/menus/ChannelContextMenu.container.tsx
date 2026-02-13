@@ -27,28 +27,39 @@ export const ChannelContextMenu: FC = () => {
   const channelContextMenu = useContextMenu(MenuName.Channel)
 
   const deleteChannelModal = useModal(ModalName.deleteChannel)
+  const addMembersChannelModal = useModal(ModalName.addMembersChannel)
 
-  const items: ContextMenuItemProps[] = [
-    {
-      title: 'Export messages',
-      action: () => channel && exportChats(channel?.name, channelMessages),
-    },
-  ]
+  const items: ContextMenuItemProps[] = []
 
-  if (process.env.NODE_ENV === 'development') {
+  if (!(channel?.public ?? true)) {
     items.push({
-      title: 'Debug',
-      action: () => setShowDebug(true),
+      title: 'Add members',
+      action: () => {
+        channelContextMenu.handleClose() // Dismiss context menu before displaying modal
+        addMembersChannelModal.handleOpen()
+      },
     })
   }
 
   if (isOwner) {
-    items.unshift({
+    items.push({
       title: 'Delete',
       action: () => {
         channelContextMenu.handleClose() // Dismiss context menu before displaying modal
         deleteChannelModal.handleOpen()
       },
+    })
+  }
+
+  items.push({
+    title: 'Export messages',
+    action: () => channel && exportChats(channel?.name, channelMessages),
+  })
+
+  if (process.env.NODE_ENV === 'development') {
+    items.push({
+      title: 'Debug',
+      action: () => setShowDebug(true),
     })
   }
 
