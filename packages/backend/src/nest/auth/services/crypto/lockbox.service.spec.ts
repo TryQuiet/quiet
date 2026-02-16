@@ -1,6 +1,6 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
-import { RoleName } from '..//roles/roles'
+import { RoleName } from '../roles/roles'
 import { hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
 import { EncryptionScopeType, InviteLockboxMetadata } from './types'

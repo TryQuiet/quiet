@@ -28,4 +28,5 @@ jobs:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
 
       - name: "Unit tests"
-        run: lerna run test --scope @quiet/mobile --stream
+        working-directory: packages/mobile
+        run: npm test

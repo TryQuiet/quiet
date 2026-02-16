@@ -6,6 +6,7 @@ import { initActions } from './init/init.slice'
 import { publicChannels } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.saga'
+import { pushNotificationsMasterSaga } from './pushNotifications/pushNotifications.master.saga'
 import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from '../utils/logger'
 
@@ -52,6 +53,7 @@ function* storeReadySaga(): Generator {
       fork(initMasterSaga),
       fork(navigationMasterSaga),
       fork(nativeServicesMasterSaga),
+      fork(pushNotificationsMasterSaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
       takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),
