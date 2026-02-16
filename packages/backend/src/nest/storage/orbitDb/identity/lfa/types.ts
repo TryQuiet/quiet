@@ -1,7 +1,7 @@
-import { Base58, Member } from '3rd-party/auth/packages/auth/dist'
+import { Base58, Member } from '@localfirst/auth'
 import { Identity } from '@orbitdb/core'
 import { CompoundError } from '@quiet/types'
-import { SigChain } from 'packages/backend/src/nest/auth/sigchain'
+import { SigChain } from '../../../../auth/sigchain'
 
 export type LFAIdentity = Omit<Identity, 'sign'> & {
   teamId: string

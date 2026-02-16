@@ -3,18 +3,10 @@ import { createLogger } from '../../../common/logger'
 import { RoleName } from './roles'
 import { hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
-import {
-  generateProof,
-  InviteeContext,
-  InviteResult,
-  MemberContext,
-  redactKeys,
-  loadTeam,
-  Team,
-} from '@localfirst/auth'
-import { EncryptionScopeType, InviteLockboxMetadata } from '../crypto/types'
+import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
+import { InviteLockboxMetadata } from '../crypto/types'
 
-const logger = createLogger('auth:services:lockbox.spec')
+const logger = createLogger('auth:services:roles.spec')
 
 describe('roles', () => {
   let adminSigChain: SigChain
@@ -44,7 +36,6 @@ describe('roles', () => {
     seed = invite.seed
     salt = uint8arrays.toString(randomBytes(32), 'hex')
     generatedKeys = adminSigChain.lockbox.generateLockboxKeys(seed, salt)
-    console.warn(generatedKeys.id)
     expect(generatedKeys.id).toBe(hash(salt, seed))
     expect(generatedKeys.keys.name).toBe(generatedKeys.id)
     expect(generatedKeys.keys.generation).toBe(0)

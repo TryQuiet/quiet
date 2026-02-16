@@ -98,7 +98,6 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (teamId: string) => {
       this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, teamId)
     })
-    await authConnection.start(teamName)
     this.authConnMap.set(teamId, authConnection)
     await authConnection.start(teamName)
   }

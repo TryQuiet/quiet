@@ -10,7 +10,6 @@ import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesA
 import {
   createOrbitDB,
   type OrbitDBType,
-  type IdentitiesType,
   useAccessController as orbitDbUseAccessController, // this is to fix a linting issue about react hooks
   ComposedStorage,
   LRUStorage,
@@ -34,7 +33,7 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | undefined = undefined
   private stores: Record<string, DatabaseType> = {}
-  public identities: any | undefined = undefined
+  public identities: LFAIdentities | undefined = undefined
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
