@@ -10,6 +10,7 @@
 * Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
 * Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
 * Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
+* Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 
 ### Fixes
 
