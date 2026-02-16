@@ -4,7 +4,7 @@
 import { InviteLockboxMetadata } from './types'
 import { ChainServiceBase } from '../chainServiceBase'
 import { SigChain } from '../../sigchain'
-import { KeysetWithSecrets, Lockbox, createKeyset, role } from '@localfirst/auth'
+import { Lockbox, createKeyset } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '../roles/roles'
 import { hash } from '@localfirst/crypto'

@@ -70,7 +70,6 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { randomBytes } from '@localfirst/crypto'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
