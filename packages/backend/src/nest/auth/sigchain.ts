@@ -87,7 +87,7 @@ class SigChain extends EventEmitter {
    */
   public static create(teamName: string, username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
-    const team: auth.Team = auth.createTeam(teamName, localUser)
+    const team: auth.Team = auth.createTeam(teamName, localUser, undefined, { selfAssignableRoles: [RoleName.MEMBER] })
     const adminContext = {
       user: localUser.user,
       device: localUser.device,
