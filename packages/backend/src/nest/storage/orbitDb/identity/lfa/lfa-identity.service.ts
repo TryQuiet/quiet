@@ -120,7 +120,7 @@ class LFAIdentities extends EventEmitter {
   }
 
   /**
-   * Sign an OrtitDB identity using sigchain signing keys for a given user
+   * Sign an OrbitDB identity using sigchain signing keys for a given user
    *
    * @param identity LFAIdentity object to sign
    * @param data Data to sign with (included to match built-in type)
