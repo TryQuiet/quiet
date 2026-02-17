@@ -19,6 +19,7 @@ import {
   Entry,
   DatabaseType,
   LogType,
+  IdentitiesType,
 } from '@orbitdb/core'
 import { HeliaLibp2p } from 'helia'
 import { OrbitDbStorage } from '../../types'
@@ -79,7 +80,7 @@ export class OrbitDbService {
       ipfs,
       id: peerId.toString(),
       directory: this.orbitDbDir,
-      identities: this.identities,
+      identities: this.identities as any, // our type diverges from the base type
     })
 
     this.orbitDbInstance = orbitDb

@@ -33,8 +33,8 @@ export class Serializer {
       write: (instance: DateTime): number => instance.toMillis(),
       read: (data: number): DateTime => DateTime.fromMillis(data).toUTC(),
     })
-    // properly handle uint8arrays
     // TODO: verify these being missing doesn't cause problems down the line before deleting
+    // properly handle uint8arrays
     // addExtension({
     //   Class: Uint8Array,
     //   type: 3,
@@ -90,15 +90,15 @@ export class Serializer {
    * @param serializedPayload Buffer or UInt8Array representation of an object
    * @returns Reconstituted object
    */
-  public deserialize(serializedPayload: Buffer | Uint8Array): unknown {
+  public deserialize<T = unknown>(serializedPayload: Buffer | Uint8Array): T {
     let buffer: Buffer | undefined = undefined
     if (serializedPayload instanceof Uint8Array) {
-      buffer = this.uint8arrayToBuffer(serializedPayload)
+      buffer = this.uint8arrayToBuffer(serializedPayload as Uint8Array)
     } else {
       buffer = serializedPayload
     }
 
-    return this._packer.unpack(buffer)
+    return this._packer.unpack(buffer) as T
   }
 
   /**
