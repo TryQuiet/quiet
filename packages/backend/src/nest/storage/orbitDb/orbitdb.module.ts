@@ -11,6 +11,7 @@ import { MessagesService } from '../channels/messages/messages.service'
 import { CommonModule } from '../../common/common.module'
 import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
+import { NotificationTokensStore } from '../notifications/notificationTokens.store'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
     OrbitDbService,
     CommunityMetadataStore,
     UserProfileStore,
+    NotificationTokensStore,
     ChannelsService,
     MessagesService,
     LFAIdentityProvider,
@@ -33,6 +35,7 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
     OrbitDbService,
     CommunityMetadataStore,
     UserProfileStore,
+    NotificationTokensStore,
     ChannelsService,
     MessagesService,
     LFAIdentityProvider,
