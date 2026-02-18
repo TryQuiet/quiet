@@ -18,15 +18,21 @@ class MockQSSClient extends EventEmitter {
 
 class MockSigChainService extends EventEmitter {
   activeChain: any = null
+  user = { userId: 'test-user-id' }
 }
 
 class MockSocketService extends EventEmitter {}
+
+class MockNotificationTokensStore {
+  addToken = jest.fn<any>()
+}
 
 describe('QPSService', () => {
   let qpsService: QPSService
   let qssClient: MockQSSClient
   let sigChainService: MockSigChainService
   let socketService: MockSocketService
+  let notificationTokensStore: MockNotificationTokensStore
 
   const TOKEN = 'fake-device-token-abc123'
 
@@ -50,13 +56,15 @@ describe('QPSService', () => {
     qssClient = new MockQSSClient()
     sigChainService = new MockSigChainService()
     socketService = new MockSocketService()
+    notificationTokensStore = new MockNotificationTokensStore()
 
     qpsService = new QPSService(
       true, // qpsAllowed
       'http://localhost:3000', // qpsEndpoint
       socketService as any,
       qssClient as any,
-      sigChainService as any
+      sigChainService as any,
+      notificationTokensStore as any
     )
 
     qssClient.sendMessage.mockResolvedValue(successResponse)
@@ -82,9 +90,34 @@ describe('QPSService', () => {
       )
     })
 
+    it('stores UCAN in notification tokens store after successful registration', async () => {
+      setReady()
+
+      await qpsService.register(TOKEN)
+
+      expect(notificationTokensStore.addToken).toHaveBeenCalledWith('test-user-id', 'test-ucan')
+    })
+
+    it('still returns UCAN if storing in notification tokens store fails', async () => {
+      setReady()
+      notificationTokensStore.addToken.mockRejectedValueOnce(new Error('store not initialized'))
+
+      const result = await qpsService.register(TOKEN)
+
+      expect(result).toEqual({ ucan: 'test-ucan' })
+      expect(notificationTokensStore.addToken).toHaveBeenCalledWith('test-user-id', 'test-ucan')
+    })
+
     it('returns null and does not send when disabled', async () => {
       // Create a disabled instance
-      const disabled = new QPSService(false, '', socketService as any, qssClient as any, sigChainService as any)
+      const disabled = new QPSService(
+        false,
+        '',
+        socketService as any,
+        qssClient as any,
+        sigChainService as any,
+        notificationTokensStore as any
+      )
       setReady()
 
       const result = await disabled.register(TOKEN)

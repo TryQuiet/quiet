@@ -8,10 +8,25 @@ import { CommunityMetadataStore } from '../communityMetadata/communityMetadata.s
 import { UserProfileStore } from '../userProfile/userProfile.store'
 import { ChannelsService } from '../channels/channels.service'
 import { MessagesService } from '../channels/messages/messages.service'
+import { NotificationTokensStore } from '../notifications/notificationTokens.store'
 
 @Module({
   imports: [LocalDbModule, forwardRef(() => IpfsModule), forwardRef(() => IpfsFileManagerModule), SigChainModule],
-  providers: [OrbitDbService, CommunityMetadataStore, UserProfileStore, ChannelsService, MessagesService],
-  exports: [OrbitDbService, CommunityMetadataStore, UserProfileStore, ChannelsService, MessagesService],
+  providers: [
+    OrbitDbService,
+    CommunityMetadataStore,
+    UserProfileStore,
+    NotificationTokensStore,
+    ChannelsService,
+    MessagesService,
+  ],
+  exports: [
+    OrbitDbService,
+    CommunityMetadataStore,
+    UserProfileStore,
+    NotificationTokensStore,
+    ChannelsService,
+    MessagesService,
+  ],
 })
 export class OrbitDbModule {}

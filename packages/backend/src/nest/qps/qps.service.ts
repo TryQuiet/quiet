@@ -9,6 +9,7 @@ import { QSSClient } from '../qss/qss.client'
 import { CommunityOperationStatus, QSSEvents, WebsocketEvents } from '../qss/qss.types'
 import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
+import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 
 const BUNDLE_ID = 'com.quietmobile'
 
@@ -22,7 +23,8 @@ export class QPSService implements OnModuleInit {
     @Inject(QPS_ENDPOINT) private readonly qpsEndpoint: string,
     private readonly socketService: SocketService,
     private readonly qssClient: QSSClient,
-    private readonly sigChainService: SigChainService
+    private readonly sigChainService: SigChainService,
+    private readonly notificationTokensStore: NotificationTokensStore
   ) {}
 
   public get enabled(): boolean {
@@ -115,6 +117,12 @@ export class QPSService implements OnModuleInit {
 
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.ucan) {
         this.logger.info('QPS registration via WebSocket successful, received UCAN')
+        try {
+          const userId = this.sigChainService.user.userId
+          await this.notificationTokensStore.addToken(userId, response.payload.ucan)
+        } catch (err) {
+          this.logger.error('Failed to store UCAN in notification tokens store', err)
+        }
         return { ucan: response.payload.ucan }
       }
 
