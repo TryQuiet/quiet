@@ -13,7 +13,8 @@ import { RoleName } from '../../auth/services/roles/roles'
 
 const logger = createLogger('NotificationTokensStore')
 
-const MAX_TOKENS_PER_USER = 10
+// TODO: when we support device linking, increase to the number of linked devices we want to allow per user
+const MAX_TOKENS_PER_USER = 1
 
 @Injectable()
 export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedStoreBase<
@@ -31,6 +32,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
 
   public async init() {
     logger.info('Initializing notification tokens key/value store')
+    // TODO: when removal is supported, we should rotate the store address with key generation to avoid stale entries hanging around indefinitely
     this.store = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
       'notification-tokens',
       {
