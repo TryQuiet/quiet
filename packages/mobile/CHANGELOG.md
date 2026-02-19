@@ -1,25 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.7.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.1.0-alpha.3...@quiet/mobile@6.7.0-alpha.0) (2026-02-19)
-
-
-### Bug Fixes
-
-* Backend fails to start on GrapheneOS in 6.5.1 ([#3106](https://github.com/TryQuiet/quiet/issues/3106)) ([ce4b9f5](https://github.com/TryQuiet/quiet/commit/ce4b9f56a3cb3c1cd9836e3f234bb3b44560f396))
-* Keyboard avoiding on android, properly displaying send button on android, newline rendering in message component on mobile ([#2980](https://github.com/TryQuiet/quiet/issues/2980)) ([4f0afa3](https://github.com/TryQuiet/quiet/commit/4f0afa30160cdc75f624e7246580438c7d2e7600))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -31,6 +9,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
 * Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
 * Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
+* Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
+* Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
+* Use LFA-based identity in OrbitDB
+* Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 
 ### Fixes
 

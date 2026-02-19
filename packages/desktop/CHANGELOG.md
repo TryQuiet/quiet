@@ -1,29 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.7.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.1.0-alpha.3...@quiet/desktop@6.7.0-alpha.0) (2026-02-19)
-
-
-### Bug Fixes
-
-* Better QSS handling in invite links, proper redialing on disconnects, resetting LFA join status when in intermediate state on disconnect ([#3012](https://github.com/TryQuiet/quiet/issues/3012)) ([2b68c3c](https://github.com/TryQuiet/quiet/commit/2b68c3c94693f2aafa7fc5c7a65073e92c93e6dd))
-
-
-### Features
-
-* **2803:** Write orbitdb sync data to QSS ([#2914](https://github.com/TryQuiet/quiet/issues/2914)) ([bfbfd92](https://github.com/TryQuiet/quiet/commit/bfbfd925feb35abf4bb6f04d2ed27b08a58b14cb))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -35,6 +9,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
 * Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
 * Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
+* Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
+* Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
+* Use LFA-based identity in OrbitDB
+* Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 
 ### Fixes
 
