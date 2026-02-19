@@ -202,7 +202,6 @@
   },
   "overrides": {
     "level": "$level",
-    "leveldown": "^6",
     "@orbitdb/core": {
       "multiformats": "13.3.1",
       "@ipld/dag-cbor": "9.2.1"
