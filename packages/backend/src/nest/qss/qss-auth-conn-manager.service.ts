@@ -10,7 +10,7 @@ import * as uint8arrays from 'uint8arrays'
 import { createLogger } from '../common/logger'
 import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSClient } from './qss.client'
-import { AuthSyncMessage, WebsocketEvents } from './qss.types'
+import { AuthSyncMessage, QSSEvents, WebsocketEvents } from './qss.types'
 
 @Injectable()
 export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDestroy {
@@ -95,6 +95,9 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       id: randomInt(1_000_000),
     })
     authConnection.teamId = teamId
+    authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (teamId: string) => {
+      this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, teamId)
+    })
     this.authConnMap.set(teamId, authConnection)
     await authConnection.start(teamName)
   }

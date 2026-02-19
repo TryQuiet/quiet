@@ -97,6 +97,16 @@ describe('QSSService', () => {
     await ipfsService.createInstance()
 
     localDbService = await module.resolve(LocalDbService)
+    community = await factory.create('Community', {
+      name: teamName,
+    })
+    userIdentity = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: username,
+    })
+    sigchainService = module.get<SigChainService>(SigChainService)
+    await sigchainService.createChain(community.name!, username, true)
+
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
 
@@ -124,16 +134,6 @@ describe('QSSService', () => {
     mockedGetSocket = jest.spyOn(qssClient, 'getClientSocket').mockImplementation((): ClientSocket | undefined => {
       return socket
     })
-    sigchainService = module.get<SigChainService>(SigChainService)
-
-    community = await factory.create('Community', {
-      name: teamName,
-    })
-    userIdentity = await factory.create('Identity', {
-      communityId: community.id,
-      nickname: username,
-    })
-    await sigchainService.createChain(community.name!, username, true)
   })
 
   afterEach(async () => {
@@ -906,8 +906,7 @@ describe('QSSService', () => {
       })
 
       // Start interval
-      // @ts-ignore - accessing private method for testing
-      qssService._startLogPullInterval(teamId)
+      qssService.startLogPullInterval(teamId)
 
       // Verify interval was created
       // @ts-ignore - accessing private property for testing
@@ -938,8 +937,7 @@ describe('QSSService', () => {
         })
 
       // Start interval - this immediately triggers first pull
-      // @ts-ignore - accessing private method for testing
-      qssService._startLogPullInterval(teamId)
+      qssService.startLogPullInterval(teamId)
 
       // Wait for first (immediate) pull to complete
       await waitForExpect(() => {

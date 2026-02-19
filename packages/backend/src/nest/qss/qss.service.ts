@@ -45,7 +45,7 @@ import { QSS_RECONNECT_DELAY_MS } from './qss.const'
 import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
-import { Serializer } from './serializer.service'
+import { Serializer } from '../common/serializer.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -130,22 +130,30 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.info('Processing QSS data sync dead letter queue')
 
     const unsentHashesByAddr = await this.localDbService.getPendingQssLogSyncMessages()
+    const entries = Object.entries(unsentHashesByAddr)
+    this.logger.info(`Found ${Object.entries(unsentHashesByAddr).length} unsent hashes to send to QSS`)
     const successes: Record<string, string[]> = {}
-    for (const [address, unsentHashes] of Object.entries(unsentHashesByAddr)) {
+    for (const [address, unsentHashes] of entries) {
       const successByAddr: string[] = []
       const unsentEntries: LogEntry[] = await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)
       for (const entry of unsentEntries) {
         const success = await this.sendLogEntrySyncMessage(logEntryToLogUpdate(entry, address))
         if (success) {
           successByAddr.push(entry.hash)
+        } else {
+          this.logger.warn(`Failed to send ${entry.hash} to QSS`)
         }
       }
       if (successByAddr.length > 0) {
         successes[address] = successByAddr
       }
     }
-    if (Object.keys(successes).length > 0) {
+    const successCount = Object.keys(successes).length
+    if (successCount > 0) {
       await this.localDbService.removePendingQssLogSyncMessages(successes)
+    }
+    if (successCount < entries.length) {
+      this.logger.warn(`Failed to send ${entries.length - successCount} entries to QSS, will retry later...`)
     }
   }
 
@@ -237,6 +245,21 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
           await this.signInToCommunity(teamId, sigChain, teamName)
         }
       })
+    })
+
+    this.qssAuthConnManager.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, async (teamId: string) => {
+      this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
+      const initStatus = await this.getQssInitStatus()
+      const sigchain = this.sigChainService.getChain({ teamId })
+      const authData = (initStatus.community?.inviteData as InvitationDataV3).authData
+      if (authData.salt != null) {
+        sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
+      }
+      this.logger.trace(
+        `Is user now member through self-assign?`,
+        sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
+      )
+      this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
     })
   }
 
@@ -513,6 +536,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return
     }
 
+    this.logger.debug('Pulling latest log entries from QSS', teamId)
+
     this._logPullInFlight.add(teamId)
     try {
       const response = await this.pullLatestLogEntries(teamId)
@@ -534,7 +559,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
   }
 
-  private _startLogPullInterval(teamId: string): void {
+  public startLogPullInterval(teamId: string): void {
+    this.logger.debug('Starting log pull interval', teamId)
     if (this._logPullIntervals.has(teamId)) {
       return
     }
@@ -569,8 +595,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once connected', teamId)
       const authConnection = this.qssAuthConnManager.getConnection(teamId)
       const startLogPullInterval = (): void => {
+        if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+          this.logger.warn('QSS is connected but user is not a member, will pull historical log entries on full join')
+          return
+        }
         this.logger.info('Connected event received, starting log entry pull interval', teamId)
-        this._startLogPullInterval(teamId)
+        this.startLogPullInterval(teamId)
       }
 
       authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, startLogPullInterval)
@@ -728,7 +758,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return undefined
     }
 
-    this.logger.trace('Sending log sync message to QSS', hash, teamId)
+    this.logger.debug('Sending log sync message to QSS', hash, teamId)
     const dataSyncAck = await this.qssClient.sendMessage<LogEntrySyncMessage>(
       WebsocketEvents.LOG_ENTRY_SYNC,
       dataSyncMessage,
@@ -747,6 +777,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (!success) {
       try {
+        this.logger.warn('Adding QSS sync record to dead letter queue', address, hash)
         await this.localDbService.addPendingQssLogSyncMessage(address, hash)
       } catch (e) {
         this.logger.error('Failed to write pending QSS log sync message to local DB', e)

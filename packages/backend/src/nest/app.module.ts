@@ -43,12 +43,14 @@ import { QSSModule } from './qss/qss.module'
 import { QPSModule } from './qps/qps.module'
 import { verifyToken } from './common/token'
 import { OrbitDbModule } from './storage/orbitDb/orbitdb.module'
+import { CommonModule } from './common/common.module'
 
 const logger = createLogger('appModule')
 
 @Global()
 @Module({
   imports: [
+    CommonModule,
     SocketModule,
     LocalDbModule,
     Libp2pModule,

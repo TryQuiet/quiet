@@ -9,9 +9,18 @@ import { UserProfileStore } from '../userProfile/userProfile.store'
 import { ChannelsService } from '../channels/channels.service'
 import { MessagesService } from '../channels/messages/messages.service'
 import { NotificationTokensStore } from '../notifications/notificationTokens.store'
+import { CommonModule } from '../../common/common.module'
+import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
+import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 
 @Module({
-  imports: [LocalDbModule, forwardRef(() => IpfsModule), forwardRef(() => IpfsFileManagerModule), SigChainModule],
+  imports: [
+    LocalDbModule,
+    forwardRef(() => IpfsModule),
+    forwardRef(() => IpfsFileManagerModule),
+    SigChainModule,
+    CommonModule,
+  ],
   providers: [
     OrbitDbService,
     CommunityMetadataStore,
@@ -19,6 +28,8 @@ import { NotificationTokensStore } from '../notifications/notificationTokens.sto
     NotificationTokensStore,
     ChannelsService,
     MessagesService,
+    LFAIdentityProvider,
+    LFAIdentities,
   ],
   exports: [
     OrbitDbService,
@@ -27,6 +38,8 @@ import { NotificationTokensStore } from '../notifications/notificationTokens.sto
     NotificationTokensStore,
     ChannelsService,
     MessagesService,
+    LFAIdentityProvider,
+    LFAIdentities,
   ],
 })
 export class OrbitDbModule {}
