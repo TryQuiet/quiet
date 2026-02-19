@@ -20,6 +20,8 @@ import { Libp2pNodeParams } from '../../libp2p/libp2p.types'
 import { EventsType, IPFSAccessController, LogEntry } from '@orbitdb/core'
 import { LogUpdate } from './orbitdb.types'
 import { EventsWithStorage } from './eventsWithStorage'
+import { SigChainModule } from '../../auth/sigchain.service.module'
+import { SigChainService } from '../../auth/sigchain.service'
 
 const logger = createLogger('messagesService:test')
 
@@ -29,14 +31,17 @@ describe('OrbitDbService', () => {
   let ipfsService: IpfsService
   let orbitDbService: OrbitDbService
   let localDbService: LocalDbService
+  let sigchainService: SigChainService
   let factory: FactoryGirl
   let libp2pParams: Libp2pNodeParams
+
+  const teamName = 'test'
 
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
 
     module = await Test.createTestingModule({
-      imports: [TestModule, StorageModule, Libp2pModule, IpfsModule],
+      imports: [TestModule, StorageModule, Libp2pModule, IpfsModule, SigChainModule],
     }).compile()
 
     libp2pService = await module.resolve(Libp2pService)
@@ -46,6 +51,9 @@ describe('OrbitDbService', () => {
     await ipfsService.createInstance()
 
     localDbService = await module.resolve(LocalDbService)
+
+    sigchainService = module.get<SigChainService>(SigChainService)
+    await sigchainService.createChain('test', 'testuser', true)
   })
 
   beforeEach(async () => {

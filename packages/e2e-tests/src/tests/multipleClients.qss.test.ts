@@ -377,14 +377,20 @@ describe('Multiple Clients (QSS)', () => {
       })
     })
 
-    describe('Second User Joins', () => {
+    describe('First User Leaves', () => {
+      it('First user goes offline', async () => {
+        await users.user1.app.close()
+      })
+    })
+
+    describe('Second User Joins Using QSS Only', () => {
       it('Second user opens the app', async () => {
         await users.user2.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.user2.app.driver)
         await debugModal.close()
       })
 
-      it('Second user starts to join when owner is offline', async () => {
+      it('Second user starts to join when everyone is offline', async () => {
         const app = users.user2.app
         const joinCommunityModal = new JoinCommunityModal(app.driver)
         expect(await joinCommunityModal.isReady()).toBeTruthy()
@@ -419,16 +425,6 @@ describe('Multiple Clients (QSS)', () => {
         expect(await userList.isReady()).toBeTruthy()
       })
 
-      it('Second user sees first user in user list as online', async () => {
-        const userList = new UsersList(users.user2.app.driver)
-        await userList.getUser(users.user1.username, UserListStatus.ONLINE)
-      })
-
-      it('First user sees second user in user list as online', async () => {
-        const userList = new UsersList(users.user1.app.driver)
-        await userList.getUser(users.user2.username, UserListStatus.ONLINE)
-      })
-
       it('Second user sees general channel', async () => {
         const app = users.user2.app
         const loadNewUser = async () => {
@@ -448,50 +444,52 @@ describe('Multiple Clients (QSS)', () => {
         await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
       })
 
+      it('Second user can see messages from before they joined', async () => {
+        await generalChannelUser2.getAtleastNumUserMessages(users.owner.username, 2)
+        await generalChannelUser2.getAtleastNumUserMessages(users.user1.username, 2)
+      })
+
       it('Second user can send a message and is visible', async () => {
         await generalChannelUser2.sendMessage(users.user2.messages.initialChannelMessage, users.user2.username)
         await generalChannelUser2.getMessageIdsByText(users.user2.messages.initialChannelMessage, users.user2.username)
       })
-
-      it(`First user sees second user's message`, async () => {
-        await generalChannelUser1.getMessageIdsByText(
-          users.user2.messages.initialChannelMessage,
-          users.user2.username,
-          60_000
-        )
-      })
     })
 
-    describe('First User Leaves', () => {
-      it('First user goes offline', async () => {
-        await users.user1.app.close()
-      })
-
-      it('Second user sees first user in user list as offline', async () => {
-        const userList = new UsersList(users.user2.app.driver)
-        await userList.getUser(users.user1.username, UserListStatus.OFFLINE)
-      })
-    })
-
-    describe('Second User Registers Using QSS and Owner', () => {
-      // TODO: add check for number of messages
+    describe('Owner comes online', () => {
       it('Owner goes back online', async () => {
         await users.owner.app.openWithRetries(undefined, true)
         const debugModal = new DebugModeModal(users.owner.app.driver)
         await debugModal.close()
       })
 
-      it('Second user sees owner in user list as online', async () => {
-        const userList = new UsersList(users.user2.app.driver)
-        const userListOwner = await userList.getUser(users.owner.username, UserListStatus.ONLINE)
+      it('Owner sees general channel', async () => {
+        const app = users.owner.app
+        const loadOwner = async () => {
+          generalChannelOwner = new Channel(app.driver, generalChannelName)
+          expect(await generalChannelOwner.isReady()).toBeTruthy()
+          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+        }
+
+        const retryConfig = app.retryConfig
+        const failureReason = `Failed to load app for ${users.owner.username} within ${retryConfig.timeoutMs}ms`
+        const onTimeout = async () => {
+          await app.close()
+          await app.open()
+        }
+        await promiseWithRetries(loadOwner(), failureReason, retryConfig, onTimeout)
       })
 
-      it(`Owner can see the second user's message`, async () => {
-        generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
+      it('Second user sees owner in user list as online', async () => {
+        const userList = new UsersList(users.user2.app.driver)
+        await userList.getUser(users.owner.username, UserListStatus.ONLINE)
+      })
+
+      it("Second user's first message is visible in a channel for owner", async () => {
         await generalChannelOwner.getMessageIdsByText(
           users.user2.messages.initialChannelMessage,
           users.user2.username,
-          120_000
+          60_000
         )
       })
 
@@ -499,19 +497,19 @@ describe('Multiple Clients (QSS)', () => {
         await generalChannelUser2.sendMessage(users.user2.messages.followUpMessage, users.user2.username)
       })
 
-      it("Second user's message is visible in a channel", async () => {
+      it("Second user's second message is visible in a channel", async () => {
         await generalChannelUser2.getMessageIdsByText(users.user2.messages.followUpMessage, users.user2.username)
       })
 
-      it("Second user's message is visible in a channel for owner", async () => {
+      it("Second user's second message is visible in a channel for owner", async () => {
         await generalChannelOwner.getMessageIdsByText(users.user2.messages.followUpMessage, users.user2.username)
       })
     })
 
-    describe('First User Comes Back Online', () => {
+    describe('First user Comes Back Online', () => {
       it('First user goes back online', async () => {
         await users.user1.app.openWithRetries(undefined, true)
-        const debugModal = new DebugModeModal(users.owner.app.driver)
+        const debugModal = new DebugModeModal(users.user1.app.driver)
         await debugModal.close()
       })
 
@@ -525,16 +523,17 @@ describe('Multiple Clients (QSS)', () => {
         await userList.getUser(users.owner.username, UserListStatus.ONLINE)
       })
 
-      it("Second user's message is visible in a channel for first user", async () => {
+      it(`First user can see the second user's messages`, async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         expect(await generalChannelUser1.isReady()).toBeTruthy()
         expect(await generalChannelUser1.isOpen()).toBeTruthy()
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
         await generalChannelUser1.getMessageIdsByText(
-          users.user2.messages.followUpMessage,
+          users.user2.messages.initialChannelMessage,
           users.user2.username,
           120_000
         )
+        await generalChannelUser1.getMessageIdsByText(users.user2.messages.followUpMessage, users.user2.username)
       })
     })
 
