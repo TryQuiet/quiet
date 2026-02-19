@@ -70,8 +70,6 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { SigChain } from '../auth/sigchain'
-import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -721,7 +719,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } else {
           try {
             const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
-
+            const qssInitStatus = await this.qssService.getQssInitStatus()
+            // create the lockboxes using invite-based keys for users to self-assign the MEMBER role
+            if (qssInitStatus.qssEnabled) {
+              this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, newInvite.salt)
+            }
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })
