@@ -75,6 +75,19 @@ class UserService extends ChainServiceBase {
     return this.getAllUsers().find(member => member.userName === memberName)
   }
 
+  public getUserById(memberId: string, options: MemberSearchOptions = DEFAULT_SEARCH_OPTIONS): Member | undefined {
+    const users = this.getUsersById([memberId], options)
+    if (users.length === 0) {
+      if (options.throwOnMissing) {
+        throw new Error(`No user found for ID ${memberId}`)
+      }
+    }
+    if (users.length > 1) {
+      throw new Error(`Expected 1 user for ID but found ${users.length} user records`)
+    }
+    return users[0]
+  }
+
   public static redactUser(user: UserWithSecrets): User {
     return SigChain.lfa.redactUser(user)
   }

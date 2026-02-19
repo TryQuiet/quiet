@@ -4,12 +4,14 @@ import { StoreKeys } from './store.keys'
 import { initReducer } from './init/init.slice'
 import { navigationReducer } from './navigation/navigation.slice'
 import { nativeServicesReducer, nativeServicesActions } from './nativeServices/nativeServices.slice'
+import { pushNotificationsReducer } from './pushNotifications/pushNotifications.slice'
 
 export const reducers = {
   ...stateManagerReducers.reducers,
   [StoreKeys.Init]: initReducer,
   [StoreKeys.Navigation]: navigationReducer,
   [StoreKeys.NativeServices]: nativeServicesReducer,
+  [StoreKeys.PushNotifications]: pushNotificationsReducer,
 }
 
 export const allReducers = combineReducers(reducers)

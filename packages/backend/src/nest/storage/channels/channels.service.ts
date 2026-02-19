@@ -74,7 +74,7 @@ export class ChannelsService extends EventEmitter {
     this.attachFileManagerEvents()
     await this.filesManager.init()
 
-    this.logger.info(`Initializing Databases`)
+    this.logger.info(`Initializing Channels Databases`)
     await this.initChannels()
 
     this.logger.info(`Initialized ${ChannelsService.name}`)

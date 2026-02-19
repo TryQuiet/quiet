@@ -47,6 +47,7 @@ const persistedReducer = persistReducer(
       StateManagerStoreKeys.Files,
       StateManagerStoreKeys.Connection,
       StoreKeys.Init,
+      StoreKeys.PushNotifications,
     ],
     transforms: [
       CommunitiesTransform,

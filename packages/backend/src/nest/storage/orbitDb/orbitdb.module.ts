@@ -8,10 +8,35 @@ import { CommunityMetadataStore } from '../communityMetadata/communityMetadata.s
 import { UserProfileStore } from '../userProfile/userProfile.store'
 import { ChannelsService } from '../channels/channels.service'
 import { MessagesService } from '../channels/messages/messages.service'
+import { CommonModule } from '../../common/common.module'
+import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
+import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 
 @Module({
-  imports: [LocalDbModule, forwardRef(() => IpfsModule), forwardRef(() => IpfsFileManagerModule), SigChainModule],
-  providers: [OrbitDbService, CommunityMetadataStore, UserProfileStore, ChannelsService, MessagesService],
-  exports: [OrbitDbService, CommunityMetadataStore, UserProfileStore, ChannelsService, MessagesService],
+  imports: [
+    LocalDbModule,
+    forwardRef(() => IpfsModule),
+    forwardRef(() => IpfsFileManagerModule),
+    SigChainModule,
+    CommonModule,
+  ],
+  providers: [
+    OrbitDbService,
+    CommunityMetadataStore,
+    UserProfileStore,
+    ChannelsService,
+    MessagesService,
+    LFAIdentityProvider,
+    LFAIdentities,
+  ],
+  exports: [
+    OrbitDbService,
+    CommunityMetadataStore,
+    UserProfileStore,
+    ChannelsService,
+    MessagesService,
+    LFAIdentityProvider,
+    LFAIdentities,
+  ],
 })
 export class OrbitDbModule {}

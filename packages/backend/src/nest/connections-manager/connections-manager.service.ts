@@ -70,8 +70,7 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { SigChain } from '../auth/sigchain'
-import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
+import { QSSEvents } from '../qss/qss.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -643,6 +642,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await setupStorage()
       this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
     } else {
+      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, async (teamId: string) => {
+        this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
+        await setupStorage()
+        this.storageService.addTeamIdToDbMetas(teamId)
+        this.logger.info('Fully joined event received, starting log entry pull interval', teamId)
+        this.qssService.startLogPullInterval(teamId)
+      })
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
         await setupStorage()
@@ -721,7 +727,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } else {
           try {
             const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
-
+            const qssInitStatus = await this.qssService.getQssInitStatus()
+            // create the lockboxes using invite-based keys for users to self-assign the MEMBER role
+            if (qssInitStatus.qssEnabled) {
+              this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, newInvite.salt)
+            }
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })

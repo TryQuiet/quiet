@@ -33,6 +33,11 @@ describe('UserProfileStore OrbitDB Sync', () => {
   let aliceProfile: UserProfile
   let bobProfile: UserProfile
 
+  const initOrbitDb = async (i: number) => {
+    await orbitDbServices[i].create(ipfsServices[i].ipfsInstance!)
+    await userProfileStores[i].init()
+  }
+
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
     modules = await spawnTestModules(N_PEERS)
@@ -56,9 +61,10 @@ describe('UserProfileStore OrbitDB Sync', () => {
       await localDbServices[i].open()
       await ipfsServices[i].createInstance()
       await ipfsServices[i].start()
-      await orbitDbServices[i].create(ipfsServices[i].ipfsInstance!)
       userProfileStores.push(await modules[i].resolve(UserProfileStore))
-      await userProfileStores[i].init()
+      if (i === 0) {
+        await initOrbitDb(i)
+      }
       libp2pServices[i].pauseDialQueue()
     }
 
@@ -96,8 +102,9 @@ describe('UserProfileStore OrbitDB Sync', () => {
       logger.info(`dialed peer ${i}`)
       // Wait for the peer to be connected (AUTH_JOINED)
       await new Promise<void>(resolve => {
-        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, async () => {
           logger.info(`peer ${i} connected`)
+          await initOrbitDb(i)
           resolve()
         })
       })
