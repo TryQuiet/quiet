@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [6.6.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@6.6.0-alpha.0...@quiet/mobile@6.6.0-alpha.1) (2026-02-19)
-
-
-### Bug Fixes
-
-* Backend fails to start on GrapheneOS in 6.5.1 ([#3106](https://github.com/TryQuiet/quiet/issues/3106)) ([fa30ff6](https://github.com/TryQuiet/quiet/commit/fa30ff6753bd038674e343a7203d7c1e5f8d30c4))
-
-
-
-
-
 # Changelog
 
 [unreleased]
