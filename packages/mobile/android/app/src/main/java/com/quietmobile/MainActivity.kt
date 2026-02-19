@@ -44,7 +44,7 @@ class MainActivity : ReactActivity() {
         val intent = intent
         checkAgainstIntentUpdate(intent)
 
-        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER === "true") {
+        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER) {
             val context = applicationContext
             BackendWorkManager(context).enqueueRequests()
         }
