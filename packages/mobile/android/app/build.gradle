@@ -170,8 +170,8 @@ android {
         applicationId = "com.quietmobile"
         minSdkVersion(rootProject.ext.minSdkVersion)
         targetSdkVersion(rootProject.ext.targetSdkVersion)
-        versionCode 557
-        versionName "6.5.1"
+        versionCode 560
+        versionName "6.6.0"
         resValue("string", "build_config_package", "com.quietmobile")
         testBuildType = System.getProperty("testBuildType", "debug")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -216,9 +216,10 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField("String", "SHOULD_RUN_BACKEND_WORKER", "\"true\"")
-        it.buildConfigField("String", "QSS_ALLOWED", "\"false\"")
+        it.buildConfigField("Boolean", "SHOULD_RUN_BACKEND_WORKER", "true")
+        it.buildConfigField("Boolean", "QSS_ALLOWED", "false")
         it.buildConfigField("String", "QSS_ENDPOINT", "\"\"")
+        it.buildConfigField("Boolean", "DEBUG", "false")
     }
     buildTypes {
         debug {

@@ -9,11 +9,11 @@ import { QSSService } from './qss.service'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { CaptchaModule } from '../captcha/captcha.module'
 import { SocketModule } from '../socket/socket.module'
-import { Serializer } from './serializer.service'
+import { CommonModule } from '../common/common.module'
 
 @Module({
-  imports: [SigChainModule, LocalDbModule, forwardRef(() => OrbitDbModule), CaptchaModule, SocketModule],
-  providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection, Serializer],
-  exports: [QSSService, QSSClient, Serializer],
+  imports: [SigChainModule, LocalDbModule, forwardRef(() => OrbitDbModule), CaptchaModule, SocketModule, CommonModule],
+  providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection],
+  exports: [QSSService],
 })
 export class QSSModule {}

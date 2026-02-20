@@ -89,13 +89,18 @@ declare module '@orbitdb/core' {
 
   export function Identities(args: IdentitiesInit): Promise<IdentitiesType>
 
+  export type CreateIdentityOptions = Partial<Identity> & {
+    provider?: () => IdentityProvider
+    keystore?: KeyStoreType
+  }
+
   export interface IdentitiesType {
-    createIdentity
-    getIdentity
+    createIdentity: (options: CreateIdentityOptions) => Promise<Identity>
+    getIdentity: (hash: string) => Promise<Identity>
     verifyIdentity: (identity: Identity) => Promise<boolean>
-    sign
-    verify
-    keystore
+    sign: (identity: Identity, data: string | Uint8Array<ArrayBufferLike>) => Promise<string>
+    verify: (signature: string, publicKey: string, data: string) => Promise<boolean>
+    keystore: KeyStoreType
   }
 
   export interface Identity {
@@ -109,12 +114,15 @@ declare module '@orbitdb/core' {
     sign: (identity: Identity, data: string) => Promise<string>
     verify: (signature: string, publicKey: string, data: string) => Promise<boolean>
     hash: string
-    bytes: Uint8Array<ArrayBuffer>
+    bytes: Uint8Array<ArrayBufferLike>
+    provider?: IdentityProvider
   }
 
   export interface IdentityProvider {
     type: string
-    verifyIdentity: (identity: Identity) => Promise<boolean>
+    getId: (...params: any[]) => Promise<string>
+    signIdentity: (...params: any[]) => Promise<string>
+    verifyIdentity: (...params: any[]) => Promise<boolean>
   }
 
   //
