@@ -53,7 +53,6 @@ describe('QPSService', () => {
 
     qpsService = new QPSService(
       true, // qpsAllowed
-      'http://localhost:3000', // qpsEndpoint
       socketService as any,
       qssClient as any,
       sigChainService as any
@@ -84,7 +83,7 @@ describe('QPSService', () => {
 
     it('returns null and does not send when disabled', async () => {
       // Create a disabled instance
-      const disabled = new QPSService(false, '', socketService as any, qssClient as any, sigChainService as any)
+      const disabled = new QPSService(false, socketService as any, qssClient as any, sigChainService as any)
       setReady()
 
       const result = await disabled.register(TOKEN)

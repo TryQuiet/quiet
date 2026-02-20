@@ -70,4 +70,3 @@ export const QSS_ALLOWED = 'QSS_ALLOWED'
 export const QSS_ENDPOINT = 'QSS_ENDPOINT'
 
 export const QPS_ALLOWED = 'QPS_ALLOWED'
-export const QPS_ENDPOINT = 'QPS_ENDPOINT'

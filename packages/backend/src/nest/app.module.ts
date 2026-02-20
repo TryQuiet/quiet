@@ -24,7 +24,6 @@ import {
   QSS_ALLOWED,
   QSS_ENDPOINT,
   QPS_ALLOWED,
-  QPS_ENDPOINT,
 } from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
@@ -239,10 +238,6 @@ export class AppModule {
           provide: QPS_ALLOWED,
           useValue: process.env.QPS_ALLOWED === 'true',
         },
-        {
-          provide: QPS_ENDPOINT,
-          useValue: process.env.QPS_ENDPOINT,
-        },
       ],
       exports: [
         CONFIG_OPTIONS,
@@ -256,7 +251,6 @@ export class AppModule {
         QSS_ALLOWED,
         QSS_ENDPOINT,
         QPS_ALLOWED,
-        QPS_ENDPOINT,
       ],
     }
   }

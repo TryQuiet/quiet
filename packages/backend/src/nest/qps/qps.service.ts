@@ -1,10 +1,10 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
-import { QPS_ALLOWED, QPS_ENDPOINT } from '../const'
+import { QPS_ALLOWED } from '../const'
 import { SocketService } from '../socket/socket.service'
 import { SocketActions } from '@quiet/types'
-import { QPSRegisterRequest, QPSRegisterResponse, QPSRegisterWsResponse } from './qps.types'
+import { QPSRegisterResponse, QPSRegisterWsResponse } from './qps.types'
 import { QSSClient } from '../qss/qss.client'
 import { CommunityOperationStatus, QSSEvents, WebsocketEvents } from '../qss/qss.types'
 import { SigChainService } from '../auth/sigchain.service'
@@ -19,7 +19,6 @@ export class QPSService implements OnModuleInit {
 
   constructor(
     @Inject(QPS_ALLOWED) private readonly qpsAllowed: boolean,
-    @Inject(QPS_ENDPOINT) private readonly qpsEndpoint: string,
     private readonly socketService: SocketService,
     private readonly qssClient: QSSClient,
     private readonly sigChainService: SigChainService
@@ -60,17 +59,7 @@ export class QPSService implements OnModuleInit {
       return null
     }
 
-    return this._send(deviceToken)
-  }
-
-  private async _send(deviceToken: string): Promise<QPSRegisterResponse | null> {
-    // Prefer WebSocket via QSS connection
-    if (this.qssClient.connected) {
-      return this._registerViaWebSocket(deviceToken)
-    }
-
-    // Fall back to HTTP
-    return this._registerViaHttp(deviceToken)
+    return this._register(deviceToken)
   }
 
   private async _flushPendingToken(): Promise<void> {
@@ -81,7 +70,7 @@ export class QPSService implements OnModuleInit {
     const token = this._pendingDeviceToken
     this._pendingDeviceToken = null
     this.logger.info('Flushing cached device token')
-    await this._send(token)
+    await this._register(token)
   }
 
   private _hasMemberKey(): boolean {
@@ -95,13 +84,8 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  /**
-   * Registers device token via QSS WebSocket
-   * @param deviceToken
-   * @returns
-   */
-  private async _registerViaWebSocket(deviceToken: string): Promise<QPSRegisterResponse | null> {
-    this.logger.info('Registering device token via QSS WebSocket')
+  private async _register(deviceToken: string): Promise<QPSRegisterResponse | null> {
+    this.logger.info('Registering device token')
     try {
       const response = await this.qssClient.sendMessage<QPSRegisterWsResponse>(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
@@ -114,50 +98,14 @@ export class QPSService implements OnModuleInit {
       )
 
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.ucan) {
-        this.logger.info('QPS registration via WebSocket successful, received UCAN')
+        this.logger.info('QPS registration successful, received UCAN')
         return { ucan: response.payload.ucan }
       }
 
-      this.logger.warn(`QPS WebSocket registration failed: ${response?.reason ?? 'unknown'}`)
+      this.logger.warn(`QPS registration failed: ${response?.reason ?? 'unknown'}`)
       return null
     } catch (e) {
-      this.logger.error('Error registering via WebSocket', e)
-      return null
-    }
-  }
-
-  /**
-   * [NOT IMPLEMENTED] Will implement when QPS splits from QSS
-   * @param deviceToken
-   * @returns
-   */
-  private async _registerViaHttp(deviceToken: string): Promise<QPSRegisterResponse | null> {
-    if (this.qpsEndpoint == null || this.qpsEndpoint === '') {
-      this.logger.warn('QPS HTTP endpoint not configured, skipping registration')
-      return null
-    }
-
-    const url = `${this.qpsEndpoint}/v1/register`
-    const body: QPSRegisterRequest = { deviceToken, bundleId: BUNDLE_ID }
-
-    this.logger.info('Registering device token via HTTP')
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!response.ok) {
-        this.logger.error(`QPS HTTP registration failed: ${response.status} ${response.statusText}`)
-        return null
-      }
-
-      const data = (await response.json()) as QPSRegisterResponse
-      this.logger.info('QPS registration via HTTP successful, received UCAN')
-      return data
-    } catch (e) {
-      this.logger.error('Error registering via HTTP', e)
+      this.logger.error('Error registering device token', e)
       return null
     }
   }
