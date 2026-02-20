@@ -19,7 +19,6 @@ import {
   QSS_ALLOWED,
   QSS_ENDPOINT,
   QPS_ALLOWED,
-  QPS_ENDPOINT,
 } from '../const'
 import { ConfigOptions } from '../types'
 import path from 'path'
@@ -130,10 +129,6 @@ export const defaultConfigForTest = {
       provide: QPS_ALLOWED,
       useFactory: () => true,
     },
-    {
-      provide: QPS_ENDPOINT,
-      useFactory: () => undefined,
-    },
   ],
   exports: [
     CONFIG_OPTIONS,
@@ -148,7 +143,6 @@ export const defaultConfigForTest = {
     QSS_ALLOWED,
     QSS_ENDPOINT,
     QPS_ALLOWED,
-    QPS_ENDPOINT,
   ],
 })
 export class TestModule {}
