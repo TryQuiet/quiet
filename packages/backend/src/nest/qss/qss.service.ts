@@ -773,6 +773,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     } else {
       this.logger.debug('Successful log sync to QSS')
       success = true
+      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload!.teamId)
     }
 
     if (!success) {

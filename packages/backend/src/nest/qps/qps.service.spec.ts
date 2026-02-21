@@ -7,7 +7,7 @@ import { DateTime } from 'luxon'
 
 /**
  * Lightweight mocks — avoid bootstrapping the full NestJS module graph.
- * QSSClient and SigChainService both extend EventEmitter in production,
+ * QSSClient, QSSService, and SigChainService extend EventEmitter in production,
  * so the mocks do the same.
  */
 
@@ -25,6 +25,7 @@ class MockSocketService extends EventEmitter {}
 
 class MockNotificationTokensStore {
   addToken = jest.fn<any>()
+  getAllEntries = jest.fn<any>().mockResolvedValue([])
 }
 
 describe('QPSService', () => {
@@ -35,11 +36,17 @@ describe('QPSService', () => {
   let notificationTokensStore: MockNotificationTokensStore
 
   const TOKEN = 'fake-device-token-abc123'
+  const TEAM_ID = 'test-team-id'
 
   const successResponse = {
     ts: DateTime.utc().toMillis(),
     status: CommunityOperationStatus.SUCCESS,
     payload: { ucan: 'test-ucan' },
+  }
+
+  const pushSuccessResponse = {
+    ts: DateTime.utc().toMillis(),
+    status: CommunityOperationStatus.SUCCESS,
   }
 
   /** Helper: make QSS connected + sigchain joined */
@@ -259,6 +266,119 @@ describe('QPSService', () => {
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('triggerPush', () => {
+    const UCANS = ['ucan-user-a', 'ucan-user-b']
+
+    beforeEach(() => {
+      qssClient.connected = true
+      notificationTokensStore.getAllEntries.mockResolvedValue([
+        { userId: 'user-a', tokens: ['ucan-user-a'] },
+        { userId: 'user-b', tokens: ['ucan-user-b'] },
+      ])
+      qssClient.sendMessage.mockResolvedValue(pushSuccessResponse)
+    })
+
+    it('sends SEND_PUSH with all UCANs when enabled and connected', async () => {
+      await qpsService.triggerPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.SEND_PUSH,
+        expect.objectContaining({
+          status: CommunityOperationStatus.SENDING,
+          payload: { teamId: TEAM_ID, ucans: UCANS },
+        }),
+        true
+      )
+    })
+
+    it('skips when QPS is disabled', async () => {
+      const disabled = new QPSService(
+        false,
+        socketService as any,
+        qssClient as any,
+        sigChainService as any,
+        notificationTokensStore as any
+      )
+
+      await disabled.triggerPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips when QSS is not connected', async () => {
+      qssClient.connected = false
+
+      await qpsService.triggerPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips when no UCANs are registered', async () => {
+      notificationTokensStore.getAllEntries.mockResolvedValue([])
+
+      await qpsService.triggerPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('logs warning on non-success response', async () => {
+      qssClient.sendMessage.mockResolvedValueOnce({
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.ERROR,
+        reason: 'server error',
+      })
+
+      // Should not throw
+      await expect(qpsService.triggerPush(TEAM_ID)).resolves.toBeUndefined()
+      expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles thrown errors gracefully', async () => {
+      qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
+
+      await expect(qpsService.triggerPush(TEAM_ID)).resolves.toBeUndefined()
+    })
+
+    it('sends multiple batches when UCANs exceed batch size', async () => {
+      const manyUcans = Array.from({ length: 150 }, (_, i) => `ucan-${i}`)
+      notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
+
+      await qpsService.triggerPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).toHaveBeenCalledTimes(2)
+      expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
+        1,
+        WebsocketEvents.SEND_PUSH,
+        expect.objectContaining({ payload: { teamId: TEAM_ID, ucans: manyUcans.slice(0, 100) } }),
+        true
+      )
+      expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
+        2,
+        WebsocketEvents.SEND_PUSH,
+        expect.objectContaining({ payload: { teamId: TEAM_ID, ucans: manyUcans.slice(100) } }),
+        true
+      )
+    })
+
+    it('continues remaining batches if one batch throws', async () => {
+      const manyUcans = Array.from({ length: 150 }, (_, i) => `ucan-${i}`)
+      notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
+      qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
+
+      await expect(qpsService.triggerPush(TEAM_ID)).resolves.toBeUndefined()
+      expect(qssClient.sendMessage).toHaveBeenCalledTimes(2)
+    })
+
+    it('QSS_LOG_SYNCED event fires triggerPush', async () => {
+      const triggerPushSpy = jest.spyOn(qpsService, 'triggerPush').mockResolvedValue()
+
+      qssClient.emit(QSSEvents.QSS_LOG_SYNCED, TEAM_ID)
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      expect(triggerPushSpy).toHaveBeenCalledWith(TEAM_ID)
     })
   })
 })

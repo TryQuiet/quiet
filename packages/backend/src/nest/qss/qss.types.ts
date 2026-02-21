@@ -30,6 +30,7 @@ export enum WebsocketEvents {
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
   REGISTER_DEVICE_TOKEN = 'register-device-token',
+  SEND_PUSH = 'send-push',
 }
 
 /**
@@ -46,6 +47,7 @@ export enum QSSEvents {
   QSS_CAPTCHA_REQUIRED = 'qssCaptchaRequired',
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
   QSS_AUTH_CONNECTED = 'qssAuthConnected',
+  QSS_LOG_SYNCED = 'qssLogSynced',
 }
 
 export enum QSSOperationResult {
@@ -230,3 +232,14 @@ export interface GetCaptchaSiteKeyResponsePayload {
 export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptchaSiteKeyResponsePayload> {
   payload?: GetCaptchaSiteKeyResponsePayload
 }
+
+export interface SendPushPayload {
+  teamId: string
+  ucans: string[]
+}
+
+export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
+  payload: SendPushPayload
+}
+
+export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
