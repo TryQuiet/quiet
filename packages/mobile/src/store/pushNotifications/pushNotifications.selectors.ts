@@ -9,10 +9,7 @@ export const permissionStatus = createSelector(pushNotificationsSlice, state => 
 
 export const permissionRequested = createSelector(pushNotificationsSlice, state => state.permissionRequested)
 
-export const deviceToken = createSelector(pushNotificationsSlice, state => state.deviceToken)
-
 export const pushNotificationsSelectors = {
   permissionStatus,
   permissionRequested,
-  deviceToken,
 }

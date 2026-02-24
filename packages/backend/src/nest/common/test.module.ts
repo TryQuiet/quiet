@@ -18,6 +18,7 @@ import {
   LIBP2P_DB_PATH,
   QSS_ALLOWED,
   QSS_ENDPOINT,
+  QPS_ALLOWED,
 } from '../const'
 import { ConfigOptions } from '../types'
 import path from 'path'
@@ -124,6 +125,10 @@ export const defaultConfigForTest = {
       provide: QSS_ENDPOINT,
       useFactory: () => undefined,
     },
+    {
+      provide: QPS_ALLOWED,
+      useFactory: () => true,
+    },
   ],
   exports: [
     CONFIG_OPTIONS,
@@ -137,6 +142,7 @@ export const defaultConfigForTest = {
     LIBP2P_DB_PATH,
     QSS_ALLOWED,
     QSS_ENDPOINT,
+    QPS_ALLOWED,
   ],
 })
 export class TestModule {}
