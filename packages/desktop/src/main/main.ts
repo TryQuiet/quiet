@@ -582,7 +582,7 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     env: {
-      NODE_OPTIONS: '--experimental-global-customevent --trace-uncaught --enable-source-maps',
+      NODE_OPTIONS: '--trace-uncaught --enable-source-maps',
       DEBUG: process.env.DEBUG,
       LOG_DIR: process.env.LOG_DIR,
       COLORIZE: process.env.COLORIZE ?? 'true',
