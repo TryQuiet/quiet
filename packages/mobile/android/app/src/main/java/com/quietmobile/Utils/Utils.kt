@@ -10,7 +10,7 @@ import kotlin.coroutines.suspendCoroutine
 
 object Utils {
     fun createDirectory(context: Context): String {
-        val dataDirectory = File(context.filesDir, "backend/files6")
+        val dataDirectory = File(context.filesDir, "backend/files7")
         dataDirectory.mkdirs()
 
         return dataDirectory.absolutePath
