@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 import fs from 'fs'
 
 import { PushNotificationTokens } from '@quiet/types'
-import { NotificationTokensStore } from './notificationTokens.store'
+import { MAX_TOKENS_PER_USER, NotificationTokensStore } from './notificationTokens.store'
 import { Test, TestingModule } from '@nestjs/testing'
 import { createLogger } from '../../common/logger'
 import { SigChainService } from '../../auth/sigchain.service'
@@ -117,16 +117,15 @@ describe('NotificationTokensStore', () => {
     expect(result).toEqual({ userId, tokens: ['ucan-1'] })
   })
 
-  test('addToken evicts oldest tokens when exceeding max of 10', async () => {
-    for (let i = 0; i < 10; i++) {
+  test('addToken evicts oldest tokens when exceeding max ', async () => {
+    for (let i = 0; i < MAX_TOKENS_PER_USER; i++) {
       await notificationTokensStore.addToken(userId, `ucan-${i}`)
     }
     await notificationTokensStore.addToken(userId, 'ucan-new')
 
     const result = await notificationTokensStore.getEntry(userId)
-    expect(result.tokens).toHaveLength(10)
-    expect(result.tokens[0]).toBe('ucan-1') // ucan-0 evicted
-    expect(result.tokens[9]).toBe('ucan-new')
+    expect(result.tokens).toHaveLength(MAX_TOKENS_PER_USER)
+    expect(result.tokens[0]).toBe('ucan-new') // ucan-0 evicted
   })
 })
 

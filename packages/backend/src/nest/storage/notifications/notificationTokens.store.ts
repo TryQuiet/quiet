@@ -14,7 +14,7 @@ import { RoleName } from '../../auth/services/roles/roles'
 const logger = createLogger('NotificationTokensStore')
 
 // TODO: when we support device linking, increase to the number of linked devices we want to allow per user
-const MAX_TOKENS_PER_USER = 1
+export const MAX_TOKENS_PER_USER = 1
 
 @Injectable()
 export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedStoreBase<
