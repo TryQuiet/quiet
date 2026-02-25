@@ -8,10 +8,10 @@ import { CommunityMetadataStore } from '../communityMetadata/communityMetadata.s
 import { UserProfileStore } from '../userProfile/userProfile.store'
 import { ChannelsService } from '../channels/channels.service'
 import { MessagesService } from '../channels/messages/messages.service'
-import { NotificationTokensStore } from '../notifications/notificationTokens.store'
 import { CommonModule } from '../../common/common.module'
 import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
+import { NotificationTokensStore } from '../notifications/notificationTokens.store'
 
 @Module({
   imports: [
