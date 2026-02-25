@@ -86,7 +86,7 @@ describe('NotificationTokensStore', () => {
   })
 
   test('should get all entries', async () => {
-    const entry: PushNotificationTokens = { userId, tokens: ['ucan-1', 'ucan-2'] }
+    const entry: PushNotificationTokens = { userId, tokens: ['ucan-1'] }
     await notificationTokensStore.setEntry(userId, entry)
 
     const results = await notificationTokensStore.getAllEntries()
