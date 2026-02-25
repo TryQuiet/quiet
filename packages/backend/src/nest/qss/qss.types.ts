@@ -30,7 +30,7 @@ export enum WebsocketEvents {
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
   REGISTER_DEVICE_TOKEN = 'register-device-token',
-  SEND_PUSH = 'send-push',
+  SEND_PUSH = 'qps-send-push',
 }
 
 /**
