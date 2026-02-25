@@ -9,6 +9,7 @@ import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.
 import { pushNotificationsMasterSaga } from './pushNotifications/pushNotifications.master.saga'
 import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from '../utils/logger'
+import { keysMasterSaga } from './keys/keys.master.saga'
 
 const logger = createLogger('root')
 
@@ -54,6 +55,7 @@ function* storeReadySaga(): Generator {
       fork(navigationMasterSaga),
       fork(nativeServicesMasterSaga),
       fork(pushNotificationsMasterSaga),
+      fork(keysMasterSaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
       takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),

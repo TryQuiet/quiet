@@ -1,6 +1,17 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '@localfirst/auth'
+import {
+  Connection,
+  Hash,
+  InviteeMemberContext,
+  Keyring,
+  LocalUserContext,
+  MemberContext,
+  Team,
+  UserWithSecrets,
+  DeviceWithSecrets,
+} from '@localfirst/auth'
+import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
@@ -10,12 +21,11 @@ import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
 import { type UserService } from './services/members/user.service'
 import { type CryptoService } from './services/crypto/crypto.service'
-import { type UserWithSecrets } from '@localfirst/auth'
-import { type DeviceWithSecrets } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter } from './types'
+import { KeysUpdatedEvent, KeyWithMetadata } from 'packages/types/src/keys'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -23,6 +33,7 @@ export class SigChainService extends EventEmitter {
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
+  private lastUpdatedLink: Hash
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -133,6 +144,14 @@ export class SigChainService extends EventEmitter {
   }
 
   private handleChainUpdate = () => {
+    this._updateUsersOnChainUpdate()
+    this._updateKeysOnChainUpdate()
+    this.emit('updated')
+    this.saveChain(this.activeChainTeamName!)
+    this.logger.info('Chain updated, emitted updated event')
+  }
+
+  private _updateUsersOnChainUpdate() {
     const users = this.getActiveChain()
       .team?.members()
       .map(user => ({
@@ -141,10 +160,42 @@ export class SigChainService extends EventEmitter {
         isRegistered: true,
         isDuplicated: false,
       })) as User[]
-    this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
-    this.emit('updated')
-    this.saveChain(this.activeChainTeamName!)
-    this.logger.info('Chain updated, emitted updated event')
+    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
+  }
+
+  // TODO: only fetch keys that have been updated recently
+  private _updateKeysOnChainUpdate() {
+    const secretKeys: KeyWithMetadata[] = []
+    const sigKeys: KeyWithMetadata[] = []
+    const userPublicKeys: KeyWithMetadata[] = []
+    const allKeys = this.getActiveChain().crypto.getAllKeys()
+    for (const keyData of Object.values(allKeys)) {
+      for (const keyTypeData of Object.values(keyData)) {
+        for (const keyTypeGenData of Object.values(keyTypeData)) {
+          secretKeys.push({
+            scope: { name: keyTypeGenData.name, type: keyTypeGenData.type, generation: keyTypeGenData.generation },
+            key: keyTypeGenData.secretKey,
+          })
+        }
+      }
+    }
+    // TODO: update to pull all generations of user public/sig keys
+    const allUserPublicKeys = this.getActiveChain().crypto.getPublicKeysForAllMembers(false)
+    for (const keySet of allUserPublicKeys) {
+      userPublicKeys.push({
+        scope: { name: keySet.name, type: keySet.type, generation: keySet.generation },
+        key: keySet.encryption,
+      })
+      sigKeys.push({
+        scope: { name: keySet.name, type: keySet.type, generation: keySet.generation },
+        key: keySet.signature,
+      })
+    }
+    this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, {
+      secretKeys,
+      sigKeys,
+      userPublicKeys,
+    } as KeysUpdatedEvent)
   }
 
   private attachSocketListeners(chain: SigChain): void {

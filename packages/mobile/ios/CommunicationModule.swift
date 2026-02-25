@@ -12,6 +12,9 @@ class CommunicationModule: RCTEventEmitter {
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
 
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
+  private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CommunicationModule")
+
+  let keychainHandler = KeychainHandler()
   
   @objc
   func sendDataPort(port: UInt16, socketIOSecret: String) {
@@ -52,6 +55,18 @@ class CommunicationModule: RCTEventEmitter {
         if granted {
           UIApplication.shared.registerForRemoteNotifications()
         }
+      }
+    }
+  }
+
+  @objc
+  func saveKeysInKeychain(newKeys: KeyWithScope[]) {
+    CommunicationModule.logger.debug("Saving \(newKeys.count) keys in keychain")
+    for key in newKeys {
+      do {
+        self.keychainHandler.addLfaKey(scope: key.scope, key: key.key)
+      } catch {
+        CommunicationModule.logger.error("Error while saving key in keychain", error)
       }
     }
   }

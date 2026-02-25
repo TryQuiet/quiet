@@ -14,9 +14,10 @@ import {
 import { ChainServiceBase } from '../chainServiceBase'
 import { SigChain } from '../../sigchain'
 import { asymmetric, Keyset, Member, SignedEnvelope, EncryptStreamTeamPayload } from '@localfirst/auth'
+import { KeyMap } from '@localfirst/auth/team/selectors'
 import { DEFAULT_SEARCH_OPTIONS, MemberSearchOptions } from '../members/types'
 import { createLogger } from '../../../common/logger'
-import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
+import { KeyMetadata } from '@localfirst/crdx'
 
 const logger = createLogger('auth:cryptoService')
 
@@ -34,6 +35,22 @@ class CryptoService extends ChainServiceBase {
     return members.map((member: Member) => {
       return member.keys
     })
+  }
+
+  public getPublicKeysForAllMembers(includeSelf: boolean = false): Keyset[] {
+    const members = this.sigChain.users.getAllUsers()
+    const keysByMember = []
+    for (const member of members) {
+      if (member.userId === this.sigChain.context.user.userId && !includeSelf) {
+        continue
+      }
+      keysByMember.push(member.keys)
+    }
+    return keysByMember
+  }
+
+  public getAllKeys(): KeyMap {
+    return this.sigChain.team!.allKeys()
   }
 
   public sign(message: any): SignedEnvelope {
