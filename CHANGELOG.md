@@ -9,6 +9,7 @@
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
 * Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
 * Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
+* Registers APNS token with push notifications service [#3080](https://github.com/TryQuiet/quiet/issues/3080)
 * Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB

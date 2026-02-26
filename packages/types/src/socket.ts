@@ -93,6 +93,9 @@ export enum SocketActions {
   HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
   HCAPTCHA_REQUEST = 'hcaptchaRequest',
 
+  // ====== Push Notifications ======
+  SEND_DEVICE_TOKEN = 'sendDeviceToken',
+
   // ====== Misc ======
   /**
    * For moving data from the frontend to the backend. Load migration
@@ -198,6 +201,9 @@ export interface SocketActionsMap {
   // ====== Captcha ======
   [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>
   [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
+
+  // ====== Push Notifications ======
+  [SocketActions.SEND_DEVICE_TOKEN]: EmitEvent<{ deviceToken: string }>
 
   // ====== Misc ======
   [SocketActions.TOGGLE_P2P]: EmitEvent<boolean, (response: boolean) => void>
