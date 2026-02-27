@@ -1,8 +1,11 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
-#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 #import <React/RCTLinkingManager.h>
+
+// Firebase imports
+@import FirebaseCore;
+@import FirebaseMessaging;
 
 #import "RNNodeJsMobile.h"
 #import "Quiet-Swift.h"
@@ -29,13 +32,15 @@ static NSString *const platform = @"mobile";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   self.moduleName = @"QuietMobile";
-  self.dependencyProvider = [RCTAppDependencyProvider new];
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
   // Set notification center delegate
   [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+
+  // Configure Firebase
+  [self configureFirebase];
 
   // Call only once per nodejs thread
   [self createDataDirectory];
@@ -294,10 +299,13 @@ static NSString *const platform = @"mobile";
     [token appendFormat:@"%02x", bytes[i]];
   }
 
-  // Send token to React Native via CommunicationModule
+  // Send APNS token to React Native via CommunicationModule
   dispatch_async(dispatch_get_main_queue(), ^{
     [[self.bridge moduleForName:@"CommunicationModule"] sendDeviceToken:token];
   });
+
+  // Forward APNS token to Firebase Messaging
+  [FIRMessaging.messaging setAPNSToken:deviceToken type:FIRMessagingAPNSTokenTypeUnknown];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
