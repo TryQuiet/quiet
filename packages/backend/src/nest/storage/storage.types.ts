@@ -17,6 +17,8 @@ export enum StorageEvents {
   // Community
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
   COMMUNITY_UPDATED = 'communityUpdated',
+  // Notifications
+  NOTIFICATION_TOKENS_STORED = 'notificationTokensStored',
 }
 
 export enum UnixFSEvents {
