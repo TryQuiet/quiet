@@ -154,9 +154,9 @@ const watchFolders = [
 
     ```bash
     brew install xcodesorg/made/xcodes
-    xcodes install 16.2.0 
-    xcodes select 16.2.0
-    xcodes runtimes install "iOS 18.4"
+    xcodes install 26.3.0 
+    xcodes select 26.3.0
+    xcodes runtimes install "iOS 26.2"
     ```
     
     You may need to wait for the "Verifying Runtime" modal to complete before running Quiet
@@ -173,7 +173,7 @@ const watchFolders = [
 
     ```bash
     cd packages/mobile/ios
-    file NodeJsMobile/NodeMobile.framework/NodeMobile 
+    file NodeJsMobile/NodeMobile.xcframework/ios-arm64/NodeMobile.framework/NodeMobile 
     ```
     You should see output indicating it's a 'Mach-O binary' file with arm64 architecture, not an ASCII text file. If it shows as text, the Git LFS setup step was not successful.
 
