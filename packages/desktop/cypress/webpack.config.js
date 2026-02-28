@@ -12,7 +12,9 @@ module.exports = {
       new webpack.ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
       }),
-      new NodePolyfillPlugin()
+      new NodePolyfillPlugin({
+        additionalAliases: ['console', 'process', 'punycode']
+      })
     ],
     module: {
       rules: [
