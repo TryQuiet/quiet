@@ -6,7 +6,13 @@ import { SocketService } from '../socket/socket.service'
 import { SocketActions } from '@quiet/types'
 import { QPSRegisterResponse, QPSRegisterWsResponse } from './qps.types'
 import { QSSClient } from '../qss/qss.client'
-import { CommunityOperationStatus, QSSEvents, SendPushResponse, WebsocketEvents } from '../qss/qss.types'
+import {
+  CommunityOperationStatus,
+  QSSEvents,
+  SendBatchPushResponse,
+  SendPushResponse,
+  WebsocketEvents,
+} from '../qss/qss.types'
 import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
@@ -17,7 +23,7 @@ const PUSH_BATCH_SIZE = 100
 @Injectable()
 export class QPSService implements OnModuleInit {
   private readonly logger = createLogger('qps:service')
-  private _pendingDeviceToken: string | null = null
+  private _pendingDeviceToken: string | undefined = undefined
 
   constructor(
     @Inject(QPS_ALLOWED) private readonly qpsAllowed: boolean,
@@ -43,7 +49,7 @@ export class QPSService implements OnModuleInit {
 
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.sigChainService.on('updated', () => this._flushPendingToken())
-    this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.triggerPush(teamId))
+    this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
   }
 
   /**
@@ -51,28 +57,28 @@ export class QPSService implements OnModuleInit {
    * @param deviceToken
    * @returns
    */
-  public async register(deviceToken: string): Promise<QPSRegisterResponse | null> {
+  public async register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping registration')
-      return null
+      return undefined
     }
 
     if (!this.ready) {
       this.logger.info('QSS not connected or sigchain not joined, caching device token')
       this._pendingDeviceToken = deviceToken
-      return null
+      return undefined
     }
 
     return this._register(deviceToken)
   }
 
   private async _flushPendingToken(): Promise<void> {
-    if (this._pendingDeviceToken == null || !this.ready) {
+    if (this._pendingDeviceToken == undefined || !this.ready) {
       return
     }
 
     const token = this._pendingDeviceToken
-    this._pendingDeviceToken = null
+    this._pendingDeviceToken = undefined
     this.logger.info('Flushing cached device token')
     await this._register(token)
   }
@@ -80,7 +86,7 @@ export class QPSService implements OnModuleInit {
   private _hasMemberKey(): boolean {
     try {
       return (
-        this.sigChainService.activeChain?.team != null &&
+        this.sigChainService.activeChain?.team != undefined &&
         this.sigChainService.activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
       )
     } catch {
@@ -88,7 +94,7 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  public async triggerPush(teamId: string): Promise<void> {
+  public async sendBatchPush(teamId: string): Promise<void> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping push trigger')
       return
@@ -116,8 +122,8 @@ export class QPSService implements OnModuleInit {
     )
     for (const [index, batch] of batches.entries()) {
       try {
-        const response = await this.qssClient.sendMessage<SendPushResponse>(
-          WebsocketEvents.SEND_PUSH,
+        const response = await this.qssClient.sendMessage<SendBatchPushResponse>(
+          WebsocketEvents.SEND_BATCH_PUSH,
           {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SENDING,
@@ -136,7 +142,39 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  private async _register(deviceToken: string): Promise<QPSRegisterResponse | null> {
+  public async sendPush(
+    ucan: string,
+    title?: string,
+    body?: string,
+    data?: Record<string, string>
+  ): Promise<SendPushResponse | undefined> {
+    if (!this.enabled) {
+      this.logger.warn('QPS not enabled, skipping push')
+      return undefined
+    }
+
+    if (!this.qssClient.connected) {
+      this.logger.warn('QSS not connected, skipping push')
+      return undefined
+    }
+
+    try {
+      return await this.qssClient.sendMessage<SendPushResponse>(
+        WebsocketEvents.SEND_PUSH,
+        {
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.SENDING,
+          payload: { ucan, title, body, data },
+        },
+        true
+      )
+    } catch (e) {
+      this.logger.error('Error sending push notification', e)
+      return undefined
+    }
+  }
+
+  private async _register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
     this.logger.info('Registering device token')
     try {
       const response = await this.qssClient.sendMessage<QPSRegisterWsResponse>(
@@ -161,10 +199,10 @@ export class QPSService implements OnModuleInit {
       }
 
       this.logger.warn(`QPS registration failed: ${response?.reason ?? 'unknown'}`)
-      return null
+      return undefined
     } catch (e) {
       this.logger.error('Error registering device token', e)
-      return null
+      return undefined
     }
   }
 }

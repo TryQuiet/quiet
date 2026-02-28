@@ -31,6 +31,7 @@ export enum WebsocketEvents {
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
   REGISTER_DEVICE_TOKEN = 'register-device-token',
   SEND_PUSH = 'qps-send-push',
+  SEND_BATCH_PUSH = 'qps-send-batch-push',
 }
 
 /**
@@ -234,8 +235,10 @@ export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptc
 }
 
 export interface SendPushPayload {
-  teamId: string
-  ucans: string[]
+  ucan: string
+  title?: string
+  body?: string
+  data?: Record<string, string>
 }
 
 export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
@@ -243,3 +246,14 @@ export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
 }
 
 export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
+
+export interface SendBatchPushPayload {
+  teamId: string
+  ucans: string[]
+}
+
+export interface SendBatchPushMessage extends BaseWebsocketMessage<SendBatchPushPayload> {
+  payload: SendBatchPushPayload
+}
+
+export interface SendBatchPushResponse extends BaseWebsocketMessage<undefined> {}
