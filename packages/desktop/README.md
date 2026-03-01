@@ -5,7 +5,7 @@ Here are the steps:
 
 1. Install `patch` via your Linux package manager (you can skip this step on Mac because it is already installed)
 
-2. Use `Node 20.20.0` and `npm 10.8.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh/) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
+2. Use `Node 20.20.0` and `npm 10.8.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh/) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.nvmrc). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
 
 3. Install python3 and setuptools through your preferred method. (used by node-gyp)
 
