@@ -109,7 +109,11 @@ New versions of add/remove command line flags. If you need to make this change u
 ```
 7. Update `electron`
 
-Migrate `packages/desktop/package.json` to an electron version that ships with the new node verison.
+Migrate `packages/desktop/package.json` to an electron version that ships with the new node verison. 
+
+- You can see each major electron release's nodejs [here](https://releases.electronjs.org/release?channel=stable)
+- Pay careful attention to breaking changes within electron releases. APIs can be removed which will make your project fail to build. But also, and more subtly, the behavior of a certain API may change causing Quiet to build and perhaps seem OK, but something is now behaving differently and/or incorrectly.
+- Upgrade the `selenium-webdriver` and the `electron-chromedriver` modules in `packages/e2e-tests/package.json`. `electron-chromedriver` should match the major version of `electron` that you just migrated to in the `desktop` package.
 
 8. Bootsrap
 
