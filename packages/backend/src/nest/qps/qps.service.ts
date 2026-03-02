@@ -94,7 +94,12 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  public async sendBatchPush(teamId: string): Promise<void> {
+  public async sendBatchPush(
+    teamId: string,
+    title?: string,
+    body?: string,
+    data?: Record<string, string>
+  ): Promise<void> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping push trigger')
       return
@@ -127,7 +132,7 @@ export class QPSService implements OnModuleInit {
           {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SENDING,
-            payload: { teamId, ucans: batch },
+            payload: { ucans: batch, title, body, data },
           },
           true
         )

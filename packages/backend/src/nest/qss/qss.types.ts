@@ -256,4 +256,8 @@ export interface SendBatchPushMessage extends BaseWebsocketMessage<SendBatchPush
   payload: SendBatchPushPayload
 }
 
-export interface SendBatchPushResponse extends BaseWebsocketMessage<undefined> {}
+export interface SendBatchPushResponsePayload {
+  invalidTokens: string[]
+}
+
+export interface SendBatchPushResponse extends BaseWebsocketMessage<SendBatchPushResponsePayload> {}
