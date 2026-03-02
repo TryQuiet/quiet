@@ -18,7 +18,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 
 const BUNDLE_ID = 'com.quietmobile'
-const PUSH_BATCH_SIZE = 100
+const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
 
 @Injectable()
 export class QPSService implements OnModuleInit {
