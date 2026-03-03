@@ -45,7 +45,11 @@ export function setupCrypto() {
       subtle: webcrypto.subtle,
     })
   )
-  global.crypto = webcrypto
+  // https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
+  Object.defineProperty(global, 'crypto', {
+    value: webcrypto,
+    writable: true,
+  })
 }
 
 export const createRootCertificateTestHelper = async (commonName: string): Promise<RootCA> => {

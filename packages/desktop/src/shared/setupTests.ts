@@ -13,8 +13,12 @@ setEngine(
     subtle: webcrypto.subtle,
   })
 )
-// @ts-ignore
-global.crypto = webcrypto
+
+// https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
+Object.defineProperty(global, 'crypto', {
+  value: webcrypto,
+  writable: true,
+})
 
 // @ts-ignore
 process._linkedBinding = name => name
