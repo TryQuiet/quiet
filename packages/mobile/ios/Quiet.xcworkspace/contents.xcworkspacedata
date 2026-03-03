@@ -7,4 +7,49 @@
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:FirebaseMessagingModule.swift">
+   </FileRef>
+   <FileRef
+      location = "group:FirebaseMessagingModule.m">
+   </FileRef>
+   <FileRef
+      location = "group:KeychainHelper.swift">
+   </FileRef>
+   <FileRef
+      location = "group:AppDelegate+Firebase.swift">
+   </FileRef>
+   <FileRef
+      location = "group:NotificationService.swift">
+   </FileRef>
+   <FileRef
+      location = "group:QuietNotificationServiceExtension-Info.plist">
+   </FileRef>
+   <FileRef
+      location = "group:FirebaseMessaging.js">
+   </FileRef>
+   <FileRef
+      location = "group:firebase-backend-example.js">
+   </FileRef>
+   <FileRef
+      location = "group:FIREBASE_SETUP_GUIDE.md">
+   </FileRef>
+   <FileRef
+      location = "group:FIREBASE_QUICKSTART.md">
+   </FileRef>
+   <FileRef
+      location = "group:FirebaseMessagingExample.js">
+   </FileRef>
+   <FileRef
+      location = "group:README_FIREBASE.md">
+   </FileRef>
+   <FileRef
+      location = "group:Podfile.firebase.template">
+   </FileRef>
+   <FileRef
+      location = "group:IMPLEMENTATION_SUMMARY.md">
+   </FileRef>
+   <FileRef
+      location = "group:ARCHITECTURE_DIAGRAM.md">
+   </FileRef>
 </Workspace>

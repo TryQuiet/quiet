@@ -1,0 +1,62 @@
+# iOS Podfile for Firebase Cloud Messaging with Encrypted Notifications
+#
+# Add these dependencies to your existing Podfile
+# Location: ios/Podfile
+
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '13.0'
+
+target 'Quiet' do
+  # ... your existing pods ...
+  
+  # ==========================================
+  # Firebase Cloud Messaging Dependencies
+  # ==========================================
+  
+  # Core Firebase SDK
+  pod 'FirebaseCore', '~> 10.20.0'
+  
+  # Firebase Cloud Messaging
+  pod 'FirebaseMessaging', '~> 10.20.0'
+  
+  # Firebase Installations (required by Messaging)
+  pod 'FirebaseInstallations', '~> 10.20.0'
+  
+  # Optional: Firebase Analytics (if you want to track notification metrics)
+  # pod 'FirebaseAnalytics', '~> 10.20.0'
+  
+  # ... rest of your existing pods ...
+end
+
+# ==========================================
+# Notification Service Extension Target
+# ==========================================
+# This target processes and decrypts notifications before they're displayed
+
+target 'QuietNotificationServiceExtension' do
+  # Firebase dependencies for the extension
+  pod 'FirebaseCore', '~> 10.20.0'
+  pod 'FirebaseMessaging', '~> 10.20.0'
+end
+
+# ==========================================
+# Post Install Hook
+# ==========================================
+# This fixes common issues with React Native and Firebase
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      # Fix deployment target warnings
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      
+      # Fix code signing for extensions
+      if target.name == 'QuietNotificationServiceExtension'
+        config.build_settings['CODE_SIGN_IDENTITY'] = 'iPhone Developer'
+      end
+    end
+  end
+  
+  # React Native specific fixes (if needed)
+  react_native_post_install(installer)
+end

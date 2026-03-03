@@ -2,6 +2,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
+#import <Firebase/Firebase.h>
 
 #import "RNNodeJsMobile.h"
 #import "Quiet-Swift.h"
@@ -34,6 +35,9 @@ static NSString *const platform = @"mobile";
 
   // Set notification center delegate
   [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+
+  // Configure Firebase
+  [self configureFirebase];
 
   // Call only once per nodejs thread
   [self createDataDirectory];
@@ -292,10 +296,13 @@ static NSString *const platform = @"mobile";
     [token appendFormat:@"%02x", bytes[i]];
   }
 
-  // Send token to React Native via CommunicationModule
+  // Send APNS token to React Native via CommunicationModule
   dispatch_async(dispatch_get_main_queue(), ^{
     [[self.bridge moduleForName:@"CommunicationModule"] sendDeviceToken:token];
   });
+
+  // Forward APNS token to Firebase Messaging
+  [[FIRMessaging messaging] setAPNSToken:deviceToken type:FIRMessagingAPNSTokenTypeUnknown];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
