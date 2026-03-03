@@ -288,7 +288,7 @@ describe('QPSService', () => {
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: { teamId: TEAM_ID, ucans: UCANS },
+          payload: { ucans: UCANS },
         }),
         true
       )
@@ -343,7 +343,7 @@ describe('QPSService', () => {
     })
 
     it('sends multiple batches when UCANs exceed batch size', async () => {
-      const manyUcans = Array.from({ length: 150 }, (_, i) => `ucan-${i}`)
+      const manyUcans = Array.from({ length: 550 }, (_, i) => `ucan-${i}`)
       notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
 
       await qpsService.sendBatchPush(TEAM_ID)
@@ -352,19 +352,19 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
         1,
         WebsocketEvents.SEND_BATCH_PUSH,
-        expect.objectContaining({ payload: { teamId: TEAM_ID, ucans: manyUcans.slice(0, 100) } }),
+        expect.objectContaining({ payload: { ucans: manyUcans.slice(0, 500) } }),
         true
       )
       expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
         2,
         WebsocketEvents.SEND_BATCH_PUSH,
-        expect.objectContaining({ payload: { teamId: TEAM_ID, ucans: manyUcans.slice(100) } }),
+        expect.objectContaining({ payload: { ucans: manyUcans.slice(500) } }),
         true
       )
     })
 
     it('continues remaining batches if one batch throws', async () => {
-      const manyUcans = Array.from({ length: 150 }, (_, i) => `ucan-${i}`)
+      const manyUcans = Array.from({ length: 550 }, (_, i) => `ucan-${i}`)
       notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
       qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
 
