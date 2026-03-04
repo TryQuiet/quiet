@@ -83,3 +83,5 @@ buck-out/
 # Detox
 /e2e/artifacts
 /e2e/visual-regressions/local
+
+quiet_libtor_android
