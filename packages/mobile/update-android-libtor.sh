@@ -2,6 +2,7 @@
 
 git clone https://github.com/bitmold/quiet_libtor_android
 cd quiet_libtor_android
+git pull
 ./tor-droid-make.sh fetch -c
 cd external/tor
 echo "Building with tor:"
@@ -38,4 +39,5 @@ ls -al external/lib/arm64-v8a
 cp -fv external/lib/arm64-v8a/libtor.so ../android/app/src/main/jniLibs/arm64-v8a/libtor.so
 cd ..
 git status
-
+cd android
+./gradlew clean assembleDebug
