@@ -9,4 +9,5 @@ export interface KeysUpdatedEvent {
   secretKeys: KeyWithMetadata[]
   userPublicKeys: KeyWithMetadata[]
   sigKeys: KeyWithMetadata[]
+  teamId: string
 }

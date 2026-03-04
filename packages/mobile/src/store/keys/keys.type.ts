@@ -8,4 +8,5 @@ export type ExtendedKeyScope = {
 export interface StorableKey {
   scope: ExtendedKeyScope
   key: string
+  teamId: string
 }

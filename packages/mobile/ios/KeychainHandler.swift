@@ -1,6 +1,15 @@
-//import CryptoKit
-//import Security
-//import CoreData
+//
+//  KeychainError.swift
+//  Quiet
+//
+//  Created by Isla Koenigsknecht on 2/25/26.
+//
+
+
+import CryptoKit
+import Security
+import CoreData
+import OSLog
 
 public enum KeychainError: Error {
   case noPassword
@@ -19,11 +28,11 @@ public enum KeychainHandlerError: Error {
   case unhandledError(reason: Any)
 }
 
-public struct KeyScope {
-  var name: String
-  var generation: Int
-  var type: String
-  var keyType: String
+public struct KeyScope: Codable {
+  let name: String
+  let generation: Int
+  let type: String
+  let keyType: String
 }
 
 public enum KeyAddStatus {
@@ -31,15 +40,18 @@ public enum KeyAddStatus {
   case duplicateScope
 }
 
-public struct KeyWithScope {
-  var scope: KeyScope
-  var key: String
+public struct KeyWithScope: Codable {
+  let scope: KeyScope
+  let key: String
+  let teamId: String
 }
 
 @objc(KeychainHandler)
 class KeychainHandler: NSObject {
   private let masterKeyName: String = "quiet_master_key"
   private let keychainGroupName: String = "com.quietmobile"
+  
+  private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "KeychainHandler")
 
   public func getMasterKey() throws -> SymmetricKey {
     do {
@@ -57,9 +69,9 @@ class KeychainHandler: NSObject {
     }
   }
 
-  public func getLfaKeyString(scope: KeyScope) throws -> String {
+  public func getLfaKeyString(teamId: String, scope: KeyScope) throws -> String {
     do {
-      let keyName: String = _keyScopeToKeyName(scope: scope)
+      let keyName: String = _keyScopeToKeyName(teamId: teamId, scope: scope)
       let password: String = try _getKeyImpl(keyName: keyName)
       return password
     } catch KeychainError.noPassword {
@@ -95,26 +107,27 @@ class KeychainHandler: NSObject {
     }
   }
 
-  public func addLfaKey(scope: KeyScope, key: String) throws -> KeyAddStatus {
+  public func addLfaKey(keyWithScope: KeyWithScope) throws -> KeyAddStatus {
     var existingKey: String?
     do {
-      existingKey = try getLfaKeyString(scope: scope)
+      existingKey = try getLfaKeyString(teamId: keyWithScope.teamId, scope: keyWithScope.scope)
     } catch KeychainHandlerError.noKeyFound {
       existingKey = nil
     } catch KeychainHandlerError.malformedKey {
       existingKey = nil
     } catch {
+      KeychainHandler.logger.error("Error while getting existing LFA key for scope \(String(describing: keyWithScope.scope)): \(error)")
       throw error
     }
 
     guard existingKey == nil else {
-      guard existingKey == key else { return KeyAddStatus.duplicateScope } 
-      return KeyAddStatus.success 
+      guard existingKey == keyWithScope.key else { return KeyAddStatus.duplicateScope }
+      return KeyAddStatus.success
     }
 
     do {
-      let keyName: String = _keyScopeToKeyName(scope: scope)
-      let keyData: Data = try _stringToBytes(str: key)
+      let keyName: String = _keyScopeToKeyName(teamId: keyWithScope.teamId, scope: keyWithScope.scope)
+      let keyData: Data = try _stringToBytes(str: keyWithScope.key)
       let addStatus: KeyAddStatus = try _addKeyToKeychainImpl(keyName: keyName, keyData: keyData)
       return addStatus
     } catch {
@@ -125,7 +138,7 @@ class KeychainHandler: NSObject {
   private func _getKeyImpl(keyName: String) throws -> String  {
     var existingKey: CFTypeRef?
     let query: [String: Any] = [
-      kSecClass as String: kSecSharedPassword,
+      kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: keychainGroupName,
       kSecAttrAccount as String: keyName,
       kSecMatchLimit as String: kSecMatchLimitOne,
@@ -137,8 +150,7 @@ class KeychainHandler: NSObject {
     guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
     guard let existingItem: [String : Any] = existingKey as? [String : Any],
       let passwordData = existingItem[kSecValueData as String] as? Data,
-      let password = String(data: passwordData, encoding: String.Encoding.utf8),
-      let account = existingItem[kSecAttrAccount as String] as? String
+      let password = String(data: passwordData, encoding: String.Encoding.utf8)
     else {
         throw KeychainError.unexpectedPasswordData
     }
@@ -182,7 +194,7 @@ class KeychainHandler: NSObject {
     return keyData
   }
 
-  private func _keyScopeToKeyName(scope: KeyScope) -> String {
-    return "quiet_\(scope.type)_\(scope.name)_\(scope.generation)_\(scope.keyType)"
+  private func _keyScopeToKeyName(teamId: String, scope: KeyScope) -> String {
+    return "quiet_\(teamId)_\(scope.type)_\(scope.name)_\(scope.generation)_\(scope.keyType)"
   }
 }

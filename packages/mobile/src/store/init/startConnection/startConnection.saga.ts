@@ -16,9 +16,10 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
-import { SocketActions } from '@quiet/types'
+import { KeysUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { initSelectors } from '../init.selectors'
+import { keysActions } from '../../keys/keys.slice'
 
 const logger = createLogger('startConnection')
 
@@ -76,7 +77,9 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
   let socket_id: string | undefined
 
   return eventChannel<
-    ReturnType<typeof initActions.setWebsocketConnected> | ReturnType<typeof initActions.suspendWebsocketConnection>
+    | ReturnType<typeof initActions.setWebsocketConnected>
+    | ReturnType<typeof initActions.suspendWebsocketConnection>
+    | ReturnType<typeof keysActions.saveKeysInKeychain>
   >(emit => {
     socket.on('connect', async () => {
       socket_id = socket.id
@@ -86,6 +89,10 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
     socket.on('disconnect', reason => {
       logger.warn('client: Closing socket connection', socket_id, reason)
       emit(initActions.suspendWebsocketConnection())
+    })
+    socket.on(SocketEvents.KEYS_UPDATED, async (payload: KeysUpdatedEvent) => {
+      logger.info('Keys updated, writing to keychain')
+      emit(keysActions.saveKeysInKeychain(payload))
     })
     return () => {}
   })

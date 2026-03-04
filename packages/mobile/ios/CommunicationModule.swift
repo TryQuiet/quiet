@@ -1,4 +1,5 @@
 import UserNotifications
+import OSLog
 
 @objc(CommunicationModule)
 class CommunicationModule: RCTEventEmitter {
@@ -58,15 +59,20 @@ class CommunicationModule: RCTEventEmitter {
       }
     }
   }
-
+  
   @objc
-  func saveKeysInKeychain(newKeys: KeyWithScope[]) {
-    CommunicationModule.logger.debug("Saving \(newKeys.count) keys in keychain")
-    for key in newKeys {
+  func saveKeysInKeychain(_ newKeys: NSArray) {
+    let decoder = JSONDecoder()
+    for keyAsAny in newKeys {
       do {
-        self.keychainHandler.addLfaKey(scope: key.scope, key: key.key)
+        let keyAsString: String = keyAsAny as! String
+        let data = Data(keyAsString.utf8)
+        let decodedKeyWithScope = try decoder.decode(KeyWithScope.self, from: data)
+        try self.keychainHandler.addLfaKey(keyWithScope: decodedKeyWithScope)
+        let stored = try self.keychainHandler.getLfaKeyString(teamId: decodedKeyWithScope.teamId, scope: decodedKeyWithScope.scope)
+        CommunicationModule.logger.info("Stored key matches? \(stored == decodedKeyWithScope.key) \(String(describing: decodedKeyWithScope.scope))")
       } catch {
-        CommunicationModule.logger.error("Error while saving key in keychain", error)
+        CommunicationModule.logger.error("Error while saving key in keychain: \(error)")
       }
     }
   }

@@ -11,7 +11,7 @@ import {
   UserWithSecrets,
   DeviceWithSecrets,
 } from '@localfirst/auth'
-import { KeyMetadata } from '@localfirst/crdx'
+import { KeyMetadata, KeyType } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
@@ -25,7 +25,9 @@ import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter } from './types'
-import { KeysUpdatedEvent, KeyWithMetadata } from 'packages/types/src/keys'
+import { KeysUpdatedEvent, KeyWithMetadata } from '@quiet/types'
+import { EncryptionScopeType } from './services/crypto/types'
+import * as os from 'os'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -165,6 +167,11 @@ export class SigChainService extends EventEmitter {
 
   // TODO: only fetch keys that have been updated recently
   private _updateKeysOnChainUpdate() {
+    if ((process.platform as string) !== 'ios') {
+      this.logger.trace('Skipping key update because we are not on ios, current platform =', process.platform)
+      return
+    }
+
     const secretKeys: KeyWithMetadata[] = []
     const sigKeys: KeyWithMetadata[] = []
     const userPublicKeys: KeyWithMetadata[] = []
@@ -180,7 +187,7 @@ export class SigChainService extends EventEmitter {
       }
     }
     // TODO: update to pull all generations of user public/sig keys
-    const allUserPublicKeys = this.getActiveChain().crypto.getPublicKeysForAllMembers(false)
+    const allUserPublicKeys = this.getActiveChain().crypto.getPublicKeysForAllMembers(true)
     for (const keySet of allUserPublicKeys) {
       userPublicKeys.push({
         scope: { name: keySet.name, type: keySet.type, generation: keySet.generation },
@@ -191,11 +198,13 @@ export class SigChainService extends EventEmitter {
         key: keySet.signature,
       })
     }
-    this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, {
+    const keyUpdateEvent: KeysUpdatedEvent = {
       secretKeys,
       sigKeys,
       userPublicKeys,
-    } as KeysUpdatedEvent)
+      teamId: this.activeChain.team!.id,
+    }
+    this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, keyUpdateEvent)
   }
 
   private attachSocketListeners(chain: SigChain): void {
@@ -259,6 +268,7 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.create(teamName, username)
     this.addChain(sigChain, setActive, teamName)
     await this.saveChain(teamName)
+    this.handleChainUpdate()
     return sigChain
   }
 
