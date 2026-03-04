@@ -55,11 +55,11 @@
 		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
-		36A82BC8FCE690814036F90F /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 827250ED268E9BB42322847A /* libPods-Quiet.a */; };
 		665587CA2F4F5ECD005D2086 /* KeychainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665587C92F4F5ECD005D2086 /* KeychainHandler.swift */; };
+		85137B01156B661E82184B11 /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 287A03B12772D68AAF979A77 /* libPods-Quiet.a */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
-		E527867D4810B57F475B8709 /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FFB5AD1B1D1B895AC31572D9 /* libPods-Quiet-QuietTests.a */; };
+		FFD33AE2521CEA2E0D3134ED /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CA54D67D8C7A248C6A22C0F8 /* libPods-Quiet-QuietTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -618,15 +618,15 @@
 		18FD2A39296F009E00A2B8C0 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Quiet/main.m; sourceTree = "<group>"; };
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
 		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
+		287A03B12772D68AAF979A77 /* libPods-Quiet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F63F73503B4A62481768267 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
 		665587C92F4F5ECD005D2086 /* KeychainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHandler.swift; sourceTree = "<group>"; };
-		827250ED268E9BB42322847A /* libPods-Quiet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		677CCEF15F36760C73BC26A6 /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
+		70BDAC54548DB3505251D3DB /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		88972EF0A58F6401DC66730D /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		955DC7572BD930B30014725B /* WebsocketSingleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsocketSingleton.swift; sourceTree = "<group>"; };
-		A0A640C5FB25A885E7EA3D28 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
-		A5B75BBA2D210014081EFE0C /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
-		C7B1A71CADBC729F3E550DF1 /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
-		FB3F0E6671064CAF2C159B5D /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
-		FFB5AD1B1D1B895AC31572D9 /* libPods-Quiet-QuietTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet-QuietTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA54D67D8C7A248C6A22C0F8 /* libPods-Quiet-QuietTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet-QuietTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -635,7 +635,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
-				E527867D4810B57F475B8709 /* libPods-Quiet-QuietTests.a in Frameworks */,
+				FFD33AE2521CEA2E0D3134ED /* libPods-Quiet-QuietTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -645,7 +645,7 @@
 			files = (
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
-				36A82BC8FCE690814036F90F /* libPods-Quiet.a in Frameworks */,
+				85137B01156B661E82184B11 /* libPods-Quiet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4704,10 +4704,10 @@
 		1CEEDB4F07B9978C125775C5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				A0A640C5FB25A885E7EA3D28 /* Pods-Quiet.debug.xcconfig */,
-				C7B1A71CADBC729F3E550DF1 /* Pods-Quiet.release.xcconfig */,
-				FB3F0E6671064CAF2C159B5D /* Pods-Quiet-QuietTests.debug.xcconfig */,
-				A5B75BBA2D210014081EFE0C /* Pods-Quiet-QuietTests.release.xcconfig */,
+				2F63F73503B4A62481768267 /* Pods-Quiet.debug.xcconfig */,
+				677CCEF15F36760C73BC26A6 /* Pods-Quiet.release.xcconfig */,
+				70BDAC54548DB3505251D3DB /* Pods-Quiet-QuietTests.debug.xcconfig */,
+				88972EF0A58F6401DC66730D /* Pods-Quiet-QuietTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -4717,8 +4717,8 @@
 			children = (
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
-				827250ED268E9BB42322847A /* libPods-Quiet.a */,
-				FFB5AD1B1D1B895AC31572D9 /* libPods-Quiet-QuietTests.a */,
+				287A03B12772D68AAF979A77 /* libPods-Quiet.a */,
+				CA54D67D8C7A248C6A22C0F8 /* libPods-Quiet-QuietTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4784,12 +4784,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "QuietTests" */;
 			buildPhases = (
-				69006B3CE96CD13A5F5A5226 /* [CP] Check Pods Manifest.lock */,
+				95F7BA6D16EB3A1B27BAA786 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				E49E02522FA800C59F2F014D /* [CP] Embed Pods Frameworks */,
-				C3AB99BB8D1CD10850476367 /* [CP] Copy Pods Resources */,
+				911E369A1C6D85907F7F0302 /* [CP] Embed Pods Frameworks */,
+				E7F2776DE3547BE1502BC947 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4805,7 +4805,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Quiet" */;
 			buildPhases = (
-				626C6584D894673F46A360BF /* [CP] Check Pods Manifest.lock */,
+				BB9294C6673D9CCB22CBA0B8 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -4817,8 +4817,8 @@
 				18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */,
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
-				D141249F8994850B1DC7FF46 /* [CP] Embed Pods Frameworks */,
-				51FD2183E5DD9C7BD49270BD /* [CP] Copy Pods Resources */,
+				85BBD2CD345055BC7227A72B /* [CP] Embed Pods Frameworks */,
+				00462B5D3156F56526040199 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4915,6 +4915,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		00462B5D3156F56526040199 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5023,46 +5040,41 @@
 			shellPath = /bin/sh;
 			shellScript = "find \"$CODESIGNING_FOLDER_PATH/nodejs-project/node_modules/\" -name \"python3\" | xargs rm\n";
 		};
-		51FD2183E5DD9C7BD49270BD /* [CP] Copy Pods Resources */ = {
+		85BBD2CD345055BC7227A72B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		626C6584D894673F46A360BF /* [CP] Check Pods Manifest.lock */ = {
+		911E369A1C6D85907F7F0302 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Quiet-checkManifestLockResult.txt",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		69006B3CE96CD13A5F5A5226 /* [CP] Check Pods Manifest.lock */ = {
+		95F7BA6D16EB3A1B27BAA786 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5084,7 +5096,29 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C3AB99BB8D1CD10850476367 /* [CP] Copy Pods Resources */ = {
+		BB9294C6673D9CCB22CBA0B8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Quiet-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E7F2776DE3547BE1502BC947 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5099,40 +5133,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D141249F8994850B1DC7FF46 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E49E02522FA800C59F2F014D /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -5199,7 +5199,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FB3F0E6671064CAF2C159B5D /* Pods-Quiet-QuietTests.debug.xcconfig */;
+			baseConfigurationReference = 70BDAC54548DB3505251D3DB /* Pods-Quiet-QuietTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -5232,7 +5232,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A5B75BBA2D210014081EFE0C /* Pods-Quiet-QuietTests.release.xcconfig */;
+			baseConfigurationReference = 88972EF0A58F6401DC66730D /* Pods-Quiet-QuietTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -5262,7 +5262,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A0A640C5FB25A885E7EA3D28 /* Pods-Quiet.debug.xcconfig */;
+			baseConfigurationReference = 2F63F73503B4A62481768267 /* Pods-Quiet.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -5363,7 +5363,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C7B1A71CADBC729F3E550DF1 /* Pods-Quiet.release.xcconfig */;
+			baseConfigurationReference = 677CCEF15F36760C73BC26A6 /* Pods-Quiet.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;

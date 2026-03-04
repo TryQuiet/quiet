@@ -11,11 +11,11 @@ import {
   UserWithSecrets,
   DeviceWithSecrets,
 } from '@localfirst/auth'
-import { KeyMetadata, KeyType } from '@localfirst/crdx'
+import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { SocketEvents, User } from '@quiet/types'
+import { SocketEvents, StorableKey, User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
@@ -24,10 +24,8 @@ import { type CryptoService } from './services/crypto/crypto.service'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { GetChainFilter } from './types'
-import { KeysUpdatedEvent, KeyWithMetadata } from '@quiet/types'
-import { EncryptionScopeType } from './services/crypto/types'
-import * as os from 'os'
+import { GetChainFilter, StoredKeyType } from './types'
+import { KeysUpdatedEvent } from '@quiet/types'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -166,44 +164,63 @@ export class SigChainService extends EventEmitter {
   }
 
   // TODO: only fetch keys that have been updated recently
-  private _updateKeysOnChainUpdate() {
+  private async _updateKeysOnChainUpdate() {
     if ((process.platform as string) !== 'ios') {
       this.logger.trace('Skipping key update because we are not on ios, current platform =', process.platform)
       return
     }
 
-    const secretKeys: KeyWithMetadata[] = []
-    const sigKeys: KeyWithMetadata[] = []
-    const userPublicKeys: KeyWithMetadata[] = []
+    const generateKeyName = (teamId: string, keyType: string, scope: KeyMetadata): string => {
+      return `quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_${keyType}`
+    }
+
+    const teamId = this.activeChain.team!.id
+    const alreadySentKeys: Set<string> = new Set(await this.localDbService.getKeysStoredInKeychain(teamId))
+    const keysToSend: StorableKey[] = []
+    const keyNamesSent: string[] = []
     const allKeys = this.getActiveChain().crypto.getAllKeys()
     for (const keyData of Object.values(allKeys)) {
       for (const keyTypeData of Object.values(keyData)) {
         for (const keyTypeGenData of Object.values(keyTypeData)) {
-          secretKeys.push({
-            scope: { name: keyTypeGenData.name, type: keyTypeGenData.type, generation: keyTypeGenData.generation },
-            key: keyTypeGenData.secretKey,
+          const keyName = generateKeyName(teamId, StoredKeyType.SECRET, {
+            name: keyTypeGenData.name,
+            type: keyTypeGenData.type,
+            generation: keyTypeGenData.generation,
           })
+          if (!alreadySentKeys.has(keyName)) {
+            keysToSend.push({ key: keyTypeGenData.secretKey, keyName })
+            keyNamesSent.push(keyName)
+          }
         }
       }
     }
     // TODO: update to pull all generations of user public/sig keys
     const allUserPublicKeys = this.getActiveChain().crypto.getPublicKeysForAllMembers(true)
     for (const keySet of allUserPublicKeys) {
-      userPublicKeys.push({
-        scope: { name: keySet.name, type: keySet.type, generation: keySet.generation },
-        key: keySet.encryption,
+      const publicKeyName = generateKeyName(teamId, StoredKeyType.USER_PUBLIC, {
+        name: keySet.name,
+        type: keySet.type,
+        generation: keySet.generation,
       })
-      sigKeys.push({
-        scope: { name: keySet.name, type: keySet.type, generation: keySet.generation },
-        key: keySet.signature,
+      if (!alreadySentKeys.has(publicKeyName)) {
+        keysToSend.push({ key: keySet.encryption, keyName: publicKeyName })
+        keyNamesSent.push(publicKeyName)
+      }
+
+      const sigKeyName = generateKeyName(teamId, StoredKeyType.USER_SIG, {
+        name: keySet.name,
+        type: keySet.type,
+        generation: keySet.generation,
       })
+      if (!alreadySentKeys.has(sigKeyName)) {
+        keysToSend.push({ key: keySet.signature, keyName: sigKeyName })
+        keyNamesSent.push(sigKeyName)
+      }
     }
     const keyUpdateEvent: KeysUpdatedEvent = {
-      secretKeys,
-      sigKeys,
-      userPublicKeys,
-      teamId: this.activeChain.team!.id,
+      keys: keysToSend,
     }
+    await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
     this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, keyUpdateEvent)
   }
 

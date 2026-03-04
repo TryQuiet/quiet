@@ -67,10 +67,10 @@ class CommunicationModule: RCTEventEmitter {
       do {
         let keyAsString: String = keyAsAny as! String
         let data = Data(keyAsString.utf8)
-        let decodedKeyWithScope = try decoder.decode(KeyWithScope.self, from: data)
-        try self.keychainHandler.addLfaKey(keyWithScope: decodedKeyWithScope)
-        let stored = try self.keychainHandler.getLfaKeyString(teamId: decodedKeyWithScope.teamId, scope: decodedKeyWithScope.scope)
-        CommunicationModule.logger.info("Stored key matches? \(stored == decodedKeyWithScope.key) \(String(describing: decodedKeyWithScope.scope))")
+        let decodedNamedKey = try decoder.decode(NamedKey.self, from: data)
+        try self.keychainHandler.addLfaKey(namedKey: decodedNamedKey)
+        let stored = try self.keychainHandler.getLfaKeyString(keyName: decodedNamedKey.keyName)
+        CommunicationModule.logger.info("Stored key matches? \(stored == decodedNamedKey.key) \(decodedNamedKey.keyName)")
       } catch {
         CommunicationModule.logger.error("Error while saving key in keychain: \(error)")
       }

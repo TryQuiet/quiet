@@ -17,3 +17,9 @@ export type GetChainFilter = {
   teamId?: string
   teamName?: string
 }
+
+export enum StoredKeyType {
+  SECRET = 'secret',
+  USER_PUBLIC = 'userPublic',
+  USER_SIG = 'userSig',
+}

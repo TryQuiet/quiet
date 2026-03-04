@@ -605,4 +605,17 @@ export class LocalDbService extends EventEmitter {
     }
     return count
   }
+
+  public async updateKeysStoredInKeychain(teamId: string, keyNames: string[]): Promise<void> {
+    const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
+    const arr: string[] = (await this.get(key)) || []
+    arr.push(...keyNames)
+    await this.put(key, arr)
+  }
+
+  public async getKeysStoredInKeychain(teamId: string): Promise<string[]> {
+    const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
+    const arr: string[] = (await this.get(key)) || []
+    return arr
+  }
 }

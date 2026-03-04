@@ -1,13 +1,10 @@
 import { Base58, KeyMetadata } from '@localfirst/crdx'
 
-export interface KeyWithMetadata {
-  scope: KeyMetadata
+export interface StorableKey {
+  keyName: string
   key: string | Base58
 }
 
 export interface KeysUpdatedEvent {
-  secretKeys: KeyWithMetadata[]
-  userPublicKeys: KeyWithMetadata[]
-  sigKeys: KeyWithMetadata[]
-  teamId: string
+  keys: StorableKey[]
 }

@@ -28,22 +28,14 @@ public enum KeychainHandlerError: Error {
   case unhandledError(reason: Any)
 }
 
-public struct KeyScope: Codable {
-  let name: String
-  let generation: Int
-  let type: String
-  let keyType: String
-}
-
 public enum KeyAddStatus {
   case success
   case duplicateScope
 }
 
-public struct KeyWithScope: Codable {
-  let scope: KeyScope
+public struct NamedKey: Codable {
+  let keyName: String
   let key: String
-  let teamId: String
 }
 
 @objc(KeychainHandler)
@@ -69,9 +61,8 @@ class KeychainHandler: NSObject {
     }
   }
 
-  public func getLfaKeyString(teamId: String, scope: KeyScope) throws -> String {
+  public func getLfaKeyString(keyName: String) throws -> String {
     do {
-      let keyName: String = _keyScopeToKeyName(teamId: teamId, scope: scope)
       let password: String = try _getKeyImpl(keyName: keyName)
       return password
     } catch KeychainError.noPassword {
@@ -107,28 +98,27 @@ class KeychainHandler: NSObject {
     }
   }
 
-  public func addLfaKey(keyWithScope: KeyWithScope) throws -> KeyAddStatus {
+  public func addLfaKey(namedKey: NamedKey) throws -> KeyAddStatus {
     var existingKey: String?
     do {
-      existingKey = try getLfaKeyString(teamId: keyWithScope.teamId, scope: keyWithScope.scope)
+      existingKey = try getLfaKeyString(keyName: namedKey.keyName)
     } catch KeychainHandlerError.noKeyFound {
       existingKey = nil
     } catch KeychainHandlerError.malformedKey {
       existingKey = nil
     } catch {
-      KeychainHandler.logger.error("Error while getting existing LFA key for scope \(String(describing: keyWithScope.scope)): \(error)")
+      KeychainHandler.logger.error("Error while getting existing LFA key for name \(namedKey.keyName): \(error)")
       throw error
     }
 
     guard existingKey == nil else {
-      guard existingKey == keyWithScope.key else { return KeyAddStatus.duplicateScope }
+      guard existingKey == namedKey.key else { return KeyAddStatus.duplicateScope }
       return KeyAddStatus.success
     }
 
     do {
-      let keyName: String = _keyScopeToKeyName(teamId: keyWithScope.teamId, scope: keyWithScope.scope)
-      let keyData: Data = try _stringToBytes(str: keyWithScope.key)
-      let addStatus: KeyAddStatus = try _addKeyToKeychainImpl(keyName: keyName, keyData: keyData)
+      let keyData: Data = try _stringToBytes(str: namedKey.key)
+      let addStatus: KeyAddStatus = try _addKeyToKeychainImpl(keyName: namedKey.keyName, keyData: keyData)
       return addStatus
     } catch {
       throw KeychainHandlerError.unhandledError(reason: error)
@@ -192,9 +182,5 @@ class KeychainHandler: NSObject {
       Data(body)
     }
     return keyData
-  }
-
-  private func _keyScopeToKeyName(teamId: String, scope: KeyScope) -> String {
-    return "quiet_\(teamId)_\(scope.type)_\(scope.name)_\(scope.generation)_\(scope.keyType)"
   }
 }
