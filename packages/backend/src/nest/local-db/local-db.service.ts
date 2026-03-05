@@ -606,6 +606,12 @@ export class LocalDbService extends EventEmitter {
     return count
   }
 
+  /**
+   * Update list of kys for a given team ID that were stored in the IOS keychain
+   *
+   * @param teamId LFA team ID
+   * @param keyNames Names of keys that were added to IOS keychain
+   */
   public async updateKeysStoredInKeychain(teamId: string, keyNames: string[]): Promise<void> {
     const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
     const arr: string[] = (await this.get(key)) || []
@@ -613,6 +619,12 @@ export class LocalDbService extends EventEmitter {
     await this.put(key, arr)
   }
 
+  /**
+   * Get the list of key names for a given team ID that have been stored in the IOS keychain
+   *
+   * @param teamId LFA team ID
+   * @returns List of key names
+   */
   public async getKeysStoredInKeychain(teamId: string): Promise<string[]> {
     const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
     const arr: string[] = (await this.get(key)) || []

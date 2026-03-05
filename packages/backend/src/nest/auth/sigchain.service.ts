@@ -151,6 +151,9 @@ export class SigChainService extends EventEmitter {
     this.logger.info('Chain updated, emitted updated event')
   }
 
+  /**
+   * Send updated list of users to the state manager on chain update
+   */
   private _updateUsersOnChainUpdate() {
     const users = this.getActiveChain()
       .team?.members()
@@ -163,8 +166,10 @@ export class SigChainService extends EventEmitter {
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
-  // TODO: only fetch keys that have been updated recently
-  private async _updateKeysOnChainUpdate() {
+  /**
+   * Update the IOS keychain with any new keys on chain update
+   */
+  private async _updateKeysOnChainUpdate(): Promise<void> {
     if ((process.platform as string) !== 'ios') {
       this.logger.trace('Skipping key update because we are not on ios, current platform =', process.platform)
       return
@@ -178,6 +183,7 @@ export class SigChainService extends EventEmitter {
     const alreadySentKeys: Set<string> = new Set(await this.localDbService.getKeysStoredInKeychain(teamId))
     const keysToSend: StorableKey[] = []
     const keyNamesSent: string[] = []
+    // get all secret keys that this user has that haven't been added to the keychain
     const allKeys = this.getActiveChain().crypto.getAllKeys()
     for (const keyData of Object.values(allKeys)) {
       for (const keyTypeData of Object.values(keyData)) {
@@ -195,6 +201,7 @@ export class SigChainService extends EventEmitter {
       }
     }
     // TODO: update to pull all generations of user public/sig keys
+    // get all user public keys that haven't been added to the keychain
     const allUserPublicKeys = this.getActiveChain().crypto.getPublicKeysForAllMembers(true)
     for (const keySet of allUserPublicKeys) {
       const publicKeyName = generateKeyName(teamId, StoredKeyType.USER_PUBLIC, {
@@ -217,6 +224,13 @@ export class SigChainService extends EventEmitter {
         keyNamesSent.push(sigKeyName)
       }
     }
+
+    if (keysToSend.length === 0) {
+      this.logger.trace('Skipping IOS keychain update, no new keys')
+      return
+    }
+
+    // send new keys to the state manager to add to the keychain and update list of key names in local DB
     const keyUpdateEvent: KeysUpdatedEvent = {
       keys: keysToSend,
     }

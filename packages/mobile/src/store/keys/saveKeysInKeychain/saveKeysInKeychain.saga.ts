@@ -1,11 +1,9 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { call, select, put } from 'typed-redux-saga'
+import { call } from 'typed-redux-saga'
+import { NativeModules } from 'react-native'
+
 import { KeysUpdatedEvent } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-
-import _ from 'lodash'
-import { NativeModules } from 'react-native'
-import { StorableKey } from '../keys.type'
 
 const logger = createLogger('saveKeysInKeychainSaga')
 
