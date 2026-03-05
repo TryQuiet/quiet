@@ -4,7 +4,7 @@
 
 The .nvmrc file in the root of the project specifies the node verison that is used. Update this file to the newest version of Node, which will automatically update the node version used by the GitHub action CI scripts found in the `./github` directory. 
 
-With [`nmv` installed](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) run:
+With [`nvm` installed](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) run:
 
 ```bash
 nvm install # installs the latest nvm on your machine if it's not present 

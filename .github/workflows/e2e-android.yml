@@ -15,7 +15,7 @@ jobs:
 
       - uses: actions/setup-node@master
         with:
-          node-version-file: ".nmvrc"
+          node-version-file: ".nvmrc"
 
       - name: Install dependencies
         run: |

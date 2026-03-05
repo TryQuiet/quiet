@@ -8,6 +8,7 @@ import { io } from 'socket.io-client'
 
 const webcrypto = new Crypto()
 // https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
+// TODO https://github.com/TryQuiet/quiet/issues/3123 replace if not needed
 Object.defineProperty(global, 'crypto', {
   value: webcrypto,
   writable: true,
