@@ -38,28 +38,12 @@ public struct NamedKey: Codable {
   let key: String
 }
 
+// TODO: add string to key object conversion (e.g. string to SymmetricKey)
 @objc(KeychainHandler)
 class KeychainHandler: NSObject {
-  private let masterKeyName: String = "quiet_master_key"
   private let keychainGroupName: String = "com.quietmobile"
   
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "KeychainHandler")
-
-  public func getMasterKey() throws -> SymmetricKey {
-    do {
-      let password: String = try _getKeyImpl(keyName: masterKeyName)
-      let passwordBytes: ContiguousBytes = try _stringToBytes(str: password)
-      return SymmetricKey(data: passwordBytes)
-    } catch KeychainError.noPassword {
-      throw KeychainHandlerError.noKeyFound
-    } catch KeychainError.unexpectedPasswordData {
-      throw KeychainHandlerError.malformedKey
-    } catch ConversionError.stringToBytesError {
-      throw KeychainHandlerError.malformedKey
-    } catch {
-      throw KeychainHandlerError.unhandledError(reason: error)
-    }
-  }
 
   public func getLfaKeyString(keyName: String) throws -> String {
     do {
@@ -71,28 +55,6 @@ class KeychainHandler: NSObject {
       throw KeychainHandlerError.malformedKey
     } catch ConversionError.stringToBytesError {
       throw KeychainHandlerError.malformedKey
-    } catch {
-      throw KeychainHandlerError.unhandledError(reason: error)
-    }
-  }
-
-  public func createMasterKey() throws -> SymmetricKey {
-    var existingKey: SymmetricKey?
-    do {
-      existingKey = try getMasterKey()
-    } catch KeychainHandlerError.noKeyFound {
-      existingKey = nil
-    } catch {
-      throw error
-    }
-
-    guard existingKey == nil else { return existingKey! }
-    do {
-      let newKey: SymmetricKey = _generateAESKey()
-      let keyData: Data = _symmetricKeyToData(key: newKey)
-      let addStatus: KeyAddStatus = try _addKeyToKeychainImpl(keyName: masterKeyName, keyData: keyData)
-      guard addStatus == KeyAddStatus.success else { throw KeychainHandlerError.unhandledError(reason: addStatus) }
-      return newKey
     } catch {
       throw KeychainHandlerError.unhandledError(reason: error)
     }
@@ -166,21 +128,9 @@ class KeychainHandler: NSObject {
     }
   }
 
-  private func _generateAESKey() -> SymmetricKey {
-    let key: SymmetricKey = SymmetricKey(size: .bits256)
-    return key
-  }
-
   private func _stringToBytes(str: String) throws -> Data  {
     let bytes: Data? = str.data(using: .utf8)
     guard bytes != nil else { throw ConversionError.stringToBytesError }
     return bytes!
-  }
-
-  private func _symmetricKeyToData(key: SymmetricKey) -> Data {
-    let keyData: Data = key.withUnsafeBytes { body in
-      Data(body)
-    }
-    return keyData
   }
 }
