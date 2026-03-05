@@ -1,5 +1,6 @@
 #!/bin/bash
-
+set -e
+cd "$(dirname "$0")"
 git clone https://github.com/bitmold/quiet_libtor_android
 cd quiet_libtor_android
 git pull
