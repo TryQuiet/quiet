@@ -51,6 +51,10 @@ import { networkSelectors } from './sagas/network/network.selectors'
 import type {} from 'pkijs'
 import { captchaActions, captchaReducer } from './sagas/captcha/captcha.slice'
 import { captchaSelectors } from './sagas/captcha/captcha.selectors'
+import {
+  pushNotificationsActions as _pushNotificationsActions,
+  pushNotificationsReducer as _pushNotificationsReducer,
+} from './sagas/pushNotifications/pushNotifications.slice'
 export { LoadingPanelType } from './sagas/network/network.types'
 export type { Store } from './sagas/store.types'
 export type { TestStore, TestStoreState } from './utils/tests/types'
@@ -160,6 +164,11 @@ export const network = {
   reducer: networkReducer,
   actions: networkActions,
   selectors: networkSelectors,
+}
+
+export const pushNotifications = {
+  reducer: _pushNotificationsReducer,
+  actions: _pushNotificationsActions,
 }
 
 export const socket = {

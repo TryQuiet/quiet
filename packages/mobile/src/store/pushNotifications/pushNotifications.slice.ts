@@ -5,7 +5,6 @@ import { NotificationPermissionStatus } from './pushNotifications.types'
 export class PushNotificationsState {
   permissionStatus: NotificationPermissionStatus = NotificationPermissionStatus.NotDetermined
   permissionRequested: boolean = false
-  deviceToken: string | null = null
 }
 
 export const pushNotificationsSlice = createSlice({
@@ -16,9 +15,6 @@ export const pushNotificationsSlice = createSlice({
     setPermissionStatus: (state, action: PayloadAction<NotificationPermissionStatus>) => {
       state.permissionStatus = action.payload
       state.permissionRequested = true
-    },
-    setDeviceToken: (state, action: PayloadAction<string>) => {
-      state.deviceToken = action.payload
     },
     checkPermissionOnLaunch: state => state,
   },
