@@ -40,4 +40,3 @@ cp -fv external/lib/arm64-v8a/libtor.so ../android/app/src/main/jniLibs/arm64-v8
 cd ..
 git status
 cd android
-./gradlew clean assembleDebug
