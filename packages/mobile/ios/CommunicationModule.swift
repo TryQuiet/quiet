@@ -72,6 +72,7 @@ class CommunicationModule: RCTEventEmitter {
         let stored = try self.keychainHandler.getLfaKeyString(keyName: decodedNamedKey.keyName)
         CommunicationModule.logger.info("Stored key matches? \(stored == decodedNamedKey.key) \(decodedNamedKey.keyName)")
       } catch {
+        // TODO: send a message to the backend with any keys that weren't stored
         CommunicationModule.logger.error("Error while saving key in keychain: \(error)")
       }
     }
