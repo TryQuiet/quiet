@@ -215,12 +215,6 @@ android {
             }
         }
     }
-    buildTypes.each {
-        it.buildConfigField("Boolean", "SHOULD_RUN_BACKEND_WORKER", "true")
-        it.buildConfigField("Boolean", "QSS_ALLOWED", "false")
-        it.buildConfigField("String", "QSS_ENDPOINT", "\"\"")
-        it.buildConfigField("Boolean", "DEBUG", "false")
-    }
     buildTypes {
         debug {
             signingConfig = signingConfigs.debug
