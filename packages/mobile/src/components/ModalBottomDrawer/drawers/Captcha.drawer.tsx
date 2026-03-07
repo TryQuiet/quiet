@@ -130,35 +130,39 @@ export const CaptchaDrawer: FC = () => {
   )
 
   return (
-    <ModalBottomDrawer visible={visible} onClose={closeScreen} heightRatio={1}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Prove you are human</Text>
-          <Text style={styles.description}>Complete the challenge to continue.</Text>
-          {status === 'loading' && (
-            <View style={styles.indicatorRow}>
-              <ActivityIndicator color={defaultTheme.palette.background.lushSky} />
-              <Text style={styles.secondaryText}>Loading challenge…</Text>
-            </View>
-          )}
-          {errorMessage && (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
-              <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-                <Text style={styles.retryLabel}>Try again</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          <TouchableOpacity
-            onPress={() => closeScreen('Captcha screen cancelled via button')}
-            style={styles.cancelButton}
-          >
-            <Text style={styles.cancelLabel}>Cancel</Text>
-          </TouchableOpacity>
+    <>
+      <ModalBottomDrawer visible={visible} onClose={closeScreen} heightRatio={1}>
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <Text style={styles.title}>Prove you are human</Text>
+            <Text style={styles.description}>Complete the challenge to continue.</Text>
+            {status === 'loading' && (
+              <View style={styles.indicatorRow}>
+                <ActivityIndicator color={defaultTheme.palette.background.lushSky} />
+                <Text style={styles.secondaryText}>Loading challenge…</Text>
+              </View>
+            )}
+            {errorMessage && (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+                <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                  <Text style={styles.retryLabel}>Try again</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            <TouchableOpacity
+              onPress={() => closeScreen('Captcha screen cancelled via button')}
+              style={styles.cancelButton}
+            >
+              <Text style={styles.cancelLabel}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+      </ModalBottomDrawer>
+      {siteKey !== '' && (
         <ConfirmHcaptcha ref={captchaRef} siteKey={siteKey} onMessage={handleMessage} size={'invisible'} />
-      </View>
-    </ModalBottomDrawer>
+      )}
+    </>
   )
 }
 
