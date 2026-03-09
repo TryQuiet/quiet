@@ -1,5 +1,4 @@
 import { Time, setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 import { createRootCA, type RootCA } from '../createRootCA'
 import { createUserCert, type UserCert } from '../createUserCert'
 import { createUserCsr, type UserCsr } from '../createUserCsr'
@@ -35,22 +34,15 @@ export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): 
 }
 
 export function setupCrypto() {
-  const webcrypto = new Crypto()
   setEngine(
     'newEngine',
-    webcrypto,
+    global.crypto,
     new CryptoEngine({
       name: '',
-      crypto: webcrypto,
-      subtle: webcrypto.subtle,
+      crypto: global.crypto,
+      subtle: global.crypto.subtle,
     })
   )
-  // https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
-  // TODO https://github.com/TryQuiet/quiet/issues/3123 replace if not needed
-  Object.defineProperty(global, 'crypto', {
-    value: webcrypto,
-    writable: true,
-  })
 }
 
 export const createRootCertificateTestHelper = async (commonName: string): Promise<RootCA> => {
