@@ -16,6 +16,7 @@
     ],
     "typeRoots": [
       "../@types",
+      "jest",
       "./node_modules/@types",
       "./src/renderer/expanded-theme.ts"
     ],
