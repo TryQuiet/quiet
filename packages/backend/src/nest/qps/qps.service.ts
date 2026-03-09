@@ -4,7 +4,7 @@ import { createLogger } from '../common/logger'
 import { QPS_ALLOWED } from '../const'
 import { SocketService } from '../socket/socket.service'
 import { SocketActions } from '@quiet/types'
-import { QPSRegisterResponse, QPSRegisterWsResponse } from './qps.types'
+import { QPSRegisterMessage, QPSRegisterResponse } from './qps.types'
 import { QSSClient } from '../qss/qss.client'
 import {
   CommunityOperationStatus,
@@ -34,7 +34,7 @@ export class QPSService implements OnModuleInit {
   ) {}
 
   public get enabled(): boolean {
-    return true
+    return this.qpsAllowed
   }
 
   private get ready(): boolean {
@@ -49,6 +49,7 @@ export class QPSService implements OnModuleInit {
 
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
+    this.sigChainService.on('updated', () => this._flushPendingToken())
   }
 
   /**
@@ -79,7 +80,11 @@ export class QPSService implements OnModuleInit {
     const token = this._pendingDeviceToken
     this._pendingDeviceToken = undefined
     this.logger.info('Flushing cached device token')
-    await this._register(token)
+    const response = await this._register(token)
+    if (response == null || response.status !== CommunityOperationStatus.SUCCESS) {
+      this.logger.warn('Failed to register cached device token')
+      this._pendingDeviceToken = token // keep the token cached for future retry
+    }
   }
 
   private _hasMemberKey(): boolean {
@@ -181,13 +186,13 @@ export class QPSService implements OnModuleInit {
   private async _register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
     this.logger.info('Registering device token')
     try {
-      const response = await this.qssClient.sendMessage<QPSRegisterWsResponse>(
+      const response = await this.qssClient.sendMessage<QPSRegisterResponse>(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { deviceToken, bundleId: BUNDLE_ID },
-        },
+          payload: { deviceToken, bundleId: BUNDLE_ID, teamId: this.sigChainService.team.id },
+        } satisfies QPSRegisterMessage,
         true
       )
 
@@ -198,6 +203,7 @@ export class QPSService implements OnModuleInit {
           await this.notificationTokensStore.addToken(userId, response.payload.ucan)
         } catch (err) {
           this.logger.error('Failed to store UCAN in notification tokens store', err)
+          return response
         }
         return response
       }

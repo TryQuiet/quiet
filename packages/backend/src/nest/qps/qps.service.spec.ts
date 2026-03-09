@@ -19,6 +19,9 @@ class MockQSSClient extends EventEmitter {
 class MockSigChainService extends EventEmitter {
   activeChain: any = null
   user = { userId: 'test-user-id' }
+  get team() {
+    return this.activeChain?.team
+  }
 }
 
 class MockSocketService extends EventEmitter {}
@@ -53,7 +56,7 @@ describe('QPSService', () => {
   function setReady() {
     qssClient.connected = true
     sigChainService.activeChain = {
-      team: {},
+      team: { id: TEAM_ID },
       roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER },
     }
   }
@@ -85,12 +88,12 @@ describe('QPSService', () => {
 
       const result = await qpsService.register(TOKEN)
 
-      expect(result).toEqual({ ucan: 'test-ucan' })
+      expect(result?.payload).toEqual({ ucan: 'test-ucan' })
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile' },
+          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
         }),
         true
       )
@@ -110,7 +113,7 @@ describe('QPSService', () => {
 
       const result = await qpsService.register(TOKEN)
 
-      expect(result).toEqual({ ucan: 'test-ucan' })
+      expect(result?.payload).toEqual({ ucan: 'test-ucan' })
       expect(notificationTokensStore.addToken).toHaveBeenCalledWith('test-user-id', 'test-ucan')
     })
 
@@ -134,7 +137,7 @@ describe('QPSService', () => {
     it('caches token when QSS is not connected', async () => {
       qssClient.connected = false
       sigChainService.activeChain = {
-        team: {},
+        team: { id: TEAM_ID },
         roles: { amIMemberOfRole: () => true },
       }
 
@@ -172,7 +175,7 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile' },
+          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
         }),
         true
       )
@@ -196,7 +199,7 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile' },
+          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
         }),
         true
       )
@@ -239,7 +242,7 @@ describe('QPSService', () => {
 
       // Sigchain joins but QSS still disconnected
       sigChainService.activeChain = {
-        team: {},
+        team: { id: TEAM_ID },
         roles: { amIMemberOfRole: () => true },
       }
       sigChainService.emit('updated')
