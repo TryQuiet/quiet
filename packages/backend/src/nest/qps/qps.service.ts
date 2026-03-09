@@ -4,7 +4,7 @@ import { createLogger } from '../common/logger'
 import { QPS_ALLOWED } from '../const'
 import { SocketService } from '../socket/socket.service'
 import { SocketActions } from '@quiet/types'
-import { QPSRegisterResponse } from './qps.types'
+import { QPSRegisterResponse, QPSRegisterWsResponse } from './qps.types'
 import { QSSClient } from '../qss/qss.client'
 import {
   CommunityOperationStatus,
@@ -24,9 +24,6 @@ const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
 export class QPSService implements OnModuleInit {
   private readonly logger = createLogger('qps:service')
   private _pendingDeviceToken: string | undefined = undefined
-  private _flushInterval: ReturnType<typeof setInterval> | undefined = undefined
-  private _registering = false
-  private readonly FLUSH_INTERVAL_MS = 5000
 
   constructor(
     @Inject(QPS_ALLOWED) private readonly qpsAllowed: boolean,
@@ -50,6 +47,7 @@ export class QPSService implements OnModuleInit {
       await this.register(payload.deviceToken)
     })
 
+    this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
   }
 
@@ -58,39 +56,30 @@ export class QPSService implements OnModuleInit {
    * @param deviceToken
    * @returns
    */
-  public async register(deviceToken: string): Promise<void> {
+  public async register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping registration')
-      return
+      return undefined
     }
 
-    this._pendingDeviceToken = deviceToken
-    this._startFlushInterval()
-    await this._flushPendingToken()
-  }
+    if (!this.ready) {
+      this.logger.info('QSS not connected or sigchain not joined, caching device token')
+      this._pendingDeviceToken = deviceToken
+      return undefined
+    }
 
-  private _startFlushInterval(): void {
-    if (this._flushInterval != null) return
-    this.logger.info('Starting flush interval')
-    this._flushInterval = setInterval(() => void this._flushPendingToken(), this.FLUSH_INTERVAL_MS)
-  }
-
-  private _stopFlushInterval(): void {
-    if (this._flushInterval == null) return
-    this.logger.info('Stopping flush interval')
-    clearInterval(this._flushInterval)
-    this._flushInterval = undefined
+    return this._register(deviceToken)
   }
 
   private async _flushPendingToken(): Promise<void> {
-    if (this._pendingDeviceToken == undefined || !this.ready || this._registering) return
-
-    this._registering = true
-    try {
-      await this._register(this._pendingDeviceToken)
-    } finally {
-      this._registering = false
+    if (this._pendingDeviceToken == undefined || !this.ready) {
+      return
     }
+
+    const token = this._pendingDeviceToken
+    this._pendingDeviceToken = undefined
+    this.logger.info('Flushing cached device token')
+    await this._register(token)
   }
 
   private _hasMemberKey(): boolean {
@@ -191,35 +180,33 @@ export class QPSService implements OnModuleInit {
 
   private async _register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
     this.logger.info('Registering device token')
-    let response: QPSRegisterResponse | undefined = undefined
     try {
-      response = await this.qssClient.sendMessage<QPSRegisterResponse>(
+      const response = await this.qssClient.sendMessage<QPSRegisterWsResponse>(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { deviceToken, bundleId: BUNDLE_ID, teamId: this.sigChainService.team.id },
+          payload: { deviceToken, bundleId: BUNDLE_ID },
         },
         true
       )
 
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.ucan) {
         this.logger.info('QPS registration successful, received UCAN')
-        this._pendingDeviceToken = undefined
-        this._stopFlushInterval()
         try {
           const userId = this.sigChainService.user.userId
           await this.notificationTokensStore.addToken(userId, response.payload.ucan)
         } catch (err) {
-          this.logger.warn('Failed to store UCAN in notification tokens store', err)
+          this.logger.error('Failed to store UCAN in notification tokens store', err)
         }
         return response
       }
 
       this.logger.warn(`QPS registration failed: ${response?.reason ?? 'unknown'}`)
+      return response
     } catch (e) {
       this.logger.error('Error registering device token', e)
+      return undefined
     }
-    return response
   }
 }
