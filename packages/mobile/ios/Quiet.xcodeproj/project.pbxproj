@@ -657,24 +657,24 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		EB4DC8012F608A3300EFD23F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
-		};
-		EB4DC80B2F608B3A00EFD23F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		EB611A772F60ADD1000CA1A2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				KeychainHelper.swift,
 			);
 			target = 13B07F861A680F5B00A75B9A /* Quiet */;
 		};
+		EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = EB4DC7F82F608A3300EFD23F /* QuietNotificationServiceExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (EB4DC80B2F608B3A00EFD23F /* PBXFileSystemSynchronizedBuildFileExceptionSet */, EB4DC8012F608A3300EFD23F /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QuietNotificationServiceExtension; sourceTree = "<group>"; };
+		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (EB611A772F60ADD1000CA1A2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QuietNotificationServiceExtension; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5777,7 +5777,7 @@
 				DEVELOPMENT_TEAM = XG66F95CNS;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = QuietNotificationServiceExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = QuietNotificationServiceExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -5825,7 +5825,7 @@
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = QuietNotificationServiceExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = QuietNotificationServiceExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";

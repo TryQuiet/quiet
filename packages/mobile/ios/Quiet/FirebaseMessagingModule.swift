@@ -4,21 +4,21 @@ import FirebaseMessaging
 
 @objc(FirebaseMessagingModule)
 class FirebaseMessagingModule: RCTEventEmitter {
-    
+
     static let FCM_TOKEN_RECEIVED = "fcmTokenReceived"
     static let FCM_TOKEN_REFRESHED = "fcmTokenRefreshed"
-    
+
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
-    
+
     override func supportedEvents() -> [String]! {
         return [
             FirebaseMessagingModule.FCM_TOKEN_RECEIVED,
             FirebaseMessagingModule.FCM_TOKEN_REFRESHED
         ]
     }
-    
+
     @objc
     func getToken(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         Messaging.messaging().token { token, error in
@@ -31,7 +31,7 @@ class FirebaseMessagingModule: RCTEventEmitter {
             }
         }
     }
-    
+
     @objc
     func deleteToken(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         Messaging.messaging().deleteToken { error in
@@ -42,7 +42,7 @@ class FirebaseMessagingModule: RCTEventEmitter {
             }
         }
     }
-    
+
     @objc
     func subscribeToTopic(_ topic: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         Messaging.messaging().subscribe(toTopic: topic) { error in
@@ -53,7 +53,7 @@ class FirebaseMessagingModule: RCTEventEmitter {
             }
         }
     }
-    
+
     @objc
     func unsubscribeFromTopic(_ topic: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         Messaging.messaging().unsubscribe(fromTopic: topic) { error in
@@ -64,18 +64,9 @@ class FirebaseMessagingModule: RCTEventEmitter {
             }
         }
     }
-    
+
     @objc
     func setEncryptionKey(_ key: String) {
-        guard let keyData = key.data(using: .utf8) else {
-            print("Error: Invalid encryption key format")
-            return
-        }
-        KeychainHelper.shared.save(
-            service: "com.quiet.notifications",
-            account: "encryptionKey",
-            data: keyData
-        )
     }
     
     @objc
