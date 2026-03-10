@@ -21,6 +21,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 import { SigChain } from '../auth/sigchain'
+import { QSSAuthConnStatus } from './qss.const'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
@@ -37,9 +38,14 @@ export class QSSAuthConnection extends EventEmitter {
    */
   private _teamId: string | undefined = undefined
   /**
-   * True when connected and operational
+   * Status of LFA connection
+   *
+   *  NOT_STARTED = Connection has been created but hasn't been started
+   *  STARTING = Connection is in use but hasn't finished identity handshake
+   *  ACTIVE = Connection is in use and the identity handshake was successful
+   *  INACTIVE = Connection was stopped/disconnected
    */
-  private _active: boolean = false
+  private _connStatus: QSSAuthConnStatus = QSSAuthConnStatus.NOT_STARTED
   /**
    * Random ID for this connection
    */
@@ -89,8 +95,16 @@ export class QSSAuthConnection extends EventEmitter {
     return this._joinStatus
   }
 
+  public get connStatus(): QSSAuthConnStatus {
+    return this._connStatus
+  }
+
+  /**
+   * This is true when the connection is starting up or has successfully completed the identity handshake
+   * and is actively syncing sigchain updates with QSS
+   */
   public get active(): boolean {
-    return this._active
+    return [QSSAuthConnStatus.STARTING, QSSAuthConnStatus.ACTIVE].includes(this.connStatus)
   }
 
   public get id(): string {
@@ -127,7 +141,7 @@ export class QSSAuthConnection extends EventEmitter {
     if (this._authConnection != null) {
       // if we have an existing auth connection for this team check if it has been started and is active, if so
       // do nothing
-      if (this._authConnection._started && this._active) {
+      if (this._authConnection._started && this.active) {
         this.logger.error(`Auth connection already started with QSS for this team`, this.teamId)
         return
       }
@@ -139,8 +153,8 @@ export class QSSAuthConnection extends EventEmitter {
     await this._initNewConn(sigChain)
 
     this.logger.info(`Auth connection established with QSS`)
+    this._connStatus = QSSAuthConnStatus.STARTING
     this._authConnection!.start()
-    this._active = true
   }
 
   /**
@@ -183,9 +197,17 @@ export class QSSAuthConnection extends EventEmitter {
       this._joinStatus = JoinStatus.JOINED
     }
 
-    // handle connected events and update the sigchain/join status
-    authConnection.on('connected', () => {
-      this._active = true
+    /**
+     * Handle connected events and update the sigchain/join status
+     *
+     * NOTE: This logic happens on 'connectionSecured' rather than 'connected' since the 'connected' event is
+     * fired at least twice during the connection process; first when the connection with the peer is confirmed
+     * and second when the connection is encrypted and actively syncing.  The identity challenge/proof handshake
+     * happens between these two events and 'connectionSecured' only occurs after the handshake has completed and
+     * the shared encryption key has been derived.
+     */
+    authConnection.on('connectionSecured', () => {
+      this._connStatus = QSSAuthConnStatus.ACTIVE
       if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
@@ -202,7 +224,7 @@ export class QSSAuthConnection extends EventEmitter {
     // set the connection to inactive when disconnecting
     authConnection.on('disconnected', event => {
       this.logger.info(`LFA Disconnected!`, event)
-      this._active = false
+      this._connStatus = QSSAuthConnStatus.INACTIVE
       this.emit(QSSEvents.QSS_DISCONNECTED, this.teamId)
     })
 
@@ -285,7 +307,7 @@ export class QSSAuthConnection extends EventEmitter {
     } catch (e) {
       this.logger.error(`Error while stopping auth connection with QSS for team ID ${this.teamId}`, e)
     } finally {
-      this._active = false
+      this._connStatus = QSSAuthConnStatus.INACTIVE
     }
   }
 }
