@@ -37,7 +37,12 @@ if (isE2Etest) {
 
 const webcrypto = new Crypto()
 
-global.crypto = webcrypto
+// https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
+// TODO https://github.com/TryQuiet/quiet/issues/3123 replace if not needed
+Object.defineProperty(global, 'crypto', {
+  value: webcrypto,
+  writable: true,
+})
 
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
@@ -582,7 +587,7 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     env: {
-      NODE_OPTIONS: '--experimental-global-customevent --trace-uncaught --enable-source-maps',
+      NODE_OPTIONS: '--trace-uncaught --enable-source-maps',
       DEBUG: process.env.DEBUG,
       LOG_DIR: process.env.LOG_DIR,
       COLORIZE: process.env.COLORIZE ?? 'true',
