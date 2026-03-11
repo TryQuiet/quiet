@@ -31,11 +31,10 @@ extension AppDelegate: MessagingDelegate {
     }
     
     @objc func sendFCMTokenToReactNative(token: String) {
-        // Send to React Native through FirebaseMessagingModule
         DispatchQueue.main.async {
             if let bridge = self.bridge {
-                if let firebaseModule = bridge.module(for: FirebaseMessagingModule.self) as? FirebaseMessagingModule {
-                    firebaseModule.onTokenReceived(token)
+                if let communicationModule = bridge.module(for: CommunicationModule.self) as? CommunicationModule {
+                    communicationModule.sendDeviceToken(token)
                 }
             }
         }

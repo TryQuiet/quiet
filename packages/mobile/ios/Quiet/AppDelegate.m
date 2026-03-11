@@ -293,18 +293,8 @@ static NSString *const platform = @"mobile";
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
-  NSMutableString *token = [NSMutableString string];
-  const unsigned char *bytes = (const unsigned char *)[deviceToken bytes];
-  for (NSUInteger i = 0; i < [deviceToken length]; i++) {
-    [token appendFormat:@"%02x", bytes[i]];
-  }
-
-  // Send APNS token to React Native via CommunicationModule
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [[self.bridge moduleForName:@"CommunicationModule"] sendDeviceToken:token];
-  });
-
-  // Forward APNS token to Firebase Messaging
+  // Forward APNS token to Firebase Messaging so it can generate an FCM token,
+  // which will be delivered via the MessagingDelegate in AppDelegate+Firebase.swift
   [FIRMessaging.messaging setAPNSToken:deviceToken type:FIRMessagingAPNSTokenTypeUnknown];
 }
 
