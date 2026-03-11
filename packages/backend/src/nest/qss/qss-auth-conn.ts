@@ -197,16 +197,8 @@ export class QSSAuthConnection extends EventEmitter {
       this._joinStatus = JoinStatus.JOINED
     }
 
-    /**
-     * Handle connected events and update the sigchain/join status
-     *
-     * NOTE: This logic happens on 'connectionSecured' rather than 'connected' since the 'connected' event is
-     * fired at least twice during the connection process; first when the connection with the peer is confirmed
-     * and second when the connection is encrypted and actively syncing.  The identity challenge/proof handshake
-     * happens between these two events and 'connectionSecured' only occurs after the handshake has completed and
-     * the shared encryption key has been derived.
-     */
-    authConnection.on('connectionSecured', () => {
+    // Handle connected events and update the sigchain/join status
+    authConnection.on('connected', () => {
       this._connStatus = QSSAuthConnStatus.ACTIVE
       if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)

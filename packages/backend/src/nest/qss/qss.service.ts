@@ -571,7 +571,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     const interval = setInterval(() => {
       void this._pullLatestLogEntriesForTeam(teamId)
-    }, 30_000)
+    }, 10_000)
 
     this._logPullIntervals.set(teamId, interval)
   }
