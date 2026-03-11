@@ -40,46 +40,7 @@ export const usersSlice = createSlice({
       }
       return state
     },
-    updateUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
-      if (!state.userProfiles) {
-        state.userProfiles = {}
-      }
-      for (const userProfile of action.payload) {
-        if (state.userProfiles[userProfile.userId]) {
-          const existingProfile = state.userProfiles[userProfile.userId]
-
-          const updatedProfile = {
-            ...existingProfile,
-            ...userProfile,
-          }
-
-          // If CID is the same, preserve the existing path
-          if (
-            userProfile.profilePhoto?.cid &&
-            existingProfile.profilePhoto?.cid === userProfile.profilePhoto.cid &&
-            existingProfile.profilePhoto?.path
-          ) {
-            updatedProfile.profilePhoto = {
-              ...userProfile.profilePhoto,
-              path: existingProfile.profilePhoto.path,
-            }
-          }
-
-          // If CID changed, ensure path is null (it should be null from userProfile anyway, but let's be explicit)
-          if (userProfile.profilePhoto?.cid && existingProfile.profilePhoto?.cid !== userProfile.profilePhoto.cid) {
-            updatedProfile.profilePhoto = {
-              ...userProfile.profilePhoto,
-              path: null,
-            }
-          }
-
-          state.userProfiles[userProfile.userId] = updatedProfile
-        } else {
-          state.userProfiles[userProfile.userId] = userProfile
-        }
-      }
-      return state
-    },
+    updateUserProfiles: (state, _action: PayloadAction<UserProfile[]>) => state,
     // Sets a single user profile, overwriting the existing one
     setUserProfile: (state, action: PayloadAction<UserProfile>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1
