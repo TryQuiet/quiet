@@ -41,6 +41,7 @@ import {
   HCaptchaRequest,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
+  UserProfilesUpdatedPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'

@@ -2,6 +2,7 @@ import {
   SetUserProfilePayload,
   SetUserProfileResponse,
   UserProfilesStoredEvent,
+  UserProfilesUpdatedPayload,
   UsersRemovedEvent,
   UsersUpdatedEvent,
 } from './user'
@@ -79,6 +80,7 @@ export enum SocketActions {
   // ====== User ======
 
   SET_USER_PROFILE = 'updateUserProfile',
+  USER_PROFILES_UPDATED = 'userProfilesUpdated',
 
   // ====== Files ======
 
@@ -133,6 +135,7 @@ export enum SocketEvents {
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
   KEYS_UPDATED = 'keysUpdated',
+  USER_PROFILES_UPDATED = 'userProfilesUpdatedFwd',
 
   // ====== Files ======
   FILE_ATTACHED = 'fileUploaded',
@@ -193,6 +196,7 @@ export interface SocketActionsMap {
   // ====== User Profiles ======
   [SocketActions.SET_USER_PROFILE]: EmitEvent<SetUserProfilePayload, (response?: SetUserProfileResponse) => void>
   [SocketActions.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
+  [SocketActions.USER_PROFILES_UPDATED]: EmitEvent<UserProfilesUpdatedPayload>
 
   // ====== Local First Auth ======
   [SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE]: EmitEvent<
@@ -238,6 +242,7 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
   [SocketEvents.KEYS_UPDATED]: EmitEvent<KeysUpdatedEvent>
+  [SocketEvents.USER_PROFILES_UPDATED]: EmitEvent<UserProfilesUpdatedPayload>
 
   // ====== Files ======
   [SocketEvents.FILE_ATTACHED]: EmitEvent<FileMetadata>

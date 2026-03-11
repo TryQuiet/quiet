@@ -59,6 +59,10 @@ export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
 }
 
+export interface UserProfilesUpdatedPayload {
+  profiles: UserProfile[]
+}
+
 export interface UsersUpdatedEvent {
   users: User[]
 }
