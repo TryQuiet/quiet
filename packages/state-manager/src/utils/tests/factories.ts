@@ -49,6 +49,8 @@ import {
   HCaptchaFormResponse,
   HCaptchaRequest,
   InviteResultWithSalt,
+  FileMessage,
+  FileEncryptionMetadata,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -66,6 +68,7 @@ import { errorsActions } from '../../sagas/errors/errors.slice'
 import { errorsSelectors } from '../../sagas/errors/errors.selectors'
 import { connectionActions } from '../../sagas/appConnection/connection.slice'
 import { connectionSelectors } from '../../sagas/appConnection/connection.selectors'
+import { randomBytes } from 'crypto'
 
 const logger = createLogger('factories')
 
@@ -125,11 +128,38 @@ export const getBaseTypesFactory = async () => {
     bio: factory.sequence('UserProfileDisplayData.bio', (n: number) => `bio_${n}`),
   })
 
+  factory.define<FileMessage>('FileMessage', Object, {
+    id: factory.sequence('FileMessage.id', (n: number) => `profile-photo-user-profile-photo-cid-${n}-${n}`),
+    channelId: '__profile-photo__',
+  })
+
+  factory.define<FileEncryptionMetadata>('FileEncryptionMetadata', Object, {
+    header: factory.sequence('FileEncryptionMetadata.header', (n: number) => randomBytes(32).toString('base64')),
+    recipient: {
+      generation: 0,
+      type: 'ROLE',
+      name: 'MEMBER',
+    },
+  })
+
+  factory.define<FileMetadata>('FileMetadata', Object, {
+    cid: factory.sequence('FileMetadata.cid', (n: number) => `user-profile-photo-cid-${n}`),
+    path: factory.sequence('FileMetadata.path', (n: number) => `/foo/bar/user-profile-photo-cid-${n}.png`),
+    ext: '.png',
+    name: factory.sequence('FileMetadata.name', (n: number) => `user-profile-photo-name-${n}`),
+    message: factory.assoc('FileMessage'),
+    size: factory.sequence('FileMetadata.size', (n: number) => 1024 + n),
+    width: factory.sequence('FileMetadata.width', (n: number) => 100 + n),
+    height: factory.sequence('FileMetadata.height', (n: number) => 100 + n),
+    enc: factory.assoc('FileEncryptionMetadata'),
+  })
+
   factory.define<UserProfile>('UserProfile', Object, {
     userId: factory.sequence('UserProfile.userId', (n: number) => `userId_${n}`),
     nickname: factory.sequence('UserProfile.nickname', (n: number) => `userProfile.nickname_${n}`),
-    photo: 'dGVzdAo=',
+    photo: undefined,
     bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
+    profilePhoto: factory.assoc('FileMetadata'),
   })
 
   factory.define<User>('User', Object, {
