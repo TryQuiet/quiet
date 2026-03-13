@@ -1671,7 +1671,7 @@ PODS:
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
   - SSZipArchive (2.6.0)
-  - Tor (405.9.1)
+  - Tor (406.7.2)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1760,7 +1760,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
+  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v406.7.2/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1944,7 +1944,7 @@ EXTERNAL SOURCES:
   RNSVG:
     :path: "../node_modules/react-native-svg"
   Tor:
-    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
+    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v406.7.2/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2041,9 +2041,9 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
-  Tor: 39dc71bf048312e202608eb499ca5c74e841b503
+  Tor: 2113eeda30e664c1adf863529a1c970ca254e6fa
   Yoga: 7d51419602153919f32aec72812e324d495ee49d
 
-PODFILE CHECKSUM: f4c2f064d1b797dc1ca285afefae8daa0afec350
+PODFILE CHECKSUM: 6bc2b6c9d00eddb47cbbb6325c0d642335556e5b
 
 COCOAPODS: 1.15.2
