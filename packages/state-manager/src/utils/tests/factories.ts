@@ -620,6 +620,21 @@ export const getSocketFactory = async () => {
     },
   })
 
+  factory.define<SetUserProfilePayload>(SocketActions.USER_PROFILES_UPDATED, Object, [
+    {
+      profile: {
+        userId: 'user-id',
+        nickname: 'Test User',
+        photo: 'dGVzdAo=',
+        bio: 'This is a test user profile',
+        userData: {
+          onionAddress: 'test.onion',
+          peerId: 'peer-id',
+        },
+      },
+    },
+  ])
+
   factory.define<SetUserProfileResponse>(`${SocketActions.SET_USER_PROFILE}_response`, Object, {
     success: true,
     error: undefined,
