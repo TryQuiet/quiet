@@ -1,11 +1,13 @@
 import { setEngine, CryptoEngine } from 'pkijs'
 
+const crypto = require('crypto').webcrypto
+
 setEngine(
   'newEngine',
-  global.crypto,
+  crypto,
   new CryptoEngine({
     name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
+    crypto: crypto,
+    subtle: crypto.subtle,
   })
 )

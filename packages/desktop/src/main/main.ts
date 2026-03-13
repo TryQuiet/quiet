@@ -94,13 +94,14 @@ const windowSize: IWindowSize = {
   height: 540,
 }
 
+const crypto = require('crypto').webcrypto
 setEngine(
   'newEngine',
-  global.crypto,
+  crypto,
   new CryptoEngine({
     name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
+    crypto: crypto,
+    subtle: crypto.subtle,
   })
 )
 

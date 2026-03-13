@@ -13,7 +13,7 @@ describe('Message signature verification', () => {
       'newEngine',
       new CryptoEngine({
         name: 'newEngine',
-        crypto: global.crypto,
+        crypto: require('crypto').webcrypto,
       })
     )
     crypto = getCrypto()

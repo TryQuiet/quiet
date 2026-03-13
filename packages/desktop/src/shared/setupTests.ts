@@ -2,13 +2,14 @@ import { setEngine, CryptoEngine } from 'pkijs'
 
 import { io } from 'socket.io-client'
 
+const crypto = require('crypto').webcrypto
 setEngine(
   'newEngine',
-  global.crypto,
+  crypto,
   new CryptoEngine({
     name: '',
-    crypto: global.crypto,
-    subtle: global.crypto.subtle,
+    crypto: crypto,
+    subtle: crypto.subtle,
   })
 )
 
