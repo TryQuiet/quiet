@@ -1035,7 +1035,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
 
       // Trigger sigchain update which should process DLQ
-      sigchainService.emit('updated')
+      sigchainService.emit('updated', sigchainService.activeChainTeamName)
 
       // Wait for async processing
       await waitForExpect(async () => {
@@ -1071,10 +1071,10 @@ describe('QSSService', () => {
       const processSpy = jest.spyOn(qssService, 'processDLQDecrypt')
 
       // Trigger first update
-      sigchainService.emit('updated')
+      sigchainService.emit('updated', sigchainService.activeChainTeamName)
 
       // Immediately trigger second update while first is processing
-      sigchainService.emit('updated')
+      sigchainService.emit('updated', sigchainService.activeChainTeamName)
 
       await waitForExpect(async () => {
         const remainingCount = await localDbService.getDLQDecryptCount(teamId)
@@ -1097,7 +1097,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries')
 
       // Trigger sigchain update
-      sigchainService.emit('updated')
+      sigchainService.emit('updated', sigchainService.activeChainTeamName)
 
       // Give it time to process
       await new Promise(resolve => setTimeout(resolve, 100))
