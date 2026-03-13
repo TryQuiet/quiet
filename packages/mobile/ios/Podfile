@@ -1,4 +1,5 @@
 MIN_SUPPORTED_IPHONEOS_VERSION = '17.1'
+BUILD_AS_DYNAMIC_FRAMEWORK = ['Tor']
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
@@ -8,16 +9,17 @@ install! 'cocoapods', :deterministic_uuids => false,
   :parallel_pod_downloads => true,
   :parallel_pod_download_thread_pool_size => 40
 
+use_frameworks! :linkage => :static
+
 # React native 0.76 defaults to using new architecture
 # Disable New Architecture
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 
 target 'Quiet' do
   config = use_native_modules!
+  pod 'Tor', '~> 408'
 
-  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v406.7.2/Tor.podspec'
-
-  use_react_native!(:path => config[:reactNativePath],)
+  use_react_native!(:path => config[:reactNativePath])
 
   target 'QuietTests' do
     inherit! :complete
@@ -27,11 +29,12 @@ target 'Quiet' do
 
   # Make all the other frameworks into static frameworks by overriding the static_framework? function to return true
   pre_install do |installer|
+    statically_linked = []
     installer.pod_targets.each do |target|
-      # Make some targets static as they throw errors if not
-      if target.name.eql?('RNScreens') || target.name.eql?('react-native-image-picker') or target.name.eql?('RNCClipboard')
+      if BUILD_AS_DYNAMIC_FRAMEWORK.include? target.name
+            puts "\n\tDynamically Linking #{BUILD_AS_DYNAMIC_FRAMEWORK.length} Targets:\n\t#{BUILD_AS_DYNAMIC_FRAMEWORK.inspect}"
         def target.build_type;
-          Pod::BuildType.static_library
+          Pod::BuildType.dynamic_framework
         end
       end
     end

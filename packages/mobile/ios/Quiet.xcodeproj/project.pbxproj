@@ -38,6 +38,7 @@
 		03B674202E6103DC00A86655 /* Rubik-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B674012E6103DC00A86655 /* Rubik-LightItalic.ttf */; };
 		03B674212E6103DC00A86655 /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */; };
 		03B674222E6103DC00A86655 /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03B673F92E6103DC00A86655 /* Rubik-Black.ttf */; };
+		1078D3C3EA2D944606C0C017 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0465982AA22EFB9994301115 /* Pods_Quiet.framework */; };
 		180E120B2AEFB7F900804659 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180E120A2AEFB7F900804659 /* Utils.swift */; };
 		1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; platformFilter = ios; };
 		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -55,10 +56,9 @@
 		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
-		38AD376324628C6E27E70991 /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 02AFA323BA7196A67E7A1133 /* libPods-Quiet-QuietTests.a */; };
+		2EC1DF7C25947AC6DC7530B0 /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1022BF1F2A3C3980E1D6F0BB /* Pods_Quiet_QuietTests.framework */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
 		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
-		E479975299F0932FF690F805 /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 104C0D0FA8EF00192C60CAD7 /* libPods-Quiet.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,7 +92,6 @@
 		00E356EE1AD99517003FC87E /* QuietTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuietTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* QuietTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietTests.m; sourceTree = "<group>"; };
-		02AFA323BA7196A67E7A1133 /* libPods-Quiet-QuietTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet-QuietTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		03B673F92E6103DC00A86655 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../src/assets/fonts/Rubik-Black.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FA2E6103DC00A86655 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../src/assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = SOURCE_ROOT; };
 		03B673FB2E6103DC00A86655 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../src/assets/fonts/Rubik-Bold.ttf"; sourceTree = SOURCE_ROOT; };
@@ -107,7 +106,8 @@
 		03B674042E6103DC00A86655 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Regular.ttf"; path = "../src/assets/fonts/Rubik-Regular.ttf"; sourceTree = SOURCE_ROOT; };
 		03B674052E6103DC00A86655 /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBold.ttf"; path = "../src/assets/fonts/Rubik-SemiBold.ttf"; sourceTree = SOURCE_ROOT; };
 		03B674062E6103DC00A86655 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = SOURCE_ROOT; };
-		104C0D0FA8EF00192C60CAD7 /* libPods-Quiet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0465982AA22EFB9994301115 /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1022BF1F2A3C3980E1D6F0BB /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		116749B7D5552021F04BE739 /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Quiet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		180E120A2AEFB7F900804659 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -633,7 +633,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
-				38AD376324628C6E27E70991 /* libPods-Quiet-QuietTests.a in Frameworks */,
+				2EC1DF7C25947AC6DC7530B0 /* Pods_Quiet_QuietTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,7 +643,7 @@
 			files = (
 				00A416342EC2EAA900ACC877 /* NodeMobile.xcframework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
-				E479975299F0932FF690F805 /* libPods-Quiet.a in Frameworks */,
+				1078D3C3EA2D944606C0C017 /* Pods_Quiet.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4714,8 +4714,8 @@
 			children = (
 				00A416332EC2EAA900ACC877 /* NodeMobile.xcframework */,
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
-				104C0D0FA8EF00192C60CAD7 /* libPods-Quiet.a */,
-				02AFA323BA7196A67E7A1133 /* libPods-Quiet-QuietTests.a */,
+				0465982AA22EFB9994301115 /* Pods_Quiet.framework */,
+				1022BF1F2A3C3980E1D6F0BB /* Pods_Quiet_QuietTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -5504,6 +5504,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
 				LDPLUSPLUS = "";
@@ -5577,6 +5588,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD = "";
 				LDPLUSPLUS = "";
