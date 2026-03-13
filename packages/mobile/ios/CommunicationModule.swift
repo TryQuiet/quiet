@@ -82,12 +82,12 @@ class CommunicationModule: RCTEventEmitter {
   @objc
   func saveUserMetadata(_ updatedMetadata: NSArray) {
     let decoder = JSONDecoder()
-    var userMetadata: [UserMetadata] = []
+    var userMetadata: [UserMetadataStruct] = []
     for metadataAsAny in updatedMetadata {
       do {
         let metadataAsString: String = metadataAsAny as! String
         let data = Data(metadataAsString.utf8)
-        let decodedMetadata = try decoder.decode(UserMetadata.self, from: data)
+        let decodedMetadata = try decoder.decode(UserMetadataStruct.self, from: data)
         CommunicationModule.logger.info("Decoded user metadata: \(String(describing: decodedMetadata))")
         userMetadata.append(decodedMetadata)
       } catch {
@@ -99,6 +99,15 @@ class CommunicationModule: RCTEventEmitter {
       try self.userMetadataHandler.saveUserMetadata(updatedMetadata: userMetadata)
     } catch {
       CommunicationModule.logger.error("Error while saving user metadata: \(error)")
+    }
+    
+    for metadata in userMetadata {
+      do {
+        let stored = try self.userMetadataHandler.fetchUserMetadataById(userId: metadata.userId)
+        CommunicationModule.logger.info("Passed: \(String(describing: metadata)), Stored: \(String(describing: stored?.toStruct()))")
+      } catch {
+        // do nothing
+      }
     }
   }
 

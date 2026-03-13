@@ -2,19 +2,24 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { createLogger } from '../../../utils/logger'
 import { apply, call, put, select } from 'typed-redux-saga'
 import { userProfileSelectors } from './userProfile.selectors'
-import { SocketActions, SocketEvents, SocketEventsMap, UserProfile } from '@quiet/types'
+import { SocketActions, SocketEvents, SocketEventsMap, UserProfile, UserProfilesUpdatedPayload } from '@quiet/types'
 import { applyEmitParams, Socket } from '../../../types'
 import { usersActions } from '../users.slice'
+import * as _ from 'lodash'
 
 const logger = createLogger('updateUserProfilesSaga')
 
 export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<UserProfile[]>): Generator {
   logger.info(`Updating user profiles (profile count = ${action.payload.length})`)
-  const userProfiles = yield* select(userProfileSelectors.userProfiles)
-  const updates = { ...userProfiles }
+  const existingProfiles = yield* select(userProfileSelectors.userProfiles)
+  const output: UserProfilesUpdatedPayload = {
+    new: [],
+    updates: [],
+  }
+  const updates = { ...existingProfiles }
   for (const userProfile of action.payload) {
-    if (updates[userProfile.userId]) {
-      const existingProfile = updates[userProfile.userId]
+    if (existingProfiles[userProfile.userId]) {
+      const existingProfile = existingProfiles[userProfile.userId]
 
       const updatedProfile = {
         ...existingProfile,
@@ -42,20 +47,23 @@ export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<Us
       }
 
       updates[userProfile.userId] = updatedProfile
+      if (!_.isEqual(existingProfile, updatedProfile)) {
+        output.updates.push(updatedProfile)
+      }
     } else {
       updates[userProfile.userId] = userProfile
+      output.new.push(userProfile)
     }
   }
   const updatedUserProfiles = Object.values(updates)
-  logger.info(`Emitting user profiles updated event`, updatedUserProfiles)
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActions.USER_PROFILES_UPDATED, {
-      profiles: updatedUserProfiles,
-    })
-  )
   logger.info(`Updating user profiles in redux store`, updatedUserProfiles)
   yield* put(usersActions.setUserProfiles(updatedUserProfiles))
+
+  if (output.new.length > 0 || output.updates.length > 0) {
+    logger.info(`Emitting user profiles updated event`, output.new, output.updates)
+    yield* apply(socket, socket.emit, applyEmitParams(SocketActions.USER_PROFILES_UPDATED, output))
+  } else {
+    logger.trace('Skipping user profile updated event, no new or updated profiles')
+  }
   logger.info(`Done`)
 }
