@@ -88,7 +88,6 @@ class CommunicationModule: RCTEventEmitter {
         let metadataAsString: String = metadataAsAny as! String
         let data = Data(metadataAsString.utf8)
         let decodedMetadata = try decoder.decode(UserMetadataStruct.self, from: data)
-        CommunicationModule.logger.info("Decoded user metadata: \(String(describing: decodedMetadata))")
         userMetadata.append(decodedMetadata)
       } catch {
         CommunicationModule.logger.error("Error while decoding user metadata: \(error)")
@@ -99,15 +98,6 @@ class CommunicationModule: RCTEventEmitter {
       try self.userMetadataHandler.saveUserMetadata(updatedMetadata: userMetadata)
     } catch {
       CommunicationModule.logger.error("Error while saving user metadata: \(error)")
-    }
-    
-    for metadata in userMetadata {
-      do {
-        let stored = try self.userMetadataHandler.fetchUserMetadataById(userId: metadata.userId)
-        CommunicationModule.logger.info("Passed: \(String(describing: metadata)), Stored: \(String(describing: stored?.toStruct()))")
-      } catch {
-        // do nothing
-      }
     }
   }
 

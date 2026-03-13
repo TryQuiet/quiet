@@ -56,11 +56,11 @@ export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<Us
     }
   }
   const updatedUserProfiles = Object.values(updates)
-  logger.info(`Updating user profiles in redux store`, updatedUserProfiles)
+  logger.debug(`Updating user profiles in redux store`)
   yield* put(usersActions.setUserProfiles(updatedUserProfiles))
 
   if (output.new.length > 0 || output.updates.length > 0) {
-    logger.info(`Emitting user profiles updated event`, output.new, output.updates)
+    logger.debug(`Emitting user profiles updated event`)
     yield* apply(socket, socket.emit, applyEmitParams(SocketActions.USER_PROFILES_UPDATED, output))
   } else {
     logger.trace('Skipping user profile updated event, no new or updated profiles')

@@ -8,7 +8,9 @@ import { createLogger } from '../../../utils/logger'
 const logger = createLogger('saveUserMetadataNativelySaga')
 
 export function* saveUserMetadataNativelySaga(action: PayloadAction<UserProfilesUpdatedPayload>): Generator {
-  logger.info('Storing user metadata in ios native storage', action.payload.new, action.payload.updates)
+  logger.info(
+    `Storing user metadata in ios native storage (new count = ${action.payload.new.length}, update count = ${action.payload.updates.length})`
+  )
   try {
     const updates: string[] = [
       ...action.payload.new.map(profile => JSON.stringify(profile)),

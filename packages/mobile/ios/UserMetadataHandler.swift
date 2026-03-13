@@ -52,6 +52,10 @@ class ProfilePhoto: Identifiable {
     self.createdAt = createdAt
   }
   
+  public static func fromStruct(id: String, profilePhoto: ProfilePhotoStruct, createdAt: Date?) -> ProfilePhoto {
+    return ProfilePhoto(id: id, ext: profilePhoto.ext, path: profilePhoto.path, size: profilePhoto.size, width: profilePhoto.width, height: profilePhoto.height, createdAt: createdAt)
+  }
+  
   public func toStruct() -> ProfilePhotoStruct {
     return ProfilePhotoStruct(ext: self.ext, path: self.path, size: self.size, width: self.width, height: self.height)
   }
@@ -68,9 +72,10 @@ class UserMetadata: Identifiable {
   
   init(id: String, nickname: String, profilePhoto: ProfilePhotoStruct?, createdAt: Date?) {
     var profilePhotoModel: ProfilePhoto? = nil
-    if (profilePhoto != nil) {
-      profilePhotoModel = ProfilePhoto(id: id, ext: profilePhoto!.ext, path: profilePhoto!.path, size: profilePhoto!.size, width: profilePhoto!.width, height: profilePhoto!.height, createdAt: createdAt)
+    if let unwrappedProfilePhoto = profilePhoto {
+      profilePhotoModel = ProfilePhoto.fromStruct(id: id, profilePhoto: unwrappedProfilePhoto, createdAt: createdAt)
     }
+    
     self.id = id
     self.nickname = nickname
     self.profilePhoto = profilePhotoModel
@@ -124,13 +129,13 @@ class UserMetadataHandler: NSObject {
     
     UserMetadataHandler.logger.info("Inserting user metadata")
     for metadata in updatedMetadata {
-      UserMetadataHandler.logger.debug("Inserting data: \(String(describing: metadata))")
-      let model = UserMetadata.fromStruct(userMetadata: metadata, createdAt: Date.now)
-      let found = try self.fetchUserMetadataById(userId: model.id)
-      if (found != nil) {
-        UserMetadataHandler.logger.debug("Replacing existing metadata for \(model.id)")
-        try self.deleteUserMetadata(model: model)
+      UserMetadataHandler.logger.debug("Inserting data for \(metadata.userId)")
+      let found = try self.fetchUserMetadataById(userId: metadata.userId)
+      if let unwrappedFound = found {
+        UserMetadataHandler.logger.debug("Replacing existing metadata for \(metadata.userId)")
+        try self.deleteUserMetadata(model: unwrappedFound)
       }
+      let model = UserMetadata.fromStruct(userMetadata: metadata, createdAt: Date.now)
       context.insert(model)
     }
     
@@ -159,8 +164,9 @@ class UserMetadataHandler: NSObject {
         return nil
       }
       guard models.count == 1 else {
+        UserMetadataHandler.logger.warning("Found \(models.count) stored metadata records for \(userId)")
         for model in models {
-          UserMetadataHandler.logger.warning("Found: \(String(describing: model.toStruct()))")
+          UserMetadataHandler.logger.warning("Found \(userId) created at \(model.createdAt?.ISO8601Format() ?? "NO CREATEDAT")")
         }
         throw UserMetadataError.incorrectModelCount(expected: 1, actual: models.count)
       }
@@ -172,7 +178,7 @@ class UserMetadataHandler: NSObject {
   }
   
   public func deleteUserMetadata(model: UserMetadata) throws -> Void {
-    UserMetadataHandler.logger.info("Deleting UserMetadata record: \(String(describing: model.toStruct()))")
+    UserMetadataHandler.logger.info("Deleting UserMetadata record for \(model.id)")
     
     guard let context = self.modelContext else {
       throw UserMetadataError.missingModelContext
@@ -182,7 +188,7 @@ class UserMetadataHandler: NSObject {
       context.delete(model)
       try context.save()
     } catch {
-      UserMetadataHandler.logger.error("Error while deleting UserMetadata \(String(describing: model.toStruct())): \(error)")
+      UserMetadataHandler.logger.error("Error while deleting UserMetadata for \(model.id): \(error)")
       throw UserMetadataError.unhandledError(reason: error)
     }
   }
