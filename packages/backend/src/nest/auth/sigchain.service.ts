@@ -32,6 +32,7 @@ export class SigChainService extends EventEmitter {
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
+  private readonly _chainListeners: Map<SigChain, () => void> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -243,18 +244,20 @@ export class SigChainService extends EventEmitter {
 
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
-    const _onTeamUpdate = (): void => {
+    const listener = (): void => {
       this.handleChainUpdate(chain.team!.teamName)
     }
-    chain.on('updated', _onTeamUpdate)
+    this._chainListeners.set(chain, listener)
+    chain.on('updated', listener)
   }
 
   private detachSocketListeners(chain: SigChain): void {
     this.logger.info('Detaching socket listeners')
-    const _onTeamUpdate = (): void => {
-      this.handleChainUpdate(chain.team!.teamName)
+    const listener = this._chainListeners.get(chain)
+    if (listener) {
+      chain.removeListener('updated', listener)
+      this._chainListeners.delete(chain)
     }
-    chain.removeListener('updated', _onTeamUpdate)
   }
 
   /**
@@ -285,6 +288,10 @@ export class SigChainService extends EventEmitter {
    * @param fromDisk Whether to delete the chain from disk as well
    */
   async deleteChain(teamName: string, fromDisk: boolean): Promise<void> {
+    const chain = this.chains.get(teamName)
+    if (chain) {
+      this.detachSocketListeners(chain)
+    }
     if (fromDisk) {
       this.localDbService.deleteSigChain(teamName)
     }
