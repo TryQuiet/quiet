@@ -51,6 +51,7 @@ import {
   InviteResultWithSalt,
   FileMessage,
   FileEncryptionMetadata,
+  UserProfilesUpdatedPayload,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -620,9 +621,9 @@ export const getSocketFactory = async () => {
     },
   })
 
-  factory.define<SetUserProfilePayload>(SocketActions.USER_PROFILES_UPDATED, Object, [
-    {
-      profile: {
+  factory.define<UserProfilesUpdatedPayload>(SocketActions.USER_PROFILES_UPDATED, Object, {
+    new: [
+      {
         userId: 'user-id',
         nickname: 'Test User',
         photo: 'dGVzdAo=',
@@ -632,8 +633,9 @@ export const getSocketFactory = async () => {
           peerId: 'peer-id',
         },
       },
-    },
-  ])
+    ],
+    updates: [],
+  })
 
   factory.define<SetUserProfileResponse>(`${SocketActions.SET_USER_PROFILE}_response`, Object, {
     success: true,
