@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.0.1-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.0.1-alpha.2...@quiet/mobile@7.0.1-alpha.3) (2026-03-16)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -33,6 +20,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
 * Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
+* Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 
 ### Chores
 
