@@ -1,4 +1,4 @@
-import * as child_process from 'child_process'
+import * as childProcess from 'child_process'
 import * as fs from 'fs'
 import path from 'path'
 import getPort from 'get-port'
@@ -17,7 +17,7 @@ import { isUint8Array } from 'util/types'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
-  process: child_process.ChildProcessWithoutNullStreams | null = null
+  process: childProcess.ChildProcessWithoutNullStreams | null = null
   torDataDirectory: string
   torPidPath: string
   extraTorProcessParams: TorParams
@@ -229,7 +229,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public getTorProcessIds(): string[] {
-    const torProcessId = child_process.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
+    const torProcessId = childProcess.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
     if (!torProcessId) return []
     return torProcessId.split('\n') // Spawning with {shell:true} starts 2 processes
   }
@@ -256,25 +256,24 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public clearOldTorProcess(oldTorPid: number | null) {
     this.logger.info(`Clearing old tor process ${oldTorPid}`)
     if (!oldTorPid) return
-    child_process.exec(
-      this.torProcessNameCommand(oldTorPid.toString()),
-      (err: child_process.ExecException | null, stdout: string, _stderr: string) => {
-        if (err) {
-          this.logger.error(err)
+    try {
+      const stdout = childProcess.execSync(this.torProcessNameCommand(oldTorPid.toString()), {
+        encoding: 'utf-8',
+      })
+      if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
+        this.logger.info(`Killing old tor, pid: ${oldTorPid}`)
+        try {
+          process.kill(oldTorPid, 'SIGTERM')
+        } catch (e) {
+          this.logger.error(`Tried killing old tor process. Failed.`, e)
         }
-        if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
-          this.logger.info(`Killing old tor, pid: ${oldTorPid}`)
-          try {
-            process.kill(oldTorPid, 'SIGTERM')
-          } catch (e) {
-            this.logger.error(`Tried killing old tor process. Failed.`, e)
-          }
-        } else {
-          this.logger.info(`Deleting ${this.torPidPath}`)
-          fs.unlinkSync(this.torPidPath)
-        }
+      } else {
+        this.logger.info(`Deleting ${this.torPidPath}`)
+        fs.unlinkSync(this.torPidPath)
       }
-    )
+    } catch (e) {
+      this.logger.error(`Error while killing old tor process with PID ${oldTorPid}`, e)
+    }
   }
 
   protected async spawnTor(): Promise<void> {
@@ -292,12 +291,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
         reject(new Error("Can't spawn tor - no controlPort"))
         return
       }
-      const options: child_process.SpawnOptionsWithoutStdio = {
+      const options: childProcess.SpawnOptionsWithoutStdio = {
         ...this.torParamsProvider.options,
         shell: true,
       }
 
-      this.process = child_process.spawn(
+      this.process = childProcess.spawn(
         this.torParamsProvider.torPath,
         [
           '--SocksPort',
