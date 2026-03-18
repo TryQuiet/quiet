@@ -5038,7 +5038,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\n# Fix for machines using nvm\nif [[ -s \"$HOME/.nvm/nvm.sh\" ]]; then\n. \"$HOME/.nvm/nvm.sh\"\nelif [[ -x \"$(command -v brew)\" && -s \"$(brew --prefix nvm)/nvm.sh\" ]]; then\n. \"$(brew --prefix nvm)/nvm.sh\"\nfi\n\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = "set -e\n\n# Load .xcode.env and .xcode.env.local (for NODE_BINARY and other per-machine settings)\nif [[ -f \"$SRCROOT/.xcode.env\" ]]; then\n. \"$SRCROOT/.xcode.env\"\nfi\nif [[ -f \"$SRCROOT/.xcode.env.local\" ]]; then\n. \"$SRCROOT/.xcode.env.local\"\nfi\n\n# Fix for machines using nvm\nif [[ -z \"$NODE_BINARY\" ]]; then\n  if [[ -s \"$HOME/.nvm/nvm.sh\" ]]; then\n    . \"$HOME/.nvm/nvm.sh\"\n  elif [[ -x \"$(command -v brew)\" && -s \"$(brew --prefix nvm)/nvm.sh\" ]]; then\n    . \"$(brew --prefix nvm)/nvm.sh\"\n  fi\nfi\n\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		03B673F82E60FE0000A86655 /* Inject Feature Flags */ = {
 			isa = PBXShellScriptBuildPhase;
