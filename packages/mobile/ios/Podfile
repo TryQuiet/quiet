@@ -53,8 +53,8 @@ target 'Quiet' do
     ['debug', 'release'].each do |cfg|
       path = "#{installer.sandbox.root}/Target Support Files/Pods-Quiet/Pods-Quiet.#{cfg}.xcconfig"
       content = File.read(path)
-      unless content.include?('#include "../../Quiet.xcconfig"')
-        File.open(path, 'a') { |f| f.puts '#include "../../Quiet.xcconfig"' }
+      unless content.include?('#include "../../../Quiet.xcconfig"')
+        File.open(path, 'a') { |f| f.puts '#include "../../../Quiet.xcconfig"' }
       end
     end
 
