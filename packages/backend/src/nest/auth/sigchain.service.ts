@@ -208,6 +208,7 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.create(teamName, username)
     this.addChain(sigChain, setActive, teamName)
     await this.saveChain(teamName)
+    this.handleChainUpdate()
     return sigChain
   }
 

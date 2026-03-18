@@ -160,7 +160,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
   const initialOptions: AutoCompleteOption[] = []
   let index = 0
   for (const user of Object.values(possibleMembers)) {
-    if ((allUsers[user.userId].channelIds ?? []).includes(channelId)) {
+    if ((allUsers[user.userId]?.channelIds ?? []).includes(channelId)) {
       continue
     }
     initialOptions.push({ label: user.nickname, id: user.userId, selected: false, index })

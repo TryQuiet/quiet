@@ -256,7 +256,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async addEntry(message: ChannelMessage): Promise<string> {
     this.logger.info('Adding message to database')
-    const encryptedMessage = await this.messagesService.onSend(message)
+    let encryptedMessage: EncryptedMessage
+    if (this.channelData.public) {
+      encryptedMessage = await this.messagesService.onSend(message)
+    } else {
+      encryptedMessage = await this.privateMessagesService.onSend(message)
+    }
     try {
       return await this.getStore().add(encryptedMessage)
     } catch (e) {
