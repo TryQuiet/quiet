@@ -179,8 +179,14 @@ export const runBackendDesktop = async (secret: string) => {
 
   const isDev = process.env.NODE_ENV === 'development'
   const webcrypto = new Crypto()
-  // @ts-ignore
-  global.crypto = webcrypto
+
+  // https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
+  // TODO https://github.com/TryQuiet/quiet/issues/3123 replace if not needed
+  Object.defineProperty(global, 'crypto', {
+    value: webcrypto,
+    writable: true,
+  })
+
   validateOptions(options)
   const resourcesPath = options.resourcesPath.trim()
   if (!secret) {

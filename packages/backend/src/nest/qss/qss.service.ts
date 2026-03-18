@@ -252,9 +252,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       const initStatus = await this.getQssInitStatus()
       const sigchain = this.sigChainService.getChain({ teamId })
       const authData = (initStatus.community?.inviteData as InvitationDataV3).authData
-      sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, 'foobar')
-      this.logger.warn(
-        `Is user now member through self-assign`,
+      if (authData.salt != null) {
+        sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
+      }
+      this.logger.trace(
+        `Is user now member through self-assign?`,
         sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
       )
       this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)

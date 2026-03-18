@@ -232,9 +232,18 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         command.add(scriptPath)
         command.addAll(args)
 
-        val envVars = mutableListOf<String>()
-        envVars.add("QSS_ALLOWED=${BuildConfig.QSS_ALLOWED}")
-        envVars.add("QSS_ENDPOINT=${BuildConfig.QSS_ENDPOINT}")
+        val standardFields = setOf(
+            "DEBUG", "APPLICATION_ID", "BUILD_TYPE", "FLAVOR",
+            "VERSION_CODE", "VERSION_NAME", "LIBRARY_PACKAGE_NAME",
+            "IS_NEW_ARCHITECTURE_ENABLED", "IS_HERMES_ENABLED"
+        )
+        val envVars = BuildConfig::class.java.fields
+            .filter { it.name !in standardFields }
+            .mapNotNull { field ->
+                field.get(null)?.let { value -> "${field.name}=$value" }
+            }
+            .also { vars -> vars.forEach { Log.d("BackendWorker", "Passing env var: $it") } }
+            .toMutableList()
 
         nodeProject.waitForInit()
 

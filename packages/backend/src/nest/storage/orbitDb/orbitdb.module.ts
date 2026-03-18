@@ -12,6 +12,7 @@ import { CommonModule } from '../../common/common.module'
 import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 import { PrivateChannelMessagesService } from '../channels/messages/private-channel-messages.service'
+import { NotificationTokensStore } from '../notifications/notificationTokens.store'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PrivateChannelMessagesService } from '../channels/messages/private-chan
     ChannelsService,
     PublicChannelMessagesService,
     PrivateChannelMessagesService,
+    NotificationTokensStore,
     LFAIdentityProvider,
     LFAIdentities,
   ],
@@ -38,6 +40,7 @@ import { PrivateChannelMessagesService } from '../channels/messages/private-chan
     ChannelsService,
     PublicChannelMessagesService,
     PrivateChannelMessagesService,
+    NotificationTokensStore,
     LFAIdentityProvider,
     LFAIdentities,
   ],

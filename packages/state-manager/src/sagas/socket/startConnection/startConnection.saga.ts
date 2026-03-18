@@ -47,6 +47,7 @@ import { createLogger } from '../../../utils/logger'
 import { InviteResult } from '@localfirst/auth'
 import { captchaActions } from '../../captcha/captcha.slice'
 import { captchaMasterSaga } from '../../captcha/captchaMasterSaga'
+import { pushNotificationsMasterSaga } from '../../pushNotifications/pushNotifications.master.saga'
 
 const logger = createLogger('startConnectionSaga')
 
@@ -241,6 +242,7 @@ export function* useIO(socket: Socket): Generator {
       fork(connectionMasterSaga, socket),
       fork(errorsMasterSaga),
       fork(captchaMasterSaga, socket),
+      fork(pushNotificationsMasterSaga, socket),
     ])
   } finally {
     logger.info('useIO stopping')

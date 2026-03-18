@@ -35,16 +35,17 @@ class MainActivity : ReactActivity() {
      * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
      */
     override fun createReactActivityDelegate(): ReactActivityDelegate =
-        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+            DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // pass null to super.onCreate https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
+        // pass null to super.onCreate
+        // https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
         super.onCreate(null)
 
         val intent = intent
         checkAgainstIntentUpdate(intent)
 
-        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER === "true") {
+        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER == "true") {
             val context = applicationContext
             BackendWorkManager(context).enqueueRequests()
         }
@@ -63,16 +64,14 @@ class MainActivity : ReactActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkNotificationsPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                        PackageManager.PERMISSION_GRANTED
         ) {
             // Requesting the permission
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                NOTIFICATION_PERMISSION_REQUEST_CODE
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_REQUEST_CODE
             )
         }
     }
@@ -103,12 +102,13 @@ class MainActivity : ReactActivity() {
 
     @Throws(java.lang.Exception::class)
     private fun respondOnNotification(bundle: Bundle) {
-        val channel = bundle.getString("channel")
-            ?: throw java.lang.Exception("respondOnNotification() failed because of missing channel")
+        val channel =
+                bundle.getString("channel")
+                        ?: throw java.lang.Exception(
+                                "respondOnNotification() failed because of missing channel"
+                        )
 
-        getCurrentReactContext { context: ReactContext ->
-            emitSwitchChannelEvent(context, channel)
-        }
+        getCurrentReactContext { context: ReactContext -> emitSwitchChannelEvent(context, channel) }
     }
 
     @SuppressLint("VisibleForTests")
@@ -117,19 +117,20 @@ class MainActivity : ReactActivity() {
         if (null != reactContext) {
             callback(reactContext)
         } else {
-            reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceEventListener {
-                override fun onReactContextInitialized(context: ReactContext) {
-                    callback(context)
-                    reactInstanceManager.removeReactInstanceEventListener(this)
-                }
-            })
+            reactInstanceManager.addReactInstanceEventListener(
+                    object : ReactInstanceEventListener {
+                        override fun onReactContextInitialized(context: ReactContext) {
+                            callback(context)
+                            reactInstanceManager.removeReactInstanceEventListener(this)
+                        }
+                    }
+            )
         }
     }
 
     private fun emitSwitchChannelEvent(reactContext: ReactContext, channel: String) {
-        val deviceEventEmitter: RCTDeviceEventEmitter = reactContext.getJSModule(
-            RCTDeviceEventEmitter::class.java
-        )
+        val deviceEventEmitter: RCTDeviceEventEmitter =
+                reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
 
         deviceEventEmitter.emit("notification", channel)
     }

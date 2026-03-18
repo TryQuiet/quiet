@@ -120,14 +120,14 @@ class LFAIdentities extends EventEmitter {
   }
 
   /**
-   * Sign an OrtitDB identity using sigchain signing keys for a given user
+   * Sign an OrbitDB identity using sigchain signing keys for a given user
    *
    * @param identity LFAIdentity object to sign
    * @param data Data to sign with (included to match built-in type)
    * @returns Signature for a given identity
    */
   public async sign(identity: LFAIdentity, data: string | Uint8Array): Promise<string> {
-    return this.provider.signIdentity(identity.id, identity.teamId)
+    return this.provider.sign(identity.id, identity.teamId, data)
   }
 
   /**
@@ -137,13 +137,13 @@ class LFAIdentities extends EventEmitter {
    *
    * TODO: Decide if we want to store signatures to verify
    *
-   * @param signature Signature to verify
-   * @param publicKey Public key associated with the signature
+   * @param signature Signature to verify (this is a hex string representation of an LFA signed envelope)
+   * @param publicKey Unused public key (the key used for verification is pulled from the sigchain)
    * @param data Data that was signed
-   * @returns True always (we don't use signatures for verification)
+   * @returns True if the signature is valid
    */
   public async verify(signature: string, publicKey: string, data: string): Promise<boolean> {
-    return true
+    return this.provider.verify(signature, '', data)
   }
 }
 

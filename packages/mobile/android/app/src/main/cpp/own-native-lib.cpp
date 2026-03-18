@@ -203,7 +203,8 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
     current_args_position += strlen(current_args_position) + 1;
   }
 
-  free(args_buffer);
+  // NOTE: this works on android but breaks on GrapheneOS which uses its own hardened version of calloc/malloc/free
+  // free(args_buffer);
 
   rn_register_bridge_cb(&rcv_message);
 

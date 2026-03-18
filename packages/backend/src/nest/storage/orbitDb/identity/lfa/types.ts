@@ -1,7 +1,8 @@
-import { Base58, Member } from '3rd-party/auth/packages/auth/dist'
+import { Base58, Member, SignedEnvelope } from '@localfirst/auth'
 import { Identity } from '@orbitdb/core'
 import { CompoundError } from '@quiet/types'
-import { SigChain } from 'packages/backend/src/nest/auth/sigchain'
+import { SigChain } from '../../../../auth/sigchain'
+import { Signature } from '../../../../auth/services/crypto/types'
 
 export type LFAIdentity = Omit<Identity, 'sign'> & {
   teamId: string
@@ -20,6 +21,14 @@ export interface LFAIdentityMetadata {
   publicKey: Base58
   generation: number
 }
+
+export type SignedEnvelopeWithTeamId = {
+  teamId: string
+} & SignedEnvelope
+
+export type SignatureWithTeamId = {
+  teamId: string
+} & Signature
 
 export class LFAIdentityProviderGetIdError extends CompoundError<Error> {
   constructor(public readonly originalError?: Error) {

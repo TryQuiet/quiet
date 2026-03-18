@@ -231,6 +231,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActions.TOGGLE_P2P, async (enabled: boolean, callback: (response: boolean) => void) => {
         this.emit(SocketActions.TOGGLE_P2P, enabled, callback)
       })
+
+      // ====== Push Notifications ======
+      socket.on(SocketActions.SEND_DEVICE_TOKEN, async (payload: { deviceToken: string }) => {
+        this.emit(SocketActions.SEND_DEVICE_TOKEN, payload)
+      })
     })
 
     // Ensure the underlying connections get closed. See:

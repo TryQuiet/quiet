@@ -6,11 +6,20 @@
 
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
 * Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
+* Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
+* Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
+* Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
+* Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
+* Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
+* Use LFA-based identity in OrbitDB
+* Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 
 ### Fixes
 
 * DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
- 
+* Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
+* Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
+
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)

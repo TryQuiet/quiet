@@ -19,6 +19,7 @@ import { StorageEvents } from './storage.types'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
+import { NotificationTokensStore } from './notifications/notificationTokens.store'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { ChannelsService } from './channels/channels.service'
 import { Member } from '@localfirst/auth'
@@ -43,6 +44,7 @@ export class StorageService extends EventEmitter {
     public readonly ipfsService: IpfsService,
     public readonly orbitDbService: OrbitDbService,
     public readonly userProfileStore: UserProfileStore,
+    public readonly notificationTokensStore: NotificationTokensStore,
     public readonly channelsService: ChannelsService,
     public readonly sigchainService: SigChainService
   ) {
@@ -109,6 +111,7 @@ export class StorageService extends EventEmitter {
     }
 
     await this.channelsService.clean()
+    await this.notificationTokensStore.clean()
     await this.userProfileStore.clean()
     await this.ipfsService.destroyInstance()
     await this.stop()
@@ -151,6 +154,7 @@ export class StorageService extends EventEmitter {
 
   public async startSync() {
     await this.userProfileStore.startSync()
+    await this.notificationTokensStore.startSync()
     await this.channelsService.startSync()
   }
 
@@ -178,12 +182,15 @@ export class StorageService extends EventEmitter {
       await this.localDbService.put(LocalDBKeys.PEERS, {})
     }
 
-    this.logger.info('1/3')
+    this.logger.info('1/4')
     this.attachStoreListeners()
-    this.logger.info('2/3')
+    this.logger.info('2/4')
     await this.userProfileStore.init()
 
-    this.logger.info('3/3')
+    this.logger.info('3/4')
+    await this.notificationTokensStore.init()
+
+    this.logger.info('4/4')
     await this.channelsService.init()
 
     this.logger.timeEnd('Storage.initDatabases')
@@ -195,6 +202,7 @@ export class StorageService extends EventEmitter {
   public addTeamIdToDbMetas(teamId: string): void {
     this.logger.info('Adding team ID to all OrbitDB database meta fields')
     this.userProfileStore.updateMetadata({ teamId })
+    this.notificationTokensStore.updateMetadata({ teamId })
     this.channelsService.updateMetadata({ teamId })
   }
 
@@ -209,6 +217,12 @@ export class StorageService extends EventEmitter {
       await this.userProfileStore?.close()
     } catch (e) {
       this.logger.error('Error closing user profiles db', e)
+    }
+
+    try {
+      await this.notificationTokensStore?.close()
+    } catch (e) {
+      this.logger.error('Error closing notification tokens db', e)
     }
 
     try {
@@ -228,6 +242,9 @@ export class StorageService extends EventEmitter {
   public attachStoreListeners() {
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
+    })
+    this.notificationTokensStore.on(StorageEvents.NOTIFICATION_TOKENS_STORED, payload => {
+      this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, payload)
     })
   }
 

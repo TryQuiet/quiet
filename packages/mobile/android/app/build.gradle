@@ -4,9 +4,7 @@ apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
 
-
 react {
-    /* Autolinking */
     autolinkLibrariesWithApp()
 }
 
@@ -170,8 +168,8 @@ android {
         applicationId = "com.quietmobile"
         minSdkVersion(rootProject.ext.minSdkVersion)
         targetSdkVersion(rootProject.ext.targetSdkVersion)
-        versionCode 557
-        versionName "6.5.1"
+        versionCode 564
+        versionName "7.0.0"
         resValue("string", "build_config_package", "com.quietmobile")
         testBuildType = System.getProperty("testBuildType", "debug")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -214,11 +212,6 @@ android {
                 keyPassword = "android"
             }
         }
-    }
-    buildTypes.each {
-        it.buildConfigField("String", "SHOULD_RUN_BACKEND_WORKER", "\"true\"")
-        it.buildConfigField("String", "QSS_ALLOWED", "\"false\"")
-        it.buildConfigField("String", "QSS_ENDPOINT", "\"\"")
     }
     buildTypes {
         debug {
@@ -305,8 +298,8 @@ dependencies {
     }
 
     // Work manager
-    implementation("androidx.work:work-runtime:2.11.0")
-    implementation("androidx.work:work-runtime-ktx:2.11.0")
+    implementation("androidx.work:work-runtime:2.11.1")
+    implementation("androidx.work:work-runtime-ktx:2.11.1")
 
     // For animated GIF support
     implementation("com.facebook.fresco:fresco:3.6.0")

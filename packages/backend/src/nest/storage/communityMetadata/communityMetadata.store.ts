@@ -65,7 +65,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<EncryptedAndSigned
         CommunityMetadataStore.validateCommunityMetadataEntry.bind(
           null,
           this.localDbService,
-          this.orbitDbService.identities,
+          this.orbitDbService.identities as any,
           this.sigchainService
         )
       ),
