@@ -50,6 +50,8 @@ import {
   SetUserProfilePayload,
   InvitationData,
   SetUserProfileResponse,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -780,6 +782,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       SocketActions.GET_MESSAGES,
       async (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
         callback(await this.storageService?.channels.getMessages(payload.channelId, payload.ids))
+      }
+    )
+
+    // Private Channels
+
+    this.socketService.on(
+      SocketActions.ADD_MEMBERS_TO_CHANNEL,
+      async (payload: AddMembersChannelPayload, callback: (response?: AddMembersChannelResponse) => void) => {
+        callback(await this.storageService?.channels.addMembersToPrivateChannel(payload))
       }
     )
 

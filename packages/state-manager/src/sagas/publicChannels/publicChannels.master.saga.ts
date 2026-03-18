@@ -10,6 +10,7 @@ import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.
 import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDeletionResponse.saga'
 import { sendIntroductionMessageSaga } from './sendIntroductionMessage/sendIntroductionMessage.saga'
 import { createLogger } from '../../utils/logger'
+import { addMembersChannelSaga } from './addMembersChannel/addMembersChannelSaga'
 
 const logger = createLogger('publicChannelsMasterSaga')
 
@@ -25,6 +26,7 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
       takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
       takeEvery(publicChannelsActions.sendIntroductionMessage.type, sendIntroductionMessageSaga),
+      takeEvery(publicChannelsActions.addMembersChannel.type, addMembersChannelSaga, socket),
     ])
   } finally {
     logger.info('publicChannelsMasterSaga stopping')

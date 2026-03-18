@@ -2,7 +2,7 @@ import React, { FC, useCallback } from 'react'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useSelector, useDispatch } from 'react-redux'
-import { communities, publicChannels, users } from '@quiet/state-manager'
+import { publicChannels, users } from '@quiet/state-manager'
 import AddMembersChannelComponent from './AddMembersChannelComponent'
 
 export const AddMembersChannel: FC = () => {
@@ -18,6 +18,13 @@ export const AddMembersChannel: FC = () => {
     (memberIds: string[]) => {
       if (!channel) return
       if (memberIds.length === 0) return
+      dispatch(
+        publicChannels.actions.addMembersChannel({
+          channelId: channel.id,
+          channelName: channel.name,
+          memberIds,
+        })
+      )
       modal.handleClose() // Close self
     },
     [modal]

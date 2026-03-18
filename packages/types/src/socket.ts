@@ -14,6 +14,8 @@ import {
   ChannelSubscribedPayload,
   ChannelsReplicatedPayload,
   ChannelMessage,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
 } from './channel'
 import {
   DownloadStatus,
@@ -69,6 +71,7 @@ export enum SocketActions {
   CREATE_CHANNEL = 'createChannel',
   DELETE_CHANNEL = 'deleteChannel',
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
+  ADD_MEMBERS_TO_CHANNEL = 'addMembersToChannel',
 
   // ====== Messages ======
 
@@ -180,6 +183,10 @@ export interface SocketActionsMap {
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
   [SocketActions.DELETE_CHANNEL]: EmitEvent<DeleteChannelPayload, (response?: DeleteChannelResponse) => void>
   [SocketActions.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
+  [SocketActions.ADD_MEMBERS_TO_CHANNEL]: EmitEvent<
+    AddMembersChannelPayload,
+    (response?: AddMembersChannelResponse) => void
+  >
 
   // ====== Messages ======
   [SocketActions.DOWNLOAD_FILE]: EmitEvent<DownloadFilePayload>

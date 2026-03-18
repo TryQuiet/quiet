@@ -24,6 +24,8 @@ import {
   SetUserProfilePayload,
   type HCaptchaFormResponse,
   InviteResultWithSalt,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -124,6 +126,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
           callback: (response: DeleteChannelResponse) => void
         ) => {
           this.emit(SocketActions.DELETE_CHANNEL, payload, callback)
+        }
+      )
+
+      socket.on(
+        SocketActions.ADD_MEMBERS_TO_CHANNEL,
+        async (payload: AddMembersChannelPayload, callback: (response: AddMembersChannelResponse) => void) => {
+          this.emit(SocketActions.ADD_MEMBERS_TO_CHANNEL, payload, callback)
         }
       )
 

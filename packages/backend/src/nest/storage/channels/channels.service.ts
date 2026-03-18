@@ -18,6 +18,9 @@ import {
   ChannelSubscribedPayload,
   DeleteChannelPayload,
   ConsumedChannelMessage,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
+  AddMembersChannelStatus,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -498,6 +501,41 @@ export class ChannelsService extends EventEmitter {
     await store.deleteChannel()
     this.channelsRepos.delete(channelId)
     return { channelId, deleted: true } as DeleteChannelResponse
+  }
+
+  public async addMembersToPrivateChannel(payload: AddMembersChannelPayload): Promise<AddMembersChannelResponse> {
+    const { channelId, channelName, memberIds } = payload
+    this.logger.info(`Adding ${memberIds.length} members to private channel`, channelId, channelName)
+
+    const channel = await this.getChannel(channelId)
+    if (!channel) {
+      this.logger.error(`Channel ${channelId} not found!`)
+      return { channelId, status: AddMembersChannelStatus.CHANNEL_MISSING }
+    }
+
+    const isMemberOfChannel = this.sigchainService.activeChain.channels.amIMemberOfChannel(channelId)
+    if (!isMemberOfChannel) {
+      this.logger.error(`You are not a member of private channel ${channelId}, cannot add members!`)
+      return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
+    }
+
+    const repo = this.channelsRepos.get(channelId)
+    const store = repo?.store
+    if (store == null) {
+      this.logger.error(`No channel store for private channel ${channelId}, cannot add members!`)
+      return { channelId, status: AddMembersChannelStatus.CHANNEL_MISSING }
+    }
+
+    this.logger.info(`Updating private channel membership`, channelId)
+    for (const memberId of memberIds) {
+      if (this.sigchainService.activeChain.channels.memberInChannel(memberId, channelId)) {
+        this.logger.debug('User already in channel', memberId, channelId)
+        continue
+      }
+      this.sigchainService.activeChain.channels.addMember(memberId, channelId)
+    }
+    this.logger.info(`Private channel membership updated`, channelId)
+    return { channelId, status: AddMembersChannelStatus.SUCCESS }
   }
 
   // Messages
