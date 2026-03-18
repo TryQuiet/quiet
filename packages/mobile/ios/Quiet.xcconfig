@@ -1,0 +1,11 @@
+// Shared iOS build settings
+// Default values are used for CI and team builds.
+//
+// To override for local development, copy LocalDev.xcconfig.sample to
+// LocalDev.xcconfig (gitignored) and fill in your values.
+
+DEVELOPMENT_TEAM = CTYKSWN9T4
+APP_BUNDLE_ID = com.quietmobile
+
+// Per-developer overrides (optional, gitignored)
+#include? "LocalDev.xcconfig"
