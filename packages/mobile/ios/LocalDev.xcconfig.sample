@@ -1,0 +1,5 @@
+// Copy this file to LocalDev.xcconfig and fill in your values.
+// LocalDev.xcconfig is gitignored and should never be committed.
+
+DEVELOPMENT_TEAM = YOURTEAMID
+APP_BUNDLE_ID = yourname.quietmobile
