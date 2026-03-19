@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import { sign } from '../sign'
 import { extractPubKey, parseCertificate, parseCertificationRequest } from '../extractPubKey'
 import { verifySignature } from '../verifySignature'
@@ -10,12 +9,11 @@ import { getCrypto, setEngine, CryptoEngine } from 'pkijs'
 describe('Message signature verification', () => {
   let crypto: SubtleCrypto | null
   beforeAll(() => {
-    const webcrypto = new Crypto()
     setEngine(
       'newEngine',
       new CryptoEngine({
         name: 'newEngine',
-        crypto: webcrypto,
+        crypto: require('crypto').webcrypto,
       })
     )
     crypto = getCrypto()
