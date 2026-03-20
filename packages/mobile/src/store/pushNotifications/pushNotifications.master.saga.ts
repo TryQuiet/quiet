@@ -1,4 +1,4 @@
-import { all, fork, takeEvery, call, put, select, take, cancelled } from 'typed-redux-saga'
+import { all, fork, takeEvery, call, put, select, take, cancelled, delay } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
 import { NativeModules, AppState, AppStateStatus, Platform } from 'react-native'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
@@ -9,6 +9,7 @@ import {
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
 import { pushNotifications } from '@quiet/state-manager'
+import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('pushNotificationsMasterSaga')
@@ -95,7 +96,13 @@ function* watchDeviceToken(): Generator {
   try {
     while (true) {
       const { token } = yield* take(channel)
-      logger.info('Received device token')
+      logger.info('Received device token, waiting for websocket connection')
+      while (true) {
+        const connected = yield* select(initSelectors.isWebsocketConnected)
+        if (connected) break
+        yield* delay(500)
+      }
+      logger.info('Sending device token to backend')
       yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
     }
   } finally {
