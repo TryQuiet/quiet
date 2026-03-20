@@ -14,6 +14,7 @@
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
+* Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
 
 ### Fixes
 
@@ -22,6 +23,7 @@
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
 * Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
+
 
 ### Chores
 

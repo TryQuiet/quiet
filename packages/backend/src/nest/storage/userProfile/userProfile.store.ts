@@ -90,14 +90,16 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     }
     logger.info('Flushing deferred user profiles:', this.deferredProfiles.length)
 
-    for (const profile of this.deferredProfiles) {
+    const profilesToFlush = [...this.deferredProfiles]
+    this.deferredProfiles = []
+
+    for (const profile of profilesToFlush) {
       try {
         await this.setEntry(profile.userId, profile)
       } catch (err) {
         logger.error('Failed to flush deferred user profile:', profile.userId, err)
       }
     }
-    this.deferredProfiles = []
   }
 
   /**

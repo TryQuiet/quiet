@@ -84,14 +84,16 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     }
     logger.info('Flushing deferred notification tokens:', this.deferredEntries.length)
 
-    for (const entry of this.deferredEntries) {
+    const entriesToFlush = [...this.deferredEntries]
+    this.deferredEntries = []
+
+    for (const entry of entriesToFlush) {
       try {
         await this.setEntry(entry.userId, entry)
       } catch (err) {
         logger.error('Failed to flush deferred notification token:', entry.userId, err)
       }
     }
-    this.deferredEntries = []
   }
 
   public async encryptEntry(payload: PushNotificationTokens): Promise<EncryptedAndSignedPayload> {
@@ -152,6 +154,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     }
 
     if (existing.tokens.includes(ucan)) {
+      logger.debug(`UCAN token already exists for user ${userId}, skipping add`)
       return
     }
 

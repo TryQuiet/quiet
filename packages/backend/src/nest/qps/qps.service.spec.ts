@@ -7,7 +7,7 @@ import { DateTime } from 'luxon'
 
 /**
  * Lightweight mocks — avoid bootstrapping the full NestJS module graph.
- * QSSClient and SigChainService both extend EventEmitter in production,
+ * QSSClient, QSSService, and SigChainService extend EventEmitter in production,
  * so the mocks do the same.
  */
 
@@ -19,12 +19,16 @@ class MockQSSClient extends EventEmitter {
 class MockSigChainService extends EventEmitter {
   activeChain: any = null
   user = { userId: 'test-user-id' }
+  get team() {
+    return this.activeChain?.team
+  }
 }
 
 class MockSocketService extends EventEmitter {}
 
 class MockNotificationTokensStore {
   addToken = jest.fn<any>()
+  getAllEntries = jest.fn<any>().mockResolvedValue([])
 }
 
 describe('QPSService', () => {
@@ -35,6 +39,7 @@ describe('QPSService', () => {
   let notificationTokensStore: MockNotificationTokensStore
 
   const TOKEN = 'fake-device-token-abc123'
+  const TEAM_ID = 'test-team-id'
 
   const successResponse = {
     ts: DateTime.utc().toMillis(),
@@ -42,11 +47,16 @@ describe('QPSService', () => {
     payload: { ucan: 'test-ucan' },
   }
 
+  const pushSuccessResponse = {
+    ts: DateTime.utc().toMillis(),
+    status: CommunityOperationStatus.SUCCESS,
+  }
+
   /** Helper: make QSS connected + sigchain joined */
   function setReady() {
     qssClient.connected = true
     sigChainService.activeChain = {
-      team: {},
+      team: { id: TEAM_ID },
       roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER },
     }
   }
@@ -78,12 +88,12 @@ describe('QPSService', () => {
 
       const result = await qpsService.register(TOKEN)
 
-      expect(result).toEqual({ ucan: 'test-ucan' })
+      expect(result?.payload).toEqual({ ucan: 'test-ucan' })
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile' },
+          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
         }),
         true
       )
@@ -103,7 +113,7 @@ describe('QPSService', () => {
 
       const result = await qpsService.register(TOKEN)
 
-      expect(result).toEqual({ ucan: 'test-ucan' })
+      expect(result?.payload).toEqual({ ucan: 'test-ucan' })
       expect(notificationTokensStore.addToken).toHaveBeenCalledWith('test-user-id', 'test-ucan')
     })
 
@@ -120,20 +130,20 @@ describe('QPSService', () => {
 
       const result = await disabled.register(TOKEN)
 
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
 
     it('caches token when QSS is not connected', async () => {
       qssClient.connected = false
       sigChainService.activeChain = {
-        team: {},
+        team: { id: TEAM_ID },
         roles: { amIMemberOfRole: () => true },
       }
 
       const result = await qpsService.register(TOKEN)
 
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
 
@@ -143,7 +153,7 @@ describe('QPSService', () => {
 
       const result = await qpsService.register(TOKEN)
 
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
     })
 
@@ -165,7 +175,7 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile' },
+          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
         }),
         true
       )
@@ -189,7 +199,7 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile' },
+          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
         }),
         true
       )
@@ -232,7 +242,7 @@ describe('QPSService', () => {
 
       // Sigchain joins but QSS still disconnected
       sigChainService.activeChain = {
-        team: {},
+        team: { id: TEAM_ID },
         roles: { amIMemberOfRole: () => true },
       }
       sigChainService.emit('updated')
@@ -259,6 +269,119 @@ describe('QPSService', () => {
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('sendBatchPush', () => {
+    const UCANS = ['ucan-user-a', 'ucan-user-b']
+
+    beforeEach(() => {
+      qssClient.connected = true
+      notificationTokensStore.getAllEntries.mockResolvedValue([
+        { userId: 'user-a', tokens: ['ucan-user-a'] },
+        { userId: 'user-b', tokens: ['ucan-user-b'] },
+      ])
+      qssClient.sendMessage.mockResolvedValue(pushSuccessResponse)
+    })
+
+    it('sends SEND_BATCH_PUSH with all UCANs when enabled and connected', async () => {
+      await qpsService.sendBatchPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.SEND_BATCH_PUSH,
+        expect.objectContaining({
+          status: CommunityOperationStatus.SENDING,
+          payload: { ucans: UCANS },
+        }),
+        true
+      )
+    })
+
+    it('skips when QPS is disabled', async () => {
+      const disabled = new QPSService(
+        false,
+        socketService as any,
+        qssClient as any,
+        sigChainService as any,
+        notificationTokensStore as any
+      )
+
+      await disabled.sendBatchPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips when QSS is not connected', async () => {
+      qssClient.connected = false
+
+      await qpsService.sendBatchPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('skips when no UCANs are registered', async () => {
+      notificationTokensStore.getAllEntries.mockResolvedValue([])
+
+      await qpsService.sendBatchPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+
+    it('logs warning on non-success response', async () => {
+      qssClient.sendMessage.mockResolvedValueOnce({
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.ERROR,
+        reason: 'server error',
+      })
+
+      // Should not throw
+      await expect(qpsService.sendBatchPush(TEAM_ID)).resolves.toBeUndefined()
+      expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles thrown errors gracefully', async () => {
+      qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
+
+      await expect(qpsService.sendBatchPush(TEAM_ID)).resolves.toBeUndefined()
+    })
+
+    it('sends multiple batches when UCANs exceed batch size', async () => {
+      const manyUcans = Array.from({ length: 550 }, (_, i) => `ucan-${i}`)
+      notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
+
+      await qpsService.sendBatchPush(TEAM_ID)
+
+      expect(qssClient.sendMessage).toHaveBeenCalledTimes(2)
+      expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
+        1,
+        WebsocketEvents.SEND_BATCH_PUSH,
+        expect.objectContaining({ payload: { ucans: manyUcans.slice(0, 500) } }),
+        true
+      )
+      expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
+        2,
+        WebsocketEvents.SEND_BATCH_PUSH,
+        expect.objectContaining({ payload: { ucans: manyUcans.slice(500) } }),
+        true
+      )
+    })
+
+    it('continues remaining batches if one batch throws', async () => {
+      const manyUcans = Array.from({ length: 550 }, (_, i) => `ucan-${i}`)
+      notificationTokensStore.getAllEntries.mockResolvedValue([{ userId: 'user-a', tokens: manyUcans }])
+      qssClient.sendMessage.mockRejectedValueOnce(new Error('network error'))
+
+      await expect(qpsService.sendBatchPush(TEAM_ID)).resolves.toBeUndefined()
+      expect(qssClient.sendMessage).toHaveBeenCalledTimes(2)
+    })
+
+    it('QSS_LOG_SYNCED event fires sendBatchPush', async () => {
+      const sendBatchPushSpy = jest.spyOn(qpsService, 'sendBatchPush').mockResolvedValue()
+
+      qssClient.emit(QSSEvents.QSS_LOG_SYNCED, TEAM_ID)
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      expect(sendBatchPushSpy).toHaveBeenCalledWith(TEAM_ID)
     })
   })
 })
