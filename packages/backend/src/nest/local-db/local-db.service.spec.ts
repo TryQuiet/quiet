@@ -616,10 +616,12 @@ describe('LocalDbService', () => {
       await service.addDLQDecryptEntry(TEAM_ID, payload1, serializer)
       await service.addDLQDecryptEntry(TEAM_ID, payload2, serializer)
 
-      // Get entries
+      // Get entries (order not guaranteed when timestamps collide)
       const entries = await service.getDLQDecryptEntries(TEAM_ID, serializer)
       expect(entries.length).toBe(2)
-      expect(entries[0].entry.payload.signature.signature).toBe(payload1.signature.signature)
+      const sigs = entries.map(e => e.entry.payload.signature.signature)
+      expect(sigs).toContain(payload1.signature.signature)
+      expect(sigs).toContain(payload2.signature.signature)
 
       // Remove first entry
       await service.removeDLQDecryptEntries(TEAM_ID, [entries[0]])
