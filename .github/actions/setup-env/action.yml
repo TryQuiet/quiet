@@ -21,7 +21,7 @@ runs:
         node-version-file: ".nvmrc"
 
     - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       if: runner.os == 'macOS'
       with:
         python-version: 3.12
@@ -63,7 +63,7 @@ runs:
 
     - name: "Cache NPM dependencies"
       id: cache-nodemodules
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: |
           node_modules

@@ -133,7 +133,6 @@
     "@nestjs/platform-express": "^10.2.10",
     "@orbitdb/core": "file:../../3rd-party/orbitdb",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@peculiar/webcrypto": "1.5.0",
     "@quiet/common": "^2.0.2-alpha.1",
     "@quiet/identity": "^2.0.2-alpha.2",
     "@quiet/logger": "^2.0.2-alpha.0",
