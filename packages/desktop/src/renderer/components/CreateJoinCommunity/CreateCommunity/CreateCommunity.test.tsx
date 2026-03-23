@@ -20,6 +20,23 @@ import { CommunityOwnership } from '@quiet/types'
 import { communityNameField } from '../../../forms/fields/communityFields'
 
 describe('Create community', () => {
+  let qssAllowed: boolean
+  let qssEndpoint: string | undefined = undefined
+  let qssAllowedOrig: boolean
+  let qssEndpointOrig: string | undefined = undefined
+
+  beforeAll(() => {
+    qssAllowedOrig = Boolean(process.env.QSS_ALLOWED ?? 'false')
+    qssEndpointOrig = process.env.QSS_ENDPOINT ?? ''
+    qssAllowed = qssAllowedOrig
+    qssEndpoint = qssEndpointOrig
+  })
+
+  beforeEach(() => {
+    qssAllowed = qssAllowedOrig
+    qssEndpoint = qssEndpointOrig
+  })
+
   it('users switches from create to join', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
@@ -263,13 +280,54 @@ describe('Create community', () => {
     const OLD_ENV = process.env
     beforeEach(() => {
       jest.resetModules()
-      process.env = { ...OLD_ENV, QSS_ALLOWED: 'true' }
+      process.env = { ...OLD_ENV, QSS_ALLOWED: 'true', QSS_ENDPOINT: 'ws://localhost:80/' }
     })
     afterEach(() => {
       process.env = OLD_ENV
     })
 
-    it('shows ServerOfferComponent when QSS_ALLOWED is true and user submits community name', async () => {
+    it(`doesn't ServerOfferComponent when QSS_ALLOWED is true and QSS_ENDPOINT is invalid and user submits community name`, async () => {
+      const { store } = await prepareStore({
+        [StoreKeys.Socket]: {
+          ...new SocketState(),
+          isConnected: true,
+        },
+        [StoreKeys.Modals]: {
+          ...new ModalsInitialState(),
+          [ModalName.createCommunityModal]: { open: true },
+        },
+      })
+
+      process.env.QSS_ENDPOINT = ''
+
+      renderComponent(
+        <>
+          <JoinCommunity />
+          <CreateCommunity />
+        </>,
+        store
+      )
+
+      // Confirm proper modal title is displayed
+      const createCommunityDictionary = CreateCommunityDictionary()
+      const createCommunityTitle = screen.getByText(createCommunityDictionary.header)
+      expect(createCommunityTitle).toBeVisible()
+
+      // Click redirecting link
+      const link = screen.getByTestId('CreateCommunityLink')
+      await userEvent.click(link)
+
+      // Confirm user is being redirected to join community
+      const joinCommunityDictionary = JoinCommunityDictionary()
+      const joinCommunityTitle = await screen.findByText(joinCommunityDictionary.header)
+      expect(joinCommunityTitle).toBeVisible()
+
+      // ServerOffer modal should appear
+      expect(() => screen.getByTestId('ServerOffer-UseQuietServer')).toThrow()
+      expect(() => screen.getByTestId('ServerOffer-NotNow')).toThrow()
+    })
+
+    it('shows ServerOfferComponent when QSS_ALLOWED is true and QSS_ENDPOINT is valid and user submits community name', async () => {
       const { store } = await prepareStore({
         [StoreKeys.Socket]: {
           ...new SocketState(),
