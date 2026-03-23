@@ -20,23 +20,6 @@ import { CommunityOwnership } from '@quiet/types'
 import { communityNameField } from '../../../forms/fields/communityFields'
 
 describe('Create community', () => {
-  let qssAllowed: boolean
-  let qssEndpoint: string | undefined = undefined
-  let qssAllowedOrig: boolean
-  let qssEndpointOrig: string | undefined = undefined
-
-  beforeAll(() => {
-    qssAllowedOrig = Boolean(process.env.QSS_ALLOWED ?? 'false')
-    qssEndpointOrig = process.env.QSS_ENDPOINT ?? ''
-    qssAllowed = qssAllowedOrig
-    qssEndpoint = qssEndpointOrig
-  })
-
-  beforeEach(() => {
-    qssAllowed = qssAllowedOrig
-    qssEndpoint = qssEndpointOrig
-  })
-
   it('users switches from create to join', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
