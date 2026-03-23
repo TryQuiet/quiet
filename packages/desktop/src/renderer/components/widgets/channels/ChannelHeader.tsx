@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
+import { UserProfile } from '@quiet/types'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -120,6 +121,7 @@ export interface ChannelHeaderProps {
   isPublic: boolean
   openContextMenu?: () => void
   enableContextMenu: boolean
+  user?: UserProfile
 }
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
@@ -127,6 +129,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   isPublic,
   openContextMenu,
   enableContextMenu,
+  user,
 }) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
@@ -158,6 +161,9 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
     return window.removeEventListener('resize', handleResize)
   })
 
+  const channelNameTruncated = channelName?.substring(0, 20)
+  const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
+
   return (
     <Root className={classes.wrapper}>
       <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
@@ -165,6 +171,15 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           <Grid item container alignItems='center'>
             <Grid item>
               <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
+                {!isPublic && (
+                  <LockOpenIcon
+                    style={{ ...theme.typography.subtitle1 }}
+                    className={classNames({
+                      [classes.title]: true,
+                      [classes.bold]: true,
+                    })}
+                  />
+                )}
                 <Typography
                   noWrap
                   style={{ maxWidth: wrapperWidth }}
@@ -175,16 +190,8 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   })}
                   data-testid={'channelTitle'}
                 >
-                  {`#${channelName?.substring(0, 20)}`}
+                  {headerTitle}
                 </Typography>
-                {!isPublic && (
-                  <LockOpenIcon
-                    htmlColor={theme.palette.colors.blue}
-                    className={classNames({
-                      [classes.title]: true,
-                    })}
-                  />
-                )}
               </Grid>
               {/* {!isPublic && (
                 <Typography

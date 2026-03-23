@@ -16,6 +16,7 @@ const classes = {
   selected: `${PREFIX}selected`,
   primary: `${PREFIX}primary`,
   title: `${PREFIX}title`,
+  titlePublic: `${PREFIX}titlePublic`,
   newMessages: `${PREFIX}newMessages`,
   connectedIcon: `${PREFIX}connectedIcon`,
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
@@ -51,13 +52,16 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`& .${classes.title}`]: {
     opacity: 0.7,
     fontWeight: 300,
-    paddingLeft: 16,
-    paddingRight: 2,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 215,
     whiteSpace: 'nowrap',
     textTransform: 'lowercase',
+  },
+
+  [`& .${classes.titlePublic}`]: {
+    paddingLeft: 16,
+    paddingRight: 2,
   },
 
   [`& .${classes.newMessages}`]: {
@@ -67,6 +71,10 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
   [`& .${classes.lock}`]: {
     opacity: 0.7,
+    marginLeft: 16,
+    marginRight: 0,
+    fontWeight: 300,
+    paddingRight: 2,
   },
 
   [`& .${classes.lockNewMessages}`]: {
@@ -118,6 +126,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   const dispatch = useDispatch()
   const ref = useRef<HTMLDivElement>(null)
   const hasMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
+  const headerTitle = channel.public ? `# ${channel.name}` : channel.name
 
   return (
     <StyledListItemButton
@@ -136,32 +145,34 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         primary={
           <Grid container alignItems='center'>
             <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
-              <Typography
-                variant='body2'
-                className={classNames(classes.title, {
-                  [classes.newMessages]: unread,
-                })}
-                data-testid={`${channel.name}-channel-link-text`}
-              >
-                {`# ${channel.name}`}
-              </Typography>
               {!channel.public &&
                 (hasMessages ? (
                   <LockOpenIcon
                     style={{ ...theme.typography.body2 }}
-                    htmlColor={theme.palette.colors.blue}
+                    // htmlColor={theme.palette.colors.blue}
                     className={classNames(classes.lock, {
                       [classes.newMessages]: unread,
                     })}
                   />
                 ) : (
                   <LockClosedIcon
-                    htmlColor={theme.palette.colors.blue}
+                    style={{ ...theme.typography.body2 }}
+                    // htmlColor={theme.palette.colors.blue}
                     className={classNames(classes.lock, {
                       [classes.newMessages]: unread,
                     })}
                   />
                 ))}
+              <Typography
+                variant='body2'
+                className={classNames(classes.title, {
+                  [classes.newMessages]: unread,
+                  [classes.titlePublic]: channel.public,
+                })}
+                data-testid={`${channel.name}-channel-link-text`}
+              >
+                {headerTitle}
+              </Typography>
             </Grid>
           </Grid>
         }
