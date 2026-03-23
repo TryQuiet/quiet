@@ -10,6 +10,7 @@
 ### Fixes
 
 * Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
+* Fixed settings section titles rendering inside the scrollable content; moved section titles to the settings header and added a regression test to prevent future regressions [#2568](https://github.com/TryQuiet/quiet/issues/2568)
 
 ## [7.2.0]
 
