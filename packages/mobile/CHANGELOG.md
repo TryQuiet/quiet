@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.0.1-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.0.1-alpha.3...@quiet/mobile@7.0.1-alpha.4) (2026-03-23)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -27,6 +14,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
+* Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
 
 ### Fixes
 
@@ -34,6 +22,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
 * Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
+* Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
+
 
 ### Chores
 
