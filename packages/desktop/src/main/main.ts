@@ -7,7 +7,6 @@ import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
 import { setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
@@ -34,15 +33,6 @@ export const isE2Etest = process.env.IS_E2E === 'true'
 if (isE2Etest) {
   autoUpdater.autoInstallOnAppQuit = false
 }
-
-const webcrypto = new Crypto()
-
-// https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
-// TODO https://github.com/TryQuiet/quiet/issues/3123 replace if not needed
-Object.defineProperty(global, 'crypto', {
-  value: webcrypto,
-  writable: true,
-})
 
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
@@ -104,13 +94,14 @@ const windowSize: IWindowSize = {
   height: 540,
 }
 
+const crypto = require('crypto').webcrypto
 setEngine(
   'newEngine',
-  webcrypto,
+  crypto,
   new CryptoEngine({
     name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
+    crypto: crypto,
+    subtle: crypto.subtle,
   })
 )
 

@@ -11,21 +11,15 @@ import { CryptoEngine, setEngine } from 'pkijs'
 import { createLogger } from '../logger'
 const logger = createLogger('bot')
 // eslint-disable-next-line
-const { Crypto } = require('@peculiar/webcrypto')
-
-const crypto = new Crypto()
-global.crypto = crypto
-
-const webcrypto = new Crypto()
 setEngine(
   'newEngine',
   // @ts-ignore
-  webcrypto,
+  global.crypto,
   // @ts-ignore
   new CryptoEngine({
     name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
+    crypto: global.crypto,
+    subtle: global.crypto.subtle,
   })
 )
 
