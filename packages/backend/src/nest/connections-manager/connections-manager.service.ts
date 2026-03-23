@@ -1,6 +1,5 @@
 import * as uint8arrays from 'uint8arrays'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
-import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import { Agent } from 'https'
@@ -109,21 +108,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   async onModuleInit() {
-    const webcrypto = new Crypto()
-    // https://github.com/lobehub/lobehub/issues/5315#issuecomment-2572703223
-    // TODO https://github.com/TryQuiet/quiet/issues/3123 replace if not needed
-    Object.defineProperty(global, 'crypto', {
-      value: webcrypto,
-      writable: true,
-    })
-
     setEngine(
       'newEngine',
       // @ts-ignore
       new CryptoEngine({
         name: 'newEngine',
         // @ts-ignore
-        crypto: webcrypto,
+        crypto: global.crypto,
       })
     )
 

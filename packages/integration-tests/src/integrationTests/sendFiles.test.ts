@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import {
   assertDownloadedImage,
   assertReceivedCertificates,
@@ -12,10 +11,6 @@ import { FileContent } from '@quiet/types'
 import { createLogger } from '../logger'
 
 const logger = createLogger('files')
-
-const crypto = new Crypto()
-
-global.crypto = crypto
 
 describe('send message - users are online', () => {
   let owner: AsyncReturnType<typeof createApp>

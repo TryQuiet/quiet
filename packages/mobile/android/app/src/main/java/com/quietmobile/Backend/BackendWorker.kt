@@ -228,6 +228,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         val command: MutableList<String> = ArrayList()
         command.add("node")
+        command.add("--experimental-global-webcrypto")
         command.add("--experimental-global-customevent")
         command.add(scriptPath)
         command.addAll(args)

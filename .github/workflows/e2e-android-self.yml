@@ -14,7 +14,7 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64, android]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 

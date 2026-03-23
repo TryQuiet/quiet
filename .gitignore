@@ -20,3 +20,5 @@ clangd/
 !.yarn/sdks
 !.yarn/versions
 
+# Firebase
+GoogleService-Info.plist
