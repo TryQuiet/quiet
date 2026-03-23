@@ -253,6 +253,32 @@ describe('join community', () => {
     expect(message).toBeVisible()
   })
 
+  it('does not close on Escape when close is disabled', async () => {
+    const { store } = await prepareStore()
+    const handleClose = jest.fn()
+
+    renderComponent(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={handleClose}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={() => {}}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />,
+      store
+    )
+
+    const input = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    input.focus()
+
+    await userEvent.keyboard('{Escape}')
+
+    expect(handleClose).not.toHaveBeenCalled()
+  })
+
   it('blocks submit button if connection is not ready', async () => {
     const { store } = await prepareStore()
     const handleCommunityAction = jest.fn()

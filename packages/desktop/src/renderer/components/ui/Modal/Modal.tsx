@@ -156,8 +156,25 @@ export const Modal: React.FC<IModalProps> = ({
   ...otherProps
 }) => {
   const zIndex = 1300
+
+  const onClose: MaterialModalProps['onClose'] = (event, reason) => {
+    if (isCloseDisabled && (reason === 'escapeKeyDown' || reason === 'backdropClick')) {
+      return
+    }
+
+    if (handleClose) {
+      return handleClose(event, reason)
+    }
+  }
+
   return (
-    <StyledMaterialModal zIndex={zIndex} open={open} onClose={handleClose} {...otherProps}>
+    <StyledMaterialModal
+      zIndex={zIndex}
+      open={open}
+      onClose={onClose}
+      disableEscapeKeyDown={isCloseDisabled}
+      {...otherProps}
+    >
       <Grid
         container
         direction='column'
