@@ -38,6 +38,9 @@ export enum LocalDBKeys {
   // exists in the Community object.
   OWNER_ORBIT_DB_IDENTITY = 'ownerOrbitDbIdentity',
 
+  // Keys from sigchain that have been stored in keychain
+  KEYS_STORED_KEYCHAIN = 'keysStoredInKeychain',
+
   SIGCHAINS = 'sigchains:',
   USER_CONTEXTS = 'userContexts',
   KEYRINGS = 'keyrings',

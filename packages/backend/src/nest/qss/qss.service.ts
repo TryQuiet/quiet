@@ -105,7 +105,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
     this.connect = this.connect.bind(this)
     this._configureEventHandlers()
-    this.sigChainService.on('updated', () => void this.processDLQDecrypt())
+    this.sigChainService.on('updated', (teamName: string) => void this.processDLQDecrypt(teamName))
   }
 
   public onModuleDestroy() {
@@ -914,14 +914,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Process the decryption dead letter queue when sigchain updates (new keys arrive)
    */
-  private async processDLQDecrypt(): Promise<void> {
+  private async processDLQDecrypt(teamName: string): Promise<void> {
     if (this._dlqDecryptInFlight) {
       this.logger.debug('DLQ decrypt already in progress, requesting retry')
       this._dlqDecryptRetryRequested = true
       return
     }
 
-    const activeChain = this.sigChainService.getActiveChain(false)
+    const activeChain = this.sigChainService.getChain({ teamName })
     if (!activeChain?.team) {
       return
     }
@@ -988,7 +988,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     // If a sigchain update occurred while processing, retry with new keys
     if (this._dlqDecryptRetryRequested) {
       this.logger.debug('Retrying DLQ decrypt after sigchain update during processing')
-      await this.processDLQDecrypt()
+      await this.processDLQDecrypt(teamName)
     }
   }
 

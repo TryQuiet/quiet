@@ -1,4 +1,5 @@
 import UserNotifications
+import OSLog
 
 @objc(CommunicationModule)
 class CommunicationModule: RCTEventEmitter {
@@ -12,6 +13,9 @@ class CommunicationModule: RCTEventEmitter {
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
 
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
+  private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CommunicationModule")
+
+  let keychainHandler = KeychainHandler()
 
   private var hasListeners = false
   
@@ -54,6 +58,24 @@ class CommunicationModule: RCTEventEmitter {
         if granted {
           UIApplication.shared.registerForRemoteNotifications()
         }
+      }
+    }
+  }
+  
+  @objc
+  func saveKeysInKeychain(_ newKeys: NSArray) {
+    let decoder = JSONDecoder()
+    for keyAsAny in newKeys {
+      do {
+        let keyAsString: String = keyAsAny as! String
+        let data = Data(keyAsString.utf8)
+        let decodedNamedKey = try decoder.decode(NamedKey.self, from: data)
+        try self.keychainHandler.addLfaKey(namedKey: decodedNamedKey)
+        let stored = try self.keychainHandler.getLfaKeyString(keyName: decodedNamedKey.keyName)
+        CommunicationModule.logger.info("Stored key matches? \(stored == decodedNamedKey.key) \(decodedNamedKey.keyName)")
+      } catch {
+        // TODO: send a message to the backend with any keys that weren't stored
+        CommunicationModule.logger.error("Error while saving key in keychain: \(error)")
       }
     }
   }

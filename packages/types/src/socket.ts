@@ -39,6 +39,7 @@ import {
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
+import { KeysUpdatedEvent } from './keys'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -131,6 +132,7 @@ export enum SocketEvents {
   USERS_UPDATED = 'usersUpdated',
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
+  KEYS_UPDATED = 'keysUpdated',
 
   // ====== Files ======
   FILE_ATTACHED = 'fileUploaded',
@@ -235,6 +237,7 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_UPDATED]: EmitEvent<UsersUpdatedEvent>
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
+  [SocketEvents.KEYS_UPDATED]: EmitEvent<KeysUpdatedEvent>
 
   // ====== Files ======
   [SocketEvents.FILE_ATTACHED]: EmitEvent<FileMetadata>

@@ -6,6 +6,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { TestModule } from '../common/test.module'
 import { SigChainModule } from './sigchain.service.module'
+import { SigChain } from './sigchain'
 
 const logger = createLogger('auth:sigchainManager.spec')
 
@@ -89,5 +90,42 @@ describe('SigChainService', () => {
     ])
     expect(sigChainService.getChain({ teamName: TEAM_NAME1 })).toBeDefined()
     expect(sigChainService.getChain({ teamName: TEAM_NAME2 })).toBeDefined()
+  })
+})
+
+describe('SigChainService - listener lifecycle', () => {
+  let module: TestingModule
+  let sigChainService: SigChainService
+  let localDbService: LocalDbService
+
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, SigChainModule, LocalDbModule],
+    }).compile()
+    sigChainService = await module.resolve(SigChainService)
+    localDbService = await module.resolve(LocalDbService)
+    await localDbService.open()
+  })
+
+  afterAll(async () => {
+    await localDbService.close()
+    await module.close()
+  })
+
+  it('does not accumulate listeners on chains when switching active chain', async () => {
+    const chainA: SigChain = await sigChainService.createChain('leakA', 'alice', true)
+    // chainA is active: one listener attached
+    expect(chainA.listenerCount('updated')).toBe(1)
+
+    const chainB: SigChain = await sigChainService.createChain('leakB', 'bob', true)
+    // Active switched A → B. detachSocketListeners(A) must have removed A's listener.
+    expect(chainA.listenerCount('updated')).toBe(0)
+    expect(chainB.listenerCount('updated')).toBe(1)
+
+    sigChainService.setActiveChain('leakA')
+    // Active switched B → A. detachSocketListeners(B) must have removed B's listener,
+    // and attachSocketListeners(A) adds exactly one to A.
+    expect(chainA.listenerCount('updated')).toBe(1)
+    expect(chainB.listenerCount('updated')).toBe(0)
   })
 })
