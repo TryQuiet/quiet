@@ -4,7 +4,7 @@ import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberCont
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { SocketEvents, User } from '@quiet/types'
+import { Channel, SocketEvents, User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
@@ -16,6 +16,8 @@ import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter } from './types'
+import { ModuleRef } from '@nestjs/core'
+import { StorageService } from '../storage/storage.service'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -27,7 +29,8 @@ export class SigChainService extends EventEmitter {
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     private readonly localDbService: LocalDbService,
-    private readonly socketService: SocketService
+    private readonly socketService: SocketService,
+    private readonly moduleRef: ModuleRef
   ) {
     super()
   }
@@ -132,16 +135,7 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(this.getChain({ teamName }))
   }
 
-  private handleChainUpdate = () => {
-    const users = this.getActiveChain()
-      .team?.members()
-      .map(user => ({
-        userId: user.userId,
-        roles: user.roles,
-        isRegistered: true,
-        isDuplicated: false,
-      })) as User[]
-    this.socketService.emit(SocketEvents.USERS_UPDATED, { users })
+  private handleChainUpdate = async () => {
     this.emit('updated')
     this.saveChain(this.activeChainTeamName!)
     this.logger.info('Chain updated, emitted updated event')

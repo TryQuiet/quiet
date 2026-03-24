@@ -221,6 +221,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
+          channelId={channelId}
           isPublic={isPublic}
           openContextMenu={openContextMenu}
           enableContextMenu={enableContextMenu}

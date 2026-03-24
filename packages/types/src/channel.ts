@@ -14,6 +14,7 @@ export interface Channel {
   timestamp: number
   disabled?: boolean
   public: boolean
+  roleName?: string
 }
 
 export interface ChannelStorage extends Channel {

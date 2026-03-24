@@ -6,7 +6,7 @@ import { ChannelHeaderComponent } from './ChannelHeader'
 describe('ChannelHeader', () => {
   it('hides context menu', () => {
     const result = renderComponent(
-      <ChannelHeaderComponent channelName='general' isPublic={true} enableContextMenu={false} />
+      <ChannelHeaderComponent channelName='general' channelId='abc123' isPublic={true} enableContextMenu={false} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -47,7 +47,7 @@ describe('ChannelHeader', () => {
   })
   it('reveals context menu', () => {
     const result = renderComponent(
-      <ChannelHeaderComponent channelName='general' isPublic={true} enableContextMenu={true} />
+      <ChannelHeaderComponent channelName='general' channelId='abc123' isPublic={true} enableContextMenu={true} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

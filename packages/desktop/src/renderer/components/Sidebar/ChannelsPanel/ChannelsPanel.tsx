@@ -20,6 +20,7 @@ export interface ChannelsPanelProps {
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
+  myUserProfile,
   unreadChannels,
   setCurrentChannel,
   currentChannelId,
@@ -42,6 +43,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
             const selected = currentChannelId === channel.id
             return (
               <ChannelsListItem
+                myUserProfile={myUserProfile}
                 channel={channel}
                 unread={unread}
                 selected={selected}

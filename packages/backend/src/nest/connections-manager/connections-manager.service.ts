@@ -51,6 +51,8 @@ import {
   SetUserProfileResponse,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
+  Channel,
+  User,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -148,6 +150,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.attachSocketServiceListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
+    this.attachSigchainListeners()
 
     if (this.localDbService.getStatus() === 'closed') {
       await this.localDbService.open()
@@ -882,6 +885,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.storageService.updatePeerStore()
       this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)
+    })
+  }
+
+  private attachSigchainListeners() {
+    if (!this.sigChainService) return
+
+    // handle chain updates
+    this.sigChainService.on('updated', async () => {
+      let channelMapping: Record<string, Channel> = {}
+      if (!this.storageService || !this.storageService.initialized) {
+        this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
+      } else {
+        channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
+      }
+      this.logger.debug('Channel mapping', channelMapping)
+      const users = this.sigChainService
+        .getActiveChain()
+        .team?.members()
+        .map(user => ({
+          userId: user.userId,
+          roles: user.roles,
+          channelIds: user.roles
+            .filter(roleName => Object.keys(channelMapping).includes(roleName))
+            .map(roleName => channelMapping[roleName].id),
+          isRegistered: true,
+          isDuplicated: false,
+        })) as User[]
+      for (const user of users) {
+        this.logger.warn('User channels', user.channelIds, user.roles)
+      }
+      this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
     })
   }
 }

@@ -307,6 +307,26 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
+   * Read entries for all keys in the channels management database
+   *
+   * @returns All channel metadata in the channels management database
+   * @throws Error
+   */
+  public async getPrivateChannelsByRolename(): Promise<Record<string, Channel>> {
+    if (!this.channels) {
+      throw new Error('Channels have not been initialized!')
+    }
+    const channels = await this.getChannels()
+    const channelMapping: { [channelRoleName: string]: Channel } = {}
+    channels.forEach((channel: Channel) => {
+      if (!channel.public && channel.roleName != null) {
+        channelMapping[channel.roleName] = channel
+      }
+    })
+    return channelMapping
+  }
+
+  /**
    * Get all known channels and emit event with metadata
    *
    * @emits StorageEvents.CHANNELS_STORED
@@ -373,11 +393,14 @@ export class ChannelsService extends EventEmitter {
       owner: this.sigchainService.getActiveChain().user.userId,
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
+      roleName: !payload.public
+        ? this.sigchainService.activeChain.channels.generateChannelRoleName(payload.id)
+        : undefined,
     }
+    const store = await this.createChannel(channelData)
     if (!channelData.public) {
       this.sigchainService.getActiveChain().channels.create(channelData.id)
     }
-    const store = await this.createChannel(channelData)
     if (!store) {
       throw new Error('Failed to create channel')
     }

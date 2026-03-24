@@ -1,14 +1,15 @@
 import React from 'react'
-
 import classNames from 'classnames'
 
 import { styled, useTheme } from '@mui/material/styles'
-
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
+import LockClosedIcon from '@mui/icons-material/Lock'
+
 import { UserProfile } from '@quiet/types'
+import { createLogger } from '../../../logger'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -30,6 +31,7 @@ const classes = {
   iconButton: `${PREFIX}iconButton`,
   bold: `${PREFIX}bold`,
   menu: `${PREFIX}menu`,
+  lock: `${PREFIX}lock`,
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -114,18 +116,27 @@ const Root = styled('div')(({ theme }) => ({
     padding: '20px',
     cursor: 'pointer',
   },
+
+  [`& .${classes.lock}`]: {
+    marginRight: -2,
+    marginLeft: -2,
+  },
 }))
 
 export interface ChannelHeaderProps {
   channelName: string
+  channelId: string
   isPublic: boolean
   openContextMenu?: () => void
   enableContextMenu: boolean
   user?: UserProfile
 }
 
+const logger = createLogger('channels:ChannelHeader')
+
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
+  channelId,
   isPublic,
   openContextMenu,
   enableContextMenu,
@@ -163,6 +174,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
 
   const channelNameTruncated = channelName?.substring(0, 20)
   const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
+  logger.warn('Channel IDs for user', user?.channels, user)
 
   return (
     <Root className={classes.wrapper}>
@@ -171,15 +183,28 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           <Grid item container alignItems='center'>
             <Grid item>
               <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
-                {!isPublic && (
-                  <LockOpenIcon
-                    style={{ ...theme.typography.subtitle1 }}
-                    className={classNames({
-                      [classes.title]: true,
-                      [classes.bold]: true,
-                    })}
-                  />
-                )}
+                {!isPublic &&
+                  (user?.channels?.includes(channelId) ? (
+                    <LockOpenIcon
+                      style={{ ...theme.typography.subtitle1 }}
+                      className={classNames({
+                        [classes.title]: true,
+                        [classes.bold]: true,
+                        [classes.lock]: true,
+                      })}
+                      data-testid={'channelTitle-private-member'}
+                    />
+                  ) : (
+                    <LockClosedIcon
+                      style={{ ...theme.typography.subtitle1 }}
+                      className={classNames({
+                        [classes.title]: true,
+                        [classes.bold]: true,
+                        [classes.lock]: true,
+                      })}
+                      data-testid={'channelTitle-private-nonmember'}
+                    />
+                  ))}
                 <Typography
                   noWrap
                   style={{ maxWidth: wrapperWidth }}

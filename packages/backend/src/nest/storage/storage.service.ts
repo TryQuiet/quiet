@@ -31,7 +31,7 @@ import path from 'path'
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  private initialized: boolean = false
+  public initialized: boolean = false
   private initializing: boolean = false
 
   private readonly logger = createLogger(StorageService.name)

@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
-import { Channel } from '@quiet/types'
+import { Channel, UserProfile } from '@quiet/types'
 import { useDispatch, useSelector } from 'react-redux'
 import { publicChannels } from '@quiet/state-manager'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
@@ -108,6 +108,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface ChannelsListItemProps {
+  myUserProfile?: UserProfile
   channel: Channel
   unread: boolean
   selected: boolean
@@ -116,6 +117,7 @@ export interface ChannelsListItemProps {
 }
 
 export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
+  myUserProfile,
   channel,
   unread,
   selected,
@@ -127,6 +129,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   const ref = useRef<HTMLDivElement>(null)
   const hasMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
   const headerTitle = channel.public ? `# ${channel.name}` : channel.name
+  const inChannel = myUserProfile?.channels?.includes(channel.id) ?? false
 
   return (
     <StyledListItemButton
@@ -146,7 +149,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
           <Grid container alignItems='center'>
             <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
               {!channel.public &&
-                (hasMessages ? (
+                (inChannel ? (
                   <LockOpenIcon
                     style={{ ...theme.typography.body2 }}
                     // htmlColor={theme.palette.colors.blue}
