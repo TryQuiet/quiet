@@ -93,7 +93,8 @@ It may be convenient to run the app from Android studio, for example if you are 
     If using `nvm` to manage `node` versions, you may need relink the `node` installed by `nvm` in order to open Quiet in Android Studio.
     
     ```bash
-    nvm install 20.20.0
+    nvm install # if needed, install node version from .nvmrc
+    #then nvm use that version, ie for node 20.20.0:
     nvm use 20.20.0
     sudo ln -s "$(which node)" /usr/local/bin/node
     ```
