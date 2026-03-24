@@ -10,6 +10,7 @@ gpg --quiet --batch --yes --decrypt --passphrase="$IOS_FIREBASE_KEY" --output ./
 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
 
 cp ./.github/secrets/match_AppStore_comquietmobile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/762df280-302c-4336-a56d-c74914169337.mobileprovision
+cp ./.github/secrets/match_AppStore_comquietmobile_QuietNotificationServiceExtension.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/247b3945-4f28-4ef1-b722-e98fb3fb59f7.mobileprovision
 cp ./.github/secrets/GoogleService-Info.plist ./packages/mobile/ios/GoogleService-Info.plist
 
 security create-keychain -p "" build.keychain
