@@ -200,3 +200,11 @@ require user action:
    - Watch NSE Console.app for `fetchAndUpdate: teamId=`, `authenticate:`, `fetched X entries`, badge update
 4. **UCAN trust** (post-MVP) — `/nse-auth/challenge` should verify the device public key
    is registered in the @localfirst/auth sigchain for the teamId (TODO comment in `nse-auth.service.ts`)
+
+## Session 5
+
+### Loop terminating — feature complete
+
+No remaining blocking code bugs. All 4 sessions of fixes are committed. Remaining items
+are all user-action (rebuild, redeploy, device test) or post-MVP (UCAN trust).
+Recurring cron job f1f8b51a deleted.
