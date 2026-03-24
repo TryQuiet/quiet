@@ -124,6 +124,31 @@ You are continuing implementation of iOS push notifications for the
 - Without this, QSS generates a random per-process fallback secret so tokens
   become invalid across restarts.
 
+## Session 2
+
+### Fixed: NSEMsgpack encoding mismatch (critical — signatures always failed)
+
+`msgpackr.pack()` uses two non-obvious encodings that the hand-rolled Swift
+encoder was getting wrong, causing signature verification to always fail:
+
+1. **Map header**: msgpackr uses `map16` (`0xde 0x00 0x04`) for ALL object
+   sizes, never `fixmap`. The Swift encoder was emitting `0x84` (fixmap).
+
+2. **Timestamp encoding**: JavaScript's `Date.now()` returns ~1.7e12, which
+   exceeds 2^32. msgpackr encodes values > 2^32 as `float64` (`0xcb` + 8-byte
+   IEEE 754), not `uint64`. The Swift encoder was emitting `uint64` (`0xcf`).
+
+Verification (msgpackr output):
+```
+de0004 a474797065 a644455649...  a974696d657374616d70 cb4278e5f8c1600000
+^^^                                                    ^^ float64, not 0xcf
+map16
+```
+
+Fix: updated `NSEMsgpack.encode()` in `NSECryptoService.swift` to emit
+`map16` header and `appendFloat64()` instead of `appendUInt64()` for the
+timestamp field.
+
 ## Known remaining gaps
 
 1. **Device registration trust** — `/nse-auth/challenge` issues to any deviceId

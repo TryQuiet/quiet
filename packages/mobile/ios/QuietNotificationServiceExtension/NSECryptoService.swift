@@ -15,8 +15,17 @@ protocol DeviceCryptography {
 extension DeviceCryptography {
     func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload {
         let payloadBytes = try NSEMsgpack.encode(challenge)
-        let signatureBytes = try signBytes(payloadBytes, privateKeyData: privateKeyData)
-        return ProofPayload(signature: Base58.encode(signatureBytes))
+        guard privateKeyData.count == 64 || privateKeyData.count == 32 else {
+            throw NSECryptoError.invalidKeyLength(expected: 64, got: privateKeyData.count)
+        }
+        let seed = privateKeyData.prefix(32)
+        let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: seed)
+        let signatureBytes = try privateKey.signature(for: payloadBytes)
+        let publicKeyBytes = privateKey.publicKey.rawRepresentation
+        return ProofPayload(
+            signature: Base58.encode(signatureBytes),
+            publicKey: Base58.encode(publicKeyBytes)
+        )
     }
 
     func signBytes(_ message: Data, privateKeyData: Data) throws -> Data {
@@ -63,8 +72,13 @@ class NSECryptoService: DeviceCryptography {
 }
 
 // MARK: - Msgpack encoder
-// Encodes the ChallengePayload object in the same format as msgpackr.pack():
+// Encodes the ChallengePayload object in the same byte format as msgpackr.pack():
 //   { type: string, name: string, nonce: string, timestamp: number }
+//
+// msgpackr quirks that must be matched exactly:
+//   1. Objects always use map16 format (0xde + 2-byte count), never fixmap.
+//   2. Integers > 2^32 (e.g. Date.now() in ms) are encoded as float64 (0xcb).
+//   3. Strings 0–31 bytes → fixstr (0xa0|len); 32–255 bytes → str8 (0xd9, len).
 // Field order must exactly match the JS object insertion order.
 
 enum NSEMsgpack {
@@ -73,8 +87,11 @@ enum NSEMsgpack {
     /// Encodes a ChallengePayload in the same byte format as msgpackr.pack().
     static func encode(_ challenge: ChallengePayload) throws -> Data {
         var out = Data()
-        // fixmap with 4 elements: 0x84
-        out.append(0x84)
+        // map16 with 4 elements: 0xde 0x00 0x04
+        // msgpackr always uses map16, never fixmap, regardless of element count.
+        out.append(0xde)
+        out.append(0x00)
+        out.append(0x04)
         // key: "type"  value: challenge.type
         try appendString("type", to: &out)
         try appendString(challenge.type, to: &out)
@@ -84,9 +101,11 @@ enum NSEMsgpack {
         // key: "nonce"  value: challenge.nonce
         try appendString("nonce", to: &out)
         try appendString(challenge.nonce, to: &out)
-        // key: "timestamp"  value: challenge.timestamp (Unix ms, Int64)
+        // key: "timestamp"  value: challenge.timestamp
+        // Date.now() returns ms since epoch (~1.7e12), which exceeds 2^32.
+        // msgpackr encodes values > 2^32 as float64, not uint64.
         try appendString("timestamp", to: &out)
-        appendUInt64(UInt64(bitPattern: Int64(challenge.timestamp)), to: &out)
+        appendFloat64(Double(challenge.timestamp), to: &out)
         return out
     }
 
@@ -111,29 +130,18 @@ enum NSEMsgpack {
         out.append(contentsOf: bytes)
     }
 
-    /// Encodes a positive integer as uint64 (0xcf + 8 bytes BE).
-    /// msgpackr uses uint64 for integers that exceed 2^32.
-    private static func appendUInt64(_ v: UInt64, to out: inout Data) {
-        if v <= 0x7F {
-            out.append(UInt8(v)) // positive fixint
-        } else if v <= 0xFF {
-            out.append(0xcc); out.append(UInt8(v)) // uint8
-        } else if v <= 0xFFFF {
-            out.append(0xcd)
-            out.append(UInt8((v >> 8) & 0xFF))
-            out.append(UInt8(v & 0xFF))
-        } else if v <= 0xFFFFFFFF {
-            out.append(0xce)
-            out.append(UInt8((v >> 24) & 0xFF))
-            out.append(UInt8((v >> 16) & 0xFF))
-            out.append(UInt8((v >> 8)  & 0xFF))
-            out.append(UInt8(v & 0xFF))
-        } else {
-            // uint64: 0xcf + 8 bytes big-endian (used for Date.now() timestamps)
-            out.append(0xcf)
-            for shift in stride(from: 56, through: 0, by: -8) {
-                out.append(UInt8((v >> shift) & 0xFF))
-            }
-        }
+    /// Encodes a Double as IEEE 754 float64 (0xcb + 8 bytes big-endian).
+    /// msgpackr uses float64 for JavaScript numbers that exceed 2^32.
+    private static func appendFloat64(_ v: Double, to out: inout Data) {
+        out.append(0xcb)
+        let bits = v.bitPattern // UInt64 IEEE 754 representation
+        out.append(UInt8((bits >> 56) & 0xFF))
+        out.append(UInt8((bits >> 48) & 0xFF))
+        out.append(UInt8((bits >> 40) & 0xFF))
+        out.append(UInt8((bits >> 32) & 0xFF))
+        out.append(UInt8((bits >> 24) & 0xFF))
+        out.append(UInt8((bits >> 16) & 0xFF))
+        out.append(UInt8((bits >>  8) & 0xFF))
+        out.append(UInt8(bits & 0xFF))
     }
 }
