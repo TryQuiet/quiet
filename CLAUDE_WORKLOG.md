@@ -166,17 +166,37 @@ does not support the `ws://` scheme and would throw
 "unsupported URL scheme". Fix: replace `ws://` → `http://` and
 `wss://` → `https://` before putting the URL in the FCM payload.
 
-## Known remaining gaps
+## Session 4
 
-1. **Device registration trust** — `/nse-auth/challenge` issues to any
-   deviceId without UCAN-level verification (TODO comment in
-   `nse-auth.service.ts`).
+### Fixed: ISO8601DateFormatter missing .withFractionalSeconds
+`NotificationService.swift` used `ISO8601DateFormatter()` with default
+options to parse `receivedAt` timestamps from QSS log entries. Luxon's
+`DateTime.toISO()` always includes milliseconds (`"...T10:00:00.000Z"`),
+which the default formatter cannot parse — `compactMap` would return `[]`
+for all entries, making `newTs` nil and triggering the "advancing sync
+pointer by 1ms" fallback. Badge would always be wrong.
+Fixed by configuring formatter with `[.withInternetDateTime, .withFractionalSeconds]`.
 
-2. **Backend rebuild** — `npx lerna run prepare --scope @quiet/backend`
-   needed after `qps.service.ts` / `sigchain.service.ts` changes.
+### Verified clean: end-to-end flow audit
+Full trace reviewed — no additional blocking issues found:
+- `communityId` in QSS log entries = `sigchain.team.id` = `teamId` in FCM payload ✓
+- `LogEntriesResponse { entries: [...] }` matches Swift `LogEntriesResponse.entries` decoder ✓
+- `entry` NodeBuffer `{type:"Buffer",data:[...]}` decodes correctly to `Data` in Swift ✓
+- `kSecAttrAccessGroup: "group.com.quietmobile"` with App Group entitlement is valid
+  for cross-process Keychain sharing (NSE + main app, no keychain-access-groups needed) ✓
+- `KeychainHelper.swift` in NSE folder is unrelated dead code; NSE uses `NSEKeychainHelper` ✓
+- `process.platform === 'ios'` in nodejs-mobile confirmed by existing codebase patterns ✓
 
-3. **Test flow** — rebuild → redeploy QSS → launch iOS, join community
-   → check Console.app for:
-   - `saveDeviceCredentials: stored` (main app)
-   - `fetchAndUpdate: fetching entries since=` (NSE)
-   - badge increment on next message
+## Feature status: READY FOR TESTING
+
+All known blocking code bugs fixed across 4 sessions. Remaining items
+require user action:
+
+1. **Backend rebuild** — `npx lerna run prepare --scope @quiet/backend`
+2. **QSS redeploy** — `docker compose -f docker-compose.quiet.yml up -d` in `3rd-party/qss/app/`
+3. **Test on device**:
+   - Launch app → join community → watch Console.app for `saveDeviceCredentials: stored`
+   - From another device, send a message
+   - Watch NSE Console.app for `fetchAndUpdate: teamId=`, `authenticate:`, `fetched X entries`, badge update
+4. **UCAN trust** (post-MVP) — `/nse-auth/challenge` should verify the device public key
+   is registered in the @localfirst/auth sigchain for the teamId (TODO comment in `nse-auth.service.ts`)
