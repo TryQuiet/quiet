@@ -149,16 +149,34 @@ Fix: updated `NSEMsgpack.encode()` in `NSECryptoService.swift` to emit
 `map16` header and `appendFloat64()` instead of `appendUInt64()` for the
 timestamp field.
 
+## Session 3
+
+### Fixed: kSecAttrAccessible removed from Keychain read query
+`NSEKeychainHelper.readData` was including `kSecAttrAccessible` in
+`SecItemCopyMatching`. Apple's docs list it as a write attribute only;
+including it in a search query can silently prevent matches on some iOS
+versions. Removed from all read queries (accessibility is enforced at
+write time in `CommunicationModule.swift`).
+
+### Fixed: qssUrl scheme mismatch (ws:// → http://)
+`qps.service.ts` was sending `qssEndpoint` directly in the FCM data
+payload. `qssEndpoint` is a WebSocket URL (`ws://host:port`). The NSE
+uses this URL for HTTP REST calls via `URLSession.data(for:)`, which
+does not support the `ws://` scheme and would throw
+"unsupported URL scheme". Fix: replace `ws://` → `http://` and
+`wss://` → `https://` before putting the URL in the FCM payload.
+
 ## Known remaining gaps
 
-1. **Device registration trust** — `/nse-auth/challenge` issues to any deviceId
-   without UCAN-level verification. See TODO in `nse-auth.service.ts`.
+1. **Device registration trust** — `/nse-auth/challenge` issues to any
+   deviceId without UCAN-level verification (TODO comment in
+   `nse-auth.service.ts`).
 
 2. **Backend rebuild** — `npx lerna run prepare --scope @quiet/backend`
    needed after `qps.service.ts` / `sigchain.service.ts` changes.
 
-3. **Test flow** — rebuild → redeploy QSS (`docker compose ... up`) → launch
-   iOS, join community → check Console.app for:
+3. **Test flow** — rebuild → redeploy QSS → launch iOS, join community
+   → check Console.app for:
    - `saveDeviceCredentials: stored` (main app)
    - `fetchAndUpdate: fetching entries since=` (NSE)
    - badge increment on next message

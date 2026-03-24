@@ -151,6 +151,17 @@ export class QPSService implements OnModuleInit {
       batches.push(ucans.slice(i, i + PUSH_BATCH_SIZE))
     }
 
+    // Convert ws:// → http:// (or wss:// → https://) so the NSE can use this
+    // URL for HTTP REST calls to /nse-auth/. URLSession does not support ws://
+    // scheme for regular data tasks.
+    const wsUrl = this.qssService.qssEndpoint
+    const qssUrl = wsUrl?.replace(/^wss?:\/\//, match => (match === 'wss://' ? 'https://' : 'http://'))
+    const mergedData: Record<string, string> = {
+      teamId,
+      ...(qssUrl != null ? { qssUrl } : {}),
+      ...data,
+    }
+
     this.logger.info(
       `Triggering push notifications for team ${teamId} with ${ucans.length} UCAN(s) in ${batches.length} batch(es)`
     )
@@ -161,7 +172,7 @@ export class QPSService implements OnModuleInit {
           {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SENDING,
-            payload: { ucans: batch, title, body, data },
+            payload: { ucans: batch, title, body, data: mergedData },
           },
           true
         )

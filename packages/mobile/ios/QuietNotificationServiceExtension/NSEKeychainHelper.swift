@@ -62,14 +62,15 @@ struct NSEKeychainHelper {
     private static let accessGroup = "group.com.quietmobile"
 
     private static func readData(account: String, label: String) throws -> Data {
-        // Main app must write with kSecAttrAccessibleAfterFirstUnlock for NSE to read while device is locked
+        // Note: kSecAttrAccessible is intentionally omitted — it's a write attribute.
+        // Including it in a read query can cause silent failures on some iOS versions.
+        // Accessibility is enforced at write time (kSecAttrAccessibleAfterFirstUnlock).
         let query: [CFString: Any] = [
-            kSecClass:            kSecClassGenericPassword,
-            kSecAttrAccount:      account,
-            kSecAttrAccessGroup:  accessGroup,
-            kSecAttrAccessible:   kSecAttrAccessibleAfterFirstUnlock,
-            kSecReturnData:       true,
-            kSecMatchLimit:       kSecMatchLimitOne,
+            kSecClass:           kSecClassGenericPassword,
+            kSecAttrAccount:     account,
+            kSecAttrAccessGroup: accessGroup,
+            kSecReturnData:      true,
+            kSecMatchLimit:      kSecMatchLimitOne,
         ]
 
         var result: CFTypeRef?
