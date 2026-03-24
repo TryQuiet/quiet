@@ -2,42 +2,96 @@
 //  NotificationService.swift
 //  QuietNotificationServiceExtension
 //
-//  Created by jakebot on 2026-03-10.
+//  Created by Taea Vogel on 3/12/26.
 //
 
 import UserNotifications
+import os.log
 
-/// Notification Service Extension
-/// This extension runs when a notification is received and can modify it before displaying
-/// 
-/// For Quiet: We use notifications as wake-up signals to tell the app to fetch new content
-/// No sensitive data is sent through notifications - just metadata
+private let nseLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NotificationService")
+
 class NotificationService: UNNotificationServiceExtension {
 
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
+    var fetchTask: Task<Void, Never>?
 
-    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+    private static let iso8601 = ISO8601DateFormatter()
+    private let crypto = NSECryptoService()
+    private var authCache: [URL: NSEAuthService] = [:]
+
+    override func didReceive(
+        _ request: UNNotificationRequest,
+        withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
+    ) {
         self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-        
-        if let bestAttemptContent = bestAttemptContent {
-            print("Notification received in service extension")
-            bestAttemptContent.title = "Quiet"
-            bestAttemptContent.body = "You have new activity"
-            bestAttemptContent.sound = .default
-            
-            print("Notification updated: \(bestAttemptContent.title)")
-            
-            contentHandler(bestAttemptContent)
+        bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
+
+        fetchTask = Task {
+            await fetchAndUpdate(userInfo: request.content.userInfo)
         }
     }
 
     override func serviceExtensionTimeWillExpire() {
-        // Called just before the extension will be terminated by the system
-        if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {
-            print("Extension time expiring - delivering notification")
-            contentHandler(bestAttemptContent)
+        fetchTask?.cancel()
+        deliver()
+    }
+
+    // MARK: - Private
+
+    private func fetchAndUpdate(userInfo: [AnyHashable: Any]) async {
+        defer { deliver() }
+
+        guard
+            let teamId = userInfo["teamId"] as? String,
+            let qssUrlString = userInfo["qssUrl"] as? String,
+            let qssUrl = URL(string: qssUrlString)
+        else {
+            return
         }
+
+        do {
+            let auth: NSEAuthService
+            if let cached = authCache[qssUrl] {
+                auth = cached
+            } else {
+                let client = NSENetworkClient(baseURL: qssUrl)
+                let newAuth = NSEAuthService(client: client, crypto: crypto)
+                authCache[qssUrl] = newAuth
+                auth = newAuth
+            }
+
+            let since = NSEKeychainHelper.getLastSyncTimestamp()
+            let entries = try await auth.fetchNewEntries(teamId: teamId, since: since)
+
+            guard !Task.isCancelled else { return }
+
+            if !entries.isEmpty {
+                let newTs = entries.lazy
+                    .compactMap { Self.iso8601.date(from: $0.receivedAt) }
+                    .map { Int64($0.timeIntervalSince1970 * 1000) }
+                    .max()
+                if let newTs {
+                    NSEKeychainHelper.saveLastSyncTimestamp(newTs)
+                } else {
+                    // All receivedAt failed to parse — advance by 1ms to avoid reprocessing
+                    os_log("All receivedAt timestamps failed to parse; advancing sync pointer", log: nseLog, type: .fault)
+                    NSEKeychainHelper.saveLastSyncTimestamp(NSEKeychainHelper.getLastSyncTimestamp() + 1)
+                }
+
+                guard let content = bestAttemptContent else { return }
+                content.badge = ((content.badge?.intValue ?? 0) + entries.count) as NSNumber
+            }
+        } catch {
+            os_log("fetchAndUpdate failed: %{public}@", log: nseLog, type: .error, String(describing: error))
+        }
+    }
+
+    private func deliver() {
+        guard let handler = contentHandler, let content = bestAttemptContent else { return }
+        // Nil contentHandler first to prevent double-delivery if serviceExtensionTimeWillExpire
+        // races with task completion — both paths call deliver(), only the first wins.
+        contentHandler = nil
+        handler(content)
     }
 }
