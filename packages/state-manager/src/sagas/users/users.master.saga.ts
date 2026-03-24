@@ -5,6 +5,7 @@ import { usersActions } from './users.slice'
 import { saveUserProfileSaga } from './userProfile/saveUserProfile.saga'
 import { downloadProfilePhotosSaga } from './userProfile/downloadProfilePhotos.saga'
 import { createLogger } from '../../utils/logger'
+import { updateUserProfilesSaga } from './userProfile/updateUserProfiles.saga'
 
 const logger = createLogger('usersMasterSaga')
 
@@ -13,6 +14,7 @@ export function* usersMasterSaga(socket: Socket): Generator {
   try {
     yield all([
       takeEvery(usersActions.saveUserProfile.type, saveUserProfileSaga, socket),
+      takeEvery(usersActions.updateUserProfiles.type, updateUserProfilesSaga, socket),
       takeEvery(usersActions.updateUserProfiles.type, downloadProfilePhotosSaga),
     ])
   } finally {

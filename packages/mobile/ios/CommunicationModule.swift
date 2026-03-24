@@ -16,6 +16,7 @@ class CommunicationModule: RCTEventEmitter {
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CommunicationModule")
 
   let keychainHandler = KeychainHandler()
+  let userMetadataHandler = UserMetadataHandler()
 
   private var hasListeners = false
   
@@ -77,6 +78,28 @@ class CommunicationModule: RCTEventEmitter {
         // TODO: send a message to the backend with any keys that weren't stored
         CommunicationModule.logger.error("Error while saving key in keychain: \(error)")
       }
+    }
+  }
+
+  @objc
+  func saveUserMetadata(_ updatedMetadata: NSArray) {
+    let decoder = JSONDecoder()
+    var userMetadata: [UserMetadataStruct] = []
+    for metadataAsAny in updatedMetadata {
+      do {
+        let metadataAsString: String = metadataAsAny as! String
+        let data = Data(metadataAsString.utf8)
+        let decodedMetadata = try decoder.decode(UserMetadataStruct.self, from: data)
+        userMetadata.append(decodedMetadata)
+      } catch {
+        CommunicationModule.logger.error("Error while decoding user metadata: \(error)")
+      }
+    }
+    
+    do {
+      try self.userMetadataHandler.saveUserMetadata(updatedMetadata: userMetadata)
+    } catch {
+      CommunicationModule.logger.error("Error while saving user metadata: \(error)")
     }
   }
 

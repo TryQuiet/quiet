@@ -15,6 +15,7 @@
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 * Store LFA keys in IOS keychain for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
+* Store user metadata in IOS native storage for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
 
 ### Fixes
 

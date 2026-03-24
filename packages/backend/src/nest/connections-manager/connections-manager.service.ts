@@ -49,6 +49,7 @@ import {
   SetUserProfilePayload,
   InvitationData,
   SetUserProfileResponse,
+  UserProfilesUpdatedPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -799,6 +800,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.storageService?.addUserProfile(payload.profile))
       }
     )
+
+    this.socketService.on(SocketActions.USER_PROFILES_UPDATED, (payload: UserProfilesUpdatedPayload) => {
+      this.logger.info(`Forwarding ${SocketActions.USER_PROFILES_UPDATED} back to state manager`)
+      this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_UPDATED, payload)
+    })
 
     this.socketService.on(SocketActions.TOGGLE_P2P, async (payload: boolean, callback: (response: boolean) => void) => {
       try {

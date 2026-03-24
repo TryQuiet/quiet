@@ -56,6 +56,7 @@
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
 		2BDF48C971BAFE479E950BAE /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FFC10A63B3F19389C478C448 /* Pods_Quiet_QuietTests.framework */; };
+		663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663DC8C02F621134005D2086 /* UserMetadataHandler.swift */; };
 		665587CA2F4F5ECD005D2086 /* KeychainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665587C92F4F5ECD005D2086 /* KeychainHandler.swift */; };
 		71C06A74FB351AA5D0449823 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD713118E20F543EF89A5669 /* Pods_Quiet.framework */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
@@ -643,6 +644,7 @@
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
 		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
 		2877B6088D1D81EF869D71D9 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
+		663DC8C02F621134005D2086 /* UserMetadataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadataHandler.swift; sourceTree = "<group>"; };
 		7F75CE6D1C7D3DA9F5BA6A76 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		665587C92F4F5ECD005D2086 /* KeychainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHandler.swift; sourceTree = "<group>"; };
@@ -742,6 +744,7 @@
 		13B07FAE1A68108700A75B9A /* Quiet */ = {
 			isa = PBXGroup;
 			children = (
+				663DC8C02F621134005D2086 /* UserMetadataHandler.swift */,
 				665587C92F4F5ECD005D2086 /* KeychainHandler.swift */,
 				EB4DC8152F60912900EFD23F /* AppDelegate+Firebase.swift */,
 				180E120A2AEFB7F900804659 /* Utils.swift */,
@@ -5288,6 +5291,7 @@
 				955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */,
 				1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */,
 				1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */,
+				663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */,
 				1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */,
 				EB5F92FC2F5FBB2100B5C60D /* FirebaseMessagingModule.m in Sources */,
 				EB5F92FD2F5FBB2100B5C60D /* FirebaseMessagingModule.swift in Sources */,

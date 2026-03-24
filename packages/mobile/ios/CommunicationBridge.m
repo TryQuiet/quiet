@@ -6,4 +6,5 @@ RCT_EXTERN_METHOD(handleIncomingEvents:(NSString *)event payload:(NSString *)pay
 RCT_EXTERN_METHOD(requestNotificationPermission)
 RCT_EXTERN_METHOD(checkNotificationPermission)
 RCT_EXTERN_METHOD(saveKeysInKeychain:(NSArray *)newKeys)
+RCT_EXTERN_METHOD(saveUserMetadata:(NSArray *)updatedMetadata)
 @end

@@ -24,6 +24,7 @@ import {
   SetUserProfilePayload,
   type HCaptchaFormResponse,
   InviteResultWithSalt,
+  UserProfilesUpdatedPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -198,6 +199,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
           this.emit(SocketActions.SET_USER_PROFILE, profile, callback)
         }
       )
+
+      socket.on(SocketActions.USER_PROFILES_UPDATED, (payload: UserProfilesUpdatedPayload) => {
+        this.logger.info(`Emitting ${SocketActions.USER_PROFILES_UPDATED}`)
+        this.emit(SocketActions.USER_PROFILES_UPDATED, payload)
+      })
 
       // ====== Local First Auth ======
 

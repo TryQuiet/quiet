@@ -4,4 +4,5 @@ export enum StoreKeys {
   NativeServices = 'NativeServices',
   PushNotifications = 'PushNotifications',
   Keys = 'Keys',
+  UsersMetadata = 'UsersMetadata',
 }
