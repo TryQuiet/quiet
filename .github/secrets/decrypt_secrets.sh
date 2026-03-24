@@ -3,6 +3,7 @@
 set -e
 
 gpg --quiet --batch --yes --decrypt --passphrase="$IOS_PROFILE_KEY" --output ./.github/secrets/match_AppStore_comquietmobile.mobileprovision ./.github/secrets/match_AppStore_comquietmobile.mobileprovision.gpg
+gpg --quiet --batch --yes --decrypt --passphrase="$IOS_NSE_PROFILE_KEY" --output ./.github/secrets/match_AppStore_comquietmobile_QuietNotificationServiceExtension.mobileprovision ./.github/secrets/match_AppStore_comquietmobile_QuietNotificationServiceExtension.mobileprovision.gpg
 gpg --quiet --batch --yes --decrypt --passphrase="$IOS_CERTIFICATE_KEY" --output ./.github/secrets/Certificates.p12 ./.github/secrets/Certificates.p12.gpg
 gpg --quiet --batch --yes --decrypt --passphrase="$IOS_FIREBASE_KEY" --output ./.github/secrets/GoogleService-Info.plist ./.github/secrets/GoogleService-Info.plist.gpg
 
