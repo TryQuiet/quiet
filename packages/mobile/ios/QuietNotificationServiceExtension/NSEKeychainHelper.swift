@@ -14,7 +14,13 @@ struct NSEKeychainHelper {
 
     static func getDevicePrivateKey(deviceId: String) throws -> Data {
         let account = devicePrivateKeyPrefix + deviceId
-        return try readData(account: account, label: "device private key")
+        // Stored as UTF-8 Base58 string (LFA secretKey format); decode to raw bytes
+        let rawData = try readData(account: account, label: "device private key")
+        guard let base58String = String(data: rawData, encoding: .utf8),
+              let keyBytes = Base58.decode(base58String) else {
+            throw NSEAuthError.keychainError("device private key is not valid Base58")
+        }
+        return keyBytes
     }
 
     // MARK: - Device ID
@@ -40,11 +46,13 @@ struct NSEKeychainHelper {
     // MARK: - Last sync timestamp (UserDefaults — not sensitive)
 
     static func getLastSyncTimestamp() -> Int64 {
-        return Int64(UserDefaults.standard.double(forKey: lastSyncKey))
+        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        return Int64(defaults.double(forKey: lastSyncKey))
     }
 
     static func saveLastSyncTimestamp(_ ts: Int64) {
-        UserDefaults.standard.set(Double(ts), forKey: lastSyncKey)
+        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        defaults.set(Double(ts), forKey: lastSyncKey)
     }
 
     // MARK: - Private helpers
