@@ -179,20 +179,6 @@ let browserHeight: number
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
-  mainWindow = new BrowserWindow({
-    width: windowSize.width,
-    height: windowSize.height,
-    show: false,
-    titleBarStyle,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    autoHideMenuBar: true,
-  })
-
-  remote.enable(mainWindow.webContents)
-
   splash = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
@@ -213,6 +199,20 @@ export const createWindow = async () => {
   splash.setAlwaysOnTop(false)
   splash.setMovable(true)
   splash.show()
+
+  mainWindow = new BrowserWindow({
+    width: windowSize.width,
+    height: windowSize.height,
+    show: false,
+    titleBarStyle,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    autoHideMenuBar: true,
+  })
+
+  remote.enable(mainWindow.webContents)
 
   electronLocalshortcut.register(splash, 'F12', () => {
     if (isBrowserWindow(splash)) {
