@@ -179,13 +179,16 @@ let browserHeight: number
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
+  logger.debug('Creating splash and main windows')
+  logger.debug('Creating splash window')
+  logger.time('Created splash')
   splash = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
     show: false,
     titleBarStyle,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
       contextIsolation: false,
     },
     autoHideMenuBar: true,
@@ -194,12 +197,17 @@ export const createWindow = async () => {
 
   remote.enable(splash.webContents)
 
+  logger.debug('Loading splash HTML', splash.id)
   // eslint-disable-next-line
-  splash.loadURL(`file://${__dirname}/splash.html`)
+  splash.loadURL(`file://${__dirname}/splash.html`).then(() => {
+    logger.timeEnd('Created splash')
+  })
   splash.setAlwaysOnTop(false)
   splash.setMovable(true)
   splash.show()
 
+  logger.debug('Creating main window')
+  logger.time('Created mainWindow')
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
@@ -226,6 +234,7 @@ export const createWindow = async () => {
   })
 
   mainWindow.setMinimumSize(600, 400)
+  logger.debug('Loading main HTML', mainWindow.id)
   /* eslint-disable */
   mainWindow.loadURL(
     url.format({
@@ -235,7 +244,9 @@ export const createWindow = async () => {
       slashes: true,
       hash: '/',
     })
-  )
+  ).then(() => {
+    logger.timeEnd('Created mainWindow')
+  })
   /* eslint-enable */
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -272,7 +283,7 @@ export const createWindow = async () => {
     if (!mainWindow || currentFactor <= 0.25) return
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
-  logger.info('Created mainWindow')
+  logger.info('App windows created')
 }
 
 export async function openHCaptcha(siteKey: string): Promise<string> {
@@ -505,13 +516,17 @@ let backendProcess: ChildProcess | null = null
 
 app.on('ready', async () => {
   logger.info('Event: app.ready')
+  logger.debug('Creating socket secret via sodium')
   await sodium.ready
   SOCKET_IO_SECRET = sodium.to_hex(sodium.randombytes_buf(32))
 
+  logger.debug('Setting application menu')
   Menu.setApplicationMenu(null)
 
+  logger.debug('Applying dev tools')
   await applyDevTools()
 
+  logger.debug('Creating context menu')
   contextMenu({
     showInspectElement: false,
     showSaveLinkAs: true,
@@ -526,13 +541,17 @@ app.on('ready', async () => {
     return
   }
 
+  logger.debug('Getting ports')
   ports = await getPorts()
+
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
+    logger.info('Main window finished loading')
     rendererReady = true
     // Only send the secret to the renderer via IPC, not via URL
     if (splash && !splash.isDestroyed()) {
+      logger.info('Destroying splash window and showing main window')
       const [width, height] = splash.getSize()
       mainWindow?.setSize(width, height)
 
@@ -543,6 +562,7 @@ app.on('ready', async () => {
       mainWindow?.show()
     }
 
+    logger.info('Creating temp files directory')
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     fs.readdir(temporaryFilesDirectory, (err, files) => {
@@ -555,6 +575,7 @@ app.on('ready', async () => {
     })
   })
 
+  logger.info('Forking backend process')
   const forkArgvs = [
     '-d',
     `${ports.dataServer}`,
@@ -682,6 +703,7 @@ app.on('ready', async () => {
   })
 
   mainWindow.on('close', e => {
+    logger.info('Main window close event received')
     if (resetting) return
 
     // --- macOS: hide instead of destroying the renderer ---
@@ -707,6 +729,7 @@ app.on('ready', async () => {
 
   // splash window is destroyed when mainWindow is ready and close should not fire in regular case
   splash?.once('close', e => {
+    logger.info('Splash window close event received')
     if (resetting) return
 
     // in the case where the user closes the splash window before the main window is ready
@@ -724,6 +747,7 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('state-saved', () => {
+    logger.info('ipcMain: state-saved')
     if (updating) return
 
     if (backendProcess === null) {
@@ -841,7 +865,7 @@ app.on('ready', async () => {
 })
 
 app.on('browser-window-created', (_, window) => {
-  logger.info('Event: app.browser-window-created', window.getTitle())
+  logger.info('Event: app.browser-window-created', window.id)
   remote.enable(window.webContents)
 })
 
