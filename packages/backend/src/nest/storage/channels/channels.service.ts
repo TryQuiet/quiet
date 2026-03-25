@@ -34,11 +34,12 @@ import { KeyValueIndexedValidated, KeyValueIndexedValidatedType } from '../orbit
 import { ChannelStore } from './channel.store'
 import { createContextId, ModuleRef } from '@nestjs/core'
 import { SigChainService } from '../../auth/sigchain.service'
-import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { EncryptedAndSignedPayload, EncryptionScope, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { EncryptedMessage } from './messages/messages.types'
 import { isChannel } from '../../validation/validators'
+import { NotAMemberError } from './channels.errors'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -177,24 +178,45 @@ export class ChannelsService extends EventEmitter {
   public encryptChannelEntry(payload: Channel): EncryptedAndSignedPayload {
     try {
       const chain = this.sigchainService.getActiveChain()
-      const encryptedPayload = chain.crypto.encryptAndSign(payload, {
+      let scope: EncryptionScope = {
         type: EncryptionScopeType.ROLE,
         name: RoleName.MEMBER,
-      })
+      }
+      if (!payload.public) {
+        scope = {
+          type: EncryptionScopeType.ROLE,
+          name: chain.channels.generateChannelRoleName(payload.id),
+        }
+      }
+      const encryptedPayload = chain.crypto.encryptAndSign(payload, scope)
       return encryptedPayload
     } catch (err) {
-      this.logger.error('Failed to encrypt user entry:', err)
+      this.logger.error('Failed to encrypt channel entry:', err)
       throw err
     }
   }
 
   public decryptChannelEntry(payload: EncryptedAndSignedPayload, id?: string): Channel {
+    const chain = this.sigchainService.getActiveChain(false)
+    if (chain == null) {
+      this.logger.warn(`Can't decrypt channel entry because no active chain was found`)
+      throw new Error(`No active chain`)
+    }
+
+    if (
+      payload.encrypted.scope.type === EncryptionScopeType.ROLE &&
+      payload.encrypted.scope.name != null &&
+      !chain.roles.amIMemberOfRole(payload.encrypted.scope.name)
+    ) {
+      this.logger.warn(`Not a member of this channel, skipping channel entry decrypt`)
+      throw new NotAMemberError()
+    }
+
     try {
-      const chain = this.sigchainService.getActiveChain()
       const decryptedPayload = chain.crypto.decryptAndVerify<Channel>(payload.encrypted, payload.signature)
       return decryptedPayload.contents
     } catch (err) {
-      this.logger.error('Failed to decrypt user entry:', err)
+      this.logger.error('Failed to decrypt channel entry:', err)
       throw err
     }
   }
@@ -211,18 +233,22 @@ export class ChannelsService extends EventEmitter {
         const encPayload = entry.payload.value!
         const decEntry = this.decryptChannelEntry(encPayload)
         if (!isChannel(decEntry)) {
-          this.logger.error('Decrypted entry is not a valid channel:', entry.hash, decEntry)
+          this.logger.error('Decrypted channel entry is not a valid channel:', entry.hash, decEntry)
           return false
         }
       }
       if (entry.payload.op === 'DEL') {
         if (!entry.payload.key) {
-          this.logger.error('Delete entry is missing key:', entry.hash)
+          this.logger.error('Delete channel entry is missing key:', entry.hash)
           return false
         }
       }
     } catch (err) {
-      this.logger.error('Failed to validate user profile entry:', entry.hash, err)
+      if (err instanceof NotAMemberError || err.message === 'Not a member of this channel') {
+        this.logger.warn(`Failed to decrypt and validate private channel entry, ignoring...`)
+        return false
+      }
+      this.logger.error('Failed to validate channel entry:', entry.hash, err)
       return false
     }
     return true
@@ -393,14 +419,13 @@ export class ChannelsService extends EventEmitter {
       owner: this.sigchainService.getActiveChain().user.userId,
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
-      roleName: !payload.public
-        ? this.sigchainService.activeChain.channels.generateChannelRoleName(payload.id)
-        : undefined,
+    }
+    let roleName: string | undefined = undefined
+    if (!channelData.public) {
+      roleName = this.sigchainService.getActiveChain().channels.create(channelData.id)
+      channelData.roleName = roleName
     }
     const store = await this.createChannel(channelData)
-    if (!channelData.public) {
-      this.sigchainService.getActiveChain().channels.create(channelData.id)
-    }
     if (!store) {
       throw new Error('Failed to create channel')
     }

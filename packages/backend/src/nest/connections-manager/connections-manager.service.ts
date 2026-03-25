@@ -664,6 +664,35 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
   }
 
+  private async _updateUsersInStateManager(): Promise<void> {
+    if (!this.sigChainService) return
+
+    // handle chain updates
+    let channelMapping: Record<string, Channel> = {}
+    if (!this.storageService || !this.storageService.initialized) {
+      this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
+    } else {
+      channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
+    }
+    this.logger.debug('Channel mapping', channelMapping)
+    const users = this.sigChainService
+      .getActiveChain()
+      .team?.members()
+      .map(user => ({
+        userId: user.userId,
+        roles: user.roles,
+        channelIds: user.roles
+          .filter(roleName => Object.keys(channelMapping).includes(roleName))
+          .map(roleName => channelMapping[roleName].id),
+        isRegistered: true,
+        isDuplicated: false,
+      })) as User[]
+    for (const user of users) {
+      this.logger.warn('User channels', user.channelIds, user.roles)
+    }
+    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
+  }
+
   /**
    * Attaches listeners for events received from the Tor service
    */
@@ -847,6 +876,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info(`Storage - ${StorageEvents.CHANNELS_STORED}`)
       this.serverIoProvider.io.emit(SocketEvents.CHANNELS_STORED, payload)
       this.logger.info(`Storage (emitted) - ${SocketEvents.CHANNELS_STORED}`)
+      void this._updateUsersInStateManager()
     })
     this.storageService.channels.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketEvents.MESSAGES_STORED, payload)
@@ -891,31 +921,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private attachSigchainListeners() {
     if (!this.sigChainService) return
 
-    // handle chain updates
     this.sigChainService.on('updated', async () => {
-      let channelMapping: Record<string, Channel> = {}
-      if (!this.storageService || !this.storageService.initialized) {
-        this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
-      } else {
-        channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
-      }
-      this.logger.debug('Channel mapping', channelMapping)
-      const users = this.sigChainService
-        .getActiveChain()
-        .team?.members()
-        .map(user => ({
-          userId: user.userId,
-          roles: user.roles,
-          channelIds: user.roles
-            .filter(roleName => Object.keys(channelMapping).includes(roleName))
-            .map(roleName => channelMapping[roleName].id),
-          isRegistered: true,
-          isDuplicated: false,
-        })) as User[]
-      for (const user of users) {
-        this.logger.warn('User channels', user.channelIds, user.roles)
-      }
-      this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
+      await this._updateUsersInStateManager()
     })
   }
 }
