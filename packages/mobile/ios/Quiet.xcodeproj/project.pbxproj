@@ -5844,7 +5844,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).QuietNotificationServiceExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.quietmobile.QuietNotificationServiceExtension";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.quietmobile.QuietNotificationSe";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
