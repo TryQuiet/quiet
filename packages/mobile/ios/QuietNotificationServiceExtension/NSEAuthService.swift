@@ -1,4 +1,7 @@
 import Foundation
+import os.log
+
+private let authLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NSEAuthService")
 
 class NSEAuthService {
     private let client: NSENetworkClient
@@ -15,20 +18,29 @@ class NSEAuthService {
 
     func authenticate(deviceId: String, teamId: String) async throws -> String {
         if let cached = tokenCache[teamId], cached.expiry > Date() {
+            os_log("authenticate: using cached token for teamId=%{public}@, expires=%{public}@",
+                   log: authLog, type: .debug, teamId, "\(cached.expiry)")
             return cached.token
         }
 
+        os_log("authenticate: requesting challenge for deviceId=%{public}@ teamId=%{public}@",
+               log: authLog, type: .info, deviceId, teamId)
         let challengeResp = try await client.requestChallenge(deviceId: deviceId, teamId: teamId)
+        os_log("authenticate: got challengeId=%{public}@", log: authLog, type: .debug, challengeResp.challengeId)
 
-        // Sign the challenge using msgpack serialization (matching TypeScript identity.prove())
+        os_log("authenticate: reading device private key from keychain", log: authLog, type: .debug)
         let privateKeyData = try NSEKeychainHelper.getDevicePrivateKey(deviceId: deviceId)
+        os_log("authenticate: private key read (%{public}d bytes), signing challenge", log: authLog, type: .debug, privateKeyData.count)
+
         let proof = try crypto.signChallengePayload(challengeResp.challenge, privateKeyData: privateKeyData)
+        os_log("authenticate: signed challenge, requesting token", log: authLog, type: .debug)
 
         let tokenResp = try await client.requestToken(
             challengeId: challengeResp.challengeId,
             deviceId: deviceId,
             proof: proof
         )
+        os_log("authenticate: token received, expiresIn=%{public}d", log: authLog, type: .info, tokenResp.expiresIn)
 
         tokenCache[teamId] = (token: tokenResp.token, expiry: Date().addingTimeInterval(TimeInterval(tokenResp.expiresIn) - 30))
 
@@ -38,9 +50,13 @@ class NSEAuthService {
     // MARK: - Fetch log entries
 
     func fetchNewEntries(teamId: String, since: Int64) async throws -> [LogEntry] {
+        os_log("fetchNewEntries: reading deviceId from keychain", log: authLog, type: .debug)
         let deviceId = try NSEKeychainHelper.getDeviceId()
+        os_log("fetchNewEntries: deviceId=%{public}@, authenticating", log: authLog, type: .info, deviceId)
         let token = try await authenticate(deviceId: deviceId, teamId: teamId)
+        os_log("fetchNewEntries: authenticated, fetching log entries since=%{public}lld", log: authLog, type: .info, since)
         let resp = try await client.fetchLogEntries(teamId: teamId, since: since, token: token)
+        os_log("fetchNewEntries: received %{public}d entries", log: authLog, type: .info, resp.entries.count)
         return resp.entries
     }
 }

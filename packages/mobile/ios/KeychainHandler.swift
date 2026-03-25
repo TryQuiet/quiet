@@ -41,16 +41,27 @@ public struct NamedKey: Codable {
 // TODO: add string to key object conversion (e.g. string to SymmetricKey)
 @objc(KeychainHandler)
 class KeychainHandler: NSObject {
-  private let keychainGroupName: String = "com.quietmobile"
+  private let keychainService: String = "com.quietmobile"
+  private lazy var accessGroup: String? = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String
   
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "KeychainHandler")
 
   public func getLfaKeyString(keyName: String) throws -> String {
     do {
-      let password: String = try _getKeyImpl(keyName: keyName)
+      let password: String = try _getKeyImpl(keyName: keyName, includeAccessGroup: true)
       return password
     } catch KeychainError.noPassword {
-      throw KeychainHandlerError.noKeyFound
+      do {
+        let password = try _getKeyImpl(keyName: keyName, includeAccessGroup: false)
+        migrateLegacyKeyIfNeeded(keyName: keyName, value: password)
+        return password
+      } catch KeychainError.noPassword {
+        throw KeychainHandlerError.noKeyFound
+      } catch KeychainError.unexpectedPasswordData {
+        throw KeychainHandlerError.malformedKey
+      } catch {
+        throw KeychainHandlerError.unhandledError(reason: error)
+      }
     } catch KeychainError.unexpectedPasswordData {
       throw KeychainHandlerError.malformedKey
     } catch ConversionError.stringToBytesError {
@@ -61,42 +72,48 @@ class KeychainHandler: NSObject {
   }
 
   public func addLfaKey(namedKey: NamedKey) throws -> KeyAddStatus {
-    var existingKey: String?
-    do {
-      existingKey = try getLfaKeyString(keyName: namedKey.keyName)
-    } catch KeychainHandlerError.noKeyFound {
-      existingKey = nil
-    } catch KeychainHandlerError.malformedKey {
-      existingKey = nil
-    } catch {
-      KeychainHandler.logger.error("Error while getting existing LFA key for name \(namedKey.keyName): \(error)")
-      throw error
+    if let sharedKey = try? _getKeyImpl(keyName: namedKey.keyName, includeAccessGroup: true) {
+      guard sharedKey == namedKey.key else {
+        return KeyAddStatus.duplicateScope
+      }
+      return KeyAddStatus.success
     }
 
-    guard existingKey == nil else {
-      guard existingKey == namedKey.key else { return KeyAddStatus.duplicateScope }
-      return KeyAddStatus.success
+    if let legacyKey = try? _getKeyImpl(keyName: namedKey.keyName, includeAccessGroup: false) {
+      guard legacyKey == namedKey.key else {
+        return KeyAddStatus.duplicateScope
+      }
     }
 
     do {
       let keyData: Data = try _stringToBytes(str: namedKey.key)
-      let addStatus: KeyAddStatus = try _addKeyToKeychainImpl(keyName: namedKey.keyName, keyData: keyData)
+      let addStatus: KeyAddStatus = try _addKeyToKeychainImpl(
+        keyName: namedKey.keyName,
+        keyData: keyData,
+        includeAccessGroup: true
+      )
+      if addStatus == .success {
+        try? _deleteKeyImpl(keyName: namedKey.keyName, includeAccessGroup: false)
+      }
       return addStatus
     } catch {
       throw KeychainHandlerError.unhandledError(reason: error)
     }
   }
 
-  private func _getKeyImpl(keyName: String) throws -> String  {
+  private func _getKeyImpl(keyName: String, includeAccessGroup: Bool) throws -> String  {
     var existingKey: CFTypeRef?
-    let query: [String: Any] = [
+    var query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
-      kSecAttrService as String: keychainGroupName,
+      kSecAttrService as String: keychainService,
       kSecAttrAccount as String: keyName,
       kSecMatchLimit as String: kSecMatchLimitOne,
       kSecReturnAttributes as String: true,
       kSecReturnData as String: true
     ]
+    if includeAccessGroup, let accessGroup {
+      query[kSecAttrAccessGroup as String] = accessGroup
+    }
     let status: OSStatus = SecItemCopyMatching(query as CFDictionary, &existingKey)
     guard status != errSecItemNotFound else { throw KeychainError.noPassword }
     guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
@@ -109,14 +126,17 @@ class KeychainHandler: NSObject {
     return password
   }
 
-  private func _addKeyToKeychainImpl(keyName: String, keyData: Data) throws -> KeyAddStatus {
-    let query: [String: Any] = [
+  private func _addKeyToKeychainImpl(keyName: String, keyData: Data, includeAccessGroup: Bool) throws -> KeyAddStatus {
+    var query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: keyName,
-      kSecAttrService as String: keychainGroupName,
+      kSecAttrService as String: keychainService,
       kSecValueData as String: keyData,
       kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
     ]
+    if includeAccessGroup, let accessGroup {
+      query[kSecAttrAccessGroup as String] = accessGroup
+    }
 
     let status: OSStatus = SecItemAdd(query as CFDictionary, nil)
     if status == errSecSuccess {
@@ -132,5 +152,36 @@ class KeychainHandler: NSObject {
     let bytes: Data? = str.data(using: .utf8)
     guard bytes != nil else { throw ConversionError.stringToBytesError }
     return bytes!
+  }
+
+  private func _deleteKeyImpl(keyName: String, includeAccessGroup: Bool) throws {
+    var query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: keychainService,
+      kSecAttrAccount as String: keyName,
+    ]
+    if includeAccessGroup, let accessGroup {
+      query[kSecAttrAccessGroup as String] = accessGroup
+    }
+
+    let status = SecItemDelete(query as CFDictionary)
+    if status != errSecSuccess && status != errSecItemNotFound {
+      throw KeychainError.unhandledError(status: status)
+    }
+  }
+
+  private func migrateLegacyKeyIfNeeded(keyName: String, value: String) {
+    guard let data = value.data(using: .utf8) else {
+      return
+    }
+
+    do {
+      let addStatus = try _addKeyToKeychainImpl(keyName: keyName, keyData: data, includeAccessGroup: true)
+      if addStatus == .success {
+        try? _deleteKeyImpl(keyName: keyName, includeAccessGroup: false)
+      }
+    } catch {
+      KeychainHandler.logger.error("Failed to migrate legacy key \(keyName) into shared access group: \(error.localizedDescription)")
+    }
   }
 }

@@ -122,7 +122,45 @@ class NotificationService: UNNotificationServiceExtension {
                     os_log("fetchAndUpdate: bestAttemptContent is nil, cannot update badge", log: nseLog, type: .error)
                     return
                 }
-                let newBadge = (content.badge?.intValue ?? 0) + entries.count
+
+                let decryptedMessages = entries.compactMap { entry -> NSEDecryptedNotificationMessage? in
+                    do {
+                        return try self.crypto.decryptNotificationMessage(from: entry, teamId: teamId)
+                    } catch {
+                        os_log(
+                            "fetchAndUpdate: failed to decrypt entry %{public}@: %{public}@",
+                            log: nseLog,
+                            type: .error,
+                            entry.cid,
+                            String(describing: error)
+                        )
+                        return nil
+                    }
+                }
+
+                if let latestMessage = decryptedMessages.last {
+                    let title = content.title.trimmingCharacters(in: .whitespacesAndNewlines)
+                    content.title = title.isEmpty ? "Quiet" : title
+                    content.body = latestMessage.body
+
+                    if decryptedMessages.count > 1 {
+                        content.subtitle = "\(decryptedMessages.count) new messages"
+                    } else {
+                        content.subtitle = ""
+                    }
+
+                    os_log(
+                        "fetchAndUpdate: updated notification body from decrypted message (count=%{public}d)",
+                        log: nseLog,
+                        type: .info,
+                        decryptedMessages.count
+                    )
+                } else {
+                    os_log("fetchAndUpdate: no decryptable channel messages found", log: nseLog, type: .info)
+                }
+
+                let badgeIncrement = decryptedMessages.isEmpty ? entries.count : decryptedMessages.count
+                let newBadge = (content.badge?.intValue ?? 0) + badgeIncrement
                 os_log("fetchAndUpdate: updating badge to %{public}d", log: nseLog, type: .info, newBadge)
                 content.badge = newBadge as NSNumber
             }

@@ -22,6 +22,8 @@
 	<string>1</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>QuietKeychainAccessGroup</key>
+	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>

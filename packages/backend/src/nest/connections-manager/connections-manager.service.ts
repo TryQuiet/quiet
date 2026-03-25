@@ -116,6 +116,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
     )
 
+    this.logger.info('QSS_ENDPOINT', this.qssEndpoint)
+
     await this.init()
   }
 

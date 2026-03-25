@@ -609,13 +609,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         this.startLogPullInterval(teamId)
       }
 
-      authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, startLogPullInterval)
+      authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, () => {
+        this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
+        startLogPullInterval()
+      })
       authConnection?.on(QSSEvents.QSS_DISCONNECTED, () => {
         this.logger.info('Disconnected event received, stopping log entry pull interval', teamId)
+        this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_DISCONNECTED)
         this._stopLogPullInterval(teamId)
       })
 
       if (authConnection?.active) {
+        this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
         startLogPullInterval()
       }
     }

@@ -1,4 +1,7 @@
 import Foundation
+import os.log
+
+private let netLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NSENetworkClient")
 
 class NSENetworkClient {
     let baseURL: URL
@@ -86,18 +89,28 @@ class NSENetworkClient {
         as type: T.Type,
         onError: (Int) throws -> Void
     ) async throws -> T {
+        let method = request.httpMethod ?? "GET"
+        let urlStr = request.url?.absoluteString ?? "(nil)"
+        os_log("perform: %{public}@ %{public}@", log: netLog, type: .debug, method, urlStr)
+
         let (data, response): (Data, URLResponse)
         do {
             (data, response) = try await session.data(for: request)
         } catch {
+            os_log("perform: network error for %{public}@: %{public}@", log: netLog, type: .error, urlStr, String(describing: error))
             throw NSEAuthError.networkError(error)
         }
 
         guard let http = response as? HTTPURLResponse else {
+            os_log("perform: non-HTTP response for %{public}@", log: netLog, type: .error, urlStr)
             throw NSEAuthError.invalidResponse
         }
 
+        os_log("perform: %{public}@ %{public}@ → HTTP %{public}d", log: netLog, type: .info, method, urlStr, http.statusCode)
+
         guard (200..<300).contains(http.statusCode) else {
+            let body = String(data: data, encoding: .utf8) ?? "(non-UTF8 body)"
+            os_log("perform: error body: %{public}@", log: netLog, type: .error, body)
             try onError(http.statusCode)
             throw NSEAuthError.invalidResponse // unreachable; onError always throws
         }
@@ -105,6 +118,9 @@ class NSENetworkClient {
         do {
             return try Self.decoder.decode(T.self, from: data)
         } catch {
+            let body = String(data: data, encoding: .utf8) ?? "(non-UTF8 body)"
+            os_log("perform: decoding failed for %{public}@: %{public}@\nresponse body: %{public}@",
+                   log: netLog, type: .error, String(describing: T.self), String(describing: error), body)
             throw NSEAuthError.decodingFailed(error)
         }
     }

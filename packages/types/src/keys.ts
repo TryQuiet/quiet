@@ -8,3 +8,10 @@ export interface StorableKey {
 export interface KeysUpdatedEvent {
   keys: StorableKey[]
 }
+
+export interface DeviceCredentialsUpdatedEvent {
+  deviceId: string
+  teamId: string
+  /** Base58-encoded 64-byte libsodium Ed25519 signing private key */
+  signingPrivateKey: string
+}

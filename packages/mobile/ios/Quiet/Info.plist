@@ -66,6 +66,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Quiet access photos for sending images through the app.</string>
+	<key>QuietKeychainAccessGroup</key>
+	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Rubik-Black.ttf</string>

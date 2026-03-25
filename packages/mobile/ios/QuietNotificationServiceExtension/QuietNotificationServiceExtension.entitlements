@@ -3,6 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>com.apple.security.application-groups</key>
-	<array/>
+	<array>
+		<string>group.com.quietmobile</string>
+	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.quietmobile</string>
+	</array>
 </dict>
 </plist>

@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { KeysUpdatedEvent } from '@quiet/types'
+import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('keysSlice')
@@ -12,6 +12,7 @@ export const keysSlice = createSlice({
   name: StoreKeys.Keys,
   reducers: {
     saveKeysInKeychain: (state, _action: PayloadAction<KeysUpdatedEvent>) => state,
+    saveDeviceCredentials: (state, _action: PayloadAction<DeviceCredentialsUpdatedEvent>) => state,
   },
 })
 

@@ -24,7 +24,7 @@ import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter, StoredKeyType } from './types'
-import { KeysUpdatedEvent } from '@quiet/types'
+import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -144,6 +144,7 @@ export class SigChainService extends EventEmitter {
   private handleChainUpdate = (teamName: string) => {
     this._updateUsersOnChainUpdate(teamName)
     this._updateKeysOnChainUpdate(teamName)
+    this._updateDeviceCredentials(teamName)
     this.emit('updated', teamName)
     this.saveChain(teamName)
     this.logger.info('Chain updated, emitted updated event')
@@ -240,6 +241,33 @@ export class SigChainService extends EventEmitter {
     }
     await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
     this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, keyUpdateEvent)
+  }
+
+  /**
+   * Emit device credentials to iOS so the NSE can authenticate with QSS.
+   * Only runs on iOS; no-ops on other platforms.
+   */
+  private _updateDeviceCredentials(teamName: string): void {
+    if ((process.platform as string) !== 'ios') return
+    try {
+      const sigchain = this.getChain({ teamName })
+      if (sigchain?.team == null) return
+      const teamId = sigchain.team.id
+      const device = sigchain.device
+      if (!device?.deviceId || !device.keys?.signature?.secretKey) {
+        this.logger.warn('Device credentials not available, skipping NSE credential update')
+        return
+      }
+      const event: DeviceCredentialsUpdatedEvent = {
+        deviceId: device.deviceId,
+        teamId,
+        signingPrivateKey: device.keys.signature.secretKey,
+      }
+      this.serverIoProvider.io.emit(SocketEvents.DEVICE_CREDENTIALS_UPDATED, event)
+      this.logger.info('Emitted device credentials for NSE')
+    } catch (e) {
+      this.logger.error('Failed to emit device credentials', e)
+    }
   }
 
   private attachSocketListeners(chain: SigChain): void {

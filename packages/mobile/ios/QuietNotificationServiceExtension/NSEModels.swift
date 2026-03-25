@@ -46,6 +46,7 @@ struct ChallengeResponse: Codable {
 
 struct ProofPayload: Codable {
     let signature: String
+    let publicKey: String
 }
 
 struct TokenRequest: Codable {

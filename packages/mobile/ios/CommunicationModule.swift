@@ -19,7 +19,7 @@ class CommunicationModule: RCTEventEmitter {
   let userMetadataHandler = UserMetadataHandler()
 
   private var hasListeners = false
-  
+
   @objc
   func sendDataPort(port: UInt16, socketIOSecret: String) {
     self.sendEvent(withName: CommunicationModule.BACKEND_EVENT_IDENTIFIER, body: ["channelName": CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL, "payload": ["dataPort": port, "socketIOSecret": socketIOSecret]])
@@ -79,6 +79,50 @@ class CommunicationModule: RCTEventEmitter {
         CommunicationModule.logger.error("Error while saving key in keychain: \(error)")
       }
     }
+  }
+
+  @objc
+  func saveDeviceCredentials(_ deviceId: NSString, teamId: NSString, signingPrivateKey: NSString) {
+    let deviceIdStr = deviceId as String
+    let teamIdStr = teamId as String
+    let keyStr = signingPrivateKey as String
+    let accessGroup = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String
+
+    func writeItem(account: String, value: String) {
+      guard let data = value.data(using: .utf8) else {
+        CommunicationModule.logger.error("saveDeviceCredentials: failed to encode \(account) as UTF-8")
+        return
+      }
+      // Delete any existing item first to allow updates
+      var deleteQuery: [CFString: Any] = [
+        kSecClass: kSecClassGenericPassword,
+        kSecAttrAccount: account,
+      ]
+      if let accessGroup {
+        deleteQuery[kSecAttrAccessGroup] = accessGroup
+      }
+      SecItemDelete(deleteQuery as CFDictionary)
+
+      var addQuery: [CFString: Any] = [
+        kSecClass: kSecClassGenericPassword,
+        kSecAttrAccount: account,
+        kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
+        kSecValueData: data,
+      ]
+      if let accessGroup {
+        addQuery[kSecAttrAccessGroup] = accessGroup
+      }
+      let status = SecItemAdd(addQuery as CFDictionary, nil)
+      if status != errSecSuccess {
+        CommunicationModule.logger.error("saveDeviceCredentials: SecItemAdd failed for \(account): \(status)")
+      } else {
+        CommunicationModule.logger.info("saveDeviceCredentials: stored \(account)")
+      }
+    }
+
+    writeItem(account: "quiet.device.id", value: deviceIdStr)
+    writeItem(account: "quiet.team.id", value: teamIdStr)
+    writeItem(account: "quiet.device.privateKey.\(deviceIdStr)", value: keyStr)
   }
 
   @objc
