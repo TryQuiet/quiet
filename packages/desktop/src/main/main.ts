@@ -180,6 +180,22 @@ let browserHeight: number
 const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
   logger.trace('Creating splash and main windows')
+  logger.trace('Creating main window')
+  logger.time('Created mainWindow')
+  mainWindow = new BrowserWindow({
+    width: windowSize.width,
+    height: windowSize.height,
+    show: false,
+    titleBarStyle,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    autoHideMenuBar: true,
+  })
+
+  remote.enable(mainWindow.webContents)
+
   logger.trace('Creating splash window')
   logger.time('Created splash')
   splash = new BrowserWindow({
@@ -188,7 +204,7 @@ export const createWindow = async () => {
     show: false,
     titleBarStyle,
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: true,
       contextIsolation: false,
     },
     autoHideMenuBar: true,
@@ -205,22 +221,6 @@ export const createWindow = async () => {
   splash.setAlwaysOnTop(false)
   splash.setMovable(true)
   splash.show()
-
-  logger.trace('Creating main window')
-  logger.time('Created mainWindow')
-  mainWindow = new BrowserWindow({
-    width: windowSize.width,
-    height: windowSize.height,
-    show: false,
-    titleBarStyle,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    autoHideMenuBar: true,
-  })
-
-  remote.enable(mainWindow.webContents)
 
   electronLocalshortcut.register(splash, 'F12', () => {
     if (isBrowserWindow(splash)) {
