@@ -215,7 +215,7 @@ export const createWindow = async () => {
 
   logger.trace('Loading splash HTML', splash.id)
   // eslint-disable-next-line
-  splash.loadURL(`file://${__dirname}/splash.html`).then(() => {
+  splash.loadURL(`file://${__dirname}/splash.html`)?.then(() => {
     logger.timeEnd('Created splash')
   })
   splash.setAlwaysOnTop(false)
@@ -244,7 +244,7 @@ export const createWindow = async () => {
       slashes: true,
       hash: '/',
     })
-  ).then(() => {
+  )?.then(() => {
     logger.timeEnd('Created mainWindow')
   })
   /* eslint-enable */
