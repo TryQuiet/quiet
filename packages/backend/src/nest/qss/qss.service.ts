@@ -42,7 +42,13 @@ import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
-import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
+import {
+  CompoundError,
+  InvitationDataV3,
+  NseSyncTimestampUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+} from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { Serializer } from '../common/serializer.service'
@@ -205,7 +211,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: LogEntrySyncMessage): Promise<void> => {
       this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
-      this.orbitDbService.handleFanoutMessage(message)
+      const ingested = await this.orbitDbService.handleFanoutMessage(message)
+      if (ingested) {
+        await this.updateNseLastSyncTimestamp(message.payload.teamId, message.ts)
+      }
     })
 
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
@@ -895,7 +904,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
       try {
         await this.orbitDbService.ingestEntries(decryptedEntries)
-        await this.localDbService.setLastSyncTime(teamId, newSyncTime)
+        await this.updateNseLastSyncTimestamp(teamId, newSyncTime)
       } catch (e) {
         this.logger.error('Failed to ingest pulled log entries from QSS into OrbitDB', e)
       }
@@ -914,6 +923,27 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
     this.logger.info(`Completed pulling all log entries from QSS for team ${teamId}`)
     return finalPullResponse
+  }
+
+  private async updateNseLastSyncTimestamp(teamId: string, timestamp: number): Promise<void> {
+    if (!Number.isFinite(timestamp) || timestamp <= 0) {
+      this.logger.warn(`Refusing to persist invalid NSE sync timestamp for team ${teamId}: ${timestamp}`)
+      return
+    }
+
+    const existingTimestamp = await this.localDbService.getLastSyncTime(teamId)
+    const nextTimestamp = existingTimestamp == null ? timestamp : Math.max(existingTimestamp, timestamp)
+
+    if (existingTimestamp === nextTimestamp) {
+      return
+    }
+
+    await this.localDbService.setLastSyncTime(teamId, nextTimestamp)
+    const payload: NseSyncTimestampUpdatedEvent = {
+      teamId,
+      lastSyncTimestamp: nextTimestamp,
+    }
+    this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_SYNC_TIMESTAMP_UPDATED, payload)
   }
 
   /**

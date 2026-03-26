@@ -88,6 +88,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setLongLivedInvite>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof connectionActions.setTorInitialized>
+    | ReturnType<typeof connectionActions.setQssConnected>
+    | ReturnType<typeof connectionActions.setQssDisconnected>
     | ReturnType<typeof usersActions.setUsers>
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
@@ -106,6 +108,14 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)
       emit(connectionActions.setTorInitialized())
+    })
+    socket.on(SocketEvents.QSS_CONNECTED, () => {
+      logger.info(`${SocketEvents.QSS_CONNECTED}`)
+      emit(connectionActions.setQssConnected())
+    })
+    socket.on(SocketEvents.QSS_DISCONNECTED, () => {
+      logger.info(`${SocketEvents.QSS_DISCONNECTED}`)
+      emit(connectionActions.setQssDisconnected())
     })
     socket.on(SocketEvents.CONNECTION_PROCESS_INFO, (payload: string) => {
       logger.info(`${SocketEvents.CONNECTION_PROCESS_INFO}`, payload)

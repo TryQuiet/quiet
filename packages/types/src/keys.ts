@@ -15,3 +15,8 @@ export interface DeviceCredentialsUpdatedEvent {
   /** Base58-encoded 64-byte libsodium Ed25519 signing private key */
   signingPrivateKey: string
 }
+
+export interface NseSyncTimestampUpdatedEvent {
+  teamId: string
+  lastSyncTimestamp: number
+}

@@ -239,7 +239,7 @@ export class OrbitDbService {
     await Promise.all(joinAll)
   }
 
-  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<void> {
+  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<boolean> {
     this.logger.debug('Ingesting fanout message, ', message.payload.hash)
     try {
       const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
@@ -247,8 +247,10 @@ export class OrbitDbService {
         message.payload.encEntry.signature
       ).contents
       await this.ingestEntries([logEntry])
+      return true
     } catch (err) {
       this.logger.error(`Failed to handle fanout log entry sync message`, err)
+      return false
     }
   }
 

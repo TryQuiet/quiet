@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client'
+import { NativeModules } from 'react-native'
 import {
   select,
   put,
@@ -16,7 +17,14 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
-import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent, SocketActions, SocketEvents, UserProfilesUpdatedPayload } from '@quiet/types'
+import {
+  DeviceCredentialsUpdatedEvent,
+  KeysUpdatedEvent,
+  NseSyncTimestampUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+  UserProfilesUpdatedPayload,
+} from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { initSelectors } from '../init.selectors'
 import { keysActions } from '../../keys/keys.slice'
@@ -104,6 +112,14 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
     socket.on(SocketEvents.USER_PROFILES_UPDATED, async (payload: UserProfilesUpdatedPayload) => {
       logger.info('User profiles updated, saving in ios native storage')
       emit(usersMetadataActions.saveUserMetadataNatively(payload))
+    })
+    socket.on(SocketEvents.NSE_SYNC_TIMESTAMP_UPDATED, async (payload: NseSyncTimestampUpdatedEvent) => {
+      logger.info(`NSE sync timestamp updated for team ${payload.teamId}, saving in shared iOS storage`)
+      try {
+        await NativeModules.CommunicationModule?.saveNseLastSyncTimestamp?.(payload.lastSyncTimestamp)
+      } catch (error) {
+        logger.error('Failed to store NSE sync timestamp in iOS native storage', error)
+      }
     })
     return () => {}
   })

@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import OSLog
 
 struct NSEKeychainHelper {
 
@@ -9,6 +10,8 @@ struct NSEKeychainHelper {
     private static let deviceIdKey            = "quiet.device.id"
     private static let teamIdKey              = "quiet.team.id"
     private static let lastSyncKey            = "quiet.nse.lastSyncTimestamp"
+    private static let lastSyncCidsKey        = "quiet.nse.lastSyncCids"
+    private static let appIsForegroundKey     = "quiet.app.isForeground"
     private static let lfaKeyService          = "com.quietmobile"
 
     // MARK: - Device private key
@@ -61,7 +64,32 @@ struct NSEKeychainHelper {
 
     static func saveLastSyncTimestamp(_ ts: Int64) {
         let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
-        defaults.set(Double(ts), forKey: lastSyncKey)
+        let current = Int64(defaults.double(forKey: lastSyncKey))
+        os_log("Saving last sync timestamp: current=%{public}lld, new=%{public}lld", current, ts)
+        defaults.set(Double(max(current, ts)), forKey: lastSyncKey)
+    }
+
+    static func getLastSyncCids() -> [String] {
+        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        return defaults.stringArray(forKey: lastSyncCidsKey) ?? []
+    }
+
+    static func saveLastSyncState(timestamp: Int64, cids: [String]) {
+        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        let currentTimestamp = Int64(defaults.double(forKey: lastSyncKey))
+        if timestamp < currentTimestamp {
+            os_log("Ignoring stale sync state save: current=%{public}lld, new=%{public}lld", currentTimestamp, timestamp)
+            return
+        }
+
+        defaults.set(Double(timestamp), forKey: lastSyncKey)
+        defaults.set(Array(Set(cids)).sorted(), forKey: lastSyncCidsKey)
+        os_log("Saved sync state: timestamp=%{public}lld cids=%{public}@", timestamp, cids.joined(separator: ","))
+    }
+
+    static func isMainAppForeground() -> Bool {
+        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        return defaults.bool(forKey: appIsForegroundKey)
     }
 
     // MARK: - Private helpers

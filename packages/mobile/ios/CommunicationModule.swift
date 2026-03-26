@@ -1,5 +1,6 @@
 import UserNotifications
 import OSLog
+import UIKit
 
 @objc(CommunicationModule)
 class CommunicationModule: RCTEventEmitter {
@@ -11,6 +12,10 @@ class CommunicationModule: RCTEventEmitter {
   static let APP_RESUME_IDENTIFIER = "appresume"
   static let NOTIFICATION_PERMISSION_RESULT = "notificationPermissionResult"
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
+  static let NSE_LAST_SYNC_KEY = "quiet.nse.lastSyncTimestamp"
+  static let NSE_BADGE_COUNT_KEY = "quiet.nse.badgeCount"
+  static let APP_IS_FOREGROUND_KEY = "quiet.app.isForeground"
+  static let APP_GROUP_IDENTIFIER = "group.com.quietmobile"
 
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CommunicationModule")
@@ -32,11 +37,18 @@ class CommunicationModule: RCTEventEmitter {
   
   @objc
   func appPause() {
+    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
+    defaults.set(false, forKey: CommunicationModule.APP_IS_FOREGROUND_KEY)
     self.sendEvent(withName: CommunicationModule.APP_PAUSE_IDENTIFIER, body: nil)
   }
   
   @objc
   func appResume() {
+    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
+    defaults.set(true, forKey: CommunicationModule.APP_IS_FOREGROUND_KEY)
+    defaults.set(0, forKey: CommunicationModule.NSE_BADGE_COUNT_KEY)
+    UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    UIApplication.shared.applicationIconBadgeNumber = 0
     self.sendEvent(withName: CommunicationModule.APP_RESUME_IDENTIFIER, body: nil)
   }
   
@@ -145,6 +157,23 @@ class CommunicationModule: RCTEventEmitter {
     } catch {
       CommunicationModule.logger.error("Error while saving user metadata: \(error)")
     }
+  }
+
+  @objc
+  func saveNseLastSyncTimestamp(_ timestamp: NSNumber) {
+    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
+    let newTimestamp = timestamp.doubleValue
+    let existingTimestamp = defaults.double(forKey: CommunicationModule.NSE_LAST_SYNC_KEY)
+
+    if existingTimestamp >= newTimestamp {
+      CommunicationModule.logger.debug(
+        "saveNseLastSyncTimestamp: ignoring stale timestamp \(newTimestamp, privacy: .public), existing=\(existingTimestamp, privacy: .public)"
+      )
+      return
+    }
+
+    defaults.set(newTimestamp, forKey: CommunicationModule.NSE_LAST_SYNC_KEY)
+    CommunicationModule.logger.info("saveNseLastSyncTimestamp: stored \(newTimestamp, privacy: .public)")
   }
 
   @objc

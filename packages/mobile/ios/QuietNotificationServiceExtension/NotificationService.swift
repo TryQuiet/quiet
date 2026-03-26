@@ -11,6 +11,13 @@ import os.log
 private let nseLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NotificationService")
 
 class NotificationService: UNNotificationServiceExtension {
+    private static let appGroupIdentifier = "group.com.quietmobile"
+    private static let badgeCountKey = "quiet.nse.badgeCount"
+
+    private struct TimedEntry {
+        let entry: LogEntry
+        let timestamp: Int64?
+    }
 
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
@@ -54,7 +61,12 @@ class NotificationService: UNNotificationServiceExtension {
     private func fetchAndUpdate(userInfo: [AnyHashable: Any]) async {
         defer { deliver() }
 
-        os_log("fetchAndUpdate: start", log: nseLog, type: .debug)
+        os_log("fetchAndUpdate: start", log: nseLog, type: .info)
+
+        if NSEKeychainHelper.isMainAppForeground() {
+            os_log("fetchAndUpdate: app is foregrounded, skipping NSE fetch/decrypt work", log: nseLog, type: .info)
+            return
+        }
 
         guard let teamId = userInfo["teamId"] as? String else {
             os_log("fetchAndUpdate: missing 'teamId' in userInfo; payload keys=%{public}@",
@@ -92,6 +104,7 @@ class NotificationService: UNNotificationServiceExtension {
             }
 
             let since = NSEKeychainHelper.getLastSyncTimestamp()
+            let lastSyncCids = Set(NSEKeychainHelper.getLastSyncCids())
             os_log("fetchAndUpdate: fetching entries since=%{public}lld", log: nseLog, type: .info, since)
 
             let entries = try await auth.fetchNewEntries(teamId: teamId, since: since)
@@ -105,17 +118,74 @@ class NotificationService: UNNotificationServiceExtension {
             if entries.isEmpty {
                 os_log("fetchAndUpdate: no new entries, delivering as-is", log: nseLog, type: .info)
             } else {
-                let newTs = entries.lazy
-                    .compactMap { Self.iso8601.date(from: $0.receivedAt) }
-                    .map { Int64($0.timeIntervalSince1970 * 1000) }
-                    .max()
-                if let newTs {
-                    os_log("fetchAndUpdate: saving lastSyncTimestamp=%{public}lld", log: nseLog, type: .info, newTs)
-                    NSEKeychainHelper.saveLastSyncTimestamp(newTs)
+                let timedEntries = entries.map { entry in
+                    let parsedDate = Self.iso8601.date(from: entry.receivedAt)
+                    let timestamp = parsedDate.map { Int64($0.timeIntervalSince1970 * 1000) }
+                    return TimedEntry(entry: entry, timestamp: timestamp)
+                }
+
+                let unseenEntries = timedEntries.filter { timedEntry in
+                    guard let timestamp = timedEntry.timestamp else {
+                        return true
+                    }
+                    if timestamp > since {
+                        return true
+                    }
+                    if timestamp < since {
+                        return false
+                    }
+                    return !lastSyncCids.contains(timedEntry.entry.cid)
+                }
+
+                if unseenEntries.isEmpty {
+                    os_log("fetchAndUpdate: no unseen entries after cursor filtering", log: nseLog, type: .info)
+                    return
+                }
+
+                let sortedEntries = unseenEntries.sorted { lhs, rhs in
+                    let leftTs = lhs.timestamp ?? Int64.min
+                    let rightTs = rhs.timestamp ?? Int64.min
+                    if leftTs != rightTs {
+                        return leftTs < rightTs
+                    }
+                    return lhs.entry.cid < rhs.entry.cid
+                }
+
+                let isBootstrapSync = since == 0
+                let notificationEntries: [TimedEntry]
+                if isBootstrapSync, let newestTimestamp = sortedEntries.compactMap(\.timestamp).max() {
+                    notificationEntries = sortedEntries.filter { $0.timestamp == newestTimestamp }
+                    os_log(
+                        "fetchAndUpdate: bootstrap sync detected, collapsing %{public}d fetched entries to %{public}d newest entries",
+                        log: nseLog,
+                        type: .info,
+                        sortedEntries.count,
+                        notificationEntries.count
+                    )
+                } else {
+                    notificationEntries = sortedEntries
+                }
+
+                let maxTimestamp = sortedEntries.compactMap(\.timestamp).max()
+                if let maxTimestamp {
+                    let cidsAtMaxTimestamp = sortedEntries
+                        .filter { $0.timestamp == maxTimestamp }
+                        .map(\.entry.cid)
+                    os_log(
+                        "fetchAndUpdate: saving sync state timestamp=%{public}lld with %{public}d cid(s)",
+                        log: nseLog,
+                        type: .info,
+                        maxTimestamp,
+                        cidsAtMaxTimestamp.count
+                    )
+                    NSEKeychainHelper.saveLastSyncState(timestamp: maxTimestamp, cids: cidsAtMaxTimestamp)
                 } else {
                     // All receivedAt failed to parse — advance by 1ms to avoid reprocessing
                     os_log("All receivedAt timestamps failed to parse; advancing sync pointer", log: nseLog, type: .fault)
-                    NSEKeychainHelper.saveLastSyncTimestamp(NSEKeychainHelper.getLastSyncTimestamp() + 1)
+                    NSEKeychainHelper.saveLastSyncState(
+                        timestamp: NSEKeychainHelper.getLastSyncTimestamp() + 1,
+                        cids: notificationEntries.map(\.entry.cid)
+                    )
                 }
 
                 guard let content = bestAttemptContent else {
@@ -123,15 +193,15 @@ class NotificationService: UNNotificationServiceExtension {
                     return
                 }
 
-                let decryptedMessages = entries.compactMap { entry -> NSEDecryptedNotificationMessage? in
+                let decryptedMessages = notificationEntries.compactMap { timedEntry -> NSEDecryptedNotificationMessage? in
                     do {
-                        return try self.crypto.decryptNotificationMessage(from: entry, teamId: teamId)
+                        return try self.crypto.decryptNotificationMessage(from: timedEntry.entry, teamId: teamId)
                     } catch {
                         os_log(
                             "fetchAndUpdate: failed to decrypt entry %{public}@: %{public}@",
                             log: nseLog,
                             type: .error,
-                            entry.cid,
+                            timedEntry.entry.cid,
                             String(describing: error)
                         )
                         return nil
@@ -159,9 +229,12 @@ class NotificationService: UNNotificationServiceExtension {
                     os_log("fetchAndUpdate: no decryptable channel messages found", log: nseLog, type: .info)
                 }
 
-                let badgeIncrement = decryptedMessages.isEmpty ? entries.count : decryptedMessages.count
-                let newBadge = (content.badge?.intValue ?? 0) + badgeIncrement
+                let badgeIncrement = decryptedMessages.isEmpty ? notificationEntries.count : decryptedMessages.count
+                let defaults = UserDefaults(suiteName: Self.appGroupIdentifier) ?? UserDefaults.standard
+                let storedBadgeCount = max(0, defaults.integer(forKey: Self.badgeCountKey))
+                let newBadge = storedBadgeCount + badgeIncrement
                 os_log("fetchAndUpdate: updating badge to %{public}d", log: nseLog, type: .info, newBadge)
+                defaults.set(newBadge, forKey: Self.badgeCountKey)
                 content.badge = newBadge as NSNumber
             }
         } catch {

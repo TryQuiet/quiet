@@ -13,6 +13,16 @@
 @implementation AppDelegate
 
 static NSString *const platform = @"mobile";
+static NSString *const QuietAppGroupIdentifier = @"group.com.quietmobile";
+static NSString *const QuietAppIsForegroundKey = @"quiet.app.isForeground";
+
+static void QuietSetAppForegroundFlag(BOOL isForeground) {
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:QuietAppGroupIdentifier];
+  if (defaults == nil) {
+    defaults = [NSUserDefaults standardUserDefaults];
+  }
+  [defaults setBool:isForeground forKey:QuietAppIsForegroundKey];
+}
 
 - (BOOL)application:(UIApplication *)application
    openURL:(NSURL *)url
@@ -31,6 +41,7 @@ static NSString *const platform = @"mobile";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  QuietSetAppForegroundFlag(YES);
   self.moduleName = @"QuietMobile";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
@@ -185,6 +196,7 @@ static NSString *const platform = @"mobile";
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+  QuietSetAppForegroundFlag(NO);
   [self stopTor];
 
   NSString * message = [NSString stringWithFormat:@"app:close"];
@@ -202,6 +214,7 @@ static NSString *const platform = @"mobile";
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+  QuietSetAppForegroundFlag(YES);
   // Display splash screen until services become available again
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     NSTimeInterval delayInSeconds = 0;
