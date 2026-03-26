@@ -27,7 +27,7 @@ jobs:
           - os: macos-15
             target: macos-arm
             source_path: darwin
-            build_cmd: "--mac arm64"
+            build_cmd: "--mac --arm64"
             artifact_glob: "packages/desktop/dist/*.dmg"
           - os: windows-latest
             target: win
