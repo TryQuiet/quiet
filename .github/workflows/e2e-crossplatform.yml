@@ -14,6 +14,8 @@ on:
 jobs:
   mac:
     uses: ./.github/workflows/e2e-mac.yml
+  mac-qss:
+    uses: ./.github/workflows/e2e-qss-mac.yml
   linux:
     uses: ./.github/workflows/e2e-linux.yml
   linux-qss:
