@@ -63,6 +63,7 @@ export class Libp2pAuth {
   private unblockInterval: NodeJS.Timeout
   private joinStatus: JoinStatus
   private logger: QuietLogger = createLogger('libp2p:auth')
+  private readonly createLfaLogger = createWinstonQuietLogger('localfirst:libp2p')
   readonly [serviceCapabilities]: string[] = ['@quiet/auth']
   readonly [Symbol.toStringTag]: string = 'lfaAuth'
 
@@ -336,6 +337,7 @@ export class Libp2pAuth {
           this.logger.error(`Error in sendMessage callback for ${peerId.toString()}`, err)
         })
       },
+      createLogger: this.createLfaLogger,
     } as ConnectionParams)
 
     // Set up auth connection event handlers.

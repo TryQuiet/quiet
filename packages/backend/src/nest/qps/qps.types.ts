@@ -1,12 +1,9 @@
 import { BaseWebsocketMessage } from '../qss/qss.types'
 
-export interface QPSRegisterResponse {
-  ucan: string
-}
-
 export interface QPSRegisterPayload {
   deviceToken: string
   bundleId: string
+  teamId: string
 }
 
 export interface QPSRegisterMessage extends BaseWebsocketMessage<QPSRegisterPayload> {
@@ -17,6 +14,6 @@ export interface QPSRegisterResponsePayload {
   ucan: string
 }
 
-export interface QPSRegisterWsResponse extends BaseWebsocketMessage<QPSRegisterResponsePayload> {
+export interface QPSRegisterResponse extends BaseWebsocketMessage<QPSRegisterResponsePayload> {
   payload?: QPSRegisterResponsePayload
 }
