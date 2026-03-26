@@ -16,6 +16,11 @@ export interface DeviceCredentialsUpdatedEvent {
   signingPrivateKey: string
 }
 
+export interface NseQssUrlUpdatedEvent {
+  teamId: string
+  qssUrl: string
+}
+
 export interface NseSyncTimestampUpdatedEvent {
   teamId: string
   lastSyncTimestamp: number

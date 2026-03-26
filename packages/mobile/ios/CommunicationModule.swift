@@ -13,6 +13,7 @@ class CommunicationModule: RCTEventEmitter {
   static let NOTIFICATION_PERMISSION_RESULT = "notificationPermissionResult"
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
   static let NSE_LAST_SYNC_KEY = "quiet.nse.lastSyncTimestamp"
+  static let NSE_QSS_URLS_KEY = "quiet.nse.qssUrls"
   static let NSE_BADGE_COUNT_KEY = "quiet.nse.badgeCount"
   static let APP_IS_FOREGROUND_KEY = "quiet.app.isForeground"
   static let APP_GROUP_IDENTIFIER = "group.com.quietmobile"
@@ -157,6 +158,23 @@ class CommunicationModule: RCTEventEmitter {
     } catch {
       CommunicationModule.logger.error("Error while saving user metadata: \(error)")
     }
+  }
+
+  @objc
+  func saveNseQssUrl(_ teamId: NSString, qssUrl: NSString) {
+    let teamIdStr = teamId as String
+    let qssUrlStr = qssUrl as String
+    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
+    var existing = defaults.dictionary(forKey: CommunicationModule.NSE_QSS_URLS_KEY) as? [String: String] ?? [:]
+
+    if existing[teamIdStr] == qssUrlStr {
+      CommunicationModule.logger.debug("saveNseQssUrl: unchanged for team \(teamIdStr, privacy: .public)")
+      return
+    }
+
+    existing[teamIdStr] = qssUrlStr
+    defaults.set(existing, forKey: CommunicationModule.NSE_QSS_URLS_KEY)
+    CommunicationModule.logger.info("saveNseQssUrl: stored for team \(teamIdStr, privacy: .public)")
   }
 
   @objc

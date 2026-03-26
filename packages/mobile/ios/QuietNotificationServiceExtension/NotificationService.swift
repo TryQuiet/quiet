@@ -75,16 +75,16 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
 
-        guard let qssUrlString = userInfo["qssUrl"] as? String else {
-            os_log("fetchAndUpdate: missing 'qssUrl' in userInfo (teamId=%{public}@)",
+        guard let qssUrl = NSEKeychainHelper.getQssUrl(teamId: teamId) else {
+            os_log("fetchAndUpdate: missing stored QSS URL for teamId=%{public}@",
                    log: nseLog, type: .error, teamId)
             return
         }
 
-        guard let qssUrl = URL(string: qssUrlString) else {
-            os_log("fetchAndUpdate: 'qssUrl' is not a valid URL: %{public}@",
-                   log: nseLog, type: .error, qssUrlString)
-            return
+        let qssUrlString = qssUrl.absoluteString
+        if let payloadQssUrl = userInfo["qssUrl"] as? String, payloadQssUrl != qssUrlString {
+            os_log("fetchAndUpdate: ignoring push payload qssUrl for teamId=%{public}@; using stored value",
+                   log: nseLog, type: .info, teamId)
         }
 
         os_log("fetchAndUpdate: teamId=%{public}@ qssUrl=%{public}@",

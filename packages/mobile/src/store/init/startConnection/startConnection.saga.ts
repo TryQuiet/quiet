@@ -20,6 +20,7 @@ import { eventChannel } from 'redux-saga'
 import {
   DeviceCredentialsUpdatedEvent,
   KeysUpdatedEvent,
+  NseQssUrlUpdatedEvent,
   NseSyncTimestampUpdatedEvent,
   SocketActions,
   SocketEvents,
@@ -112,6 +113,14 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
     socket.on(SocketEvents.USER_PROFILES_UPDATED, async (payload: UserProfilesUpdatedPayload) => {
       logger.info('User profiles updated, saving in ios native storage')
       emit(usersMetadataActions.saveUserMetadataNatively(payload))
+    })
+    socket.on(SocketEvents.NSE_QSS_URL_UPDATED, async (payload: NseQssUrlUpdatedEvent) => {
+      logger.info(`NSE QSS URL updated for team ${payload.teamId}, saving in shared iOS storage`)
+      try {
+        await NativeModules.CommunicationModule?.saveNseQssUrl?.(payload.teamId, payload.qssUrl)
+      } catch (error) {
+        logger.error('Failed to store NSE QSS URL in iOS native storage', error)
+      }
     })
     socket.on(SocketEvents.NSE_SYNC_TIMESTAMP_UPDATED, async (payload: NseSyncTimestampUpdatedEvent) => {
       logger.info(`NSE sync timestamp updated for team ${payload.teamId}, saving in shared iOS storage`)

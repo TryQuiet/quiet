@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, type Community, type Identity } from '@quiet/types'
+import { CommunityOwnership, SocketEvents, type Community, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -17,6 +17,7 @@ import { createLibp2pAddress } from '@quiet/common'
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
+import { QSSService } from '../qss/qss.service'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -31,6 +32,7 @@ describe('ConnectionsManagerService', () => {
   let userIdentity: Identity
   let communityRootCa: string
   let sigChainService: SigChainService
+  let qssService: QSSService
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -54,6 +56,7 @@ describe('ConnectionsManagerService', () => {
     connectionsManagerService = await module.resolve(ConnectionsManagerService)
     localDbService = await module.resolve(LocalDbService)
     sigChainService = await module.resolve(SigChainService)
+    qssService = await module.resolve(QSSService)
     localDbService.open()
 
     // initialize sigchain on local db
@@ -129,5 +132,36 @@ describe('ConnectionsManagerService', () => {
     ])
 
     expect(launchSpy).toBeCalledTimes(1)
+  })
+
+  it('emits the authoritative QSS URL for the NSE on iOS', async () => {
+    const originalPlatform = process.platform
+    Object.defineProperty(process, 'platform', {
+      value: 'ios',
+    })
+
+    try {
+      await localDbService.setCommunity({
+        ...community,
+        teamId: 'team-id',
+        qssEndpoint: 'wss://community.example/ws',
+      })
+      await localDbService.setCurrentCommunityId(community.id)
+
+      qssService._qssEndpoint = 'wss://authoritative.example'
+
+      const emitSpy = jest.spyOn(connectionsManagerService.serverIoProvider.io, 'emit')
+
+      await (connectionsManagerService as any).emitNseQssUrl()
+
+      expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+        teamId: 'team-id',
+        qssUrl: 'https://authoritative.example',
+      })
+    } finally {
+      Object.defineProperty(process, 'platform', {
+        value: originalPlatform,
+      })
+    }
   })
 })

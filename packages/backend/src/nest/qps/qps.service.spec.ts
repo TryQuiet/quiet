@@ -302,7 +302,29 @@ describe('QPSService', () => {
         WebsocketEvents.SEND_BATCH_PUSH,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: { ucans: UCANS },
+          payload: expect.objectContaining({
+            ucans: UCANS,
+            data: { teamId: TEAM_ID },
+          }),
+        }),
+        true
+      )
+    })
+
+    it('strips qssUrl from push data before sending to QPS', async () => {
+      await qpsService.sendBatchPush(TEAM_ID, 'title', 'body', {
+        cid: 'cid-1',
+        qssUrl: 'https://untrusted.example',
+      })
+
+      expect(qssClient.sendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.SEND_BATCH_PUSH,
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            title: 'title',
+            body: 'body',
+            data: { teamId: TEAM_ID, cid: 'cid-1' },
+          }),
         }),
         true
       )
@@ -367,13 +389,23 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
         1,
         WebsocketEvents.SEND_BATCH_PUSH,
-        expect.objectContaining({ payload: { ucans: manyUcans.slice(0, 500) } }),
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            ucans: manyUcans.slice(0, 500),
+            data: { teamId: TEAM_ID },
+          }),
+        }),
         true
       )
       expect(qssClient.sendMessage).toHaveBeenNthCalledWith(
         2,
         WebsocketEvents.SEND_BATCH_PUSH,
-        expect.objectContaining({ payload: { ucans: manyUcans.slice(500) } }),
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            ucans: manyUcans.slice(500),
+            data: { teamId: TEAM_ID },
+          }),
+        }),
         true
       )
     })

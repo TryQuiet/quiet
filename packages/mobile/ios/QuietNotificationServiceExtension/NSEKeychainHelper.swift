@@ -11,6 +11,7 @@ struct NSEKeychainHelper {
     private static let teamIdKey              = "quiet.team.id"
     private static let lastSyncKey            = "quiet.nse.lastSyncTimestamp"
     private static let lastSyncCidsKey        = "quiet.nse.lastSyncCids"
+    private static let qssUrlsKey             = "quiet.nse.qssUrls"
     private static let appIsForegroundKey     = "quiet.app.isForeground"
     private static let lfaKeyService          = "com.quietmobile"
 
@@ -85,6 +86,18 @@ struct NSEKeychainHelper {
         defaults.set(Double(timestamp), forKey: lastSyncKey)
         defaults.set(Array(Set(cids)).sorted(), forKey: lastSyncCidsKey)
         os_log("Saved sync state: timestamp=%{public}lld cids=%{public}@", timestamp, cids.joined(separator: ","))
+    }
+
+    static func getQssUrl(teamId: String) -> URL? {
+        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        guard
+            let qssUrls = defaults.dictionary(forKey: qssUrlsKey) as? [String: String],
+            let qssUrlString = qssUrls[teamId]
+        else {
+            return nil
+        }
+
+        return URL(string: qssUrlString)
     }
 
     static func isMainAppForeground() -> Bool {
