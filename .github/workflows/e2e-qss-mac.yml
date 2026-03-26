@@ -18,8 +18,8 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          install-docker: false
-          cachePrefix: "e2e-crossplatform-mac"
+          install-docker: true
+          cachePrefix: "e2e-crossplatform-mac-qss"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests,helia,@quiet/node-common"
 
       - name: Before build
@@ -27,10 +27,16 @@ jobs:
         with:
           source-path: darwin
           envfile: .env.e2e
+      
+      - name: Build qss
+        run: npm run build:qss
+
+      - name: Start QSS docker
+        run: npm run start:qss
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --mac
+        run: ENVFILE=.env.e2e.qss node_modules/.bin/electron-builder --mac
 
       - name: VERSION env
         working-directory: ./packages/desktop
@@ -55,30 +61,20 @@ jobs:
       - name: Add App file to applications
         run: cd ~ && cp -R "/Volumes/Quiet $VERSION-arm64/Quiet.app" /Applications
 
-      - name: Run one client test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 15
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test oneClient.test.ts
-
-      - name: Run user profile test
+      - name: Run multiple clients with QSS test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test userProfile.test.ts
+          command: cd packages/e2e-tests && npm run test multipleClients.qss.test.ts
 
-      - name: Run multiple clients test
+      - name: Run one client with QSS test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
+          command: cd packages/e2e-tests && npm run test oneClient.qss.test.ts
 
-      - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
+      - name: Stop QSS docker
+        if: always()
+        run: npm run stop:qss
