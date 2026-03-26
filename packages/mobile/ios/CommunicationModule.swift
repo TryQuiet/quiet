@@ -12,6 +12,8 @@ class CommunicationModule: RCTEventEmitter {
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
 
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
+
+  private var hasListeners = false
   
   @objc
   func sendDataPort(port: UInt16, socketIOSecret: String) {
@@ -85,7 +87,19 @@ class CommunicationModule: RCTEventEmitter {
 
   @objc
   func sendDeviceToken(_ token: String) {
+    guard hasListeners else {
+      NSLog("Skipping deviceTokenReceived emit because no JS listeners are attached; JS will fetch the current FCM token when ready.")
+      return
+    }
     self.sendEvent(withName: CommunicationModule.DEVICE_TOKEN_RECEIVED, body: ["token": token])
+  }
+
+  override func startObserving() {
+    hasListeners = true
+  }
+
+  override func stopObserving() {
+    hasListeners = false
   }
 
   override func supportedEvents() -> [String]! {

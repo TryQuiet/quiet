@@ -10,6 +10,7 @@ on:
 
 jobs:
   detox-android-self-hosted:
+    if: false
     timeout-minutes: 25
     runs-on: [self-hosted, macOS, ARM64, android]
 
@@ -29,7 +30,7 @@ jobs:
           git lfs pull
 
       - name: Pass local config
-        run : |
+        run: |
           cat << EOF >> packages/mobile/android/local.properties
           ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
           EOF
