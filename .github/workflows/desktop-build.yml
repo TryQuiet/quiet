@@ -377,7 +377,7 @@ jobs:
         uses: ./.github/actions/release-notifier
         if: always()
         with:
-          os-name: MacOS
+          os-name: MacOS (arm64)
           version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
