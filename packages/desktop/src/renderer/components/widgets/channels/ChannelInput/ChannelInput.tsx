@@ -169,9 +169,16 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     padding: '5px',
   },
   [`& .${classes.picker}`]: {
-    position: 'fixed',
     bottom: 60,
     right: 15,
+    left: 'auto',
+    maxWidth: '100%',
+    width: 'min(350px, calc(100vw - 40px))',
+    maxHeight: 'min(450px, calc(100vh - 120px))',
+    overflowY: 'auto',
+    boxSizing: 'border-box',
+    zIndex: 999999,
+    position: 'fixed',
   },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
