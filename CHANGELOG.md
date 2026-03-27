@@ -28,7 +28,8 @@
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
-* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
+* Fixed issues with testing workflows [#3030](https://github.com/TryQuiet/quiet/issues/3030)
+* Add MacOS arm64-specific build jobs to resolve slow UI startup on Apple Silicon [#3146](https://github.com/TryQuiet/quiet/issues/3146)
 
 ### Fixes
 
