@@ -14,17 +14,22 @@
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
+* Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
 
 ### Fixes
 
 * DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
 * Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
+* Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
+* Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
+
 
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
-* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
+* Fixed issues with testing workflows [#3030](https://github.com/TryQuiet/quiet/issues/3030)
+* Add MacOS arm64-specific build jobs to resolve slow UI startup on Apple Silicon [#3146](https://github.com/TryQuiet/quiet/issues/3146)
 
 ### Fixes
 
