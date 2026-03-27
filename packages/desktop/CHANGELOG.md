@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [7.0.1-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.0.1-alpha.11...@quiet/desktop@7.0.1-alpha.12) (2026-03-27)
+
+
+### Bug Fixes
+
+* **3146:** Fix slow electron startup ([#3147](https://github.com/TryQuiet/quiet/issues/3147)) ([5992824](https://github.com/TryQuiet/quiet/commit/599282457aba37e92dc009facda6492ca3ddf9c8))
+
+
+
+
+
 # Changelog
 
 [unreleased]
