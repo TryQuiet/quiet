@@ -3,6 +3,7 @@ name: E2E Mac
 on: [workflow_call]
 jobs:
   mac:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -11,7 +12,6 @@ jobs:
             binary_suffix: "-arm64"
           - os: macos-26-intel
             binary_suffix: ""
-    runs-on: ${{ matrix.os }}
 
     timeout-minutes: 180
     env:
