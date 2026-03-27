@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.0.1-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.0.1-alpha.11...@quiet/mobile@7.0.1-alpha.12) (2026-03-27)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -41,7 +28,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
-* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
+* Fixed issues with testing workflows [#3030](https://github.com/TryQuiet/quiet/issues/3030)
+* Add MacOS arm64-specific build jobs to resolve slow UI startup on Apple Silicon [#3146](https://github.com/TryQuiet/quiet/issues/3146)
 
 ### Fixes
 
