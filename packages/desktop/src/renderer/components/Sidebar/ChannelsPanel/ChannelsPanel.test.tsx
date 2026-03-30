@@ -71,6 +71,7 @@ describe('Channels panel', () => {
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
+      const isPublic = name === 'pets' ? false : true
       await factory.create('Channel', {
         channel: {
           name: name,
@@ -78,6 +79,7 @@ describe('Channels panel', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
           id: generateChannelId(name),
+          public: isPublic,
         },
       })
     }
@@ -196,7 +198,7 @@ describe('Channels panel', () => {
                   data-testid="channelsList"
                 >
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="general-link"
                     role="button"
                     tabindex="0"
@@ -211,13 +213,21 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="channelTitle-private"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            />
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="general-channel-link-text"
                             >
-                              # general
+                              general
                             </p>
                           </div>
                         </div>
@@ -228,7 +238,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="allergies-link"
                     role="button"
                     tabindex="0"
@@ -243,10 +253,10 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                               data-testid="allergies-channel-link-text"
                             >
                               # allergies
@@ -260,7 +270,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="antiques-link"
                     role="button"
                     tabindex="0"
@@ -275,10 +285,10 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                               data-testid="antiques-channel-link-text"
                             >
                               # antiques
@@ -292,7 +302,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="croatia-link"
                     role="button"
                     tabindex="0"
@@ -307,10 +317,10 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                               data-testid="croatia-channel-link-text"
                             >
                               # croatia
@@ -324,7 +334,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="pets-link"
                     role="button"
                     tabindex="0"
@@ -339,13 +349,21 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="channelTitle-private"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            />
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="pets-channel-link-text"
                             >
-                              # pets
+                              pets
                             </p>
                           </div>
                         </div>
@@ -356,7 +374,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="sailing-link"
                     role="button"
                     tabindex="0"
@@ -371,10 +389,10 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                               data-testid="sailing-channel-link-text"
                             >
                               # sailing
@@ -590,7 +608,7 @@ describe('Channels panel', () => {
                 data-testid="channelsList"
               >
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="general-link"
                   role="button"
                   tabindex="0"
@@ -605,13 +623,21 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="channelTitle-private"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          />
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="general-channel-link-text"
                           >
-                            # general
+                            general
                           </p>
                         </div>
                       </div>
@@ -622,7 +648,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="allergies-link"
                   role="button"
                   tabindex="0"
@@ -637,10 +663,10 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                             data-testid="allergies-channel-link-text"
                           >
                             # allergies
@@ -654,7 +680,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="antiques-link"
                   role="button"
                   tabindex="0"
@@ -669,10 +695,10 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                             data-testid="antiques-channel-link-text"
                           >
                             # antiques
@@ -686,7 +712,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="croatia-link"
                   role="button"
                   tabindex="0"
@@ -701,10 +727,10 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                             data-testid="croatia-channel-link-text"
                           >
                             # croatia
@@ -718,7 +744,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="pets-link"
                   role="button"
                   tabindex="0"
@@ -733,13 +759,21 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="channelTitle-private"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          />
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="pets-channel-link-text"
                           >
-                            # pets
+                            pets
                           </p>
                         </div>
                       </div>
@@ -750,7 +784,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="sailing-link"
                   role="button"
                   tabindex="0"
@@ -765,10 +799,10 @@ describe('Channels panel', () => {
                         class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                             data-testid="sailing-channel-link-text"
                           >
                             # sailing
