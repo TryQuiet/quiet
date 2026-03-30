@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
 
-import { Checkbox, createSvgIcon, FormControlLabel, Grid, Switch, SwitchProps, Typography } from '@mui/material'
+import { createSvgIcon, FormControlLabel, Grid, Switch, SwitchProps, Typography } from '@mui/material'
 import inlineSvg from 'react-inlinesvg'
 
 import WarningIcon from '@mui/icons-material/Warning'
@@ -17,7 +17,6 @@ import lockIconSvg from '../../../static/images/lock.svg'
 
 import { parseName } from '@quiet/common'
 import { createLogger } from '../../../logger'
-import classNames from 'classnames'
 
 const logger = createLogger('CreateChannelComponent')
 
