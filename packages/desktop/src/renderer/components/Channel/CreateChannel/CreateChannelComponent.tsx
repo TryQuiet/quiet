@@ -376,59 +376,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 </Grid>
               )}
             />
-            {/* <Grid item>
-              <Typography variant='h5' className={classes.subtitle}>
-                Channel Visibility
-              </Typography>
-            </Grid>
-            <Grid item container direction='column' className={classes.radioDiv}>
-              <Grid item className={classes.publicPrivate}>
-                <FormControlLabel
-                  classes={{ root: classes.radioIcon }}
-                  control={
-                    <Checkbox
-                      icon={<Icon src={radioUnselected} />}
-                      checkedIcon={<Icon src={radioChecked} />}
-                      checked={isChannelPublic}
-                    />
-                  }
-                  onChange={() => setIsChannelPublic(true)}
-                  label={
-                    <Grid container direction='column' className={classes.offset}>
-                      <Grid item>
-                        <span className={classes.bold}>Public</span>
-                      </Grid>
-                      <Grid item>
-                        <span>Channel is visible to all members of the community</span>
-                      </Grid>
-                    </Grid>
-                  }
-                />{' '}
-              </Grid>
-              <Grid item className={classes.publicPrivate}>
-                <FormControlLabel
-                  classes={{ root: classes.radioIcon }}
-                  control={
-                    <Checkbox
-                      icon={<Icon src={radioUnselected} />}
-                      checkedIcon={<Icon src={radioChecked} />}
-                      checked={!isChannelPublic}
-                    />
-                  }
-                  onChange={() => setIsChannelPublic(false)}
-                  label={
-                    <Grid container direction='column' className={classes.offset}>
-                      <Grid item>
-                        <span className={classes.bold}>Private</span>
-                      </Grid>
-                      <Grid item>
-                        <span>Channel is visible only to community members that have been added to the channel</span>
-                      </Grid>
-                    </Grid>
-                  }
-                />
-              </Grid>
-            </Grid> */}
             <LoadingButton
               variant='contained'
               color='primary'

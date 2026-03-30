@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
+import { Typography, Grid, ListItemButton, useTheme, createSvgIcon } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { Channel, UserProfile } from '@quiet/types'
 import { useDispatch, useSelector } from 'react-redux'
 import { publicChannels } from '@quiet/state-manager'
-import LockOpenIcon from '@mui/icons-material/LockOpen'
-import LockClosedIcon from '@mui/icons-material/Lock'
+import inlineSvg from 'react-inlinesvg'
+import lockIconSvg from '../../../static/images/lock.svg'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -71,7 +71,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
   [`& .${classes.lock}`]: {
     opacity: 0.7,
-    marginLeft: 16,
+    marginLeft: 13.5,
     marginRight: 0,
     fontWeight: 300,
     paddingRight: 2,
@@ -129,7 +129,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   const ref = useRef<HTMLDivElement>(null)
   const hasMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
   const headerTitle = channel.public ? `# ${channel.name}` : channel.name
-  const inChannel = myUserProfile?.channels?.includes(channel.id) ?? false
+  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
   return (
     <StyledListItemButton
@@ -148,24 +148,19 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         primary={
           <Grid container alignItems='center'>
             <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
-              {!channel.public &&
-                (inChannel ? (
-                  <LockOpenIcon
-                    style={{ ...theme.typography.body2 }}
-                    // htmlColor={theme.palette.colors.blue}
-                    className={classNames(classes.lock, {
-                      [classes.newMessages]: unread,
-                    })}
-                  />
-                ) : (
-                  <LockClosedIcon
-                    style={{ ...theme.typography.body2 }}
-                    // htmlColor={theme.palette.colors.blue}
-                    className={classNames(classes.lock, {
-                      [classes.newMessages]: unread,
-                    })}
-                  />
-                ))}
+              {!channel.public ? (
+                <LockIcon
+                  style={{ ...theme.typography.subtitle1 }}
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.newMessages]: unread,
+                    [classes.lock]: true,
+                  })}
+                  data-testid={'channelTitle-private'}
+                />
+              ) : (
+                <></>
+              )}
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {

@@ -5,11 +5,12 @@ import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import LockOpenIcon from '@mui/icons-material/LockOpen'
-import LockClosedIcon from '@mui/icons-material/Lock'
+import { createSvgIcon } from '@mui/material'
+import inlineSvg from 'react-inlinesvg'
 
 import { UserProfile } from '@quiet/types'
 import { createLogger } from '../../../logger'
+import lockIconSvg from '../../../static/images/lock.svg'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -175,6 +176,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   const channelNameTruncated = channelName?.substring(0, 20)
   const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
   logger.warn('Channel IDs for user', user?.channels, user)
+  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
   return (
     <Root className={classes.wrapper}>
@@ -183,28 +185,19 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           <Grid item container alignItems='center'>
             <Grid item>
               <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
-                {!isPublic &&
-                  (user?.channels?.includes(channelId) ? (
-                    <LockOpenIcon
-                      style={{ ...theme.typography.subtitle1 }}
-                      className={classNames({
-                        [classes.title]: true,
-                        [classes.bold]: true,
-                        [classes.lock]: true,
-                      })}
-                      data-testid={'channelTitle-private-member'}
-                    />
-                  ) : (
-                    <LockClosedIcon
-                      style={{ ...theme.typography.subtitle1 }}
-                      className={classNames({
-                        [classes.title]: true,
-                        [classes.bold]: true,
-                        [classes.lock]: true,
-                      })}
-                      data-testid={'channelTitle-private-nonmember'}
-                    />
-                  ))}
+                {!isPublic ? (
+                  <LockIcon
+                    style={{ ...theme.typography.subtitle1 }}
+                    className={classNames({
+                      [classes.title]: true,
+                      [classes.bold]: true,
+                      [classes.lock]: true,
+                    })}
+                    data-testid={'channelTitle-private'}
+                  />
+                ) : (
+                  <></>
+                )}
                 <Typography
                   noWrap
                   style={{ maxWidth: wrapperWidth }}
@@ -218,19 +211,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   {headerTitle}
                 </Typography>
               </Grid>
-              {/* {!isPublic && (
-                <Typography
-                  noWrap
-                  style={{ maxWidth: wrapperWidth, color: theme.palette.colors.linkBlue }}
-                  variant='subtitle2'
-                  className={classNames({
-                    [classes.subtitleSmall]: true,
-                  })}
-                  data-testid={'channelIsPrivate'}
-                >
-                  private
-                </Typography>
-              )} */}
             </Grid>
           </Grid>
         </Grid>
