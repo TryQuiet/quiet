@@ -30,6 +30,7 @@ module.exports = {
       "stream": false,
       "crypto": false,
       "process": false,
+      "electron": false
     };
     config.resolve.alias = {
       ...config.resolve.alias,
