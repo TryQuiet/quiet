@@ -151,10 +151,8 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
               {!channel.public ? (
                 <LockIcon
                   style={{ ...theme.typography.subtitle1 }}
-                  className={classNames({
-                    [classes.title]: true,
-                    [classes.newMessages]: unread,
-                    [classes.lock]: true,
+                  className={classNames(classes.lock, {
+                    [classes.lockNewMessages]: unread,
                   })}
                   data-testid={'channelTitle-private'}
                 />
