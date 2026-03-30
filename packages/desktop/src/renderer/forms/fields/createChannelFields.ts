@@ -19,19 +19,19 @@ export const channelNameField = (name = 'channelName'): FieldData => {
   }
 }
 
-export const channelPublicPrivateField = (name: 'public' | 'private' = 'public'): FieldData => {
+export const channelPrivateField = (name = 'private'): FieldData => {
   return {
     fieldProps: {
       label: '',
       name,
-      type: 'string',
-      placeholder: 'Select the desired channel visibility',
+      type: 'boolean',
     },
     validation: {
-      required: FieldErrors.Required,
-      pattern: {
-        value: /^(\btrue\b|\bfalse\b)$/g,
-        message: ChannelPublicPrivateErrors.InvalidValue,
+      validate: (value: any) => {
+        if (typeof value === 'boolean') {
+          return true
+        }
+        return ChannelPublicPrivateErrors.InvalidValue
       },
     },
   }

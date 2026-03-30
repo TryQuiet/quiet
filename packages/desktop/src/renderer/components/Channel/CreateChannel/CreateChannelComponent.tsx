@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
 
-import { Checkbox, FormControlLabel, Grid, Typography } from '@mui/material'
+import { Checkbox, createSvgIcon, FormControlLabel, Grid, Switch, SwitchProps, Typography } from '@mui/material'
+import inlineSvg from 'react-inlinesvg'
 
 import WarningIcon from '@mui/icons-material/Warning'
 
@@ -10,14 +11,13 @@ import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 import { TextField } from '../../ui/TextField/TextField'
-import { channelNameField, channelPublicPrivateField } from '../../../forms/fields/createChannelFields'
+import { channelNameField, channelPrivateField } from '../../../forms/fields/createChannelFields'
 
-import radioChecked from '../../../static/images/radioChecked.svg'
-import radioUnselected from '../../../static/images/radioUnselected.svg'
+import lockIconSvg from '../../../static/images/lock.svg'
 
 import { parseName } from '@quiet/common'
-import Icon from '../../ui/Icon/Icon'
 import { createLogger } from '../../../logger'
+import classNames from 'classnames'
 
 const logger = createLogger('CreateChannelComponent')
 
@@ -31,11 +31,12 @@ const classes = {
   iconDiv: `${PREFIX}iconDiv`,
   warningIcon: `${PREFIX}warningIcon`,
   warningMessage: `${PREFIX}warningMessage`,
+  errorMessage: `${PREFIX}errorMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
-  radioDiv: `${PREFIX}radioDiv`,
-  radioIcon: `${PREFIX}radioIcon`,
+  publicPrivateGrid: `${PREFIX}publicPrivateGrid`,
+  lock: `${PREFIX}lock`,
   publicPrivate: `${PREFIX}publicPrivate`,
   bold: `${PREFIX}bold`,
   offset: `${PREFIX}offset`,
@@ -86,6 +87,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     wordBreak: 'break-word',
   },
 
+  [`& .${classes.errorMessage}`]: {
+    color: theme.palette.error.main,
+    fontSize: 12,
+  },
+
   [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
@@ -101,26 +107,14 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     color: theme.palette.colors.darkGray,
   },
 
-  [`& .${classes.radioDiv}`]: {
-    marginLeft: 4,
+  [`& .${classes.publicPrivateGrid}`]: {
+    marginLeft: 0,
+    alignItems: 'center',
+    gap: 8,
   },
 
-  [`& .${classes.radioIcon}`]: {
-    alignItems: 'flex-start',
-    '& .MuiCheckbox-root': {
-      backgroundColor: 'transparent',
-      '&:hover': {
-        backgroundColor: 'transparent',
-      },
-      display: 'block',
-    },
-    '& .MuiIconButton-colorSecondary': {
-      color: theme.palette.colors.quietBlue,
-    },
-    '& .MuiTypography-body1': {
-      fontSize: '14px',
-      lineHeight: '25px',
-    },
+  [`& .${classes.lock}`]: {
+    padding: 0,
   },
 
   [`& .${classes.bold}`]: {
@@ -132,25 +126,24 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.subtitle}`]: {
-    fontSize: 18,
-    lineHeight: '27px',
+    color: theme.palette.colors.gray50,
+    fontWeight: 400,
+    marginTop: -2,
   },
 
   [`& .${classes.publicPrivate}`]: {
-    marginTop: 16,
+    marginTop: 0,
   },
 }))
 
 const createChannelFields = {
   channelName: channelNameField(),
-  public: channelPublicPrivateField('public'),
-  private: channelPublicPrivateField('private'),
+  private: channelPrivateField(),
 }
 
 interface CreateChannelFormValues {
   channelName: string
-  public: string
-  private: string
+  private: boolean
 }
 
 export interface CreateChannelProps {
@@ -170,33 +163,22 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
 }) => {
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(false)
-  const [isChannelPrivate, setIsChannelPrivate] = useState<boolean>(false)
+  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    setError,
-    clearErrors,
-    control,
-  } = useForm<{ channelName: string; public: string; private: string }>({
+  const { handleSubmit, formState, setValue, setError, clearErrors, control } = useForm<{
+    channelName: string
+    private: boolean
+  }>({
     mode: 'onSubmit',
   })
 
   const onSubmit = (values: CreateChannelFormValues) => {
-    if (
-      (values.public === 'false' && values.private === 'false') ||
-      (values.public === 'true' && values.private === 'true')
-    ) {
-      setError('channelName', { message: 'Must select either public or private' })
-    }
     logger.warn('submitting!', values)
     submitForm(createChannel, values)
   }
 
   const submitForm = (handleSubmit: (name: string, isPublic: boolean) => void, values: CreateChannelFormValues) => {
-    handleSubmit(parseName(values.channelName), (values.public as any) === true || values.public === 'true')
+    handleSubmit(parseName(values.channelName), !values.private)
   }
 
   const onNameChange = (name: string) => {
@@ -206,28 +188,16 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     setParsedNameDiffers(name !== parsedName)
   }
 
-  const onIsPublicChange = () => {
-    const newValue = !isChannelPublic
-    setValue('public', String(newValue))
-    setValue('private', String(!newValue))
-    setIsChannelPublic(newValue)
-    setIsChannelPrivate(!newValue)
-  }
-
-  const onIsPrivateChange = () => {
-    const newValue = !isChannelPrivate
-    setValue('private', String(newValue))
-    setValue('public', String(!newValue))
-    setIsChannelPrivate(newValue)
-    setIsChannelPublic(!newValue)
+  const onIsPrivateChange = (checked: boolean) => {
+    logger.warn('checked change', checked)
+    setValue('private', checked)
   }
 
   React.useEffect(() => {
     if (!open) {
       setValue('channelName', '')
       setChannelName('')
-      setIsChannelPublic(false)
-      setIsChannelPrivate(false)
+      setValue('private', false)
       clearErrors()
       clearErrorsDispatch()
     }
@@ -239,10 +209,62 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     }
   }, [channelCreationError])
 
+  const IOSSwitch = styled((props: SwitchProps) => (
+    <Switch focusVisibleClassName='.Mui-focusVisible' disableRipple {...props} />
+  ))(({ theme }) => ({
+    width: 52,
+    height: 32,
+    padding: 0,
+    '& .MuiSwitch-switchBase': {
+      padding: 0,
+      margin: 2,
+      transitionDuration: '300ms',
+      '&.Mui-checked': {
+        transform: 'translateX(20px)',
+        color: '#fff',
+        '& + .MuiSwitch-track': {
+          backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#65C466',
+          opacity: 1,
+          border: 0,
+        },
+        '&.Mui-disabled + .MuiSwitch-track': {
+          opacity: 0.5,
+        },
+      },
+      '&.Mui-focusVisible .MuiSwitch-thumb': {
+        color: '#33cf4d',
+        border: '6px solid #fff',
+      },
+      '&.Mui-disabled .MuiSwitch-thumb': {
+        color: theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[600],
+      },
+      '&.Mui-disabled + .MuiSwitch-track': {
+        opacity: theme.palette.mode === 'light' ? 0.7 : 0.3,
+      },
+    },
+    '& .MuiSwitch-thumb': {
+      boxSizing: 'border-box',
+      width: 28,
+      height: 28,
+    },
+    '& .MuiSwitch-track': {
+      borderRadius: 32 / 2,
+      backgroundColor: theme.palette.mode === 'light' ? '#E9E9EA' : '#39393D',
+      opacity: 1,
+      transition: theme.transitions.create(['background-color'], {
+        duration: 500,
+      }),
+    },
+  }))
+
   return (
     <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <StyledModalContent container direction='column'>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          onSubmit={handleSubmit(onSubmit, errors => {
+            logger.error('Errors on submit', errors.channelName, errors.private)
+          })}
+        >
           <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
               Create a new public channel
@@ -261,7 +283,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   variant='outlined'
                   placeholder={'Enter a channel name'}
                   autoFocus
-                  errors={errors}
+                  errors={formState.errors}
                   onchange={event => {
                     event.persist()
                     const value = event.target.value
@@ -278,7 +300,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               )}
             />
             <div className={classes.gutter}>
-              {!errors.channelName && channelName.length > 0 && parsedNameDiffers && (
+              {!formState.errors.channelName && channelName.length > 0 && parsedNameDiffers && (
                 <Grid container alignItems='center' direction='row'>
                   <Grid item className={classes.iconDiv}>
                     <WarningIcon className={classes.warningIcon} />
@@ -295,87 +317,69 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 </Grid>
               )}
             </div>
-            <Grid item>
-              <Typography variant='h5' className={classes.subtitle}>
-                Channel Access Control
-              </Typography>
-            </Grid>
             <Controller
               control={control}
-              rules={createChannelFields.public.validation}
-              name={'public'}
-              render={({ field }) => (
-                <Grid item container direction='column' className={classes.radioDiv}>
-                  <Grid item className={classes.publicPrivate}>
-                    <FormControlLabel
-                      classes={{ root: classes.radioIcon }}
-                      control={
-                        <Checkbox
-                          value={'public'}
-                          icon={<Icon src={radioUnselected} />}
-                          checkedIcon={<Icon src={radioChecked} />}
-                          checked={isChannelPublic && !isChannelPrivate}
-                        />
-                      }
-                      onChange={(event, checked) => {
-                        event.persist()
-                        onIsPublicChange()
-                        field.onChange(event)
-                      }}
-                      label={
-                        <Grid container direction='column' className={classes.offset}>
-                          <Grid item>
-                            <span className={classes.bold}>Public</span>
-                          </Grid>
-                          <Grid item>
-                            <span>Channel is visible to all members of the community</span>
-                          </Grid>
-                        </Grid>
-                      }
-                    />
-                  </Grid>
-                </Grid>
-              )}
-            />
-            <Controller
-              control={control}
-              rules={createChannelFields.private.validation}
               name={'private'}
+              rules={createChannelFields.private.validation}
               render={({ field }) => (
-                <Grid item container direction='column' className={classes.radioDiv}>
-                  <Grid item className={classes.publicPrivate}>
+                <Grid item container direction='row' className={classes.publicPrivateGrid}>
+                  <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
+                  <Grid item className={classes.publicPrivate} alignItems='center'>
                     <FormControlLabel
-                      classes={{ root: classes.radioIcon }}
+                      defaultChecked={false}
+                      data-testid={'createChannel-private-form-control'}
                       control={
-                        <Checkbox
-                          value={'private'}
-                          icon={<Icon src={radioUnselected} />}
-                          checkedIcon={<Icon src={radioChecked} />}
-                          checked={isChannelPrivate && !isChannelPublic}
+                        <IOSSwitch
+                          name='private'
+                          checked={field.value}
+                          data-testid={'createChannel-private-form-control-toggle'}
+                          onChange={event => {
+                            event.persist()
+                            onIsPrivateChange(event.target.checked)
+                            field.onChange(event.target.checked)
+                          }}
                         />
                       }
-                      onChange={(event, checked) => {
-                        event.persist()
-                        onIsPrivateChange()
-                        field.onChange(event)
-                      }}
                       label={
-                        <Grid container direction='column' className={classes.offset}>
+                        <Grid
+                          container
+                          direction='column'
+                          justifyContent='left'
+                          alignContent='center'
+                          paddingRight='18px'
+                          data-testid={'createChannel-private-form-control-label'}
+                        >
                           <Grid item>
-                            <span className={classes.bold}>Private</span>
+                            <Typography variant='body1'>Private Channel</Typography>
                           </Grid>
                           <Grid item>
-                            <span>
-                              Channel is visible only to community members that have been added to the channel
-                            </span>
+                            <Typography variant='caption' className={classes.subtitle}>
+                              Only assigned members and roles have access
+                            </Typography>
                           </Grid>
                         </Grid>
                       }
+                      labelPlacement='start'
                     />
                   </Grid>
                 </Grid>
               )}
             />
+            <div className={classes.gutter}>
+              {formState.errors.private && (
+                <Grid container alignItems='center' direction='row'>
+                  <Grid item xs>
+                    <Typography
+                      variant='body2'
+                      className={classes.errorMessage}
+                      data-testid={'createChannelPrivacyWarning'}
+                    >
+                      {formState.errors.private.message}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </div>
             <LoadingButton
               variant='contained'
               color='primary'

@@ -22,5 +22,5 @@ export enum ChannelNameErrors {
 }
 
 export enum ChannelPublicPrivateErrors {
-  InvalidValue = `Visibility settings must be either 'public' or 'private'`,
+  InvalidValue = `Invalid value for channel privacy`,
 }

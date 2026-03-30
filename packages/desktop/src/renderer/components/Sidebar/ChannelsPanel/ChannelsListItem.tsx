@@ -127,7 +127,6 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   const theme = useTheme()
   const dispatch = useDispatch()
   const ref = useRef<HTMLDivElement>(null)
-  const hasMessages = useSelector(publicChannels.selectors.areMessagesLoaded)
   const headerTitle = channel.public ? `# ${channel.name}` : channel.name
   const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
