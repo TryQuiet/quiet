@@ -658,9 +658,9 @@
 		DC03A48F321B4BE2A5339F05 /* Quiet.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.xcconfig; sourceTree = SOURCE_ROOT; };
 		DE73D517F18C6E0B941FDFF2 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
 		E079692B46015F1D27CDBBC1 /* Quiet.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		E079692B46015F1D27CDBBC2 /* Quiet.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.release.xcconfig; sourceTree = SOURCE_ROOT; };
 		E17A7BE86B5879902AF7BA3A /* QuietNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = QuietNotificationServiceExtension.debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		E4A82686A95EE5D58359B484 /* QuietNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = QuietNotificationServiceExtension.release.xcconfig; sourceTree = SOURCE_ROOT; };
-		E079692B46015F1D27CDBBC2 /* Quiet.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Quiet.release.xcconfig; sourceTree = SOURCE_ROOT; };
 		EB4DC7EB2F5FF6AB00EFD23F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EB4DC7F92F608A3300EFD23F /* QuietNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = QuietNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB4DC8152F60912900EFD23F /* AppDelegate+Firebase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "AppDelegate+Firebase.swift"; path = "Quiet/AppDelegate+Firebase.swift"; sourceTree = "<group>"; };
@@ -670,14 +670,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		EB611A772F60ADD1000CA1A2 /* Exceptions for "QuietNotificationServiceExtension" folder in "Quiet" target */ = {
+		EB611A772F60ADD1000CA1A2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				KeychainHelper.swift,
 			);
 			target = 13B07F861A680F5B00A75B9A /* Quiet */;
 		};
-		EBE628BC2F60AFB00062530D /* Exceptions for "QuietNotificationServiceExtension" folder in "QuietNotificationServiceExtension" target */ = {
+		EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -687,19 +687,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				EB611A772F60ADD1000CA1A2 /* Exceptions for "QuietNotificationServiceExtension" folder in "Quiet" target */,
-				EBE628BC2F60AFB00062530D /* Exceptions for "QuietNotificationServiceExtension" folder in "QuietNotificationServiceExtension" target */,
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = QuietNotificationServiceExtension;
-			sourceTree = "<group>";
-		};
+		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (EB611A772F60ADD1000CA1A2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QuietNotificationServiceExtension; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5446,6 +5434,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 45;
+				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				ENABLE_BITCODE = YES;
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.gch *.xcode* *.xcassets *.icon (*) .DS_Store CVS .svn .git .hg *.pbproj *.pbxproj";
 				FRAMEWORK_SEARCH_PATHS = (

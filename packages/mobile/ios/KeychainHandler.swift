@@ -92,9 +92,6 @@ class KeychainHandler: NSObject {
         keyData: keyData,
         includeAccessGroup: true
       )
-      if addStatus == .success {
-        try? _deleteKeyImpl(keyName: namedKey.keyName, includeAccessGroup: false)
-      }
       return addStatus
     } catch {
       throw KeychainHandlerError.unhandledError(reason: error)
@@ -177,9 +174,6 @@ class KeychainHandler: NSObject {
 
     do {
       let addStatus = try _addKeyToKeychainImpl(keyName: keyName, keyData: data, includeAccessGroup: true)
-      if addStatus == .success {
-        try? _deleteKeyImpl(keyName: keyName, includeAccessGroup: false)
-      }
     } catch {
       KeychainHandler.logger.error("Failed to migrate legacy key \(keyName) into shared access group: \(error.localizedDescription)")
     }

@@ -34,6 +34,13 @@ class NotificationService: UNNotificationServiceExtension {
     private let crypto = NSECryptoService()
     private var authCache: [URL: NSEAuthService] = [:]
 
+    private static func channelName(from channelId: String) -> String {
+        guard let separatorIndex = channelId.firstIndex(of: "_") else {
+            return channelId
+        }
+        return String(channelId[..<separatorIndex])
+    }
+
     override func didReceive(
         _ request: UNNotificationRequest,
         withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
@@ -213,10 +220,11 @@ class NotificationService: UNNotificationServiceExtension {
                     content.title = title.isEmpty ? "Quiet" : title
                     content.body = latestMessage.body
 
+                    let channelName = Self.channelName(from: latestMessage.channelId)
                     if decryptedMessages.count > 1 {
-                        content.subtitle = "\(decryptedMessages.count) new messages"
+                        content.title = "#\(channelName) (\(decryptedMessages.count) new messages)"
                     } else {
-                        content.subtitle = ""
+                        content.title = "#\(channelName)"
                     }
 
                     os_log(

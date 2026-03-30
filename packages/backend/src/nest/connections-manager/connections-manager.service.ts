@@ -394,7 +394,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [localAddress],
       psk: Libp2pService.generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
-      teamId: sigchain.team!.id,
+      teamId: sigchain.team?.id,
       qssEnabled: this.qssAllowed && payload.useServer,
       qssEndpoint: this.qssEndpoint,
       tosAccepted: payload.tosAccepted,
@@ -509,6 +509,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])], // TODO: we should deprecate this field and use db
       inviteData,
       psk: inviteData.psk,
+      teamId: inviteData.version === InvitationDataVersion.v3 ? inviteData.authData.teamId : undefined,
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
@@ -679,6 +680,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private getNseQssUrl(wsUrl: string | undefined): string | undefined {
     if (wsUrl == null || wsUrl === '') {
+      this.logger.warn('Skipping NSE QSS URL update because wsUrl is empty')
       return undefined
     }
 
@@ -694,30 +696,28 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return undefined
   }
 
-  private async emitNseQssUrl(socket?: { emit: (event: string, payload: NseQssUrlUpdatedEvent) => void }): Promise<void> {
+  private async emitNseQssUrl(): Promise<void> {
     if ((process.platform as string) !== 'ios') {
       return
     }
 
     const community = await this.localDbService.getCurrentCommunity()
     if (community?.teamId == null) {
+      this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
+      this.logger.warn('Community', community)
       return
     }
 
     const wsUrl = this.qssService.qssEndpoint ?? community.qssEndpoint ?? this.qssEndpoint
     const qssUrl = this.getNseQssUrl(wsUrl)
     if (qssUrl == null) {
+      this.logger.warn('Skipping NSE QSS URL update because no valid QSS URL could be derived')
       return
     }
 
     const payload: NseQssUrlUpdatedEvent = {
       teamId: community.teamId,
       qssUrl,
-    }
-
-    if (socket != null) {
-      socket.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
-      return
     }
 
     this.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
@@ -728,9 +728,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   private attachSocketServiceListeners() {
     this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
-      void this.emitNseQssUrl(socket)
+      void this.emitNseQssUrl()
       socket.on(SocketActions.START, () => {
-        void this.emitNseQssUrl(socket)
+        void this.emitNseQssUrl()
       })
     })
 
