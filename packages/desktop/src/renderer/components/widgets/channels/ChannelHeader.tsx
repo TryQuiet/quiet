@@ -126,22 +126,18 @@ const Root = styled('div')(({ theme }) => ({
 
 export interface ChannelHeaderProps {
   channelName: string
-  channelId: string
   isPublic: boolean
   openContextMenu?: () => void
   enableContextMenu: boolean
-  user?: UserProfile
 }
 
 const logger = createLogger('channels:ChannelHeader')
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
-  channelId,
   isPublic,
   openContextMenu,
   enableContextMenu,
-  user,
 }) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
@@ -175,7 +171,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
 
   const channelNameTruncated = channelName?.substring(0, 20)
   const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
-  logger.warn('Channel IDs for user', user?.channels, user)
   const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
   return (

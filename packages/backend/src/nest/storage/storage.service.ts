@@ -101,6 +101,7 @@ export class StorageService extends EventEmitter {
     this.logger.info('Initialized storage')
     this.initialized = true
     this.initializing = false
+    this.emit(StorageEvents.INITIALIZED)
   }
 
   public async clean() {

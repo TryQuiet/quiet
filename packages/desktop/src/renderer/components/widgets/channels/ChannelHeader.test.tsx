@@ -7,7 +7,7 @@ describe('ChannelHeader', () => {
   describe('Public', () => {
     it('hides context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' channelId='abc123' isPublic={true} enableContextMenu={false} />
+        <ChannelHeaderComponent channelName='general' isPublic={true} enableContextMenu={false} />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
               <body>
@@ -52,7 +52,7 @@ describe('ChannelHeader', () => {
     })
     it('reveals context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' channelId='abc123' isPublic={true} enableContextMenu={true} />
+        <ChannelHeaderComponent channelName='general' isPublic={true} enableContextMenu={true} />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
               <body>
@@ -116,7 +116,7 @@ describe('ChannelHeader', () => {
   describe('Private', () => {
     it('hides context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' channelId='abc123' isPublic={false} enableContextMenu={false} />
+        <ChannelHeaderComponent channelName='general' isPublic={false} enableContextMenu={false} />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
         <body>
@@ -169,7 +169,7 @@ describe('ChannelHeader', () => {
     })
     it('reveals context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' channelId='abc123' isPublic={false} enableContextMenu={true} />
+        <ChannelHeaderComponent channelName='general' isPublic={false} enableContextMenu={true} />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
         <body>

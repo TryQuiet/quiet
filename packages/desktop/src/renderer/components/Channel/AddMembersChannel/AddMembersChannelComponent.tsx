@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { styled } from '@mui/material/styles'
 
@@ -157,22 +157,38 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
   addMembersToChannel,
 }) => {
   const theme = useTheme()
-  const initialOptions: AutoCompleteOption[] = []
-  let index = 0
-  for (const user of Object.values(possibleMembers)) {
-    logger.warn('Channel IDs', user.userId, user.channels)
-    if ((user.channels ?? []).includes(channelId)) {
-      continue
-    }
-    initialOptions.push({ label: user.nickname, id: user.userId, selected: false, index })
-    index++
-  }
   const [selectedMembers, setSelectedMembers] = useState<AutoCompleteOption[]>([])
-  const [autoCompleteOptions, setAutoCompleteOptions] = useState<AutoCompleteOption[]>(initialOptions)
+  const [autoCompleteOptions, setAutoCompleteOptions] = useState<AutoCompleteOption[]>([])
+  let initialized = false
+
+  const _updateAutoCompleteOptions = () => {
+    const updatedOptions: AutoCompleteOption[] = []
+    let index = 0
+    for (const user of Object.values(possibleMembers)) {
+      logger.warn('Channel IDs', user.userId, user.channels)
+      if ((user.channels ?? []).includes(channelId)) {
+        continue
+      }
+      updatedOptions.push({ label: user.nickname, id: user.userId, selected: false, index })
+      index++
+    }
+    setAutoCompleteOptions(updatedOptions)
+    initialized = true
+  }
+
+  useEffect(() => {
+    if (open && !initialized) {
+      _updateAutoCompleteOptions()
+    } else if (!open) {
+      setAutoCompleteOptions([])
+      initialized = false
+    }
+  }, [open])
+
   const handleAddMembersToChannel = (): void => {
     addMembersToChannel(selectedMembers.map(option => option.id))
     setSelectedMembers([])
-    setAutoCompleteOptions(initialOptions)
+    setAutoCompleteOptions([])
   }
 
   const customTheme = (outerTheme: Theme) =>

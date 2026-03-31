@@ -664,8 +664,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
   }
 
-  private async _updateUsersInStateManager(): Promise<void> {
-    if (!this.sigChainService) return
+  private async _updateUsersInStateManager(sourceEvent: string): Promise<void> {
+    this.logger.debug('Updating users after source event', sourceEvent)
+    if (!this.sigChainService) {
+      this.logger.warn(`Skipping users update, sigchainservice hasn't been initialized`)
+      return
+    }
 
     // handle chain updates
     let channelMapping: Record<string, Channel> = {}
@@ -871,12 +875,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   private attachStorageListeners() {
     if (!this.storageService) return
+
+    this.storageService.on(StorageEvents.INITIALIZED, () => {
+      this.logger.info(`Storage - ${StorageEvents.INITIALIZED}`)
+      void this._updateUsersInStateManager(StorageEvents.INITIALIZED)
+    })
+
     // Channel and Message Events
     this.storageService.channels.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
       this.logger.info(`Storage - ${StorageEvents.CHANNELS_STORED}`)
       this.serverIoProvider.io.emit(SocketEvents.CHANNELS_STORED, payload)
       this.logger.info(`Storage (emitted) - ${SocketEvents.CHANNELS_STORED}`)
-      void this._updateUsersInStateManager()
+      void this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED)
     })
     this.storageService.channels.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketEvents.MESSAGES_STORED, payload)
@@ -922,7 +932,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!this.sigChainService) return
 
     this.sigChainService.on('updated', async () => {
-      await this._updateUsersInStateManager()
+      await this._updateUsersInStateManager('lfa.updated')
     })
   }
 }
