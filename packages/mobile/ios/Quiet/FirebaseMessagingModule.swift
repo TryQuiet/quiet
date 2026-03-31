@@ -3,20 +3,10 @@ import React
 import FirebaseMessaging
 
 @objc(FirebaseMessagingModule)
-class FirebaseMessagingModule: RCTEventEmitter {
+class FirebaseMessagingModule: NSObject {
 
-    static let FCM_TOKEN_RECEIVED = "fcmTokenReceived"
-    static let FCM_TOKEN_REFRESHED = "fcmTokenRefreshed"
-
-    override static func requiresMainQueueSetup() -> Bool {
+    @objc static func requiresMainQueueSetup() -> Bool {
         return true
-    }
-
-    override func supportedEvents() -> [String]! {
-        return [
-            FirebaseMessagingModule.FCM_TOKEN_RECEIVED,
-            FirebaseMessagingModule.FCM_TOKEN_REFRESHED
-        ]
     }
 
     @objc
@@ -67,15 +57,5 @@ class FirebaseMessagingModule: RCTEventEmitter {
 
     @objc
     func setEncryptionKey(_ key: String) {
-    }
-    
-    @objc
-    func onTokenReceived(_ token: String) {
-        self.sendEvent(withName: FirebaseMessagingModule.FCM_TOKEN_RECEIVED, body: ["token": token])
-    }
-    
-    @objc
-    func onTokenRefreshed(_ token: String) {
-        self.sendEvent(withName: FirebaseMessagingModule.FCM_TOKEN_REFRESHED, body: ["token": token])
     }
 }

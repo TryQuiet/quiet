@@ -41,7 +41,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import { QSS_RECONNECT_DELAY_MS } from './qss.const'
+import { QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
@@ -449,9 +449,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       }
     }
 
-    // we need to normalize the hostname for QSS when running locally before adding the server to the chain
+    // Normalize local-ish hostnames (loopback, LAN IPs) to 'localhost' so the
+    // client matches the QSS server's default QSS_HOSTNAME in the sigchain.
     let host = url.parse(this._qssEndpoint).hostname!
-    if (host === '127.0.0.1') {
+    if (
+      /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|localhost)$/.test(
+        host
+      ) &&
+      process.env.NODE_ENV !== 'production'
+    ) {
       host = 'localhost'
     }
 
@@ -552,6 +558,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _stopLogPullInterval(teamId: string): void {
+    this.logger.debug('Stopping log pull interval', teamId)
     const existingInterval = this._logPullIntervals.get(teamId)
     if (existingInterval != null) {
       clearInterval(existingInterval)
@@ -562,6 +569,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public startLogPullInterval(teamId: string): void {
     this.logger.debug('Starting log pull interval', teamId)
     if (this._logPullIntervals.has(teamId)) {
+      this.logger.debug('Existing log pull interval, skipping', teamId)
       return
     }
 
@@ -569,7 +577,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     const interval = setInterval(() => {
       void this._pullLatestLogEntriesForTeam(teamId)
-    }, 30_000)
+    }, 10_000)
 
     this._logPullIntervals.set(teamId, interval)
   }
@@ -603,13 +611,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         this.startLogPullInterval(teamId)
       }
 
-      authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, startLogPullInterval)
+      authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, (teamId: string) => {
+        this.startLogPullInterval(teamId)
+      })
       authConnection?.on(QSSEvents.QSS_DISCONNECTED, () => {
         this.logger.info('Disconnected event received, stopping log entry pull interval', teamId)
         this._stopLogPullInterval(teamId)
       })
 
-      if (authConnection?.active) {
+      if (
+        authConnection?.connStatus === QSSAuthConnStatus.CONNECTED &&
+        authConnection?.joinStatus === JoinStatus.JOINED
+      ) {
+        this.logger.info('Already finished auth connection with QSS, starting log pull interval')
         startLogPullInterval()
       }
     }
@@ -773,6 +787,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     } else {
       this.logger.debug('Successful log sync to QSS')
       success = true
+      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload!.teamId)
     }
 
     if (!success) {

@@ -1,4 +1,4 @@
-import { all, fork, takeEvery, call, put, select, take, cancelled } from 'typed-redux-saga'
+import { all, fork, takeEvery, call, put, select, take, cancelled, delay } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
 import { NativeModules, AppState, AppStateStatus, Platform } from 'react-native'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
@@ -8,7 +8,9 @@ import {
   handlePermissionResultSaga,
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
+import { NotificationPermissionStatus } from './pushNotifications.types'
 import { pushNotifications } from '@quiet/state-manager'
+import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('pushNotificationsMasterSaga')
@@ -16,6 +18,8 @@ const logger = createLogger('pushNotificationsMasterSaga')
 // Event keys matching CommunicationModule.swift
 const NOTIFICATION_PERMISSION_RESULT = 'notificationPermissionResult'
 const DEVICE_TOKEN_RECEIVED = 'deviceTokenReceived'
+
+const firebaseMessagingModule = NativeModules.FirebaseMessagingModule
 
 function* requestPermissionSaga(): Generator {
   logger.info('Requesting iOS notification permission')
@@ -52,12 +56,59 @@ function createDeviceTokenChannel() {
   })
 }
 
+function hasGrantedPermission(payload: PermissionResultPayload): boolean {
+  if (payload.status) {
+    return payload.status === NotificationPermissionStatus.Granted
+  }
+
+  return payload.granted === true
+}
+
+function* waitForWebsocketConnectionSaga(): Generator {
+  while (true) {
+    const connected = yield* select(initSelectors.isWebsocketConnected)
+    if (connected) break
+    yield* delay(500)
+  }
+}
+
+function* sendDeviceTokenToBackendSaga(token: string): Generator {
+  logger.info('Waiting for websocket connection before sending FCM token')
+  yield* call(waitForWebsocketConnectionSaga)
+  logger.info('Sending FCM token to backend')
+  yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
+}
+
+function* syncCurrentDeviceTokenSaga(): Generator {
+  if (!firebaseMessagingModule?.getToken) {
+    logger.warn('FirebaseMessagingModule.getToken is unavailable, skipping initial token sync')
+    return
+  }
+
+  try {
+    const token = (yield* call([firebaseMessagingModule, firebaseMessagingModule.getToken])) as string | null
+
+    if (!token) {
+      logger.info('No current FCM token available yet')
+      return
+    }
+
+    logger.info('Fetched current FCM token from native module')
+    yield* call(sendDeviceTokenToBackendSaga, token)
+  } catch (error) {
+    logger.error('Failed to fetch current FCM token', error)
+  }
+}
+
 function* watchPermissionResults(): Generator {
   const channel = yield* call(createPermissionResultChannel)
   try {
     while (true) {
       const payload = yield* take(channel)
       yield* call(handlePermissionResultSaga, payload)
+      if (hasGrantedPermission(payload)) {
+        yield* call(syncCurrentDeviceTokenSaga)
+      }
     }
   } finally {
     if (yield cancelled()) {
@@ -95,8 +146,7 @@ function* watchDeviceToken(): Generator {
   try {
     while (true) {
       const { token } = yield* take(channel)
-      logger.info('Received device token')
-      yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
+      yield* call(sendDeviceTokenToBackendSaga, token)
     }
   } finally {
     if (yield cancelled()) {

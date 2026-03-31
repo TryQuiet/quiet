@@ -1,5 +1,9 @@
-# https://hub.docker.com/layers/library/node/20.20.0/images/sha256-053db972c542da7788a8cd36aded7e42a8e9ae55e23b18c26c5878b8dcf99972
-FROM node:20.20.0@sha256:65b74d0fb42134c49530a8c34e9f3e4a2fb8e1f99ac4a0eb4e6f314b426183a2
+# when upgrading node versions, get the "Index Digest" for the new version from this URL
+# for example, with Node 20.20.1, you'd open this URL in your browser:
+# https://hub.docker.com/layers/library/node/20.20.1/images
+
+# ***when upgrading node*** edit this line with the new version and index digest:
+FROM node:20.20.1@sha256:e391c5561646193be929e3fe55d27234f40a01d867d72b30ae1341b673a3bf4b
 
 RUN apt-get update && apt-get install -y android-sdk openjdk-17-jdk wget zip
 RUN ls /usr/lib/jvm/

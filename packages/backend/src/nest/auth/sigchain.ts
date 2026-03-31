@@ -16,6 +16,7 @@ import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
 
 const logger = createLogger('auth:sigchain')
+const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
   private _context: auth.MemberContext | auth.InviteeMemberContext
@@ -89,7 +90,13 @@ class SigChain extends EventEmitter {
    */
   public static create(teamName: string, username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
-    const team: auth.Team = auth.createTeam(teamName, localUser, undefined, { selfAssignableRoles: SELF_ASSIGN_ROLES })
+    const team: auth.Team = auth.createTeam(
+      teamName,
+      localUser,
+      undefined,
+      { selfAssignableRoles: SELF_ASSIGN_ROLES },
+      lfaLogger
+    )
     const adminContext = {
       user: localUser.user,
       device: localUser.device,
@@ -128,7 +135,7 @@ class SigChain extends EventEmitter {
    * @returns LoadedSigChain instance with the given team and user context
    */
   public static load(serializedTeam: Uint8Array, context: auth.LocalUserContext, teamKeyRing: auth.Keyring): SigChain {
-    const team: auth.Team = auth.loadTeam(serializedTeam, context, teamKeyRing)
+    const team: auth.Team = auth.loadTeam(serializedTeam, context, teamKeyRing, lfaLogger)
     const memberContext = {
       user: context.user,
       device: context.device,
@@ -217,7 +224,7 @@ class SigChain extends EventEmitter {
     serializedTeam: Uint8Array,
     teamKeyRing: auth.Keyring
   ): SigChain {
-    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing)
+    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing, lfaLogger)
     team.join(teamKeyRing)
     const memberContext = {
       user: context.user,
