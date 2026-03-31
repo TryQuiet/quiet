@@ -35,6 +35,7 @@
 
 * Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
 * Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
+* Fix delay between sign-in and historical log entry pull from QSS [#3127](https://github.com/TryQuiet/quiet/issues/3127)
 
 ## [6.3.0]
 
