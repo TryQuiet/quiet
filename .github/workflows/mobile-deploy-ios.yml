@@ -20,7 +20,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
           lfs: true
@@ -74,6 +74,8 @@ jobs:
         env:
           IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
           IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
+          IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
+          IOS_NSE_PROFILE_KEY: ${{ secrets.IOS_NSE_PROFILE_KEY }}
 
       - name: Build
         run: |
@@ -83,7 +85,6 @@ jobs:
             -scheme Quiet \
             -configuration Release \
             -archivePath build/Quiet.xcarchive \
-            PROVISIONING_PROFILE="762df280-302c-4336-a56d-c74914169337" \
             CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)" \
             ENABLE_BITCODE=NO
 

@@ -19,10 +19,15 @@ jobs:
             source_path: linux
             build_cmd: "--linux AppImage"
             artifact_glob: "packages/desktop/dist/*.AppImage"
-          - os: macos-15-intel
+          - os: macos-26-intel
             target: macos
             source_path: darwin
             build_cmd: "--mac"
+            artifact_glob: "packages/desktop/dist/*.dmg"
+          - os: macos-latest
+            target: macos-arm
+            source_path: darwin
+            build_cmd: "--mac --arm64"
             artifact_glob: "packages/desktop/dist/*.dmg"
           - os: windows-latest
             target: win
@@ -35,7 +40,7 @@ jobs:
       TEST_MODE: true
       IS_LOCAL: true
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -99,7 +104,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -145,7 +150,7 @@ jobs:
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -218,7 +223,7 @@ jobs:
 
   build-macos-prod:
     # needs: run-e2e-tests-mac
-    runs-on: macos-15-intel
+    runs-on: macos-26-intel
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
@@ -227,7 +232,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -296,6 +301,86 @@ jobs:
           version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
+  
+  build-macos-arm64-prod:
+    runs-on: macos-26
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/desktop
+
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+
+      - name: "Remove crud files"
+        run: xattr -crs .
+
+      - name: "Set electron-builder props"
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac --arm64 ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
+          asset_content_type: application/.dmg
+
+      - name: Send Release Notificaton
+        uses: ./.github/actions/release-notifier
+        if: always()
+        with:
+          os-name: MacOS (arm64)
+          version: ${{ steps.extract_version.outputs.version }}
+          status: ${{ job.status }}
+          slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
 
   build-windows-prod:
     # needs: run-e2e-tests-win
@@ -308,7 +393,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 

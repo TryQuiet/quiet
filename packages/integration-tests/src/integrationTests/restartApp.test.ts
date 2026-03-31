@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, clearInitializedCommunitiesAndRegistrars } from './appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
@@ -7,10 +6,6 @@ import {
   assertStoreStatesAreEqual,
   assertInitializedCommunity,
 } from './assertions'
-
-const crypto = new Crypto()
-
-global.crypto = crypto
 
 describe('restart app without doing anything', () => {
   let owner: AsyncReturnType<typeof createApp>
