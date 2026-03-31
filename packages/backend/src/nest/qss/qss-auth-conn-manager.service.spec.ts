@@ -58,7 +58,7 @@ describe('QSSAuthConnectionManager', () => {
     const conn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(conn).toBeDefined()
     expect(conn?.joinStatus).toBe(JoinStatus.JOINED)
-    expect(conn?.running).toBeTruthy()
+    expect(conn?.active).toBeTruthy()
   })
 
   it(`doesn't start a new connection when an existing connection is in place`, async () => {
@@ -66,13 +66,13 @@ describe('QSSAuthConnectionManager', () => {
     const conn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(conn).toBeDefined()
     expect(conn?.joinStatus).toBe(JoinStatus.JOINED)
-    expect(conn?.running).toBeTruthy()
+    expect(conn?.active).toBeTruthy()
 
     await qssAuthConnManager.startNewConnection(sigchainService.activeChain.team!.id)
     const possiblyNewConn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(possiblyNewConn).toBeDefined()
     expect(possiblyNewConn!.id).toEqual(conn!.id)
-    expect(possiblyNewConn?.running).toBeTruthy()
+    expect(possiblyNewConn?.active).toBeTruthy()
   })
 
   it(`restarts existing connection when a connection is in place but isn't active`, async () => {
@@ -80,15 +80,15 @@ describe('QSSAuthConnectionManager', () => {
     const conn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(conn).toBeDefined()
     expect(conn?.joinStatus).toBe(JoinStatus.JOINED)
-    expect(conn?.running).toBeTruthy()
+    expect(conn?.active).toBeTruthy()
     conn?.stop(false)
-    expect(conn?.running).toBeFalsy()
+    expect(conn?.active).toBeFalsy()
 
     await qssAuthConnManager.startNewConnection(sigchainService.activeChain.team!.id)
     const possiblyNewConn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(possiblyNewConn).toBeDefined()
     expect(possiblyNewConn!.id).toEqual(conn!.id)
-    expect(possiblyNewConn?.running).toBeTruthy()
+    expect(possiblyNewConn?.active).toBeTruthy()
   })
 
   it(`starts a new connection when a connection is closed and removed`, async () => {
@@ -96,15 +96,15 @@ describe('QSSAuthConnectionManager', () => {
     const conn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(conn).toBeDefined()
     expect(conn?.joinStatus).toBe(JoinStatus.JOINED)
-    expect(conn?.running).toBeTruthy()
+    expect(conn?.active).toBeTruthy()
     qssAuthConnManager.stopConnection(sigchainService.activeChain.team!.id)
-    expect(conn?.running).toBeFalsy()
+    expect(conn?.active).toBeFalsy()
 
     await qssAuthConnManager.startNewConnection(sigchainService.activeChain.team!.id)
     const possiblyNewConn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
     expect(possiblyNewConn).toBeDefined()
     expect(possiblyNewConn?.joinStatus).toBe(JoinStatus.JOINED)
-    expect(possiblyNewConn?.running).toBeTruthy()
+    expect(possiblyNewConn?.active).toBeTruthy()
     expect(possiblyNewConn!.id).not.toEqual(conn!.id)
   })
 })

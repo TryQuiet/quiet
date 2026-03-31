@@ -103,8 +103,8 @@ export class QSSAuthConnection extends EventEmitter {
    * This is true when the connection is starting up or has successfully completed the identity handshake
    * and is actively syncing sigchain updates with QSS
    */
-  public get running(): boolean {
-    return [QSSAuthConnStatus.STARTING, QSSAuthConnStatus.ACTIVE].includes(this.connStatus)
+  public get active(): boolean {
+    return [QSSAuthConnStatus.STARTING, QSSAuthConnStatus.CONNECTED].includes(this.connStatus)
   }
 
   public get id(): string {
@@ -141,7 +141,7 @@ export class QSSAuthConnection extends EventEmitter {
     if (this._authConnection != null) {
       // if we have an existing auth connection for this team check if it has been started and is active, if so
       // do nothing
-      if (this._authConnection._started && this.running) {
+      if (this._authConnection._started && this.active) {
         this.logger.error(`Auth connection already started with QSS for this team`, this.teamId)
         return
       }
@@ -199,7 +199,7 @@ export class QSSAuthConnection extends EventEmitter {
 
     // Handle connected events and update the sigchain/join status
     authConnection.on('connected', () => {
-      this._connStatus = QSSAuthConnStatus.ACTIVE
+      this._connStatus = QSSAuthConnStatus.CONNECTED
       if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
@@ -268,7 +268,7 @@ export class QSSAuthConnection extends EventEmitter {
   }
 
   public deliver(message: Uint8Array): void {
-    if (this._authConnection == null || !this.running) {
+    if (this._authConnection == null || !this.active) {
       throw new Error(`Auth connection with QSS for team ${this.teamId} needs to be initialized!`)
     }
 

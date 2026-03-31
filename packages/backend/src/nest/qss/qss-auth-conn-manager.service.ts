@@ -45,7 +45,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
         }
 
         const authConnection = this.getConnection(message.payload.teamId)
-        if (authConnection == null || !authConnection.running) {
+        if (authConnection == null || !authConnection.active) {
           throw new Error(
             `Auth connection for team ${message.payload.teamId} wasn't initialized, can't process auth sync message`
           )
@@ -79,7 +79,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     const existingAuthConnection = this.authConnMap.get(teamId)
     // if we have an existing auth connection with QSS for this team and it is active, do nothing
     if (existingAuthConnection != null) {
-      if (existingAuthConnection.running) {
+      if (existingAuthConnection.active) {
         this.logger.warn('Existing active auth connection with QSS found for this team ID', teamId)
         return
       }

@@ -5,5 +5,5 @@ export enum QSSAuthConnStatus {
   NOT_STARTED = 'NOT_STARTED',
   INACTIVE = 'INACTIVE',
   STARTING = 'STARTING',
-  ACTIVE = 'ACTIVE',
+  CONNECTED = 'CONNECTED',
 }

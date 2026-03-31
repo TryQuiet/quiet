@@ -496,7 +496,7 @@ describe('QSSService', () => {
           return {
             active: true,
             joinStatus: JoinStatus.JOINED,
-            connStatus: QSSAuthConnStatus.ACTIVE,
+            connStatus: QSSAuthConnStatus.CONNECTED,
             on: (...args: any[]) => {},
           } as any
         })

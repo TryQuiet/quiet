@@ -613,7 +613,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         this._stopLogPullInterval(teamId)
       })
 
-      if (authConnection?.connStatus === QSSAuthConnStatus.ACTIVE && authConnection?.joinStatus === JoinStatus.JOINED) {
+      if (
+        authConnection?.connStatus === QSSAuthConnStatus.CONNECTED &&
+        authConnection?.joinStatus === JoinStatus.JOINED
+      ) {
         this.logger.info('Already finished auth connection with QSS, starting log pull interval')
         startLogPullInterval()
       }
