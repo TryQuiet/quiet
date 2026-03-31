@@ -103,7 +103,7 @@ export class QSSAuthConnection extends EventEmitter {
    * This is true when the connection is starting up or has successfully completed the identity handshake
    * and is actively syncing sigchain updates with QSS
    */
-  public get active(): boolean {
+  public get running(): boolean {
     return [QSSAuthConnStatus.STARTING, QSSAuthConnStatus.ACTIVE].includes(this.connStatus)
   }
 
@@ -141,7 +141,7 @@ export class QSSAuthConnection extends EventEmitter {
     if (this._authConnection != null) {
       // if we have an existing auth connection for this team check if it has been started and is active, if so
       // do nothing
-      if (this._authConnection._started && this.active) {
+      if (this._authConnection._started && this.running) {
         this.logger.error(`Auth connection already started with QSS for this team`, this.teamId)
         return
       }
@@ -268,7 +268,7 @@ export class QSSAuthConnection extends EventEmitter {
   }
 
   public deliver(message: Uint8Array): void {
-    if (this._authConnection == null || !this.active) {
+    if (this._authConnection == null || !this.running) {
       throw new Error(`Auth connection with QSS for team ${this.teamId} needs to be initialized!`)
     }
 
