@@ -177,7 +177,7 @@ let browserWidth: number
 let browserHeight: number
 
 // Default title bar must be hidden for macos because we have custom styles for it
-const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
+const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
   logger.trace('Creating splash and main windows')
   logger.trace('Creating main window')
