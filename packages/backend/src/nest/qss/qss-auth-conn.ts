@@ -57,12 +57,14 @@ export class QSSAuthConnection extends EventEmitter {
     this._setupEventHandlers()
   }
 
+  private _onQssDisconnected = (): void => {
+    this.logger.warn('QSS disconnected, closing auth connection', this.teamId)
+    this.stop(false)
+    this._authConnection = undefined
+  }
+
   private _setupEventHandlers(): void {
-    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, () => {
-      this.logger.warn('QSS disconnected, closing auth connection', this.teamId)
-      this.stop(true)
-      this._authConnection = undefined
-    })
+    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, this._onQssDisconnected)
   }
 
   public get teamId(): string | undefined {
@@ -275,6 +277,8 @@ export class QSSAuthConnection extends EventEmitter {
    * @param sendDisconnectToQSS If true send a disconnect message to QSS on closure
    */
   public stop(sendDisconnectToQSS = false): void {
+    this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._onQssDisconnected)
+
     if (this._authConnection == null) {
       this.logger.warn(`Auth connection not open with QSS for this team`, this.teamId)
       return
