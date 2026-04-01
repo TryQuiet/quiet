@@ -12,7 +12,8 @@ class CommunicationModule: RCTEventEmitter {
   static let APP_RESUME_IDENTIFIER = "appresume"
   static let NOTIFICATION_PERMISSION_RESULT = "notificationPermissionResult"
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
-  static let NSE_LAST_SYNC_KEY = "quiet.nse.lastSyncTimestamp"
+  static let NSE_LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
+  static let NSE_LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
   static let NSE_QSS_URLS_KEY = "quiet.nse.qssUrls"
   static let NSE_BADGE_COUNT_KEY = "quiet.nse.badgeCount"
   static let APP_IS_FOREGROUND_KEY = "quiet.app.isForeground"
@@ -49,7 +50,15 @@ class CommunicationModule: RCTEventEmitter {
     defaults.set(true, forKey: CommunicationModule.APP_IS_FOREGROUND_KEY)
     defaults.set(0, forKey: CommunicationModule.NSE_BADGE_COUNT_KEY)
     UNUserNotificationCenter.current().removeAllDeliveredNotifications()
-    UIApplication.shared.applicationIconBadgeNumber = 0
+    if #available(iOS 17.0, *) {
+      UNUserNotificationCenter.current().setBadgeCount(0) { error in
+        if let error {
+          CommunicationModule.logger.error("appResume: failed to clear badge count: \(error)")
+        }
+      }
+    } else {
+      UIApplication.shared.applicationIconBadgeNumber = 0
+    }
     self.sendEvent(withName: CommunicationModule.APP_RESUME_IDENTIFIER, body: nil)
   }
   
@@ -84,7 +93,7 @@ class CommunicationModule: RCTEventEmitter {
         let keyAsString: String = keyAsAny as! String
         let data = Data(keyAsString.utf8)
         let decodedNamedKey = try decoder.decode(NamedKey.self, from: data)
-        try self.keychainHandler.addLfaKey(namedKey: decodedNamedKey)
+        _ = try self.keychainHandler.addLfaKey(namedKey: decodedNamedKey)
         let stored = try self.keychainHandler.getLfaKeyString(keyName: decodedNamedKey.keyName)
         CommunicationModule.logger.info("Stored key matches? \(stored == decodedNamedKey.key) \(decodedNamedKey.keyName)")
       } catch {
@@ -178,20 +187,25 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
-  func saveNseLastSyncTimestamp(_ timestamp: NSNumber) {
+  func saveNseLastSyncSeq(
+    _ teamId: NSString,
+    syncSeq: NSNumber
+  ) {
     let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    let newTimestamp = timestamp.doubleValue
-    let existingTimestamp = defaults.double(forKey: CommunicationModule.NSE_LAST_SYNC_KEY)
+    let newSyncSeq = syncSeq.doubleValue
+    let existingSyncSeq = defaults.double(forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
+    let teamIdStr = teamId as String
 
-    if existingTimestamp >= newTimestamp {
+    if existingSyncSeq >= newSyncSeq {
       CommunicationModule.logger.debug(
-        "saveNseLastSyncTimestamp: ignoring stale timestamp \(newTimestamp, privacy: .public), existing=\(existingTimestamp, privacy: .public)"
+        "saveNseLastSyncSeq: ignoring stale seq \(newSyncSeq, privacy: .public), existing=\(existingSyncSeq, privacy: .public)"
       )
       return
     }
 
-    defaults.set(newTimestamp, forKey: CommunicationModule.NSE_LAST_SYNC_KEY)
-    CommunicationModule.logger.info("saveNseLastSyncTimestamp: stored \(newTimestamp, privacy: .public)")
+    defaults.set(newSyncSeq, forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
+    defaults.set(teamIdStr, forKey: CommunicationModule.NSE_LAST_SYNC_TEAM_ID_KEY)
+    CommunicationModule.logger.info("saveNseLastSyncSeq: stored \(newSyncSeq, privacy: .public)")
   }
 
   @objc
@@ -249,4 +263,5 @@ class CommunicationModule: RCTEventEmitter {
       CommunicationModule.DEVICE_TOKEN_RECEIVED
     ]
   }
+
 }

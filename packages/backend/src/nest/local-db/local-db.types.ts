@@ -46,7 +46,7 @@ export enum LocalDBKeys {
   KEYRINGS = 'keyrings',
   PENDING_HEADS = 'pendingHeads',
   PENDING_QSS_LOG_SYNCS = 'pendingQssLogSyncs',
-  LAST_QSS_LOG_SYNC_TIME = 'lastQssLogSyncTime',
+  LAST_QSS_LOG_SYNC_SEQ = 'lastQssLogSyncSeq',
   DLQ_DECRYPT = 'dlq:decrypt',
   DLQ_DECRYPT_IDX = 'dlq:idx',
 }

@@ -49,15 +49,26 @@ class NSEAuthService {
 
     // MARK: - Fetch log entries
 
-    func fetchNewEntries(teamId: String, since: Int64) async throws -> [LogEntry] {
+    func fetchNewEntries(teamId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
         os_log("fetchNewEntries: reading deviceId from keychain", log: authLog, type: .debug)
         let deviceId = try NSEKeychainHelper.getDeviceId()
         os_log("fetchNewEntries: deviceId=%{public}@, authenticating", log: authLog, type: .info, deviceId)
         let token = try await authenticate(deviceId: deviceId, teamId: teamId)
-        os_log("fetchNewEntries: authenticated, fetching log entries since=%{public}lld", log: authLog, type: .info, since)
-        let resp = try await client.fetchLogEntries(teamId: teamId, since: since, token: token)
-        os_log("fetchNewEntries: received %{public}d entries", log: authLog, type: .info, resp.entries.count)
-        return resp.entries
+        os_log("fetchNewEntries: authenticated, fetching log entries afterSeq=%{public}lld",
+               log: authLog, type: .info, afterSeq)
+        do {
+            let resp = try await client.fetchLogEntries(teamId: teamId, afterSeq: afterSeq, token: token)
+            os_log("fetchNewEntries: received %{public}d entries", log: authLog, type: .info, resp.entries.count)
+            return resp
+        } catch NSEAuthError.logFetchFailed(let statusCode) where statusCode == 401 {
+            os_log("fetchNewEntries: token rejected (401) for teamId=%{public}@, evicting cache and retrying",
+                   log: authLog, type: .info, teamId)
+            tokenCache.removeValue(forKey: teamId)
+            let freshToken = try await authenticate(deviceId: deviceId, teamId: teamId)
+            let resp = try await client.fetchLogEntries(teamId: teamId, afterSeq: afterSeq, token: freshToken)
+            os_log("fetchNewEntries: retry succeeded, received %{public}d entries", log: authLog, type: .info, resp.entries.count)
+            return resp
+        }
     }
 }
 

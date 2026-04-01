@@ -9,8 +9,7 @@ struct NSEKeychainHelper {
     private static let devicePrivateKeyPrefix = "quiet.device.privateKey."
     private static let deviceIdKey            = "quiet.device.id"
     private static let teamIdKey              = "quiet.team.id"
-    private static let lastSyncKey            = "quiet.nse.lastSyncTimestamp"
-    private static let lastSyncCidsKey        = "quiet.nse.lastSyncCids"
+    private static let lastSyncSeqKey         = "quiet.nse.lastSyncSeq"
     private static let qssUrlsKey             = "quiet.nse.qssUrls"
     private static let appIsForegroundKey     = "quiet.app.isForeground"
     private static let lfaKeyService          = "com.quietmobile"
@@ -56,36 +55,18 @@ struct NSEKeychainHelper {
         return str
     }
 
-    // MARK: - Last sync timestamp (UserDefaults — not sensitive)
+    // MARK: - Last sync state (UserDefaults — not sensitive)
 
-    static func getLastSyncTimestamp() -> Int64 {
+    static func getLastSyncSeq() -> Int64 {
         let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
-        return Int64(defaults.double(forKey: lastSyncKey))
+        return Int64(defaults.double(forKey: lastSyncSeqKey))
     }
 
-    static func saveLastSyncTimestamp(_ ts: Int64) {
+    static func saveLastSyncSeq(_ seq: Int64) {
         let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
-        let current = Int64(defaults.double(forKey: lastSyncKey))
-        os_log("Saving last sync timestamp: current=%{public}lld, new=%{public}lld", current, ts)
-        defaults.set(Double(max(current, ts)), forKey: lastSyncKey)
-    }
-
-    static func getLastSyncCids() -> [String] {
-        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
-        return defaults.stringArray(forKey: lastSyncCidsKey) ?? []
-    }
-
-    static func saveLastSyncState(timestamp: Int64, cids: [String]) {
-        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
-        let currentTimestamp = Int64(defaults.double(forKey: lastSyncKey))
-        if timestamp < currentTimestamp {
-            os_log("Ignoring stale sync state save: current=%{public}lld, new=%{public}lld", currentTimestamp, timestamp)
-            return
-        }
-
-        defaults.set(Double(timestamp), forKey: lastSyncKey)
-        defaults.set(Array(Set(cids)).sorted(), forKey: lastSyncCidsKey)
-        os_log("Saved sync state: timestamp=%{public}lld cids=%{public}@", timestamp, cids.joined(separator: ","))
+        let current = Int64(defaults.double(forKey: lastSyncSeqKey))
+        os_log("Saving last sync seq: current=%{public}lld, new=%{public}lld", current, seq)
+        defaults.set(Double(max(current, seq)), forKey: lastSyncSeqKey)
     }
 
     static func getQssUrl(teamId: String) -> URL? {

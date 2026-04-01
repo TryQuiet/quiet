@@ -21,7 +21,7 @@ export interface NseQssUrlUpdatedEvent {
   qssUrl: string
 }
 
-export interface NseSyncTimestampUpdatedEvent {
+export interface NseSyncSeqUpdatedEvent {
   teamId: string
-  lastSyncTimestamp: number
+  lastSyncSeq: number
 }

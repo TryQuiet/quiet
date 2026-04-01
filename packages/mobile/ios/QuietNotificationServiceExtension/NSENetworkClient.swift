@@ -63,13 +63,13 @@ class NSENetworkClient {
 
     // MARK: - GET /nse-auth/logs/:teamId
 
-    func fetchLogEntries(teamId: String, since: Int64, token: String) async throws -> LogEntriesResponse {
+    func fetchLogEntries(teamId: String, afterSeq: Int64, token: String) async throws -> LogEntriesResponse {
         guard let urlComponents = URLComponents(
             url: baseURL.appendingPathComponent("nse-auth/logs/\(teamId)"),
             resolvingAgainstBaseURL: false
         ) else { throw NSEAuthError.invalidResponse }
         var components = urlComponents
-        components.queryItems = [URLQueryItem(name: "since", value: String(since))]
+        components.queryItems = [URLQueryItem(name: "afterSeq", value: String(afterSeq))]
 
         guard let url = components.url else { throw NSEAuthError.invalidResponse }
 

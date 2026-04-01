@@ -21,13 +21,12 @@ import {
   DeviceCredentialsUpdatedEvent,
   KeysUpdatedEvent,
   NseQssUrlUpdatedEvent,
-  NseSyncTimestampUpdatedEvent,
+  NseSyncSeqUpdatedEvent,
   SocketActions,
   SocketEvents,
   UserProfilesUpdatedPayload,
 } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { initSelectors } from '../init.selectors'
 import { keysActions } from '../../keys/keys.slice'
 import { usersMetadataActions } from '../../userMetadata/usersMetadata.slice'
 
@@ -122,15 +121,23 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
         logger.error('Failed to store NSE QSS URL in iOS native storage', error)
       }
     })
-    socket.on(SocketEvents.NSE_SYNC_TIMESTAMP_UPDATED, async (payload: NseSyncTimestampUpdatedEvent) => {
-      logger.info(`NSE sync timestamp updated for team ${payload.teamId}, saving in shared iOS storage`)
+    socket.on(SocketEvents.NSE_SYNC_SEQ_UPDATED, async (payload: NseSyncSeqUpdatedEvent) => {
+      logger.info(`NSE sync seq updated for team ${payload.teamId}, saving in shared iOS storage`)
       try {
-        await NativeModules.CommunicationModule?.saveNseLastSyncTimestamp?.(payload.lastSyncTimestamp)
+        await NativeModules.CommunicationModule?.saveNseLastSyncSeq?.(payload.teamId, payload.lastSyncSeq)
       } catch (error) {
-        logger.error('Failed to store NSE sync timestamp in iOS native storage', error)
+        logger.error('Failed to store NSE sync seq in iOS native storage', error)
       }
     })
-    return () => {}
+    return () => {
+      socket.off('connect')
+      socket.off('disconnect')
+      socket.off(SocketEvents.KEYS_UPDATED)
+      socket.off(SocketEvents.DEVICE_CREDENTIALS_UPDATED)
+      socket.off(SocketEvents.USER_PROFILES_UPDATED)
+      socket.off(SocketEvents.NSE_QSS_URL_UPDATED)
+      socket.off(SocketEvents.NSE_SYNC_SEQ_UPDATED)
+    }
   })
 }
 

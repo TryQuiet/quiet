@@ -9,5 +9,6 @@ RCT_EXTERN_METHOD(saveKeysInKeychain:(NSArray *)newKeys)
 RCT_EXTERN_METHOD(saveUserMetadata:(NSArray *)updatedMetadata)
 RCT_EXTERN_METHOD(saveDeviceCredentials:(NSString *)deviceId teamId:(NSString *)teamId signingPrivateKey:(NSString *)signingPrivateKey)
 RCT_EXTERN_METHOD(saveNseQssUrl:(NSString *)teamId qssUrl:(NSString *)qssUrl)
-RCT_EXTERN_METHOD(saveNseLastSyncTimestamp:(nonnull NSNumber *)timestamp)
+RCT_EXTERN_METHOD(saveNseLastSyncSeq:(NSString *)teamId
+                  syncSeq:(nonnull NSNumber *)syncSeq)
 @end

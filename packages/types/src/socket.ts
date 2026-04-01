@@ -40,7 +40,7 @@ import {
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
-import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent, NseQssUrlUpdatedEvent, NseSyncTimestampUpdatedEvent } from './keys'
+import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent, NseQssUrlUpdatedEvent, NseSyncSeqUpdatedEvent } from './keys'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -153,7 +153,7 @@ export enum SocketEvents {
   QSS_CONNECTED = 'qssConnected',
   QSS_DISCONNECTED = 'qssDisconnected',
   NSE_QSS_URL_UPDATED = 'nseQssUrlUpdated',
-  NSE_SYNC_TIMESTAMP_UPDATED = 'nseSyncTimestampUpdated',
+  NSE_SYNC_SEQ_UPDATED = 'nseSyncSeqUpdated',
   MIGRATION_DATA_REQUIRED = 'migrationDataRequired',
   PUSH_NOTIFICATION = 'pushNotification',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
@@ -265,7 +265,7 @@ export interface SocketEventsMap {
   [SocketEvents.QSS_CONNECTED]: EmitEvent<void>
   [SocketEvents.QSS_DISCONNECTED]: EmitEvent<void>
   [SocketEvents.NSE_QSS_URL_UPDATED]: EmitEvent<NseQssUrlUpdatedEvent>
-  [SocketEvents.NSE_SYNC_TIMESTAMP_UPDATED]: EmitEvent<NseSyncTimestampUpdatedEvent>
+  [SocketEvents.NSE_SYNC_SEQ_UPDATED]: EmitEvent<NseSyncSeqUpdatedEvent>
   [SocketEvents.MIGRATION_DATA_REQUIRED]: EmitEvent<string[]>
   [SocketEvents.PUSH_NOTIFICATION]: EmitEvent<PushNotificationPayload>
   [SocketEvents.CONNECTION_PROCESS_INFO]: EmitEvent<string>

@@ -17,6 +17,7 @@ import {
   CreateCommunityResponse,
   CreateCommunityStatus,
   LogEntrySyncMessage,
+  LogEntrySyncResponseMessage,
   GeneratePublicKeysMessage,
   WebsocketEvents,
   QSSOperationResult,
@@ -42,19 +43,14 @@ import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS } from './qss.const'
-import {
-  CompoundError,
-  InvitationDataV3,
-  NseSyncTimestampUpdatedEvent,
-  SocketActions,
-  SocketEvents,
-} from '@quiet/types'
+import { CompoundError, InvitationDataV3, NseSyncSeqUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { Serializer } from '../common/serializer.service'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
+  private _paused = false
   /**
    * True while waiting for websocket connection to finish connecting
    */
@@ -66,7 +62,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Interval for retrying/reconnecting to QSS
    */
-  private _reconnectQueueProcessor: NodeJS.Timeout
+  private _reconnectQueueProcessor: NodeJS.Timeout | undefined
 
   /**
    * Map of team IDs to intervals pulling log entries
@@ -212,8 +208,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: LogEntrySyncMessage): Promise<void> => {
       this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
       const ingested = await this.orbitDbService.handleFanoutMessage(message)
-      if (ingested) {
-        await this.updateNseLastSyncTimestamp(message.payload.teamId, message.ts)
+      if (message.payload.syncSeq != null) {
+        await this.handleObservedSyncSeq(
+          message.payload.teamId,
+          message.payload.syncSeq,
+          ingested,
+          `fanout hash=${message.payload.hash}`
+        )
       }
     })
 
@@ -337,6 +338,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   public async connect(qssEndpoint: string | undefined, enabledOverride: boolean = false): Promise<QSSOperationResult> {
+    if (this._paused) {
+      this.logger.debug('Skipping QSS connect because service is paused')
+      return QSSOperationResult.DISABLED
+    }
+
     let connStatus: QSSOperationResult
     try {
       connStatus = await this._connectImpl(qssEndpoint, enabledOverride)
@@ -350,6 +356,27 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     return connStatus
+  }
+
+  public pause(): void {
+    this.logger.info('Pausing QSS service')
+    this._paused = true
+    if (this._reconnectQueueProcessor != null) {
+      clearInterval(this._reconnectQueueProcessor)
+      this._reconnectQueueProcessor = undefined
+    }
+    for (const interval of this._logPullIntervals.values()) {
+      clearInterval(interval)
+    }
+    this._logPullIntervals.clear()
+    this.qssAuthConnManager.close()
+    this.qssClient.close()
+  }
+
+  public async resume(): Promise<QSSOperationResult> {
+    this.logger.info('Resuming QSS service')
+    this._paused = false
+    return await this.connect(this.qssEndpoint)
   }
 
   /**
@@ -580,13 +607,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return
     }
 
-    void this._pullLatestLogEntriesForTeam(teamId)
-
     const interval = setInterval(() => {
       void this._pullLatestLogEntriesForTeam(teamId)
     }, 30_000)
 
     this._logPullIntervals.set(teamId, interval)
+    void this._pullLatestLogEntriesForTeam(teamId)
   }
 
   /**
@@ -605,7 +631,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       result = QSSOperationResult.ERROR
     }
 
-    // TODO: cleanup the connected listener
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once connected', teamId)
       const authConnection = this.qssAuthConnManager.getConnection(teamId)
@@ -618,6 +643,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         this.startLogPullInterval(teamId)
       }
 
+      authConnection?.removeAllListeners(QSSEvents.QSS_AUTH_CONNECTED)
+      authConnection?.removeAllListeners(QSSEvents.QSS_DISCONNECTED)
       authConnection?.on(QSSEvents.QSS_AUTH_CONNECTED, () => {
         this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
         startLogPullInterval()
@@ -779,7 +806,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     this.logger.debug('Sending log sync message to QSS', hash, teamId)
-    const dataSyncAck = await this.qssClient.sendMessage<LogEntrySyncMessage>(
+    const dataSyncAck = await this.qssClient.sendMessage<LogEntrySyncResponseMessage>(
       WebsocketEvents.LOG_ENTRY_SYNC,
       dataSyncMessage,
       true
@@ -792,6 +819,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.logger.error(`Error while sending a log sync to QSS - ${dataSyncAck.reason}`, hash, teamId)
     } else {
       this.logger.debug('Successful log sync to QSS')
+      if (dataSyncAck.payload.syncSeq != null) {
+        await this.handleObservedSyncSeq(teamId, dataSyncAck.payload.syncSeq, true, `sync-ack hash=${hash}`)
+      }
       success = true
       this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload!.teamId)
     }
@@ -840,25 +870,29 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public async pullLatestLogEntries(teamId: string): Promise<LogEntryPullResponseMessage> {
     this.logger.info(`Pulling all log entries from QSS for team ${teamId}`)
-    const lastSyncTime = await this.localDbService.getLastSyncTime(teamId)
+    let nextStartSeq = await this.localDbService.getLastSyncSeq(teamId)
     const sigchain = this.sigChainService.getChain({ teamId })
     const userId = sigchain.context.user.userId
 
     let hasNextPage = true
     let page = 0
-    let cursor: string | undefined = undefined
+    let highestSyncSeq: number | undefined = nextStartSeq ?? undefined
     while (hasNextPage) {
       const pullPayload: LogEntryPullPayload = {
         teamId,
         userId,
-        startTs: lastSyncTime ?? 0,
-        cursor,
+        ...(nextStartSeq != null ? { startSeq: nextStartSeq } : { startSeq: 0 }),
       }
       this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
-      const newSyncTime = DateTime.utc().toMillis()
       const pullResponse = await this.pullLogEntries(pullPayload)
       if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
         return pullResponse
+      }
+      if (pullResponse.payload.highestSyncSeq != null) {
+        highestSyncSeq =
+          highestSyncSeq == null
+            ? pullResponse.payload.highestSyncSeq
+            : Math.max(highestSyncSeq, pullResponse.payload.highestSyncSeq)
       }
       const deserializedEntries = pullResponse.payload.entries
         .map(entry => {
@@ -904,13 +938,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
       try {
         await this.orbitDbService.ingestEntries(decryptedEntries)
-        await this.updateNseLastSyncTimestamp(teamId, newSyncTime)
+        if (pullResponse.payload.highestSyncSeq != null) {
+          nextStartSeq = pullResponse.payload.highestSyncSeq
+          await this.updateLastSyncSeq(teamId, pullResponse.payload.highestSyncSeq)
+        }
       } catch (e) {
         this.logger.error('Failed to ingest pulled log entries from QSS into OrbitDB', e)
+        throw e
       }
       hasNextPage = pullResponse.payload.hasNextPage
-
-      cursor = pullResponse.payload.cursor
       page += 1
     }
     const finalPullResponse: LogEntryPullResponseMessage = {
@@ -919,31 +955,75 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       payload: {
         entries: [],
         hasNextPage: false,
+        highestSyncSeq,
+        resolvedStartSeq: nextStartSeq ?? undefined,
       },
     }
     this.logger.info(`Completed pulling all log entries from QSS for team ${teamId}`)
     return finalPullResponse
   }
 
-  private async updateNseLastSyncTimestamp(teamId: string, timestamp: number): Promise<void> {
-    if (!Number.isFinite(timestamp) || timestamp <= 0) {
-      this.logger.warn(`Refusing to persist invalid NSE sync timestamp for team ${teamId}: ${timestamp}`)
+  private async handleObservedSyncSeq(
+    teamId: string,
+    syncSeq: number,
+    ingested: boolean,
+    source: string
+  ): Promise<void> {
+    if (!Number.isFinite(syncSeq) || syncSeq <= 0) {
+      this.logger.warn(`Refusing to handle invalid sync seq for team ${teamId}: ${syncSeq} (${source})`)
       return
     }
 
-    const existingTimestamp = await this.localDbService.getLastSyncTime(teamId)
-    const nextTimestamp = existingTimestamp == null ? timestamp : Math.max(existingTimestamp, timestamp)
+    const existingSeq = await this.localDbService.getLastSyncSeq(teamId)
 
-    if (existingTimestamp === nextTimestamp) {
+    if (!ingested) {
+      this.logger.warn(
+        `Observed sync seq ${syncSeq} for ${teamId} from ${source} but local ingest failed; reconciling by pull`
+      )
+      void this._pullLatestLogEntriesForTeam(teamId)
       return
     }
 
-    await this.localDbService.setLastSyncTime(teamId, nextTimestamp)
-    const payload: NseSyncTimestampUpdatedEvent = {
+    if (existingSeq == null) {
+      this.logger.debug(`No persisted sync seq for ${teamId}; establishing baseline via pull before advancing seq`)
+      void this._pullLatestLogEntriesForTeam(teamId)
+      return
+    }
+
+    if (syncSeq <= existingSeq) {
+      return
+    }
+
+    if (syncSeq !== existingSeq + 1) {
+      this.logger.warn(
+        `Detected sync seq gap for ${teamId}: existing=${existingSeq} observed=${syncSeq} source=${source}; pulling reconciliation`
+      )
+      void this._pullLatestLogEntriesForTeam(teamId)
+      return
+    }
+
+    await this.updateLastSyncSeq(teamId, syncSeq)
+  }
+
+  private async updateLastSyncSeq(teamId: string, syncSeq: number): Promise<void> {
+    if (!Number.isFinite(syncSeq) || syncSeq <= 0) {
+      this.logger.warn(`Refusing to persist invalid sync seq for team ${teamId}: ${syncSeq}`)
+      return
+    }
+
+    const existingSeq = await this.localDbService.getLastSyncSeq(teamId)
+    const nextSyncSeq = existingSeq == null ? syncSeq : Math.max(existingSeq, syncSeq)
+
+    if (existingSeq === nextSyncSeq) {
+      return
+    }
+
+    await this.localDbService.setLastSyncSeq(teamId, nextSyncSeq)
+    const payload: NseSyncSeqUpdatedEvent = {
       teamId,
-      lastSyncTimestamp: nextTimestamp,
+      lastSyncSeq: nextSyncSeq,
     }
-    this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_SYNC_TIMESTAMP_UPDATED, payload)
+    this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_SYNC_SEQ_UPDATED, payload)
   }
 
   /**
@@ -1033,6 +1113,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public close(): void {
     this.logger.info(`Closing QSS service`)
     clearInterval(this._deadLetterQueueProcessor)
+    if (this._reconnectQueueProcessor != null) {
+      clearInterval(this._reconnectQueueProcessor)
+      this._reconnectQueueProcessor = undefined
+    }
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }

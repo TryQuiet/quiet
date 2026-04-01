@@ -18,6 +18,7 @@ import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
 import { QSSService } from '../qss/qss.service'
+import { QSSOperationResult } from '../qss/qss.types'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -163,5 +164,24 @@ describe('ConnectionsManagerService', () => {
         value: originalPlatform,
       })
     }
+  })
+
+  it('pauses and resumes qss alongside the mobile lifecycle', async () => {
+    const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
+    const openSocketSpy = jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
+    const libp2pPauseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'pause').mockResolvedValue(true)
+    const libp2pResumeSpy = jest.spyOn(connectionsManagerService.libp2pService, 'resume').mockResolvedValue(true)
+    const qssPauseSpy = jest.spyOn(qssService, 'pause').mockImplementation(() => {})
+    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue(QSSOperationResult.SUCCESS)
+
+    await connectionsManagerService.pause()
+    expect(qssPauseSpy).toHaveBeenCalledTimes(1)
+    expect(closeSocketSpy).toHaveBeenCalledTimes(1)
+    expect(libp2pPauseSpy).toHaveBeenCalledTimes(1)
+
+    await connectionsManagerService.resume()
+    expect(openSocketSpy).toHaveBeenCalledTimes(1)
+    expect(libp2pResumeSpy).toHaveBeenCalledTimes(1)
+    expect(qssResumeSpy).toHaveBeenCalledTimes(1)
   })
 })

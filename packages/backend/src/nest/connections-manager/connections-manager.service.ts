@@ -246,15 +246,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async pause() {
     this.logger.info('Pausing!')
+    this.qssService.pause()
+    await this.libp2pService?.pause()
     await this.closeSocket()
     this.logger.info('Pausing libp2pService!')
-    await this.libp2pService?.pause()
   }
 
   public async resume() {
     this.logger.info('Resuming!')
     await this.openSocket()
     this.libp2pService?.resume()
+    await this.qssService.resume()
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes

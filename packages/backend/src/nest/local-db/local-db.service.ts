@@ -436,25 +436,25 @@ export class LocalDbService extends EventEmitter {
   }
 
   /**
-   * Set the last QSS log sync time for a given team
+   * Set the last QSS log sync seq for a given team
    * @param teamId string team id
-   * @param timestamp number timestamp in milliseconds
+   * @param syncSeq number sequence number
    */
-  public async setLastSyncTime(teamId: string, timestamp: number): Promise<void> {
-    await this.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${teamId}`, timestamp.toString())
+  public async setLastSyncSeq(teamId: string, syncSeq: number): Promise<void> {
+    await this.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${teamId}`, syncSeq.toString())
   }
 
   /**
-   * Get the last QSS log sync time for a given team
+   * Get the last QSS log sync seq for a given team
    * @param teamId string team id
-   * @returns number | null timestamp in milliseconds or null if not found
+   * @returns number | null sequence number or null if not found
    */
-  public async getLastSyncTime(teamId: string): Promise<number | null> {
-    const ts = await this.get(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${teamId}`)
-    if (ts === null) {
+  public async getLastSyncSeq(teamId: string): Promise<number | null> {
+    const seq = await this.get(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${teamId}`)
+    if (seq === null) {
       return null
     }
-    const num = Number(ts)
+    const num = Number(seq)
     return isNaN(num) ? null : num
   }
 

@@ -69,9 +69,10 @@ struct LogEntry: Decodable {
     let communityId: String   // Team ID
     let entry: Data           // Raw EncryptedAndSignedPayload bytes
     let receivedAt: String    // ISO 8601 UTC string
+    let syncSeq: Int64        // Server-assigned per-team sync order
 
     private enum CodingKeys: String, CodingKey {
-        case cid, hashedDbId, communityId, entry, receivedAt
+        case cid, hashedDbId, communityId, entry, receivedAt, syncSeq
     }
 
     // Node.js Buffer serializes to JSON as {"type":"Buffer","data":[byte,...]}
@@ -85,6 +86,7 @@ struct LogEntry: Decodable {
         hashedDbId = try c.decode(String.self, forKey: .hashedDbId)
         communityId = try c.decode(String.self, forKey: .communityId)
         receivedAt = try c.decode(String.self, forKey: .receivedAt)
+        syncSeq = try c.decode(Int64.self, forKey: .syncSeq)
         let buffer = try c.decode(NodeBuffer.self, forKey: .entry)
         entry = Data(buffer.data)
     }
@@ -92,4 +94,5 @@ struct LogEntry: Decodable {
 
 struct LogEntriesResponse: Decodable {
     let entries: [LogEntry]
+    let resolvedAfterSeq: Int64
 }
