@@ -218,20 +218,46 @@ export function subscribe(socket: Socket) {
       emit(captchaActions.setCaptchaVerified(payload))
     })
 
-    return () => undefined
+    return () => {
+      socket.off(SocketEvents.COMMUNITY_LAUNCHED)
+      socket.off(SocketEvents.TOR_INITIALIZED)
+      socket.off(SocketEvents.QSS_CONNECTED)
+      socket.off(SocketEvents.QSS_DISCONNECTED)
+      socket.off(SocketEvents.CONNECTION_PROCESS_INFO)
+      socket.off(SocketEvents.PEER_CONNECTED)
+      socket.off(SocketEvents.PEER_DISCONNECTED)
+      socket.off(SocketEvents.MIGRATION_DATA_REQUIRED)
+      socket.off(SocketEvents.MESSAGE_MEDIA_UPDATED)
+      socket.off(SocketEvents.FILE_ATTACHED)
+      socket.off(SocketEvents.DOWNLOAD_PROGRESS)
+      socket.off(SocketEvents.REMOVE_DOWNLOAD_STATUS)
+      socket.off(SocketEvents.CHANNELS_STORED)
+      socket.off(SocketEvents.CHANNEL_SUBSCRIBED)
+      socket.off(SocketEvents.MESSAGE_IDS_STORED)
+      socket.off(SocketEvents.MESSAGES_STORED)
+      socket.off(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE)
+      socket.off(SocketEvents.ERROR)
+      socket.off(SocketEvents.USERS_UPDATED)
+      socket.off(SocketEvents.USERS_REMOVED)
+      socket.off(SocketEvents.USER_PROFILES_STORED)
+      socket.off(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST)
+      socket.off(SocketEvents.HCAPTCHA_SITE_KEY)
+      socket.off(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE)
+    }
   })
 }
 
 export function* handleActions(socket: Socket): Generator {
   logger.info('handleActions starting')
+  const socketChannel = yield* call(subscribe, socket)
   try {
-    const socketChannel = yield* call(subscribe, socket)
     yield takeEvery(socketChannel, function* (action) {
       logger.info('Dispatching action', action.type)
       yield put(action)
     })
   } finally {
     logger.info('handleActions stopping')
+    socketChannel.close()
     if (yield cancelled()) {
       logger.info('handleActions cancelled')
     }

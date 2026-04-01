@@ -77,9 +77,13 @@ function* setConnectedSaga(socket: Socket): Generator {
 
 function* handleSocketLifecycleActions(socket: Socket, socketIOData: WebsocketConnectionPayload): Generator {
   const socketChannel = yield* call(subscribeSocketLifecycle, socket, socketIOData)
-  yield takeEvery(socketChannel, function* (action) {
-    yield put(action)
-  })
+  try {
+    yield takeEvery(socketChannel, function* (action) {
+      yield put(action)
+    })
+  } finally {
+    socketChannel.close()
+  }
 }
 
 function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnectionPayload) {

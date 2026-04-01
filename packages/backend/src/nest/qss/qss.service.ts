@@ -602,14 +602,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   public startLogPullInterval(teamId: string): void {
-    this.logger.debug('Starting log pull interval', teamId)
     if (this._logPullIntervals.has(teamId)) {
+      this.logger.debug('Log pull interval already exists, skipping', teamId)
       return
     }
+    this.logger.debug('Starting log pull interval', teamId)
 
     const interval = setInterval(() => {
       void this._pullLatestLogEntriesForTeam(teamId)
-    }, 30_000)
+    }, 1_000)
 
     this._logPullIntervals.set(teamId, interval)
     void this._pullLatestLogEntriesForTeam(teamId)
