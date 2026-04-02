@@ -5,7 +5,6 @@ import { userProfileSelectors } from './userProfile.selectors'
 import { SocketActions, SocketEvents, SocketEventsMap, UserProfile, UserProfilesUpdatedPayload } from '@quiet/types'
 import { applyEmitParams, Socket } from '../../../types'
 import { usersActions } from '../users.slice'
-import * as _ from 'lodash'
 
 const logger = createLogger('updateUserProfilesSaga')
 
@@ -47,7 +46,7 @@ export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<Us
       }
 
       updates[userProfile.userId] = updatedProfile
-      if (!_.isEqual(existingProfile, updatedProfile)) {
+      if (JSON.stringify(existingProfile) !== JSON.stringify(updatedProfile)) {
         output.updates.push(updatedProfile)
       }
     } else {
