@@ -1,10 +1,3 @@
-//
-//  NotificationService.swift
-//  QuietNotificationServiceExtension
-//
-//  Created by Taea Vogel on 3/12/26.
-//
-
 import UserNotifications
 import os.log
 

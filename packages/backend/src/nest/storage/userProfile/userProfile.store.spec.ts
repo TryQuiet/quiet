@@ -97,7 +97,7 @@ describe('UserProfileStore', () => {
     const entry = await userProfileStore.setEntry(userProfile.userId, userProfile)
     expect(entry).toBeDefined()
     const result = await userProfileStore.getEntry(userProfile.userId)
-    expect(result).toEqual(userProfile)
+    expect(result).toEqual(UserProfileStore.sanitizeUserProfile(userProfile))
   })
 
   test('should get all user profiles', async () => {
@@ -105,7 +105,7 @@ describe('UserProfileStore', () => {
     expect(entry).toBeDefined()
     const result = await userProfileStore.getUserProfiles()
     expect(result).toHaveLength(1)
-    expect(result[0]).toEqual(userProfile)
+    expect(result[0]).toEqual(UserProfileStore.sanitizeUserProfile(userProfile))
   })
 
   test('should cache userId to nickname mapping', async () => {

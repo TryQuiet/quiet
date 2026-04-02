@@ -1,14 +1,6 @@
-//
-//  KeychainError.swift
-//  Quiet
-//
-//  Created by Isla Koenigsknecht on 2/25/26.
-//
-
 import Foundation
 import CryptoKit
 import Security
-import CoreData
 import OSLog
 
 public enum KeychainError: Error {
@@ -43,7 +35,7 @@ public struct NamedKey: Codable {
 class KeychainHandler: NSObject {
   private let keychainService: String = "com.quietmobile"
   private lazy var accessGroup: String? = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String
-  
+
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "KeychainHandler")
 
   public func getLfaKeyString(keyName: String) throws -> String {
@@ -173,7 +165,7 @@ class KeychainHandler: NSObject {
     }
 
     do {
-      let addStatus = try _addKeyToKeychainImpl(keyName: keyName, keyData: data, includeAccessGroup: true)
+      _ = try _addKeyToKeychainImpl(keyName: keyName, keyData: data, includeAccessGroup: true)
     } catch {
       KeychainHandler.logger.error("Failed to migrate legacy key \(keyName) into shared access group: \(error.localizedDescription)")
     }
