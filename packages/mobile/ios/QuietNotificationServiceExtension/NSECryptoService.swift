@@ -333,23 +333,17 @@ enum NSEMsgpack {
     /// Encodes a ChallengePayload in the same byte format as msgpackr.pack().
     static func encode(_ challenge: ChallengePayload) throws -> Data {
         var out = Data()
-        // map16 with 4 elements: 0xde 0x00 0x04
         // msgpackr always uses map16, never fixmap, regardless of element count.
         out.append(0xde)
         out.append(0x00)
         out.append(0x04)
-        // key: "type"  value: challenge.type
         try appendString("type", to: &out)
         try appendString(challenge.type, to: &out)
-        // key: "name"  value: challenge.name
         try appendString("name", to: &out)
         try appendString(challenge.name, to: &out)
-        // key: "nonce"  value: challenge.nonce
         try appendString("nonce", to: &out)
         try appendString(challenge.nonce, to: &out)
-        // key: "timestamp"  value: challenge.timestamp
-        // Date.now() returns ms since epoch (~1.7e12), which exceeds 2^32.
-        // msgpackr encodes values > 2^32 as float64, not uint64.
+        // Date.now() ms since epoch (~1.7e12) exceeds 2^32; msgpackr encodes as float64, not uint64.
         try appendString("timestamp", to: &out)
         appendFloat64(Double(challenge.timestamp), to: &out)
         return out
@@ -545,6 +539,21 @@ enum NSEMsgpack {
             return try self.readData(length: length)
         }
 
+        private func readRecordDefinition(recordId: UInt8) throws -> Any {
+            let keysValue = try self.readValue()
+            guard let keys = keysValue as? [Any] else {
+                throw MsgpackError.invalidRecordDefinition
+            }
+            let stringKeys = try keys.map { key -> String in
+                guard let key = key as? String else {
+                    throw MsgpackError.invalidRecordDefinition
+                }
+                return key
+            }
+            self.records[recordId] = stringKeys
+            return try self.readRecord(stringKeys)
+        }
+
         private func readExtension(length: Int) throws -> Any {
             let type = try self.readByte()
             let payload = try self.readData(length: length)
@@ -552,18 +561,7 @@ enum NSEMsgpack {
                 guard let recordId = payload.first else {
                     throw MsgpackError.invalidRecordDefinition
                 }
-                let keysValue = try self.readValue()
-                guard let keys = keysValue as? [Any] else {
-                    throw MsgpackError.invalidRecordDefinition
-                }
-                let stringKeys = try keys.map { key -> String in
-                    guard let key = key as? String else {
-                        throw MsgpackError.invalidRecordDefinition
-                    }
-                    return key
-                }
-                self.records[recordId] = stringKeys
-                return try self.readRecord(stringKeys)
+                return try self.readRecordDefinition(recordId: recordId)
             }
             return payload
         }
@@ -575,18 +573,7 @@ enum NSEMsgpack {
                 guard let recordId = payload.first else {
                     throw MsgpackError.invalidRecordDefinition
                 }
-                let keysValue = try self.readValue()
-                guard let keys = keysValue as? [Any] else {
-                    throw MsgpackError.invalidRecordDefinition
-                }
-                let stringKeys = try keys.map { key -> String in
-                    guard let key = key as? String else {
-                        throw MsgpackError.invalidRecordDefinition
-                    }
-                    return key
-                }
-                self.records[recordId] = stringKeys
-                return try self.readRecord(stringKeys)
+                return try self.readRecordDefinition(recordId: recordId)
             }
             // msgpackr uses fixext1 type 0 data 0 for undefined. Treat it as nil-like.
             if type == 0x00, length == 1, payload.first == 0x00 {

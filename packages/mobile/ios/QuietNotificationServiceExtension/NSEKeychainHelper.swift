@@ -12,6 +12,7 @@ struct NSEKeychainHelper {
     private static let qssUrlsKey             = "quiet.nse.qssUrls"
     private static let appIsForegroundKey     = "quiet.app.isForeground"
     private static let lfaKeyService          = "com.quietmobile"
+    private static let userDefaultsSuite      = "group.com.quietmobile"
 
     // MARK: - Device private key
 
@@ -47,19 +48,19 @@ struct NSEKeychainHelper {
     // MARK: - Last sync state (UserDefaults — not sensitive)
 
     static func getLastSyncSeq() -> Int64 {
-        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        let defaults = UserDefaults(suiteName: userDefaultsSuite) ?? UserDefaults.standard
         return Int64(defaults.double(forKey: lastSyncSeqKey))
     }
 
     static func saveLastSyncSeq(_ seq: Int64) {
-        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        let defaults = UserDefaults(suiteName: userDefaultsSuite) ?? UserDefaults.standard
         let current = Int64(defaults.double(forKey: lastSyncSeqKey))
         os_log("Saving last sync seq: current=%{public}lld, new=%{public}lld", current, seq)
         defaults.set(Double(max(current, seq)), forKey: lastSyncSeqKey)
     }
 
     static func getQssUrl(teamId: String) -> URL? {
-        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        let defaults = UserDefaults(suiteName: userDefaultsSuite) ?? UserDefaults.standard
         guard
             let qssUrls = defaults.dictionary(forKey: qssUrlsKey) as? [String: String],
             let qssUrlString = qssUrls[teamId]
@@ -71,7 +72,7 @@ struct NSEKeychainHelper {
     }
 
     static func isMainAppForeground() -> Bool {
-        let defaults = UserDefaults(suiteName: "group.com.quietmobile") ?? UserDefaults.standard
+        let defaults = UserDefaults(suiteName: userDefaultsSuite) ?? UserDefaults.standard
         return defaults.bool(forKey: appIsForegroundKey)
     }
 
