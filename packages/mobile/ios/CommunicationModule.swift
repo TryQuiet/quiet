@@ -31,19 +31,19 @@ class CommunicationModule: RCTEventEmitter {
   func sendDataPort(port: UInt16, socketIOSecret: String) {
     self.sendEvent(withName: CommunicationModule.BACKEND_EVENT_IDENTIFIER, body: ["channelName": CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL, "payload": ["dataPort": port, "socketIOSecret": socketIOSecret]])
   }
-  
+
   @objc
   func stopBackend() {
     self.sendEvent(withName: CommunicationModule.STOP_EVENT_IDENTIFIER, body: nil)
   }
-  
+
   @objc
   func appPause() {
     let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
     defaults.set(false, forKey: CommunicationModule.APP_IS_FOREGROUND_KEY)
     self.sendEvent(withName: CommunicationModule.APP_PAUSE_IDENTIFIER, body: nil)
   }
-  
+
   @objc
   func appResume() {
     let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
@@ -61,7 +61,7 @@ class CommunicationModule: RCTEventEmitter {
     }
     self.sendEvent(withName: CommunicationModule.APP_RESUME_IDENTIFIER, body: nil)
   }
-  
+
   @objc
   func handleIncomingEvents(_ event: NSString, payload: NSString?, extra: NSString?) {
     let socketPort = WebsocketSingleton.sharedInstance.socketPort
@@ -84,7 +84,7 @@ class CommunicationModule: RCTEventEmitter {
       }
     }
   }
-  
+
   @objc
   func saveKeysInKeychain(_ newKeys: NSArray) {
     let decoder = JSONDecoder()
@@ -161,7 +161,7 @@ class CommunicationModule: RCTEventEmitter {
         CommunicationModule.logger.error("Error while decoding user metadata: \(error)")
       }
     }
-    
+
     do {
       try self.userMetadataHandler.saveUserMetadata(updatedMetadata: userMetadata)
     } catch {

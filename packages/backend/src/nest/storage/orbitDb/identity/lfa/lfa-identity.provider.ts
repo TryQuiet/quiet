@@ -157,7 +157,6 @@ class LFAIdentityProvider implements IdentityProvider {
     try {
       // convert the hex string back to a signed envelope
       const signedEnvelope = this._hexToSignedEnvelope(signature)
-      this.logger.warn('Serialized signature', signedEnvelope)
       // validate the user is on the chain
       const { user, sigchain } = this.getUserAndChain(signedEnvelope.author.name, signedEnvelope.teamId)
       // verify the signature against the keys stored on the chain for this user

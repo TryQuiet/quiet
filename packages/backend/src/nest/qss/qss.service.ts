@@ -42,7 +42,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import { QSS_RECONNECT_DELAY_MS } from './qss.const'
+import { QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 import { CompoundError, InvitationDataV3, NseSyncSeqUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
@@ -594,6 +594,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _stopLogPullInterval(teamId: string): void {
+    this.logger.debug('Stopping log pull interval', teamId)
     const existingInterval = this._logPullIntervals.get(teamId)
     if (existingInterval != null) {
       clearInterval(existingInterval)
@@ -603,7 +604,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public startLogPullInterval(teamId: string): void {
     if (this._logPullIntervals.has(teamId)) {
-      this.logger.debug('Log pull interval already exists, skipping', teamId)
+      this.logger.debug('Existing log pull interval, skipping', teamId)
       return
     }
     this.logger.debug('Starting log pull interval', teamId)
