@@ -8,7 +8,6 @@ struct NSEKeychainHelper {
 
     private static let devicePrivateKeyPrefix = "quiet.device.privateKey."
     private static let deviceIdKey            = "quiet.device.id"
-    private static let teamIdKey              = "quiet.team.id"
     private static let lastSyncSeqKey         = "quiet.nse.lastSyncSeq"
     private static let qssUrlsKey             = "quiet.nse.qssUrls"
     private static let appIsForegroundKey     = "quiet.app.isForeground"
@@ -33,16 +32,6 @@ struct NSEKeychainHelper {
         let data = try readData(account: deviceIdKey, label: "device ID")
         guard let str = String(data: data, encoding: .utf8) else {
             throw NSEAuthError.keychainError("device ID is not valid UTF-8")
-        }
-        return str
-    }
-
-    // MARK: - Team ID
-
-    static func getTeamId() throws -> String {
-        let data = try readData(account: teamIdKey, label: "team ID")
-        guard let str = String(data: data, encoding: .utf8) else {
-            throw NSEAuthError.keychainError("team ID is not valid UTF-8")
         }
         return str
     }

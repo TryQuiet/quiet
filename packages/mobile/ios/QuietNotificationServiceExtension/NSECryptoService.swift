@@ -25,10 +25,6 @@ private struct NSEEncryptedPayload {
 // MARK: - Protocol
 
 protocol DeviceCryptography {
-    /// Sign message bytes with the device Ed25519 private key.
-    /// Returns raw 64-byte signature.
-    func sign(message: Data) throws -> Data
-
     /// Signs a challenge payload exactly as `identity.prove()` does in TypeScript.
     func signChallengePayload(_ challenge: ChallengePayload, privateKeyData: Data) throws -> ProofPayload
 
@@ -51,15 +47,6 @@ extension DeviceCryptography {
             publicKey: Base58.encode(publicKeyBytes)
         )
     }
-
-    func signBytes(_ message: Data, privateKeyData: Data) throws -> Data {
-        guard privateKeyData.count == 64 || privateKeyData.count == 32 else {
-            throw NSECryptoError.invalidKeyLength(expected: 64, got: privateKeyData.count)
-        }
-        let seed = privateKeyData.prefix(32)
-        let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: seed)
-        return try privateKey.signature(for: message)
-    }
 }
 
 // MARK: - Errors
@@ -70,7 +57,6 @@ enum NSECryptoError: Error, LocalizedError {
     case invalidPayload(String)
     case msgpack(String)
     case decryptionFailed(String)
-    case signingFailed
 
     var errorDescription: String? {
         switch self {
@@ -79,7 +65,6 @@ enum NSECryptoError: Error, LocalizedError {
         case .invalidPayload(let msg): return "Invalid payload: \(msg)"
         case .msgpack(let msg): return "MessagePack decoding failed: \(msg)"
         case .decryptionFailed(let msg): return "Decryption failed: \(msg)"
-        case .signingFailed: return "Signing failed"
         }
     }
 }
@@ -99,23 +84,21 @@ class NSECryptoService: DeviceCryptography {
         return [UInt8](salt)
     }()
 
-    /// Signs raw bytes using the device Ed25519 private key.
-    /// The 64-byte libsodium secret key = 32-byte seed ++ 32-byte public key.
-    /// CryptoKit only needs the 32-byte seed.
-    func sign(message: Data) throws -> Data {
-        throw NSECryptoError.signingFailed
-    }
-
     func decryptNotificationMessage(from logEntry: LogEntry, teamId: String) throws -> NSEDecryptedNotificationMessage? {
         let outerEnvelope = try self.decodeObject(logEntry.entry)
         guard let outerDict = outerEnvelope as? NSEJSONObject else {
-            return nil
+            throw NSECryptoError.invalidPayload("outer envelope was not an object")
         }
         let outerEncrypted = try self.parseEncryptedPayload(outerDict["encrypted"], label: "outer QSS payload")
 
         let orbitEntry = try self.decryptPayload(outerEncrypted, teamId: teamId)
         guard
-            let orbitEntryDict = orbitEntry as? NSEJSONObject,
+            let orbitEntryDict = orbitEntry as? NSEJSONObject
+        else {
+            throw NSECryptoError.invalidPayload("decrypted OrbitDB entry was not an object")
+        }
+
+        guard
             let payload = orbitEntryDict["payload"] as? NSEJSONObject,
             let payloadValue = payload["value"] as? NSEJSONObject
         else {
