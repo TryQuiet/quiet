@@ -90,7 +90,10 @@ class CommunicationModule: RCTEventEmitter {
     let decoder = JSONDecoder()
     for keyAsAny in newKeys {
       do {
-        let keyAsString: String = keyAsAny as! String
+        guard let keyAsString = keyAsAny as? String else {
+          CommunicationModule.logger.error("saveKeysInKeychain: unexpected non-string element in keys array")
+          continue
+        }
         let data = Data(keyAsString.utf8)
         let decodedNamedKey = try decoder.decode(NamedKey.self, from: data)
         _ = try self.keychainHandler.addLfaKey(namedKey: decodedNamedKey)
@@ -192,8 +195,8 @@ class CommunicationModule: RCTEventEmitter {
     syncSeq: NSNumber
   ) {
     let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    let newSyncSeq = syncSeq.doubleValue
-    let existingSyncSeq = defaults.double(forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
+    let newSyncSeq = syncSeq.intValue
+    let existingSyncSeq = defaults.integer(forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
     let teamIdStr = teamId as String
 
     if existingSyncSeq >= newSyncSeq {

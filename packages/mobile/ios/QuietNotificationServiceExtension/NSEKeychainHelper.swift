@@ -49,14 +49,14 @@ struct NSEKeychainHelper {
 
     static func getLastSyncSeq() -> Int64 {
         let defaults = UserDefaults(suiteName: userDefaultsSuite) ?? UserDefaults.standard
-        return Int64(defaults.double(forKey: lastSyncSeqKey))
+        return Int64(defaults.integer(forKey: lastSyncSeqKey))
     }
 
     static func saveLastSyncSeq(_ seq: Int64) {
         let defaults = UserDefaults(suiteName: userDefaultsSuite) ?? UserDefaults.standard
-        let current = Int64(defaults.double(forKey: lastSyncSeqKey))
+        let current = Int64(defaults.integer(forKey: lastSyncSeqKey))
         os_log("Saving last sync seq: current=%{public}lld, new=%{public}lld", current, seq)
-        defaults.set(Double(max(current, seq)), forKey: lastSyncSeqKey)
+        defaults.set(Int(max(current, seq)), forKey: lastSyncSeqKey)
     }
 
     static func getQssUrl(teamId: String) -> URL? {

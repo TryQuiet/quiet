@@ -143,7 +143,7 @@ export class SigChainService extends EventEmitter {
 
   private handleChainUpdate = (teamName: string) => {
     this._updateUsersOnChainUpdate(teamName)
-    this._updateKeysOnChainUpdate(teamName)
+    void this._updateKeysOnChainUpdate(teamName)
     this._updateDeviceCredentials(teamName)
     this.emit('updated', teamName)
     this.saveChain(teamName)
