@@ -98,6 +98,7 @@ export const publicChannelsSlice = createSlice({
         id: channel.id,
         unread: false,
         newestMessage: null,
+        public: channel.public,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {

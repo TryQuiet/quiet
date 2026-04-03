@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, publicChannels } from '@quiet/state-manager'
+import { communities, publicChannels, users } from '@quiet/state-manager'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
@@ -18,7 +18,6 @@ export const ChannelContextMenu: FC = () => {
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
-  const community = useSelector(communities.selectors.currentCommunity)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const isOwner = useSelector(communities.selectors.isOwner)
 
@@ -42,6 +41,17 @@ export const ChannelContextMenu: FC = () => {
   )
 
   let items: ContextMenuItemProps[] = []
+
+  if (channel?.public === false) {
+    items.push({
+      title: 'Manage Membership',
+      action: () =>
+        redirect(ScreenNames.ChannelMembershipScreen, {
+          channelName: channel?.name,
+          channelId: channel?.id,
+        }),
+    })
+  }
 
   if (isOwner) {
     items = [

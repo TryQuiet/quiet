@@ -5,8 +5,11 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
 import { Typography } from '../Typography/Typography.component'
 import { ChannelTileProps } from './ChannelTile.types'
+import LockIcon from '../../assets/icons/svg/lock'
+import PublicChannelIcon from '../../assets/icons/svg/public-channel'
 
-export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unread, redirect }) => {
+export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unread, isPublic, redirect }) => {
+  // TODO Question: can this be deleted?
   const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],
@@ -60,19 +63,22 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 4,
-                  backgroundColor: defaultTheme.palette.background.gray70,
+                  backgroundColor: isPublic
+                    ? defaultTheme.palette.background.gray70
+                    : defaultTheme.palette.background.grassGreen,
                 }}
               >
-                <Typography fontSize={14} color={'white'}>
-                  {name.slice(0, 2)}
+                <Typography fontSize={20} color={'white'}>
+                  {name.slice(0, 1).toUpperCase()}
                 </Typography>
               </View>
             </View>
             <View style={{ flex: 9, flexDirection: 'column' }}>
               <View style={{ flexDirection: 'row' }}>
-                <View style={{ flex: 8 }}>
+                <View style={{ flex: 8, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                  {!isPublic ? <LockIcon fill={true} /> : <PublicChannelIcon />}
                   <Typography fontSize={16} fontWeight={'medium'}>
-                    #{name}
+                    {name}
                   </Typography>
                 </View>
                 <View style={{ flex: 4, alignItems: 'flex-end' }}>

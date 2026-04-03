@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
-import { InvitationData } from '@quiet/types'
+import { Community, InvitationData, UserProfile } from '@quiet/types'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
@@ -25,6 +25,12 @@ export type RootStackParamList = {
   [ScreenNames.DeleteChannelScreen]: {
     channelName: string
     channelId: string
+  }
+  [ScreenNames.ChannelMembershipScreen]: {
+    channelName: string
+    channelId: string
+    community: Community
+    userProfiles: UserProfile[]
   }
   [ScreenNames.ErrorScreen]: {
     onPress: (dispatch: Dispatch<any>) => void
@@ -57,6 +63,8 @@ export type RootStackParamList = {
 }
 
 export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.DeleteChannelScreen>
+
+export type ChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.ChannelMembershipScreen>
 
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
 

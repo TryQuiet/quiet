@@ -61,7 +61,7 @@
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSPhotoLibraryLimitedAccessAPISupport</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -82,6 +82,7 @@
 		<string>Rubik-Regular.ttf</string>
 		<string>Rubik-SemiBold.ttf</string>
 		<string>Rubik-SemiBoldItalic.ttf</string>
+		<string>MaterialDesignIcons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

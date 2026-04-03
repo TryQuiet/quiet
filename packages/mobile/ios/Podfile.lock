@@ -1318,6 +1318,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (5.6.1):
     - React-Core
+  - react-native-vector-icons-material-design-icons (13.0.0)
   - react-native-webview (13.16.0):
     - DoubleConversion
     - glog
@@ -1777,6 +1778,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -1927,6 +1929,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-vector-icons-material-design-icons:
+    :path: "../node_modules/@react-native-vector-icons/material-design-icons"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-nativeconfig:
@@ -2069,6 +2073,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 82a9e4371e48c518a69882b3c54de11134196cd2
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
+  react-native-vector-icons-material-design-icons: 1955bd08457a8310e6a2d3c87c7f1ebaca159098
   react-native-webview: 0ab8d5073e09a9d0977323a83521535b91c87e31
   React-nativeconfig: 29f53f7caa03e1d3f49396320f4f055ae42ab8db
   React-NativeModulesApple: 1fe64d61396453d56ee3965c0adf2f3284c92a8b
