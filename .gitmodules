@@ -1,7 +1,7 @@
 [submodule "3rd-party/auth"]
 	path = 3rd-party/auth
 	url = https://github.com/TryQuiet/auth.git
-	branch = hack/private-channels
+	branch = feat/3155-private-channels
 [submodule "3rd-party/js-libp2p-noise"]
 	path = 3rd-party/js-libp2p-noise
 	url = https://github.com/TryQuiet/js-libp2p-noise.git
@@ -13,4 +13,4 @@
 [submodule "3rd-party/qss"]
 	path = 3rd-party/qss
 	url = https://github.com/TryQuiet/quiet-storage-service.git
-	branch = feat/3058-self-assign-and-invite-lockboxes
+	branch = feat/3155-private-channels
