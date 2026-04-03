@@ -201,6 +201,7 @@ export const getReduxStoreFactory = async (store: Store) => {
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
             id: generateChannelId('general'),
+            public: true,
           },
         })
         return payload
@@ -272,7 +273,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     'Channel',
     publicChannelsActions.addChannel,
     {
-      channel: factory.sequence('PublicChannel.channel', (n: number) => {
+      channel: factory.sequence('Channel.channel', (n: number) => {
         const name = `public-channel-${n}`
         return {
           name,
@@ -280,6 +281,7 @@ export const getReduxStoreFactory = async (store: Store) => {
           timestamp: DateTime.utc().toSeconds(),
           owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
           id: generateChannelId(name),
+          public: true,
         }
       }),
     },

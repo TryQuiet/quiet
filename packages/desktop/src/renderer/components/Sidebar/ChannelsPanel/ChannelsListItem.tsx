@@ -153,7 +153,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
                   className={classNames(classes.lock, {
                     [classes.lockNewMessages]: unread,
                   })}
-                  data-testid={'channelTitle-private'}
+                  data-testid={'channelTitle-private-lock'}
                 />
               ) : (
                 <></>

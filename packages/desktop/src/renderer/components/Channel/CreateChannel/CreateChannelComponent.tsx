@@ -173,7 +173,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   })
 
   const onSubmit = (values: CreateChannelFormValues) => {
-    logger.warn('submitting!', values)
+    logger.error('submitting!', values)
     submitForm(createChannel, values)
   }
 
@@ -200,6 +200,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
       setValue('private', false)
       clearErrors()
       clearErrorsDispatch()
+    } else {
+      setValue('private', false)
     }
   }, [open])
 
@@ -214,12 +216,16 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
       <StyledModalContent container direction='column'>
         <form
           onSubmit={handleSubmit(onSubmit, errors => {
-            logger.error('Errors on submit', errors.channelName, errors.private)
+            logger.error(
+              'Errors on submit',
+              JSON.stringify(errors.channelName, null, 2),
+              JSON.stringify(errors.private, null, 2)
+            )
           })}
         >
           <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
-              Create a new public channel
+              Create a new channel
             </Typography>
             <Typography variant='body2'>Channel name</Typography>
             <Controller
