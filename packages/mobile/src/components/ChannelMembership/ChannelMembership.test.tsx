@@ -24,7 +24,7 @@ describe('ChannelMembership component', () => {
             "flex": 1,
           }
         }
-        testID="delete-channel-component"
+        testID="channel-membership-component"
       >
         <View
           style={
@@ -121,26 +121,181 @@ describe('ChannelMembership component', () => {
               }
             }
           >
-            <Text
-              color="main"
-              fontSize={16}
-              fontWeight="medium"
-              horizontalTextAlign="left"
+            <View
               style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 16,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+                {
+                  "alignContent": "center",
+                  "alignItems": "center",
+                  "display": "flex",
+                  "flexDirection": "column",
+                }
               }
-              verticalTextAlign="center"
             >
-              Delete channel
-            </Text>
+              <Text
+                color="main"
+                fontSize={16}
+                fontWeight="medium"
+                horizontalTextAlign="left"
+                style={
+                  [
+                    {
+                      "color": "#000000",
+                      "fontFamily": "Rubik-Medium",
+                      "fontSize": 16,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    },
+                  ]
+                }
+                verticalTextAlign="center"
+              >
+                Add members
+              </Text>
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "display": "flex",
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <RNSVGSvgView
+                  align="xMidYMid"
+                  bbHeight={16}
+                  bbWidth={16}
+                  fill="#000000"
+                  focusable={false}
+                  height={16}
+                  meetOrSlice={0}
+                  minX={0}
+                  minY={0}
+                  style={
+                    [
+                      {
+                        "backgroundColor": "transparent",
+                        "borderWidth": 0,
+                      },
+                      {
+                        "flex": 0,
+                        "height": 16,
+                        "width": 16,
+                      },
+                    ]
+                  }
+                  vbHeight={24}
+                  vbWidth={24}
+                  width={16}
+                >
+                  <RNSVGGroup
+                    fill={
+                      {
+                        "payload": 4278190080,
+                        "type": 0,
+                      }
+                    }
+                    propList={
+                      [
+                        "fill",
+                      ]
+                    }
+                  >
+                    <RNSVGMask
+                      fill={
+                        {
+                          "payload": 4294967295,
+                          "type": 0,
+                        }
+                      }
+                      height="100%"
+                      maskContentUnits={1}
+                      maskType={0}
+                      maskUnits={0}
+                      name="a"
+                      propList={
+                        [
+                          "fill",
+                        ]
+                      }
+                      width="100%"
+                      x="0%"
+                      y="0%"
+                    >
+                      <RNSVGPath
+                        d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                        fill={
+                          {
+                            "payload": 4278190080,
+                            "type": 0,
+                          }
+                        }
+                      />
+                    </RNSVGMask>
+                    <RNSVGPath
+                      d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                      fill={
+                        {
+                          "payload": 4278190080,
+                          "type": 0,
+                        }
+                      }
+                      mask="a"
+                      propList={
+                        [
+                          "stroke",
+                          "strokeWidth",
+                        ]
+                      }
+                      stroke={
+                        {
+                          "payload": 4278190080,
+                          "type": 0,
+                        }
+                      }
+                      strokeWidth="4"
+                    />
+                    <RNSVGPath
+                      clipRule={0}
+                      d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                      fill={
+                        {
+                          "payload": 4278190080,
+                          "type": 0,
+                        }
+                      }
+                      fillRule={0}
+                      propList={
+                        [
+                          "fill",
+                          "fillRule",
+                          "strokeWidth",
+                        ]
+                      }
+                      strokeWidth="4"
+                    />
+                  </RNSVGGroup>
+                </RNSVGSvgView>
+                <Text
+                  color="main"
+                  fontSize={12}
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 12,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  private-channel
+                </Text>
+              </View>
+            </View>
           </View>
           <View
             style={
@@ -157,79 +312,61 @@ describe('ChannelMembership component', () => {
             }
           }
         >
-          <View>
-            <Text
-              color="main"
-              fontSize={18}
-              fontWeight="medium"
-              horizontalTextAlign="left"
-              style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 18,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
-              }
-              verticalTextAlign="center"
-            >
-              Are you sure?
-            </Text>
-          </View>
-          <View
+          <Text
+            color="main"
+            fontSize={10}
+            horizontalTextAlign="left"
             style={
+              [
+                {
+                  "color": "#000000",
+                  "fontFamily": "Rubik-Regular",
+                  "fontSize": 10,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                },
+                {
+                  "color": "#7F7F7F",
+                },
+              ]
+            }
+            verticalTextAlign="center"
+          >
+            MEMBERS
+          </Text>
+          <RCTScrollView
+            ItemSeparatorComponent={[Function]}
+            data={[]}
+            extraData={
               {
-                "paddingTop": 16,
+                "statusUpdatedTs": 0,
+                "userProfiles": {},
               }
             }
-          >
-            <Text
-              color="main"
-              fontSize={14}
-              horizontalTextAlign="left"
-              style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Regular",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+            getItem={[Function]}
+            getItemCount={[Function]}
+            keyExtractor={[Function]}
+            onContentSizeChange={[Function]}
+            onLayout={[Function]}
+            onMomentumScrollBegin={[Function]}
+            onMomentumScrollEnd={[Function]}
+            onScroll={[Function]}
+            onScrollBeginDrag={[Function]}
+            onScrollEndDrag={[Function]}
+            removeClippedSubviews={false}
+            renderItem={[Function]}
+            scrollEventThrottle={0.0001}
+            stickyHeaderIndices={[]}
+            style={
+              {
+                "backgroundColor": "#ffffff",
               }
-              verticalTextAlign="center"
-            >
-              Channel
-               
-              <Text
-                color="main"
-                fontSize={14}
-                fontWeight="medium"
-                horizontalTextAlign="left"
-                style={
-                  [
-                    {
-                      "color": "#000000",
-                      "fontFamily": "Rubik-Medium",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
-                }
-                verticalTextAlign="center"
-              >
-                #
-                general
-              </Text>
-               
-              will be removed from the community. This cannot be undone.
-            </Text>
-          </View>
+            }
+            testID="channel_membership_options_list_abc123"
+            viewabilityConfigCallbackPairs={[]}
+          >
+            <View />
+          </RCTScrollView>
           <View
             style={
               {
@@ -287,7 +424,7 @@ describe('ChannelMembership component', () => {
                 }
                 verticalTextAlign="center"
               >
-                Delete channel
+                Update Channel Membership
               </Text>
             </View>
           </View>
