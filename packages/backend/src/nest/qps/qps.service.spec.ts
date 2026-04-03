@@ -428,4 +428,39 @@ describe('QPSService', () => {
       expect(sendBatchPushSpy).toHaveBeenCalledWith(TEAM_ID)
     })
   })
+
+  describe('sendPush', () => {
+    beforeEach(() => {
+      qssClient.connected = true
+      qssClient.sendMessage.mockResolvedValue(pushSuccessResponse)
+    })
+
+    it('strips qssUrl from single push data before sending to QPS', async () => {
+      await qpsService.sendPush('ucan-user-a', 'title', 'body', {
+        cid: 'cid-1',
+        qssUrl: 'https://untrusted.example',
+      })
+
+      expect(qssClient.sendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.SEND_PUSH,
+        expect.objectContaining({
+          payload: {
+            ucan: 'ucan-user-a',
+            title: 'title',
+            body: 'body',
+            data: { cid: 'cid-1' },
+          },
+        }),
+        true
+      )
+    })
+
+    it('skips single push when QSS is not connected', async () => {
+      qssClient.connected = false
+
+      await qpsService.sendPush('ucan-user-a', 'title', 'body', { cid: 'cid-1' })
+
+      expect(qssClient.sendMessage).not.toHaveBeenCalled()
+    })
+  })
 })

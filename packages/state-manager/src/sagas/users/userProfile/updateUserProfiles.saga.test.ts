@@ -1,6 +1,6 @@
 import { expectSaga } from 'redux-saga-test-plan'
 import { type FactoryGirl } from 'factory-girl'
-import { UserProfile, SocketActions, Identity } from '@quiet/types'
+import { UserProfile, SocketActions } from '@quiet/types'
 
 import { usersActions } from '../users.slice'
 import { updateUserProfilesSaga } from './updateUserProfiles.saga'
@@ -11,7 +11,6 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { getBaseTypesFactory } from '../../../utils/tests/factories'
 import { combineReducers } from 'redux'
 import { userProfileSelectors } from './userProfile.selectors'
-import { createLogger } from '../../../utils/logger'
 
 describe('updateUserProfilesSaga', () => {
   let store: Store
@@ -19,8 +18,6 @@ describe('updateUserProfilesSaga', () => {
   let socket: MockedSocket
   let userProfile: UserProfile
   let userId: string
-
-  const logger = createLogger('updateUserProfilesSaga:test')
 
   beforeEach(async () => {
     socket = new MockedSocket()
@@ -47,8 +44,6 @@ describe('updateUserProfilesSaga', () => {
       },
     }
 
-    let userProfilesSelectCalls = 0
-
     await expectSaga(
       updateUserProfilesSaga,
       socket as unknown as Socket,
@@ -61,7 +56,6 @@ describe('updateUserProfilesSaga', () => {
         {
           select: ({ selector }: any, next: any) => {
             if (selector === userProfileSelectors.userProfiles) {
-              userProfilesSelectCalls += 1
               return existingProfiles
             }
             return next()
@@ -101,8 +95,6 @@ describe('updateUserProfilesSaga', () => {
       },
     }
 
-    let userProfilesSelectCalls = 0
-
     await expectSaga(
       updateUserProfilesSaga,
       socket as unknown as Socket,
@@ -115,7 +107,6 @@ describe('updateUserProfilesSaga', () => {
         {
           select: ({ selector }: any, next: any) => {
             if (selector === userProfileSelectors.userProfiles) {
-              userProfilesSelectCalls += 1
               return existingProfiles
             }
             return next()
@@ -136,14 +127,71 @@ describe('updateUserProfilesSaga', () => {
       .run()
   })
 
+  it('should preserve profilePhoto.path and emit an update when CID is unchanged but other fields change', async () => {
+    const existingProfiles = {
+      [userId]: userProfile,
+    }
+
+    const updatedProfile: UserProfile = {
+      ...userProfile,
+      nickname: `${userProfile.nickname}-updated`,
+      profilePhoto: {
+        ...userProfile.profilePhoto!,
+        path: null,
+      },
+    }
+
+    const expectedProfile: UserProfile = {
+      ...updatedProfile,
+      profilePhoto: {
+        ...updatedProfile.profilePhoto!,
+        path: userProfile.profilePhoto!.path,
+      },
+    }
+
+    await expectSaga(
+      updateUserProfilesSaga,
+      socket as unknown as Socket,
+      usersActions.updateUserProfiles([updatedProfile])
+    )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .provide([
+        {
+          select: ({ selector }: any, next: any) => {
+            if (selector === userProfileSelectors.userProfiles) {
+              return existingProfiles
+            }
+            return next()
+          },
+        },
+      ])
+      .apply.like({
+        context: socket,
+        fn: socket.emit,
+        args: [
+          SocketActions.USER_PROFILES_UPDATED,
+          {
+            new: [],
+            updates: [expectedProfile],
+          },
+        ],
+      })
+      .put.like({
+        action: {
+          type: usersActions.setUserProfiles.type,
+          payload: [expectedProfile],
+        },
+      })
+      .run()
+  })
+
   it('should send new profile via socket to ios', async () => {
     const existingProfiles = {
       [userId]: userProfile,
     }
 
     const newProfile = await baseTypesFactory.create('UserProfile')
-
-    let userProfilesSelectCalls = 0
 
     await expectSaga(
       updateUserProfilesSaga,
@@ -157,7 +205,6 @@ describe('updateUserProfilesSaga', () => {
         {
           select: ({ selector }: any, next: any) => {
             if (selector === userProfileSelectors.userProfiles) {
-              userProfilesSelectCalls += 1
               return existingProfiles
             }
             return next()

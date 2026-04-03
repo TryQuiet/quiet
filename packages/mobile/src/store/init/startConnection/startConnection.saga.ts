@@ -86,7 +86,7 @@ function* handleSocketLifecycleActions(socket: Socket, socketIOData: WebsocketCo
   }
 }
 
-function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnectionPayload) {
+export function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnectionPayload) {
   let socket_id: string | undefined
 
   return eventChannel<

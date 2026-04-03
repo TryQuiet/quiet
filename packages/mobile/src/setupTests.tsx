@@ -47,6 +47,9 @@ jest.mock('react-native', () => {
     requestNotificationPermission: jest.fn(),
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
+    saveKeysInKeychain: jest.fn(),
+    saveDeviceCredentials: jest.fn(),
+    saveUserMetadata: jest.fn(),
     saveNseQssUrl: jest.fn(),
     saveNseLastSyncSeq: jest.fn(),
   }

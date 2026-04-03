@@ -21,7 +21,7 @@ import {
   QSSOperationResult,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity } from '@quiet/types'
+import { Community, Identity, SocketEvents } from '@quiet/types'
 import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -640,6 +640,7 @@ describe('QSSService', () => {
       expect(initStatusOrig.qssSetup).toBeTruthy()
       const syncSeq = 41
       await localDbService.setLastSyncSeq(sigchainService.team.id, 40)
+      const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
 
       mockedJoinStatus = jest.spyOn(qssService, 'joinStatus').mockReturnValue(JoinStatus.JOINED)
       mockedSendMessage = jest
@@ -708,6 +709,10 @@ describe('QSSService', () => {
       expect(result).toBe(true)
       expect(mockedSendMessage).toHaveBeenCalledTimes(1)
       expect(await localDbService.getLastSyncSeq(sigchainService.team.id)).toBe(syncSeq)
+      expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_SYNC_SEQ_UPDATED, {
+        teamId: sigchainService.team.id,
+        lastSyncSeq: syncSeq,
+      })
 
       const pendingMessages = await localDbService.getPendingQssLogSyncMessages()
       expect(pendingMessages).toEqual({})
@@ -752,6 +757,131 @@ describe('QSSService', () => {
       await waitForExpect(async () => {
         expect(await localDbService.getLastSyncSeq(teamId)).toBe(syncSeq)
       })
+    })
+
+    it(`reconciles by pull when a fanout arrives before a sync-seq baseline is established`, async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const teamId = sigchainService.activeChain.team!.id
+      const pullSpy = jest.spyOn(qssService as any, '_pullLatestLogEntriesForTeam').mockResolvedValue(undefined)
+
+      jest.spyOn(orbitDbService, 'handleFanoutMessage').mockResolvedValue(true)
+
+      qssClient.emit(WebsocketEvents.LOG_ENTRY_SYNC, {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          teamId,
+          hash: 'fanout-baseline-hash',
+          hashedDbId: 'fanout-baseline-db-id',
+          encEntry: {
+            encrypted: {
+              contents: new Uint8Array(),
+              scope: {
+                type: EncryptionScopeType.ROLE,
+                name: RoleName.MEMBER,
+                generation: 1,
+              },
+            },
+            signature: {
+              signature: 'fanout-baseline-sig' as Base58,
+              author: { type: 'USER', name: 'fanout-user' } as any,
+            },
+            ts: DateTime.utc().toMillis(),
+            userId: sigchainService.user.userId,
+            teamId,
+          },
+          syncSeq: 1,
+        },
+      } satisfies LogEntrySyncMessage)
+
+      await waitForExpect(() => {
+        expect(pullSpy).toHaveBeenCalledWith(teamId)
+      })
+      expect(await localDbService.getLastSyncSeq(teamId)).toBeNull()
+    })
+
+    it(`reconciles by pull when a sync-seq gap is detected from fanout`, async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const teamId = sigchainService.activeChain.team!.id
+      await localDbService.setLastSyncSeq(teamId, 5)
+      const pullSpy = jest.spyOn(qssService as any, '_pullLatestLogEntriesForTeam').mockResolvedValue(undefined)
+
+      jest.spyOn(orbitDbService, 'handleFanoutMessage').mockResolvedValue(true)
+
+      qssClient.emit(WebsocketEvents.LOG_ENTRY_SYNC, {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          teamId,
+          hash: 'fanout-gap-hash',
+          hashedDbId: 'fanout-gap-db-id',
+          encEntry: {
+            encrypted: {
+              contents: new Uint8Array(),
+              scope: {
+                type: EncryptionScopeType.ROLE,
+                name: RoleName.MEMBER,
+                generation: 1,
+              },
+            },
+            signature: {
+              signature: 'fanout-gap-sig' as Base58,
+              author: { type: 'USER', name: 'fanout-user' } as any,
+            },
+            ts: DateTime.utc().toMillis(),
+            userId: sigchainService.user.userId,
+            teamId,
+          },
+          syncSeq: 7,
+        },
+      } satisfies LogEntrySyncMessage)
+
+      await waitForExpect(() => {
+        expect(pullSpy).toHaveBeenCalledWith(teamId)
+      })
+      expect(await localDbService.getLastSyncSeq(teamId)).toBe(5)
+    })
+
+    it(`reconciles by pull when fanout ingest fails even with a contiguous sync seq`, async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      const teamId = sigchainService.activeChain.team!.id
+      await localDbService.setLastSyncSeq(teamId, 5)
+      const pullSpy = jest.spyOn(qssService as any, '_pullLatestLogEntriesForTeam').mockResolvedValue(undefined)
+
+      jest.spyOn(orbitDbService, 'handleFanoutMessage').mockResolvedValue(false)
+
+      qssClient.emit(WebsocketEvents.LOG_ENTRY_SYNC, {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          teamId,
+          hash: 'fanout-failure-hash',
+          hashedDbId: 'fanout-failure-db-id',
+          encEntry: {
+            encrypted: {
+              contents: new Uint8Array(),
+              scope: {
+                type: EncryptionScopeType.ROLE,
+                name: RoleName.MEMBER,
+                generation: 1,
+              },
+            },
+            signature: {
+              signature: 'fanout-failure-sig' as Base58,
+              author: { type: 'USER', name: 'fanout-user' } as any,
+            },
+            ts: DateTime.utc().toMillis(),
+            userId: sigchainService.user.userId,
+            teamId,
+          },
+          syncSeq: 6,
+        },
+      } satisfies LogEntrySyncMessage)
+
+      await waitForExpect(() => {
+        expect(pullSpy).toHaveBeenCalledWith(teamId)
+      })
+      expect(await localDbService.getLastSyncSeq(teamId)).toBe(5)
     })
 
     it(`fails to send log sync to QSS and writes pending message to local DB`, async () => {

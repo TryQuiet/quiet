@@ -166,6 +166,68 @@ describe('ConnectionsManagerService', () => {
     }
   })
 
+  it('falls back to the stored community QSS endpoint when no authoritative endpoint is available', async () => {
+    const originalPlatform = process.platform
+    Object.defineProperty(process, 'platform', {
+      value: 'ios',
+    })
+
+    try {
+      await localDbService.setCommunity({
+        ...community,
+        teamId: 'team-id',
+        qssEndpoint: 'ws://community.example/ws',
+      })
+      await localDbService.setCurrentCommunityId(community.id)
+
+      qssService._qssEndpoint = undefined as any
+
+      const emitSpy = jest.spyOn(connectionsManagerService.serverIoProvider.io, 'emit')
+
+      await (connectionsManagerService as any).emitNseQssUrl()
+
+      expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+        teamId: 'team-id',
+        qssUrl: 'http://community.example/ws',
+      })
+    } finally {
+      Object.defineProperty(process, 'platform', {
+        value: originalPlatform,
+      })
+    }
+  })
+
+  it('skips NSE QSS URL emission when no valid ws or wss endpoint can be derived', async () => {
+    const originalPlatform = process.platform
+    Object.defineProperty(process, 'platform', {
+      value: 'ios',
+    })
+
+    try {
+      await localDbService.setCommunity({
+        ...community,
+        teamId: 'team-id',
+        qssEndpoint: 'https://community.example/api',
+      })
+      await localDbService.setCurrentCommunityId(community.id)
+
+      qssService._qssEndpoint = 'https://authoritative.example/api'
+
+      const emitSpy = jest.spyOn(connectionsManagerService.serverIoProvider.io, 'emit')
+
+      await (connectionsManagerService as any).emitNseQssUrl()
+
+      expect(emitSpy).not.toHaveBeenCalledWith(
+        SocketEvents.NSE_QSS_URL_UPDATED,
+        expect.objectContaining({ teamId: 'team-id' })
+      )
+    } finally {
+      Object.defineProperty(process, 'platform', {
+        value: originalPlatform,
+      })
+    }
+  })
+
   it('pauses and resumes qss alongside the mobile lifecycle', async () => {
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
     const openSocketSpy = jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
