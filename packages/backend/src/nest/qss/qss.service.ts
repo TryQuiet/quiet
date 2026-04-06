@@ -88,6 +88,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Mutexes for createCommunity per teamId
    */
   private _signInMutex: Mutex = new Mutex()
+  private readonly _logSyncWaiters: Map<
+    string,
+    { resolve: () => void; reject: (error: Error) => void; timeout: NodeJS.Timeout }[]
+  > = new Map()
+  private readonly _recentLogSyncResults: Map<string, { success: boolean; error?: Error }> = new Map()
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -135,9 +140,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const entries = Object.entries(unsentHashesByAddr)
     this.logger.info(`Found ${Object.entries(unsentHashesByAddr).length} unsent hashes to send to QSS`)
     const successes: Record<string, string[]> = {}
+    const hashesToRemoveByAddr: Record<string, string[]> = {}
     for (const [address, unsentHashes] of entries) {
       const successByAddr: string[] = []
+      const hashesToRemove: string[] = []
       const unsentEntries: LogEntry[] = await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)
+      const foundHashes = new Set(unsentEntries.map(entry => entry.hash))
+      for (const hash of unsentHashes) {
+        if (!foundHashes.has(hash)) {
+          hashesToRemove.push(hash)
+        }
+      }
       for (const entry of unsentEntries) {
         const success = await this.sendLogEntrySyncMessage(logEntryToLogUpdate(entry, address))
         if (success) {
@@ -149,10 +162,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       if (successByAddr.length > 0) {
         successes[address] = successByAddr
       }
+      if (hashesToRemove.length > 0 || successByAddr.length > 0) {
+        hashesToRemoveByAddr[address] = [...hashesToRemove, ...successByAddr]
+      }
     }
+    const removeCount = Object.keys(hashesToRemoveByAddr).length
     const successCount = Object.keys(successes).length
-    if (successCount > 0) {
-      await this.localDbService.removePendingQssLogSyncMessages(successes)
+    if (removeCount > 0) {
+      await this.localDbService.removePendingQssLogSyncMessages(hashesToRemoveByAddr)
     }
     if (successCount < entries.length) {
       this.logger.warn(`Failed to send ${entries.length - successCount} entries to QSS, will retry later...`)
@@ -730,6 +747,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
     if (!this.canConnect) {
       this.logger.info(`Can't send log sync message to QSS because QSS is not enabled for this community`)
+      this.recordLogSyncFailure(update.hash, `QSS is not enabled; cannot sync log entry ${update.hash}`)
       return
     }
 
@@ -737,6 +755,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (!initStatus.qssEnabled) {
       this.logger.trace(`Can't sync to QSS because QSS is disabled on this community`)
+      this.recordLogSyncFailure(update.hash, `QSS is disabled for this community; cannot sync log entry ${update.hash}`)
       return
     }
 
@@ -749,6 +768,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       // await this.localDbService.removePendingQssLogSyncMessages({ [update.addr]: [update.hash] })
       this.logger.warn(
         `No sigchain present for team ${update.teamId}, cannot send ${update.hash} log sync message to QSS`
+      )
+      this.recordLogSyncFailure(
+        update.hash,
+        `No sigchain present for team ${update.teamId}; cannot sync ${update.hash}`
       )
       return
     }
@@ -789,6 +812,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const teamId = dataSyncMessage.payload?.teamId
     if (!this.connected) {
       this.logger.warn('QSS not connected, writing entry to dead letter queue', hash, teamId)
+      this.recordLogSyncFailure(hash, `QSS not connected; cannot sync log entry ${hash}`)
       try {
         await this.localDbService.addPendingQssLogSyncMessage(address, hash)
       } catch (e) {
@@ -799,6 +823,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (this.joinStatus(teamId) !== JoinStatus.JOINED) {
       this.logger.warn('QSS not signed in, writing entry to dead letter queue', hash, teamId)
+      this.recordLogSyncFailure(hash, `QSS not signed in for team ${teamId}; cannot sync log entry ${hash}`)
       try {
         await this.localDbService.addPendingQssLogSyncMessage(address, hash)
       } catch (e) {
@@ -817,14 +842,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     let success = false
     if (dataSyncAck == null) {
       this.logger.error('Error while sending a log sync to QSS', hash, teamId)
+      this.recordLogSyncFailure(hash, `No QSS ack received for log entry ${hash}`)
     } else if (dataSyncAck.status !== CommunityOperationStatus.SUCCESS) {
       this.logger.error(`Error while sending a log sync to QSS - ${dataSyncAck.reason}`, hash, teamId)
+      this.recordLogSyncFailure(hash, `QSS rejected log entry ${hash}: ${dataSyncAck.reason ?? 'unknown error'}`)
     } else {
       this.logger.debug('Successful log sync to QSS')
       if (dataSyncAck.payload.syncSeq != null) {
         await this.handleObservedSyncSeq(teamId, dataSyncAck.payload.syncSeq, true, `sync-ack hash=${hash}`)
       }
       success = true
+      this.recordLogSyncSuccess(hash)
       this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload!.teamId)
     }
 
@@ -838,6 +866,27 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     return success
+  }
+
+  public async waitForLogEntrySyncAck(hash: string, timeoutMs = 15_000): Promise<void> {
+    const knownResult = this._recentLogSyncResults.get(hash)
+    if (knownResult?.success) {
+      return
+    }
+    if (knownResult?.error) {
+      throw knownResult.error
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.removeLogSyncWaiter(hash, timeout)
+        reject(new Error(`Timed out waiting for QSS to ack log entry ${hash}`))
+      }, timeoutMs)
+
+      const waiters = this._logSyncWaiters.get(hash) ?? []
+      waiters.push({ resolve, reject, timeout })
+      this._logSyncWaiters.set(hash, waiters)
+    })
   }
 
   /**
@@ -1124,7 +1173,75 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
     this._logPullIntervals.clear()
     this._logPullInFlight.clear()
+    for (const [hash, waiters] of this._logSyncWaiters.entries()) {
+      for (const waiter of waiters) {
+        clearTimeout(waiter.timeout)
+        waiter.reject(new Error(`QSS service closed before log entry ${hash} was acknowledged`))
+      }
+    }
+    this._logSyncWaiters.clear()
+    this._recentLogSyncResults.clear()
     this.qssAuthConnManager.close()
     this.qssClient.close()
+  }
+
+  private recordLogSyncSuccess(hash: string): void {
+    this.setRecentLogSyncResult(hash, { success: true })
+    const waiters = this._logSyncWaiters.get(hash)
+    if (waiters == null) {
+      return
+    }
+
+    this._logSyncWaiters.delete(hash)
+    for (const waiter of waiters) {
+      clearTimeout(waiter.timeout)
+      waiter.resolve()
+    }
+  }
+
+  private recordLogSyncFailure(hash: string, message: string): void {
+    const error = new Error(message)
+    this.setRecentLogSyncResult(hash, { success: false, error })
+    const waiters = this._logSyncWaiters.get(hash)
+    if (waiters == null) {
+      return
+    }
+
+    this._logSyncWaiters.delete(hash)
+    for (const waiter of waiters) {
+      clearTimeout(waiter.timeout)
+      waiter.reject(error)
+    }
+  }
+
+  private setRecentLogSyncResult(hash: string, result: { success: boolean; error?: Error }): void {
+    if (this._recentLogSyncResults.has(hash)) {
+      this._recentLogSyncResults.delete(hash)
+    }
+    this._recentLogSyncResults.set(hash, result)
+
+    const maxTrackedResults = 200
+    while (this._recentLogSyncResults.size > maxTrackedResults) {
+      const oldestHash = this._recentLogSyncResults.keys().next().value
+      if (oldestHash == null) {
+        break
+      }
+      this._recentLogSyncResults.delete(oldestHash)
+    }
+  }
+
+  private removeLogSyncWaiter(hash: string, timeout: NodeJS.Timeout): void {
+    const waiters = this._logSyncWaiters.get(hash)
+    if (waiters == null) {
+      return
+    }
+
+    const remainingWaiters = waiters.filter(waiter => waiter.timeout !== timeout)
+    if (remainingWaiters.length === 0) {
+      this._logSyncWaiters.delete(hash)
+      return
+    }
+
+    this._logSyncWaiters.set(hash, remainingWaiters)
   }
 }

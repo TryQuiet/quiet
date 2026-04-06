@@ -72,6 +72,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSEvents } from '../qss/qss.types'
+import { QPSService } from '../qps/qps.service'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -97,7 +98,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly storageService: StorageService,
     private readonly tor: Tor,
     private readonly sigChainService: SigChainService,
-    private readonly qssService: QSSService
+    private readonly qssService: QSSService,
+    private readonly qpsService: QPSService
   ) {
     super()
   }
@@ -314,6 +316,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
+    this.logger.info('Tombstoning notification tokens before leave')
+    const tombstoneAcked = await this.qpsService.tombstoneCurrentUserNotificationTokens()
+    if (!tombstoneAcked) {
+      this.logger.warn('Proceeding with leave without confirmed notification token tombstone ack')
+    }
 
     await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
@@ -710,7 +717,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    const wsUrl = this.qssService.qssEndpoint ?? community.qssEndpoint ?? this.qssEndpoint
+    const wsUrl = community.qssEndpoint ?? this.qssEndpoint ?? this.qssService.qssEndpoint
     const qssUrl = this.getNseQssUrl(wsUrl)
     if (qssUrl == null) {
       this.logger.warn('Skipping NSE QSS URL update because no valid QSS URL could be derived')
@@ -763,7 +770,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.socketService.on(SocketActions.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
       this.logger.info(`socketService - ${SocketActions.LEAVE_COMMUNITY}`)
-      callback(await this.leaveCommunity())
+      try {
+        callback(await this.leaveCommunity())
+      } catch (e) {
+        this.logger.error('Error while handling leave community request', e)
+        callback(false)
+      }
     })
 
     // Local First Auth

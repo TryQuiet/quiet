@@ -11,4 +11,5 @@ RCT_EXTERN_METHOD(saveDeviceCredentials:(NSString *)deviceId teamId:(NSString *)
 RCT_EXTERN_METHOD(saveNseQssUrl:(NSString *)teamId qssUrl:(NSString *)qssUrl)
 RCT_EXTERN_METHOD(saveNseLastSyncSeq:(NSString *)teamId
                   syncSeq:(nonnull NSNumber *)syncSeq)
+RCT_EXTERN_METHOD(clearSensitiveData)
 @end

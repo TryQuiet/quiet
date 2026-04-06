@@ -53,6 +53,8 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   // Configure Firebase
   [self configureFirebase];
 
+  [CommunicationModule performFreshInstallCleanupIfNeeded];
+
   // Call only once per nodejs thread
   [self createDataDirectory];
 

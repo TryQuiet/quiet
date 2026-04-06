@@ -81,6 +81,13 @@ struct NSEKeychainHelper {
     // Must match the shared keychain entitlement in both the main app and NSE targets.
     private static let accessGroup = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String
 
+    private static func requiredAccessGroup() throws -> String {
+        guard let accessGroup else {
+            throw NSEAuthError.keychainError("Missing QuietKeychainAccessGroup configuration")
+        }
+        return accessGroup
+    }
+
     private static func readData(account: String, label: String, service: String? = nil) throws -> Data {
         // Note: kSecAttrAccessible is intentionally omitted — it's a write attribute.
         // Including it in a read query can cause silent failures on some iOS versions.
@@ -91,9 +98,7 @@ struct NSEKeychainHelper {
             kSecReturnData:      true,
             kSecMatchLimit:      kSecMatchLimitOne,
         ]
-        if let accessGroup {
-            query[kSecAttrAccessGroup] = accessGroup
-        }
+        query[kSecAttrAccessGroup] = try requiredAccessGroup()
         if let service {
             query[kSecAttrService] = service
         }

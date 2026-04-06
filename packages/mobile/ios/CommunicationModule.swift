@@ -18,6 +18,7 @@ class CommunicationModule: RCTEventEmitter {
   static let NSE_BADGE_COUNT_KEY = "quiet.nse.badgeCount"
   static let APP_IS_FOREGROUND_KEY = "quiet.app.isForeground"
   static let APP_GROUP_IDENTIFIER = "group.com.quietmobile"
+  static let INSTALLATION_SENTINEL_KEY = "quiet.installation.initialized"
 
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CommunicationModule")
@@ -107,11 +108,19 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
+  func clearSensitiveData() {
+    CommunicationModule.clearSensitiveDataImpl()
+  }
+
+  @objc
   func saveDeviceCredentials(_ deviceId: NSString, teamId: NSString, signingPrivateKey: NSString) {
     let deviceIdStr = deviceId as String
     let teamIdStr = teamId as String
     let keyStr = signingPrivateKey as String
-    let accessGroup = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String
+    guard let accessGroup = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String else {
+      CommunicationModule.logger.error("saveDeviceCredentials: missing QuietKeychainAccessGroup configuration")
+      return
+    }
 
     func writeItem(account: String, value: String) {
       guard let data = value.data(using: .utf8) else {
@@ -122,10 +131,8 @@ class CommunicationModule: RCTEventEmitter {
       var deleteQuery: [CFString: Any] = [
         kSecClass: kSecClassGenericPassword,
         kSecAttrAccount: account,
+        kSecAttrAccessGroup: accessGroup,
       ]
-      if let accessGroup {
-        deleteQuery[kSecAttrAccessGroup] = accessGroup
-      }
       SecItemDelete(deleteQuery as CFDictionary)
 
       var addQuery: [CFString: Any] = [
@@ -133,10 +140,8 @@ class CommunicationModule: RCTEventEmitter {
         kSecAttrAccount: account,
         kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
         kSecValueData: data,
+        kSecAttrAccessGroup: accessGroup,
       ]
-      if let accessGroup {
-        addQuery[kSecAttrAccessGroup] = accessGroup
-      }
       let status = SecItemAdd(addQuery as CFDictionary, nil)
       if status != errSecSuccess {
         CommunicationModule.logger.error("saveDeviceCredentials: SecItemAdd failed for \(account): \(status)")
@@ -186,7 +191,7 @@ class CommunicationModule: RCTEventEmitter {
 
     existing[teamIdStr] = qssUrlStr
     defaults.set(existing, forKey: CommunicationModule.NSE_QSS_URLS_KEY)
-    CommunicationModule.logger.info("saveNseQssUrl: stored for team \(teamIdStr, privacy: .public)")
+    CommunicationModule.logger.info("saveNseQssUrl: stored for team \(teamIdStr, privacy: .public) as \(qssUrlStr, privacy: .public)")
   }
 
   @objc
@@ -208,7 +213,7 @@ class CommunicationModule: RCTEventEmitter {
 
     defaults.set(newSyncSeq, forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
     defaults.set(teamIdStr, forKey: CommunicationModule.NSE_LAST_SYNC_TEAM_ID_KEY)
-    CommunicationModule.logger.info("saveNseLastSyncSeq: stored \(newSyncSeq, privacy: .public)")
+    CommunicationModule.logger.info("saveNseLastSyncSeq: stored \(newSyncSeq, privacy: .public) for team \(teamIdStr, privacy: .public)")
   }
 
   @objc
@@ -265,6 +270,55 @@ class CommunicationModule: RCTEventEmitter {
       CommunicationModule.NOTIFICATION_PERMISSION_RESULT,
       CommunicationModule.DEVICE_TOKEN_RECEIVED
     ]
+  }
+
+  @objc
+  static func performFreshInstallCleanupIfNeeded() {
+    let defaults = UserDefaults.standard
+    if defaults.bool(forKey: CommunicationModule.INSTALLATION_SENTINEL_KEY) {
+      return
+    }
+
+    CommunicationModule.logger.info("First launch detected, clearing persisted sensitive data")
+    CommunicationModule.clearSensitiveDataImpl()
+    defaults.set(true, forKey: CommunicationModule.INSTALLATION_SENTINEL_KEY)
+  }
+
+  private static func clearSensitiveDataImpl() {
+    let keychainHandler = KeychainHandler()
+    let userMetadataHandler = UserMetadataHandler()
+
+    do {
+      try keychainHandler.clearAllQuietData()
+    } catch {
+      CommunicationModule.logger.error("Failed clearing sensitive keychain data: \(error)")
+    }
+
+    do {
+      try userMetadataHandler.clearAllUserMetadata()
+    } catch {
+      CommunicationModule.logger.error("Failed clearing user metadata: \(error)")
+    }
+
+    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
+    defaults.removeObject(forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
+    defaults.removeObject(forKey: CommunicationModule.NSE_LAST_SYNC_TEAM_ID_KEY)
+    defaults.removeObject(forKey: CommunicationModule.NSE_QSS_URLS_KEY)
+    defaults.removeObject(forKey: CommunicationModule.NSE_BADGE_COUNT_KEY)
+    defaults.synchronize()
+
+    UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    if #available(iOS 17.0, *) {
+      UNUserNotificationCenter.current().setBadgeCount(0) { error in
+        if let error {
+          CommunicationModule.logger.error("clearSensitiveData: failed to clear badge count: \(error)")
+        }
+      }
+    } else {
+      DispatchQueue.main.async {
+        UIApplication.shared.applicationIconBadgeNumber = 0
+      }
+    }
   }
 
 }

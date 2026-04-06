@@ -262,8 +262,13 @@ export class OrbitDbService {
     const entries: LogEntry[] = []
     const store = this.stores[address]
     for (const hash of hashes) {
-      const entry = await (store.log as LogType).get(hash)
-      entries.push(entry)
+      try {
+        const entry = await (store.log as LogType).get(hash)
+        entries.push(entry)
+      } catch (err) {
+        this.logger.warn(`Failed to get log entry ${hash} from store ${address}`, err)
+        continue
+      }
     }
 
     return entries

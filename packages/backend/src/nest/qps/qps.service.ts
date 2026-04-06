@@ -17,9 +17,11 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 import { QSSService } from '../qss/qss.service'
+import { JoinStatus } from '../libp2p/libp2p.auth'
 
 const BUNDLE_ID = 'com.quietmobile'
 const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
+const LEAVE_TOMBSTONE_ACK_TIMEOUT_MS = 5_000
 
 @Injectable()
 export class QPSService implements OnModuleInit {
@@ -73,6 +75,68 @@ export class QPSService implements OnModuleInit {
     }
 
     return this._register(deviceToken)
+  }
+
+  public async tombstoneCurrentUserNotificationTokens(): Promise<boolean> {
+    if (!this.enabled) {
+      this.logger.info('QPS not enabled, skipping notification token tombstone')
+      this._pendingDeviceToken = undefined
+      return true
+    }
+
+    if ((process.platform as string) !== 'ios') {
+      this.logger.info('Notification token tombstone is only necessary on iOS, skipping')
+      this._pendingDeviceToken = undefined
+      return true
+    }
+
+    const teamId = this.sigChainService.team?.id
+    const userId = this.sigChainService.user.userId
+    if (teamId == null) {
+      this.logger.warn('Cannot tombstone notification tokens before leave: no active team id')
+      this._pendingDeviceToken = undefined
+      return false
+    }
+
+    if (!this.qssClient.connected) {
+      this.logger.warn(`Cannot tombstone notification tokens before leave: QSS is not connected for team ${teamId}`)
+      this._pendingDeviceToken = undefined
+      return false
+    }
+
+    if (this.qssService.joinStatus(teamId) !== JoinStatus.JOINED) {
+      this.logger.warn(`Cannot tombstone notification tokens before leave: QSS auth is not joined for team ${teamId}`)
+      this._pendingDeviceToken = undefined
+      return false
+    }
+
+    if (!this._hasMemberKey()) {
+      this.logger.warn(`Cannot tombstone notification tokens before leave: member key unavailable for team ${teamId}`)
+      this._pendingDeviceToken = undefined
+      return false
+    }
+
+    try {
+      this.logger.info(`Tombstoning notification tokens before leave for user ${userId} on team ${teamId}`)
+      const tombstoneHash = await this.notificationTokensStore.tombstoneUser(userId)
+
+      try {
+        await this.qssService.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
+        this.logger.info(`Notification token tombstone acknowledged by QSS for user ${userId} on team ${teamId}`)
+        return true
+      } catch (err) {
+        this.logger.warn(
+          `Notification token tombstone was not acknowledged within ${LEAVE_TOMBSTONE_ACK_TIMEOUT_MS}ms for user ${userId} on team ${teamId}; continuing leave`,
+          err
+        )
+        return false
+      }
+    } catch (err) {
+      this.logger.warn(`Failed to tombstone notification tokens before leave for user ${userId} on team ${teamId}`, err)
+      return false
+    } finally {
+      this._pendingDeviceToken = undefined
+    }
   }
 
   private async _flushPendingToken(): Promise<void> {
@@ -151,10 +215,9 @@ export class QPSService implements OnModuleInit {
       batches.push(ucans.slice(i, i + PUSH_BATCH_SIZE))
     }
 
-    const { qssUrl: _ignoredQssUrl, ...safeData } = data ?? {}
     const mergedData: Record<string, string> = {
       teamId,
-      ...safeData,
+      ...data,
     }
 
     this.logger.info(
@@ -199,13 +262,12 @@ export class QPSService implements OnModuleInit {
     }
 
     try {
-      const { qssUrl: _ignoredQssUrl, ...safeData } = data ?? {}
       return await this.qssClient.sendMessage<SendPushResponse>(
         WebsocketEvents.SEND_PUSH,
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { ucan, title, body, data: safeData },
+          payload: { ucan, title, body, data },
         },
         true
       )

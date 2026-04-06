@@ -128,6 +128,15 @@ describe('NotificationTokensStore', () => {
     expect(result.tokens).toHaveLength(MAX_TOKENS_PER_USER)
     expect(result.tokens[0]).toBe('ucan-new') // ucan-0 evicted
   })
+
+  test('tombstoneUser writes an empty token list for the user', async () => {
+    await notificationTokensStore.addToken(userId, 'ucan-1')
+
+    const hash = await notificationTokensStore.tombstoneUser(userId)
+
+    expect(hash).toEqual(expect.any(String))
+    await expect(notificationTokensStore.getEntry(userId)).resolves.toEqual({ userId, tokens: [] })
+  })
 })
 
 describe('NotificationTokensStore/validateEntry', () => {

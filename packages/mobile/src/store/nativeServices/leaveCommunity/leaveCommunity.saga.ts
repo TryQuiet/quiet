@@ -1,5 +1,6 @@
 import { select, call, putResolve } from 'typed-redux-saga'
 import { app } from '@quiet/state-manager'
+import { NativeModules } from 'react-native'
 import { persistor } from '../../store'
 import { nativeServicesActions } from '../nativeServices.slice'
 import { initActions } from '../../init/init.slice'
@@ -14,6 +15,15 @@ export function* leaveCommunitySaga(): Generator {
   logger.info('Leaving community')
   // Restart backend
   yield* putResolve(app.actions.closeServices())
+
+  const clearSensitiveData = NativeModules.CommunicationModule?.clearSensitiveData
+  if (clearSensitiveData) {
+    try {
+      yield* call(clearSensitiveData)
+    } catch (error) {
+      logger.error('Failed to clear native sensitive data while leaving community', error)
+    }
+  }
 }
 
 export function* clearReduxStore(): Generator {

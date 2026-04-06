@@ -89,6 +89,13 @@ describe('OrbitDbService', () => {
     expect(orbitDbService.identities).toBeDefined()
   })
 
+  it('stops the orbitDb instance cleanly after create', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    await expect(orbitDbService.stop()).resolves.toBeUndefined()
+    expect(() => orbitDbService.orbitDb).toThrowError('[get orbitDb]:no orbitDbInstance')
+    expect(orbitDbService.identities).toBeUndefined()
+  })
+
   it('does not throw an error when accessing orbitDb after creating instance', () => {
     expect(() => orbitDbService.orbitDb).not.toThrowError('[get orbitDb]:no orbitDbInstance')
   })

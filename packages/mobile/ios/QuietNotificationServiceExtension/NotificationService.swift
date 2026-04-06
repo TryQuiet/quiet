@@ -72,12 +72,8 @@ class NotificationService: UNNotificationServiceExtension {
                    log: nseLog, type: .error, teamId)
             return
         }
-
         let qssUrlString = qssUrl.absoluteString
-        if let payloadQssUrl = userInfo["qssUrl"] as? String, payloadQssUrl != qssUrlString {
-            os_log("fetchAndUpdate: ignoring push payload qssUrl for teamId=%{public}@; using stored value",
-                   log: nseLog, type: .info, teamId)
-        }
+
 
         os_log("fetchAndUpdate: teamId=%{public}@ qssUrl=%{public}@",
                log: nseLog, type: .info, teamId, qssUrlString)

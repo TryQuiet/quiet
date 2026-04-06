@@ -31,10 +31,7 @@ export const usersSlice = createSlice({
     },
     // Bootstraps initial user profiles from the server, wipes state and sets new profiles
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
-      // Creating user profiles object for backwards compatibility with 2.0.1
-      if (!state.userProfiles) {
-        state.userProfiles = {}
-      }
+      state.userProfiles = {}
       for (const userProfile of action.payload) {
         state.userProfiles[userProfile.userId] = userProfile
       }

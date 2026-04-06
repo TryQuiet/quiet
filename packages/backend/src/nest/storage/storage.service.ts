@@ -33,6 +33,7 @@ import path from 'path'
 export class StorageService extends EventEmitter {
   private initialized: boolean = false
   private initializing: boolean = false
+  private storeListenersAttached = false
 
   private readonly logger = createLogger(StorageService.name)
 
@@ -240,12 +241,17 @@ export class StorageService extends EventEmitter {
   }
 
   public attachStoreListeners() {
+    if (this.storeListenersAttached) {
+      return
+    }
+
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
     })
     this.notificationTokensStore.on(StorageEvents.NOTIFICATION_TOKENS_STORED, payload => {
       this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, payload)
     })
+    this.storeListenersAttached = true
   }
 
   public async addUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {

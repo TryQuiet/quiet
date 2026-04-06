@@ -52,6 +52,7 @@ jest.mock('react-native', () => {
     saveUserMetadata: jest.fn(),
     saveNseQssUrl: jest.fn(),
     saveNseLastSyncSeq: jest.fn(),
+    clearSensitiveData: jest.fn(),
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),

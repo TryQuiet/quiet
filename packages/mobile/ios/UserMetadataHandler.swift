@@ -192,4 +192,27 @@ class UserMetadataHandler: NSObject {
       throw UserMetadataError.unhandledError(reason: error)
     }
   }
+
+  public func clearAllUserMetadata() throws -> Void {
+    do {
+      try self.initContainer()
+    } catch {
+      throw error
+    }
+
+    guard let context = self.modelContext else {
+      throw UserMetadataError.missingModelContext
+    }
+
+    do {
+      let models = try context.fetch(FetchDescriptor<UserMetadata>())
+      for model in models {
+        context.delete(model)
+      }
+      try context.save()
+    } catch {
+      UserMetadataHandler.logger.error("Error while clearing UserMetadata: \(error)")
+      throw UserMetadataError.unhandledError(reason: error)
+    }
+  }
 }

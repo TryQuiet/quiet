@@ -47,6 +47,24 @@ export class ChannelsService extends EventEmitter {
 
   // Channel metadata store
   public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  private fileManagerEventsAttached = false
+  private sigchainListenerAttached = false
+  private readonly handleSigchainUpdated = async (): Promise<void> => {
+    if (!this.channels) {
+      return
+    }
+
+    try {
+      const currentChannelsCount = (await this.getChannels()).length
+      await this.channels.retryIndexingUnindexedEntries()
+      const newChannelsCount = (await this.getChannels()).length
+      if (currentChannelsCount !== newChannelsCount) {
+        await this.broadcastCurrentChannels()
+      }
+    } catch (e) {
+      this.logger.warn('Error when attempting to reindex on sigchain update', e)
+    }
+  }
 
   private readonly logger = createLogger(`storage:channels`)
 
@@ -146,19 +164,10 @@ export class ChannelsService extends EventEmitter {
       this.broadcastCurrentChannels()
     })
 
-    this.sigchainService.on('updated', async payload => {
-      try {
-        const currentChannelsCount = (await this.getChannels()).length
-        await this.channels!.retryIndexingUnindexedEntries()
-        const newChannelsCount = (await this.getChannels()).length
-        if (currentChannelsCount !== newChannelsCount) {
-          await this.broadcastCurrentChannels()
-        }
-      } catch (e) {
-        this.logger.warn('Error when attempting to reindex on sigchain update', e)
-        return
-      }
-    })
+    if (!this.sigchainListenerAttached) {
+      this.sigchainService.on('updated', this.handleSigchainUpdated)
+      this.sigchainListenerAttached = true
+    }
 
     const channels = await this.getChannels()
     this.logger.info('Channels count:', channels.length)
@@ -566,6 +575,10 @@ export class ChannelsService extends EventEmitter {
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    */
   private attachFileManagerEvents(): void {
+    if (this.fileManagerEventsAttached) {
+      return
+    }
+
     this.filesManager.on(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, status => {
       this.emit(StorageEvents.DOWNLOAD_PROGRESS, status)
     })
@@ -584,6 +597,8 @@ export class ChannelsService extends EventEmitter {
     this.filesManager.on(StorageEvents.MESSAGE_MEDIA_UPDATED, payload => {
       this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, payload)
     })
+
+    this.fileManagerEventsAttached = true
   }
 
   /**

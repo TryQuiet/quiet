@@ -32,6 +32,10 @@ import { SigChainService } from '../../auth/sigchain.service'
 export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChannelMessage> {
   private channelData: PublicChannel
   private _subscribing: boolean = false
+  private authListenerAttached = false
+  private readonly handleAuthUpdated = (): void => {
+    void this.refreshMessageIds()
+  }
 
   private logger: QuietLogger
 
@@ -115,9 +119,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       await this.refreshMessageIds()
     })
 
-    this.auth.on('updated', payload => {
-      this.refreshMessageIds()
-    })
+    if (!this.authListenerAttached) {
+      this.auth.on('updated', this.handleAuthUpdated)
+      this.authListenerAttached = true
+    }
 
     try {
       await this.startSync()
@@ -344,11 +349,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     try {
       if (!this.store) {
         this.logger.warn(`Store is already undefined, nothing to drop`)
-        return
+      } else {
+        await this.getStore().drop()
       }
-      await this.getStore().drop()
     } catch (e) {
       this.logger.error(`Failed to drop store`, e)
+    }
+    if (this.authListenerAttached) {
+      this.auth.removeListener('updated', this.handleAuthUpdated)
+      this.authListenerAttached = false
     }
     this.store = undefined
     this._subscribing = false

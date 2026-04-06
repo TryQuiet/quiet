@@ -4,6 +4,7 @@ import { QPSService } from './qps.service'
 import { CommunityOperationStatus, QSSEvents, WebsocketEvents } from '../qss/qss.types'
 import { RoleName } from '../auth/services/roles/roles'
 import { DateTime } from 'luxon'
+import { JoinStatus } from '../libp2p/libp2p.auth'
 
 /**
  * Lightweight mocks — avoid bootstrapping the full NestJS module graph.
@@ -26,6 +27,8 @@ class MockSigChainService extends EventEmitter {
 
 class MockQSSService extends EventEmitter {
   on = this.addListener
+  waitForLogEntrySyncAck = jest.fn<any>().mockResolvedValue(undefined)
+  joinStatus = jest.fn<any>().mockReturnValue(JoinStatus.JOINED)
   emitEvent(event: QSSEvents, payload?: any) {
     this.emit(event, payload)
   }
@@ -35,6 +38,7 @@ class MockSocketService extends EventEmitter {}
 
 class MockNotificationTokensStore {
   addToken = jest.fn<any>()
+  tombstoneUser = jest.fn<any>().mockResolvedValue('tombstone-hash')
   getAllEntries = jest.fn<any>().mockResolvedValue([])
 }
 
@@ -45,6 +49,7 @@ describe('QPSService', () => {
   let sigChainService: MockSigChainService
   let socketService: MockSocketService
   let notificationTokensStore: MockNotificationTokensStore
+  let originalPlatform: NodeJS.Platform
 
   const TOKEN = 'fake-device-token-abc123'
   const TEAM_ID = 'test-team-id'
@@ -71,6 +76,7 @@ describe('QPSService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    originalPlatform = process.platform
     qssClient = new MockQSSClient()
     qssService = new MockQSSService()
     sigChainService = new MockSigChainService()
@@ -90,6 +96,10 @@ describe('QPSService', () => {
 
     // Wire up event listeners (simulates NestJS lifecycle)
     qpsService.onModuleInit()
+  })
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform })
   })
 
   describe('register', () => {
@@ -280,6 +290,51 @@ describe('QPSService', () => {
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('tombstoneCurrentUserNotificationTokens', () => {
+    beforeEach(() => {
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+      setReady()
+    })
+
+    it('writes a tombstone and waits for the matching QSS ack', async () => {
+      await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(true)
+
+      expect(notificationTokensStore.tombstoneUser).toHaveBeenCalledWith('test-user-id')
+      expect(qssService.waitForLogEntrySyncAck).toHaveBeenCalledWith('tombstone-hash', 5000)
+    })
+
+    it('allows leave to continue if QSS is not connected', async () => {
+      qssClient.connected = false
+
+      await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(false)
+      expect(notificationTokensStore.tombstoneUser).not.toHaveBeenCalled()
+    })
+
+    it('allows leave to continue if QSS auth is not joined', async () => {
+      qssService.joinStatus.mockReturnValueOnce(JoinStatus.NOT_STARTED)
+
+      await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(false)
+      expect(notificationTokensStore.tombstoneUser).not.toHaveBeenCalled()
+    })
+
+    it('allows leave to continue if the QSS ack does not arrive before the timeout', async () => {
+      qssService.waitForLogEntrySyncAck.mockRejectedValueOnce(new Error('Timed out waiting for QSS ack'))
+
+      await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(false)
+
+      expect(notificationTokensStore.tombstoneUser).toHaveBeenCalledWith('test-user-id')
+      expect(qssService.waitForLogEntrySyncAck).toHaveBeenCalledWith('tombstone-hash', 5000)
+    })
+
+    it('allows leave to continue if writing the tombstone fails', async () => {
+      notificationTokensStore.tombstoneUser.mockRejectedValueOnce(new Error('store unavailable'))
+
+      await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(false)
+
+      expect(qssService.waitForLogEntrySyncAck).not.toHaveBeenCalled()
     })
   })
 

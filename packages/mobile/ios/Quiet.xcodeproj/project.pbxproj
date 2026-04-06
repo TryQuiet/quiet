@@ -670,13 +670,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		EB611A772F60ADD1000CA1A2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				KeychainHelper.swift,
-			);
-			target = 13B07F861A680F5B00A75B9A /* Quiet */;
-		};
 		EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -687,7 +680,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (EB611A772F60ADD1000CA1A2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QuietNotificationServiceExtension; sourceTree = "<group>"; };
+		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QuietNotificationServiceExtension; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
