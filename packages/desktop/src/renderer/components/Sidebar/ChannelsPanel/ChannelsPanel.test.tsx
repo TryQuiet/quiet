@@ -215,19 +215,11 @@ describe('Channels panel', () => {
                           <div
                             class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="channelTitle-private"
-                              focusable="false"
-                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
-                              viewBox="0 0 24 24"
-                            />
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                               data-testid="general-channel-link-text"
                             >
-                              general
+                              # general
                             </p>
                           </div>
                         </div>
@@ -354,7 +346,7 @@ describe('Channels panel', () => {
                             <svg
                               aria-hidden="true"
                               class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="channelTitle-private"
+                              data-testid="channelTitle-private-lock"
                               focusable="false"
                               style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
                               viewBox="0 0 24 24"
@@ -625,19 +617,11 @@ describe('Channels panel', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="channelTitle-private"
-                            focusable="false"
-                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
-                            viewBox="0 0 24 24"
-                          />
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
                             data-testid="general-channel-link-text"
                           >
-                            general
+                            # general
                           </p>
                         </div>
                       </div>
@@ -764,7 +748,7 @@ describe('Channels panel', () => {
                           <svg
                             aria-hidden="true"
                             class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="channelTitle-private"
+                            data-testid="channelTitle-private-lock"
                             focusable="false"
                             style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
                             viewBox="0 0 24 24"

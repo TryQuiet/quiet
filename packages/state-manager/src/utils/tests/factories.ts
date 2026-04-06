@@ -49,6 +49,9 @@ import {
   HCaptchaFormResponse,
   HCaptchaRequest,
   InviteResultWithSalt,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
+  AddMembersChannelStatus,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -547,6 +550,17 @@ export const getSocketFactory = async () => {
       public: true,
     },
   })
+
+  factory.define<AddMembersChannelPayload>(SocketActions.ADD_MEMBERS_TO_CHANNEL, Object, {
+    channelId: 'new-channel-id',
+    channelName: 'Test Channel',
+    memberIds: [],
+  } as AddMembersChannelPayload)
+
+  factory.define<AddMembersChannelResponse>(`${SocketActions.ADD_MEMBERS_TO_CHANNEL}_response`, Object, {
+    channelId: 'new-channel-id',
+    status: AddMembersChannelStatus.SUCCESS,
+  } as AddMembersChannelResponse)
 
   factory.define<DeleteChannelPayload>(SocketActions.DELETE_CHANNEL, Object, {
     channelId: 'channel-to-delete',

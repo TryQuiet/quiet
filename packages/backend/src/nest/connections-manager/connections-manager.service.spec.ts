@@ -31,6 +31,7 @@ describe('ConnectionsManagerService', () => {
   let userIdentity: Identity
   let communityRootCa: string
   let sigChainService: SigChainService
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -56,6 +57,10 @@ describe('ConnectionsManagerService', () => {
     sigChainService = await module.resolve(SigChainService)
     localDbService.open()
 
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
+
     // initialize sigchain on local db
     await sigChainService.createChain(community.name!, 'john', false)
     await sigChainService.saveChain(community.name!)
@@ -67,6 +72,7 @@ describe('ConnectionsManagerService', () => {
     if (connectionsManagerService) {
       await connectionsManagerService.closeAllServices()
     }
+    handleChainUpdateSpy.mockReset()
     removeFilesFromDir(quietDir)
   })
 
