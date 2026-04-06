@@ -57,7 +57,6 @@
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
 		2815B731ADE0FE0C770C78E3 /* Pods_QuietNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1725031A98BBEE5E8F3F6561 /* Pods_QuietNotificationServiceExtension.framework */; };
 		663DC8C12F621139005D2086 /* UserMetadataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663DC8C02F621134005D2086 /* UserMetadataHandler.swift */; };
-		665587CA2F4F5ECD005D2086 /* KeychainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665587C92F4F5ECD005D2086 /* KeychainHandler.swift */; };
 		673478D924128C1639690CFF /* Pods_Quiet_QuietTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 805522FA9F468CE465C44459 /* Pods_Quiet_QuietTests.framework */; };
 		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
 		CE99A25A0E4E1440E0C42536 /* Pods_Quiet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A49D8557AFF7D73033A5FD2 /* Pods_Quiet.framework */; };
@@ -648,7 +647,6 @@
 		1A49D8557AFF7D73033A5FD2 /* Pods_Quiet.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		58FBDCDCEEA5EACED0FF5D68 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		663DC8C02F621134005D2086 /* UserMetadataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetadataHandler.swift; sourceTree = "<group>"; };
-		665587C92F4F5ECD005D2086 /* KeychainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHandler.swift; sourceTree = "<group>"; };
 		72EA7AA4B77C0780A86EC300 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		805522FA9F468CE465C44459 /* Pods_Quiet_QuietTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Quiet_QuietTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -670,7 +668,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		EBE628BC2F60AFB00062530D /* Exceptions for "QuietNotificationServiceExtension" folder in "QuietNotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -680,7 +678,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (EBE628BC2F60AFB00062530D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = QuietNotificationServiceExtension; sourceTree = "<group>"; };
+		AA0000012F70000000000001 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				EBE628BC2F60AFB00062530D /* Exceptions for "QuietNotificationServiceExtension" folder in "QuietNotificationServiceExtension" target */,
+			);
+			path = QuietNotificationServiceExtension;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -735,7 +745,6 @@
 			isa = PBXGroup;
 			children = (
 				663DC8C02F621134005D2086 /* UserMetadataHandler.swift */,
-				665587C92F4F5ECD005D2086 /* KeychainHandler.swift */,
 				EB4DC8152F60912900EFD23F /* AppDelegate+Firebase.swift */,
 				180E120A2AEFB7F900804659 /* Utils.swift */,
 				18FD2A36296F009E00A2B8C0 /* AppDelegate.h */,
@@ -4825,6 +4834,7 @@
 			isa = PBXGroup;
 			children = (
 				00A416352EC2EAF600ACC877 /* NodeMobile.xcframework */,
+				AA0000012F70000000000001 /* Shared */,
 				13B07FAE1A68108700A75B9A /* Quiet */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* QuietTests */,
@@ -4903,6 +4913,9 @@
 			dependencies = (
 				EB4DC7FF2F608A3300EFD23F /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				AA0000012F70000000000001 /* Shared */,
+			);
 			name = Quiet;
 			productName = QuietMobile;
 			productReference = 13B07F961A680F5B00A75B9A /* Quiet.app */;
@@ -4922,6 +4935,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				AA0000012F70000000000001 /* Shared */,
 				EB4DC7FA2F608A3300EFD23F /* QuietNotificationServiceExtension */,
 			);
 			name = QuietNotificationServiceExtension;
@@ -5329,7 +5343,6 @@
 				1868C43A2930D859001D6D5E /* FindFreePort.swift in Sources */,
 				18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */,
 				1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */,
-				665587CA2F4F5ECD005D2086 /* KeychainHandler.swift in Sources */,
 				1868C43C2930E255001D6D5E /* CommunicationModule.swift in Sources */,
 				180E120B2AEFB7F900804659 /* Utils.swift in Sources */,
 			);

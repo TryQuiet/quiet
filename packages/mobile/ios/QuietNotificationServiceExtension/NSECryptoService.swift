@@ -155,7 +155,7 @@ class NSECryptoService: DeviceCryptography {
 
     private func decryptPayload(_ encryptedPayload: NSEEncryptedPayload, teamId: String) throws -> Any {
         let keyName = self.makeKeyName(teamId: teamId, scope: encryptedPayload.scope)
-        let secretKey = try NSEKeychainHelper.getLfaKeyString(keyName: keyName)
+        let secretKey = try KeychainService.getLfaKeyString(keyName: keyName)
         return try self.decryptSymmetric(cipherBytes: encryptedPayload.contents, password: secretKey)
     }
 

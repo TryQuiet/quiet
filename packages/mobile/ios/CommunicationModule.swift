@@ -12,18 +12,11 @@ class CommunicationModule: RCTEventEmitter {
   static let APP_RESUME_IDENTIFIER = "appresume"
   static let NOTIFICATION_PERMISSION_RESULT = "notificationPermissionResult"
   static let DEVICE_TOKEN_RECEIVED = "deviceTokenReceived"
-  static let NSE_LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
-  static let NSE_LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
-  static let NSE_QSS_URLS_KEY = "quiet.nse.qssUrls"
-  static let NSE_BADGE_COUNT_KEY = "quiet.nse.badgeCount"
-  static let APP_IS_FOREGROUND_KEY = "quiet.app.isForeground"
-  static let APP_GROUP_IDENTIFIER = "group.com.quietmobile"
   static let INSTALLATION_SENTINEL_KEY = "quiet.installation.initialized"
 
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
   private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CommunicationModule")
 
-  let keychainHandler = KeychainHandler()
   let userMetadataHandler = UserMetadataHandler()
 
   private var hasListeners = false
@@ -40,16 +33,14 @@ class CommunicationModule: RCTEventEmitter {
 
   @objc
   func appPause() {
-    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    defaults.set(false, forKey: CommunicationModule.APP_IS_FOREGROUND_KEY)
+    SharedDefaults.setAppForeground(false)
     self.sendEvent(withName: CommunicationModule.APP_PAUSE_IDENTIFIER, body: nil)
   }
 
   @objc
   func appResume() {
-    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    defaults.set(true, forKey: CommunicationModule.APP_IS_FOREGROUND_KEY)
-    defaults.set(0, forKey: CommunicationModule.NSE_BADGE_COUNT_KEY)
+    SharedDefaults.setAppForeground(true)
+    SharedDefaults.setBadgeCount(0)
     UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     if #available(iOS 17.0, *) {
       UNUserNotificationCenter.current().setBadgeCount(0) { error in
@@ -97,8 +88,8 @@ class CommunicationModule: RCTEventEmitter {
         }
         let data = Data(keyAsString.utf8)
         let decodedNamedKey = try decoder.decode(NamedKey.self, from: data)
-        _ = try self.keychainHandler.addLfaKey(namedKey: decodedNamedKey)
-        let stored = try self.keychainHandler.getLfaKeyString(keyName: decodedNamedKey.keyName)
+        _ = try KeychainService.addLfaKey(keyName: decodedNamedKey.keyName, key: decodedNamedKey.key)
+        let stored = try KeychainService.getLfaKeyString(keyName: decodedNamedKey.keyName)
         CommunicationModule.logger.info("Stored key matches? \(stored == decodedNamedKey.key) \(decodedNamedKey.keyName)")
       } catch {
         // TODO: send a message to the backend with any keys that weren't stored
@@ -114,45 +105,16 @@ class CommunicationModule: RCTEventEmitter {
 
   @objc
   func saveDeviceCredentials(_ deviceId: NSString, teamId: NSString, signingPrivateKey: NSString) {
-    let deviceIdStr = deviceId as String
-    let teamIdStr = teamId as String
-    let keyStr = signingPrivateKey as String
-    guard let accessGroup = Bundle.main.object(forInfoDictionaryKey: "QuietKeychainAccessGroup") as? String else {
-      CommunicationModule.logger.error("saveDeviceCredentials: missing QuietKeychainAccessGroup configuration")
-      return
+    do {
+      try KeychainService.saveDeviceCredentials(
+        deviceId: deviceId as String,
+        teamId: teamId as String,
+        signingPrivateKey: signingPrivateKey as String
+      )
+      CommunicationModule.logger.info("saveDeviceCredentials: stored successfully")
+    } catch {
+      CommunicationModule.logger.error("saveDeviceCredentials: \(error)")
     }
-
-    func writeItem(account: String, value: String) {
-      guard let data = value.data(using: .utf8) else {
-        CommunicationModule.logger.error("saveDeviceCredentials: failed to encode \(account) as UTF-8")
-        return
-      }
-      // Delete any existing item first to allow updates
-      var deleteQuery: [CFString: Any] = [
-        kSecClass: kSecClassGenericPassword,
-        kSecAttrAccount: account,
-        kSecAttrAccessGroup: accessGroup,
-      ]
-      SecItemDelete(deleteQuery as CFDictionary)
-
-      var addQuery: [CFString: Any] = [
-        kSecClass: kSecClassGenericPassword,
-        kSecAttrAccount: account,
-        kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
-        kSecValueData: data,
-        kSecAttrAccessGroup: accessGroup,
-      ]
-      let status = SecItemAdd(addQuery as CFDictionary, nil)
-      if status != errSecSuccess {
-        CommunicationModule.logger.error("saveDeviceCredentials: SecItemAdd failed for \(account): \(status)")
-      } else {
-        CommunicationModule.logger.info("saveDeviceCredentials: stored \(account)")
-      }
-    }
-
-    writeItem(account: "quiet.device.id", value: deviceIdStr)
-    writeItem(account: "quiet.team.id", value: teamIdStr)
-    writeItem(account: "quiet.device.privateKey.\(deviceIdStr)", value: keyStr)
   }
 
   @objc
@@ -181,16 +143,7 @@ class CommunicationModule: RCTEventEmitter {
   func saveNseQssUrl(_ teamId: NSString, qssUrl: NSString) {
     let teamIdStr = teamId as String
     let qssUrlStr = qssUrl as String
-    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    var existing = defaults.dictionary(forKey: CommunicationModule.NSE_QSS_URLS_KEY) as? [String: String] ?? [:]
-
-    if existing[teamIdStr] == qssUrlStr {
-      CommunicationModule.logger.debug("saveNseQssUrl: unchanged for team \(teamIdStr, privacy: .public)")
-      return
-    }
-
-    existing[teamIdStr] = qssUrlStr
-    defaults.set(existing, forKey: CommunicationModule.NSE_QSS_URLS_KEY)
+    SharedDefaults.saveQssUrl(teamId: teamIdStr, url: qssUrlStr)
     CommunicationModule.logger.info("saveNseQssUrl: stored for team \(teamIdStr, privacy: .public) as \(qssUrlStr, privacy: .public)")
   }
 
@@ -199,20 +152,9 @@ class CommunicationModule: RCTEventEmitter {
     _ teamId: NSString,
     syncSeq: NSNumber
   ) {
-    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    let newSyncSeq = syncSeq.intValue
-    let existingSyncSeq = defaults.integer(forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
     let teamIdStr = teamId as String
-
-    if existingSyncSeq >= newSyncSeq {
-      CommunicationModule.logger.debug(
-        "saveNseLastSyncSeq: ignoring stale seq \(newSyncSeq, privacy: .public), existing=\(existingSyncSeq, privacy: .public)"
-      )
-      return
-    }
-
-    defaults.set(newSyncSeq, forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
-    defaults.set(teamIdStr, forKey: CommunicationModule.NSE_LAST_SYNC_TEAM_ID_KEY)
+    let newSyncSeq = syncSeq.int64Value
+    SharedDefaults.saveLastSyncSeqAndTeam(newSyncSeq, teamId: teamIdStr)
     CommunicationModule.logger.info("saveNseLastSyncSeq: stored \(newSyncSeq, privacy: .public) for team \(teamIdStr, privacy: .public)")
   }
 
@@ -285,11 +227,10 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   private static func clearSensitiveDataImpl() {
-    let keychainHandler = KeychainHandler()
     let userMetadataHandler = UserMetadataHandler()
 
     do {
-      try keychainHandler.clearAllQuietData()
+      try KeychainService.clearAllQuietData()
     } catch {
       CommunicationModule.logger.error("Failed clearing sensitive keychain data: \(error)")
     }
@@ -300,12 +241,7 @@ class CommunicationModule: RCTEventEmitter {
       CommunicationModule.logger.error("Failed clearing user metadata: \(error)")
     }
 
-    let defaults = UserDefaults(suiteName: CommunicationModule.APP_GROUP_IDENTIFIER) ?? UserDefaults.standard
-    defaults.removeObject(forKey: CommunicationModule.NSE_LAST_SYNC_SEQ_KEY)
-    defaults.removeObject(forKey: CommunicationModule.NSE_LAST_SYNC_TEAM_ID_KEY)
-    defaults.removeObject(forKey: CommunicationModule.NSE_QSS_URLS_KEY)
-    defaults.removeObject(forKey: CommunicationModule.NSE_BADGE_COUNT_KEY)
-    defaults.synchronize()
+    SharedDefaults.clearAll()
 
     UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     if #available(iOS 17.0, *) {

@@ -144,7 +144,7 @@ class UserMetadataHandler: NSObject {
       try context.save()
     } catch {
       UserMetadataHandler.logger.error("Error while persisting UserMetadata model(s) to disk: \(error)")
-      throw KeychainHandlerError.unhandledError(reason: error)
+      throw UserMetadataError.unhandledError(reason: error)
     }
   }
   

@@ -4,9 +4,6 @@ import os.log
 private let nseLog = OSLog(subsystem: "com.quietmobile.QuietNotificationServiceExtension", category: "NotificationService")
 
 class NotificationService: UNNotificationServiceExtension {
-    private static let appGroupIdentifier = "group.com.quietmobile"
-    private static let badgeCountKey = "quiet.nse.badgeCount"
-
     private struct DecryptedEntry {
         let entry: LogEntry
         let message: NSEDecryptedNotificationMessage
@@ -55,7 +52,7 @@ class NotificationService: UNNotificationServiceExtension {
 
         os_log("fetchAndUpdate: start", log: nseLog, type: .info)
 
-        if NSEKeychainHelper.isMainAppForeground() {
+        if SharedDefaults.isMainAppForeground() {
             os_log("fetchAndUpdate: app is foregrounded, skipping NSE fetch/decrypt work", log: nseLog, type: .info)
             return
         }
@@ -67,7 +64,7 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
 
-        guard let qssUrl = NSEKeychainHelper.getQssUrl(teamId: teamId) else {
+        guard let qssUrl = SharedDefaults.getQssUrl(teamId: teamId) else {
             os_log("fetchAndUpdate: missing stored QSS URL for teamId=%{public}@",
                    log: nseLog, type: .error, teamId)
             return
@@ -91,7 +88,7 @@ class NotificationService: UNNotificationServiceExtension {
                 auth = newAuth
             }
 
-            let afterSeq = NSEKeychainHelper.getLastSyncSeq()
+            let afterSeq = SharedDefaults.getLastSyncSeq()
             os_log("fetchAndUpdate: fetching entries afterSeq=%{public}lld",
                    log: nseLog, type: .info, afterSeq)
 
@@ -128,7 +125,7 @@ class NotificationService: UNNotificationServiceExtension {
                     type: .info,
                     maxSyncSeq
                 )
-                NSEKeychainHelper.saveLastSyncSeq(maxSyncSeq)
+                SharedDefaults.saveLastSyncSeq(maxSyncSeq)
 
                 guard let content = bestAttemptContent else {
                     os_log("fetchAndUpdate: bestAttemptContent is nil, cannot update badge", log: nseLog, type: .error)
@@ -154,12 +151,11 @@ class NotificationService: UNNotificationServiceExtension {
                 }
 
                 let badgeIncrement = decryptedEntries.isEmpty ? notificationEntries.count : decryptedEntries.count
-                let defaults = UserDefaults(suiteName: Self.appGroupIdentifier) ?? UserDefaults.standard
-                let storedBadgeCount = max(0, defaults.integer(forKey: Self.badgeCountKey))
+                let storedBadgeCount = SharedDefaults.getBadgeCount()
                 let newBadge = storedBadgeCount + badgeIncrement
                 let badgeNumber = NSNumber(value: newBadge)
                 os_log("fetchAndUpdate: updating badge to %{public}d", log: nseLog, type: .info, newBadge)
-                defaults.set(newBadge, forKey: Self.badgeCountKey)
+                SharedDefaults.setBadgeCount(newBadge)
 
                 if let latestDecryptedEntry = decryptedEntries.last {
                     for decryptedEntry in decryptedEntries.dropLast() {
