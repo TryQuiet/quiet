@@ -52,7 +52,6 @@ const Sidebar = () => {
 
   const channelsPanelProps: ChannelsPanelProps = {
     channels: publicChannelsSelector,
-    myUserProfile: userProfile,
     userProfiles: userProfileSelector,
     connectedPeers: connectedPeers,
     unreadChannels: unreadChannels,

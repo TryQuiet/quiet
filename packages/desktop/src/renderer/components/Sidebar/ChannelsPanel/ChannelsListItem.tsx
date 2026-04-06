@@ -108,7 +108,6 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface ChannelsListItemProps {
-  myUserProfile?: UserProfile
   channel: Channel
   unread: boolean
   selected: boolean
@@ -117,7 +116,6 @@ export interface ChannelsListItemProps {
 }
 
 export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
-  myUserProfile,
   channel,
   unread,
   selected,
@@ -125,7 +123,6 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   disabled = false,
 }) => {
   const theme = useTheme()
-  const dispatch = useDispatch()
   const ref = useRef<HTMLDivElement>(null)
   const headerTitle = channel.public ? `# ${channel.name}` : channel.name
   const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')

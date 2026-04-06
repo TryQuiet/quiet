@@ -8,7 +8,6 @@ import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
   channels: Channel[]
-  myUserProfile?: UserProfile
   userProfiles: Record<string, UserProfile>
   connectedPeers: string[]
   unreadChannels: string[]
@@ -20,7 +19,6 @@ export interface ChannelsPanelProps {
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
-  myUserProfile,
   unreadChannels,
   setCurrentChannel,
   currentChannelId,
@@ -43,7 +41,6 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
             const selected = currentChannelId === channel.id
             return (
               <ChannelsListItem
-                myUserProfile={myUserProfile}
                 channel={channel}
                 unread={unread}
                 selected={selected}

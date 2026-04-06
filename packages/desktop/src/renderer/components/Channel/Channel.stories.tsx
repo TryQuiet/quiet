@@ -134,6 +134,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   isCommunityInitialized: defaultIsCommunityInitialized,
   handleClipboardFiles: dummyFn,
   pendingGeneralChannelRecreation: false,
+  isPublic: true,
 }
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
