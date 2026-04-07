@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.0.1-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.0.1-alpha.12...@quiet/mobile@7.0.1-alpha.13) (2026-04-07)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -36,7 +23,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
 * Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
-
+* Adds new mac entitlement to fix arm64 crashes on arm64 binaries [#3180](https://github.com/TryQuiet/quiet/issues/3180)
 
 ### Chores
 
