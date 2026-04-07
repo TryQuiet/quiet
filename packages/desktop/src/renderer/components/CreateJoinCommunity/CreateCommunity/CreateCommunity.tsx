@@ -41,12 +41,24 @@ const CreateCommunity = () => {
       return
     }
     setPendingCommunityName(name)
-    logger.warn(process.env.QSS_ALLOWED)
-    if (process.env.QSS_ALLOWED === 'true') {
-      setShowServerOffer(true)
-    } else {
+    logger.warn('QSS settings', process.env.QSS_ALLOWED, process.env.QSS_ENDPOINT)
+    const createCommunityWithoutQSS = () => {
       dispatch(communities.actions.createCommunity({ name, useServer: false }))
       createUsernameModal.handleOpen()
+    }
+    if (process.env.QSS_ALLOWED === 'true') {
+      try {
+        new URL(process.env.QSS_ENDPOINT ?? '')
+        setShowServerOffer(true)
+      } catch (error) {
+        logger.error(
+          `QSS is allowed but the endpoint is invalid (endpoint provided = "${process.env.QSS_ENDPOINT}"`,
+          error
+        )
+        createCommunityWithoutQSS()
+      }
+    } else {
+      createCommunityWithoutQSS()
     }
   }
 
