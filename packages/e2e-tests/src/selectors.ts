@@ -660,6 +660,22 @@ export class ChannelContextMenu {
     await tab.click()
   }
 
+  async openAddMembersModal() {
+    const tab = this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemAdd_members"]')),
+      15_000,
+      `Channel context menu channel add members tab couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(tab),
+      15_000,
+      `Channel context menu channel add members tab was not visibile within timeout`,
+      500
+    )
+    await tab.click()
+  }
+
   // TODO: replace sleep
   async deleteChannel() {
     const button = this.driver.wait(
@@ -672,6 +688,43 @@ export class ChannelContextMenu {
       until.elementIsVisible(button),
       15_000,
       `Channel context menu delete channel button was not visibile within timeout`,
+      500
+    )
+    await button.click()
+    await sleep(5000)
+  }
+
+  // TODO: replace sleep
+  async addMembersToChannel(channelName: string, memberNames: string[]) {
+    const autoCompleteInput = this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-add-members-autocomplete"]`)),
+      20_000,
+      `Channel add members autocomplete input couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(autoCompleteInput),
+      15_000,
+      `Channel context menu channel add members autocomplete input was not visibile within timeout`,
+      500
+    )
+
+    for (const memberName of memberNames) {
+      await autoCompleteInput.click()
+      autoCompleteInput.sendKeys(memberName)
+      autoCompleteInput.sendKeys(Key.ENTER)
+    }
+
+    const button = this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="addMembersChannelButton"]')),
+      20_000,
+      `Channel add members button couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      15_000,
+      `Channel context menu channel add members button was not visibile within timeout`,
       500
     )
     await button.click()
@@ -1193,6 +1246,15 @@ export class Channel {
   get title() {
     return this.driver.wait(
       until.elementLocated(By.xpath(`//*[@data-testid='channelTitle']`)),
+      10_000,
+      `Channel title element for ${this.name} couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get lock() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//svg[@data-testid='channelTitle-private']`)),
       10_000,
       `Channel title element for ${this.name} couldn't be found within timeout`,
       500
@@ -2013,7 +2075,7 @@ export class Sidebar {
     return channel
   }
 
-  async addNewChannel(name: string): Promise<Channel> {
+  async addNewChannel(name: string, isPublic: boolean = true): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,
@@ -2032,6 +2094,23 @@ export class Sidebar {
     await this.driver.wait(until.elementIsVisible(channelNameInput), 5_000)
     await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
     await channelNameInput.sendKeys(name)
+
+    const channelPrivateToggle = await this.driver.wait(
+      until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
+      5_000,
+      `Channel private toggle couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
+    if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+      throw new Error('Channel privacy toggle was enabled before clicking')
+    }
+    if (!isPublic) {
+      await channelPrivateToggle.click()
+      if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+        throw new Error('Channel privacy toggle was disabled after clicking')
+      }
+    }
     const channelNameButton = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="channelNameSubmit"]')),
       5_000,

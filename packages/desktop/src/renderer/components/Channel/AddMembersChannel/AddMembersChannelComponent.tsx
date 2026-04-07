@@ -211,6 +211,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                   })}
                   component='li'
                   selected={state.selected}
+                  data-testid={`${channelName}-add-members-autocomplete-option-${option.label}`}
                   {...optionProps}
                 >
                   <Grid container item alignItems='center' direction='row' display='flex' gap='5px' padding='0px 0px'>
@@ -229,6 +230,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                       userProfile={userProfile}
                       userId={userProfile.userId}
                       size={theme.componentSizes.avatar.small}
+                      data-testid={`${channelName}-add-members-autocomplete-${option.label}-profilePhoto`}
                     />
                     <Typography
                       variant='body2'
@@ -279,6 +281,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
               sx={{ width: 300 }}
               renderInput={params => <TextField {...params} label='Add members' />}
               onChange={handleAutoCompleteChange}
+              data-testid={`${channelName}-add-members-autocomplete`}
             />
           </ThemeProvider>
         </StyledGrid>
@@ -289,7 +292,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
             size='small'
             fullWidth
             className={classes.button}
-            data-testid='addMembersChannelButton'
+            data-testid={`${channelName}-add-members-button`}
           >
             Add {selectedMembers.length} members
           </Button>

@@ -116,7 +116,6 @@ describe('Channels panel', () => {
             handleOpen: function (_args?: any): any {},
             handleClose: function (): any {},
           }}
-          myUserProfile={aliceUserProfile}
           isTorInitialized={true}
         />
         <DirectMessagesPanel
