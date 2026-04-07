@@ -23,7 +23,7 @@
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
 * Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
-
+* Adds new mac entitlement to fix arm64 crashes on arm64 binaries [#3180](https://github.com/TryQuiet/quiet/issues/3180)
 
 ### Chores
 
