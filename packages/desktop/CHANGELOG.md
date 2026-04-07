@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [7.0.1-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.0.1-alpha.13...@quiet/desktop@7.0.1-alpha.14) (2026-04-07)
+
+
+### Bug Fixes
+
+* **3140:** Validate qss endpoint when qss is allowed to avoid registration loops ([#3141](https://github.com/TryQuiet/quiet/issues/3141)) ([3d6cec9](https://github.com/TryQuiet/quiet/commit/3d6cec92daaaa7aef91beb164302996f22a49036))
+
+
+
+
+
 # Changelog
 
 [unreleased]
