@@ -696,27 +696,32 @@ export class ChannelContextMenu {
 
   // TODO: replace sleep
   async addMembersToChannel(channelName: string, memberNames: string[]) {
-    const autoCompleteInput = this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-add-members-autocomplete"]`)),
+    const autoCompleteInput = await this.driver.wait(
+      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
       20_000,
-      `Channel add members autocomplete input couldn't be located within timeout`,
+      `Channel add members autocomplete input div couldn't be located within timeout`,
       500
     )
     await this.driver.wait(
       until.elementIsVisible(autoCompleteInput),
       15_000,
-      `Channel context menu channel add members autocomplete input was not visibile within timeout`,
+      `Channel context menu channel add members autocomplete div was not visibile within timeout`,
       500
     )
 
+    const inputField = await this.driver.wait(
+      autoCompleteInput.findElement(By.xpath(`//input[@aria-autocomplete="list"]`)),
+      5_000,
+      `Channel add members autocomplete input field couldn't be located within timeout`,
+      500
+    )
     for (const memberName of memberNames) {
-      await autoCompleteInput.click()
-      autoCompleteInput.sendKeys(memberName)
-      autoCompleteInput.sendKeys(Key.ENTER)
+      await inputField.sendKeys(memberName)
+      await inputField.sendKeys(Key.ENTER)
     }
 
     const button = this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="addMembersChannelButton"]')),
+      until.elementLocated(By.xpath(`//button[@data-testid="${channelName}-add-members-button"]`)),
       20_000,
       `Channel add members button couldn't be located within timeout`,
       500
