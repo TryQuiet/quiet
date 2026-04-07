@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.0.1-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.0.1-alpha.13...@quiet/desktop@7.0.1-alpha.14) (2026-04-07)
-
-
-### Bug Fixes
-
-* **3140:** Validate qss endpoint when qss is allowed to avoid registration loops ([#3141](https://github.com/TryQuiet/quiet/issues/3141)) ([3d6cec9](https://github.com/TryQuiet/quiet/commit/3d6cec92daaaa7aef91beb164302996f22a49036))
-
-
-
-
-
 # Changelog
 
 [unreleased]
@@ -40,6 +24,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
 * Adds new mac entitlement to fix arm64 crashes on arm64 binaries [#3180](https://github.com/TryQuiet/quiet/issues/3180)
+* Fixed bug that caused a registration loop when QSS_ALLOWED is true but the endpoint is unset [#3140](https://github.com/TryQuiet/quiet/issues/3140)
 
 ### Chores
 
@@ -51,6 +36,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
 * Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
+* Fix delay between sign-in and historical log entry pull from QSS [#3127](https://github.com/TryQuiet/quiet/issues/3127)
 
 ## [6.3.0]
 
