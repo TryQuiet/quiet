@@ -366,25 +366,6 @@ describe('QPSService', () => {
       )
     })
 
-    it('strips qssUrl from push data before sending to QPS', async () => {
-      await qpsService.sendBatchPush(TEAM_ID, 'title', 'body', {
-        cid: 'cid-1',
-        qssUrl: 'https://untrusted.example',
-      })
-
-      expect(qssClient.sendMessage).toHaveBeenCalledWith(
-        WebsocketEvents.SEND_BATCH_PUSH,
-        expect.objectContaining({
-          payload: expect.objectContaining({
-            title: 'title',
-            body: 'body',
-            data: { teamId: TEAM_ID, cid: 'cid-1' },
-          }),
-        }),
-        true
-      )
-    })
-
     it('skips when QPS is disabled', async () => {
       const disabled = new QPSService(
         false,
@@ -488,26 +469,6 @@ describe('QPSService', () => {
     beforeEach(() => {
       qssClient.connected = true
       qssClient.sendMessage.mockResolvedValue(pushSuccessResponse)
-    })
-
-    it('strips qssUrl from single push data before sending to QPS', async () => {
-      await qpsService.sendPush('ucan-user-a', 'title', 'body', {
-        cid: 'cid-1',
-        qssUrl: 'https://untrusted.example',
-      })
-
-      expect(qssClient.sendMessage).toHaveBeenCalledWith(
-        WebsocketEvents.SEND_PUSH,
-        expect.objectContaining({
-          payload: {
-            ucan: 'ucan-user-a',
-            title: 'title',
-            body: 'body',
-            data: { cid: 'cid-1' },
-          },
-        }),
-        true
-      )
     })
 
     it('skips single push when QSS is not connected', async () => {

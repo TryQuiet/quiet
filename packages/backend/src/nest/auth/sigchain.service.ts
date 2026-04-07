@@ -143,10 +143,14 @@ export class SigChainService extends EventEmitter {
 
   private handleChainUpdate = (teamName: string) => {
     this._updateUsersOnChainUpdate(teamName)
-    void this._updateKeysOnChainUpdate(teamName)
+    void this._updateKeysOnChainUpdate(teamName).catch(err => {
+      this.logger.error('Failed to update iOS keychain on chain update', err)
+    })
     this._updateDeviceCredentials(teamName)
     this.emit('updated', teamName)
-    this.saveChain(teamName)
+    void this.saveChain(teamName).catch(err => {
+      this.logger.error('Failed to save chain after update', err)
+    })
     this.logger.info('Chain updated, emitted updated event')
   }
 
@@ -185,6 +189,7 @@ export class SigChainService extends EventEmitter {
     }
 
     const teamId = sigchain.team!.id
+    await this._ensureDb()
     const alreadySentKeys: Set<string> = new Set(await this.localDbService.getKeysStoredInKeychain(teamId))
     const keysToSend: StorableKey[] = []
     const keyNamesSent: string[] = []

@@ -50,7 +50,6 @@ import {
   InvitationData,
   SetUserProfileResponse,
   UserProfilesUpdatedPayload,
-  NseQssUrlUpdatedEvent,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -601,7 +600,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // Unblock websocket endpoints
     this.socketService.resolveReadyness()
-    void this.emitNseQssUrl()
     this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_LAUNCHED, {
       id: community.id,
     } as LaunchCommunityPayload)
@@ -687,62 +685,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
   }
 
-  private getNseQssUrl(wsUrl: string | undefined): string | undefined {
-    if (wsUrl == null || wsUrl === '') {
-      this.logger.warn('Skipping NSE QSS URL update because wsUrl is empty')
-      return undefined
-    }
-
-    if (wsUrl.startsWith('wss://')) {
-      return `https://${wsUrl.slice('wss://'.length)}`
-    }
-
-    if (wsUrl.startsWith('ws://')) {
-      return `http://${wsUrl.slice('ws://'.length)}`
-    }
-
-    this.logger.warn('Skipping NSE QSS URL update because endpoint is not ws/wss', wsUrl)
-    return undefined
-  }
-
-  private async emitNseQssUrl(): Promise<void> {
-    if ((process.platform as string) !== 'ios') {
-      return
-    }
-
-    const community = await this.localDbService.getCurrentCommunity()
-    if (community?.teamId == null) {
-      this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
-      this.logger.warn('Community', community)
-      return
-    }
-
-    const wsUrl = community.qssEndpoint ?? this.qssEndpoint ?? this.qssService.qssEndpoint
-    const qssUrl = this.getNseQssUrl(wsUrl)
-    if (qssUrl == null) {
-      this.logger.warn('Skipping NSE QSS URL update because no valid QSS URL could be derived')
-      return
-    }
-
-    const payload: NseQssUrlUpdatedEvent = {
-      teamId: community.teamId,
-      qssUrl,
-    }
-
-    this.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
-  }
-
   /**
    * Attaches listeners for events received from the state manager
    */
   private attachSocketServiceListeners() {
-    this.serverIoProvider.io.on(SocketActions.CONNECTION, socket => {
-      void this.emitNseQssUrl()
-      socket.on(SocketActions.START, () => {
-        void this.emitNseQssUrl()
-      })
-    })
-
     // Community
     this.socketService.on(SocketActions.CONNECTION, () => {
       this.logger.info(`socketService - ${SocketActions.CONNECTION}`)

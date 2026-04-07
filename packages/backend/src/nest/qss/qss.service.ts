@@ -43,7 +43,14 @@ import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
-import { CompoundError, InvitationDataV3, NseSyncSeqUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
+import {
+  CompoundError,
+  InvitationDataV3,
+  NseQssUrlUpdatedEvent,
+  NseSyncSeqUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+} from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { Serializer } from '../common/serializer.service'
@@ -430,14 +437,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       const initStatus = await this.getQssInitStatus()
       if (!initStatus.communityInitialized) {
         this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
+        this._connecting = false
         return QSSOperationResult.ERROR
       }
 
       if (!initStatus.qssEnabled) {
         this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
+        this._connecting = false
         return QSSOperationResult.DISABLED
       }
     }
+
+    await this.emitNseQssUrl(this._qssEndpoint)
 
     // wait for our socket to finish connecting
     let connStatus: QSSOperationResult
@@ -453,6 +464,51 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     this._connecting = false
     return connStatus
+  }
+
+  private getNseQssUrl(wsUrl: string | undefined): string | undefined {
+    if (wsUrl == null || wsUrl === '') {
+      this.logger.warn('Skipping NSE QSS URL update because wsUrl is empty')
+      return undefined
+    }
+
+    if (wsUrl.startsWith('wss://')) {
+      return `https://${wsUrl.slice('wss://'.length)}`
+    }
+
+    if (wsUrl.startsWith('ws://')) {
+      return `http://${wsUrl.slice('ws://'.length)}`
+    }
+
+    this.logger.warn('Skipping NSE QSS URL update because endpoint is not ws/wss', wsUrl)
+    return undefined
+  }
+
+  private async emitNseQssUrl(wsUrl: string | undefined): Promise<void> {
+    if ((process.platform as string) !== 'ios') {
+      return
+    }
+
+    const community = await this.localDbService.getCurrentCommunity()
+    const teamId = community?.teamId ?? this.sigChainService.team?.id
+    if (teamId == null) {
+      this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
+      this.logger.warn('Community', community)
+      return
+    }
+
+    const qssUrl = this.getNseQssUrl(wsUrl)
+    if (qssUrl == null) {
+      this.logger.warn('Skipping NSE QSS URL update because no valid QSS URL could be derived')
+      return
+    }
+
+    const payload: NseQssUrlUpdatedEvent = {
+      teamId,
+      qssUrl,
+    }
+
+    this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
   }
 
   /**

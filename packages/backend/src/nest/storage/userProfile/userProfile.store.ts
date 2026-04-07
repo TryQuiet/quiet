@@ -21,18 +21,6 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
 > {
   private deferredProfiles: UserProfile[] = []
   private nicknameMaps: Map<string, string> = new Map()
-  private readonly handleAuthUpdated = async (): Promise<void> => {
-    if (!this.store) {
-      return
-    }
-
-    try {
-      await this.flushDeferredEntries()
-      await this.store.retryIndexingUnindexedEntries()
-    } catch (err) {
-      logger.error('Failed to update user profiles:', err)
-    }
-  }
 
   constructor(
     private readonly orbitDbService: OrbitDbService,
@@ -67,6 +55,19 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
     })
+  }
+
+  private readonly handleAuthUpdated = async (): Promise<void> => {
+    if (!this.store) {
+      return
+    }
+
+    try {
+      await this.flushDeferredEntries()
+      await this.store.retryIndexingUnindexedEntries()
+    } catch (err) {
+      logger.error('Failed to update user profiles:', err)
+    }
   }
 
   /**
