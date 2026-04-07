@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [7.0.1-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.0.1-alpha.12...@quiet/desktop@7.0.1-alpha.13) (2026-04-07)
+
+
+### Bug Fixes
+
+* **3180:** Add mac entitlement to fix arm64 builds ([#3181](https://github.com/TryQuiet/quiet/issues/3181)) ([29a57b7](https://github.com/TryQuiet/quiet/commit/29a57b7519d07bf6fe7af0e9e6a2d29b6cf459d5))
+
+
+
+
+
 # Changelog
 
 [unreleased]
