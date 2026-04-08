@@ -23,6 +23,8 @@
 * Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
 * Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
+* Fixed bug that hardlocked users after pressing esc in the create community screen [#3017]
+(https://github.com/TryQuiet/quiet/issues/3017)
 * Fixed bug that caused a registration loop when QSS_ALLOWED is true but the endpoint is unset [#3140](https://github.com/TryQuiet/quiet/issues/3140)
 
 ### Chores
