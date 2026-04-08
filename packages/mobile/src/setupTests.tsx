@@ -48,6 +48,9 @@ jest.mock('react-native', () => {
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
   }
+  rn.NativeModules.FirebaseMessagingModule = {
+    getToken: jest.fn(),
+  }
   return rn
 })
 

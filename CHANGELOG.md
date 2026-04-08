@@ -25,16 +25,19 @@
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
 * Fixed bug that hardlocked users after pressing esc in the create community screen [#3017]
 (https://github.com/TryQuiet/quiet/issues/3017)
+* Fixed bug that caused a registration loop when QSS_ALLOWED is true but the endpoint is unset [#3140](https://github.com/TryQuiet/quiet/issues/3140)
 
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
-* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
+* Fixed issues with testing workflows [#3030](https://github.com/TryQuiet/quiet/issues/3030)
+* Add MacOS arm64-specific build jobs to resolve slow UI startup on Apple Silicon [#3146](https://github.com/TryQuiet/quiet/issues/3146)
 
 ### Fixes
 
 * Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
 * Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
+* Fix delay between sign-in and historical log entry pull from QSS [#3127](https://github.com/TryQuiet/quiet/issues/3127)
 
 ## [6.3.0]
 

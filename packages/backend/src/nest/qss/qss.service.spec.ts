@@ -47,6 +47,8 @@ import { IpfsModule } from '../ipfs/ipfs.module'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
+import { QSSAuthConnection } from './qss-auth-conn'
+import { QSSAuthConnStatus } from './qss.const'
 
 describe('QSSService', () => {
   let store: Store
@@ -63,6 +65,7 @@ describe('QSSService', () => {
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedGetSocket: any
+  let mockedGetAuthConnection: any
   let mockedSendMessage: any
   let mockedJoinStatus: any
   let addPendingMessageSpy: any
@@ -159,6 +162,10 @@ describe('QSSService', () => {
     if (mockedCaptchaVerified != null) {
       mockedCaptchaVerified.mockRestore()
       mockedCaptchaVerified = undefined
+    }
+    if (mockedGetAuthConnection != null) {
+      mockedGetAuthConnection.mockRestore()
+      mockedGetAuthConnection = undefined
     }
   })
 
@@ -483,6 +490,16 @@ describe('QSSService', () => {
       await initCommunity()
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeFalsy()
+      mockedGetAuthConnection = jest
+        .spyOn(qssAuthConnManager, 'getConnection')
+        .mockImplementation((teamId: string): QSSAuthConnection => {
+          return {
+            active: true,
+            joinStatus: JoinStatus.JOINED,
+            connStatus: QSSAuthConnStatus.CONNECTED,
+            on: (...args: any[]) => {},
+          } as any
+        })
 
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')

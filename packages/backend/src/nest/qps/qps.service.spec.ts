@@ -24,6 +24,13 @@ class MockSigChainService extends EventEmitter {
   }
 }
 
+class MockQSSService extends EventEmitter {
+  on = this.addListener
+  emitEvent(event: QSSEvents, payload?: any) {
+    this.emit(event, payload)
+  }
+}
+
 class MockSocketService extends EventEmitter {}
 
 class MockNotificationTokensStore {
@@ -34,6 +41,7 @@ class MockNotificationTokensStore {
 describe('QPSService', () => {
   let qpsService: QPSService
   let qssClient: MockQSSClient
+  let qssService: MockQSSService
   let sigChainService: MockSigChainService
   let socketService: MockSocketService
   let notificationTokensStore: MockNotificationTokensStore
@@ -64,6 +72,7 @@ describe('QPSService', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     qssClient = new MockQSSClient()
+    qssService = new MockQSSService()
     sigChainService = new MockSigChainService()
     socketService = new MockSocketService()
     notificationTokensStore = new MockNotificationTokensStore()
@@ -72,6 +81,7 @@ describe('QPSService', () => {
       true, // qpsAllowed
       socketService as any,
       qssClient as any,
+      qssService as any,
       sigChainService as any,
       notificationTokensStore as any
     )
@@ -123,6 +133,7 @@ describe('QPSService', () => {
         false,
         socketService as any,
         qssClient as any,
+        qssService as any,
         sigChainService as any,
         notificationTokensStore as any
       )
@@ -166,7 +177,7 @@ describe('QPSService', () => {
 
       // Now become ready and flush
       setReady()
-      qssClient.emit(QSSEvents.QSS_CONNECTED)
+      qssService.emitEvent(QSSEvents.QSS_FULLY_JOINED)
 
       // Wait for async flush
       await new Promise(resolve => setTimeout(resolve, 10))
@@ -219,33 +230,33 @@ describe('QPSService', () => {
     })
   })
 
-  describe('flush on sigchain updated', () => {
-    it('flushes cached token when sigchain joins and QSS is connected', async () => {
+  describe('flush on QSS_FULLY_JOINED', () => {
+    it('flushes cached token when QSS fully joins and QSS is connected', async () => {
       // Cache token: QSS connected but no sigchain
       qssClient.connected = true
       sigChainService.activeChain = null
       await qpsService.register(TOKEN)
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
 
-      // Sigchain joins
+      // QSS completes the join flow and the sigchain is now ready
       setReady()
-      sigChainService.emit('updated')
+      qssService.emitEvent(QSSEvents.QSS_FULLY_JOINED)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
     })
 
-    it('does not flush when sigchain updates but QSS is not connected', async () => {
+    it('does not flush when QSS fully joins but QSS is not connected', async () => {
       qssClient.connected = false
       sigChainService.activeChain = null
       await qpsService.register(TOKEN)
 
-      // Sigchain joins but QSS still disconnected
+      // Join completes but the transport is still disconnected
       sigChainService.activeChain = {
         team: { id: TEAM_ID },
         roles: { amIMemberOfRole: () => true },
       }
-      sigChainService.emit('updated')
+      qssService.emitEvent(QSSEvents.QSS_FULLY_JOINED)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
@@ -259,13 +270,13 @@ describe('QPSService', () => {
       await qpsService.register(TOKEN)
 
       setReady()
-      qssClient.emit(QSSEvents.QSS_CONNECTED)
+      qssService.emitEvent(QSSEvents.QSS_FULLY_JOINED)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
 
-      // Second event should not trigger another send
-      sigChainService.emit('updated')
+      // Second fully-joined event should not trigger another send
+      qssService.emitEvent(QSSEvents.QSS_FULLY_JOINED)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(qssClient.sendMessage).toHaveBeenCalledTimes(1)
@@ -302,6 +313,7 @@ describe('QPSService', () => {
         false,
         socketService as any,
         qssClient as any,
+        qssService as any,
         sigChainService as any,
         notificationTokensStore as any
       )
