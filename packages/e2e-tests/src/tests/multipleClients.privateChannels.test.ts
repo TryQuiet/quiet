@@ -26,7 +26,7 @@ import {
 } from '../attachFile.const'
 import { deleteChannelMessage, generalChannelDeletionMessage } from '@quiet/common'
 
-const logger = createLogger('multipleClients')
+const logger = createLogger('multipleClients:privateChannels')
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients (Private Channels)', () => {

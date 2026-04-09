@@ -209,7 +209,7 @@ export class ChannelsService extends EventEmitter {
       !chain.roles.amIMemberOfRole(payload.encrypted.scope.name)
     ) {
       this.logger.warn(`Not a member of this channel, skipping channel entry decrypt`)
-      throw new NotAMemberError()
+      throw new NotAMemberError(id)
     }
 
     try {
@@ -244,7 +244,7 @@ export class ChannelsService extends EventEmitter {
         }
       }
     } catch (err) {
-      if (err instanceof NotAMemberError || err.message === 'Not a member of this channel') {
+      if (err instanceof NotAMemberError || err.message.startsWith('Not a member of this channel')) {
         this.logger.warn(`Failed to decrypt and validate private channel entry, ignoring...`)
         return false
       }
@@ -300,6 +300,7 @@ export class ChannelsService extends EventEmitter {
    * @throws Error
    */
   public async getChannel(id: string): Promise<Channel | undefined> {
+    this.logger.debug('Getting channel', id)
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
@@ -308,7 +309,15 @@ export class ChannelsService extends EventEmitter {
       return undefined
     }
     // need to rehydrate the UInt8Array bc json value encoding in KeyValueIndexedValidated does not maintain type
-    return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
+    try {
+      return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
+    } catch (e) {
+      if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+        this.logger.warn(`Failed to decrypt and validate private channel entry during getChannel, ignoring...`, id)
+      } else {
+        this.logger.error('Failed to decrypt channel entry', e)
+      }
+    }
   }
 
   /**
@@ -318,14 +327,24 @@ export class ChannelsService extends EventEmitter {
    * @throws Error
    */
   public async getChannels(): Promise<Channel[]> {
+    this.logger.debug('Getting channels')
     if (!this.channels) {
       throw new Error('Channels have not been initialized!')
     }
     return (await this.channels.all())
       .map(x => {
         try {
+          this.logger.debug('Decrypting channel entry', x.key)
           return this.decryptChannelEntry(x.value, x.key)
         } catch (e) {
+          if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+            this.logger.warn(
+              `Failed to decrypt and validate private channel entry during getChannels, ignoring...`,
+              x.key
+            )
+          } else {
+            this.logger.error('Failed to decrypt channel entry', e)
+          }
           return undefined
         }
       })

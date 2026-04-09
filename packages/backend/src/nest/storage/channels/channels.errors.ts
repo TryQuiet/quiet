@@ -1,5 +1,5 @@
 export class NotAMemberError extends Error {
-  constructor() {
-    super('Not a member of this channel')
+  constructor(id?: string) {
+    super(`Not a member of this channel: ${id}`)
   }
 }

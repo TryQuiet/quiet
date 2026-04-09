@@ -305,7 +305,14 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
           direction='row'
           justifyContent='center'
         >
-          <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
+          <Button
+            variant='contained'
+            onClick={handleClose}
+            size='small'
+            fullWidth
+            className={classes.secondaryButton}
+            data-testid={`${channelName}-add-members-leave-button`}
+          >
             Never mind
           </Button>
         </Grid>

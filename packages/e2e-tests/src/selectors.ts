@@ -733,7 +733,74 @@ export class ChannelContextMenu {
       500
     )
     await button.click()
+    await sleep(5_000)
+  }
+
+  async checkForMembersInAddMembersAutocomplete(channelName: string, memberNames: string[]): Promise<string[]> {
+    const autoCompleteInput = await this.driver.wait(
+      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
+      20_000,
+      `Channel add members autocomplete input div couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(autoCompleteInput),
+      15_000,
+      `Channel context menu channel add members autocomplete div was not visibile within timeout`,
+      500
+    )
+
+    const inputField = await this.driver.wait(
+      autoCompleteInput.findElement(By.xpath(`//input[@aria-autocomplete="list"]`)),
+      5_000,
+      `Channel add members autocomplete input field couldn't be located within timeout`,
+      500
+    )
+
+    const waitForUserInAutocomplete = async (memberName: string) => {
+      const autoCompleteOption = await this.driver.wait(
+        until.elementLocated(
+          By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete-option-${memberName}"]`)
+        ),
+        2_000,
+        `Channel add members autocomplete option for ${memberName} couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(autoCompleteOption),
+        2_000,
+        `Channel add members autocomplete option for ${memberName} wasn't visible within timeout`,
+        500
+      )
+    }
+
+    const membersInAutocomplete: string[] = []
+    for (const memberName of memberNames) {
+      await inputField.sendKeys(memberName)
+      try {
+        await waitForUserInAutocomplete(memberName)
+        membersInAutocomplete.push(memberName)
+      } catch {
+        // do nothing
+      }
+      await inputField.clear()
+    }
+
+    const button = this.driver.wait(
+      until.elementLocated(By.xpath(`//button[@data-testid="${channelName}-add-members-leave-button"]`)),
+      20_000,
+      `Channel add members leave button couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      15_000,
+      `Channel add members leave button wasn't visibile within timeout`,
+      500
+    )
+    await button.click()
     await sleep(5000)
+    return membersInAutocomplete
   }
 }
 
@@ -2029,19 +2096,22 @@ export class Sidebar {
     return Promise.all(
       elements.map(async element => {
         const fullName = await element.getText()
-        return fullName.split(' ')[1]
+        if (fullName.startsWith('# ')) {
+          return fullName.split(' ')[1]
+        }
+        return fullName
       })
     )
   }
 
-  async waitForChannelsNum(num: number) {
+  async waitForChannelsNum(num: number, timeoutMs: number = 15_000) {
     logger.info(`Waiting for ${num} channels`)
     return this.driver.wait(
       async () => {
         const channels = await this.getChannelList()
         return channels.length === num
       },
-      15_000,
+      timeoutMs,
       `Sidebar channel list length couldn't be determined within timeout`,
       500
     )
