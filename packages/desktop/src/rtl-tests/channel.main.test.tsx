@@ -49,7 +49,7 @@ import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
-describe('Channel', () => {
+describe('PublicChannel', () => {
   let socket: MockedSocket
   let notification: any
 

@@ -51,7 +51,7 @@ import {
   SetUserProfileResponse,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
-  Channel,
+  PublicChannel,
   User,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
@@ -672,7 +672,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     // handle chain updates
-    let channelMapping: Record<string, Channel> = {}
+    let channelMapping: Record<string, PublicChannel> = {}
     if (!this.storageService || !this.storageService.initialized) {
       this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
     } else {

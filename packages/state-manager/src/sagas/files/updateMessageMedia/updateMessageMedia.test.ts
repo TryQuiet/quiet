@@ -16,7 +16,7 @@ import {
   type Community,
   type Identity,
   MessageType,
-  type Channel,
+  type PublicChannel,
   PROFILE_PHOTO_CHANNEL_ID,
   UserProfile,
   FileMetadata,
@@ -35,9 +35,9 @@ describe('downloadedFileSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: Channel
+  let sailingChannel: PublicChannel
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -57,7 +57,7 @@ describe('downloadedFileSaga', () => {
     })
 
     sailingChannel = (
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

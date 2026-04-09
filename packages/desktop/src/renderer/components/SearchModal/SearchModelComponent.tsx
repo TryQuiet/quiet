@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import Icon from '../ui/Icon/Icon'
 import magnifyingGlassIcon from '../../static/images/magnifying-glass-icon.svg'
 import closeIcon from '../../static/images/close-icon.svg'
-import { ChannelStorage } from '@quiet/types'
+import { PublicChannelStorage } from '@quiet/types'
 import Modal from '../ui/Modal/Modal'
 import { useForm } from 'react-hook-form'
 import { searchChannelField } from '../../forms/fields/searchChannelField'
@@ -134,9 +134,9 @@ export interface SearchModalComponentProps {
   handleClose: () => void
   setCurrentChannel: (address: string) => void
   setChannelInput: (value: React.SetStateAction<string>) => void
-  dynamicSearchedChannelsSelector: ChannelStorage[]
+  dynamicSearchedChannelsSelector: PublicChannelStorage[]
   unreadChannelsSelector: string[]
-  publicChannelsSelector: ChannelStorage[]
+  publicChannelsSelector: PublicChannelStorage[]
   channelInput: string
 }
 

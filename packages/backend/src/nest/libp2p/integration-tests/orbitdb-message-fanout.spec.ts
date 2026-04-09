@@ -16,7 +16,7 @@ import { headsAreEqual, Hash } from '@localfirst/crdx'
 import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { ChannelsService } from '../../storage/channels/channels.service'
-import { ChannelSubscribedPayload, Channel } from '@quiet/types'
+import { ChannelSubscribedPayload, PublicChannel } from '@quiet/types'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
@@ -65,7 +65,7 @@ function deepArrayEqual(arr1: unknown[], arr2: unknown[]): boolean {
  */
 async function channelsSynced(services: ChannelsService[]): Promise<boolean> {
   const idSet = new Set<string>()
-  const lists: Channel[][] = []
+  const lists: PublicChannel[][] = []
   for (const svc of services) {
     const l = await svc.getChannels()
     lists.push(l)
@@ -217,7 +217,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
   const eventTimelines: Array<string[]> = []
   const modules: TestingModule[] = []
   let libp2pNodeParams: Libp2pNodeParams[] = []
-  const publicChannels: Channel[] = []
+  const publicChannels: PublicChannel[] = []
   let timeToLastSync: number | undefined
   let inviteResult: InviteResult
 
@@ -349,9 +349,9 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const createChannel = async () => {
       const channelsService = modules[0].get(ChannelsService)
       const sigchainService = modules[0].get(SigChainService)
-      const publicChannel = await factory.build<Channel>('Channel', {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
         owner: sigchainService.user.userId,
-      } as Channel)
+      } as PublicChannel)
       publicChannels.push(publicChannel)
       const channel = await channelsService.createChannel(publicChannel)
       expect(channel).toBeDefined()
@@ -450,9 +450,9 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     logger.info('creates a new channel and sends a message on the first peer')
     const channelsService = modules[0].get(ChannelsService)
     const sigchainService = modules[0].get(SigChainService)
-    const newChannel = await factory.build<Channel>('Channel', {
+    const newChannel = await factory.build<PublicChannel>('PublicChannel', {
       owner: sigchainService.user.userId,
-    } as Channel)
+    } as PublicChannel)
     publicChannels.push(newChannel)
     const channel = await channelsService.createChannel(newChannel)
     expect(channel).toBeDefined()

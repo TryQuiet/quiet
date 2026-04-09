@@ -8,7 +8,7 @@ import {
   CompoundError,
   ConsumedChannelMessage,
   MessagesLoadedPayload,
-  Channel,
+  PublicChannel,
   PushNotificationPayload,
 } from '@quiet/types'
 
@@ -32,7 +32,7 @@ import { PrivateChannelMessagesService } from './messages/private-channel-messag
  */
 @Injectable()
 export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChannelMessage> {
-  private channelData: Channel
+  private channelData: PublicChannel
   private _subscribing: boolean = false
 
   private logger: QuietLogger
@@ -57,7 +57,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * @param options Database options for OrbitDB
    * @returns Initialized ChannelStore instance
    */
-  public async init(channelData: Channel, options: DBOptions): Promise<ChannelStore> {
+  public async init(channelData: PublicChannel, options: DBOptions): Promise<ChannelStore> {
     if (this.store != null) {
       this.logger.warn(`Channel ${this.channelData.name} has already been initialized!`)
       return this

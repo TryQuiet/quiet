@@ -10,7 +10,14 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
-import { type Community, DownloadState, type FileMetadata, type Identity, MessageType, Channel } from '@quiet/types'
+import {
+  type Community,
+  DownloadState,
+  type FileMetadata,
+  type Identity,
+  MessageType,
+  PublicChannel,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -21,7 +28,7 @@ describe('downloadFileSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()

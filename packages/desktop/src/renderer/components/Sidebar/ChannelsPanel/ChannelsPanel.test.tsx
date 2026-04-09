@@ -72,7 +72,7 @@ describe('Channels panel', () => {
 
     for (const name of channelNames) {
       const isPublic = name === 'pets' ? false : true
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: name,
           description: `Welcome to #${name}`,

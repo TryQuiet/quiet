@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton, useTheme, createSvgIcon } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
-import { Channel, UserProfile } from '@quiet/types'
+import { PublicChannel, UserProfile } from '@quiet/types'
 import { useDispatch, useSelector } from 'react-redux'
 import { publicChannels } from '@quiet/state-manager'
 import inlineSvg from 'react-inlinesvg'
@@ -108,7 +108,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface ChannelsListItemProps {
-  channel: Channel
+  channel: PublicChannel
   unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void

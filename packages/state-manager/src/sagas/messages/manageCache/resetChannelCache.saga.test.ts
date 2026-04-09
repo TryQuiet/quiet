@@ -12,7 +12,7 @@ import { DateTime } from 'luxon'
 import { reducers } from '../../reducers'
 import { resetCurrentPublicChannelCacheSaga } from './resetChannelCache.saga'
 import { messagesActions } from '../messages.slice'
-import { type ChannelMessage, type Community, type Identity, MessageType, type Channel } from '@quiet/types'
+import { type ChannelMessage, type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
 
 describe('resetChannelCacheSaga', () => {
   let store: Store
@@ -21,7 +21,7 @@ describe('resetChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()

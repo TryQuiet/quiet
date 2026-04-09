@@ -1,6 +1,6 @@
 import _ from 'validator'
 import joi from 'joi'
-import { ChannelMessage, Channel } from '@quiet/types'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
 import { createLogger } from '../common/logger'
@@ -138,7 +138,7 @@ export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
   return !value.error
 }
 
-export const isChannel = (channel: Channel): boolean => {
+export const isChannel = (channel: PublicChannel): boolean => {
   const value = channelSchema.validate(channel)
   return !value.error
 }

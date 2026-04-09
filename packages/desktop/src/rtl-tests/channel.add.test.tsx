@@ -107,7 +107,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('Channel', {
+        factory.create('PublicChannel', {
           channel: {
             id: payload.id,
             name: payload.name,
@@ -216,7 +216,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('Channel', {
+        factory.create('PublicChannel', {
           channel: {
             id: payload.id,
             name: payload.name,
@@ -449,7 +449,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('Channel', {
+        factory.create('PublicChannel', {
           channel: {
             id: payload.id,
             name: payload.name,
@@ -566,7 +566,7 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
-        factory.create('Channel', {
+        factory.create('PublicChannel', {
           channel: {
             id: payload.id,
             name: payload.name,

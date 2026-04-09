@@ -42,7 +42,7 @@ describe('sendIntroductionMessageSaga', () => {
       userId: identity.userId,
     })
 
-    await factory.create('Channel')
+    await factory.create('PublicChannel')
 
     const generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 

@@ -13,7 +13,7 @@ import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { type ChannelMessage, type Community, type Identity, MessageType, type Channel } from '@quiet/types'
+import { type ChannelMessage, type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store
@@ -22,7 +22,7 @@ describe('markUnreadChannelsSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
 
   let channelIds: string[] = []
 
@@ -47,15 +47,18 @@ describe('markUnreadChannelsSaga', () => {
 
     // Automatically create channels
     for (const name of channelNames) {
-      const channel = await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
-        channel: {
-          name,
-          description: `Welcome to #${name}`,
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.userId,
-          id: generateChannelId(name),
-        },
-      })
+      const channel = await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name,
+            description: `Welcome to #${name}`,
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.userId,
+            id: generateChannelId(name),
+          },
+        }
+      )
       channelIds = [...channelIds, channel.channel.id]
     }
   })

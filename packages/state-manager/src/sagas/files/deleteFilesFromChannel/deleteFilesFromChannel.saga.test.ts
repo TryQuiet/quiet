@@ -10,7 +10,7 @@ import { filesActions } from '../../files/files.slice'
 import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
-import { type Community, Identity, MessageType, Channel, SocketActions } from '@quiet/types'
+import { type Community, Identity, MessageType, PublicChannel, SocketActions } from '@quiet/types'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
 describe('deleteFilesFromChannelSaga', () => {
@@ -20,8 +20,8 @@ describe('deleteFilesFromChannelSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: Channel
-  let photoChannel: Channel
+  let generalChannel: PublicChannel
+  let photoChannel: PublicChannel
 
   let message: any
 
@@ -45,7 +45,7 @@ describe('deleteFilesFromChannelSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',

@@ -9,7 +9,7 @@ import {
   FileMetadata,
   Identity,
   MessageType,
-  Channel,
+  PublicChannel,
 } from '@quiet/types'
 
 import path from 'path'
@@ -50,7 +50,7 @@ describe('ChannelsService', () => {
   let peerId: PeerId
 
   let factory: FactoryGirl
-  let channel: Channel
+  let channel: PublicChannel
   let message: ChannelMessage
   let filePath: string
 
@@ -96,7 +96,7 @@ describe('ChannelsService', () => {
 
     await storageService.init()
 
-    channel = await factory.build<Channel>('Channel', {
+    channel = await factory.build<PublicChannel>('PublicChannel', {
       owner: aliceUserId,
     })
 
@@ -134,10 +134,10 @@ describe('ChannelsService', () => {
 
     it('creates several channels and only deletes one without affecting others', async () => {
       logger.info('Creating several channels and deleting one')
-      const channel1 = await factory.build<Channel>('Channel', {
+      const channel1 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
       })
-      const channel2 = await factory.build<Channel>('Channel', {
+      const channel2 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
       })
 
@@ -246,7 +246,7 @@ describe('ChannelsService', () => {
     // skipping because we don't have a strong way to prevent a user from deleting a channel yet
     it.skip('delete channel as standard user', async () => {
       logger.info('Deleting channel as standard user')
-      const notOwnersChannel = await factory.build<Channel>('Channel', {
+      const notOwnersChannel = await factory.build<PublicChannel>('PublicChannel', {
         owner: 'notAlice',
       })
       await channelsService.subscribeToChannel(notOwnersChannel)

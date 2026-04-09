@@ -4,7 +4,7 @@ import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberCont
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { Channel, SocketEvents, User } from '@quiet/types'
+import { PublicChannel, SocketEvents, User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'

@@ -2,7 +2,7 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import AddMembersChannelComponent from './AddMembersChannelComponent'
 
-describe('LeaveCommunity', () => {
+describe('AddMembersChannel', () => {
   it('renders component', () => {
     const result = renderComponent(
       <AddMembersChannelComponent
@@ -117,6 +117,7 @@ describe('LeaveCommunity', () => {
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-gcwvw8-MuiAutocomplete-root"
+                      data-testid="general-add-members-autocomplete"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -192,7 +193,7 @@ describe('LeaveCommunity', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelbutton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
-                      data-testid="addMembersChannelButton"
+                      data-testid="general-add-members-button"
                       tabindex="0"
                       type="button"
                     >
@@ -209,6 +210,7 @@ describe('LeaveCommunity', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth AddMembersChannelsecondaryButton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
+                      data-testid="general-add-members-leave-button"
                       tabindex="0"
                       type="button"
                     >
