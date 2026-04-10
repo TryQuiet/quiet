@@ -10,6 +10,7 @@ import { EncryptedKeyValueIndexedValidatedStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
+import { SigchainEvents } from '../../auth/types'
 
 const logger = createLogger('NotificationTokensStore')
 
@@ -49,7 +50,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       })
     })
 
-    this.auth.on('updated', async () => {
+    this.auth.on(SigchainEvents.UPDATED, async () => {
       try {
         await this.flushDeferredEntries()
         await this.store!.retryIndexingUnindexedEntries()

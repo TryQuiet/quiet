@@ -165,7 +165,6 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
     const updatedOptions: AutoCompleteOption[] = []
     let index = 0
     for (const user of Object.values(possibleMembers)) {
-      logger.warn('Channel IDs', user.userId, user.channels)
       if ((user.channels ?? []).includes(channelId)) {
         continue
       }
@@ -202,7 +201,6 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
             renderOption: (props, option, state) => {
               const { key, ...optionProps } = props as any
               const userProfile = possibleMembers[option.id]
-              logger.warn('Option', option.label, JSON.stringify(props, null, 2), state)
               return (
                 <Box
                   key={option.id}

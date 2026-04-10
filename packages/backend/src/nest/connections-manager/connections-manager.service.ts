@@ -75,6 +75,7 @@ import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { randomBytes } from '@localfirst/crypto'
 import { QSSEvents } from '../qss/qss.types'
+import { SigchainEvents } from '../auth/types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -678,7 +679,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } else {
       channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
     }
-    this.logger.debug('Channel mapping', channelMapping)
     const users = this.sigChainService
       .getActiveChain()
       .team?.members()
@@ -691,9 +691,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         isRegistered: true,
         isDuplicated: false,
       })) as User[]
-    for (const user of users) {
-      this.logger.warn('User channels', user.channelIds, user.roles)
-    }
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
@@ -931,8 +928,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private attachSigchainListeners() {
     if (!this.sigChainService) return
 
-    this.sigChainService.on('updated', async () => {
-      await this._updateUsersInStateManager('lfa.updated')
+    this.sigChainService.on(SigchainEvents.UPDATED, async () => {
+      await this._updateUsersInStateManager(SigchainEvents.UPDATED)
     })
   }
 }

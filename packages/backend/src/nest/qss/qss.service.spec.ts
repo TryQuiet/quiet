@@ -49,6 +49,7 @@ import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSAuthConnStatus } from './qss.const'
+import { SigchainEvents } from '../auth/types'
 
 describe('QSSService', () => {
   let store: Store
@@ -1052,7 +1053,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
 
       // Trigger sigchain update which should process DLQ
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       // Wait for async processing
       await waitForExpect(async () => {
@@ -1088,10 +1089,10 @@ describe('QSSService', () => {
       const processSpy = jest.spyOn(qssService, 'processDLQDecrypt')
 
       // Trigger first update
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       // Immediately trigger second update while first is processing
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       await waitForExpect(async () => {
         const remainingCount = await localDbService.getDLQDecryptCount(teamId)
@@ -1114,7 +1115,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries')
 
       // Trigger sigchain update
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       // Give it time to process
       await new Promise(resolve => setTimeout(resolve, 100))

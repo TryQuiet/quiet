@@ -17,3 +17,17 @@ export type GetChainFilter = {
   teamId?: string
   teamName?: string
 }
+
+export enum LFAEvents {
+  UPDATED = 'updated',
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnected',
+  JOINED = 'joined',
+  CHANGE = 'change',
+  LOCAL_ERROR = 'localError',
+  REMOTE_ERROR = 'remoteError',
+}
+
+export enum SigchainEvents {
+  UPDATED = 'sigchainUpdated',
+}

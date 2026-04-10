@@ -40,6 +40,7 @@ import { DateTime } from 'luxon'
 import { EncryptedMessage } from './messages/messages.types'
 import { isChannel } from '../../validation/validators'
 import { NotAMemberError } from './channels.errors'
+import { SigchainEvents } from '../../auth/types'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -150,7 +151,7 @@ export class ChannelsService extends EventEmitter {
       this.broadcastCurrentChannels()
     })
 
-    this.sigchainService.on('updated', async payload => {
+    this.sigchainService.on(SigchainEvents.UPDATED, async payload => {
       try {
         const currentChannelsCount = (await this.getChannels()).length
         await this.channels!.retryIndexingUnindexedEntries()

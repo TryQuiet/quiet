@@ -15,7 +15,7 @@ import { type DeviceWithSecrets } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { GetChainFilter } from './types'
+import { GetChainFilter, SigchainEvents } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { StorageService } from '../storage/storage.service'
 
@@ -136,19 +136,19 @@ export class SigChainService extends EventEmitter {
   }
 
   private handleChainUpdate = async () => {
-    this.emit('updated')
+    this.emit(SigchainEvents.UPDATED)
     this.saveChain(this.activeChainTeamName!)
     this.logger.info('Chain updated, emitted updated event')
   }
 
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
-    chain.on('updated', this.handleChainUpdate)
+    chain.on(SigchainEvents.UPDATED, this.handleChainUpdate)
   }
 
   private detachSocketListeners(chain: SigChain): void {
     this.logger.info('Detaching socket listeners')
-    chain.removeListener('updated', this.handleChainUpdate)
+    chain.removeListener(SigchainEvents.UPDATED, this.handleChainUpdate)
   }
 
   /**

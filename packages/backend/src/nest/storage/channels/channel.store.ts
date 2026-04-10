@@ -26,6 +26,7 @@ import { UserProfileStore } from '../userProfile/userProfile.store'
 import { SigChainService } from '../../auth/sigchain.service'
 import { PrivateMessagesAccessController } from './messages/orbitdb/PrivateMessagesAccessController'
 import { PrivateChannelMessagesService } from './messages/private-channel-messages.service'
+import { SigchainEvents } from '../../auth/types'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
@@ -127,7 +128,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       await this.refreshMessageIds()
     })
 
-    this.auth.on('updated', payload => {
+    this.auth.on(SigchainEvents.UPDATED, payload => {
       this.refreshMessageIds()
     })
 

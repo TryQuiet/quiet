@@ -11,6 +11,7 @@ import { EncryptedKeyValueIndexedValidatedStoreBase, EncryptedKeyValueStoreBase 
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
+import { SigchainEvents } from '../../auth/types'
 
 const logger = createLogger('UserProfileStore')
 
@@ -49,7 +50,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       })
     })
 
-    this.auth.on('updated', async payload => {
+    this.auth.on(SigchainEvents.UPDATED, async payload => {
       try {
         await this.flushDeferredEntries()
         await this.store!.retryIndexingUnindexedEntries()
