@@ -164,7 +164,7 @@ describe('Multiple Clients (QSS)', () => {
       it('Owner registers successfully and sees general channel', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
 
         const generalChannelText = await generalChannelOwner.element.getText()
         expect(generalChannelText).toEqual('# general')
@@ -233,7 +233,7 @@ describe('Multiple Clients (QSS)', () => {
         const loadNewUser = async () => {
           generalChannelUser1 = new Channel(app.driver, generalChannelName)
           expect(await generalChannelUser1.isReady()).toBeTruthy()
-          expect(await generalChannelUser1.isOpen()).toBeTruthy()
+          expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
           expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
           logger.timeEnd(`[${app.name}] '${users.user1.username}' joining community time`)
         }
@@ -430,7 +430,7 @@ describe('Multiple Clients (QSS)', () => {
         const loadNewUser = async () => {
           generalChannelUser2 = new Channel(app.driver, generalChannelName)
           expect(await generalChannelUser2.isReady()).toBeTruthy()
-          expect(await generalChannelUser2.isOpen()).toBeTruthy()
+          expect(await generalChannelUser2.isPublicOpen()).toBeTruthy()
           expect(await generalChannelUser2.isMessageInputReady()).toBeTruthy()
           logger.timeEnd(`[${app.name}] '${users.user2.username}' joining community time`)
         }
@@ -467,7 +467,7 @@ describe('Multiple Clients (QSS)', () => {
         const loadOwner = async () => {
           generalChannelOwner = new Channel(app.driver, generalChannelName)
           expect(await generalChannelOwner.isReady()).toBeTruthy()
-          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
         }
 
@@ -526,7 +526,7 @@ describe('Multiple Clients (QSS)', () => {
       it(`First user can see the second user's messages`, async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         expect(await generalChannelUser1.isReady()).toBeTruthy()
-        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
         await generalChannelUser1.getMessageIdsByText(
           users.user2.messages.initialChannelMessage,
@@ -581,7 +581,7 @@ describe('Multiple Clients (QSS)', () => {
       it('First user sees both messages sent while offline via QSS', async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         expect(await generalChannelUser1.isReady()).toBeTruthy()
-        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
         await generalChannelUser1.getMessageIdsByText(
           users.owner.messages.catchUpMessage,

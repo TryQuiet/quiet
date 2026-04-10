@@ -204,7 +204,7 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')('Owner waits for app to finish loading', async () => {
         generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
         expect(await generalChannel.isReady()).toBeTruthy()
-        expect(await generalChannel.isOpen()).toBeTruthy()
+        expect(await generalChannel.isPublicOpen()).toBeTruthy()
         expect(await generalChannel.isMessageInputReady()).toBeTruthy()
       })
 
@@ -222,7 +222,7 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')('Owner sees general channel on new version', async () => {
         generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
         expect(await generalChannel.isReady()).toBeTruthy()
-        expect(await generalChannel.isOpen()).toBeTruthy()
+        expect(await generalChannel.isPublicOpen()).toBeTruthy()
         expect(await generalChannel.isMessageInputReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
@@ -247,7 +247,7 @@ describe('Backwards Compatibility', () => {
         await sidebar.switchChannel(newChannelName)
         secondChannel = new Channel(ownerAppNewVersion.driver, newChannelName)
         expect(await secondChannel.isReady()).toBeTruthy()
-        expect(await secondChannel.isOpen()).toBeTruthy()
+        expect(await secondChannel.isPublicOpen()).toBeTruthy()
         expect(await secondChannel.isMessageInputReady()).toBeTruthy()
       })
 

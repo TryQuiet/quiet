@@ -152,7 +152,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
       it('Owner registers successfully and sees general channel', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
 
         const generalChannelText = await generalChannelOwner.element.getText()
         expect(generalChannelText).toEqual('# general')
@@ -180,6 +180,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await sidebarOwner.switchChannel(privateChannelName)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannelName)
+          await sidebarOwner.getChannelLockIcon(privateChannelName)
         })
 
         it('Owner sends message in private channel', async () => {
@@ -256,7 +257,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           const loadNewUser = async () => {
             generalChannelUser1 = new Channel(app.driver, generalChannelName)
             expect(await generalChannelUser1.isReady()).toBeTruthy()
-            expect(await generalChannelUser1.isOpen()).toBeTruthy()
+            expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
             expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
             logger.timeEnd(`[${app.name}] '${users.user1.username}' joining community time`)
           }
@@ -366,6 +367,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await sidebarUser1.waitForChannelsNum(2)
           const channels = await sidebarUser1.getChannelsNames()
           expect(channels).toContain(privateChannelName)
+          await sidebarUser1.getChannelLockIcon(privateChannelName)
         })
 
         it('First user switches to private channel', async () => {
@@ -414,6 +416,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await sidebarOwner.waitForChannelsNum(3)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannel2Name)
+          await sidebarOwner.getChannelLockIcon(privateChannel2Name)
         })
 
         it('Owner sends message in second private channel', async () => {
@@ -447,35 +450,36 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await sidebarUser1.waitForChannelsNum(3)
           const channels = await sidebarUser1.getChannelsNames()
           expect(channels).toContain(privateChannel2Name)
+          await sidebarUser1.getChannelLockIcon(privateChannel2Name)
         })
 
-        it('First user switches to private channel', async () => {
+        it('First user switches to second private channel', async () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
           await sidebarUser1.switchChannel(privateChannel2Name)
           privateChannel2User1 = new Channel(users.user1.app.driver, privateChannel2Name)
           expect(await privateChannel2User1.isMessageInputReady()).toBeTruthy()
         })
 
-        it("Owner's messages are visible in private channel for user", async () => {
+        it("Owner's messages are visible in second private channel for user", async () => {
           await privateChannel2User1.getUserMessages(users.owner.username)
           await privateChannel2User1.getMessageIdsByText(users.owner.messages.secondPrivate[0], users.owner.username)
         })
       })
 
       describe(`Owner Sends Another Message To Second Private Channel`, () => {
-        it('Owner sends message in private channel after user joins', async () => {
+        it('Owner sends message in second private channel after user joins', async () => {
           privateChannel2Owner = new Channel(users.owner.app.driver, privateChannel2Name)
           expect(await privateChannel2Owner.isReady()).toBeTruthy()
           expect(await privateChannel2Owner.isMessageInputReady()).toBeTruthy()
           await privateChannel2Owner.sendMessage(users.owner.messages.secondPrivate[1], users.owner.username)
         })
 
-        it("Owner's message is visible in private channel to owner", async () => {
+        it("Owner's message is visible in second private channel to owner", async () => {
           await privateChannel2Owner.getUserMessages(users.owner.username)
           await privateChannel2Owner.getMessageIdsByText(users.owner.messages.secondPrivate[1], users.owner.username)
         })
 
-        it("Owner's message is visible in private channel to user", async () => {
+        it("Owner's message is visible in second private channel to user", async () => {
           await privateChannel2User1.getUserMessages(users.owner.username)
           await privateChannel2User1.getMessageIdsByText(users.owner.messages.secondPrivate[1], users.owner.username)
         })
@@ -554,7 +558,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           const loadNewUser = async () => {
             generalChannelUser2 = new Channel(app.driver, generalChannelName)
             expect(await generalChannelUser2.isReady()).toBeTruthy()
-            expect(await generalChannelUser2.isOpen()).toBeTruthy()
+            expect(await generalChannelUser2.isPublicOpen()).toBeTruthy()
             expect(await generalChannelUser2.isMessageInputReady()).toBeTruthy()
             logger.timeEnd(`[${app.name}] '${users.user2.username}' joining community time`)
           }

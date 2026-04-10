@@ -1326,7 +1326,7 @@ export class Channel {
 
   get lock() {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//svg[@data-testid='channelTitle-private']`)),
+      until.elementLocated(By.xpath(`//svg[@data-testid='channelTitle-private-lock']`)),
       10_000,
       `Channel title element for ${this.name} couldn't be found within timeout`,
       500
@@ -1352,11 +1352,27 @@ export class Channel {
     return true
   }
 
-  async isOpen(timeout = 15_000): Promise<boolean> {
+  async isPublicOpen(timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
       timeout,
       `Channel title element for ${this.name} couldn't be seen within timeout`,
+      500
+    )
+    return (await titleElement.getText()) === `#${this.name}`
+  }
+
+  async isPrivateOpen(timeout = 15_000): Promise<boolean> {
+    const titleElement = await this.driver.wait(
+      until.elementIsVisible(await this.title),
+      timeout,
+      `Channel title element for ${this.name} couldn't be seen within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(await this.lock),
+      timeout,
+      `Channel title private lock element for ${this.name} couldn't be seen within timeout`,
       500
     )
     return (await titleElement.getText()) === `#${this.name}`
@@ -2035,10 +2051,28 @@ export class Sidebar {
     this.driver = driver
   }
 
+  async getChannelLockIcon(channelName: string): Promise<WebElement> {
+    const channelLockIcon = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-private-lock"]`)),
+      10_000,
+      `Channel list private lock icon for ${channelName} wasn't located within timeout`,
+      500
+    )
+
+    await this.driver.wait(
+      until.elementIsVisible(channelLockIcon),
+      10_000,
+      `Channel list private lock icon for ${channelName} wasn't visible within timeout`,
+      500
+    )
+
+    return channelLockIcon
+  }
+
   /**
    * Get channel link elements in the sidebar
    */
-  async getChannelList() {
+  async getChannelList(): Promise<WebElement[]> {
     // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
@@ -2065,7 +2099,7 @@ export class Sidebar {
   /**
    * Get user profile link elements in the sidebar
    */
-  async getUserProfileList() {
+  async getUserProfileList(): Promise<WebElement[]> {
     const userProfileList = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "user-link-text")]')),
       15_000,
@@ -2078,7 +2112,7 @@ export class Sidebar {
   /**
    * Get names of all users in the sidebar
    */
-  async getUserNames() {
+  async getUserNames(): Promise<string[]> {
     const elements = await this.getUserProfileList()
     return Promise.all(
       elements.map(async element => {
@@ -2091,7 +2125,7 @@ export class Sidebar {
   /**
    * Get names of all channels in the sidebar
    */
-  async getChannelsNames() {
+  async getChannelsNames(): Promise<string[]> {
     const elements = await this.getChannelList()
     return Promise.all(
       elements.map(async element => {
@@ -2104,7 +2138,7 @@ export class Sidebar {
     )
   }
 
-  async waitForChannelsNum(num: number, timeoutMs: number = 15_000) {
+  async waitForChannelsNum(num: number, timeoutMs: number = 15_000): Promise<boolean> {
     logger.info(`Waiting for ${num} channels`)
     return this.driver.wait(
       async () => {
@@ -2117,7 +2151,7 @@ export class Sidebar {
     )
   }
 
-  async waitForChannels(channelsNames: Array<string>) {
+  async waitForChannels(channelsNames: Array<string>): Promise<void> {
     await this.waitForChannelsNum(channelsNames.length)
     const names = await this.getChannelsNames()
     expect(names).toEqual(expect.arrayContaining(channelsNames))
@@ -2137,7 +2171,7 @@ export class Sidebar {
     return new Settings(this.driver)
   }
 
-  async switchChannel(name: string): Promise<Channel> {
+  async switchChannel(name: string, isPublic: boolean = true): Promise<Channel> {
     const channelLink = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`)),
       20_000,
@@ -2146,7 +2180,7 @@ export class Sidebar {
     )
     await channelLink.click()
     const channel = new Channel(this.driver, name)
-    await channel.isOpen()
+    isPublic ? await channel.isPublicOpen() : await channel.isPrivateOpen()
     return channel
   }
 

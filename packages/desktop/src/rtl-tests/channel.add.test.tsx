@@ -297,7 +297,7 @@ describe('Add new channel', () => {
 
     // Check if newly created channel is present and selected
     expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output)
-    expect(screen.getByTestId('channelTitle-private')).toBeVisible()
+    expect(screen.getByTestId('channelTitle-private-lock')).toBeVisible()
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveClass('ChannelsListItemselected')

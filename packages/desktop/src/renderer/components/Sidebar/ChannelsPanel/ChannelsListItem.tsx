@@ -1,11 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton, useTheme, createSvgIcon } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
-import { PublicChannel, UserProfile } from '@quiet/types'
-import { useDispatch, useSelector } from 'react-redux'
-import { publicChannels } from '@quiet/state-manager'
+import { PublicChannel } from '@quiet/types'
 import inlineSvg from 'react-inlinesvg'
 import lockIconSvg from '../../../static/images/lock.svg'
 
@@ -150,7 +148,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
                   className={classNames(classes.lock, {
                     [classes.lockNewMessages]: unread,
                   })}
-                  data-testid={'channelTitle-private-lock'}
+                  data-testid={`${channel.name}-channel-link-private-lock`}
                 />
               ) : (
                 <></>

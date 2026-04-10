@@ -345,7 +345,7 @@ describe('Channels panel', () => {
                             <svg
                               aria-hidden="true"
                               class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="channelTitle-private-lock"
+                              data-testid="pets-channel-link-private-lock"
                               focusable="false"
                               style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
                               viewBox="0 0 24 24"
@@ -747,7 +747,7 @@ describe('Channels panel', () => {
                           <svg
                             aria-hidden="true"
                             class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="channelTitle-private-lock"
+                            data-testid="pets-channel-link-private-lock"
                             focusable="false"
                             style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
                             viewBox="0 0 24 24"
