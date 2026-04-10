@@ -189,7 +189,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const onIsPrivateChange = (checked: boolean) => {
-    logger.warn('checked change', checked)
     setValue('private', checked)
   }
 

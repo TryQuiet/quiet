@@ -130,7 +130,7 @@ export const getChannelById = (channelId: string) =>
   createSelector(publicChannels, channels => {
     const channel = channels.find(channel => channel.id === channelId)
     if (!channel) {
-      logger.info('channel dont exist')
+      logger.warn('Channel not found', channelId)
     }
     return channel
   })

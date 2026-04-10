@@ -178,7 +178,10 @@ export function subscribe(socket: Socket) {
     // Users
 
     socket.on(SocketEvents.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
-      logger.info(`${SocketEvents.USERS_UPDATED}`, payload)
+      logger.info(
+        `${SocketEvents.USERS_UPDATED}`,
+        payload.users.map(user => user.userId)
+      )
       emit(usersActions.setUsers(payload.users))
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
