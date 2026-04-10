@@ -36,7 +36,8 @@ module.exports = {
       ...config.resolve.alias,
       fs: path.resolve(__dirname, 'fsMock.js'),
       'electron-store-webpack-wrapper': path.resolve(__dirname, 'electronStoreMock.js'),
-      net: path.resolve(__dirname, 'netMock.js')
+      net: path.resolve(__dirname, 'netMock.js'),
+      electron: path.resolve(__dirname, 'electronMock.js'),
     };
     config.module.rules.push({
       test: /\.scss$/,
