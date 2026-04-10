@@ -8,6 +8,8 @@ react {
     autolinkLibrariesWithApp()
 }
 
+def googleServicesJsonPath = file("google-services.json")
+
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -289,6 +291,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
 
     implementation("com.google.code.gson:gson:2.13.2")
+    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation(project(":react-native-fs")) // comes from npm module
     implementation(group: "commons-io", name: "commons-io", version: "2.20.0")
 
@@ -326,6 +331,12 @@ project.ext.envConfigFiles = [
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
+
+if (googleServicesJsonPath.exists()) {
+    apply plugin: "com.google.gms.google-services"
+} else {
+    logger.warn("google-services.json not found in packages/mobile/android/app; Firebase runtime setup will remain incomplete until it is added.")
+}
 
 repositories {
     mavenCentral()

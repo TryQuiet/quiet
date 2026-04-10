@@ -1,6 +1,7 @@
 import { all, fork, takeEvery, call, put, select, take, cancelled, delay } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
 import { NativeModules, AppState, AppStateStatus, Platform } from 'react-native'
+import DeviceInfo from 'react-native-device-info'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
 import { pushNotificationsActions } from './pushNotifications.slice'
 import { pushNotificationsSelectors } from './pushNotifications.selectors'
@@ -22,11 +23,17 @@ const DEVICE_TOKEN_RECEIVED = 'deviceTokenReceived'
 const firebaseMessagingModule = NativeModules.FirebaseMessagingModule
 
 function* requestPermissionSaga(): Generator {
+  if (Platform.OS !== 'ios') {
+    return
+  }
   logger.info('Requesting iOS notification permission')
   yield* call(NativeModules.CommunicationModule.requestNotificationPermission)
 }
 
 function* checkPermissionSaga(): Generator {
+  if (Platform.OS !== 'ios') {
+    return
+  }
   logger.info('Checking notification permission')
   yield* call(NativeModules.CommunicationModule.checkNotificationPermission)
 }
@@ -76,7 +83,15 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
   logger.info('Waiting for websocket connection before sending FCM token')
   yield* call(waitForWebsocketConnectionSaga)
   logger.info('Sending FCM token to backend')
-  yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
+  const platform = Platform.OS === 'android' ? 'android' : 'ios'
+  const bundleId = DeviceInfo.getBundleId()
+  yield* put(
+    pushNotifications.actions.sendDeviceTokenToBackend({
+      deviceToken: token,
+      bundleId,
+      platform,
+    })
+  )
 }
 
 function* syncCurrentDeviceTokenSaga(): Generator {
@@ -130,8 +145,13 @@ function* watchAppState(): Generator {
     while (true) {
       const state = yield* take(channel)
       if (state === 'active') {
-        logger.info('App became active, re-checking notification permission')
-        yield* put(pushNotificationsActions.checkPermissionOnLaunch())
+        if (Platform.OS === 'ios') {
+          logger.info('App became active, re-checking notification permission')
+          yield* put(pushNotificationsActions.checkPermissionOnLaunch())
+        } else {
+          logger.info('App became active, refreshing current FCM token')
+          yield* call(syncCurrentDeviceTokenSaga)
+        }
       }
     }
   } finally {
@@ -156,23 +176,22 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
-  if (Platform.OS !== 'ios') {
-    logger.info('Skipping push notifications saga on non-iOS')
-    return
-  }
-
   logger.info('pushNotificationsMasterSaga starting')
   try {
-    // Set up native event listeners before triggering any permission requests
-    yield* fork(watchPermissionResults)
     yield* fork(watchDeviceToken)
     yield* fork(watchAppState)
 
-    yield* all([
-      takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
-      takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
-      fork(triggerPermissionRequestSaga),
-    ])
+    if (Platform.OS === 'ios') {
+      yield* fork(watchPermissionResults)
+      yield* all([
+        takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
+        takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
+        fork(triggerPermissionRequestSaga),
+      ])
+      return
+    }
+
+    yield* call(syncCurrentDeviceTokenSaga)
   } finally {
     logger.info('pushNotificationsMasterSaga stopping')
     if (yield cancelled()) {

@@ -241,6 +241,7 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
   let proxyAgent: HttpsProxyAgent<string> | undefined
+  let shutdownRequestedFromBridge = false
   rn_bridge.channel.on('close', () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     connectionsManager.pause()
@@ -256,6 +257,15 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     connectionsManager.resume()
   })
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
+  rn_bridge.channel.on('shutdown', async () => {
+    logger.info('Received shutdown message from RN bridge')
+    if (shutdownRequestedFromBridge) {
+      return
+    }
+    shutdownRequestedFromBridge = true
+    await shutdown.gracefulCloseServices()
+    rn_bridge.channel.send('backendClosed')
+  })
   rn_bridge.channel.send('backendReady')
 }
 

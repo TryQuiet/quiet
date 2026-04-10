@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -21,8 +22,14 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.quietmobile.Backend.BackendWorkManager
+import com.quietmobile.Communication.CommunicationModule
+import com.quietmobile.Push.QuietStorage
 
 class MainActivity : ReactActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 200
+    }
 
     /**
      * Returns the name of the main component registered from JavaScript. This is used to schedule
@@ -45,8 +52,9 @@ class MainActivity : ReactActivity() {
         val intent = intent
         checkAgainstIntentUpdate(intent)
 
-        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER == "true") {
+        if (shouldStartBackend()) {
             val context = applicationContext
+            Log.i(TAG, "onCreate enqueueRequests requested")
             BackendWorkManager(context).enqueueRequests()
         }
     }
@@ -56,10 +64,6 @@ class MainActivity : ReactActivity() {
             checkNotificationsPermission()
         }
         return super.onCreateView(name, context, attrs)
-    }
-
-    companion object {
-        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 200
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -137,8 +141,22 @@ class MainActivity : ReactActivity() {
 
     override fun onResume() {
         super.onResume()
+        QuietStorage.setAppForeground(true)
+        Log.i(TAG, "onResume syncBackendWorkerState requested")
+        CommunicationModule.syncBackendWorkerState(applicationContext)
         // Dismiss all notifications if one of them is tapped
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancelAll()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        QuietStorage.setAppForeground(false)
+        Log.i(TAG, "onPause syncBackendWorkerState requested")
+        CommunicationModule.syncBackendWorkerState(applicationContext)
+    }
+
+    private fun shouldStartBackend(): Boolean {
+        return BuildConfig.SHOULD_RUN_BACKEND_WORKER == "true"
     }
 }

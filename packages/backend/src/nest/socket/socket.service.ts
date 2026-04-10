@@ -239,9 +239,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Push Notifications ======
-      socket.on(SocketActions.SEND_DEVICE_TOKEN, async (payload: { deviceToken: string }) => {
-        this.emit(SocketActions.SEND_DEVICE_TOKEN, payload)
-      })
+      socket.on(
+        SocketActions.SEND_DEVICE_TOKEN,
+        async (payload: { deviceToken: string; bundleId: string; platform: 'ios' | 'android' }) => {
+          this.emit(SocketActions.SEND_DEVICE_TOKEN, payload)
+        }
+      )
     })
 
     // Ensure the underlying connections get closed. See:

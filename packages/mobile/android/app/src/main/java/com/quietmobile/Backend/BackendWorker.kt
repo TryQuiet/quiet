@@ -42,11 +42,22 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     private lateinit var notificationHandler: NotificationHandler
 
     companion object {
+        private const val TAG = "BackendWorker"
+
         init {
             System.loadLibrary("own-native-lib")
             System.loadLibrary("node")
             System.loadLibrary("tor")
         }
+
+        @Volatile
+        private var startupInProgress: Boolean = false
+
+        @Volatile
+        private var shutdownInProgress: Boolean = false
+
+        @Volatile
+        private var nodeRuntimeActive: Boolean = false
 
         /** Populated once in `doWork()`; used later by the JNI‑callback handshake */
         @JvmStatic
@@ -55,6 +66,64 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         /** Kotlin → C++ bridge for sending messages to Node (see `own-native-lib.cpp`) */
         @JvmStatic
         external fun sendMessageToNodeChannel(channelName: String, message: String)
+
+        @JvmStatic
+        fun requestNodeShutdown() {
+            synchronized(this) {
+                shutdownInProgress = true
+            }
+            Log.i(TAG, "Requesting Node shutdown: " + lifecycleSummary())
+            val response =
+                JSONObject()
+                    .put("event", "shutdown")
+                    .put("payload", org.json.JSONArray().toString())
+                    .toString()
+            sendMessageToNodeChannel("_EVENTS_", response)
+        }
+
+        @JvmStatic
+        fun isStartupInProgress(): Boolean = startupInProgress
+
+        @JvmStatic
+        fun isShutdownInProgress(): Boolean = shutdownInProgress
+
+        @JvmStatic
+        fun isNodeRuntimeActive(): Boolean = nodeRuntimeActive
+
+        @JvmStatic
+        @Synchronized
+        fun lifecycleSummary(): String {
+            return "startupInProgress=" + startupInProgress +
+                ", shutdownInProgress=" + shutdownInProgress +
+                ", nodeRuntimeActive=" + nodeRuntimeActive
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun beginStartup(): Boolean {
+            if (shutdownInProgress || startupInProgress || nodeRuntimeActive) {
+                return false
+            }
+            startupInProgress = true
+            return true
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun markBackendReady() {
+            startupInProgress = false
+            shutdownInProgress = false
+            nodeRuntimeActive = true
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun markBackendClosed() {
+            startupInProgress = false
+            shutdownInProgress = false
+            nodeRuntimeActive = false
+            socketIOSecret = ""
+        }
 
         /**
          * Called from native code (`rcv_message` in `own-native-lib.cpp`) whenever Node posts over
@@ -90,16 +159,22 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                             }
                         }
                     } else if (event == "backendReady") {
-                        CommunicationModule.handleIncomingEvents(event, "", "")
+                        markBackendReady()
+                        Log.i(TAG, "Backend reported ready: " + lifecycleSummary())
+                        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
+                    } else if (event == "backendClosed") {
+                        markBackendClosed()
+                        Log.i(TAG, "Backend reported closed: " + lifecycleSummary())
+                        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
                     } else {
                         Log.d(
-                            "BackendWorker",
+                            TAG,
                             "Received unhandled event: $event with payload: $payloadStr"
                         )
                     }
                 } catch (_: JSONException) {
                     Log.d(
-                        "BackendWorker",
+                        TAG,
                         "handleNodeMessages: JSONException while parsing message from backend"
                     )
                 }
@@ -160,6 +235,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         if (running) return Result.success()
         running = true
 
+        if (!beginStartup()) {
+            Log.i(TAG, "Skipping backend startup because lifecycle transition is in flight: " + lifecycleSummary())
+            return Result.success()
+        }
+
         setForegroundAsync(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
@@ -196,6 +276,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * https://github.com/TryQuiet/quiet/issues/2214
                  */
                 delay(500)
+                Log.i(TAG, "Starting Node project: " + lifecycleSummary())
                 startNodeProjectWithArguments(
                     "bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform",
                     context.filesDir.absolutePath
@@ -206,6 +287,8 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         println("FINISHING BACKEND WORKER")
 
+        markBackendClosed()
+        Log.i(TAG, "Backend worker finished: " + lifecycleSummary())
         CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
 
         // Indicate whether the work finished successfully with the Result

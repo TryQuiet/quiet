@@ -1,0 +1,170 @@
+package com.quietmobile.Push
+
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import org.json.JSONObject
+
+object QuietStorage {
+    private const val ENCRYPTED_PREFS_NAME = "quiet.secure.storage"
+    private const val REGULAR_PREFS_NAME = "quiet.storage"
+
+    private const val DEVICE_ID_KEY = "quiet.device.id"
+    private const val TEAM_ID_KEY = "quiet.team.id"
+    private const val DEVICE_PRIVATE_KEY_PREFIX = "quiet.device.privateKey."
+    private const val QSS_URLS_KEY = "quiet.nse.qssUrls"
+    private const val LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
+    private const val LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
+    private const val APP_FOREGROUND_KEY = "quiet.app.isForeground"
+    private const val TEAM_QSS_ENABLED_KEY = "quiet.qss.team.enabled"
+    private const val USER_BACKGROUND_TOR_ENABLED_KEY = "quiet.qss.backgroundTor.enabled"
+    private const val USER_METADATA_KEY = "quiet.user.metadata"
+
+    @Volatile
+    private var applicationContext: Context? = null
+
+    @Volatile
+    private var encryptedPrefs: SharedPreferences? = null
+
+    @Volatile
+    private var regularPrefs: SharedPreferences? = null
+
+    @JvmStatic
+    fun init(context: Context) {
+        if (applicationContext == null) {
+            applicationContext = context.applicationContext
+        }
+    }
+
+    @JvmStatic
+    fun saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String) {
+        securePrefs().edit()
+            .putString(DEVICE_ID_KEY, deviceId)
+            .putString(TEAM_ID_KEY, teamId)
+            .putString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", signingPrivateKey)
+            .apply()
+    }
+
+    @JvmStatic
+    fun getDeviceId(): String? = securePrefs().getString(DEVICE_ID_KEY, null)
+
+    @JvmStatic
+    fun getDevicePrivateKey(deviceId: String): ByteArray? {
+        val encoded = securePrefs().getString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", null) ?: return null
+        return Base58.decode(encoded)
+    }
+
+    @JvmStatic
+    fun addLfaKey(keyName: String, key: String) {
+        securePrefs().edit().putString(keyName, key).apply()
+    }
+
+    @JvmStatic
+    fun getLfaKey(keyName: String): String? = securePrefs().getString(keyName, null)
+
+    @JvmStatic
+    fun saveQssUrl(teamId: String, url: String) {
+        val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
+        current.put(teamId, url)
+        regularPrefs().edit().putString(QSS_URLS_KEY, current.toString()).apply()
+    }
+
+    @JvmStatic
+    fun getQssUrl(teamId: String): String? {
+        val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
+        return if (current.has(teamId)) current.optString(teamId) else null
+    }
+
+    @JvmStatic
+    fun saveLastSyncSeq(seq: Long, teamId: String) {
+        val current = getLastSyncSeq()
+        if (seq <= current) {
+            return
+        }
+        regularPrefs().edit()
+            .putLong(LAST_SYNC_SEQ_KEY, seq)
+            .putString(LAST_SYNC_TEAM_ID_KEY, teamId)
+            .apply()
+    }
+
+    @JvmStatic
+    fun getLastSyncSeq(): Long = regularPrefs().getLong(LAST_SYNC_SEQ_KEY, 0L)
+
+    @JvmStatic
+    fun setAppForeground(foreground: Boolean) {
+        regularPrefs().edit().putBoolean(APP_FOREGROUND_KEY, foreground).apply()
+    }
+
+    @JvmStatic
+    fun isAppForeground(): Boolean = regularPrefs().getBoolean(APP_FOREGROUND_KEY, false)
+
+    @JvmStatic
+    fun setTeamQssEnabled(enabled: Boolean) {
+        regularPrefs().edit().putBoolean(TEAM_QSS_ENABLED_KEY, enabled).apply()
+    }
+
+    @JvmStatic
+    fun isTeamQssEnabled(): Boolean = regularPrefs().getBoolean(TEAM_QSS_ENABLED_KEY, false)
+
+    @JvmStatic
+    fun setUserBackgroundTorEnabled(enabled: Boolean) {
+        regularPrefs().edit().putBoolean(USER_BACKGROUND_TOR_ENABLED_KEY, enabled).apply()
+    }
+
+    @JvmStatic
+    fun isUserBackgroundTorEnabled(): Boolean =
+        regularPrefs().getBoolean(USER_BACKGROUND_TOR_ENABLED_KEY, false)
+
+    @JvmStatic
+    fun saveUserMetadata(userId: String, nickname: String) {
+        val current = JSONObject(regularPrefs().getString(USER_METADATA_KEY, "{}") ?: "{}")
+        current.put(userId, nickname)
+        regularPrefs().edit().putString(USER_METADATA_KEY, current.toString()).apply()
+    }
+
+    @JvmStatic
+    fun getNickname(userId: String): String? {
+        val current = JSONObject(regularPrefs().getString(USER_METADATA_KEY, "{}") ?: "{}")
+        return if (current.has(userId)) current.optString(userId) else null
+    }
+
+    @JvmStatic
+    fun clearAll() {
+        securePrefs().edit().clear().apply()
+        regularPrefs().edit().clear().apply()
+    }
+
+    @Synchronized
+    private fun securePrefs(): SharedPreferences {
+        encryptedPrefs?.let { return it }
+
+        val context = requireContext()
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        val prefs = EncryptedSharedPreferences.create(
+            context,
+            ENCRYPTED_PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
+        encryptedPrefs = prefs
+        return prefs
+    }
+
+    @Synchronized
+    private fun regularPrefs(): SharedPreferences {
+        regularPrefs?.let { return it }
+        val prefs = requireContext().getSharedPreferences(REGULAR_PREFS_NAME, Context.MODE_PRIVATE)
+        regularPrefs = prefs
+        return prefs
+    }
+
+    private fun requireContext(): Context {
+        return applicationContext
+            ?: throw IllegalStateException("QuietStorage.init(context) must be called before use")
+    }
+}

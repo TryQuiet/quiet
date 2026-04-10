@@ -214,7 +214,11 @@ export interface SocketActionsMap {
   [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
 
   // ====== Push Notifications ======
-  [SocketActions.SEND_DEVICE_TOKEN]: EmitEvent<{ deviceToken: string }>
+  [SocketActions.SEND_DEVICE_TOKEN]: EmitEvent<{
+    deviceToken: string
+    bundleId: string
+    platform: 'ios' | 'android'
+  }>
 
   // ====== Misc ======
   [SocketActions.TOGGLE_P2P]: EmitEvent<boolean, (response: boolean) => void>
