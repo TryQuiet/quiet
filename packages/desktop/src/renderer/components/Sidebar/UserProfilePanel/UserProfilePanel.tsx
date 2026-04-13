@@ -29,15 +29,13 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    transition: 'background-color 0.2s, opacity 0.2s',
+    transition: 'background-color 0.2s',
     width: '100%',
     textAlign: 'left',
-    opacity: 0.7,
     textTransform: 'lowercase',
     backgroundColor: 'inherit',
     '&:hover': {
-      opacity: 1,
-      backgroundColor: theme.palette.action.hover,
+      backgroundColor: 'rgba(255, 255, 255, 0.10)',
     },
   },
 
@@ -49,6 +47,7 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
   },
 
   [`& .${classes.nickname}`]: {
+    opacity: 0.7,
     fontWeight: 300,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
