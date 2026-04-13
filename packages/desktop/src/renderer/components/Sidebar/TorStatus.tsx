@@ -47,8 +47,9 @@ export interface TorStatusProps {
   isTorInitialized: boolean
 }
 const TorStatus = ({ isTorInitialized }: TorStatusProps) => {
+  if (process.env.NODE_ENV !== 'development') return null
   return (
-    <StyledGrid isDev={process.env.NODE_ENV === 'development'} container className={classes.root}>
+    <StyledGrid isDev={true} container className={classes.root}>
       <Grid container justifyContent='start' alignItems='center' className={classes.wrapper}>
         <Typography variant='body2'>TOR</Typography>
         <Grid container justifyContent='center' alignItems='center' className={classes.circleWrapper}>
