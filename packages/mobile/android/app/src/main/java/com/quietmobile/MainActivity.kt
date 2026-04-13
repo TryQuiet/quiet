@@ -1,19 +1,11 @@
 package com.quietmobile
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.AttributeSet
-import android.view.View
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.ReactInstanceEventListener
@@ -28,7 +20,6 @@ import com.quietmobile.Push.QuietStorage
 class MainActivity : ReactActivity() {
     companion object {
         private const val TAG = "MainActivity"
-        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 200
     }
 
     /**
@@ -54,35 +45,23 @@ class MainActivity : ReactActivity() {
 
         if (shouldStartBackend()) {
             val context = applicationContext
-            Log.i(TAG, "onCreate enqueueRequests requested")
-            BackendWorkManager(context).enqueueRequests()
-        }
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkNotificationsPermission()
-        }
-        return super.onCreateView(name, context, attrs)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun checkNotificationsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
-                        PackageManager.PERMISSION_GRANTED
-        ) {
-            // Requesting the permission
-            ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    NOTIFICATION_PERMISSION_REQUEST_CODE
-            )
+            Log.i(TAG, "onCreate ensureStartedForForegroundAppOpen requested")
+            BackendWorkManager(context).ensureStartedForForegroundAppOpen()
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         checkAgainstIntentUpdate(intent)
+    }
+
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        CommunicationModule.handleNotificationPermissionResult(requestCode, grantResults)
     }
 
     private fun checkAgainstIntentUpdate(intent: Intent) {
@@ -142,6 +121,10 @@ class MainActivity : ReactActivity() {
     override fun onResume() {
         super.onResume()
         QuietStorage.setAppForeground(true)
+        if (shouldStartBackend()) {
+            Log.i(TAG, "onResume ensureStartedForForegroundAppOpen requested")
+            BackendWorkManager(applicationContext).ensureStartedForForegroundAppOpen()
+        }
         Log.i(TAG, "onResume syncBackendWorkerState requested")
         CommunicationModule.syncBackendWorkerState(applicationContext)
         // Dismiss all notifications if one of them is tapped

@@ -125,6 +125,20 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             socketIOSecret = ""
         }
 
+        @JvmStatic
+        @Synchronized
+        fun forceRecoverForForegroundStart() {
+            if (nodeRuntimeActive) {
+                Log.i(TAG, "Skipping lifecycle recovery because backend is already active: " + lifecycleSummary())
+                return
+            }
+
+            startupInProgress = false
+            shutdownInProgress = false
+            socketIOSecret = ""
+            Log.i(TAG, "Recovered backend lifecycle for foreground start: " + lifecycleSummary())
+        }
+
         /**
          * Called from native code (`rcv_message` in `own-native-lib.cpp`) whenever Node posts over
          * rn‑bridge.

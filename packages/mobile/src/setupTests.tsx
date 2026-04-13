@@ -28,6 +28,7 @@ setIdentityEngine(
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
   QSS_ALLOWED: 'true',
+  FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED: 'true',
 }))
 
 jest.mock('redux-persist-filesystem-storage', () => {})

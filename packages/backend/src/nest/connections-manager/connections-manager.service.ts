@@ -272,6 +272,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       deleteChainFromDisk: false,
     }
   ) {
+    this.logger.info('Closing services', options)
+
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
       try {
@@ -280,8 +282,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error('Error while saving active sigchain', e)
       }
     }
-
-    this.logger.info('Closing services', options)
 
     await this.closeSocket()
 

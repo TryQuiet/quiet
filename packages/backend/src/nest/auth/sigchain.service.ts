@@ -170,11 +170,12 @@ export class SigChainService extends EventEmitter {
   }
 
   /**
-   * Update the IOS keychain with any new keys on chain update
+   * Update mobile native storage with any new keys on chain update.
    */
   private async _updateKeysOnChainUpdate(teamName: string): Promise<void> {
-    if ((process.platform as string) !== 'ios') {
-      this.logger.trace('Skipping key update because we are not on ios, current platform =', process.platform)
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') {
+      this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
       return
     }
 
@@ -236,7 +237,7 @@ export class SigChainService extends EventEmitter {
     }
 
     if (keysToSend.length === 0) {
-      this.logger.trace('Skipping IOS keychain update, no new keys')
+      this.logger.trace('Skipping native key update, no new keys')
       return
     }
 
@@ -249,11 +250,12 @@ export class SigChainService extends EventEmitter {
   }
 
   /**
-   * Emit device credentials to iOS so the NSE can authenticate with QSS.
-   * Only runs on iOS; no-ops on other platforms.
+   * Emit device credentials to mobile clients so native background handlers can
+   * authenticate with QSS.
    */
   private _updateDeviceCredentials(teamName: string): void {
-    if ((process.platform as string) !== 'ios') return
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') return
     try {
       const sigchain = this.getChain({ teamName })
       if (sigchain?.team == null) return

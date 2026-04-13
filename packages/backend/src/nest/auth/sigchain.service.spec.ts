@@ -170,6 +170,36 @@ describe('SigChainService - listener lifecycle', () => {
     }
   })
 
+  it('emits new keys to Android once and does not resend already-stored keys', async () => {
+    const originalPlatform = process.platform
+    Object.defineProperty(process, 'platform', { value: 'android' })
+
+    try {
+      const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
+      const chain = await sigChainService.createChain('androidKeys', 'alice', true)
+      const teamId = chain.team!.id
+
+      await waitForExpect(async () => {
+        const keyCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)
+        expect(keyCalls).toHaveLength(1)
+        expect((keyCalls[0][1] as { keys: unknown[] }).keys.length).toBeGreaterThan(0)
+        const storedKeys = await localDbService.getKeysStoredInKeychain(teamId)
+        expect(storedKeys).toHaveLength((keyCalls[0][1] as { keys: unknown[] }).keys.length)
+      })
+
+      const storedKeysAfterFirstUpdate = await localDbService.getKeysStoredInKeychain(teamId)
+
+      chain.emit('updated')
+
+      await new Promise(resolve => setTimeout(resolve, 25))
+
+      expect(emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)).toHaveLength(1)
+      expect(await localDbService.getKeysStoredInKeychain(teamId)).toEqual(storedKeysAfterFirstUpdate)
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform })
+    }
+  })
+
   it('emits device credentials for the NSE on ios', async () => {
     const originalPlatform = process.platform
     Object.defineProperty(process, 'platform', { value: 'ios' })
@@ -177,6 +207,28 @@ describe('SigChainService - listener lifecycle', () => {
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
       const chain = await sigChainService.createChain('iosDeviceCredentials', 'alice', true)
+
+      await waitForExpect(() => {
+        const deviceCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)
+        expect(deviceCalls).toHaveLength(1)
+        expect(deviceCalls[0][1]).toEqual({
+          deviceId: chain.device.deviceId,
+          teamId: chain.team!.id,
+          signingPrivateKey: chain.device.keys.signature.secretKey,
+        })
+      })
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform })
+    }
+  })
+
+  it('emits device credentials for the NSE on android', async () => {
+    const originalPlatform = process.platform
+    Object.defineProperty(process, 'platform', { value: 'android' })
+
+    try {
+      const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
+      const chain = await sigChainService.createChain('androidDeviceCredentials', 'alice', true)
 
       await waitForExpect(() => {
         const deviceCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)

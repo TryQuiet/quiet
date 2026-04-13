@@ -60,6 +60,22 @@ class BackendWorkManager(private val context: Context) {
         workManager.enqueueUniqueWork(UNIQUE_WORK_NAME, ExistingWorkPolicy.KEEP, backendRequest)
     }
 
+    fun ensureStartedForForegroundAppOpen() {
+        val workManager = WorkManager.getInstance(context)
+
+        Log.i(TAG, "Ensuring backend started for foreground app open: " + BackendWorker.lifecycleSummary())
+
+        if (BackendWorker.isNodeRuntimeActive() || BackendWorker.isStartupInProgress()) {
+            Log.i(TAG, "Foreground app open sees backend already active/in startup: " + BackendWorker.lifecycleSummary())
+            return
+        }
+
+        BackendWorker.forceRecoverForForegroundStart()
+        workManager.cancelUniqueWork(UNIQUE_WORK_NAME)
+        workManager.cancelAllWorkByTag(Const.WORKER_TAG)
+        enqueueRequests()
+    }
+
     fun stop() {
         val workManager = WorkManager
             .getInstance(context)

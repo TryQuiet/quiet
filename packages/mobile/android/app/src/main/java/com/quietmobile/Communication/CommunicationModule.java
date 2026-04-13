@@ -1,10 +1,16 @@
 package com.quietmobile.Communication;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.react.bridge.Arguments;
@@ -31,6 +37,7 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 public class CommunicationModule extends ReactContextBaseJavaModule {
+    private static final String TAG = "CommunicationModule";
 
     public static final String APP_READY_CHANNEL = "_APP_READY_";
 
@@ -42,8 +49,10 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
     public static final String NOTIFICATION_PERMISSION_RESULT = "notificationPermissionResult";
     public static final String DEVICE_TOKEN_RECEIVED = "deviceTokenReceived";
+    public static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 200;
 
     private static ReactApplicationContext reactContext;
+    private static int listenerCount = 0;
 
     @SuppressLint("StaticFieldLeak")
     private static NotificationHandler notificationHandler;
@@ -162,9 +171,32 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     public static void emitDeviceToken(String token) {
+        if (listenerCount == 0) {
+            Log.i(TAG, "Skipping deviceTokenReceived emit because no JS listeners are attached; JS will fetch the current FCM token when ready.");
+            return;
+        }
+
         WritableMap params = Arguments.createMap();
         params.putString("token", token);
         emitToJS(DEVICE_TOKEN_RECEIVED, params);
+    }
+
+    public static void emitNotificationPermissionResult(String status, @Nullable String error) {
+        WritableMap params = Arguments.createMap();
+        params.putString("status", status);
+        if (error != null) {
+            params.putString("error", error);
+        }
+        emitToJS(NOTIFICATION_PERMISSION_RESULT, params);
+    }
+
+    public static void handleNotificationPermissionResult(int requestCode, @NonNull int[] grantResults) {
+        if (requestCode != NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        emitNotificationPermissionResult(granted ? "granted" : "denied", null);
     }
 
     public static void passDataToReact(String channelName, String payload) {
@@ -226,6 +258,64 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
         Log.i("CommunicationModule", "syncBackendWorkerState -> stop (background disallowed)");
         workManager.stop();
+    }
+
+    @ReactMethod
+    public void requestNotificationPermission() {
+        Activity activity = getCurrentActivity();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            emitNotificationPermissionResult("granted", null);
+            return;
+        }
+
+        if (activity == null) {
+            Log.w(TAG, "requestNotificationPermission called without a current activity");
+            emitNotificationPermissionResult("notDetermined", "Current activity unavailable");
+            return;
+        }
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+            emitNotificationPermissionResult("granted", null);
+            return;
+        }
+
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                NOTIFICATION_PERMISSION_REQUEST_CODE
+        );
+    }
+
+    @ReactMethod
+    public void checkNotificationPermission() {
+        Context context = reactContext != null ? reactContext.getApplicationContext() : null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            emitNotificationPermissionResult("granted", null);
+            return;
+        }
+
+        if (context == null) {
+            Log.w(TAG, "checkNotificationPermission called without a React context");
+            emitNotificationPermissionResult("notDetermined", "React context unavailable");
+            return;
+        }
+
+        String status = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED ? "granted" : "denied";
+        emitNotificationPermissionResult(status, null);
+    }
+
+    @ReactMethod
+    public void addListener(String eventName) {
+        listenerCount += 1;
+        Log.d(TAG, "addListener eventName=" + eventName + " listenerCount=" + listenerCount);
+    }
+
+    @ReactMethod
+    public void removeListeners(double count) {
+        listenerCount = Math.max(listenerCount - (int) count, 0);
+        Log.d(TAG, "removeListeners count=" + count + " listenerCount=" + listenerCount);
     }
 
     @SuppressWarnings("unused")

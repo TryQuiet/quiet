@@ -485,7 +485,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private async emitNseQssUrl(wsUrl: string | undefined): Promise<void> {
-    if ((process.platform as string) !== 'ios') {
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') {
+      this.logger.debug('Skipping NSE QSS URL emit because platform is not iOS or Android', platform)
       return
     }
 
@@ -971,6 +973,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       throw new Error('Nullish response from QSS')
     }
 
+    if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
+      this.logger.warn(`Error while pulling log entries from QSS - ${pullResponse.reason}`, payload.teamId)
+      return pullResponse
+    }
     this.logger.info(`Successfully pulled ${pullResponse.payload.entries.length} entries from QSS`, payload.teamId)
     return pullResponse
   }

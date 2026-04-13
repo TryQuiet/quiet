@@ -78,6 +78,7 @@ function isCaptchaTokenMessage(msg: any): msg is CaptchaTokenMessage {
 function isCaptchaErrorMessage(msg: any): msg is CaptchaErrorMessage {
   return msg && typeof msg === 'object' && msg.type === 'hcaptcha-error' && typeof msg.message === 'string'
 }
+
 function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManager: () => ConnectionsManagerService) {
   let shuttingDown = false
   let termSignalCount = 0
