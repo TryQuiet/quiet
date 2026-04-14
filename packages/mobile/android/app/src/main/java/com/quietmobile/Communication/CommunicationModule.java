@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -53,6 +55,14 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
     private static ReactApplicationContext reactContext;
     private static int listenerCount = 0;
+
+    // Grace period before backgrounding actually triggers hibernate. Absorbs quick
+    // task-switch flicks where the user returns within a few seconds — we don't
+    // want to tear down Tor/libp2p just to immediately spin them back up.
+    private static final long HIBERNATE_GRACE_PERIOD_MS = 15_000L;
+    private static final Handler hibernateHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private static Runnable pendingHibernate;
 
     @SuppressLint("StaticFieldLeak")
     private static NotificationHandler notificationHandler;
@@ -237,12 +247,14 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         );
 
         if (!"true".equals(BuildConfig.SHOULD_RUN_BACKEND_WORKER)) {
+            cancelPendingHibernate();
             Log.i("CommunicationModule", "syncBackendWorkerState -> stop (build flag disabled)");
             workManager.stop();
             return;
         }
 
         if (QuietStorage.isAppForeground()) {
+            cancelPendingHibernate();
             Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests + wake (app foreground)");
             workManager.enqueueRequests();
             sendNodeEvent("wake", "app:wake");
@@ -252,16 +264,65 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         if (!"true".equals(BuildConfig.QSS_ALLOWED)
                 || !QuietStorage.isTeamQssEnabled()
                 || QuietStorage.isUserBackgroundTorEnabled()) {
+            cancelPendingHibernate();
             Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests (background allowed by user/team)");
             workManager.enqueueRequests();
             return;
         }
 
-        // Default background path: keep worker + node alive, just hibernate backend services.
-        // Foreground service stays up so RAM state survives; sigchain is flushed to disk in
-        // hibernate() so we survive low-memory kill as well.
-        Log.i("CommunicationModule", "syncBackendWorkerState -> hibernate (background, backend services idle)");
-        sendNodeEvent("hibernate", "app:hibernate");
+        // Default background path: delay hibernate by a grace period so brief task-switches
+        // don't cause Tor/libp2p churn. Foreground service stays up either way so RAM state
+        // survives; sigchain is flushed to disk in hibernate() to survive low-memory kill.
+        scheduleHibernate();
+    }
+
+    private static synchronized void scheduleHibernate() {
+        if (pendingHibernate != null) {
+            Log.i("CommunicationModule", "syncBackendWorkerState -> hibernate already scheduled, leaving in place");
+            return;
+        }
+
+        pendingHibernate = () -> {
+            synchronized (CommunicationModule.class) {
+                pendingHibernate = null;
+            }
+
+            if (QuietStorage.isAppForeground()) {
+                Log.i("CommunicationModule", "Skipping delayed hibernate because app returned to foreground");
+                return;
+            }
+
+            if (!"true".equals(BuildConfig.SHOULD_RUN_BACKEND_WORKER)) {
+                Log.i("CommunicationModule", "Skipping delayed hibernate because backend worker is disabled");
+                return;
+            }
+
+            if (!"true".equals(BuildConfig.QSS_ALLOWED)
+                    || !QuietStorage.isTeamQssEnabled()
+                    || QuietStorage.isUserBackgroundTorEnabled()) {
+                Log.i("CommunicationModule", "Skipping delayed hibernate because background backend use is now allowed");
+                return;
+            }
+
+            Log.i("CommunicationModule", "Executing delayed hibernate after grace period");
+            sendNodeEvent("hibernate", "app:hibernate");
+        };
+
+        Log.i(
+                "CommunicationModule",
+                "syncBackendWorkerState -> hibernate scheduled in " + HIBERNATE_GRACE_PERIOD_MS + "ms (background, backend services idle)"
+        );
+        hibernateHandler.postDelayed(pendingHibernate, HIBERNATE_GRACE_PERIOD_MS);
+    }
+
+    private static synchronized void cancelPendingHibernate() {
+        if (pendingHibernate == null) {
+            return;
+        }
+
+        hibernateHandler.removeCallbacks(pendingHibernate);
+        pendingHibernate = null;
+        Log.i("CommunicationModule", "Canceled pending delayed hibernate");
     }
 
     /**
