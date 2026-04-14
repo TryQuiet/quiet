@@ -135,20 +135,20 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(this.getChain({ teamName }))
   }
 
-  private handleChainUpdate = async () => {
-    this.emit(SigchainEvents.UPDATED)
-    this.saveChain(this.activeChainTeamName!)
+  private handleChainUpdate = async (teamId: string, teamName: string) => {
+    this.emit(SigchainEvents.UPDATED, teamId)
+    this.saveChain(teamName)
     this.logger.info('Chain updated, emitted updated event')
   }
 
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
-    chain.on(SigchainEvents.UPDATED, this.handleChainUpdate)
+    chain.on(SigchainEvents.UPDATED, () => this.handleChainUpdate(chain.team!.id, chain.team!.teamName))
   }
 
   private detachSocketListeners(chain: SigChain): void {
     this.logger.info('Detaching socket listeners')
-    chain.removeListener(SigchainEvents.UPDATED, this.handleChainUpdate)
+    chain.removeListener(SigchainEvents.UPDATED, () => this.handleChainUpdate(chain.team!.id, chain.team!.teamName))
   }
 
   /**
@@ -201,8 +201,7 @@ export class SigChainService extends EventEmitter {
     }
     const sigChain = SigChain.create(teamName, username)
     this.addChain(sigChain, setActive, teamName)
-    await this.saveChain(teamName)
-    this.handleChainUpdate()
+    this.handleChainUpdate(sigChain.team!.id, sigChain.team!.teamName)
     return sigChain
   }
 

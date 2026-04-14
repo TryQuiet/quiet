@@ -65,11 +65,13 @@ declare module '@orbitdb/core' {
     name?: string
   }): Promise<AccessControllerType>
 
+  export type CanAppendFunc = (entry: LogEntry<any>) => Promise<boolean>
+
   export interface AccessControllerType {
     type: string
     address: string
     write: string[]
-    canAppend: (entry: LogEntry) => Promise<boolean>
+    canAppend: CanAppendFunc
   }
 
   export function IPFSAccessController(args: { write?: string[]; storage?: Storage }): AccessController

@@ -41,6 +41,8 @@ import { EncryptedMessage } from './messages/messages.types'
 import { isChannel } from '../../validation/validators'
 import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
+import { MessagesAccessController } from './messages/orbitdb/MessagesAccessController'
+import { PrivateMessagesAccessController } from './messages/orbitdb/PrivateMessagesAccessController'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -53,6 +55,9 @@ export class ChannelsService extends EventEmitter {
   // Channel metadata store
   public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
 
+  // Is the service initialized
+  public initialized: boolean = false
+
   private readonly logger = createLogger(`storage:channels`)
 
   constructor(
@@ -61,7 +66,9 @@ export class ChannelsService extends EventEmitter {
     private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDbService,
     private readonly moduleRef: ModuleRef,
-    private readonly sigchainService: SigChainService
+    private readonly sigchainService: SigChainService,
+    private readonly messagesAccessController: MessagesAccessController,
+    private readonly privateMessagesAccessController: PrivateMessagesAccessController
   ) {
     super()
   }
@@ -106,6 +113,7 @@ export class ChannelsService extends EventEmitter {
 
     this.logger.timeEnd('Initializing channel databases')
     this.logger.info('Initialized databases')
+    this.initialized = true
   }
 
   /**
@@ -353,9 +361,9 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
-   * Read entries for all keys in the channels management database
+   * Maps metadata records for private channels to their LFA role name
    *
-   * @returns All channel metadata in the channels management database
+   * @returns Map of private channels to their role names
    * @throws Error
    */
   public async getPrivateChannelsByRolename(): Promise<Record<string, PublicChannel>> {
@@ -806,6 +814,7 @@ export class ChannelsService extends EventEmitter {
    * Close the channels service
    */
   public async close(): Promise<void> {
+    this.initialized = false
     await this.closeFileManager()
     await this.closeChannels()
   }
@@ -816,6 +825,7 @@ export class ChannelsService extends EventEmitter {
    * NOTE: Does NOT affect data stored in IPFS
    */
   public async clean(): Promise<void> {
+    this.initialized = false
     this.logger.info('Cleaning channels DB')
     try {
       await this.channels?.sync?.stop?.()

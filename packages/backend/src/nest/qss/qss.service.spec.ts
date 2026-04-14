@@ -63,6 +63,7 @@ describe('QSSService', () => {
   let ipfsService: IpfsService
   let orbitDbService: OrbitDbService
   let localDbService: LocalDbService
+  let messagesAccessController: MessagesAccessController
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedGetSocket: any
@@ -113,6 +114,8 @@ describe('QSSService', () => {
 
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
+
+    messagesAccessController = await module.resolve(MessagesAccessController)
 
     let socket = {
       ...new MockedSocket(),
@@ -672,7 +675,7 @@ describe('QSSService', () => {
       const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
       const hash = await db.add(
@@ -748,7 +751,7 @@ describe('QSSService', () => {
       const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
       const hash = await db.add(
@@ -1034,7 +1037,7 @@ describe('QSSService', () => {
       await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
 

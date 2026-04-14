@@ -18,6 +18,9 @@ export type GetChainFilter = {
   teamName?: string
 }
 
+/**
+ * Native LFA Events
+ */
 export enum LFAEvents {
   UPDATED = 'updated',
   CONNECTED = 'connected',
@@ -28,6 +31,9 @@ export enum LFAEvents {
   REMOTE_ERROR = 'remoteError',
 }
 
+/**
+ * Events emitted by Sigchains and the SigchainService
+ */
 export enum SigchainEvents {
   UPDATED = 'sigchainUpdated',
 }

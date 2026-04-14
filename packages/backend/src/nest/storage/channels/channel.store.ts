@@ -44,7 +44,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     private readonly messagesService: PublicChannelMessagesService,
     private readonly privateMessagesService: PrivateChannelMessagesService,
     private readonly userProfileStore: UserProfileStore,
-    private readonly auth: SigChainService
+    private readonly auth: SigChainService,
+    private readonly messagesAccessController: MessagesAccessController,
+    private readonly privateMessagesAccessController: PrivateMessagesAccessController
   ) {
     super()
   }
@@ -69,8 +71,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`)
 
     const accessController = channelData.public
-      ? MessagesAccessController({ write: ['*'] })
-      : PrivateMessagesAccessController({ write: ['*'], sigChainService: this.auth })
+      ? this.messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService: this.auth })
+      : this.privateMessagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService: this.auth })
     this.store = await this.orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${this.channelData.id}`, {
       type: 'events',
       Database: EventsWithStorage(),

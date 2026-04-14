@@ -1,73 +1,23 @@
-import * as Block from 'multiformats/block'
-import * as dagCbor from '@ipld/dag-cbor'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { base58btc } from 'multiformats/bases/base58'
-import {
-  type Storage,
-  type OrbitDBType,
-  type LogEntry,
-  type IdentitiesType,
-  ComposedStorage,
-  LRUStorage,
-  IPFSBlockStorage,
-} from '@orbitdb/core'
-import { getCrypto } from 'pkijs'
+/**
+ * OrbitDB access controller for private channels
+ */
+
+import { type LogEntry, type IdentitiesType, CanAppendFunc } from '@orbitdb/core'
 import { NoCryptoEngineError } from '@quiet/types'
-import { posixJoin } from '../../../orbitDb/util'
 import { EncryptedMessage } from '../messages.types'
-import { createLogger } from '../../../../common/logger'
-import { SigChainService } from 'packages/backend/src/nest/auth/sigchain.service'
+import { SigChainService } from '../../../../auth/sigchain.service'
+import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
+import { Injectable } from '@nestjs/common'
 
-const codec = dagCbor
-const hasher = sha256
-const hashStringEncoding = base58btc
+const TYPE = 'privatemessagesaccess'
 
-const logger = createLogger(`storage:channels:private:messages:orbitdb:access-control`)
-
-const AccessControlList = async ({
-  storage,
-  type,
-  params,
-}: {
-  storage: Storage
-  type: string
-  params: Record<string, any>
-}) => {
-  const manifest = {
-    type,
-    ...params,
+@Injectable()
+export class PrivateMessagesAccessController extends BaseMessagesAccessController {
+  constructor(protected sigchainService: SigChainService) {
+    super(TYPE, sigchainService)
   }
-  const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
-  const hash = cid.toString(hashStringEncoding)
-  await storage.put(hash, bytes)
-  return hash
-}
-
-const type = 'privatemessagesaccess'
-
-export const PrivateMessagesAccessController =
-  ({ write, sigChainService }: { write: string[]; sigChainService: SigChainService }) =>
-  async ({ orbitdb, identities, address }: { orbitdb: OrbitDBType; identities: IdentitiesType; address: string }) => {
-    const storage = await ComposedStorage(
-      await LRUStorage({ size: 1000 }),
-      await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
-    )
-    write = write || [orbitdb.identity.id]
-
-    if (address) {
-      const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
-      const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
-      // FIXME: Figure out typings
-      // @ts-ignore
-      write = value.write
-    } else {
-      address = await AccessControlList({ storage, type, params: { write } })
-      address = posixJoin('/', type, address)
-    }
-
-    const crypto = getCrypto()
-
-    const canAppend = async (entry: LogEntry<EncryptedMessage>) => {
+  protected canAppend(config: AccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+    return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
       const writerIdentity = await identities.getIdentity(entry.identity)
@@ -76,7 +26,7 @@ export const PrivateMessagesAccessController =
       }
 
       const { id } = writerIdentity
-      if (write.includes(id) || write.includes('*')) {
+      if (config.write.includes(id) || config.write.includes('*')) {
         if (!identities.verifyIdentity(writerIdentity)) {
           return false
         }
@@ -84,9 +34,9 @@ export const PrivateMessagesAccessController =
         return false
       }
 
-      const sigchain = sigChainService.getChain({ teamId: entry.payload.value!.teamId })
+      const sigchain = config.sigchainService.getChain({ teamId: entry.payload.value!.teamId })
       if (!sigchain.channels.memberInChannel(id, entry.payload.value!.channelId)) {
-        logger.warn(
+        this.logger.warn(
           `User is not a member of the channel, skipping log append`,
           id,
           entry.payload.value!.teamId,
@@ -97,13 +47,5 @@ export const PrivateMessagesAccessController =
 
       return true
     }
-
-    return {
-      type,
-      address,
-      write,
-      canAppend,
-    }
   }
-
-PrivateMessagesAccessController.type = type
+}
