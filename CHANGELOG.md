@@ -15,6 +15,7 @@
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 * Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
+* Adds private channels [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 
 ### Fixes
 

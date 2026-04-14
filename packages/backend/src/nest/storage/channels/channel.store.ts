@@ -8,7 +8,7 @@ import {
   CompoundError,
   ConsumedChannelMessage,
   MessagesLoadedPayload,
-  Channel,
+  PublicChannel,
   PushNotificationPayload,
 } from '@quiet/types'
 
@@ -26,13 +26,14 @@ import { UserProfileStore } from '../userProfile/userProfile.store'
 import { SigChainService } from '../../auth/sigchain.service'
 import { PrivateMessagesAccessController } from './messages/orbitdb/PrivateMessagesAccessController'
 import { PrivateChannelMessagesService } from './messages/private-channel-messages.service'
+import { SigchainEvents } from '../../auth/types'
 
 /**
  * Manages storage-level logic for a given channel in Quiet
  */
 @Injectable()
 export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChannelMessage> {
-  private channelData: Channel
+  private channelData: PublicChannel
   private _subscribing: boolean = false
 
   private logger: QuietLogger
@@ -43,7 +44,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     private readonly messagesService: PublicChannelMessagesService,
     private readonly privateMessagesService: PrivateChannelMessagesService,
     private readonly userProfileStore: UserProfileStore,
-    private readonly auth: SigChainService
+    private readonly auth: SigChainService,
+    private readonly messagesAccessController: MessagesAccessController,
+    private readonly privateMessagesAccessController: PrivateMessagesAccessController
   ) {
     super()
   }
@@ -57,7 +60,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    * @param options Database options for OrbitDB
    * @returns Initialized ChannelStore instance
    */
-  public async init(channelData: Channel, options: DBOptions): Promise<ChannelStore> {
+  public async init(channelData: PublicChannel, options: DBOptions): Promise<ChannelStore> {
     if (this.store != null) {
       this.logger.warn(`Channel ${this.channelData.name} has already been initialized!`)
       return this
@@ -68,8 +71,8 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`)
 
     const accessController = channelData.public
-      ? MessagesAccessController({ write: ['*'] })
-      : PrivateMessagesAccessController({ write: ['*'], sigChainService: this.auth })
+      ? this.messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService: this.auth })
+      : this.privateMessagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService: this.auth })
     this.store = await this.orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${this.channelData.id}`, {
       type: 'events',
       Database: EventsWithStorage(),
@@ -127,7 +130,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       await this.refreshMessageIds()
     })
 
-    this.auth.on('updated', payload => {
+    this.auth.on(SigchainEvents.UPDATED, payload => {
       this.refreshMessageIds()
     })
 

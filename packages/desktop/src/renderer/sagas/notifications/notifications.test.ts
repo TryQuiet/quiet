@@ -17,7 +17,7 @@ import {
   Identity,
   ChannelMessage,
   MessagesLoadedPayload,
-  Channel,
+  PublicChannel,
   MessageType,
   UserProfile,
 } from '@quiet/types'
@@ -79,7 +79,7 @@ let community: Community
 let alice: Identity
 let bob: UserProfile
 
-let sailingChannel: Channel
+let sailingChannel: PublicChannel
 
 let aliceMessage: ChannelMessage
 let message: ChannelMessage
@@ -102,7 +102,7 @@ beforeAll(async () => {
       channelId: generalChannel.id,
     })
   )
-  sailingChannel = (await factory.create('Channel')).channel
+  sailingChannel = (await factory.create('PublicChannel')).channel
 
   alice = await factory.create('Identity', {
     communityId: community.id,

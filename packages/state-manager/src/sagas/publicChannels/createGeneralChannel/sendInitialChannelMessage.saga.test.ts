@@ -12,16 +12,16 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
-import { type Community, type Channel, type Identity, UserProfile } from '@quiet/types'
+import { type Community, type PublicChannel, type Identity, UserProfile } from '@quiet/types'
 import { userProfiles, userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
-  let channel: Channel
+  let channel: PublicChannel
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
 
   let community: Community
   let owner: Identity
@@ -48,7 +48,7 @@ describe('sendInitialChannelMessageSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     channel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',

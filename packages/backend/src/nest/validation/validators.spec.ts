@@ -1,4 +1,4 @@
-import { ChannelMessage, Channel } from '@quiet/types'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { isMessage, isDirectMessage, isChannel, isEncryptedMessage } from './validators'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 
@@ -196,7 +196,7 @@ describe('Validators - Channels', () => {
       id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
       public: true,
     }
-    expect(isChannel(channel as unknown as Channel)).toBeFalsy()
+    expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
   test('message property has wrong format', () => {
     const channel = {
@@ -207,7 +207,7 @@ describe('Validators - Channels', () => {
       id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
       public: true,
     }
-    expect(isChannel(channel as unknown as Channel)).toBeFalsy()
+    expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
 })
 

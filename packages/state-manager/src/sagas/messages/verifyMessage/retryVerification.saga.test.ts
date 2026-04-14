@@ -83,8 +83,8 @@ describe('retryVerification saga (store-backed)', () => {
 
   it('channelId selects invalid messages only from that channel', async () => {
     // Create two channels
-    const chA = await factory.create('Channel')
-    const chB = await factory.create('Channel')
+    const chA = await factory.create('PublicChannel')
+    const chB = await factory.create('PublicChannel')
 
     const channelIdA = chA.channel.id
     const channelIdB = chB.channel.id
@@ -129,7 +129,7 @@ describe('retryVerification saga (store-backed)', () => {
   })
 
   it('messageIds selects those messages regardless of current verification status', async () => {
-    const ch = await factory.create('Channel')
+    const ch = await factory.create('PublicChannel')
     const channelId = ch.channel.id
 
     const m1 = await baseTypes.build('ChannelMessage', { channelId })
@@ -175,8 +175,8 @@ describe('retryVerification saga (store-backed)', () => {
 
   it('merges payload.messages + channelId invalids + messageIds (order preserved, deduped)', async () => {
     // Create two fresh channels
-    const chA = await factory.create('Channel')
-    const chB = await factory.create('Channel')
+    const chA = await factory.create('PublicChannel')
+    const chB = await factory.create('PublicChannel')
     const channelIdA = chA.channel.id
     const channelIdB = chB.channel.id
 

@@ -10,7 +10,7 @@ import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.
 import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDeletionResponse.saga'
 import { sendIntroductionMessageSaga } from './sendIntroductionMessage/sendIntroductionMessage.saga'
 import { createLogger } from '../../utils/logger'
-import { addMembersChannelSaga } from './addMembersChannel/addMembersChannelSaga'
+import { addMembersChannelSaga } from './addMembersChannel/addMembersChannel.saga'
 
 const logger = createLogger('publicChannelsMasterSaga')
 

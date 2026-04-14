@@ -11,7 +11,7 @@ import {
   SendingStatus,
   type Community,
   type Identity,
-  type Channel,
+  type PublicChannel,
 } from '@quiet/types'
 import { getBaseTypesFactory } from '../../utils/tests/factories'
 import { messagesSelectors } from './messages.selectors'
@@ -25,7 +25,7 @@ describe('messagesSelectors', () => {
   let baseTypesFactory: FactoryGirl
 
   let community: Community
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
   let generalChannelId: string
 
   let alice: Identity

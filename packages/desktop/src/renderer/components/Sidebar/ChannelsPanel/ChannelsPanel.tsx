@@ -2,13 +2,12 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import { useModal } from '../../../containers/hooks'
-import { Channel, UserProfile } from '@quiet/types'
+import { PublicChannel, UserProfile } from '@quiet/types'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
-  channels: Channel[]
-  myUserProfile?: UserProfile
+  channels: PublicChannel[]
   userProfiles: Record<string, UserProfile>
   connectedPeers: string[]
   unreadChannels: string[]
@@ -20,7 +19,6 @@ export interface ChannelsPanelProps {
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
-  myUserProfile,
   unreadChannels,
   setCurrentChannel,
   currentChannelId,
@@ -43,7 +41,6 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
             const selected = currentChannelId === channel.id
             return (
               <ChannelsListItem
-                myUserProfile={myUserProfile}
                 channel={channel}
                 unread={unread}
                 selected={selected}

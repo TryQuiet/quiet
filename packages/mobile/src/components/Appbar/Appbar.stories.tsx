@@ -15,7 +15,7 @@ const contextMenu: ReturnType<typeof useContextMenu> = {
 }
 
 storiesOf('Appbar', module)
-  .add('Channel', () => (
+  .add('PublicChannel', () => (
     <Appbar
       title={'general'}
       prefix={'#'}

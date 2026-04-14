@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quiet/state-manager'
-import { Community, Identity, NetworkStats, Channel, UserProfile } from '@quiet/types'
+import { Community, Identity, NetworkStats, PublicChannel, UserProfile } from '@quiet/types'
 
 import path from 'path'
 import { TestModule } from '../common/test.module'
@@ -43,10 +43,10 @@ describe('StorageService', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let channel: Channel
+  let channel: PublicChannel
   let alice: Identity
   let john: Identity
-  let channelio: Channel
+  let channelio: PublicChannel
   let filePath: string
   let utils: any
   let orbitDbDir: string

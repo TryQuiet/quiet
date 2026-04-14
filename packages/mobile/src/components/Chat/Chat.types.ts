@@ -5,7 +5,7 @@ import {
   FilePreviewData,
   MessagesDailyGroups,
   MessageSendingStatus,
-  Channel,
+  PublicChannel,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
@@ -35,7 +35,7 @@ export interface ChatProps extends UserLabelHandlers {
   sendMessageAction: (message: string) => void
   loadMessagesAction: (load: boolean) => void
   handleBackButton: () => void
-  channel: Channel
+  channel: PublicChannel
   messages?: {
     count: number
     groups: MessagesDailyGroups

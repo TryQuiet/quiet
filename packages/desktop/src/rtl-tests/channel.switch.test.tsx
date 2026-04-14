@@ -85,7 +85,7 @@ describe('Switch channels', () => {
     const channelNames = ['memes', 'pets', 'travels']
     // Automatically create channels
     for (const name of channelNames) {
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: name,
           description: `Welcome to #${name}`,

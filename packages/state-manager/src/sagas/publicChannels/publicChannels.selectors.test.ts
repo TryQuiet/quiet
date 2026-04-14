@@ -20,7 +20,7 @@ import {
   type DisplayableMessage,
   type Identity,
   MessageType,
-  type Channel,
+  type PublicChannel,
   UserProfile,
 } from '@quiet/types'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
@@ -35,7 +35,7 @@ describe('publicChannelsSelectors', () => {
   let alice: UserProfile
   let john: UserProfile
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
   let channelIdes: string[] = []
 
   const msgs: Record<string, ChannelMessage> = {}
@@ -77,7 +77,7 @@ describe('publicChannelsSelectors', () => {
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      const channel = await factory.create('Channel', {
+      const channel = await factory.create('PublicChannel', {
         channel: {
           name,
           description: `Welcome to #${name}`,

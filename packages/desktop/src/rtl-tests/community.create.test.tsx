@@ -82,7 +82,7 @@ describe('User', () => {
         })
       } else if (action === SocketActions.CREATE_CHANNEL) {
         return await factory.build(`${action}_response`, {
-          channel: baseTypesFactory.build('Channel', { ...input[1] }),
+          channel: baseTypesFactory.build('PublicChannel', { ...input[1] }),
         })
       }
     }

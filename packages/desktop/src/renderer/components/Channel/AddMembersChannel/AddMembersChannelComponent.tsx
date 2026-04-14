@@ -165,7 +165,6 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
     const updatedOptions: AutoCompleteOption[] = []
     let index = 0
     for (const user of Object.values(possibleMembers)) {
-      logger.warn('Channel IDs', user.userId, user.channels)
       if ((user.channels ?? []).includes(channelId)) {
         continue
       }
@@ -202,7 +201,6 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
             renderOption: (props, option, state) => {
               const { key, ...optionProps } = props as any
               const userProfile = possibleMembers[option.id]
-              logger.warn('Option', option.label, JSON.stringify(props, null, 2), state)
               return (
                 <Box
                   key={option.id}
@@ -211,6 +209,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                   })}
                   component='li'
                   selected={state.selected}
+                  data-testid={`${channelName}-add-members-autocomplete-option-${option.label}`}
                   {...optionProps}
                 >
                   <Grid container item alignItems='center' direction='row' display='flex' gap='5px' padding='0px 0px'>
@@ -229,6 +228,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
                       userProfile={userProfile}
                       userId={userProfile.userId}
                       size={theme.componentSizes.avatar.small}
+                      data-testid={`${channelName}-add-members-autocomplete-${option.label}-profilePhoto`}
                     />
                     <Typography
                       variant='body2'
@@ -279,6 +279,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
               sx={{ width: 300 }}
               renderInput={params => <TextField {...params} label='Add members' />}
               onChange={handleAutoCompleteChange}
+              data-testid={`${channelName}-add-members-autocomplete`}
             />
           </ThemeProvider>
         </StyledGrid>
@@ -289,7 +290,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
             size='small'
             fullWidth
             className={classes.button}
-            data-testid='addMembersChannelButton'
+            data-testid={`${channelName}-add-members-button`}
           >
             Add {selectedMembers.length} members
           </Button>
@@ -302,7 +303,14 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
           direction='row'
           justifyContent='center'
         >
-          <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
+          <Button
+            variant='contained'
+            onClick={handleClose}
+            size='small'
+            fullWidth
+            className={classes.secondaryButton}
+            data-testid={`${channelName}-add-members-leave-button`}
+          >
             Never mind
           </Button>
         </Grid>

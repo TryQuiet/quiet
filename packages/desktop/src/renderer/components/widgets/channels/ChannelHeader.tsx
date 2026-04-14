@@ -8,7 +8,6 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { createSvgIcon } from '@mui/material'
 import inlineSvg from 'react-inlinesvg'
 
-import { UserProfile } from '@quiet/types'
 import { createLogger } from '../../../logger'
 import lockIconSvg from '../../../static/images/lock.svg'
 
@@ -188,7 +187,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                       [classes.bold]: true,
                       [classes.lock]: true,
                     })}
-                    data-testid={'channelTitle-private'}
+                    data-testid={'channelTitle-private-lock'}
                   />
                 ) : (
                   <></>

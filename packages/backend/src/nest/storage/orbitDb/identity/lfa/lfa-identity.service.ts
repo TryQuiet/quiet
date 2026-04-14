@@ -6,7 +6,7 @@
  * ad hoc using the sigchain.
  */
 
-import { CreateIdentityOptions, IdentitiesType, Identity, KeyStoreType } from '@orbitdb/core'
+import { CreateIdentityOptions, KeyStoreType } from '@orbitdb/core'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import EventEmitter from 'events'
 import { Injectable } from '@nestjs/common'
@@ -31,7 +31,9 @@ class LFAIdentities extends EventEmitter {
    * identity service type from OrbitDB and the returned value isn't used anywhere
    */
   get keystore(): KeyStoreType {
-    return {} as any
+    return {
+      close: () => {},
+    } as any
   }
 
   /**

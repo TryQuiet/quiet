@@ -85,6 +85,7 @@ const args: IdentityPanelProps &
       peerId: 'alicePeerId',
       onionAddress: 'alice.onion',
     },
+    channels: [],
   },
   userProfiles: {
     aliceUserId: {
@@ -94,6 +95,7 @@ const args: IdentityPanelProps &
         peerId: 'alicePeerId',
         onionAddress: 'alice.onion',
       },
+      channels: [],
     },
     bobUserId: {
       userId: 'bobUserId',
@@ -102,6 +104,7 @@ const args: IdentityPanelProps &
         peerId: 'bobPeerId',
         onionAddress: 'bob.onion',
       },
+      channels: [],
     },
     charlieUserId: {
       userId: 'charlieUserId',
@@ -110,6 +113,7 @@ const args: IdentityPanelProps &
         peerId: 'charliePeerId',
         onionAddress: 'charlie.onion',
       },
+      channels: [],
     },
   },
   connectedPeers: ['alicePeerId', 'bobPeerId'],

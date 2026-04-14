@@ -14,6 +14,7 @@ import { StorageModule } from '../../storage.module'
 import { EncryptedMessage } from './messages.types'
 import { isEncryptedMessage } from '../../../validation/validators'
 import { PrivateChannelMessagesService } from './private-channel-messages.service'
+import { QSSService } from '../../../qss/qss.service'
 
 const logger = createLogger('privateChannelMessagesService:test')
 
@@ -24,6 +25,9 @@ describe('PrivateChannelMessagesService', () => {
 
   let factory: FactoryGirl
   let message: ChannelMessage
+
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
+  let qssProcessDlqDecryptSpy: jest.SpiedFunction<any>
 
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
@@ -36,11 +40,24 @@ describe('PrivateChannelMessagesService', () => {
       imports: [TestModule, StorageModule],
     }).compile()
 
+    qssProcessDlqDecryptSpy = jest.spyOn(QSSService.prototype as any, 'processDLQDecrypt').mockImplementation(() => {
+      logger.debug('MOCK: processing decrypt DLQ')
+    })
+
     sigChainService = await module.resolve(SigChainService)
     await sigChainService.createChain('test-community', 'alice', true)
     message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
     sigChainService.activeChain.channels.create(message.channelId)
     messagesService = await module.resolve(PrivateChannelMessagesService)
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
+  })
+
+  afterEach(async () => {
+    handleChainUpdateSpy.mockReset()
+    qssProcessDlqDecryptSpy.mockReset()
+    await module.close()
   })
 
   describe('onSend', () => {

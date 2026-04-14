@@ -40,7 +40,7 @@ import {
   ConnectionProcessInfo,
   SetConnectionProcessInfoPayload,
   User,
-  Channel,
+  PublicChannel,
   TestMessage,
   Community,
   SetUserProfilePayload,
@@ -49,6 +49,9 @@ import {
   HCaptchaFormResponse,
   HCaptchaRequest,
   InviteResultWithSalt,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
+  AddMembersChannelStatus,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -111,10 +114,10 @@ export const getBaseTypesFactory = async () => {
     ownership: CommunityOwnership.Owner,
   })
 
-  factory.define<Channel>('Channel', Object, {
-    id: factory.sequence('Channel.id', (n: number) => generateChannelId(`publicChannel${n}`)),
-    name: factory.sequence('Channel.name', (n: number) => `public-channel-${n}`),
-    description: factory.sequence('Channel.description', (n: number) => `description-${n}`),
+  factory.define<PublicChannel>('PublicChannel', Object, {
+    id: factory.sequence('PublicChannel.id', (n: number) => generateChannelId(`publicChannel${n}`)),
+    name: factory.sequence('PublicChannel.name', (n: number) => `public-channel-${n}`),
+    description: factory.sequence('PublicChannel.description', (n: number) => `description-${n}`),
     public: true,
     owner: factory.assoc('User', 'userId'),
     timestamp: DateTime.utc().toSeconds(),
@@ -193,7 +196,7 @@ export const getReduxStoreFactory = async (store: Store) => {
           store.dispatch(communitiesActions.setCurrentCommunity(payload.id))
         }
         // Create 'general' channel
-        await factory.create('Channel', {
+        await factory.create('PublicChannel', {
           communityId: payload.id,
           channel: {
             name: 'general',
@@ -201,6 +204,7 @@ export const getReduxStoreFactory = async (store: Store) => {
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
             id: generateChannelId('general'),
+            public: true,
           },
         })
         return payload
@@ -256,7 +260,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     'PublicChannelsMessagesBase',
     messagesActions.addPublicChannelsMessagesBase,
     {
-      channelId: factory.assoc('Channel', 'id'),
+      channelId: factory.assoc('PublicChannel', 'id'),
     }
   )
 
@@ -264,12 +268,12 @@ export const getReduxStoreFactory = async (store: Store) => {
     'PublicChannelSubscription',
     publicChannelsActions.setChannelSubscribed,
     {
-      channelId: factory.assoc('Channel', 'id'),
+      channelId: factory.assoc('PublicChannel', 'id'),
     }
   )
 
   factory.define(
-    'Channel',
+    'PublicChannel',
     publicChannelsActions.addChannel,
     {
       channel: factory.sequence('PublicChannel.channel', (n: number) => {
@@ -280,6 +284,7 @@ export const getReduxStoreFactory = async (store: Store) => {
           timestamp: DateTime.utc().toSeconds(),
           owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
           id: generateChannelId(name),
+          public: true,
         }
       }),
     },
@@ -345,7 +350,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     publicChannelsActions.cacheMessages,
     {
       messages: [],
-      channelId: factory.assoc('Channel', 'id'),
+      channelId: factory.assoc('PublicChannel', 'id'),
     }
   )
 
@@ -545,6 +550,17 @@ export const getSocketFactory = async () => {
       public: true,
     },
   })
+
+  factory.define<AddMembersChannelPayload>(SocketActions.ADD_MEMBERS_TO_CHANNEL, Object, {
+    channelId: 'new-channel-id',
+    channelName: 'Test Channel',
+    memberIds: [],
+  } as AddMembersChannelPayload)
+
+  factory.define<AddMembersChannelResponse>(`${SocketActions.ADD_MEMBERS_TO_CHANNEL}_response`, Object, {
+    channelId: 'new-channel-id',
+    status: AddMembersChannelStatus.SUCCESS,
+  } as AddMembersChannelResponse)
 
   factory.define<DeleteChannelPayload>(SocketActions.DELETE_CHANNEL, Object, {
     channelId: 'channel-to-delete',

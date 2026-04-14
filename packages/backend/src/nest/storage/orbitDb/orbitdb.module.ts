@@ -13,6 +13,8 @@ import { LFAIdentityProvider } from './identity/lfa/lfa-identity.provider'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 import { PrivateChannelMessagesService } from '../channels/messages/private-channel-messages.service'
 import { NotificationTokensStore } from '../notifications/notificationTokens.store'
+import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
+import { PrivateMessagesAccessController } from '../channels/messages/orbitdb/PrivateMessagesAccessController'
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { NotificationTokensStore } from '../notifications/notificationTokens.sto
     NotificationTokensStore,
     LFAIdentityProvider,
     LFAIdentities,
+    MessagesAccessController,
+    PrivateMessagesAccessController,
   ],
   exports: [
     OrbitDbService,
@@ -43,6 +47,8 @@ import { NotificationTokensStore } from '../notifications/notificationTokens.sto
     NotificationTokensStore,
     LFAIdentityProvider,
     LFAIdentities,
+    MessagesAccessController,
+    PrivateMessagesAccessController,
   ],
 })
 export class OrbitDbModule {}

@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
 
-import { ChannelMessage, CompoundError, ConsumedChannelMessage, MessageType } from '@quiet/types'
+import { ChannelMessage, CompoundError, ConsumedChannelMessage } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
-import { RoleName } from '../../../auth/services/roles/roles'
-import { isConsumedChannelMessage, isEncryptedMessage, isMessage } from '../../../validation/validators'
+import { isConsumedChannelMessage, isEncryptedMessage } from '../../../validation/validators'
 import { BaseMessagesService } from './base-messages.service'
 import { SigChain } from '../../../auth/sigchain'
 
@@ -38,8 +37,8 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
    */
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | false | undefined> {
     const chain = this.sigChainService.getChain({ teamId: message.teamId })
-    if (!chain.channels.amIMemberOfChannel(message.teamId)) {
-      this.logger.trace(`Not a member of channel ${message.channelId} on team ${message.teamId}`)
+    if (!chain.channels.amIMemberOfChannel(message.channelId)) {
+      this.logger.warn(`Not a member of channel ${message.channelId} on team ${message.teamId}`)
       return false
     }
 

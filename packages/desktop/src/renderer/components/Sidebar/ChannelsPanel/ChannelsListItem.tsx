@@ -1,11 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton, useTheme, createSvgIcon } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
-import { Channel, UserProfile } from '@quiet/types'
-import { useDispatch, useSelector } from 'react-redux'
-import { publicChannels } from '@quiet/state-manager'
+import { PublicChannel } from '@quiet/types'
 import inlineSvg from 'react-inlinesvg'
 import lockIconSvg from '../../../static/images/lock.svg'
 
@@ -108,8 +106,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface ChannelsListItemProps {
-  myUserProfile?: UserProfile
-  channel: Channel
+  channel: PublicChannel
   unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void
@@ -117,7 +114,6 @@ export interface ChannelsListItemProps {
 }
 
 export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
-  myUserProfile,
   channel,
   unread,
   selected,
@@ -125,7 +121,6 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   disabled = false,
 }) => {
   const theme = useTheme()
-  const dispatch = useDispatch()
   const ref = useRef<HTMLDivElement>(null)
   const headerTitle = channel.public ? `# ${channel.name}` : channel.name
   const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
@@ -153,7 +148,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
                   className={classNames(classes.lock, {
                     [classes.lockNewMessages]: unread,
                   })}
-                  data-testid={'channelTitle-private'}
+                  data-testid={`${channel.name}-channel-link-private-lock`}
                 />
               ) : (
                 <></>

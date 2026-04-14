@@ -5,7 +5,7 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
-import { Community, ConnectionProcessInfo, Channel, type Identity, ChannelMessage } from '@quiet/types'
+import { Community, ConnectionProcessInfo, PublicChannel, type Identity, ChannelMessage } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
 import { getReduxStoreFactory } from '../../utils/tests/factories'
 import { createLogger } from '../../utils/logger'
@@ -17,7 +17,7 @@ describe('connectionReducer', () => {
   let factory: FactoryGirl
   let alice: Identity
   let community: Community
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
   let generalChannelId: string
 
   beforeEach(async () => {

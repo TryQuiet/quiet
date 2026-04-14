@@ -51,7 +51,7 @@ import {
   SetUserProfileResponse,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
-  Channel,
+  PublicChannel,
   User,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
@@ -75,6 +75,7 @@ import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { randomBytes } from '@localfirst/crypto'
 import { QSSEvents } from '../qss/qss.types'
+import { SigchainEvents } from '../auth/types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -664,36 +665,44 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
   }
 
-  private async _updateUsersInStateManager(sourceEvent: string): Promise<void> {
-    this.logger.debug('Updating users after source event', sourceEvent)
+  /**
+   * Update user records in the state manager based on sigchain user data and private channel metadata (to get channel membership)
+   *
+   * @param sourceEvent The emitted event whose handler triggered the update
+   * @param teamId ID of the LFA team/Quiet community that was updated
+   */
+  private async _updateUsersInStateManager(sourceEvent: string, teamId: string): Promise<void> {
+    this.logger.debug('Updating users after source event', sourceEvent, teamId)
     if (!this.sigChainService) {
       this.logger.warn(`Skipping users update, sigchainservice hasn't been initialized`)
       return
     }
 
     // handle chain updates
-    let channelMapping: Record<string, Channel> = {}
-    if (!this.storageService || !this.storageService.initialized) {
+    let channelMapping: Record<string, PublicChannel> = {}
+    if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
       this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
     } else {
       channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
     }
-    this.logger.debug('Channel mapping', channelMapping)
+    /**
+     * TODO: clean this up so we are only updating users that are actually updated
+     *
+     * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
+     */
     const users = this.sigChainService
-      .getActiveChain()
+      .getChain({ teamId })
       .team?.members()
       .map(user => ({
         userId: user.userId,
         roles: user.roles,
-        channelIds: user.roles
-          .filter(roleName => Object.keys(channelMapping).includes(roleName))
-          .map(roleName => channelMapping[roleName].id),
+        channelIds:
+          channelMapping != null
+            ? user.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
+            : [],
         isRegistered: true,
         isDuplicated: false,
       })) as User[]
-    for (const user of users) {
-      this.logger.warn('User channels', user.channelIds, user.roles)
-    }
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
@@ -870,23 +879,50 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   /**
+   * Handle events from the sigchain service and update data in the state manager
+   */
+  private attachSigchainListeners() {
+    if (!this.sigChainService) return
+
+    this.sigChainService.on(SigchainEvents.UPDATED, async (teamId: string) => {
+      await this._updateUsersInStateManager(SigchainEvents.UPDATED, teamId)
+    })
+  }
+
+  /**
    * Forwards events from the storage service to the the state manager
    * (also applies some side effects)
    */
   private attachStorageListeners() {
     if (!this.storageService) return
 
-    this.storageService.on(StorageEvents.INITIALIZED, () => {
+    this.storageService.on(StorageEvents.INITIALIZED, async () => {
       this.logger.info(`Storage - ${StorageEvents.INITIALIZED}`)
-      void this._updateUsersInStateManager(StorageEvents.INITIALIZED)
+      try {
+        const activeChain = this.sigChainService.activeChain
+        await this._updateUsersInStateManager(StorageEvents.INITIALIZED, activeChain.team!.id)
+      } catch (e) {
+        this.logger.warn(
+          `Couldn't update state manager users based on sigchain after storage init, active sigchain likely not found`,
+          e
+        )
+      }
     })
 
     // Channel and Message Events
-    this.storageService.channels.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+    this.storageService.channels.on(StorageEvents.CHANNELS_STORED, async (payload: ChannelsReplicatedPayload) => {
       this.logger.info(`Storage - ${StorageEvents.CHANNELS_STORED}`)
       this.serverIoProvider.io.emit(SocketEvents.CHANNELS_STORED, payload)
       this.logger.info(`Storage (emitted) - ${SocketEvents.CHANNELS_STORED}`)
-      void this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED)
+      try {
+        const activeChain = this.sigChainService.activeChain
+        await this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
+      } catch (e) {
+        this.logger.warn(
+          `Couldn't update state manager users based on sigchain after channels stored, active sigchain likely not found`,
+          e
+        )
+      }
     })
     this.storageService.channels.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketEvents.MESSAGES_STORED, payload)
@@ -925,14 +961,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.storageService.updatePeerStore()
       this.libp2pService.addPeersToDialQueue()
       this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, payload)
-    })
-  }
-
-  private attachSigchainListeners() {
-    if (!this.sigChainService) return
-
-    this.sigChainService.on('updated', async () => {
-      await this._updateUsersInStateManager('lfa.updated')
     })
   }
 }

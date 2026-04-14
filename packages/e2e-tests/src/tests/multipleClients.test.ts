@@ -127,7 +127,7 @@ describe('Multiple Clients', () => {
       it('Owner registers successfully and sees general channel', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
 
         const generalChannelText = await generalChannelOwner.element.getText()
         expect(generalChannelText).toEqual('# general')
@@ -194,7 +194,7 @@ describe('Multiple Clients', () => {
         const loadNewUser = async () => {
           generalChannelUser1 = new Channel(app.driver, generalChannelName)
           expect(await generalChannelUser1.isReady()).toBeTruthy()
-          expect(await generalChannelUser1.isOpen()).toBeTruthy()
+          expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
           expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
           logger.timeEnd(`[${app.name}] '${users.user1.username}' joining community time`)
         }
@@ -286,7 +286,7 @@ describe('Multiple Clients', () => {
         const loadNewUser = async () => {
           generalChannelUser3 = new Channel(app.driver, generalChannelName)
           expect(await generalChannelUser3.isReady()).toBeTruthy()
-          expect(await generalChannelUser3.isOpen()).toBeTruthy()
+          expect(await generalChannelUser3.isPublicOpen()).toBeTruthy()
           expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
           logger.timeEnd(`[${app.name}] '${users.user3.username}' joining community time`)
         }
@@ -323,7 +323,7 @@ describe('Multiple Clients', () => {
       it('Owner sees second users messages', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
         expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
         // add an extra long timeout to wait for connection
         await generalChannelOwner.waitForUserMessageByText(users.user3.username, users.user3.messages[0], 300_000)
@@ -382,7 +382,7 @@ describe('Multiple Clients', () => {
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
         const channels = await sidebarOwner.getChannelList()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
         expect(channels.length).toEqual(1)
       })
 
@@ -392,17 +392,17 @@ describe('Multiple Clients', () => {
       })
 
       it('Owner sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
         await generalChannelOwner.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
       it('User sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
         await generalChannelUser1.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
       it('Second user sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser3.isOpen(30_000)).toBeTruthy()
+        expect(await generalChannelUser3.isPublicOpen(30_000)).toBeTruthy()
         await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
@@ -452,7 +452,7 @@ describe('Multiple Clients', () => {
         it('Owner recreates general channel', async () => {
           logger.info('TEST 3')
           expect(await generalChannelOwner.isReady()).toBeTruthy()
-          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
           await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openDeletionChannelModal()
@@ -462,7 +462,7 @@ describe('Multiple Clients', () => {
         it('Owner sees recreated general channel', async () => {
           logger.info('TEST 3')
           expect(await generalChannelOwner.isReady()).toBeTruthy()
-          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
           const retryConfig = users.owner.app.retryConfig
           const failureReason = `Expected 2 channels to be present in the sidebar within ${retryConfig.timeoutMs}ms`
@@ -482,7 +482,7 @@ describe('Multiple Clients', () => {
 
         it('Second user sees recreated general channel', async () => {
           expect(await generalChannelUser3.isReady()).toBeTruthy()
-          expect(await generalChannelUser3.isOpen()).toBeTruthy()
+          expect(await generalChannelUser3.isPublicOpen()).toBeTruthy()
           expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
           const channels = await sidebarOwner.getChannelList()
           expect(channels.length).toEqual(2)
@@ -530,7 +530,7 @@ describe('Multiple Clients', () => {
       it('Guest app is ready to use', async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         expect(await generalChannelUser1.isReady()).toBeTruthy()
-        expect(await generalChannelUser1.isOpen()).toBeTruthy()
+        expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
         expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
       })
 
@@ -674,7 +674,7 @@ describe('Multiple Clients', () => {
         await new Promise(res => setTimeout(res, 2000))
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
-        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
         expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
         await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
       })

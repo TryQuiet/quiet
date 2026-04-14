@@ -14,6 +14,7 @@ import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
+import { LFAEvents, SigchainEvents } from './types'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
@@ -55,11 +56,11 @@ class SigChain extends EventEmitter {
 
     if (oldTeam) {
       logger.info('Detaching socket listeners')
-      oldTeam.removeListener('updated', this.handleTeamUpdate)
+      oldTeam.removeListener(LFAEvents.UPDATED, this.handleTeamUpdate)
     }
     if (newTeam) {
       logger.info('Attaching socket listeners')
-      newTeam.on('updated', this.handleTeamUpdate)
+      newTeam.on(LFAEvents.UPDATED, this.handleTeamUpdate)
     }
 
     this._context = context
@@ -78,7 +79,7 @@ class SigChain extends EventEmitter {
   }
 
   private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
-    this.emit('updated', payload)
+    this.emit(SigchainEvents.UPDATED, payload)
   }
 
   /**

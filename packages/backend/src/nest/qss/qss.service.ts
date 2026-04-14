@@ -46,6 +46,7 @@ import { CompoundError, InvitationDataV3, SocketActions, SocketEvents } from '@q
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { Serializer } from '../common/serializer.service'
+import { SigchainEvents } from '../auth/types'
 
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
@@ -105,7 +106,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
     this.connect = this.connect.bind(this)
     this._configureEventHandlers()
-    this.sigChainService.on('updated', () => void this.processDLQDecrypt())
+    this.sigChainService.on(SigchainEvents.UPDATED, () => void this.processDLQDecrypt())
   }
 
   public onModuleDestroy() {

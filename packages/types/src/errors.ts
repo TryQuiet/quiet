@@ -69,3 +69,9 @@ export class CompoundError<T extends Error> extends Error {
     super(message)
   }
 }
+
+export class NotImplementedError<T extends Error> extends Error {
+  constructor(functionName: string) {
+    super(`${functionName} is not implemented`)
+  }
+}

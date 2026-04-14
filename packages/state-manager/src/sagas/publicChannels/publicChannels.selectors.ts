@@ -17,8 +17,8 @@ import {
   MessageType,
   type MessagesDailyGroups,
   type MessagesGroupsType,
-  type Channel,
-  type ChannelStatus,
+  type PublicChannel,
+  type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
@@ -58,7 +58,7 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
     logger.error('No general channel')
     return
   }
-  const channel: Channel = {
+  const channel: PublicChannel = {
     name: draft.name,
     description: draft.description,
     owner: draft.owner,
@@ -130,7 +130,7 @@ export const getChannelById = (channelId: string) =>
   createSelector(publicChannels, channels => {
     const channel = channels.find(channel => channel.id === channelId)
     if (!channel) {
-      logger.info('channel dont exist')
+      logger.warn('Channel not found', channelId)
     }
     return channel
   })
@@ -275,7 +275,7 @@ export const channelsStatusSorted = createSelector(selectState, state => {
 export const unreadChannels = createSelector(channelsStatus, status => {
   return Object.values(status)
     .filter(isDefined)
-    .reduce((result: string[], channel: ChannelStatus) => {
+    .reduce((result: string[], channel: PublicChannelStatus) => {
       if (channel.unread) {
         result.push(channel.id)
       }

@@ -26,7 +26,7 @@ import {
   Identity,
   MarkUnreadChannelPayload,
   MessageType,
-  Channel,
+  PublicChannel,
   UserProfile,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
@@ -42,9 +42,9 @@ describe('showNotificationSaga', () => {
   let alice: Identity
   let alicesProfile: UserProfile
 
-  let generalChannel: Channel
+  let generalChannel: PublicChannel
 
-  let photoChannel: Channel
+  let photoChannel: PublicChannel
 
   let expectedMessage: string
 
@@ -80,7 +80,7 @@ describe('showNotificationSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',

@@ -49,6 +49,7 @@ import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSAuthConnStatus } from './qss.const'
+import { SigchainEvents } from '../auth/types'
 
 describe('QSSService', () => {
   let store: Store
@@ -62,6 +63,7 @@ describe('QSSService', () => {
   let ipfsService: IpfsService
   let orbitDbService: OrbitDbService
   let localDbService: LocalDbService
+  let messagesAccessController: MessagesAccessController
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
   let mockedGetSocket: any
@@ -112,6 +114,8 @@ describe('QSSService', () => {
 
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
+
+    messagesAccessController = await module.resolve(MessagesAccessController)
 
     let socket = {
       ...new MockedSocket(),
@@ -671,7 +675,7 @@ describe('QSSService', () => {
       const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
       const hash = await db.add(
@@ -747,7 +751,7 @@ describe('QSSService', () => {
       const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
       const hash = await db.add(
@@ -1033,7 +1037,7 @@ describe('QSSService', () => {
       await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
 
@@ -1052,7 +1056,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
 
       // Trigger sigchain update which should process DLQ
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       // Wait for async processing
       await waitForExpect(async () => {
@@ -1088,10 +1092,10 @@ describe('QSSService', () => {
       const processSpy = jest.spyOn(qssService, 'processDLQDecrypt')
 
       // Trigger first update
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       // Immediately trigger second update while first is processing
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       await waitForExpect(async () => {
         const remainingCount = await localDbService.getDLQDecryptCount(teamId)
@@ -1114,7 +1118,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries')
 
       // Trigger sigchain update
-      sigchainService.emit('updated')
+      sigchainService.emit(SigchainEvents.UPDATED)
 
       // Give it time to process
       await new Promise(resolve => setTimeout(resolve, 100))

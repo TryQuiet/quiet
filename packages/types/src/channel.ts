@@ -6,7 +6,7 @@ export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
-export interface Channel {
+export interface PublicChannel {
   id: string
   name: string
   description: string
@@ -17,22 +17,22 @@ export interface Channel {
   roleName?: string
 }
 
-export interface ChannelStorage extends Channel {
+export interface PublicChannelStorage extends PublicChannel {
   messages: EntityState<ChannelMessage>
 }
 
-export interface ChannelStatus {
+export interface PublicChannelStatus {
   id: string
   unread: boolean
   newestMessage: ChannelMessage | null
   public: boolean
 }
 
-export interface ChannelStatusWithName extends ChannelStatus {
+export interface PublicChannelStatusWithName extends PublicChannelStatus {
   name: string
 }
 
-export interface ChannelSubscription {
+export interface PublicChannelSubscription {
   id: string
   subscribed: boolean
 }
@@ -83,7 +83,7 @@ export type MessagesGroupsType = Record<string, DisplayableMessage[]>
 export type MessagesDailyGroups = Record<string, DisplayableMessage[][]>
 
 export interface ChannelsReplicatedPayload {
-  channels: Channel[]
+  channels: PublicChannel[]
 }
 
 export interface CreateChannelPayload {
@@ -94,7 +94,7 @@ export interface CreateChannelPayload {
 }
 
 export interface CreateChannelResponse {
-  channel: Channel
+  channel: PublicChannel
 }
 
 export interface DeleteChannelPayload {

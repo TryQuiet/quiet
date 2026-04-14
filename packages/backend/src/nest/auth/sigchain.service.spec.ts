@@ -13,6 +13,7 @@ describe('SigChainService', () => {
   let module: TestingModule
   let sigChainService: SigChainService
   let localDbService: LocalDbService
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -20,6 +21,9 @@ describe('SigChainService', () => {
     }).compile()
     sigChainService = await module.resolve(SigChainService)
     localDbService = await module.resolve(LocalDbService)
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
   })
 
   beforeEach(async () => {
@@ -29,6 +33,7 @@ describe('SigChainService', () => {
   })
 
   afterAll(async () => {
+    handleChainUpdateSpy.mockReset()
     await localDbService.close()
     await module.close()
   })
@@ -42,12 +47,14 @@ describe('SigChainService', () => {
   it('should add a new chain and it not be active if not set to be', async () => {
     const sigChain = await sigChainService.createChain('test', 'user', false)
     expect(() => sigChainService.getActiveChain()).toThrowError()
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
     sigChainService.setActiveChain('test')
     expect(sigChainService.getActiveChain()).toBe(sigChain)
   })
   it('should add a new chain and it be active if set to be', async () => {
     const sigChain = await sigChainService.createChain('test2', 'user2', true)
     expect(sigChainService.getActiveChain()).toBe(sigChain)
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
     const prevSigChain = sigChainService.getChain({ teamName: 'test' })
     expect(prevSigChain).toBeDefined()
     expect(prevSigChain).not.toBe(sigChain)
@@ -65,6 +72,7 @@ describe('SigChainService', () => {
   it('should save and load sigchain using nestjs service', async () => {
     const TEAM_NAME = 'test3'
     const sigChain = await sigChainService.createChain(TEAM_NAME, 'user', true)
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
     await sigChainService.saveChain(TEAM_NAME)
     await sigChainService.deleteChain(TEAM_NAME, false)
     const loadedSigChain = await sigChainService.loadChain(TEAM_NAME, true)
@@ -79,6 +87,7 @@ describe('SigChainService', () => {
   it('should not allow duplicate chains to be added', async () => {
     await sigChainService.createChain('test4', 'user4', false)
     await expect(sigChainService.createChain('test4', 'user4', false)).rejects.toThrowError()
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
   })
   it('should handle concurrent chain operations correctly', async () => {
     const TEAM_NAME1 = 'test6'
@@ -89,5 +98,6 @@ describe('SigChainService', () => {
     ])
     expect(sigChainService.getChain({ teamName: TEAM_NAME1 })).toBeDefined()
     expect(sigChainService.getChain({ teamName: TEAM_NAME2 })).toBeDefined()
+    expect(handleChainUpdateSpy).toBeCalledTimes(2)
   })
 })

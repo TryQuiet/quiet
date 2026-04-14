@@ -43,7 +43,8 @@ export class OrbitDbService {
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     private readonly localDbService: LocalDbService,
     private readonly sigChainService: SigChainService,
-    private readonly lfaIdentities: LFAIdentities
+    private readonly lfaIdentities: LFAIdentities,
+    private readonly messagesAccessController: MessagesAccessController
   ) {
     OrbitDbService.events.on('update', (entry: LogEntry) => {
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
@@ -68,7 +69,12 @@ export class OrbitDbService {
       return
     }
 
-    orbitDbUseAccessController(MessagesAccessController)
+    orbitDbUseAccessController(
+      this.messagesAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+      }) as any
+    )
 
     /**
      * This overrides the built-in identity system to use our custom LFA-based identity service

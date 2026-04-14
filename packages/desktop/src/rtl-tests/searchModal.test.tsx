@@ -78,7 +78,7 @@ describe('Switch channels', () => {
 
     // Automatically create channels
     for (const channelMock of channelsMocks) {
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: channelMock.name,
           description: `Welcome to #${channelMock.name}`,

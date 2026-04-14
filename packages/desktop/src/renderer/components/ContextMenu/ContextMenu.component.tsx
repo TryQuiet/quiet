@@ -110,7 +110,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
           cursor: 'pointer',
         }}
         onClick={action}
-        data-testid={`contextMenuItem${title}`}
+        data-testid={`contextMenuItem${title.replace(' ', '_')}`}
       >
         <Grid
           style={{

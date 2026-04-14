@@ -14,7 +14,7 @@ import {
   type Community,
   type FileMetadata,
   type Identity,
-  type Channel,
+  type PublicChannel,
   SocketActions,
   ChannelMessage,
   SendingStatus,
@@ -32,7 +32,7 @@ describe('uploadFileSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: Channel
+  let sailingChannel: PublicChannel
 
   let message: ChannelMessage
 
@@ -52,7 +52,7 @@ describe('uploadFileSaga', () => {
     })
 
     sailingChannel = (
-      await factory.create('Channel', {
+      await factory.create('PublicChannel', {
         channel: {
           name: 'comics',
           description: 'Welcome to #comics',

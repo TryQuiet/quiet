@@ -11,7 +11,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
 import { generateChannelId } from '@quiet/common'
-import { CommunityOwnership, type Community, type Identity, type Channel } from '@quiet/types'
+import { CommunityOwnership, type Community, type Identity, type PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { select } from 'redux-saga-test-plan/matchers'
 
@@ -24,8 +24,8 @@ describe('channelDeletionResponseSaga', () => {
   let community: Community
   let owner: Identity
 
-  let photoChannel: Channel
-  let generalChannel: Channel
+  let photoChannel: PublicChannel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -45,7 +45,7 @@ describe('channelDeletionResponseSaga', () => {
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('Channel', {
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
         channel: {
           name: 'photo',
           description: 'Welcome to #photo',
@@ -157,7 +157,7 @@ describe('channelDeletionResponseSaga', () => {
       const channelId = generalChannel.id
       const newGeneralId = 'newGeneralId'
 
-      const newGeneralChannel: Channel = {
+      const newGeneralChannel: PublicChannel = {
         name: 'general',
         description: 'general_description',
         owner: 'general_owner',
