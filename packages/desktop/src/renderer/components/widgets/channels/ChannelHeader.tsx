@@ -1,7 +1,7 @@
 import React from 'react'
 import classNames from 'classnames'
 
-import { styled, useTheme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
@@ -9,7 +9,8 @@ import { createSvgIcon } from '@mui/material'
 import inlineSvg from 'react-inlinesvg'
 
 import { createLogger } from '../../../logger'
-import lockIconSvg from '../../../static/images/lock.svg'
+import lockIconSvg from '../../../static/images/lock-filled.svg'
+import hashIconSvg from '../../../static/images/hash.svg'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -36,7 +37,7 @@ const classes = {
 
 const Root = styled('div')(({ theme }) => ({
   [`& .${classes.root}`]: {
-    height: '75px',
+    height: '79px',
     paddingLeft: 20,
     paddingRight: 24,
     borderBottom: `1px solid ${theme.palette.colors.border01}`,
@@ -118,8 +119,9 @@ const Root = styled('div')(({ theme }) => ({
   },
 
   [`& .${classes.lock}`]: {
-    marginRight: -2,
-    marginLeft: -2,
+    fontSize: 12,
+    width: 12,
+    height: 12,
   },
 }))
 
@@ -138,7 +140,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   openContextMenu,
   enableContextMenu,
 }) => {
-  const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return (_: any) => {
@@ -169,8 +170,10 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   })
 
   const channelNameTruncated = channelName?.substring(0, 20)
-  const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
   const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
+  const HashIcon = createSvgIcon(inlineSvg({ src: hashIconSvg }) as React.ReactElement, 'Hash')
+  const Icon = isPublic ? HashIcon : LockIcon
+  const iconTestId = isPublic ? 'channelTitle-public-hash' : 'channelTitle-private-lock'
 
   return (
     <Root className={classes.wrapper}>
@@ -178,20 +181,16 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
         <Grid item>
           <Grid item container alignItems='center'>
             <Grid item>
-              <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
-                {!isPublic ? (
-                  <LockIcon
-                    style={{ ...theme.typography.subtitle1 }}
-                    className={classNames({
-                      [classes.title]: true,
-                      [classes.bold]: true,
-                      [classes.lock]: true,
-                    })}
-                    data-testid={'channelTitle-private-lock'}
-                  />
-                ) : (
-                  <></>
-                )}
+              <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='1px'>
+                <Icon
+                  viewBox='0 0 12 12'
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.bold]: true,
+                    [classes.lock]: true,
+                  })}
+                  data-testid={iconTestId}
+                />
                 <Typography
                   noWrap
                   style={{ maxWidth: wrapperWidth }}
@@ -202,7 +201,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   })}
                   data-testid={'channelTitle'}
                 >
-                  {headerTitle}
+                  {channelNameTruncated}
                 </Typography>
               </Grid>
             </Grid>
