@@ -1,11 +1,12 @@
 import React, { useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, Grid, ListItemButton, useTheme, createSvgIcon } from '@mui/material'
+import { Typography, Grid, ListItemButton, createSvgIcon } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/types'
 import inlineSvg from 'react-inlinesvg'
-import lockIconSvg from '../../../static/images/lock.svg'
+import lockIconSvg from '../../../static/images/lock-filled.svg'
+import hashIconSvg from '../../../static/images/hash.svg'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -14,21 +15,20 @@ const classes = {
   selected: `${PREFIX}selected`,
   primary: `${PREFIX}primary`,
   title: `${PREFIX}title`,
-  titlePublic: `${PREFIX}titlePublic`,
   newMessages: `${PREFIX}newMessages`,
   connectedIcon: `${PREFIX}connectedIcon`,
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
   itemText: `${PREFIX}itemText`,
   disabled: `${PREFIX}disabled`,
-  lock: `${PREFIX}lock`,
-  lockNewMessages: `${PREFIX}lockNewMessages`,
+  channelIcon: `${PREFIX}channelIcon`,
+  channelIconNewMessages: `${PREFIX}channelIconNewMessages`,
 }
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: 220,
     height: 'hug',
-    padding: `3px 0px 3px 0px`,
+    padding: '3px 16px',
     gap: 4,
     opacity: 1,
     display: 'flex',
@@ -57,27 +57,20 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     textTransform: 'lowercase',
   },
 
-  [`& .${classes.titlePublic}`]: {
-    paddingLeft: 16,
-    paddingRight: 2,
-  },
-
   [`& .${classes.newMessages}`]: {
     opacity: 1,
     fontWeight: 600,
   },
 
-  [`& .${classes.lock}`]: {
-    opacity: 0.7,
-    marginLeft: 13.5,
-    marginRight: 0,
-    fontWeight: 300,
-    paddingRight: 2,
+  [`& .${classes.channelIcon}`]: {
+    opacity: 0.5,
+    fontSize: 12,
+    width: 12,
+    height: 12,
   },
 
-  [`& .${classes.lockNewMessages}`]: {
+  [`& .${classes.channelIconNewMessages}`]: {
     opacity: 1,
-    fontWeight: 600,
   },
 
   [`& .${classes.connectedIcon}`]: {
@@ -120,10 +113,13 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   setCurrentChannel,
   disabled = false,
 }) => {
-  const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
-  const headerTitle = channel.public ? `# ${channel.name}` : channel.name
   const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
+  const HashIcon = createSvgIcon(inlineSvg({ src: hashIconSvg }) as React.ReactElement, 'Hash')
+  const Icon = channel.public ? HashIcon : LockIcon
+  const iconTestId = channel.public
+    ? `${channel.name}-channel-link-public-hash`
+    : `${channel.name}-channel-link-private-lock`
 
   return (
     <StyledListItemButton
@@ -141,27 +137,22 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
       <ListItemText
         primary={
           <Grid container alignItems='center'>
-            <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
-              {!channel.public ? (
-                <LockIcon
-                  style={{ ...theme.typography.subtitle1 }}
-                  className={classNames(classes.lock, {
-                    [classes.lockNewMessages]: unread,
-                  })}
-                  data-testid={`${channel.name}-channel-link-private-lock`}
-                />
-              ) : (
-                <></>
-              )}
+            <Grid container alignItems='center' direction='row' gap='4px' display='flex'>
+              <Icon
+                viewBox='0 0 12 12'
+                className={classNames(classes.channelIcon, {
+                  [classes.channelIconNewMessages]: unread,
+                })}
+                data-testid={iconTestId}
+              />
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
                   [classes.newMessages]: unread,
-                  [classes.titlePublic]: channel.public,
                 })}
                 data-testid={`${channel.name}-channel-link-text`}
               >
-                {headerTitle}
+                {channel.name}
               </Typography>
             </Grid>
           </Grid>
