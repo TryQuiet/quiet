@@ -16,6 +16,7 @@ import {
 import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
+import { QSSService } from '../qss/qss.service'
 
 const BUNDLE_ID = 'com.quietmobile'
 const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
@@ -29,6 +30,7 @@ export class QPSService implements OnModuleInit {
     @Inject(QPS_ALLOWED) private readonly qpsAllowed: boolean,
     private readonly socketService: SocketService,
     private readonly qssClient: QSSClient,
+    private readonly qssService: QSSService,
     private readonly sigChainService: SigChainService,
     private readonly notificationTokensStore: NotificationTokensStore
   ) {}
@@ -47,6 +49,7 @@ export class QPSService implements OnModuleInit {
       await this.register(payload.deviceToken)
     })
 
+    this.qssService.on(QSSEvents.QSS_FULLY_JOINED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
     this.sigChainService.on('updated', () => this._flushPendingToken())
@@ -73,7 +76,29 @@ export class QPSService implements OnModuleInit {
   }
 
   private async _flushPendingToken(): Promise<void> {
-    if (this._pendingDeviceToken == undefined || !this.ready) {
+    this.logger.debug('Checking if pending device token can be flushed')
+    const hasPendingToken = this._pendingDeviceToken != undefined
+    const qssConnected = this.qssClient.connected
+    const hasMemberKey = this._hasMemberKey()
+
+    if (!hasPendingToken || !qssConnected || !hasMemberKey) {
+      const reasons: string[] = []
+      if (!hasPendingToken) {
+        reasons.push('no pending device token')
+      }
+      if (!qssConnected) {
+        reasons.push('QSS not connected')
+      }
+      if (!hasMemberKey) {
+        reasons.push('sigchain member key unavailable')
+      }
+
+      this.logger.debug(`Skipping cached device token flush: ${reasons.join(', ')}`)
+      return
+    }
+
+    if (!this._pendingDeviceToken) {
+      this.logger.warn('No pending device token found during flush')
       return
     }
 

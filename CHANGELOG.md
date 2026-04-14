@@ -34,6 +34,7 @@
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
+* Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
 
 ## [6.6.2]
 
@@ -73,11 +74,12 @@
 
 * DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
 * Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
- 
+
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
-* Fixed issues with testing workflows [#3030] (https://github.com/TryQuiet/quiet/issues/3030)
+* Fixed issues with testing workflows [#3030](https://github.com/TryQuiet/quiet/issues/3030)
+* Add MacOS arm64-specific build jobs to resolve slow UI startup on Apple Silicon [#3146](https://github.com/TryQuiet/quiet/issues/3146)
 
 ## [6.3.0]
 
