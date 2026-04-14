@@ -9,6 +9,7 @@ export interface InputProps {
   /** Called when text input ends editing (e.g., on blur) */
   onEndEditing?: (e: NativeSyntheticEvent<TextInputEndEditingEventData>) => void
   label?: string
+  subtitle?: string
   placeholder: string
   capitalize?: 'none' | 'sentences' | 'words' | 'characters'
   validation?: string

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { TextInput, View } from 'react-native'
 
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { Appbar } from '../Appbar/Appbar.component'
@@ -11,6 +11,7 @@ import { SelectableListOption } from './ChannelMembershipList/ChannelMembershipL
 import { ChannelMembershipList } from './ChannelMembershipList/ChannelMembershipList.component'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { Input } from '../Input/Input.component'
 
 const logger = createLogger('ChannelMembership')
 
@@ -25,6 +26,8 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [options, setOptions] = useState<SelectableListOption[]>([])
+  const [inputError, setInputError] = useState<string | undefined>()
+  const inputRef = useRef<TextInput>(null)
 
   const _initializeOptions = () => {
     const initialOptions: SelectableListOption[] = []
@@ -75,7 +78,17 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
           padding: 24,
         }}
       >
-        <Typography fontSize={10} style={{ color: defaultTheme.palette.typography.gray50 }}>
+        <Input
+          onChangeText={() => {}}
+          subtitle={`Add members with '@'`}
+          placeholder={'E.g. @jane123'}
+          length={20}
+          disabled={loading}
+          validation={inputError}
+          ref={inputRef}
+          autoCorrect={false}
+        />
+        <Typography fontSize={10} style={{ paddingTop: 18, color: defaultTheme.palette.typography.gray50 }}>
           MEMBERS
         </Typography>
         <ChannelMembershipList

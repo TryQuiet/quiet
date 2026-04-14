@@ -14,6 +14,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       onEndEditing,
       value,
       label,
+      subtitle,
       placeholder,
       capitalize,
       validation,
@@ -82,6 +83,11 @@ export const Input = forwardRef<TextInput, InputProps>(
           />
           {children}
         </StyledWrapper>
+        {subtitle && (
+          <Typography fontSize={12} style={{ paddingVertical: 10, color: defaultTheme.palette.typography.grayDark }}>
+            {subtitle}
+          </Typography>
+        )}
         {validation && (
           <Typography fontSize={14} color={'error'} style={{ paddingTop: 10 }}>
             {validation}

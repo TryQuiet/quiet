@@ -1,10 +1,11 @@
 import React, { FC, useCallback, useEffect } from 'react'
-import { ChannelMembershipScreenProps } from './ChannelMembership.types'
-import { DeleteChannel } from '../../components/DeleteChannel/DeleteChannel.component'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { communities, publicChannels, users } from '@quiet/state-manager'
+
+import { ChannelMembershipScreenProps } from './ChannelMembership.types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { communities, publicChannels, users } from '@quiet/state-manager'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ChannelMembership } from '../../components/ChannelMembership/ChannelMembership.component'
 
