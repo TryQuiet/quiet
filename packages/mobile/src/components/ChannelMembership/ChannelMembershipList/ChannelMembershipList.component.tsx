@@ -10,6 +10,7 @@ import { defaultTheme } from '../../../styles/themes/default.theme'
 export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({
   options,
   setOptions,
+  visibleOptionsIndices,
   channelId,
   userProfiles,
 }) => {
@@ -27,6 +28,10 @@ export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({
 
   const renderItem = (listItem: ListRenderItemInfo<SelectableListOption>) => {
     const { item } = listItem
+    if (item.hide || !visibleOptionsIndices.has(item.index)) {
+      return <></>
+    }
+
     const labelColor = item.mutable ? defaultTheme.palette.typography.main : defaultTheme.palette.typography.gray50
     const label = (
       <View style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center', gap: 16 }}>

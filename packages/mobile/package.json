@@ -43,6 +43,7 @@
     "buffer": "^6.0.3",
     "events": "^1.1.1",
     "fast-text-encoding": "^1.0.6",
+    "fuse.js": "^7.3.0",
     "i18next": "^20.2.2",
     "jdenticon": "^3.2.0",
     "js-yaml": "4.1.1",

@@ -8,11 +8,13 @@ export interface SelectableListOption {
   index: number
   selected: boolean
   mutable: boolean
+  hide: boolean
 }
 
 export interface ChannelMembershipListProps {
   options: SelectableListOption[]
   setOptions: React.Dispatch<SetStateAction<SelectableListOption[]>>
+  visibleOptionsIndices: Set<number>
   userProfiles: Record<string, UserProfile>
   channelId: string
 }

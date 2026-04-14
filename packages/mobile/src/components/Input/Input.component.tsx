@@ -76,12 +76,14 @@ export const Input = forwardRef<TextInput, InputProps>(
             multiline={multiline}
             editable={!disabled}
             placeholder={placeholder}
+            placeholderTextColor={defaultTheme.palette.typography.grayDark}
             maxLength={length}
             autoCapitalize={capitalize}
             testID={'input'}
             autoCorrect={autoCorrect}
-          />
-          {children}
+          >
+            {children}
+          </StyledTextInput>
         </StyledWrapper>
         {subtitle && (
           <Typography fontSize={12} style={{ paddingVertical: 10, color: defaultTheme.palette.typography.grayDark }}>
