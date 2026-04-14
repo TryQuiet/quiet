@@ -879,8 +879,9 @@ export class UserProfileContextMenu {
   }
 
   async openEditProfileMenu() {
+    await sleep(8_000)
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit_profile"]')),
       20_000,
       'Edit Profile button not found',
       500
