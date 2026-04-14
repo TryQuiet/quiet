@@ -247,6 +247,26 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     connectionsManager.pause()
   })
+  rn_bridge.channel.on('hibernate', async () => {
+    logger.info('Received hibernate message from RN bridge')
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    try {
+      await connectionsManager.hibernate()
+      rn_bridge.channel.send('hibernated')
+    } catch (e) {
+      logger.error('Error occurred while hibernating backend', e)
+    }
+  })
+  rn_bridge.channel.on('wake', async () => {
+    logger.info('Received wake message from RN bridge')
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    try {
+      await connectionsManager.wake()
+      rn_bridge.channel.send('woke')
+    } catch (e) {
+      logger.error('Error occurred while waking backend', e)
+    }
+  })
   rn_bridge.channel.on('open', (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     const torControl = app.get<TorControl>(TorControl)

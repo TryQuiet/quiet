@@ -243,21 +243,44 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         }
 
         if (QuietStorage.isAppForeground()) {
-            Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests (app foreground)");
+            Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests + wake (app foreground)");
             workManager.enqueueRequests();
+            sendNodeEvent("wake", "app:wake");
             return;
         }
 
         if (!"true".equals(BuildConfig.QSS_ALLOWED)
                 || !QuietStorage.isTeamQssEnabled()
                 || QuietStorage.isUserBackgroundTorEnabled()) {
-            Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests (background allowed)");
+            Log.i("CommunicationModule", "syncBackendWorkerState -> enqueueRequests (background allowed by user/team)");
             workManager.enqueueRequests();
             return;
         }
 
-        Log.i("CommunicationModule", "syncBackendWorkerState -> stop (background disallowed)");
-        workManager.stop();
+        // Default background path: keep worker + node alive, just hibernate backend services.
+        // Foreground service stays up so RAM state survives; sigchain is flushed to disk in
+        // hibernate() so we survive low-memory kill as well.
+        Log.i("CommunicationModule", "syncBackendWorkerState -> hibernate (background, backend services idle)");
+        sendNodeEvent("hibernate", "app:hibernate");
+    }
+
+    /**
+     * Send a message to the node backend over the _EVENTS_ channel with the
+     * JSON envelope the rn-bridge EventChannel expects
+     * ({"event":"<event>","payload":"<payload>"}). This is the same format iOS
+     * uses via RNNodeJsMobile.sendMessageToNode.
+     */
+    private static void sendNodeEvent(String event, String payload) {
+        String safeEvent = event.replace("\\", "\\\\").replace("\"", "\\\"");
+        String safePayload = payload == null ? "" : payload.replace("\\", "\\\\").replace("\"", "\\\"");
+        String envelope = "{ \"event\": \"" + safeEvent + "\", \"payload\": \"" + safePayload + "\" }";
+        try {
+            com.quietmobile.Backend.BackendWorker.sendMessageToNodeChannel("_EVENTS_", envelope);
+        } catch (UnsatisfiedLinkError e) {
+            Log.w("CommunicationModule", "Native bridge not loaded; skipping '" + event + "' event", e);
+        } catch (Exception e) {
+            Log.e("CommunicationModule", "Failed to send '" + event + "' event to node", e);
+        }
     }
 
     @ReactMethod
