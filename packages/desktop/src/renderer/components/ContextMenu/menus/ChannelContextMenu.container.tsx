@@ -2,6 +2,8 @@ import React, { FC } from 'react'
 import { useSelector } from 'react-redux'
 
 import { communities, publicChannels } from '@quiet/state-manager'
+import { createSvgIcon } from '@mui/material'
+import inlineSvg from 'react-inlinesvg'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { MenuName } from '../../../../const/MenuNames.enum'
@@ -13,15 +15,24 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { exportChats } from '../../../../utils/functions/exportMessages'
 
+import hashIconSvg from '../../../static/images/hash.svg'
+import lockIconSvg from '../../../static/images/lock-filled.svg'
+
 export const ChannelContextMenu: FC = () => {
   const [showDebug, setShowDebug] = React.useState(false)
   const isOwner = useSelector(communities.selectors.isOwner)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
+  const HashIcon = createSvgIcon(inlineSvg({ src: hashIconSvg }) as React.ReactElement, 'Hash')
+  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
+
   let title = ''
+  let titleIcon: React.ReactNode = null
   if (channel) {
-    title = `#${channel.name} settings`
+    title = `${channel.name} settings`
+    const Icon = channel.public ? HashIcon : LockIcon
+    titleIcon = <Icon viewBox='0 0 12 12' style={{ fontSize: 12, width: 12, height: 12 }} />
   }
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
@@ -64,11 +75,16 @@ export const ChannelContextMenu: FC = () => {
   }
 
   return showDebug ? (
-    <ContextMenu title={title + ' Debug'} {...channelContextMenu} handleBack={() => setShowDebug(false)}>
+    <ContextMenu
+      title={title + ' Debug'}
+      titleIcon={titleIcon}
+      {...channelContextMenu}
+      handleBack={() => setShowDebug(false)}
+    >
       <DebugChannelComponent />
     </ContextMenu>
   ) : (
-    <ContextMenu title={title} {...channelContextMenu}>
+    <ContextMenu title={title} titleIcon={titleIcon} {...channelContextMenu}>
       <ContextMenuItemList items={items} />
     </ContextMenu>
   )

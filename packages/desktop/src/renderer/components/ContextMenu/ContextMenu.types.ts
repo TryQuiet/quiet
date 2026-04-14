@@ -5,6 +5,7 @@ export interface ContextMenuProps {
   handleClose: () => void
   handleBack?: () => void
   title: string
+  titleIcon?: React.ReactNode
   children?: React.ReactNode
 }
 

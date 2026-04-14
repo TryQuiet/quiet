@@ -12,7 +12,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { Divider, Drawer } from '../ui'
 import IconButton from '../ui/Icon/IconButton'
 
-export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
+export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, titleIcon, children }) => {
   const theme = useTheme()
 
   const ref = useRef<HTMLDivElement>(null)
@@ -51,7 +51,16 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
           >
             {handleBack ? <ArrowBackIcon style={{ fontSize: '24px' }} /> : <CloseIcon />}
           </IconButton>
-          <Grid style={{ flex: 5, justifyContent: 'center' }}>
+          <Grid
+            style={{
+              flex: 5,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '1px',
+            }}
+          >
+            {titleIcon}
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
               {title}
             </Typography>
