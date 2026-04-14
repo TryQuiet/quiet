@@ -295,6 +295,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       } catch (e) {
         this.logger.error('hibernate: pause failed', e)
       }
+      if (this.storageService) {
+        try {
+          this.logger.info('hibernate: stopping OrbitDB sync')
+          await this.storageService.stopSync()
+        } catch (e) {
+          this.logger.error('hibernate: storage.stopSync failed', e)
+        }
+      }
       if (this.tor) {
         try {
           this.logger.info('hibernate: killing tor')
@@ -346,6 +354,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.resume()
       } catch (e) {
         this.logger.error('wake: resume failed', e)
+      }
+      if (this.storageService) {
+        try {
+          this.logger.info('wake: restarting OrbitDB sync')
+          await this.storageService.startSync()
+        } catch (e) {
+          this.logger.error('wake: storage.startSync failed', e)
+        }
       }
       this.hibernating = false
       this.logger.info('Woke')
