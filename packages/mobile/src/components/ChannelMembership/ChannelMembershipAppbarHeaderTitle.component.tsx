@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from 'react-native'
 import LockIcon from '../../assets/icons/svg/lock'
 import { DefaultAppbarTitle } from '../Appbar/DefaultAppbarHeaderTitle.component'
-import { HeaderTitleProps } from '../Appbar/Appbar.types'
 import { ChannelMembershipHeaderTitleProps } from './ChannelMembership.types'
 import { Typography } from '../Typography/Typography.component'
 
