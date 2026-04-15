@@ -13,7 +13,7 @@ import { createLogger } from './logger'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.0' // version to test against
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.1' // version to test against
 const appImagesPath = `${__dirname}/../Quiet`
 
 export interface BuildSetupInit {
