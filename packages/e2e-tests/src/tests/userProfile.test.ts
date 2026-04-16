@@ -82,7 +82,7 @@ describe('User Profile Feature', () => {
     expect(await generalChannelOwner.isReady())
 
     const generalChannelText = await generalChannelOwner.element.getText()
-    expect(generalChannelText).toEqual('# general')
+    expect(generalChannelText).toEqual('general')
   })
 
   it('Owner sends a message', async () => {

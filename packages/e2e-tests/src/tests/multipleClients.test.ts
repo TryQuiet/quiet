@@ -130,7 +130,7 @@ describe('Multiple Clients', () => {
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
 
         const generalChannelText = await generalChannelOwner.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
       it('Owner sends a message', async () => {

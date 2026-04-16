@@ -114,7 +114,7 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
       itif(process.platform == 'linux')(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
@@ -226,7 +226,7 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isMessageInputReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
       itif(process.platform == 'linux')('Sent message is visible on general channel on new version', async () => {
