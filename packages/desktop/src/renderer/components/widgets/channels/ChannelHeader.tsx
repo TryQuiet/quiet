@@ -167,7 +167,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   })
 
   const channelNameTruncated = channelName?.substring(0, 20)
-  const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
 
   return (
     <Root className={classes.wrapper}>
