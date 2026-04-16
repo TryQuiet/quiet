@@ -224,7 +224,7 @@ describe('User', () => {
     expect(createUsernameTitle).not.toBeVisible()
 
     // Check if channel page is visible
-    const channelPage = await screen.findByText('#general')
+    const channelPage = await screen.findByText('general')
     expect(channelPage).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`

@@ -138,7 +138,7 @@ describe('PublicChannel', () => {
       store
     )
 
-    const channelName = screen.getByText('#general')
+    const channelName = screen.getByText('general')
     expect(channelName).toBeVisible()
 
     const messageInput = screen.getByPlaceholderText(`Message #general as @${nickname}`)

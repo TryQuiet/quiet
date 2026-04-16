@@ -188,6 +188,8 @@ describe('Add new channel', () => {
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveClass('ChannelsListItemselected')
+    const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-public`)
+    expect(linkIcon).toBeVisible()
   })
 
   it.only('Adds new private channel and opens it. Sends initial message', async () => {
@@ -297,7 +299,7 @@ describe('Add new channel', () => {
 
     // Check if newly created channel is present and selected
     expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output)
-    expect(screen.getByTestId('channelTitle-private-lock')).toBeVisible()
+    expect(screen.getByTestId('channelTitle-icon-private')).toBeVisible()
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveClass('ChannelsListItemselected')

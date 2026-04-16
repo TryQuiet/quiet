@@ -13,11 +13,10 @@ import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import { TextField } from '../../ui/TextField/TextField'
 import { channelNameField, channelPrivateField } from '../../../forms/fields/createChannelFields'
 
-import lockIconSvg from '../../../static/images/lock.svg'
-
 import { parseName } from '@quiet/common'
 import { createLogger } from '../../../logger'
 import IOSSwitch from '../../ui/Switch/IOSSwitch'
+import LockIcon from '../../../static/images/components/lock'
 
 const logger = createLogger('CreateChannelComponent')
 
@@ -163,7 +162,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
 }) => {
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
   const { handleSubmit, formState, setValue, setError, clearErrors, control } = useForm<{
     channelName: string
