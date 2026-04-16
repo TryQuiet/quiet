@@ -4,6 +4,8 @@
 
 ### Features
 
+* Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
+
 ### Fixes
 
 ### Chores
