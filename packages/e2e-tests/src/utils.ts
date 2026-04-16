@@ -6,14 +6,14 @@ import path from 'path'
 import fs from 'fs'
 import crypto from 'crypto'
 import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
-import { RetryConfig, TimeoutMetadata } from './types'
+import { RetryConfig } from './types'
 import { config } from 'dotenv'
 
 import { createLogger } from './logger'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '5.0.0' // version to test against
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.1' // version to test against
 const appImagesPath = `${__dirname}/../Quiet`
 
 export interface BuildSetupInit {
