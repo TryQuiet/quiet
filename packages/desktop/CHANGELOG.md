@@ -1,70 +1,88 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@6.1.0-alpha.3...@quiet/desktop@7.1.0-alpha.0) (2026-04-17)
-
-
-### Bug Fixes
-
-* **3140:** Validate qss endpoint when qss is allowed to avoid registration loops ([#3141](https://github.com/TryQuiet/quiet/issues/3141)) ([38d4292](https://github.com/TryQuiet/quiet/commit/38d42923dee8c31c454ca8a107479f9db1bf3bdb))
-* **3146:** Fix slow electron startup ([#3147](https://github.com/TryQuiet/quiet/issues/3147)) ([748374e](https://github.com/TryQuiet/quiet/commit/748374e0d43124f2c95de15f38732145310adb56))
-* Better QSS handling in invite links, proper redialing on disconnects, resetting LFA join status when in intermediate state on disconnect ([#3012](https://github.com/TryQuiet/quiet/issues/3012)) ([2b68c3c](https://github.com/TryQuiet/quiet/commit/2b68c3c94693f2aafa7fc5c7a65073e92c93e6dd))
-
-
-### Features
-
-* **2803:** Write orbitdb sync data to QSS ([#2914](https://github.com/TryQuiet/quiet/issues/2914)) ([bfbfd92](https://github.com/TryQuiet/quiet/commit/bfbfd925feb35abf4bb6f04d2ed27b08a58b14cb))
-
-
-### Reverts
-
-* Revert "Use mise-en-place (https://mise.jdx.dev/) for repo dependencies" ([18c8d31](https://github.com/TryQuiet/quiet/commit/18c8d31ea982fb8a793ab59a196cf00f2fc39f90))
-
-
-
-
-
 # Changelog
 
-[unreleased]
+## [7.1.0]
 
 ### Features
 
-* Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
-* Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
-* Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
-* Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
-* Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
+* Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
+
+### Fixes
+
+### Chores
+
+## [7.0.1]
+
+### Features
+
 * Registers APNS token with push notifications service [#3080](https://github.com/TryQuiet/quiet/issues/3080)
-* Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
-* Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
-* Use LFA-based identity in OrbitDB
-* Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
 * Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
 
 ### Fixes
 
-* DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
-* Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
-* Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
-* Fixed auth issues when using QSS in AWS [#3128](https://github.com/TryQuiet/quiet/issues/3128)
 * Fixed bug around killing old tor process that results in an unhandled exception [#3135](https://github.com/TryQuiet/quiet/issues/3135)
 * Adds new mac entitlement to fix arm64 crashes on arm64 binaries [#3180](https://github.com/TryQuiet/quiet/issues/3180)
 * Fixed bug that caused a registration loop when QSS_ALLOWED is true but the endpoint is unset [#3140](https://github.com/TryQuiet/quiet/issues/3140)
+* Fix delay between sign-in and historical log entry pull from QSS [#3127](https://github.com/TryQuiet/quiet/issues/3127)
+
+### Chores
+
+* Upgrades NodeJS to 20.20.1
+
+## [7.0.0]
+
+### Features
+
+* Create an invite lockbox when using QSS [#3057](https://github.com/TryQuiet/quiet/issues/3057)
+* Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
+* Use LFA-based identity in OrbitDB
+* Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
+* Store LFA keys in IOS keychain for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
+* Store user metadata in IOS native storage for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
+
+## [6.6.2]
+
+### Fixes
+
+* Fixed crashes on GrapheneOS devices
+
+## [6.6.0]
+
+### Features
+
+* Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
+* Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
+* Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
+* Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
+
+### Fixes
+
+* Fixed being unable to quit application during initial load [#3046](https://github.com/TryQuiet/quiet/issues/3046)
+* Fixed trace logger toggles [#3045](https://github.com/TryQuiet/quiet/issues/3045)
+* Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
+
+## [6.5.1]
+
+### Chores
+
+* Updgrade NodeJS on mobile to 18.20.4
+* 16kb compliance changes on android
+
+## [6.4.0]
+
+### Features
+
+* Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
+
+### Fixes
+
+* DisableWebDrag added to links listed in an issue [#481] (https://github.com/TryQuiet/quiet/issues/481)
+* Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
 
 ### Chores
 
 * Change autoupdater text [#2971](https://github.com/TryQuiet/quiet/issues/2971)
 * Fixed issues with testing workflows [#3030](https://github.com/TryQuiet/quiet/issues/3030)
 * Add MacOS arm64-specific build jobs to resolve slow UI startup on Apple Silicon [#3146](https://github.com/TryQuiet/quiet/issues/3146)
-
-### Fixes
-
-* Handle AWS QSS endpoints in invite links [#3024](https://github.com/TryQuiet/quiet/issues/3024)
-* Fixes dialing on join when using AWS QSS [#3025](https://github.com/TryQuiet/quiet/issues/3025)
-* Fix delay between sign-in and historical log entry pull from QSS [#3127](https://github.com/TryQuiet/quiet/issues/3127)
 
 ## [6.3.0]
 
