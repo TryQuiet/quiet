@@ -7,7 +7,14 @@ export const pushNotificationsSlice = createSlice({
   initialState: { ...new PushNotificationsState() },
   name: StoreKeys.PushNotifications,
   reducers: {
-    sendDeviceTokenToBackend: (state, _action: PayloadAction<string>) => state,
+    sendDeviceTokenToBackend: (
+      state,
+      _action: PayloadAction<{
+        deviceToken: string
+        bundleId: string
+        platform: 'ios' | 'android'
+      }>
+    ) => state,
   },
 })
 

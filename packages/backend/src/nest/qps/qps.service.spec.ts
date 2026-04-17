@@ -53,6 +53,11 @@ describe('QPSService', () => {
 
   const TOKEN = 'fake-device-token-abc123'
   const TEAM_ID = 'test-team-id'
+  const DEVICE_TOKEN_PAYLOAD = {
+    deviceToken: TOKEN,
+    bundleId: 'com.quietmobile',
+    platform: 'ios' as const,
+  }
 
   const successResponse = {
     ts: DateTime.utc().toMillis(),
@@ -106,14 +111,14 @@ describe('QPSService', () => {
     it('sends immediately when ready', async () => {
       setReady()
 
-      const result = await qpsService.register(TOKEN)
+      const result = await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       expect(result?.payload).toEqual({ ucan: 'test-ucan' })
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
           status: CommunityOperationStatus.SENDING,
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
+          payload: { ...DEVICE_TOKEN_PAYLOAD, teamId: TEAM_ID },
         }),
         true
       )
@@ -122,7 +127,7 @@ describe('QPSService', () => {
     it('stores UCAN in notification tokens store after successful registration', async () => {
       setReady()
 
-      await qpsService.register(TOKEN)
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       expect(notificationTokensStore.addToken).toHaveBeenCalledWith('test-user-id', 'test-ucan')
     })
@@ -131,7 +136,7 @@ describe('QPSService', () => {
       setReady()
       notificationTokensStore.addToken.mockRejectedValueOnce(new Error('store not initialized'))
 
-      const result = await qpsService.register(TOKEN)
+      const result = await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       expect(result?.payload).toEqual({ ucan: 'test-ucan' })
       expect(notificationTokensStore.addToken).toHaveBeenCalledWith('test-user-id', 'test-ucan')
@@ -149,7 +154,7 @@ describe('QPSService', () => {
       )
       setReady()
 
-      const result = await disabled.register(TOKEN)
+      const result = await disabled.register(DEVICE_TOKEN_PAYLOAD)
 
       expect(result).toBeUndefined()
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
@@ -162,7 +167,7 @@ describe('QPSService', () => {
         roles: { amIMemberOfRole: () => true },
       }
 
-      const result = await qpsService.register(TOKEN)
+      const result = await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       expect(result).toBeUndefined()
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
@@ -172,7 +177,7 @@ describe('QPSService', () => {
       qssClient.connected = true
       sigChainService.activeChain = null
 
-      const result = await qpsService.register(TOKEN)
+      const result = await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       expect(result).toBeUndefined()
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
@@ -182,8 +187,8 @@ describe('QPSService', () => {
       qssClient.connected = false
       sigChainService.activeChain = null
 
-      await qpsService.register('old-token')
-      await qpsService.register(TOKEN)
+      await qpsService.register({ ...DEVICE_TOKEN_PAYLOAD, deviceToken: 'old-token' })
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       // Now become ready and flush
       setReady()
@@ -196,7 +201,7 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
+          payload: { ...DEVICE_TOKEN_PAYLOAD, teamId: TEAM_ID },
         }),
         true
       )
@@ -208,7 +213,7 @@ describe('QPSService', () => {
       // Cache token while not ready
       qssClient.connected = false
       sigChainService.activeChain = null
-      await qpsService.register(TOKEN)
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
 
       // Become ready and emit connected
@@ -220,7 +225,7 @@ describe('QPSService', () => {
       expect(qssClient.sendMessage).toHaveBeenCalledWith(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         expect.objectContaining({
-          payload: { deviceToken: TOKEN, bundleId: 'com.quietmobile', teamId: TEAM_ID },
+          payload: { ...DEVICE_TOKEN_PAYLOAD, teamId: TEAM_ID },
         }),
         true
       )
@@ -229,7 +234,7 @@ describe('QPSService', () => {
     it('does not flush when QSS connects but sigchain is not joined', async () => {
       qssClient.connected = false
       sigChainService.activeChain = null
-      await qpsService.register(TOKEN)
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       // QSS connects but sigchain still not joined
       qssClient.connected = true
@@ -245,7 +250,7 @@ describe('QPSService', () => {
       // Cache token: QSS connected but no sigchain
       qssClient.connected = true
       sigChainService.activeChain = null
-      await qpsService.register(TOKEN)
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
       expect(qssClient.sendMessage).not.toHaveBeenCalled()
 
       // QSS completes the join flow and the sigchain is now ready
@@ -259,7 +264,7 @@ describe('QPSService', () => {
     it('does not flush when QSS fully joins but QSS is not connected', async () => {
       qssClient.connected = false
       sigChainService.activeChain = null
-      await qpsService.register(TOKEN)
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       // Join completes but the transport is still disconnected
       sigChainService.activeChain = {
@@ -277,7 +282,7 @@ describe('QPSService', () => {
     it('does not send twice after flushing', async () => {
       qssClient.connected = false
       sigChainService.activeChain = null
-      await qpsService.register(TOKEN)
+      await qpsService.register(DEVICE_TOKEN_PAYLOAD)
 
       setReady()
       qssService.emitEvent(QSSEvents.QSS_FULLY_JOINED)
