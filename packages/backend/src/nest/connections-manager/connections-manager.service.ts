@@ -278,7 +278,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info('hibernate: waiting for in-flight wake to finish before hibernating')
       try {
         await this.wakeInFlight
-      } catch {
+      } catch (e) {
         this.logger.error('hibernate: in-flight wake failed', e)
       }
     }
@@ -336,7 +336,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.info('wake: waiting for in-flight hibernate to finish before waking')
       try {
         await this.hibernateInFlight
-      } catch {
+      } catch (e) {
         this.logger.error('wake: in-flight hibernate failed', e)
       }
     }
