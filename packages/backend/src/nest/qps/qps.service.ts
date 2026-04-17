@@ -19,14 +19,19 @@ import { NotificationTokensStore } from '../storage/notifications/notificationTo
 import { QSSService } from '../qss/qss.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 
-const BUNDLE_ID = 'com.quietmobile'
 const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
 const LEAVE_TOMBSTONE_ACK_TIMEOUT_MS = 5_000
+
+interface DeviceTokenPayload {
+  deviceToken: string
+  bundleId: string
+  platform: 'ios' | 'android'
+}
 
 @Injectable()
 export class QPSService implements OnModuleInit {
   private readonly logger = createLogger('qps:service')
-  private _pendingDeviceToken: string | undefined = undefined
+  private _pendingDeviceToken: DeviceTokenPayload | undefined = undefined
 
   constructor(
     @Inject(QPS_ALLOWED) private readonly qpsAllowed: boolean,
@@ -46,9 +51,9 @@ export class QPSService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.socketService.on(SocketActions.SEND_DEVICE_TOKEN, async (payload: { deviceToken: string }) => {
+    this.socketService.on(SocketActions.SEND_DEVICE_TOKEN, async (payload: DeviceTokenPayload) => {
       this.logger.info('Received device token from frontend')
-      await this.register(payload.deviceToken)
+      await this.register(payload)
     })
 
     this.qssService.on(QSSEvents.QSS_FULLY_JOINED, () => this._flushPendingToken())
@@ -59,10 +64,10 @@ export class QPSService implements OnModuleInit {
 
   /**
    * Registers the device token with QPS
-   * @param deviceToken
+   * @param payload
    * @returns
    */
-  public async register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
+  public async register(payload: DeviceTokenPayload): Promise<QPSRegisterResponse | undefined> {
     if (!this.enabled) {
       this.logger.warn('QPS not enabled, skipping registration')
       return undefined
@@ -70,11 +75,11 @@ export class QPSService implements OnModuleInit {
 
     if (!this.ready) {
       this.logger.info('QSS not connected or sigchain not joined, caching device token')
-      this._pendingDeviceToken = deviceToken
+      this._pendingDeviceToken = payload
       return undefined
     }
 
-    return this._register(deviceToken)
+    return this._register(payload)
   }
 
   public async tombstoneCurrentUserNotificationTokens(): Promise<boolean> {
@@ -277,7 +282,7 @@ export class QPSService implements OnModuleInit {
     }
   }
 
-  private async _register(deviceToken: string): Promise<QPSRegisterResponse | undefined> {
+  private async _register(payload: DeviceTokenPayload): Promise<QPSRegisterResponse | undefined> {
     this.logger.info('Registering device token')
     try {
       const response = await this.qssClient.sendMessage<QPSRegisterResponse>(
@@ -285,7 +290,12 @@ export class QPSService implements OnModuleInit {
         {
           ts: DateTime.utc().toMillis(),
           status: CommunityOperationStatus.SENDING,
-          payload: { deviceToken, bundleId: BUNDLE_ID, teamId: this.sigChainService.team.id },
+          payload: {
+            deviceToken: payload.deviceToken,
+            bundleId: payload.bundleId,
+            platform: payload.platform,
+            teamId: this.sigChainService.team.id,
+          },
         } satisfies QPSRegisterMessage,
         true
       )

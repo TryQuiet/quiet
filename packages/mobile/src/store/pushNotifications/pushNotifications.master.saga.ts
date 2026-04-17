@@ -1,6 +1,7 @@
 import { all, fork, takeEvery, call, put, select, take, cancelled, delay } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
 import { NativeModules, AppState, AppStateStatus, Platform } from 'react-native'
+import DeviceInfo from 'react-native-device-info'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
 import { pushNotificationsActions } from './pushNotifications.slice'
 import { pushNotificationsSelectors } from './pushNotifications.selectors'
@@ -76,7 +77,15 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
   logger.info('Waiting for websocket connection before sending FCM token')
   yield* call(waitForWebsocketConnectionSaga)
   logger.info('Sending FCM token to backend')
-  yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
+  const platform = Platform.OS === 'android' ? 'android' : 'ios'
+  const bundleId = DeviceInfo.getBundleId()
+  yield* put(
+    pushNotifications.actions.sendDeviceTokenToBackend({
+      deviceToken: token,
+      bundleId,
+      platform,
+    })
+  )
 }
 
 function* syncCurrentDeviceTokenSaga(): Generator {

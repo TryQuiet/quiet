@@ -677,9 +677,15 @@ export const getSocketFactory = async () => {
   factory.define<boolean>(SocketActions.TOGGLE_P2P, Object, () => true)
 
   // Push notification events
-  factory.define<{ deviceToken: string }>(SocketActions.SEND_DEVICE_TOKEN, Object, {
-    deviceToken: 'test-device-token',
-  })
+  factory.define<{ deviceToken: string; bundleId: string; platform: 'ios' | 'android' }>(
+    SocketActions.SEND_DEVICE_TOKEN,
+    Object,
+    {
+      deviceToken: 'test-device-token',
+      bundleId: 'com.quietmobile',
+      platform: 'ios',
+    }
+  )
 
   return factory
 }
