@@ -106,6 +106,7 @@ describe('AddMembersChannel', () => {
                     </p>
                     <div
                       class="MuiGrid-root css-vj1n65-MuiGrid-root"
+                      data-testid="general-add-member-name"
                       style="flex-direction: row; display: flex; align-items: center; justify-content: left; align-content: center; padding-left: 2px;"
                     >
                       <svg
