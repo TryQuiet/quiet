@@ -338,13 +338,13 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('Owner adds first user to private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openMenu(privateChannelName)
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannelName, [users.user1.username])
         })
 
         it('Owner verifies first user is no longer in autocomplete', async () => {
-          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openMenu(privateChannelName)
           await channelContextMenuOwner.openAddMembersModal()
           const membersLeftInAutocomplete = await channelContextMenuOwner.checkForMembersInAddMembersAutocomplete(
             privateChannelName,
@@ -441,7 +441,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('Owner adds first user to second private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openMenu(privateChannel2Name)
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannel2Name, [users.user1.username])
         })

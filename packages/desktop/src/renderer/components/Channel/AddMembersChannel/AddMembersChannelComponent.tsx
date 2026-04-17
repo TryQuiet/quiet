@@ -19,6 +19,7 @@ import { Box } from '../../ui'
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import classNames from 'classnames'
 import { createLogger } from '../../../logger'
+import LockIcon from '../../../static/images/components/lock'
 
 const logger = createLogger('AddMembersChannelComponent')
 
@@ -261,13 +262,32 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
     setAutoCompleteOptions(autoCompleteOptions)
   }
 
+  const ChannelNameComponent: React.FC<{ channelName: string }> = ({ channelName }) => {
+    return (
+      <Grid
+        style={{
+          flexDirection: 'row',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'left',
+          alignContent: 'center',
+          paddingLeft: '2px',
+        }}
+        data-testid={`${channelName}-add-member-name`}
+      >
+        <LockIcon fill='currentColor' style={{ fontWeight: 500, fontSize: 16 }} />
+        <span style={{ fontWeight: 500, fontSize: 16 }}>{channelName}</span>
+      </Grid>
+    )
+  }
+
   return (
     <Modal open={open} handleClose={handleClose} fullPage={false}>
       <StyledGrid container justifyContent='center'>
         <Grid container item className={classes.descContainer} xs={12} direction='row' justifyContent='center'>
-          <Typography align={'center'}>
-            Add members to <span style={{ fontWeight: 500 }}>#{channelName}</span>:
-          </Typography>
+          <Typography align={'center'}>Add members to</Typography>
+          <ChannelNameComponent channelName={channelName} />
+          <Typography align={'center'}>:</Typography>
         </Grid>
         <StyledGrid container item direction='row' justifyContent='center' paddingTop='30px'>
           <ThemeProvider theme={customTheme(theme)}>

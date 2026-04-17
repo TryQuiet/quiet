@@ -11,9 +11,10 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
+  UsersList,
 } from '../selectors'
 import { createArbitraryFile, promiseWithRetries } from '../utils'
-import { MessageIds, UserTestData } from '../types'
+import { MessageIds, UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { FileAttachmentType, SettingsModalTabName } from '../enums'
 import {
@@ -244,6 +245,18 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
+        it('User sees owner in user list', async () => {
+          const userList = new UsersList(users.user1.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+        })
+
+        it('Owner sees user in user list', async () => {
+          const userList = new UsersList(users.owner.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+        })
+
         it("Owner's message is visible in general channel", async () => {
           await generalChannelUser1.getUserMessages(users.owner.username)
           await generalChannelUser1.getMessageIdsByText(users.owner.messages[0], users.owner.username)
@@ -293,7 +306,7 @@ describe('Multiple Clients (Private Channels)', () => {
       describe(`Owner Adds User To Private Channel`, () => {
         it('Owner adds first user to private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openMenu(privateChannelName)
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannelName, [users.user1.username])
         })
@@ -376,7 +389,7 @@ describe('Multiple Clients (Private Channels)', () => {
 
         it('Owner adds first user to second private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openMenu(privateChannel2Name)
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannel2Name, [users.user1.username])
         })
@@ -482,6 +495,30 @@ describe('Multiple Clients (Private Channels)', () => {
             await app.open()
           }
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
+        })
+
+        it('User sees second user in user list', async () => {
+          const userList = new UsersList(users.user1.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        })
+
+        it('Owner sees second user in user list', async () => {
+          const userList = new UsersList(users.owner.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        })
+
+        it('Second user sees first user in user list', async () => {
+          const userList = new UsersList(users.user2.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+        })
+
+        it('Second user sees owner in user list', async () => {
+          const userList = new UsersList(users.user2.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
         })
 
         it('Second user can see messages from before they joined', async () => {

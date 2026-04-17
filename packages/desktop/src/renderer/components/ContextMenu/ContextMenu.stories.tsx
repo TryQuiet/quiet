@@ -4,6 +4,7 @@ import { withTheme } from '../../storybook/decorators'
 import { ContextMenu, ContextMenuItemList } from './ContextMenu.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { createLogger } from '../../logger'
+import PublicChannelIcon from '../../static/images/components/public-channel'
 
 const logger = createLogger('contextMenu:stories')
 
@@ -24,6 +25,7 @@ const channel_items: ContextMenuItemProps[] = [
 
 const args: ContextMenuProps = {
   title: 'Rockets',
+  titleIcon: <PublicChannelIcon />,
   children: <ContextMenuItemList items={channel_items} />,
   visible: true,
   handleClose: () => {

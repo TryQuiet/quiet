@@ -378,7 +378,7 @@ describe('Multiple Clients', () => {
     describe('Channel Deletion', () => {
       it('Owner deletes second channel', async () => {
         channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-        await channelContextMenuOwner.openMenu()
+        await channelContextMenuOwner.openMenu(generalChannelName)
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
         const channels = await sidebarOwner.getChannelList()
@@ -454,7 +454,7 @@ describe('Multiple Clients', () => {
           expect(await generalChannelOwner.isReady()).toBeTruthy()
           expect(await generalChannelOwner.isOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openMenu(generalChannelName)
           await channelContextMenuOwner.openDeletionChannelModal()
           await channelContextMenuOwner.deleteChannel()
         })

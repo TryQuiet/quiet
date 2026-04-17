@@ -628,7 +628,7 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
-  async openMenu() {
+  async openMenu(channelName: string) {
     const menu = this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
       15_000,
@@ -642,6 +642,18 @@ export class ChannelContextMenu {
       500
     )
     await menu.click()
+    const channelTypeIcon = this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-settings-channel-icon"]`)),
+      15_000,
+      `Channel context menu lock/hash icon couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(channelTypeIcon),
+      15_000,
+      `Channel context menu lock/hash icon was not visibile within timeout`,
+      500
+    )
   }
 
   async openDeletionChannelModal() {

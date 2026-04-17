@@ -12,6 +12,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { exportChats } from '../../../../utils/functions/exportMessages'
+import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 
 export const ChannelContextMenu: FC = () => {
   const [showDebug, setShowDebug] = React.useState(false)
@@ -21,7 +22,7 @@ export const ChannelContextMenu: FC = () => {
 
   let title = ''
   if (channel) {
-    title = `#${channel.name} settings`
+    title = `${channel.name}`
   }
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
@@ -68,7 +69,18 @@ export const ChannelContextMenu: FC = () => {
       <DebugChannelComponent />
     </ContextMenu>
   ) : (
-    <ContextMenu title={title} {...channelContextMenu}>
+    <ContextMenu
+      title={title}
+      titleIcon={
+        <ChannelTypeIcon
+          isPublic={channel?.public ?? true}
+          fill={'currentColor'}
+          style={{ fontSize: 16, fontWeight: 'medium' }}
+          data-testid={`${channel?.name}-settings-channel-icon`}
+        />
+      }
+      {...channelContextMenu}
+    >
       <ContextMenuItemList items={items} />
     </ContextMenu>
   )
