@@ -26,7 +26,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/mobile
 

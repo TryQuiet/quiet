@@ -51,7 +51,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/desktop
 
@@ -110,7 +110,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/desktop
 
@@ -156,7 +156,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/desktop
 
@@ -238,7 +238,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/desktop
 
@@ -318,7 +318,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/desktop
 
@@ -399,7 +399,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        uses: Saionaro/extract-package-version@v1.4.0
         with:
           path: packages/desktop
 
@@ -409,7 +409,7 @@ jobs:
 
       - name: "Add Windows certificate"
         id: write_file
-        uses: TryQuiet/base64-to-file@64eeb40ad3514f57de3a7dee92aee10fd42452c1 # main
+        uses: timheur/base64-to-file@1.2.4
         with:
           fileName: 'win-certificate.pfx'
           encodedString: ${{ secrets.WIN_CSC_LINK }}
