@@ -286,6 +286,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
     // since on electron 32+ .path is undefined on File, we need to set the path property before sneding the profile pic to the backend
+    // @ts-ignore
     photo.path = webUtils.getPathForFile(photo)
     dispatch(users.actions.saveUserProfile({ photo }))
   }
