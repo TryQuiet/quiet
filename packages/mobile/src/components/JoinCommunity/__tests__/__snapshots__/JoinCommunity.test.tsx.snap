@@ -125,6 +125,7 @@ exports[`JoinCommunity component renders component 1`] = `
           onChangeText={[Function]}
           onContentSizeChange={[Function]}
           placeholder="Invite link"
+          placeholderTextColor="#999999"
           style={
             [
               {

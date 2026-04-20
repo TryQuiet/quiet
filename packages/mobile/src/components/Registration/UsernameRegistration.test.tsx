@@ -141,6 +141,7 @@ describe('UsernameRegistration', () => {
                 onChangeText={[Function]}
                 onContentSizeChange={[Function]}
                 placeholder="Enter a username"
+                placeholderTextColor="#999999"
                 style={
                   [
                     {

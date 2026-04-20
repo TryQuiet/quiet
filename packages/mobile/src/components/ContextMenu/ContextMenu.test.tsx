@@ -193,7 +193,10 @@ describe('ContextMenu component', () => {
             <View
               style={
                 {
+                  "alignItems": "center",
+                  "display": "flex",
                   "flex": 5,
+                  "flexDirection": "row",
                   "justifyContent": "center",
                 }
               }
@@ -863,7 +866,10 @@ describe('ContextMenu component', () => {
             <View
               style={
                 {
+                  "alignItems": "center",
+                  "display": "flex",
                   "flex": 5,
+                  "flexDirection": "row",
                   "justifyContent": "center",
                 }
               }

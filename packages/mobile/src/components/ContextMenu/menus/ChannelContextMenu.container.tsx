@@ -12,6 +12,8 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+import LockIcon from '../../../assets/icons/svg/lock'
+import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
 
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -71,5 +73,12 @@ export const ChannelContextMenu: FC = () => {
     channelContextMenu.handleClose()
   }, [screen])
 
-  return <ContextMenu title={`#${title} settings`} items={items} {...channelContextMenu} />
+  return (
+    <ContextMenu
+      title={title}
+      titleIcon={channel?.public ?? true ? <PublicChannelIcon /> : <LockIcon fill={true} />}
+      items={items}
+      {...channelContextMenu}
+    />
+  )
 }

@@ -125,6 +125,7 @@ exports[`Spinner component renders component 1`] = `
           onChangeText={[Function]}
           onContentSizeChange={[Function]}
           placeholder="Community name"
+          placeholderTextColor="#999999"
           style={
             [
               {

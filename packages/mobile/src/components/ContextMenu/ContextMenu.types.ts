@@ -4,6 +4,7 @@ export interface ContextMenuProps {
   visible: boolean
   handleClose: () => void
   title: string
+  titleIcon?: React.ReactElement
   items: ContextMenuItemProps[]
   hint?: string
   link?: string

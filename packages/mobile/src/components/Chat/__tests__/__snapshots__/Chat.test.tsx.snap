@@ -3023,6 +3023,7 @@ exports[`Chat component renders component 1`] = `
                     onContentSizeChange={[Function]}
                     onEndEditing={[Function]}
                     placeholder="Message #general"
+                    placeholderTextColor="#999999"
                     style={
                       [
                         {

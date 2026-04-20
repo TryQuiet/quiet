@@ -66,6 +66,7 @@ describe('MessageInput component', () => {
             onChangeText={[Function]}
             onContentSizeChange={[Function]}
             placeholder="Message #general as @holmes"
+            placeholderTextColor="#999999"
             style={
               [
                 {

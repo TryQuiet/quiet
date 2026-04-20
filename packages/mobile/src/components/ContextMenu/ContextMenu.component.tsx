@@ -12,6 +12,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   visible,
   handleClose,
   title,
+  titleIcon,
   items,
   hint,
   link,
@@ -114,7 +115,16 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   />
                 </View>
               </TouchableOpacity>
-              <View style={{ flex: 5, justifyContent: 'center' }}>
+              <View
+                style={{
+                  flex: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  display: 'flex',
+                  flexDirection: 'row',
+                }}
+              >
+                {titleIcon && titleIcon}
                 <Typography fontSize={16} fontWeight={'medium'} style={{ lineHeight: 26, alignSelf: 'center' }}>
                   {title}
                 </Typography>
