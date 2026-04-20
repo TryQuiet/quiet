@@ -1,7 +1,7 @@
 GIT
-  remote: https://github.com/dbor-saxo/Xcodeproj
-  revision: c0abf4636e4b99162945670631b05967eb9f479f
-  ref: c0abf4636e4b99162945670631b05967eb9f479f
+  remote: https://github.com/CocoaPods/Xcodeproj
+  revision: 2cf6a2263d2b164b87c1fdaed340667046b4e44d
+  ref: 2cf6a2263d2b164b87c1fdaed340667046b4e44d
   specs:
     xcodeproj (1.27.0)
       CFPropertyList (>= 2.3.3, < 4.0)
