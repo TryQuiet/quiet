@@ -76,7 +76,7 @@ export const ChannelContextMenu: FC = () => {
           isPublic={channel?.public ?? true}
           fill={'currentColor'}
           style={{ fontSize: 16, fontWeight: 'medium' }}
-          data-testid={`${channel?.name}-settings-channel-icon`}
+          data-testid={`contextMenu-channel-settings-type-icon`}
         />
       }
       {...channelContextMenu}

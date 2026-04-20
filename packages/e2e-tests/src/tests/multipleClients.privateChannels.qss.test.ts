@@ -338,19 +338,25 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('Owner adds first user to private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu(privateChannelName)
+          const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannelName, [users.user1.username])
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
         })
 
         it('Owner verifies first user is no longer in autocomplete', async () => {
-          await channelContextMenuOwner.openMenu(privateChannelName)
+          const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openAddMembersModal()
           const membersLeftInAutocomplete = await channelContextMenuOwner.checkForMembersInAddMembersAutocomplete(
             privateChannelName,
             [users.user1.username, users.owner.username]
           )
           expect(membersLeftInAutocomplete.length).toBe(0)
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
         })
       })
 
@@ -441,9 +447,12 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('Owner adds first user to second private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu(privateChannel2Name)
+          const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannel2Name, [users.user1.username])
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
         })
 
         it(`First user sees second private channel in sidebar`, async () => {

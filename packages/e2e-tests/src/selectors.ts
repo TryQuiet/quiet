@@ -1,4 +1,4 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
+import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
@@ -628,32 +628,64 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
-  async openMenu(channelName: string) {
-    const menu = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
-      15_000,
-      `Channel context menu couldn't be located within timeout`,
-      500
-    )
-    await this.driver.wait(
-      until.elementIsVisible(menu),
-      15_000,
-      `Channel context menu was not visibile within timeout`,
-      500
-    )
-    await menu.click()
-    const channelTypeIcon = this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-settings-channel-icon"]`)),
-      15_000,
-      `Channel context menu lock/hash icon couldn't be located within timeout`,
-      500
-    )
-    await this.driver.wait(
-      until.elementIsVisible(channelTypeIcon),
-      15_000,
-      `Channel context menu lock/hash icon was not visibile within timeout`,
-      500
-    )
+  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+    let menu: WebElement
+    try {
+      menu = await this.driver.wait(
+        until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
+        15_000,
+        `Channel context menu couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(menu),
+        15_000,
+        `Channel context menu was not visibile within timeout`,
+        500
+      )
+    } catch (e) {
+      logger.error('Error while checking for channel context menu button', e)
+      return {
+        menuButton: false,
+        menuOpened: false,
+        iconVisible: false,
+      }
+    }
+    try {
+      await menu.click()
+    } catch (e) {
+      return {
+        menuButton: true,
+        menuOpened: false,
+        iconVisible: false,
+      }
+    }
+    try {
+      const channelTypeIcon = this.driver.wait(
+        until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
+        15_000,
+        `Channel context menu lock/hash icon couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(channelTypeIcon),
+        15_000,
+        `Channel context menu lock/hash icon was not visibile within timeout`,
+        500
+      )
+      return {
+        menuButton: true,
+        menuOpened: true,
+        iconVisible: true,
+      }
+    } catch (e) {
+      logger.error('Error while checking for channel icon on context menu', e)
+      return {
+        menuButton: true,
+        menuOpened: true,
+        iconVisible: false,
+      }
+    }
   }
 
   async openDeletionChannelModal() {

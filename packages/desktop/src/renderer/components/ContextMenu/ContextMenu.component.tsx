@@ -61,9 +61,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
               flex: 5,
               gap: '1px',
             }}
+            data-testid={'contextMenu-title-wrapper'}
           >
             {titleIcon && titleIcon}
-            <Typography fontSize={16} fontWeight={'medium'}>
+            <Typography fontSize={16} fontWeight={'medium'} data-testid={'contextMenu-title'}>
               {title}
             </Typography>
           </Grid>
