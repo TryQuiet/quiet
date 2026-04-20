@@ -5,11 +5,9 @@ import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import { createSvgIcon } from '@mui/material'
-import inlineSvg from 'react-inlinesvg'
 
 import { createLogger } from '../../../logger'
-import lockIconSvg from '../../../static/images/lock.svg'
+import ChannelTypeIcon from './ChannelTypeIcon'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -169,8 +167,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   })
 
   const channelNameTruncated = channelName?.substring(0, 20)
-  const headerTitle = isPublic ? `#${channelNameTruncated}` : channelNameTruncated
-  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
 
   return (
     <Root className={classes.wrapper}>
@@ -179,19 +175,17 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           <Grid item container alignItems='center'>
             <Grid item>
               <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
-                {!isPublic ? (
-                  <LockIcon
-                    style={{ ...theme.typography.subtitle1 }}
-                    className={classNames({
-                      [classes.title]: true,
-                      [classes.bold]: true,
-                      [classes.lock]: true,
-                    })}
-                    data-testid={'channelTitle-private-lock'}
-                  />
-                ) : (
-                  <></>
-                )}
+                <ChannelTypeIcon
+                  isPublic={isPublic}
+                  fill={'currentColor'}
+                  style={{ ...theme.typography.subtitle1 }}
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.bold]: true,
+                    [classes.lock]: true,
+                  })}
+                  data-testid={`channelTitle-icon-${isPublic ? 'public' : 'private'}`}
+                />
                 <Typography
                   noWrap
                   style={{ maxWidth: wrapperWidth }}
@@ -202,7 +196,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   })}
                   data-testid={'channelTitle'}
                 >
-                  {headerTitle}
+                  {channelNameTruncated}
                 </Typography>
               </Grid>
             </Grid>

@@ -1,4 +1,4 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
+import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
@@ -628,20 +628,64 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
-  async openMenu() {
-    const menu = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
-      15_000,
-      `Channel context menu couldn't be located within timeout`,
-      500
-    )
-    await this.driver.wait(
-      until.elementIsVisible(menu),
-      15_000,
-      `Channel context menu was not visibile within timeout`,
-      500
-    )
-    await menu.click()
+  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+    let menu: WebElement
+    try {
+      menu = await this.driver.wait(
+        until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
+        15_000,
+        `Channel context menu couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(menu),
+        15_000,
+        `Channel context menu was not visibile within timeout`,
+        500
+      )
+    } catch (e) {
+      logger.error('Error while checking for channel context menu button', e)
+      return {
+        menuButton: false,
+        menuOpened: false,
+        iconVisible: false,
+      }
+    }
+    try {
+      await menu.click()
+    } catch (e) {
+      return {
+        menuButton: true,
+        menuOpened: false,
+        iconVisible: false,
+      }
+    }
+    try {
+      const channelTypeIcon = this.driver.wait(
+        until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
+        15_000,
+        `Channel context menu lock/hash icon couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(channelTypeIcon),
+        15_000,
+        `Channel context menu lock/hash icon was not visibile within timeout`,
+        500
+      )
+      return {
+        menuButton: true,
+        menuOpened: true,
+        iconVisible: true,
+      }
+    } catch (e) {
+      logger.error('Error while checking for channel icon on context menu', e)
+      return {
+        menuButton: true,
+        menuOpened: true,
+        iconVisible: false,
+      }
+    }
   }
 
   async openDeletionChannelModal() {
@@ -1327,9 +1371,18 @@ export class Channel {
 
   get lock() {
     return this.driver.wait(
-      until.elementLocated(By.xpath(`//svg[@data-testid='channelTitle-private-lock']`)),
+      until.elementLocated(By.xpath(`//*[@data-testid='channelTitle-icon-private']`)),
       10_000,
-      `Channel title element for ${this.name} couldn't be found within timeout`,
+      `Channel title private icon element for ${this.name} couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get hash() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='channelTitle-icon-public']`)),
+      10_000,
+      `Channel title public icon element for ${this.name} couldn't be found within timeout`,
       500
     )
   }
@@ -1353,30 +1406,21 @@ export class Channel {
     return true
   }
 
-  async isPublicOpen(timeout = 15_000): Promise<boolean> {
+  async isOpen(isPublic: boolean = true, timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
       timeout,
       `Channel title element for ${this.name} couldn't be seen within timeout`,
       500
     )
-    return (await titleElement.getText()) === `#${this.name}`
-  }
 
-  async isPrivateOpen(timeout = 15_000): Promise<boolean> {
-    const titleElement = await this.driver.wait(
-      until.elementIsVisible(await this.title),
-      timeout,
-      `Channel title element for ${this.name} couldn't be seen within timeout`,
-      500
-    )
     await this.driver.wait(
-      until.elementIsVisible(await this.lock),
+      until.elementIsVisible(await (isPublic ? this.hash : this.lock)),
       timeout,
-      `Channel title private lock element for ${this.name} couldn't be seen within timeout`,
+      `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
       500
     )
-    return (await titleElement.getText()) === `#${this.name}`
+    return (await titleElement.getText()) === this.name
   }
 
   async isMessageInputReady(): Promise<boolean> {
@@ -2052,9 +2096,13 @@ export class Sidebar {
     this.driver = driver
   }
 
+  async getChannelIcon(channelName: string, isPublic = true): Promise<WebElement> {
+    return isPublic ? this.getChannelHashIcon(channelName) : this.getChannelLockIcon(channelName)
+  }
+
   async getChannelLockIcon(channelName: string): Promise<WebElement> {
     const channelLockIcon = await this.driver.wait(
-      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-private-lock"]`)),
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-private"]`)),
       10_000,
       `Channel list private lock icon for ${channelName} wasn't located within timeout`,
       500
@@ -2068,6 +2116,24 @@ export class Sidebar {
     )
 
     return channelLockIcon
+  }
+
+  async getChannelHashIcon(channelName: string): Promise<WebElement> {
+    const channelHashIcon = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-public"]`)),
+      10_000,
+      `Channel list public hash icon for ${channelName} wasn't located within timeout`,
+      500
+    )
+
+    await this.driver.wait(
+      until.elementIsVisible(channelHashIcon),
+      10_000,
+      `Channel list public hash icon for ${channelName} wasn't visible within timeout`,
+      500
+    )
+
+    return channelHashIcon
   }
 
   /**
@@ -2130,11 +2196,7 @@ export class Sidebar {
     const elements = await this.getChannelList()
     return Promise.all(
       elements.map(async element => {
-        const fullName = await element.getText()
-        if (fullName.startsWith('# ')) {
-          return fullName.split(' ')[1]
-        }
-        return fullName
+        return await element.getText()
       })
     )
   }
@@ -2181,7 +2243,7 @@ export class Sidebar {
     )
     await channelLink.click()
     const channel = new Channel(this.driver, name)
-    isPublic ? await channel.isPublicOpen() : await channel.isPrivateOpen()
+    await channel.isOpen(isPublic)
     return channel
   }
 

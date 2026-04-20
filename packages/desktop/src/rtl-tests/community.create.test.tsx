@@ -125,7 +125,7 @@ describe('User', () => {
     expect(createCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
-    const channel = await screen.findByText('#general')
+    const channel = await screen.findByText('general')
     expect(channel).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`

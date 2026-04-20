@@ -214,11 +214,52 @@ describe('Channels panel', () => {
                           <div
                             class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="general-channel-link-icon-public"
+                              fill="currentColor"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            >
+                              <svg
+                                fill="none"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                width="24"
+                              >
+                                <path
+                                  d="M15.7318 4.875L12.8818 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M10.5355 4.875L7.68555 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M6.8252 8.58594H17.7502"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M5.875 15.4141H16.8"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                              </svg>
+                            </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="general-channel-link-text"
                             >
-                              # general
+                              general
                             </p>
                           </div>
                         </div>
@@ -246,11 +287,52 @@ describe('Channels panel', () => {
                           <div
                             class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="allergies-channel-link-icon-public"
+                              fill="currentColor"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            >
+                              <svg
+                                fill="none"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                width="24"
+                              >
+                                <path
+                                  d="M15.7318 4.875L12.8818 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M10.5355 4.875L7.68555 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M6.8252 8.58594H17.7502"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M5.875 15.4141H16.8"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                              </svg>
+                            </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="allergies-channel-link-text"
                             >
-                              # allergies
+                              allergies
                             </p>
                           </div>
                         </div>
@@ -278,11 +360,52 @@ describe('Channels panel', () => {
                           <div
                             class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="antiques-channel-link-icon-public"
+                              fill="currentColor"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            >
+                              <svg
+                                fill="none"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                width="24"
+                              >
+                                <path
+                                  d="M15.7318 4.875L12.8818 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M10.5355 4.875L7.68555 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M6.8252 8.58594H17.7502"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M5.875 15.4141H16.8"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                              </svg>
+                            </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="antiques-channel-link-text"
                             >
-                              # antiques
+                              antiques
                             </p>
                           </div>
                         </div>
@@ -310,11 +433,52 @@ describe('Channels panel', () => {
                           <div
                             class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="croatia-channel-link-icon-public"
+                              fill="currentColor"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            >
+                              <svg
+                                fill="none"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                width="24"
+                              >
+                                <path
+                                  d="M15.7318 4.875L12.8818 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M10.5355 4.875L7.68555 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M6.8252 8.58594H17.7502"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M5.875 15.4141H16.8"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                              </svg>
+                            </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="croatia-channel-link-text"
                             >
-                              # croatia
+                              croatia
                             </p>
                           </div>
                         </div>
@@ -345,11 +509,41 @@ describe('Channels panel', () => {
                             <svg
                               aria-hidden="true"
                               class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                              data-testid="pets-channel-link-private-lock"
+                              data-testid="pets-channel-link-icon-private"
+                              fill="currentColor"
                               focusable="false"
                               style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
                               viewBox="0 0 24 24"
-                            />
+                            >
+                              <svg
+                                fill="currentColor"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                width="24"
+                              >
+                                <mask
+                                  fill="#fff"
+                                  id="a"
+                                >
+                                  <path
+                                    d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                                  />
+                                </mask>
+                                <path
+                                  d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                                  mask="url(#a)"
+                                  stroke="currentColor"
+                                  stroke-width="4"
+                                />
+                                <path
+                                  clip-rule="evenodd"
+                                  d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                                  fill="currentColor"
+                                  fill-rule="evenodd"
+                                  stroke-width="4"
+                                />
+                              </svg>
+                            </svg>
                             <p
                               class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="pets-channel-link-text"
@@ -382,11 +576,52 @@ describe('Channels panel', () => {
                           <div
                             class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                           >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                              data-testid="sailing-channel-link-icon-public"
+                              fill="currentColor"
+                              focusable="false"
+                              style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                              viewBox="0 0 24 24"
+                            >
+                              <svg
+                                fill="none"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                width="24"
+                              >
+                                <path
+                                  d="M15.7318 4.875L12.8818 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M10.5355 4.875L7.68555 19.125"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M6.8252 8.58594H17.7502"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                                <path
+                                  d="M5.875 15.4141H16.8"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-width="2"
+                                />
+                              </svg>
+                            </svg>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                               data-testid="sailing-channel-link-text"
                             >
-                              # sailing
+                              sailing
                             </p>
                           </div>
                         </div>
@@ -616,11 +851,52 @@ describe('Channels panel', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="general-channel-link-icon-public"
+                            fill="currentColor"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          >
+                            <svg
+                              fill="none"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              width="24"
+                            >
+                              <path
+                                d="M15.7318 4.875L12.8818 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M10.5355 4.875L7.68555 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M6.8252 8.58594H17.7502"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M5.875 15.4141H16.8"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                            </svg>
+                          </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="general-channel-link-text"
                           >
-                            # general
+                            general
                           </p>
                         </div>
                       </div>
@@ -648,11 +924,52 @@ describe('Channels panel', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="allergies-channel-link-icon-public"
+                            fill="currentColor"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          >
+                            <svg
+                              fill="none"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              width="24"
+                            >
+                              <path
+                                d="M15.7318 4.875L12.8818 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M10.5355 4.875L7.68555 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M6.8252 8.58594H17.7502"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M5.875 15.4141H16.8"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                            </svg>
+                          </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="allergies-channel-link-text"
                           >
-                            # allergies
+                            allergies
                           </p>
                         </div>
                       </div>
@@ -680,11 +997,52 @@ describe('Channels panel', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="antiques-channel-link-icon-public"
+                            fill="currentColor"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          >
+                            <svg
+                              fill="none"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              width="24"
+                            >
+                              <path
+                                d="M15.7318 4.875L12.8818 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M10.5355 4.875L7.68555 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M6.8252 8.58594H17.7502"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M5.875 15.4141H16.8"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                            </svg>
+                          </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="antiques-channel-link-text"
                           >
-                            # antiques
+                            antiques
                           </p>
                         </div>
                       </div>
@@ -712,11 +1070,52 @@ describe('Channels panel', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="croatia-channel-link-icon-public"
+                            fill="currentColor"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          >
+                            <svg
+                              fill="none"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              width="24"
+                            >
+                              <path
+                                d="M15.7318 4.875L12.8818 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M10.5355 4.875L7.68555 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M6.8252 8.58594H17.7502"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M5.875 15.4141H16.8"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                            </svg>
+                          </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="croatia-channel-link-text"
                           >
-                            # croatia
+                            croatia
                           </p>
                         </div>
                       </div>
@@ -747,11 +1146,41 @@ describe('Channels panel', () => {
                           <svg
                             aria-hidden="true"
                             class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
-                            data-testid="pets-channel-link-private-lock"
+                            data-testid="pets-channel-link-icon-private"
+                            fill="currentColor"
                             focusable="false"
                             style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
                             viewBox="0 0 24 24"
-                          />
+                          >
+                            <svg
+                              fill="currentColor"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              width="24"
+                            >
+                              <mask
+                                fill="#fff"
+                                id="a"
+                              >
+                                <path
+                                  d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                                />
+                              </mask>
+                              <path
+                                d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                                mask="url(#a)"
+                                stroke="currentColor"
+                                stroke-width="4"
+                              />
+                              <path
+                                clip-rule="evenodd"
+                                d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                                fill="currentColor"
+                                fill-rule="evenodd"
+                                stroke-width="4"
+                              />
+                            </svg>
+                          </svg>
                           <p
                             class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="pets-channel-link-text"
@@ -784,11 +1213,52 @@ describe('Channels panel', () => {
                         <div
                           class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                         >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                            data-testid="sailing-channel-link-icon-public"
+                            fill="currentColor"
+                            focusable="false"
+                            style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                            viewBox="0 0 24 24"
+                          >
+                            <svg
+                              fill="none"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              width="24"
+                            >
+                              <path
+                                d="M15.7318 4.875L12.8818 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M10.5355 4.875L7.68555 19.125"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M6.8252 8.58594H17.7502"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                              <path
+                                d="M5.875 15.4141H16.8"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                              />
+                            </svg>
+                          </svg>
                           <p
-                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle ChannelsListItemtitlePublic css-16d47hw-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                             data-testid="sailing-channel-link-text"
                           >
-                            # sailing
+                            sailing
                           </p>
                         </div>
                       </div>

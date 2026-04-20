@@ -102,13 +102,60 @@ describe('AddMembersChannel', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
                     >
-                      Add members to 
-                      <span
-                        style="font-weight: 500;"
+                      Add members to
+                    </p>
+                    <div
+                      class="MuiGrid-root css-vj1n65-MuiGrid-root"
+                      data-testid="general-add-member-name"
+                      style="flex-direction: row; display: flex; align-items: center; justify-content: left; align-content: center; padding-left: 2px;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="LockIcon"
+                        fill="currentColor"
+                        focusable="false"
+                        style="font-weight: 500; font-size: 16px;"
+                        viewBox="0 0 24 24"
                       >
-                        #
+                        <svg
+                          fill="currentColor"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          width="24"
+                        >
+                          <mask
+                            fill="#fff"
+                            id="a"
+                          >
+                            <path
+                              d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                            />
+                          </mask>
+                          <path
+                            d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                            mask="url(#a)"
+                            stroke="currentColor"
+                            stroke-width="4"
+                          />
+                          <path
+                            clip-rule="evenodd"
+                            d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                            fill="currentColor"
+                            fill-rule="evenodd"
+                            stroke-width="4"
+                          />
+                        </svg>
+                      </svg>
+                      <span
+                        style="font-weight: 500; font-size: 16px;"
+                      >
                         general
                       </span>
+                    </div>
+                    <p
+                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
+                    >
                       :
                     </p>
                   </div>

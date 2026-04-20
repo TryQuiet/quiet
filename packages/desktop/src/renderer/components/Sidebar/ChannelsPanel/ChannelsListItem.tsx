@@ -1,11 +1,10 @@
 import React, { useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, Grid, ListItemButton, useTheme, createSvgIcon } from '@mui/material'
+import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/types'
-import inlineSvg from 'react-inlinesvg'
-import lockIconSvg from '../../../static/images/lock.svg'
+import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -122,8 +121,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
 }) => {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
-  const headerTitle = channel.public ? `# ${channel.name}` : channel.name
-  const LockIcon = createSvgIcon(inlineSvg({ src: lockIconSvg }) as React.ReactElement, 'Lock')
+  const isPublic = channel.public ?? true
 
   return (
     <StyledListItemButton
@@ -142,26 +140,23 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         primary={
           <Grid container alignItems='center'>
             <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
-              {!channel.public ? (
-                <LockIcon
-                  style={{ ...theme.typography.subtitle1 }}
-                  className={classNames(classes.lock, {
-                    [classes.lockNewMessages]: unread,
-                  })}
-                  data-testid={`${channel.name}-channel-link-private-lock`}
-                />
-              ) : (
-                <></>
-              )}
+              <ChannelTypeIcon
+                isPublic={isPublic}
+                fill={'currentColor'}
+                style={{ ...theme.typography.subtitle1 }}
+                className={classNames(classes.lock, {
+                  [classes.lockNewMessages]: unread,
+                })}
+                data-testid={`${channel.name}-channel-link-icon-${isPublic ? 'public' : 'private'}`}
+              />
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
                   [classes.newMessages]: unread,
-                  [classes.titlePublic]: channel.public,
                 })}
                 data-testid={`${channel.name}-channel-link-text`}
               >
-                {headerTitle}
+                {channel.name}
               </Typography>
             </Grid>
           </Grid>

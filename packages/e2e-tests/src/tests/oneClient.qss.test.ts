@@ -301,7 +301,7 @@ describe('One Client (QSS)', () => {
         generalChannel = new Channel(app.driver, generalChannelName)
         expect(await generalChannel.isReady()).toBeTruthy()
         const text = await generalChannel.element.getText()
-        expect(text).toEqual(`# ${generalChannelName}`)
+        expect(text).toEqual(generalChannelName)
       })
     })
   })

@@ -11,9 +11,10 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
+  UsersList,
 } from '../selectors'
 import { createArbitraryFile, promiseWithRetries } from '../utils'
-import { MessageIds, UserTestData } from '../types'
+import { MessageIds, UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { FileAttachmentType, SettingsModalTabName } from '../enums'
 import {
@@ -128,10 +129,12 @@ describe('Multiple Clients (Private Channels)', () => {
       it('Owner registers successfully and sees general channel', async () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
-        expect(await generalChannelOwner.isPublicOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.getChannelIcon(generalChannelName, true)
 
         const generalChannelText = await generalChannelOwner.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
     })
 
@@ -151,15 +154,14 @@ describe('Multiple Clients (Private Channels)', () => {
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          sidebarOwner = new Sidebar(users.owner.app.driver)
           await sidebarOwner.addNewChannel(privateChannelName, false)
-          await sidebarOwner.switchChannel(privateChannelName)
+          await sidebarOwner.switchChannel(privateChannelName, false)
         })
 
         it(`Private channel is in owner's sidebar`, async () => {
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannelName)
-          await sidebarOwner.getChannelLockIcon(privateChannelName)
+          await sidebarOwner.getChannelIcon(privateChannelName, false)
         })
 
         it('Owner sends message in private channel', async () => {
@@ -227,8 +229,10 @@ describe('Multiple Clients (Private Channels)', () => {
           const loadNewUser = async () => {
             generalChannelUser1 = new Channel(app.driver, generalChannelName)
             expect(await generalChannelUser1.isReady()).toBeTruthy()
-            expect(await generalChannelUser1.isPublicOpen()).toBeTruthy()
+            expect(await generalChannelUser1.isOpen()).toBeTruthy()
             expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
+            sidebarUser1 = new Sidebar(users.user1.app.driver)
+            await sidebarUser1.getChannelIcon(generalChannelName, true)
             logger.timeEnd(`[${app.name}] '${users.user1.username}' joining community time`)
           }
 
@@ -239,6 +243,18 @@ describe('Multiple Clients (Private Channels)', () => {
             await app.open()
           }
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
+        })
+
+        it('User sees owner in user list', async () => {
+          const userList = new UsersList(users.user1.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+        })
+
+        it('Owner sees user in user list', async () => {
+          const userList = new UsersList(users.owner.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
         })
 
         it("Owner's message is visible in general channel", async () => {
@@ -268,7 +284,7 @@ describe('Multiple Clients (Private Channels)', () => {
 
       describe(`First User Doesn't See Private Channel`, () => {
         it('Owner sends another message in private channel', async () => {
-          privateChannelOwner = await sidebarOwner.switchChannel(privateChannelName)
+          privateChannelOwner = await sidebarOwner.switchChannel(privateChannelName, false)
           expect(await privateChannelOwner.isReady()).toBeTruthy()
           expect(await privateChannelOwner.isMessageInputReady()).toBeTruthy()
           await privateChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
@@ -290,21 +306,24 @@ describe('Multiple Clients (Private Channels)', () => {
       describe(`Owner Adds User To Private Channel`, () => {
         it('Owner adds first user to private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu()
+          const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannelName, [users.user1.username])
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
         })
 
         it(`Private channel is in user's sidebar`, async () => {
           const channels = await sidebarUser1.getChannelsNames()
           expect(channels.length).toBe(2)
           expect(channels).toContain(privateChannelName)
-          await sidebarUser1.getChannelLockIcon(privateChannelName)
+          await sidebarUser1.getChannelIcon(privateChannelName, false)
         })
 
         it('First user switches to private channel', async () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
-          await sidebarUser1.switchChannel(privateChannelName)
+          await sidebarUser1.switchChannel(privateChannelName, false)
           privateChannelUser1 = new Channel(users.user1.app.driver, privateChannelName)
           expect(await privateChannelUser1.isMessageInputReady()).toBeTruthy()
         })
@@ -338,7 +357,7 @@ describe('Multiple Clients (Private Channels)', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
           await sidebarOwner.addNewChannel(privateChannel2Name, false)
-          await sidebarOwner.switchChannel(privateChannel2Name)
+          await sidebarOwner.switchChannel(privateChannel2Name, false)
           const channels = await sidebarOwner.getChannelList()
           expect(channels.length).toEqual(3)
         })
@@ -347,7 +366,7 @@ describe('Multiple Clients (Private Channels)', () => {
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels.length).toBe(3)
           expect(channels).toContain(privateChannel2Name)
-          await sidebarOwner.getChannelLockIcon(privateChannel2Name)
+          await sidebarOwner.getChannelIcon(privateChannel2Name, false)
         })
 
         it('Owner sends message in second private channel', async () => {
@@ -373,21 +392,24 @@ describe('Multiple Clients (Private Channels)', () => {
 
         it('Owner adds first user to second private channel', async () => {
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          await channelContextMenuOwner.openMenu()
+          const { menuButton, menuOpened, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openAddMembersModal()
           await channelContextMenuOwner.addMembersToChannel(privateChannel2Name, [users.user1.username])
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
         })
 
         it(`Second private channel is in user's sidebar`, async () => {
           const channels = await sidebarUser1.getChannelsNames()
           expect(channels.length).toBe(3)
           expect(channels).toContain(privateChannel2Name)
-          await sidebarUser1.getChannelLockIcon(privateChannel2Name)
+          await sidebarUser1.getChannelIcon(privateChannel2Name, false)
         })
 
         it('First user switches to private channel', async () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
-          await sidebarUser1.switchChannel(privateChannel2Name)
+          await sidebarUser1.switchChannel(privateChannel2Name, false)
           privateChannel2User1 = new Channel(users.user1.app.driver, privateChannel2Name)
           expect(await privateChannel2User1.isMessageInputReady()).toBeTruthy()
         })
@@ -467,7 +489,7 @@ describe('Multiple Clients (Private Channels)', () => {
           const loadNewUser = async () => {
             generalChannelUser2 = new Channel(app.driver, generalChannelName)
             expect(await generalChannelUser2.isReady()).toBeTruthy()
-            expect(await generalChannelUser2.isPublicOpen()).toBeTruthy()
+            expect(await generalChannelUser2.isOpen()).toBeTruthy()
             expect(await generalChannelUser2.isMessageInputReady()).toBeTruthy()
             logger.timeEnd(`[${app.name}] '${users.user2.username}' joining community time`)
           }
@@ -479,6 +501,30 @@ describe('Multiple Clients (Private Channels)', () => {
             await app.open()
           }
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
+        })
+
+        it('User sees second user in user list', async () => {
+          const userList = new UsersList(users.user1.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        })
+
+        it('Owner sees second user in user list', async () => {
+          const userList = new UsersList(users.owner.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        })
+
+        it('Second user sees first user in user list', async () => {
+          const userList = new UsersList(users.user2.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+        })
+
+        it('Second user sees owner in user list', async () => {
+          const userList = new UsersList(users.user2.app.driver)
+          expect(await userList.isReady()).toBeTruthy()
+          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
         })
 
         it('Second user can see messages from before they joined', async () => {
