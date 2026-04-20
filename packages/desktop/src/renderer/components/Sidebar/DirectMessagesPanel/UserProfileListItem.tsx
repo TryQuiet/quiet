@@ -62,7 +62,8 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     background: theme.palette.background.paper,
   },
   [`& .${classes.nickname}`]: {
-    fontWeight: 400,
+    opacity: 0.7,
+    fontWeight: 300,
     paddingLeft: 0,
     paddingRight: 0,
     overflow: 'hidden',
