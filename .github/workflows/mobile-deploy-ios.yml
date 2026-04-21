@@ -86,6 +86,8 @@ jobs:
             -archivePath build/Quiet.xcarchive \
             CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)" \
             ENABLE_BITCODE=NO
+        env:
+          ENVFILE: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
 
       - name: Export .ipa
         run: |
