@@ -448,8 +448,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       }
     }
 
-    await this.emitNseQssUrl(this._qssEndpoint)
-
     // wait for our socket to finish connecting
     let connStatus: QSSOperationResult
     try {
@@ -488,27 +486,30 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if ((process.platform as string) !== 'ios') {
       return
     }
+    try {
+      const community = await this.localDbService.getCurrentCommunity()
+      const teamId = community?.teamId ?? this.sigChainService.getActiveChain(false)?.team?.id
+      if (teamId == null) {
+        this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
+        this.logger.warn('Community', community)
+        return
+      }
 
-    const community = await this.localDbService.getCurrentCommunity()
-    const teamId = community?.teamId ?? this.sigChainService.team?.id
-    if (teamId == null) {
-      this.logger.warn('Skipping NSE QSS URL update because no active community or team ID found')
-      this.logger.warn('Community', community)
-      return
+      const qssUrl = this.getNseQssUrl(wsUrl)
+      if (qssUrl == null) {
+        this.logger.warn('Skipping NSE QSS URL update because no valid QSS URL could be derived')
+        return
+      }
+
+      const payload: NseQssUrlUpdatedEvent = {
+        teamId,
+        qssUrl,
+      }
+
+      this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
+    } catch (e) {
+      this.logger.error('Failed to emit NSE QSS URL update', e)
     }
-
-    const qssUrl = this.getNseQssUrl(wsUrl)
-    if (qssUrl == null) {
-      this.logger.warn('Skipping NSE QSS URL update because no valid QSS URL could be derived')
-      return
-    }
-
-    const payload: NseQssUrlUpdatedEvent = {
-      teamId,
-      qssUrl,
-    }
-
-    this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_QSS_URL_UPDATED, payload)
   }
 
   /**
@@ -708,6 +709,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once connected', teamId)
+      await this.emitNseQssUrl(this._qssEndpoint)
       const authConnection = this.qssAuthConnManager.getConnection(teamId)
       const startLogPullInterval = (): void => {
         if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
