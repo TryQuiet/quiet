@@ -164,6 +164,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
 
       - name: Install libfuse
         run: sudo apt install libfuse2
@@ -252,6 +253,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -301,7 +303,7 @@ jobs:
           version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
-  
+
   build-macos-arm64-prod:
     runs-on: macos-26
     if: |
@@ -332,6 +334,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
 
       - name: Before build
         uses: ./.github/actions/before-build
