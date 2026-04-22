@@ -188,6 +188,37 @@ describe('QSSService', () => {
     return (await localDbService.getCurrentCommunity())!
   }
 
+  const mockSuccessfulSignIn = (): void => {
+    mockedGetAuthConnection = jest
+      .spyOn(qssAuthConnManager, 'getConnection')
+      .mockImplementation((_teamId: string): QSSAuthConnection => {
+        return {
+          active: true,
+          joinStatus: JoinStatus.JOINED,
+          connStatus: QSSAuthConnStatus.CONNECTED,
+          on: (...args: any[]) => {},
+          removeAllListeners: (...args: any[]) => {},
+        } as any
+      })
+
+    mockedSendMessage = jest
+      .spyOn(qssClient, 'sendMessage')
+      .mockImplementation(
+        async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
+          logger.debug('Sending event to QSS', event, payload, withAck)
+          switch (event) {
+            case WebsocketEvents.SIGN_IN_COMMUNITY:
+              return {
+                ts: DateTime.utc().toMillis(),
+                status: CommunityOperationStatus.SUCCESS,
+              } as T
+            default:
+              return undefined
+          }
+        }
+      )
+  }
+
   describe('connect', () => {
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
       await initCommunity()
@@ -195,85 +226,6 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
       expect(qssService.canConnect).toBeTruthy()
-    })
-
-    it('emits the NSE QSS URL from the endpoint passed to connect on iOS', async () => {
-      const originalPlatform = process.platform
-      Object.defineProperty(process, 'platform', { value: 'ios' })
-
-      try {
-        await localDbService.setCommunity({
-          ...community,
-          teamId: 'team-id',
-          qssEnabled: true,
-        })
-        await localDbService.setCurrentCommunityId(community.id)
-
-        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
-        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
-
-        await qssService.connect('wss://community.example/ws')
-
-        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
-          teamId: 'team-id',
-          qssUrl: 'https://community.example/ws',
-        })
-      } finally {
-        Object.defineProperty(process, 'platform', { value: originalPlatform })
-      }
-    })
-
-    it('emits the NSE QSS URL from the stored endpoint when connect is called without one on iOS', async () => {
-      const originalPlatform = process.platform
-      Object.defineProperty(process, 'platform', { value: 'ios' })
-
-      try {
-        await localDbService.setCommunity({
-          ...community,
-          teamId: 'team-id',
-          qssEnabled: true,
-        })
-        await localDbService.setCurrentCommunityId(community.id)
-
-        qssService._qssEndpoint = 'ws://configured.example/ws'
-        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
-        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
-
-        await qssService.connect(undefined)
-
-        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
-          teamId: 'team-id',
-          qssUrl: 'http://configured.example/ws',
-        })
-      } finally {
-        Object.defineProperty(process, 'platform', { value: originalPlatform })
-      }
-    })
-
-    it('skips NSE QSS URL emission when connect uses a non-ws endpoint on iOS', async () => {
-      const originalPlatform = process.platform
-      Object.defineProperty(process, 'platform', { value: 'ios' })
-
-      try {
-        await localDbService.setCommunity({
-          ...community,
-          teamId: 'team-id',
-          qssEnabled: true,
-        })
-        await localDbService.setCurrentCommunityId(community.id)
-
-        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
-        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
-
-        await qssService.connect('https://community.example/api')
-
-        expect(emitSpy).not.toHaveBeenCalledWith(
-          SocketEvents.NSE_QSS_URL_UPDATED,
-          expect.objectContaining({ teamId: 'team-id' })
-        )
-      } finally {
-        Object.defineProperty(process, 'platform', { value: originalPlatform })
-      }
     })
 
     it(`doesn't connect to QSS when not enabled and an endpoint string is provided`, async () => {
@@ -570,33 +522,7 @@ describe('QSSService', () => {
       await initCommunity()
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeFalsy()
-      mockedGetAuthConnection = jest
-        .spyOn(qssAuthConnManager, 'getConnection')
-        .mockImplementation((teamId: string): QSSAuthConnection => {
-          return {
-            active: true,
-            joinStatus: JoinStatus.JOINED,
-            connStatus: QSSAuthConnStatus.CONNECTED,
-            on: (...args: any[]) => {},
-          } as any
-        })
-
-      mockedSendMessage = jest
-        .spyOn(qssClient, 'sendMessage')
-        .mockImplementation(
-          async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
-            logger.debug('Sending event to QSS', event, payload, withAck)
-            switch (event) {
-              case WebsocketEvents.SIGN_IN_COMMUNITY:
-                return {
-                  ts: DateTime.utc().toMillis(),
-                  status: CommunityOperationStatus.SUCCESS,
-                } as T
-              default:
-                return undefined
-            }
-          }
-        )
+      mockSuccessfulSignIn()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
@@ -623,6 +549,94 @@ describe('QSSService', () => {
       expect(mockedSendMessage).toHaveBeenCalledTimes(3)
       const initStatus = await qssService.getQssInitStatus()
       expect(initStatus.qssSetup).toBeTruthy()
+    })
+
+    it('emits the NSE QSS URL from the endpoint passed to connect on iOS after successful sign in', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect('wss://community.example/ws')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: 'https://community.example/ws',
+        })
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    it('emits the NSE QSS URL from the stored endpoint when connect is called without one on iOS after successful sign in', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        qssService._qssEndpoint = 'ws://configured.example/ws'
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect(undefined)
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.NSE_QSS_URL_UPDATED, {
+          teamId: 'team-id',
+          qssUrl: 'http://configured.example/ws',
+        })
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
+    })
+
+    it('skips NSE QSS URL emission when sign in uses a non-ws endpoint on iOS', async () => {
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+
+      try {
+        await localDbService.setCommunity({
+          ...community,
+          teamId: 'team-id',
+          qssEnabled: true,
+        })
+        await localDbService.setCurrentCommunityId(community.id)
+        await localDbService.setIdentity(userIdentity)
+
+        mockSuccessfulSignIn()
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        const emitSpy = jest.spyOn(qssService['socketService'].serverIoProvider.io, 'emit')
+
+        await qssService.connect('https://community.example/api')
+        await qssService.signInToCommunity(sigchainService.activeChain.team!.id, sigchainService.activeChain)
+
+        expect(emitSpy).not.toHaveBeenCalledWith(
+          SocketEvents.NSE_QSS_URL_UPDATED,
+          expect.objectContaining({ teamId: 'team-id' })
+        )
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+      }
     })
 
     it(`doesn't sign in to community when QSS is not connected`, async () => {
