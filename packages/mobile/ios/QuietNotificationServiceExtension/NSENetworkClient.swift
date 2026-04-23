@@ -16,17 +16,18 @@ class NSENetworkClient {
 
     private static let decoder = JSONDecoder()
 
-    // Dedicated session with tight timeouts suitable for an NSE (30-second budget).
-    private static let defaultSession: URLSession = {
+    // Each client gets a fresh session so path transitions cannot poison pooled connections.
+    private static func makeDefaultSession() -> URLSession {
         let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = 10
         config.timeoutIntervalForResource = 20
+        config.waitsForConnectivity = true
         return URLSession(configuration: config)
-    }()
+    }
 
     init(baseURL: URL, session: URLSession? = nil) {
         self.baseURL = baseURL
-        self.session = session ?? NSENetworkClient.defaultSession
+        self.session = session ?? NSENetworkClient.makeDefaultSession()
     }
 
     // MARK: - POST /nse-auth/challenge

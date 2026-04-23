@@ -9,12 +9,19 @@ class NotificationService: UNNotificationServiceExtension {
         let message: NSEDecryptedNotificationMessage
     }
 
+    private static let retryDelaysNanoseconds: [UInt64] = [
+        250_000_000,
+        750_000_000
+    ]
+
+    private static let maxRetryWindow: TimeInterval = 5
+
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
     var fetchTask: Task<Void, Never>?
 
     private let crypto = NSECryptoService()
-    private var authCache: [URL: NSEAuthService] = [:]
+    private let tokenCache = NSEAuthTokenCache()
 
     private static func channelName(from channelId: String) -> String {
         guard let separatorIndex = channelId.firstIndex(of: "_") else {
@@ -76,23 +83,11 @@ class NotificationService: UNNotificationServiceExtension {
                log: nseLog, type: .info, teamId, qssUrlString)
 
         do {
-            let auth: NSEAuthService
-            if let cached = authCache[qssUrl] {
-                os_log("fetchAndUpdate: using cached NSEAuthService for %{public}@", log: nseLog, type: .debug, qssUrlString)
-                auth = cached
-            } else {
-                os_log("fetchAndUpdate: creating new NSEAuthService for %{public}@", log: nseLog, type: .debug, qssUrlString)
-                let client = NSENetworkClient(baseURL: qssUrl)
-                let newAuth = NSEAuthService(client: client, crypto: crypto)
-                authCache[qssUrl] = newAuth
-                auth = newAuth
-            }
-
             let afterSeq = SharedDefaults.getLastSyncSeq()
             os_log("fetchAndUpdate: fetching entries afterSeq=%{public}lld",
                    log: nseLog, type: .info, afterSeq)
 
-            let response = try await auth.fetchNewEntries(teamId: teamId, afterSeq: afterSeq)
+            let response = try await fetchEntriesWithRetry(qssUrl: qssUrl, teamId: teamId, afterSeq: afterSeq)
             let entries = response.entries
             let baselineSeq = afterSeq
             os_log("fetchAndUpdate: fetched %{public}d entries",
@@ -187,6 +182,61 @@ class NotificationService: UNNotificationServiceExtension {
         } catch {
             os_log("fetchAndUpdate failed: %{public}@", log: nseLog, type: .error, String(describing: error))
         }
+    }
+
+    private func fetchEntriesWithRetry(qssUrl: URL, teamId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
+        let startedAt = Date()
+        var retryIndex = 0
+
+        while true {
+            guard !Task.isCancelled else {
+                throw CancellationError()
+            }
+
+            do {
+                let auth = makeAuthService(qssUrl: qssUrl)
+                return try await auth.fetchNewEntries(teamId: teamId, afterSeq: afterSeq)
+            } catch {
+                guard shouldRetryFetch(error: error, startedAt: startedAt, retryIndex: retryIndex) else {
+                    throw error
+                }
+
+                let delay = Self.retryDelaysNanoseconds[retryIndex]
+                retryIndex += 1
+                os_log(
+                    "fetchAndUpdate: retrying full auth fetch after transient network error (%{public}d/%{public}d): %{public}@",
+                    log: nseLog,
+                    type: .info,
+                    retryIndex,
+                    Self.retryDelaysNanoseconds.count,
+                    String(describing: error)
+                )
+                try await Task.sleep(nanoseconds: delay)
+            }
+        }
+    }
+
+    private func makeAuthService(qssUrl: URL) -> NSEAuthService {
+        os_log("fetchAndUpdate: creating fresh NSEAuthService for %{public}@",
+               log: nseLog, type: .debug, qssUrl.absoluteString)
+        let client = NSENetworkClient(baseURL: qssUrl)
+        return NSEAuthService(client: client, crypto: crypto, tokenCache: tokenCache)
+    }
+
+    private func shouldRetryFetch(error: Error, startedAt: Date, retryIndex: Int) -> Bool {
+        guard retryIndex < Self.retryDelaysNanoseconds.count else {
+            return false
+        }
+
+        guard Date().timeIntervalSince(startedAt) < Self.maxRetryWindow else {
+            return false
+        }
+
+        guard let authError = error as? NSEAuthError else {
+            return false
+        }
+
+        return authError.isRetryableNetworkFailure
     }
 
     private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, to content: UNMutableNotificationContent) {

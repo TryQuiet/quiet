@@ -28,6 +28,57 @@ enum NSEAuthError: Error, LocalizedError {
     }
 }
 
+extension NSEAuthError {
+    private static let retryableURLCodes: Set<Int> = [
+        URLError.cannotConnectToHost.rawValue,
+        URLError.networkConnectionLost.rawValue,
+        URLError.timedOut.rawValue,
+        URLError.notConnectedToInternet.rawValue,
+        URLError.cannotFindHost.rawValue,
+        URLError.dnsLookupFailed.rawValue,
+        URLError.resourceUnavailable.rawValue,
+        URLError.callIsActive.rawValue,
+        URLError.dataNotAllowed.rawValue
+    ]
+
+    private static let retryablePOSIXCodes: Set<Int> = [53, 57, 60, 61, 64, 65]
+
+    var isRetryableNetworkFailure: Bool {
+        guard case .networkError(let error) = self else {
+            return false
+        }
+        return Self.isRetryableNetworkFailure(error)
+    }
+
+    private static func isRetryableNetworkFailure(_ error: Error) -> Bool {
+        let nsError = error as NSError
+
+        if nsError.domain == NSURLErrorDomain, retryableURLCodes.contains(nsError.code) {
+            return true
+        }
+
+        if nsError.domain == NSPOSIXErrorDomain, retryablePOSIXCodes.contains(nsError.code) {
+            return true
+        }
+
+        if let streamCode = nsError.userInfo["_kCFStreamErrorCodeKey"] as? Int,
+           retryablePOSIXCodes.contains(streamCode) {
+            return true
+        }
+
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+            if underlying.domain == NSURLErrorDomain, retryableURLCodes.contains(underlying.code) {
+                return true
+            }
+            if underlying.domain == NSPOSIXErrorDomain, retryablePOSIXCodes.contains(underlying.code) {
+                return true
+            }
+        }
+
+        return false
+    }
+}
+
 // MARK: - Challenge
 
 struct ChallengePayload: Codable {
