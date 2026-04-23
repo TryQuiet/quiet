@@ -982,6 +982,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     let nextStartSeq = await this.localDbService.getLastSyncSeq(teamId)
     const sigchain = this.sigChainService.getChain({ teamId })
     const userId = sigchain.context.user.userId
+    if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+      this.logger.warn(`User is not a member of team ${teamId}, skipping log entry pull until full join`)
+      return {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.UNAUTHORIZED,
+        payload: {
+          hasNextPage: false,
+          entries: [],
+        },
+      }
+    }
 
     let hasNextPage = true
     let page = 0
