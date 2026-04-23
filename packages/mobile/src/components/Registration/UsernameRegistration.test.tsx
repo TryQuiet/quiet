@@ -27,12 +27,17 @@ describe('UsernameRegistration', () => {
         <View
           onLayout={[Function]}
           style={
-            {
-              "flex": 1,
-              "justifyContent": "center",
-              "paddingLeft": 20,
-              "paddingRight": 20,
-            }
+            [
+              {
+                "flex": 1,
+                "justifyContent": "center",
+                "paddingLeft": 20,
+                "paddingRight": 20,
+              },
+              {
+                "paddingBottom": 0,
+              },
+            ]
           }
         >
           <Text
@@ -59,125 +64,128 @@ describe('UsernameRegistration', () => {
             Register a username
           </Text>
           <View>
-            <Text
-              color="main"
-              fontSize={14}
-              horizontalTextAlign="left"
-              style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Regular",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                  {
-                    "color": "#4C4C4C",
-                    "paddingBottom": 10,
-                  },
-                ]
-              }
-              verticalTextAlign="center"
-            >
-              Choose your favorite username
-            </Text>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": false,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onBlur={[Function]}
-              onClick={[Function]}
-              onFocus={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              round={false}
-              style={
-                [
-                  {
-                    "backgroundColor": "#ffffff",
-                    "borderColor": "#C4C4C4",
-                    "borderRadius": 4,
-                    "borderWidth": 1,
-                    "flexGrow": 1,
-                    "height": 56,
-                    "justifyContent": "center",
-                    "paddingLeft": 16,
-                    "paddingRight": 16,
-                  },
-                  {
-                    "height": 54,
-                  },
-                ]
-              }
-            >
-              <TextInput
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={true}
-                height={54}
-                maxLength={20}
-                onChangeText={[Function]}
-                onContentSizeChange={[Function]}
-                placeholder="Enter a username"
-                placeholderTextColor="#999999"
+            <View>
+              <Text
+                color="main"
+                fontSize={14}
+                horizontalTextAlign="left"
                 style={
                   [
                     {
-                      "height": 54,
-                      "paddingBottom": 12,
-                      "paddingTop": 12,
+                      "color": "#000000",
+                      "fontFamily": "Rubik-Regular",
+                      "fontSize": 14,
+                      "textAlign": "left",
                       "textAlignVertical": "center",
+                    },
+                    {
+                      "color": "#4C4C4C",
+                      "paddingBottom": 10,
                     },
                   ]
                 }
-                testID="input"
-              />
+                verticalTextAlign="center"
+              >
+                Choose your favorite username
+              </Text>
+              <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": false,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
+                round={false}
+                style={
+                  [
+                    {
+                      "backgroundColor": "#ffffff",
+                      "borderColor": "#C4C4C4",
+                      "borderRadius": 4,
+                      "borderWidth": 1,
+                      "flexGrow": 1,
+                      "height": 56,
+                      "justifyContent": "center",
+                      "paddingLeft": 16,
+                      "paddingRight": 16,
+                    },
+                    {
+                      "height": 54,
+                    },
+                  ]
+                }
+              >
+                <TextInput
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={true}
+                  height={54}
+                  keyboardType="default"
+                  maxLength={20}
+                  onChangeText={[Function]}
+                  onContentSizeChange={[Function]}
+                  placeholder="Enter a username"
+                  placeholderTextColor="#999999"
+                  style={
+                    [
+                      {
+                        "height": 54,
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  testID="input"
+                />
+              </View>
+              <Text
+                color="hint"
+                fontSize={14}
+                horizontalTextAlign="left"
+                style={
+                  [
+                    {
+                      "color": "#999999",
+                      "fontFamily": "Rubik-Regular",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    },
+                    {
+                      "lineHeight": 16,
+                      "paddingTop": 10,
+                    },
+                  ]
+                }
+                verticalTextAlign="center"
+              >
+                Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.
+              </Text>
             </View>
-            <Text
-              color="hint"
-              fontSize={14}
-              horizontalTextAlign="left"
-              style={
-                [
-                  {
-                    "color": "#999999",
-                    "fontFamily": "Rubik-Regular",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                  {
-                    "lineHeight": 16,
-                    "paddingTop": 10,
-                  },
-                ]
-              }
-              verticalTextAlign="center"
-            >
-              Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.
-            </Text>
           </View>
           <View
             style={

@@ -11,9 +11,9 @@ storiesOf('ChannelMembership', module).add('Default', () => (
   <ChannelMembership
     channelName={'private-channel'}
     channelId={'abc123'}
-    updateChannelMembership={(memberIds: string[]) => {
-      logger.info('updating channel membership')
-    }}
+    userProfiles={{}}
+    members={undefined}
+    memberCount={undefined}
     handleBackButton={() => {
       logger.info('going back')
     }}

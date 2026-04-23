@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, publicChannels, users } from '@quiet/state-manager'
@@ -14,14 +14,26 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
+import { UserProfile } from '@quiet/types'
 
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
+
+  const [memberCountSuffix, setMemberCountSuffx] = useState<string>('')
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const isOwner = useSelector(communities.selectors.isOwner)
+  const userProfiles = useSelector(users.selectors.userProfiles)
+
+  const _initializeData = () => {
+    if (channel == null) return
+    const membersInChannel: UserProfile[] = Object.values(userProfiles).filter(profile =>
+      profile.channels?.includes(channel.id)
+    )
+    setMemberCountSuffx(`${membersInChannel.length}`)
+  }
 
   let title = ''
   if (channel?.name) {
@@ -42,11 +54,17 @@ export const ChannelContextMenu: FC = () => {
     [dispatch]
   )
 
+  useEffect(() => {
+    _initializeData()
+  }, [userProfiles, screen])
+
   let items: ContextMenuItemProps[] = []
 
   if (channel?.public === false) {
     items.push({
-      title: 'Manage Membership',
+      title: isOwner ? 'Permissions' : 'Members in this channel',
+      subtitle: isOwner ? 'Members' : undefined,
+      suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {
           channelName: channel?.name,

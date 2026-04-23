@@ -2,6 +2,7 @@ export enum ScreenNames {
   ChannelListScreen = 'ChannelList',
   ChannelScreen = 'ChannelScreen',
   ChannelMembershipScreen = 'ChannelMembershipScreen',
+  UpdateChannelMembershipScreen = 'UpdateChannelMembershipScreen',
   ConnectionProcessScreen = 'ConnectionProcessScreen',
   DuplicatedUsernameScreen = 'DuplicatedUsernameScreen',
   UsernameTakenScreen = 'UsernameTakenScreen',

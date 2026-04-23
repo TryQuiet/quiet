@@ -29,8 +29,10 @@ export type RootStackParamList = {
   [ScreenNames.ChannelMembershipScreen]: {
     channelName: string
     channelId: string
-    community: Community
-    userProfiles: UserProfile[]
+  }
+  [ScreenNames.UpdateChannelMembershipScreen]: {
+    channelName: string
+    channelId: string
   }
   [ScreenNames.ErrorScreen]: {
     onPress: (dispatch: Dispatch<any>) => void
@@ -65,6 +67,8 @@ export type RootStackParamList = {
 export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.DeleteChannelScreen>
 
 export type ChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.ChannelMembershipScreen>
+
+export type UpdateChannelMembershipRouteProps = RouteProp<RootStackParamList, ScreenNames.UpdateChannelMembershipScreen>
 
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
 

@@ -10,12 +10,13 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   photo,
   profilePhoto,
   alt,
+  borderRadius = 2,
   size = 37,
 }) => {
   const imgStyle = {
     width: size,
     height: size,
-    borderRadius: 2,
+    borderRadius,
   }
   const photoAltText = alt ?? `${username}'s profile image`
   return photo ? (

@@ -7,4 +7,5 @@ export interface ProfilePhotoProps {
   profilePhoto?: FileMetadata
   alt?: string
   size?: number
+  borderRadius?: number
 }

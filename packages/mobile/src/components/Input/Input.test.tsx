@@ -9,76 +9,79 @@ describe('MessageInput component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View>
-        <View
-          accessibilityState={
-            {
-              "busy": undefined,
-              "checked": undefined,
-              "disabled": false,
-              "expanded": undefined,
-              "selected": undefined,
-            }
-          }
-          accessibilityValue={
-            {
-              "max": undefined,
-              "min": undefined,
-              "now": undefined,
-              "text": undefined,
-            }
-          }
-          accessible={true}
-          collapsable={false}
-          focusable={true}
-          onBlur={[Function]}
-          onClick={[Function]}
-          onFocus={[Function]}
-          onResponderGrant={[Function]}
-          onResponderMove={[Function]}
-          onResponderRelease={[Function]}
-          onResponderTerminate={[Function]}
-          onResponderTerminationRequest={[Function]}
-          onStartShouldSetResponder={[Function]}
-          round={false}
-          style={
-            [
+        <View>
+          <View
+            accessibilityState={
               {
-                "backgroundColor": "#ffffff",
-                "borderColor": "#C4C4C4",
-                "borderRadius": 4,
-                "borderWidth": 1,
-                "flexGrow": 1,
-                "height": 56,
-                "justifyContent": "center",
-                "paddingLeft": 16,
-                "paddingRight": 16,
-              },
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": false,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
               {
-                "height": 54,
-              },
-            ]
-          }
-        >
-          <TextInput
-            autoCorrect={true}
-            editable={true}
-            height={54}
-            onChangeText={[Function]}
-            onContentSizeChange={[Function]}
-            placeholder="Message #general as @holmes"
-            placeholderTextColor="#999999"
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            round={false}
             style={
               [
                 {
+                  "backgroundColor": "#ffffff",
+                  "borderColor": "#C4C4C4",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexGrow": 1,
+                  "height": 56,
+                  "justifyContent": "center",
+                  "paddingLeft": 16,
+                  "paddingRight": 16,
+                },
+                {
                   "height": 54,
-                  "paddingBottom": 12,
-                  "paddingTop": 12,
-                  "textAlignVertical": "center",
                 },
               ]
             }
-            testID="input"
-          />
+          >
+            <TextInput
+              autoCorrect={true}
+              editable={true}
+              height={54}
+              keyboardType="default"
+              onChangeText={[Function]}
+              onContentSizeChange={[Function]}
+              placeholder="Message #general as @holmes"
+              placeholderTextColor="#999999"
+              style={
+                [
+                  {
+                    "height": 54,
+                    "paddingBottom": 12,
+                    "paddingTop": 12,
+                    "textAlignVertical": "center",
+                  },
+                ]
+              }
+              testID="input"
+            />
+          </View>
         </View>
       </View>
     `)

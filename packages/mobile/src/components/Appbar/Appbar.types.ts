@@ -10,6 +10,7 @@ export interface AppbarProps {
   position?: 'flex-start' | 'center'
   style?: TextStyle
   back?: () => void
+  submit?: () => void
   contextMenu?: ReturnType<typeof useContextMenu> | null
   crossBackIcon?: boolean
 }

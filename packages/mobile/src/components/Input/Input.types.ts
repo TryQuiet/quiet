@@ -1,5 +1,5 @@
 import { ReactElement } from 'react'
-import { ViewStyle } from 'react-native'
+import { KeyboardTypeOptions, ViewStyle } from 'react-native'
 
 import { NativeSyntheticEvent, TextInputChangeEventData, TextInputEndEditingEventData } from 'react-native'
 export interface InputProps {
@@ -24,4 +24,7 @@ export interface InputProps {
   autoCorrect?: boolean
   /** Controlled text value */
   value?: string
+  bottomSeparator?: React.ReactElement
+  keyboardType?: KeyboardTypeOptions
+  testID?: string
 }

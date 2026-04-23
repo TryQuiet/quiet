@@ -5,6 +5,7 @@ import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { icons } from '../../assets'
 import { createLogger } from '../../utils/logger'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 const logger = createLogger('contextMenu:component')
 
@@ -184,8 +185,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   )
 }
 
-export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
+export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, subtitle, suffix, action }) => {
   const icon_arrow = icons.arrow_right_short
+  const paddingVertical = 11
+  const minHeight = 48
   return (
     <TouchableOpacity onPress={action} testID={title}>
       <View
@@ -195,7 +198,8 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
           alignItems: 'center',
           paddingLeft: 20,
           paddingRight: 20,
-          height: 48,
+          paddingVertical,
+          minHeight,
           width: '100%',
         }}
       >
@@ -207,11 +211,40 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
             justifyContent: 'flex-start',
           }}
         >
-          <Typography fontSize={16} fontWeight={'normal'} style={{ lineHeight: 26 }}>
-            {title}
-          </Typography>
+          <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+            <Typography fontSize={16} fontWeight={'normal'} style={{ lineHeight: 26 }}>
+              {title}
+            </Typography>
+            {subtitle && (
+              <Typography
+                fontSize={12}
+                fontWeight={'normal'}
+                style={{ lineHeight: 16, color: defaultTheme.palette.typography.gray50 }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+          </View>
         </View>
-        <View style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <View
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            gap: 8,
+            alignItems: 'center',
+          }}
+        >
+          {suffix && (
+            <Typography
+              fontSize={16}
+              fontWeight={'normal'}
+              style={{ lineHeight: 26, color: defaultTheme.palette.typography.gray50 }}
+            >
+              {suffix}
+            </Typography>
+          )}
           <Image
             source={icon_arrow}
             resizeMode='cover'

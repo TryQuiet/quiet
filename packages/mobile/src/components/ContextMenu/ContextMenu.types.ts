@@ -17,6 +17,8 @@ export interface ContextMenuProps {
 
 export interface ContextMenuItemProps {
   title: string
+  subtitle?: string
+  suffix?: string
   action: () => void
 }
 

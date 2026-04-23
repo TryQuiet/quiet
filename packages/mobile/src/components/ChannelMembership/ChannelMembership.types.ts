@@ -5,11 +5,13 @@ export interface ChannelMembershipProps {
   channelName: string
   channelId: string
   community?: Community
-  userProfiles?: Record<string, UserProfile>
-  updateChannelMembership: (memberIds: string[]) => void
+  userProfiles: Record<string, UserProfile>
+  members: UserProfile[] | undefined
+  memberCount: number | undefined
   handleBackButton: () => void
 }
 
 export interface ChannelMembershipHeaderTitleProps extends HeaderTitleProps {
   channelName: string
+  membershipCount?: number
 }

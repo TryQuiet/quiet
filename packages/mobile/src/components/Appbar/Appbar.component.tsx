@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View, Image, TouchableOpacity } from 'react-native'
+import { View, Image, TouchableOpacity, Keyboard } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { StyledAppbar } from './Appbar.styles'
 import { AppbarProps } from './Appbar.types'
@@ -14,6 +14,7 @@ export const Appbar: FC<AppbarProps> = ({
   position,
   style,
   back,
+  submit,
   contextMenu,
   crossBackIcon = false,
 }) => {
@@ -75,6 +76,7 @@ export const Appbar: FC<AppbarProps> = ({
           <TouchableOpacity
             onPress={event => {
               event.persist()
+              Keyboard.dismiss()
               contextMenu.handleOpen()
             }}
             testID={'open_menu'}
@@ -89,6 +91,21 @@ export const Appbar: FC<AppbarProps> = ({
                   height: 16,
                 }}
               />
+            </View>
+          </TouchableOpacity>
+        )}
+        {submit && (
+          <TouchableOpacity
+            onPress={event => {
+              event.persist()
+              submit()
+            }}
+            testID={'submit'}
+          >
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Typography style={{ color: defaultTheme.palette.typography.blue }} fontSize={16}>
+                Done
+              </Typography>
             </View>
           </TouchableOpacity>
         )}
