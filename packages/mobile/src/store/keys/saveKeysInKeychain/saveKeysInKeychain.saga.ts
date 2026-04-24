@@ -8,7 +8,10 @@ import { createLogger } from '../../../utils/logger'
 const logger = createLogger('saveKeysInKeychainSaga')
 
 export function* saveKeysInKeychainSaga(action: PayloadAction<KeysUpdatedEvent>): Generator {
-  logger.info('Storing keys in ios keychain', action.payload.keys)
+  logger.debug(
+    'Storing keys in ios keychain',
+    action.payload.keys.map(key => key.keyName)
+  )
   try {
     yield* call(
       NativeModules.CommunicationModule.saveKeysInKeychain,
