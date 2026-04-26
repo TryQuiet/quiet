@@ -177,7 +177,7 @@ let browserWidth: number
 let browserHeight: number
 
 // Default title bar must be hidden for macos because we have custom styles for it
-const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
+const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
   logger.trace('Creating splash and main windows')
   logger.trace('Creating main window')
@@ -894,7 +894,7 @@ app.on('activate', async () => {
 app.on('before-quit', e => {
   quitting = true
   if (backendProcess !== null) {
-    logger.info('App before-quit intercepted waiting for backend to exit')
+    logger.info('App before-quit intercepted waiting for backend to exit', e)
     if (!updating) {
       e.preventDefault()
     }
@@ -903,5 +903,5 @@ app.on('before-quit', e => {
     }
     return
   }
-  logger.info('App before-quit backend exited, quitting app')
+  logger.info('App before-quit backend exited, quitting app', e)
 })
