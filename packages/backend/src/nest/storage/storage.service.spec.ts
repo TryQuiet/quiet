@@ -168,6 +168,17 @@ describe('StorageService', () => {
       expect(startSyncSpy).toHaveBeenCalled()
     })
 
+    it('init should wait for an in-flight initialization', async () => {
+      const initDatabasesSpy = jest.spyOn(storageService, 'initDatabases')
+      const startSyncSpy = jest.spyOn(storageService as any, 'startSync')
+
+      await Promise.all([storageService.init(), storageService.init()])
+
+      expect(ipfsService.isStarted()).toBe(true)
+      expect(initDatabasesSpy).toHaveBeenCalledTimes(1)
+      expect(startSyncSpy).toHaveBeenCalledTimes(1)
+    })
+
     it('addUserProfile should delegate to userProfileStore.setEntry', async () => {
       await storageService.init()
       const profile = { userId: sigchainService.user.userId, userData: null } as unknown as UserProfile
