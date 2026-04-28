@@ -96,7 +96,7 @@ export class QSSClient extends EventEmitter {
       return this._clientSocket
     } catch (e) {
       const message = `Failed to connect to QSS, will retry later!`
-      this.logger.error(message, e)
+      this.logger.debug(message, e)
       throw new CompoundError(message, e)
     }
   }
@@ -142,8 +142,6 @@ export class QSSClient extends EventEmitter {
         this.close()
         throw new QSSConnectionError(`Client didn't connect in time!`)
       }
-
-      this.logger.debug(`Waiting for client to finish connecting...`)
       await sleep(500)
       count--
     }
