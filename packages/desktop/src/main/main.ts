@@ -236,17 +236,19 @@ export const createWindow = async () => {
   mainWindow.setMinimumSize(600, 400)
   logger.trace('Loading main HTML', mainWindow.id)
   /* eslint-disable */
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}`,
-      protocol: 'file:',
-      slashes: true,
-      hash: '/',
+  mainWindow
+    .loadURL(
+      url.format({
+        pathname: path.join(__dirname, './index.html'),
+        search: `dataPort=${ports.dataServer}`,
+        protocol: 'file:',
+        slashes: true,
+        hash: '/',
+      })
+    )
+    ?.then(() => {
+      logger.timeEnd('Created mainWindow')
     })
-  )?.then(() => {
-    logger.timeEnd('Created mainWindow')
-  })
   /* eslint-enable */
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -610,6 +612,7 @@ app.on('ready', async () => {
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
+      NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)

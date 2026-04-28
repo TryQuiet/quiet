@@ -197,7 +197,7 @@ export class Libp2pAuth {
    */
   private async onIncomingStream({ stream, connection }: IncomingStreamData) {
     const peerId = connection.remotePeer
-    this.logger.info(`Handling incoming ephemeral stream ${connection.id.toString()} from ${peerId.toString()}`)
+    this.logger.debug(`Handling incoming ephemeral stream ${connection.id.toString()} from ${peerId.toString()}`)
     const abortController = new AbortController()
 
     // Process messages from the stream
@@ -256,13 +256,13 @@ export class Libp2pAuth {
 
     const abortController = new AbortController()
     try {
-      this.logger.info(`Opening ephemeral outbound stream to ${peerId.toString()}`)
+      this.logger.debug(`Opening ephemeral outbound stream to ${peerId.toString()}`)
       const stream = await connection.newStream(this.protocol, {
         runOnLimitedConnection: false,
         negotiateFully: false,
         signal: abortController.signal,
       })
-      this.logger.info(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
+      this.logger.debug(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
       if (stream.status !== 'open') {
         this.logger.warn(
           `Attempted to send message to ${peerId.toString()} on ephemeral stream that had already closed`
@@ -271,7 +271,7 @@ export class Libp2pAuth {
       }
       await pipe([encode.single(message)], stream)
       await stream.close()
-      this.logger.info(`Ephemeral stream closed to ${peerId.toString()}`)
+      this.logger.debug(`Ephemeral stream closed to ${peerId.toString()}`)
     } catch (e) {
       this.logger.error(`Error sending ephemeral message to ${peerId.toString()}`, e)
       if (!abortController.signal.aborted) {
@@ -448,7 +448,7 @@ export class Libp2pAuth {
     } else {
       this.joinStatus = JoinStatus.PENDING
     }
-    this.logger.debug('Reset join status on disconnect', oldJoinStatus, this.joinStatus)
+    this.logger.info('Reset join status on disconnect', oldJoinStatus, this.joinStatus)
   }
 
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {

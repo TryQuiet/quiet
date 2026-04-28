@@ -42,12 +42,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import {
-  QSS_RECONNECT_BACKOFF_FACTOR,
-  QSS_RECONNECT_DELAY_MS,
-  QSS_RECONNECT_MAX_DELAY_MS,
-  QSSAuthConnStatus,
-} from './qss.const'
+import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
 import {
   CompoundError,
   InvitationDataV3,

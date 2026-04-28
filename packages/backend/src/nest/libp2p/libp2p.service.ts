@@ -91,22 +91,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       fuzzFactor: 0.05,
       baseDelayMs: 8_000,
       maxDelayMs: 20_000,
-      rolloverAtMaxDelay: true,
-    })
-
-    // Catch issues with the connection to the frontend closing and causing issues with peer connections
-    // by redialing after the new connection is established
-    this.serverIoProvider.io.engine.on('connection_error', err => {
-      this.logger.error(
-        'Server IO experienced a connection error with frontend',
-        err.message,
-        err.code,
-        err.context,
-        err
-      )
-      this.serverIoProvider.io.on('connection', socket => {
-        this.logger.warn('Redialing all known peers due to a server IO reconnect')
-      })
+      rolloverAtMaxDelay: false,
     })
   }
 
@@ -160,7 +145,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           )
         }
       } catch (e) {
-        this.logger.error('Error while deciding to redial', e)
+        this.logger.debug('Error while deciding to redial', e)
       }
     }
     return super.emit(event, ...args)
@@ -208,8 +193,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         }
         await this.libp2pInstance?.dial(parsedMultiAddr)
       } catch (e) {
-        if (!e.message.includes('Unexpected server response: 404')) {
-          this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
+        if (
+          !e.message.includes('Unexpected server response: 404') &&
+          !e.message.includes('Unexpected server response: 503')
+        ) {
+          this.logger.debug(`Failed to dial peer address: ${peerAddress}`, e.message, e.code)
         }
         if (options.redialOnError) {
           await this.redialPeerAfterDelay(peerAddress)
@@ -229,9 +217,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug('Local Address', this.localAddress)
     this.logger.debug(peerAddresses.length, dialable.length)
 
-    for (const addr of dialable) {
-      this.dialPeer(addr)
-    }
+    await Promise.all(dialable.map(addr => this.dialPeer(addr)))
   }
 
   public addPeersToDialQueue = async () => {
@@ -385,7 +371,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.dialedPeers.delete(peerAddress)
       this.logger.debug('Done hanging up')
     } catch (e) {
-      this.logger.error('Error while hanging up on peer', e)
+      this.logger.debug('Error while hanging up on peer', e)
       if (!controller.signal.aborted) {
         controller.abort(e)
       }
@@ -402,21 +388,28 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
    * we want to close/re-open connections.
    */
   public async redialPeers(peersToDial?: string[]) {
-    const dialed = peersToDial ?? Array.from(this.dialedPeers)
-    const sortedPeers = await this.localDbService.getSortedPeers(false)
+    const sortedPeers = peersToDial == null ? await this.localDbService.getSortedPeers(false) : []
     const toDial = new Set(peersToDial ?? [...sortedPeers, ...this.dialedPeers])
+    toDial.delete(this.localAddress)
+    const targets = [...toDial]
 
-    if (dialed.length === 0) {
+    if (targets.length === 0) {
       this.logger.debug('No peers to redial!')
       return
     }
 
-    this.logger.debug(`Re-dialing ${dialed.length} peers`)
+    this.logger.debug(`Re-dialing ${targets.length} peers`)
 
-    // TODO: Sort peers
-    await this.hangUpPeers(dialed)
+    const peersToHangUp = new Set<string>()
+    for (const peerAddress of targets) {
+      const peerId = peerAddress.split('/').pop()
+      const connectedAddress = peerId ? this.connectedPeers.get(peerId)?.address : undefined
+      peersToHangUp.add(connectedAddress ?? peerAddress)
+    }
 
-    await this.dialPeers([...toDial])
+    await this.hangUpPeers([...peersToHangUp])
+
+    await this.dialPeers(targets)
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
@@ -549,7 +542,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug(`Performing post-creation setup of libp2p instance`)
 
     if (!this.libp2pInstance) {
-      this.logger.error('libp2pInstance was not created')
+      this.logger.debug('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
 
@@ -603,7 +596,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           try {
             await this.libp2pInstance.hangUp(event.detail)
           } catch (error) {
-            this.logger.error('Failed to hang up paused connection', error)
+            this.logger.debug('Failed to hang up paused connection', error)
           }
         }
         return
@@ -656,7 +649,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       this.logger.debug(`Connection closed with ${remotePeerId}`, JSON.stringify(event))
       this.logger.debug(`${localPeerId} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
-        this.logger.error('libp2pInstance was not created')
+        this.logger.debug('libp2pInstance was not created')
         throw new Error('libp2pInstance was not created')
       }
       this.logger.debug(`${localPeerId} has ${this.libp2pInstance.getConnections().length} open connections`)
@@ -664,7 +657,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       let connectionStartTime = this.connectedPeers.get(remotePeerId)?.connectedAtSeconds
       const connectionEndTime: number = DateTime.utc().toSeconds()
       if (connectionStartTime == null) {
-        this.logger.error(`No connection start time for peer ${remotePeerId}`)
+        this.logger.debug(`No connection start time for peer ${remotePeerId}`)
         connectionStartTime = connectionEndTime
       }
       const connectionDuration: number = connectionEndTime - connectionStartTime
