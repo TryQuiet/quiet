@@ -222,7 +222,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         this.logger.info('Loading sigchain for community', community.name)
         await this.sigChainService.loadChain(community.name, true)
-        this.qssService.connect(community.qssEndpoint)
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
       }
@@ -411,8 +410,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    this.qssService.connect(this.qssEndpoint)
-
     await this.launchCommunity(community.id)
 
     const userProfile: UserProfile = {
@@ -431,17 +428,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity: identity,
       profile: userProfile,
     } as ResponseCreateCommunityPayload
-  }
-
-  private async joinViaQSS(inviteData: InvitationData) {
-    if (
-      inviteData.version === InvitationDataVersion.v3 &&
-      inviteData.qssEnabled &&
-      inviteData.authData.teamId != null &&
-      inviteData.qssEndpoint != null
-    ) {
-      await this.qssService.connect(inviteData.qssEndpoint, true)
-    }
   }
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
@@ -468,11 +454,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         inviteData.authData.teamId,
         true
       )
-      try {
-        this.joinViaQSS(inviteData)
-      } catch (error) {
-        this.logger.error(`Failed signing into qss community ${communityName}`, error)
-      }
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {
@@ -555,6 +536,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
+    this.localDbService.setCurrentCommunityId(id)
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -573,6 +555,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         }
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
+        emitError(this.serverIoProvider.io, {
+          type: SocketActions.LAUNCH_COMMUNITY,
+          message: ErrorMessages.SIGCHAIN_LOAD_FAILED,
+          community: community.id,
+          trace: (e as Error).stack,
+        })
+        await this.localDbService.deleteCommunity(community.id)
+        return
       }
     } else {
       this.logger.warn('No community name found in storage')
@@ -583,7 +573,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
       emitError(this.serverIoProvider.io, {
-        type: SocketActions.JOIN_COMMUNITY,
+        type: SocketActions.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: community.id,
         trace: e.stack,
@@ -639,28 +629,43 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
+    this.qssService.connect(community.qssEndpoint)
 
-    const setupStorage = async () => {
-      this.logger.info('Setting up storage')
-      await this.storageService.init()
+    let storageTeamId: string | undefined
+    let setupStorageWithTeamMetaPromise: Promise<void> | undefined
+    const setupStorageWithTeamMeta = async (teamId: string) => {
+      if (storageTeamId != null && storageTeamId !== teamId) {
+        throw new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`)
+      }
+      storageTeamId = teamId
+
+      if (setupStorageWithTeamMetaPromise != null) {
+        this.logger.info('Storage metadata setup already in progress, waiting')
+        return setupStorageWithTeamMetaPromise
+      }
+
+      setupStorageWithTeamMetaPromise = (async () => {
+        this.logger.info('Setting up storage')
+        await this.storageService.init()
+        this.storageService.addTeamIdToDbMetas(teamId)
+      })()
+
+      return setupStorageWithTeamMetaPromise
     }
 
     const activeChain = this.sigChainService.getActiveChain()
     if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      await setupStorage()
-      this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
+      await setupStorageWithTeamMeta(activeChain.team!.id)
     } else {
       this.qssService.once(QSSEvents.QSS_FULLY_JOINED, async (teamId: string) => {
         this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-        await setupStorage()
-        this.storageService.addTeamIdToDbMetas(teamId)
+        await setupStorageWithTeamMeta(teamId)
         this.logger.info('Fully joined event received, starting log entry pull interval', teamId)
         this.qssService.startLogPullInterval(teamId)
       })
       this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
         this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-        await setupStorage()
-        this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
+        await setupStorageWithTeamMeta(activeChain.team!.id)
       })
     }
     if (await this.tor.isBootstrappingFinished()) {

@@ -32,7 +32,7 @@ import path from 'path'
 @Injectable()
 export class StorageService extends EventEmitter {
   private initialized: boolean = false
-  private initializing: boolean = false
+  private initPromise: Promise<void> | undefined
   private storeListenersAttached = false
 
   private readonly logger = createLogger(StorageService.name)
@@ -67,13 +67,19 @@ export class StorageService extends EventEmitter {
       return
     }
 
-    if (this.initializing === true) {
-      this.logger.warn(`${StorageService.name} currently initializing, skipping duplicate event`)
-      return
+    if (this.initPromise != null) {
+      this.logger.warn(`${StorageService.name} currently initializing, waiting for existing initialization`)
+      return this.initPromise
     }
 
-    this.initializing = true
+    this.initPromise = this.initInternal().finally(() => {
+      this.initPromise = undefined
+    })
 
+    return this.initPromise
+  }
+
+  private async initInternal() {
     this.logger.info('Initializing storage')
     this.prepare()
 
@@ -101,7 +107,6 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('Initialized storage')
     this.initialized = true
-    this.initializing = false
   }
 
   public async clean() {

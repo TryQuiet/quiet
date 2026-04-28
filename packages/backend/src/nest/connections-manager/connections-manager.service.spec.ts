@@ -18,8 +18,10 @@ import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
 import { QSSService } from '../qss/qss.service'
-import { QSSOperationResult } from '../qss/qss.types'
+import { Libp2pEvents } from '../libp2p/libp2p.types'
+import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
+import waitForExpect from 'wait-for-expect'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -155,6 +157,55 @@ describe('ConnectionsManagerService', () => {
     expect(openSocketSpy).toHaveBeenCalledTimes(1)
     expect(libp2pResumeSpy).toHaveBeenCalledTimes(1)
     expect(qssResumeSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('sets storage team metadata once when QSS and libp2p join events race', async () => {
+    const teamId = 'team-id'
+    let resolveStorageInit: () => void
+    const storageInitPromise = new Promise<void>(resolve => {
+      resolveStorageInit = resolve
+    })
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+    jest.spyOn(sigChainService, 'getActiveChain').mockReturnValue({
+      team: {
+        id: teamId,
+      },
+      roles: {
+        amIMemberOfRole: () => false,
+      },
+    } as any)
+
+    const storageInitSpy = jest
+      .spyOn(connectionsManagerService['storageService'], 'init')
+      .mockReturnValue(storageInitPromise)
+    const addTeamIdToDbMetasSpy = jest
+      .spyOn(connectionsManagerService['storageService'], 'addTeamIdToDbMetas')
+      .mockImplementation(() => {})
+
+    await connectionsManagerService.launch(community)
+
+    qssService.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer-id' })
+
+    await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledTimes(1))
+    expect(addTeamIdToDbMetasSpy).not.toHaveBeenCalled()
+
+    resolveStorageInit!()
+
+    await waitForExpect(() => expect(addTeamIdToDbMetasSpy).toHaveBeenCalledTimes(1))
+    expect(addTeamIdToDbMetasSpy).toHaveBeenCalledWith(teamId)
   })
 
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {

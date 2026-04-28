@@ -232,6 +232,21 @@ export class LocalDbService extends EventEmitter {
     return communityId in ((await this.getCommunities()) ?? {})
   }
 
+  public async deleteCommunity(id: string) {
+    this.logger.info('Deleting community', id)
+    let communities = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    delete communities[id]
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+
+    const currentCommunityId = await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID)
+    if (currentCommunityId === id) {
+      await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, '')
+    }
+  }
+
   // temporarily shoving identity creation here
   public async setIdentity(identity: Identity) {
     let identities = await this.get(LocalDBKeys.IDENTITIES)
