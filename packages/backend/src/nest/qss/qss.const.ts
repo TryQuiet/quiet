@@ -1,5 +1,7 @@
 export const CLIENT_TRANSPORTS = ['websocket']
-export const QSS_RECONNECT_DELAY_MS = 60_000
+export const QSS_RECONNECT_DELAY_MS = 1_000
+export const QSS_RECONNECT_MAX_DELAY_MS = 60_000
+export const QSS_RECONNECT_BACKOFF_FACTOR = 2
 
 export enum QSSAuthConnStatus {
   NOT_STARTED = 'NOT_STARTED',
