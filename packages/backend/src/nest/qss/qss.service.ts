@@ -42,7 +42,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
+import { QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 import {
   CompoundError,
   InvitationDataV3,
@@ -58,7 +58,6 @@ import { Serializer } from '../common/serializer.service'
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
   private _paused = false
-  private _closed = false
   /**
    * True while waiting for websocket connection to finish connecting
    */
@@ -71,9 +70,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Interval for retrying/reconnecting to QSS
    */
   private _reconnectQueueProcessor: NodeJS.Timeout | undefined
-  private _reconnectAttempt = 0
-  private _lastConnectEndpoint: string | undefined
-  private _lastEnabledOverride = false
 
   /**
    * Map of team IDs to intervals pulling log entries
@@ -235,14 +231,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
 
     this.qssClient.on(QSSEvents.QSS_CONNECTED, async (): Promise<void> => {
-      this._resetReconnectBackoff()
       this.logger.debug('QSS connected, handling appropriate authentication operation')
       this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
-    })
-
-    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, (): void => {
-      this.logger.info('QSS disconnected, scheduling reconnect')
-      this._scheduleReconnect(this._lastConnectEndpoint ?? this.qssEndpoint, this._lastEnabledOverride)
     })
 
     this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: LogEntrySyncMessage): Promise<void> => {
@@ -382,64 +372,29 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.logger.debug('Skipping QSS connect because service is paused')
       return QSSOperationResult.DISABLED
     }
-    this._closed = false
-    this._lastConnectEndpoint = qssEndpoint ?? this._lastConnectEndpoint ?? this.qssEndpoint
-    this._lastEnabledOverride = enabledOverride
 
     let connStatus: QSSOperationResult
     try {
-      connStatus = await this._connectImpl(this._lastConnectEndpoint, enabledOverride)
+      connStatus = await this._connectImpl(qssEndpoint, enabledOverride)
     } catch (e) {
-      this.logger.info('Error while connecting to QSS')
+      this.logger.error('Error while connecting to QSS', e)
       connStatus = QSSOperationResult.ERROR
     }
 
-    if (connStatus === QSSOperationResult.SUCCESS) {
-      this._resetReconnectBackoff()
-    } else if (connStatus === QSSOperationResult.ERROR) {
-      this._scheduleReconnect(this._lastConnectEndpoint, enabledOverride)
+    if (this._reconnectQueueProcessor == null) {
+      this._reconnectQueueProcessor = setInterval(this.connect, QSS_RECONNECT_DELAY_MS, qssEndpoint, enabledOverride)
     }
 
     return connStatus
   }
 
-  private getReconnectDelayMs(): number {
-    return Math.min(
-      QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR ** this._reconnectAttempt,
-      QSS_RECONNECT_MAX_DELAY_MS
-    )
-  }
-
-  private _clearReconnectTimer(): void {
-    if (this._reconnectQueueProcessor != null) {
-      clearTimeout(this._reconnectQueueProcessor)
-      this._reconnectQueueProcessor = undefined
-    }
-  }
-
-  private _resetReconnectBackoff(): void {
-    this._reconnectAttempt = 0
-    this._clearReconnectTimer()
-  }
-
-  private _scheduleReconnect(qssEndpoint: string | undefined, enabledOverride: boolean): void {
-    if (this._paused || this._closed || this.connected || this._reconnectQueueProcessor != null) {
-      return
-    }
-
-    const delayMs = this.getReconnectDelayMs()
-    this.logger.info(`Scheduling QSS reconnect attempt in ${delayMs}ms`)
-    this._reconnectQueueProcessor = setTimeout(() => {
-      this._reconnectQueueProcessor = undefined
-      this._reconnectAttempt++
-      void this.connect(qssEndpoint, enabledOverride)
-    }, delayMs)
-  }
-
   public pause(): void {
     this.logger.info('Pausing QSS service')
     this._paused = true
-    this._resetReconnectBackoff()
+    if (this._reconnectQueueProcessor != null) {
+      clearInterval(this._reconnectQueueProcessor)
+      this._reconnectQueueProcessor = undefined
+    }
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }
@@ -451,7 +406,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async resume(): Promise<QSSOperationResult> {
     this.logger.info('Resuming QSS service')
     this._paused = false
-    this._closed = false
     return await this.connect(this.qssEndpoint)
   }
 
@@ -692,7 +646,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     const community = await this.localDbService.getCurrentCommunity()
-    this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
+    await this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
 
     this.emit(QSSEvents.QSS_START_AUTH_CONN, sigChain.team.id)
     return true
@@ -844,7 +798,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
     this.emit(QSSEvents.QSS_START_AUTH_CONN, teamId, teamName)
     const community = await this.localDbService.getCurrentCommunity()
-    this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
+    await this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
     return QSSOperationResult.SUCCESS
   }
 
@@ -1284,9 +1238,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    */
   public close(): void {
     this.logger.info(`Closing QSS service`)
-    this._closed = true
     clearInterval(this._deadLetterQueueProcessor)
-    this._resetReconnectBackoff()
+    if (this._reconnectQueueProcessor != null) {
+      clearInterval(this._reconnectQueueProcessor)
+      this._reconnectQueueProcessor = undefined
+    }
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }
