@@ -107,6 +107,11 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     }
   }
 
+  public deferEntry(userProfile: UserProfile): void {
+    logger.info('Deferring user profile until storage permissions are ready:', userProfile.userId)
+    this.deferredProfiles.push(userProfile)
+  }
+
   /**
    * Encrypts and signs a user profile for secure storage.
    * @param payload The user profile to encrypt.

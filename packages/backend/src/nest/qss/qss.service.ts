@@ -77,6 +77,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private readonly _logPullIntervals: Map<string, NodeJS.Timeout> = new Map()
 
   /**
+   * Team IDs whose local storage is ready to ingest QSS log history.
+   */
+  private readonly _logPullStorageReadyTeams: Set<string> = new Set()
+
+  /**
    * Track log pull operations currently executing by team ID
    */
   private readonly _logPullInFlight: Set<string> = new Set()
@@ -697,6 +702,54 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     void this._pullLatestLogEntriesForTeam(teamId)
   }
 
+  public markTeamStorageReady(teamId: string): void {
+    this.logger.debug('Marking team storage ready for QSS log pulls', teamId)
+    this._logPullStorageReadyTeams.add(teamId)
+    this.startLogPullIntervalIfReady(teamId)
+  }
+
+  private startLogPullIntervalIfReady(teamId: string, sigChain?: SigChain): void {
+    if (!this._logPullStorageReadyTeams.has(teamId)) {
+      this.logger.info('QSS auth is connected, waiting for storage before pulling historical log entries', teamId)
+      return
+    }
+
+    const authConnection = this.qssAuthConnManager.getConnection(teamId)
+    if (!authConnection?.active) {
+      this.logger.info(
+        'Storage is ready, waiting for QSS auth connection before pulling historical log entries',
+        teamId
+      )
+      return
+    }
+
+    let chain = sigChain
+    if (chain?.team == null) {
+      try {
+        chain = this.sigChainService.getChain({ teamId })
+      } catch (e) {
+        this.logger.warn('Storage is ready but no sigchain team is available for QSS log pulls', teamId, e)
+        return
+      }
+    }
+
+    if (chain.team == null) {
+      this.logger.warn('Storage is ready but sigchain team is not available for QSS log pulls', teamId)
+      return
+    }
+
+    if (!chain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+      this.logger.warn(
+        'Storage is ready but user is not a member, will pull historical log entries on full join',
+        teamId
+      )
+      return
+    }
+
+    this.logger.info('Storage and QSS auth are ready, starting log entry pull interval', teamId)
+    this.startLogPullInterval(teamId)
+  }
+
   /**
    * Send a sign in message to QSS and start the auth sync connection with QSS for this community
    *
@@ -714,23 +767,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
 
     if (result === QSSOperationResult.SUCCESS) {
-      this.logger.info('Successfully signed in to QSS, starting periodic log pulls once connected', teamId)
+      this.logger.info('Successfully signed in to QSS, starting periodic log pulls once storage is ready', teamId)
       await this.emitNseQssUrl(this._qssEndpoint)
       const authConnection = this.qssAuthConnManager.getConnection(teamId)
-      const startLogPullInterval = (): void => {
-        if (sigChain.team != null && !sigChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-          this.logger.warn('QSS is connected but user is not a member, will pull historical log entries on full join')
-          return
-        }
-        this.logger.info('Connected event received, starting log entry pull interval', teamId)
-        this.startLogPullInterval(teamId)
-      }
 
       authConnection?.removeAllListeners?.(QSSEvents.QSS_AUTH_CONNECTED)
       authConnection?.removeAllListeners?.(QSSEvents.QSS_DISCONNECTED)
       authConnection?.on?.(QSSEvents.QSS_AUTH_CONNECTED, () => {
         this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
-        startLogPullInterval()
+        this.startLogPullIntervalIfReady(teamId, sigChain)
       })
       authConnection?.on?.(QSSEvents.QSS_DISCONNECTED, () => {
         this.logger.info('Disconnected event received, stopping log entry pull interval', teamId)
@@ -740,7 +785,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
       if (authConnection?.active) {
         this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
-        startLogPullInterval()
+        this.startLogPullIntervalIfReady(teamId, sigChain)
       }
     }
 
@@ -1248,6 +1293,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
     this._logPullIntervals.clear()
     this._logPullInFlight.clear()
+    this._logPullStorageReadyTeams.clear()
     for (const [hash, waiters] of this._logSyncWaiters.entries()) {
       for (const waiter of waiters) {
         clearTimeout(waiter.timeout)

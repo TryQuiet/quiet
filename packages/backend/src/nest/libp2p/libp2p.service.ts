@@ -182,7 +182,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
-    this.logger.trace(`Dialing peer address: ${peerAddress}`)
+    this.logger.debug(`Dialing peer address: ${peerAddress}`)
     if (!peerAddress.includes(this.libp2pInstance.peerId.toString())) {
       try {
         this.dialedPeers.add(peerAddress)

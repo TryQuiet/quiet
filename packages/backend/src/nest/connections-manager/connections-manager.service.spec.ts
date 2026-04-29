@@ -193,19 +193,31 @@ describe('ConnectionsManagerService', () => {
     const addTeamIdToDbMetasSpy = jest
       .spyOn(connectionsManagerService['storageService'], 'addTeamIdToDbMetas')
       .mockImplementation(() => {})
+    const markTeamStorageReadySpy = jest.spyOn(qssService, 'markTeamStorageReady').mockImplementation(() => {})
 
-    await connectionsManagerService.launch(community)
+    let launchResolved = false
+    const launchPromise = connectionsManagerService.launch(community).then(() => {
+      launchResolved = true
+    })
+
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_FULLY_JOINED)).toBe(1))
 
     qssService.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
     connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer-id' })
 
     await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledTimes(1))
     expect(addTeamIdToDbMetasSpy).not.toHaveBeenCalled()
+    expect(markTeamStorageReadySpy).not.toHaveBeenCalled()
+    expect(launchResolved).toBe(false)
 
     resolveStorageInit!()
 
     await waitForExpect(() => expect(addTeamIdToDbMetasSpy).toHaveBeenCalledTimes(1))
+    await launchPromise
     expect(addTeamIdToDbMetasSpy).toHaveBeenCalledWith(teamId)
+    expect(markTeamStorageReadySpy).toHaveBeenCalledTimes(1)
+    expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
+    expect(launchResolved).toBe(true)
   })
 
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {

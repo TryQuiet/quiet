@@ -515,7 +515,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         peerId: identity.networkInfo.peerId.id,
       },
     }
-    this.storageService.addUserProfile(userProfile)
+    await this.storageService.deferUserProfile(userProfile)
 
     return {
       id: community.id,
@@ -648,26 +648,50 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.info('Setting up storage')
         await this.storageService.init()
         this.storageService.addTeamIdToDbMetas(teamId)
+        this.qssService.markTeamStorageReady(teamId)
       })()
 
       return setupStorageWithTeamMetaPromise
     }
 
     const activeChain = this.sigChainService.getActiveChain()
-    if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
+    const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
+    if (hasStorageReadyChain) {
       await setupStorageWithTeamMeta(activeChain.team!.id)
     } else {
-      this.qssService.once(QSSEvents.QSS_FULLY_JOINED, async (teamId: string) => {
-        this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-        await setupStorageWithTeamMeta(teamId)
-        this.logger.info('Fully joined event received, starting log entry pull interval', teamId)
-        this.qssService.startLogPullInterval(teamId)
+      const storageReadyPromise = new Promise<void>((resolve, reject) => {
+        const handleStorageReady = async (teamId: string) => {
+          try {
+            await setupStorageWithTeamMeta(teamId)
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        }
+
+        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, (teamId: string) => {
+          this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
+          void handleStorageReady(teamId)
+        })
+        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, (payload: { peer: string }) => {
+          this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
+          const teamId = this.sigChainService.getActiveChain().team?.id
+          if (teamId == null) {
+            reject(new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`))
+            return
+          }
+          void handleStorageReady(teamId)
+        })
       })
-      this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
-        this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-        await setupStorageWithTeamMeta(activeChain.team!.id)
-      })
+
+      if (await this.tor.isBootstrappingFinished()) {
+        this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+      }
+      this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+
+      await storageReadyPromise
     }
+
     if (await this.tor.isBootstrappingFinished()) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     }

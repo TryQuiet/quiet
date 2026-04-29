@@ -273,6 +273,15 @@ export class StorageService extends EventEmitter {
     return { success: true }
   }
 
+  public async deferUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {
+    const validationResponse = await UserProfileStore.validateUserProfile(profile)
+    if (!validationResponse.success) {
+      return validationResponse
+    }
+    this.userProfileStore.deferEntry(profile)
+    return { success: true }
+  }
+
   public async setIdentity(identity: Identity) {
     await this.localDbService.setIdentity(identity)
   }

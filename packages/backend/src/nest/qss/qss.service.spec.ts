@@ -546,9 +546,27 @@ describe('QSSService', () => {
       await waitForExpect(() => {
         expect(qssService.joinStatus(sigchainService.team.id)).toBe(JoinStatus.JOINED)
       })
-      expect(mockedSendMessage).toHaveBeenCalledTimes(3)
+      expect(mockedSendMessage).toHaveBeenCalledTimes(2)
       const initStatus = await qssService.getQssInitStatus()
       expect(initStatus.qssSetup).toBeTruthy()
+    })
+
+    it('waits for storage readiness before starting historical log pulls', async () => {
+      await initCommunity()
+      mockSuccessfulSignIn()
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      const startLogPullIntervalSpy = jest.spyOn(qssService, 'startLogPullInterval').mockImplementation(() => {})
+      const teamId = sigchainService.activeChain.team!.id
+
+      await qssService.connect('ws://localhost:3000')
+      await qssService.signInToCommunity(teamId, sigchainService.activeChain)
+
+      expect(startLogPullIntervalSpy).not.toHaveBeenCalled()
+
+      qssService.markTeamStorageReady(teamId)
+
+      expect(startLogPullIntervalSpy).toHaveBeenCalledTimes(1)
+      expect(startLogPullIntervalSpy).toHaveBeenCalledWith(teamId)
     })
 
     it('emits the NSE QSS URL from the endpoint passed to connect on iOS after successful sign in', async () => {
