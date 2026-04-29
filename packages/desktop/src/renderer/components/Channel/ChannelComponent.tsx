@@ -12,7 +12,14 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { ChannelMessage, DownloadStatus, MessagesDailyGroups, MessageSendingStatus, UserProfile } from '@quiet/types'
+import {
+  ChannelMessage,
+  ChannelType,
+  DownloadStatus,
+  MessagesDailyGroups,
+  MessageSendingStatus,
+  UserProfile,
+} from '@quiet/types'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -37,6 +44,8 @@ export interface ChannelComponentProps {
   user: UserProfile | undefined
   channelId: string
   channelName: string
+  channelType: ChannelType
+  members: UserProfile[]
   isPublic: boolean
   messages: {
     count: number
@@ -74,6 +83,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   user,
   channelId,
   channelName,
+  channelType,
+  members,
   isPublic,
   messages,
   newestMessage,
@@ -221,6 +232,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
+          channelType={channelType}
+          members={members}
+          me={user}
           isPublic={isPublic}
           openContextMenu={openContextMenu}
           enableContextMenu={enableContextMenu}

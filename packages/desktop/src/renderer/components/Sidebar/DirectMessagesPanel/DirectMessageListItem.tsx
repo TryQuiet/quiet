@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, ListItemButton, Avatar } from '@mui/material'
@@ -10,6 +10,7 @@ import { MenuName } from '../../../../const/MenuNames.enum'
 import { users } from '@quiet/state-manager'
 import { useSelector } from 'react-redux'
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
+import { myUserProfile } from 'packages/state-manager/src/sagas/users/userProfile/userProfile.selectors'
 
 const PREFIX = 'UserProfileListItem'
 
@@ -19,6 +20,8 @@ const classes = {
   primary: `${PREFIX}primary`,
   nickname: `${PREFIX}nickname`,
   itemText: `${PREFIX}itemText`,
+  selected: `${PREFIX}selected`,
+  disabled: `${PREFIX}disabled`,
 }
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -73,33 +76,48 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`& .${classes.itemText}`]: {
     margin: 0,
   },
+  [`&.${classes.selected}`]: {
+    backgroundColor: theme.palette.colors.sidebarSelected,
+  },
+  [`&.${classes.disabled}`]: {
+    opacity: '0.3',
+    pointerEvents: 'none',
+    cursor: 'not-allowed',
+  },
 }))
 
-export interface UserProfileListItemProps {
+export interface DirectMessageListItemProps {
   userProfile: UserProfile
+  myUserProfile?: UserProfile
   userProfileContextMenu: ReturnType<typeof useContextMenu>
   connected?: boolean
+  setOrCreateDmChannel: (memberIds: string[]) => void
 }
 
-export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
+export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
   userProfile,
+  myUserProfile,
   userProfileContextMenu,
+  setOrCreateDmChannel,
   connected = false,
 }) => {
   const theme = useTheme()
-
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation()
-    userProfileContextMenu.handleOpen({ userProfile })
-  }
+  const ref = useRef<HTMLDivElement>(null)
 
   return (
     <StyledListItemButton
-      className={classNames(classes.root)}
+      className={classNames(classes.root, {
+        [classes.selected]: false,
+        [classes.disabled]: false,
+      })}
       disableGutters
       data-testid={`${userProfile.nickname}-user-link`}
       tabIndex={-1}
-      onClick={handleOpenMenu}
+      onClick={() => {
+        if (myUserProfile == null) return
+        setOrCreateDmChannel([myUserProfile.userId, userProfile.userId])
+      }}
+      ref={ref}
     >
       <StyledBadge
         slotProps={{ badge: { 'data-testid': `${userProfile.nickname}-user-link-status-badge` } as any }}
@@ -135,4 +153,4 @@ export const UserProfileListItem: React.FC<UserProfileListItemProps> = ({
   )
 }
 
-export default UserProfileListItem
+export default DirectMessageListItem

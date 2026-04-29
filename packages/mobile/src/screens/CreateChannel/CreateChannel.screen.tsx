@@ -2,7 +2,7 @@ import React, { FC, useState, useCallback, useEffect } from 'react'
 import { CreateChannel } from '../../components/CreateChannel/CreateChannel.component'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities, identity, publicChannels, errors } from '@quiet/state-manager'
-import { ErrorCodes, ErrorMessages, SocketActions, ChannelStructure } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, SocketActions, ChannelStructure, ChannelType } from '@quiet/types'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
@@ -91,6 +91,7 @@ export const CreateChannelScreen: FC = () => {
           description: `Welcome to #${name}`,
           id: id,
           public: isPublic,
+          type: ChannelType.CHANNEL,
         })
       )
     },

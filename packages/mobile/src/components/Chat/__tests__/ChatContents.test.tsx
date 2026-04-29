@@ -4,7 +4,7 @@ import { Chat } from '../Chat.component'
 import { Keyboard } from 'react-native'
 import { ChatProps, ListItem } from '../Chat.types'
 import { FileActionsProps } from '../../FileAttachment/FileAttachment.types'
-import { DisplayableMessage } from '@quiet/types'
+import { ChannelType, DisplayableMessage } from '@quiet/types'
 
 // Mock dependencies
 jest.mock('react-native-safe-area-context', () => ({
@@ -176,6 +176,7 @@ describe('Chat component list data', () => {
       timestamp: 0,
       id: '',
       public: true,
+      type: ChannelType.CHANNEL,
     },
     pendingMessages: {},
     messages: mockMessages,

@@ -52,6 +52,7 @@ const AccessControlList = async ({
 export interface AccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
+  roleName?: string
 }
 
 export class BaseMessagesAccessController {

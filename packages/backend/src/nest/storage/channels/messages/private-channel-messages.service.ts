@@ -25,8 +25,8 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
    * @param message Message to send
    * @returns Processed message
    */
-  public async onSend(message: ChannelMessage): Promise<EncryptedMessage> {
-    return this._encryptPrivateChannelMessage(message)
+  public async onSend(message: ChannelMessage, roleName: string): Promise<EncryptedMessage> {
+    return this._encryptPrivateChannelMessage(message, roleName)
   }
 
   /**
@@ -37,7 +37,11 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
    */
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | false | undefined> {
     const chain = this.sigChainService.getChain({ teamId: message.teamId })
-    if (!chain.channels.amIMemberOfChannel(message.channelId)) {
+    if (
+      message.contents != null &&
+      message.contents.scope.name != null &&
+      !chain.roles.amIMemberOfRole(message.contents.scope.name)
+    ) {
       this.logger.warn(`Not a member of channel ${message.channelId} on team ${message.teamId}`)
       return false
     }
@@ -54,7 +58,7 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
     }
   }
 
-  private _encryptPrivateChannelMessage(rawMessage: ChannelMessage): EncryptedMessage {
+  private _encryptPrivateChannelMessage(rawMessage: ChannelMessage, roleName: string): EncryptedMessage {
     try {
       const chain = this.sigChainService.getActiveChain()
       const encryptable: EncryptableMessageComponents = {
@@ -65,7 +69,6 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
         message: rawMessage.message,
         media: rawMessage.media,
       }
-      const roleName = chain.channels.generateChannelRoleName(rawMessage.channelId)
       const encryptedMessage = chain.crypto.encryptAndSign(encryptable, {
         type: EncryptionScopeType.ROLE,
         name: roleName,

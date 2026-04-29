@@ -12,7 +12,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
-import { type Community, type PublicChannel, type Identity, UserProfile } from '@quiet/types'
+import { type Community, type PublicChannel, type Identity, UserProfile, ChannelType } from '@quiet/types'
 import { userProfiles, userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 describe('sendInitialChannelMessageSaga', () => {
@@ -67,6 +67,7 @@ describe('sendInitialChannelMessageSaga', () => {
       publicChannelsActions.sendInitialChannelMessage({
         channelName: channel.name,
         channelId: channel.id,
+        type: ChannelType.CHANNEL,
       })
     )
       .withReducer(reducer)
@@ -89,6 +90,7 @@ describe('sendInitialChannelMessageSaga', () => {
       publicChannelsActions.sendInitialChannelMessage({
         channelName: generalChannel.name,
         channelId: generalChannel.id,
+        type: ChannelType.CHANNEL,
       })
     )
       .withReducer(reducer)

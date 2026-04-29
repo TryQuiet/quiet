@@ -90,9 +90,10 @@ export const publicChannelsSlice = createSlice({
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       logger.info('addChannel', action.payload)
-      const { channel } = action.payload
+      const { channel, displayedName } = action.payload
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
+        displayedName: displayedName ?? channel.name,
         messages: channelMessagesAdapter.getInitialState(),
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {

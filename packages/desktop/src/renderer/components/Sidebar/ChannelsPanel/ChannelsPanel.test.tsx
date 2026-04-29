@@ -124,6 +124,7 @@ describe('Channels panel', () => {
           userProfileContextMenu={mockUserProfileContextMenu}
           connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
           isTorInitialized={true}
+          setOrCreateDmChannel={jest.fn()}
         />
       </>
     )

@@ -6,7 +6,8 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors, isOwner } from '../../communities/communities.selectors'
 import { createLogger } from '../../../utils/logger'
-import { CommunityOwnership } from '@quiet/types'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
+import { ChannelType, PublicChannel } from '@quiet/types'
 
 const logger = createLogger('channelsReplicatedSaga')
 
@@ -20,16 +21,32 @@ export function* channelsReplicatedSaga(
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
   const databaseStoredChannels = channels
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
+  const userProfiles = yield* select(userProfileSelectors.userProfiles)
+  const me = yield* select(userProfileSelectors.myUserProfile)
 
   logger.info({ locallyStoredChannels, databaseStoredChannelsIds })
 
+  const _generateDmChannelName = (memberIds: string[] | undefined): string => {
+    if (memberIds == null) return 'Empty DM Channel Name'
+    if (memberIds.length === 1) {
+      return me?.nickname ?? 'Me'
+    }
+    return memberIds
+      .filter(id => id !== me?.userId)
+      .map(id => userProfiles[id]?.nickname)
+      .join(', ')
+  }
+
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
+    const displayedName =
+      channel.type === ChannelType.CHANNEL ? channel.name : _generateDmChannelName(channel.memberIds)
     if (!locallyStoredChannels.includes(channel.id)) {
       logger.info(`Adding #${channel.name} to store`)
       yield* putResolve(
         publicChannelsActions.addChannel({
           channel,
+          displayedName,
         })
       )
       logger.info(`Adding #${channel.name} messages to store`)

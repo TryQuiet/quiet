@@ -3,14 +3,14 @@ import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { MessageType, type WriteMessagePayload } from '@quiet/types'
+import { ChannelType, MessageType, type WriteMessagePayload } from '@quiet/types'
 import { generalChannelDeletionMessage, createdChannelMessage } from '@quiet/common'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>['payload']>
 ): Generator {
-  const { channelName, channelId } = action.payload
+  const { channelName, channelId, type } = action.payload
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   if (!generalChannel) return
   const isGeneral = channelId === generalChannel.id
@@ -25,7 +25,7 @@ export function* sendInitialChannelMessageSaga(
       : yield* call(createdChannelMessage, channelName)
 
   const payload: WriteMessagePayload = {
-    type: MessageType.Info,
+    type: type === ChannelType.CHANNEL ? MessageType.Info : MessageType.Empty,
     message,
     channelId,
   }

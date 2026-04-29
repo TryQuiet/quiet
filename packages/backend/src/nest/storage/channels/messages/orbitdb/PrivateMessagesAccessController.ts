@@ -35,7 +35,15 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
       }
 
       const sigchain = config.sigchainService.getChain({ teamId: entry.payload.value!.teamId })
-      if (!sigchain.channels.memberInChannel(id, entry.payload.value!.channelId)) {
+      if (config.roleName == null) {
+        this.logger.error(
+          'Channel is private but no rolename was provided',
+          entry.payload.value!.teamId,
+          entry.payload.value!.channelId
+        )
+        return false
+      }
+      if (!sigchain.roles.memberHasRole(id, config.roleName)) {
         this.logger.warn(
           `User is not a member of the channel, skipping log append`,
           id,

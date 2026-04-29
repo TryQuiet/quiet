@@ -1,4 +1,4 @@
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { ChannelMessage, ChannelType, PublicChannel } from '@quiet/types'
 import { isMessage, isDirectMessage, isChannel, isEncryptedMessage } from './validators'
 import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 
@@ -185,6 +185,7 @@ describe('Validators - Channels', () => {
       timestamp: 12341234,
       id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
       public: true,
+      type: ChannelType.CHANNEL,
     }
     expect(isChannel(channel)).toBeTruthy()
   })

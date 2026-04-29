@@ -2,11 +2,13 @@
  * Handles role-related chain operations
  */
 
-import { SigChain } from '../../sigchain'
-import { ChainServiceBase } from '../chainServiceBase'
 import { Member } from '@localfirst/auth'
-import { createLogger } from '../../../common/logger'
 import { hash } from '@localfirst/crypto'
+
+import { SigChain } from '../../../sigchain'
+import { ChainServiceBase } from '../../chainServiceBase'
+import { createLogger } from '../../../../common/logger'
+import { defaultChannelPermissions } from '../permissions'
 
 const logger = createLogger('auth:channelService')
 
@@ -18,7 +20,7 @@ class ChannelService extends ChainServiceBase {
   public create(channelId: string): string {
     const roleName = this.generateChannelRoleName(channelId)
     logger.info(`Adding new channel role with name ${roleName}`)
-    this.sigChain.roles.create(roleName)
+    this.sigChain.roles.create(roleName, defaultChannelPermissions())
     return roleName
   }
 

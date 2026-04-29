@@ -12,7 +12,7 @@ import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import { TorStatusProps } from './TorStatus'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
-import { CommunityOwnership } from '@quiet/types'
+import { ChannelType, CommunityOwnership } from '@quiet/types'
 
 const Template: ComponentStory<typeof SidebarComponent> = args => {
   const [currentChannel, setCurrentChannel] = useState('general')
@@ -60,6 +60,7 @@ const args: IdentityPanelProps &
       owner: 'aliceUserId',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
     },
     {
       id: 'spooky',
@@ -68,6 +69,7 @@ const args: IdentityPanelProps &
       owner: 'bobUserId',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
     },
     {
       id: 'kalkan',
@@ -76,6 +78,7 @@ const args: IdentityPanelProps &
       owner: 'charlieUserId',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
     },
   ],
   myUserProfile: {

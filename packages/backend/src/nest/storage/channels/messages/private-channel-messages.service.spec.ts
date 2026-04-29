@@ -62,7 +62,10 @@ describe('PrivateChannelMessagesService', () => {
 
   describe('onSend', () => {
     it('encrypts message correctly', async () => {
-      const encryptedMessage = await messagesService.onSend(message)
+      const encryptedMessage = await messagesService.onSend(
+        message,
+        sigChainService.activeChain.channels.generateChannelRoleName(message.channelId)
+      )
       expect(isEncryptedMessage(encryptedMessage)).toBeTruthy()
       expect(encryptedMessage).toEqual(
         expect.objectContaining({
@@ -94,7 +97,10 @@ describe('PrivateChannelMessagesService', () => {
 
   describe('onConsume', () => {
     it('decrypts an encrypted message correctly', async () => {
-      const encryptedMessage = await messagesService.onSend(message)
+      const encryptedMessage = await messagesService.onSend(
+        message,
+        sigChainService.activeChain.channels.generateChannelRoleName(message.channelId)
+      )
       expect(await messagesService.onConsume(encryptedMessage)).toEqual({
         ...message,
         verified: true,
@@ -103,7 +109,10 @@ describe('PrivateChannelMessagesService', () => {
     })
 
     it('returns undefined when the signature is invalid', async () => {
-      const encryptedMessage = await messagesService.onSend(message)
+      const encryptedMessage = await messagesService.onSend(
+        message,
+        sigChainService.activeChain.channels.generateChannelRoleName(message.channelId)
+      )
       const invalidEncryptedMessage: EncryptedMessage = {
         ...encryptedMessage,
         encSignature: {

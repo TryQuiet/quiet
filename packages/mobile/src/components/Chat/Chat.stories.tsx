@@ -6,6 +6,7 @@ import { Chat } from './Chat.component'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { createLogger } from '../../utils/logger'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('chat:stories')
 
@@ -31,6 +32,7 @@ storiesOf('Chat', module)
         timestamp: 0,
         id: '',
         public: true,
+        type: ChannelType.CHANNEL,
       }}
       messages={{
         count: 16,
@@ -277,6 +279,7 @@ storiesOf('Chat', module)
         timestamp: 0,
         id: '',
         public: true,
+        type: ChannelType.CHANNEL,
       }}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
@@ -321,6 +324,7 @@ storiesOf('Chat', module)
         timestamp: 0,
         id: 'sticky-date-test',
         public: true,
+        type: ChannelType.CHANNEL,
       }}
       messages={{
         count: 40,

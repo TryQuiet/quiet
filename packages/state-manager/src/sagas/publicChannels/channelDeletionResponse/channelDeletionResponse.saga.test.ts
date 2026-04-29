@@ -11,7 +11,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
 import { generateChannelId } from '@quiet/common'
-import { CommunityOwnership, type Community, type Identity, type PublicChannel } from '@quiet/types'
+import { ChannelType, CommunityOwnership, type Community, type Identity, type PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { select } from 'redux-saga-test-plan/matchers'
 
@@ -164,6 +164,7 @@ describe('channelDeletionResponseSaga', () => {
         timestamp: 0,
         id: newGeneralId,
         public: true,
+        type: ChannelType.CHANNEL,
       }
 
       const reducer = combineReducers(testReducers)

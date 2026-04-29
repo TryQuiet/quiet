@@ -2,7 +2,7 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
-import UserProfileListItem from './UserProfileListItem'
+import DirectMessageListItem from './DirectMessageListItem'
 import { UserProfile } from '@quiet/types'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 
@@ -12,6 +12,7 @@ export interface DirectMessagesPanelProps {
   userProfileContextMenu: ReturnType<typeof useContextMenu>
   connectedPeers: string[]
   isTorInitialized: boolean
+  setOrCreateDmChannel: (memberIds: string[]) => void
 }
 
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
@@ -20,17 +21,20 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   userProfileContextMenu, // TODO: replace with direct message hook once implemented
   connectedPeers,
   isTorInitialized,
+  setOrCreateDmChannel,
 }) => {
   return (
     <Grid container item xs direction='column'>
       <SidebarHeader title={'Users'} tooltipText='List of users in this workspace' />
       <List disablePadding data-testid='usersList'>
         {myUserProfile && (
-          <UserProfileListItem
+          <DirectMessageListItem
+            myUserProfile={myUserProfile}
             userProfile={myUserProfile}
             key={myUserProfile.userId}
             connected={isTorInitialized}
             userProfileContextMenu={userProfileContextMenu}
+            setOrCreateDmChannel={setOrCreateDmChannel}
           />
         )}
         {Object.values(userProfiles)
@@ -46,11 +50,13 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
             return aConnected ? -1 : 1
           })
           .map(user => (
-            <UserProfileListItem
+            <DirectMessageListItem
+              myUserProfile={myUserProfile}
               userProfile={user}
               key={user.userId}
               userProfileContextMenu={userProfileContextMenu}
               connected={user.userData?.peerId != null && connectedPeers.includes(user.userData.peerId)}
+              setOrCreateDmChannel={setOrCreateDmChannel}
             />
           ))}
       </List>

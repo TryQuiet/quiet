@@ -21,6 +21,7 @@ import {
   type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
+  ChannelType,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -65,6 +66,7 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
     timestamp: draft.timestamp,
     id: draft.id,
     public: draft.public,
+    type: ChannelType.CHANNEL,
   }
   return channel
 })
@@ -154,7 +156,7 @@ export const currentChannel = createSelector(currentChannelId, selectChannels, (
 
 export const currentChannelName = createSelector(currentChannel, channel => {
   if (!channel) return ''
-  return channel.name
+  return channel.displayedName
 })
 
 export const currentChannelMessages = createSelector(currentChannel, channel => {

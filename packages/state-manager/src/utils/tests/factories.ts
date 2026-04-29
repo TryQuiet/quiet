@@ -52,6 +52,7 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   AddMembersChannelStatus,
+  ChannelType,
 } from '@quiet/types'
 import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
@@ -538,6 +539,7 @@ export const getSocketFactory = async () => {
     id: 'new-channel-id',
     name: 'Test Channel',
     description: 'A channel used for tests',
+    type: ChannelType.CHANNEL,
   })
 
   factory.define<CreateChannelResponse>(`${SocketActions.CREATE_CHANNEL}_response`, Object, {
@@ -548,6 +550,7 @@ export const getSocketFactory = async () => {
       owner: 'test-owner',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
     },
   })
 

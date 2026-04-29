@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActions } from '@quiet/types'
+import {
+  ChannelType,
+  CreateChannelPayload,
+  ErrorCodes,
+  ErrorMessages,
+  PublicChannel,
+  SocketActions,
+} from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -76,12 +83,13 @@ export const CreateChannel = () => {
       return
     }
     logger.warn('Creating channel 3...')
-    const payload = {
+    const payload: CreateChannelPayload = {
       id: generateChannelId(name),
       name: name,
       description: `Welcome to #${name}`,
       public: isPublic,
-    } as CreateChannelPayload
+      type: ChannelType.CHANNEL,
+    }
     dispatch(publicChannels.actions.createChannel(payload))
     setNewChannel(payload)
     logger.warn('Creating channel 4...')

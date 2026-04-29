@@ -9,7 +9,7 @@ import { publicChannelsActions } from './../publicChannels.slice'
 import { createGeneralChannelSaga } from './createGeneralChannel.saga'
 import { generateChannelId } from '@quiet/common'
 import { type communitiesActions } from '../../communities/communities.slice'
-import { type Community, type Identity } from '@quiet/types'
+import { ChannelType, type Community, type Identity } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -42,6 +42,7 @@ describe('createGeneralChannelSaga', () => {
       name: 'general',
       description: 'Welcome to #general',
       id: generalId,
+      type: ChannelType.CHANNEL,
     }
     await expectSaga(createGeneralChannelSaga)
       .withReducer(combineReducers(testReducers))

@@ -6,6 +6,11 @@ export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
+export enum ChannelType {
+  CHANNEL = 'channel',
+  DM = 'dm',
+}
+
 export interface PublicChannel {
   id: string
   name: string
@@ -15,10 +20,13 @@ export interface PublicChannel {
   disabled?: boolean
   public: boolean
   roleName?: string
+  type: ChannelType
+  memberIds?: string[]
 }
 
 export interface PublicChannelStorage extends PublicChannel {
   messages: EntityState<ChannelMessage>
+  displayedName: string
 }
 
 export interface PublicChannelStatus {
@@ -91,10 +99,13 @@ export interface CreateChannelPayload {
   name: string
   public?: boolean
   description?: string
+  type: ChannelType
+  memberIds?: string[]
 }
 
 export interface CreateChannelResponse {
   channel: PublicChannel
+  displayedName?: string
 }
 
 export interface DeleteChannelPayload {
@@ -126,6 +137,7 @@ export interface PendingMessage {
 export interface SendInitialChannelMessagePayload {
   channelName: string
   channelId: string
+  type: ChannelType
 }
 
 export interface MessagesLoadedPayload {

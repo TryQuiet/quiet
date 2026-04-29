@@ -10,6 +10,12 @@ import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
+import { generateDmChannelId, getChannelNameFromChannelId } from '@quiet/common'
+import { ChannelType, CreateChannelPayload } from '@quiet/types'
+import { createLogger } from '../../logger'
+import _ from 'lodash'
+
+const logger = createLogger('Sidebar')
 
 const Sidebar = () => {
   const dispatch = useDispatch()
@@ -22,14 +28,13 @@ const Sidebar = () => {
   const userProfileSelector = useSelector(users.selectors.userProfiles)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
+  const allChannels = useSelector(publicChannels.selectors.sortedChannels)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const userId = userProfile?.userId || ''
 
-  // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
-  useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
@@ -39,6 +44,35 @@ const Sidebar = () => {
         channelId: id,
       })
     )
+  }
+
+  const setOrCreateDmChannel = (memberIds: string[]) => {
+    const channelId = generateDmChannelId(memberIds)
+    logger.info('Checking for existence of DM channel', channelId, memberIds)
+    if (allChannels.find(channel => channel.id === channelId)) {
+      logger.info('DM channel found')
+      dispatch(
+        publicChannels.actions.setCurrentChannel({
+          channelId,
+        })
+      )
+    } else {
+      logger.info('DM channel not found, creating...', channelId, memberIds)
+      const payload: CreateChannelPayload = {
+        id: channelId,
+        name: channelId,
+        type: ChannelType.DM,
+        description: 'foo',
+        public: false,
+        memberIds: _.uniq(memberIds),
+      }
+      dispatch(publicChannels.actions.createChannel(payload))
+      dispatch(
+        publicChannels.actions.setCurrentChannel({
+          channelId,
+        })
+      )
+    }
   }
 
   if (!currentCommunity || !currentChannelId) {
@@ -74,6 +108,7 @@ const Sidebar = () => {
     userProfileContextMenu: userProfileContextMenu,
     connectedPeers: connectedPeers,
     isTorInitialized: isTorInitialized,
+    setOrCreateDmChannel,
   }
 
   return (

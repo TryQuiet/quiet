@@ -31,6 +31,7 @@ import {
   ErrorMessages,
   ResponseJoinCommunityPayload,
   CommunityOwnership,
+  ChannelType,
 } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav3 } from '@quiet/common'
 
@@ -60,6 +61,7 @@ const makeMockEmitImpl = (socket: MockedSocket, opts?: { qss?: boolean }) => {
               timestamp: 0,
               id: 'general',
               public: true,
+              type: ChannelType.CHANNEL,
             },
           ],
         })

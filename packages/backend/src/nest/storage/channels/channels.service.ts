@@ -21,6 +21,7 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   AddMembersChannelStatus,
+  ChannelType,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -194,7 +195,7 @@ export class ChannelsService extends EventEmitter {
       if (!payload.public) {
         scope = {
           type: EncryptionScopeType.ROLE,
-          name: chain.channels.generateChannelRoleName(payload.id),
+          name: payload.roleName,
         }
       }
       const encryptedPayload = chain.crypto.encryptAndSign(payload, scope)
@@ -447,10 +448,18 @@ export class ChannelsService extends EventEmitter {
       owner: this.sigchainService.getActiveChain().user.userId,
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
+      type: payload.type,
+      memberIds: payload.memberIds,
     }
     let roleName: string | undefined = undefined
-    if (!channelData.public) {
+    if (!channelData.public && channelData.type === ChannelType.CHANNEL) {
       roleName = this.sigchainService.getActiveChain().channels.create(channelData.id)
+      channelData.roleName = roleName
+    } else if (channelData.type === ChannelType.DM) {
+      if (channelData.memberIds == null) {
+        throw new Error('Attempted to create a DM with no members')
+      }
+      roleName = this.sigchainService.getActiveChain().dms.createWithMembers(channelData.memberIds)
       channelData.roleName = roleName
     }
     const store = await this.createChannel(channelData)

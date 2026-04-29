@@ -115,6 +115,7 @@ describe('Add new channel', () => {
             owner: userProfile.nickname,
             timestamp: 0,
             public: payload.public,
+            type: payload.type,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
@@ -226,6 +227,7 @@ describe('Add new channel', () => {
             owner: userProfile.nickname,
             timestamp: 0,
             public: payload.public ?? true,
+            type: payload.type,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
@@ -459,6 +461,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: true,
+            type: payload.type,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
@@ -576,6 +579,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: payload.public,
+            type: payload.type,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {

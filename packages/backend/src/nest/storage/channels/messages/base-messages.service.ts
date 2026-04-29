@@ -23,7 +23,7 @@ export class BaseMessagesService extends EventEmitter {
    * @param message Message to send
    * @returns Processed message
    */
-  public async onSend(message: ChannelMessage): Promise<EncryptedMessage> {
+  public async onSend(message: ChannelMessage, roleName?: string): Promise<EncryptedMessage> {
     throw new NotImplementedException('onSend is not implemented')
   }
 

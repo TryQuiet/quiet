@@ -1,3 +1,4 @@
+import { ChannelType } from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../testUtils/renderComponent'
@@ -7,7 +8,14 @@ describe('ChannelHeader', () => {
   describe('Public', () => {
     it('hides context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' isPublic={true} enableContextMenu={false} />
+        <ChannelHeaderComponent
+          channelName='general'
+          channelType={ChannelType.CHANNEL}
+          me={undefined}
+          members={[]}
+          isPublic={true}
+          enableContextMenu={false}
+        />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
         <body>
@@ -93,7 +101,14 @@ describe('ChannelHeader', () => {
     })
     it('reveals context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' isPublic={true} enableContextMenu={true} />
+        <ChannelHeaderComponent
+          channelName='general'
+          channelType={ChannelType.CHANNEL}
+          me={undefined}
+          members={[]}
+          isPublic={true}
+          enableContextMenu={true}
+        />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
         <body>
@@ -198,7 +213,14 @@ describe('ChannelHeader', () => {
   describe('Private', () => {
     it('hides context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' isPublic={false} enableContextMenu={false} />
+        <ChannelHeaderComponent
+          channelName='general'
+          channelType={ChannelType.CHANNEL}
+          me={undefined}
+          members={[]}
+          isPublic={false}
+          enableContextMenu={false}
+        />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
         <body>
@@ -281,7 +303,14 @@ describe('ChannelHeader', () => {
     })
     it('reveals context menu', () => {
       const result = renderComponent(
-        <ChannelHeaderComponent channelName='general' isPublic={false} enableContextMenu={true} />
+        <ChannelHeaderComponent
+          channelName='general'
+          channelType={ChannelType.CHANNEL}
+          me={undefined}
+          members={[]}
+          isPublic={false}
+          enableContextMenu={true}
+        />
       )
       expect(result.baseElement).toMatchInlineSnapshot(`
         <body>
