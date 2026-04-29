@@ -322,31 +322,74 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
-    this.logger.info('Resetting StorageService')
-    await this.storageService.clean()
+    // this.logger.info('Resetting StorageService')
+    // await this.storageService.clean()
 
-    this.logger.info('Cleaning libp2p datastore')
-    await this.libp2pService.cleanDatastore()
+    // this.logger.info('Cleaning libp2p datastore')
+    // await this.libp2pService.cleanDatastore()
 
-    this.logger.info('Closing libp2p datastore')
-    await this.libp2pService.closeDatastore()
+    // this.logger.info('Closing libp2p datastore')
+    // await this.libp2pService.closeDatastore()
 
-    this.logger.info('Purging data')
-    this.storageService.purgeData()
+    // this.logger.info('Purging data')
+    // this.storageService.purgeData()
 
-    this.logger.info('Resetting Tor')
-    this.tor.resetHiddenServices()
+    // this.logger.info('Resetting Tor')
+    // this.tor.resetHiddenServices()
 
-    this.logger.info('Resetting state')
-    await this.resetState()
+    // this.logger.info('Resetting state')
+    // await this.resetState()
 
-    this.logger.info('Reopening local DB')
-    await this.localDbService.open()
+    // this.logger.info('Reopening local DB')
+    // await this.localDbService.open()
 
     this.logger.info('Restarting socket')
     await this.openSocket()
 
     return true
+  }
+
+  private async erasePreviousCommunityArtifacts(): Promise<void> {
+    this.logger.info('Erasing previous community artifacts before creating or joining a community')
+
+    if (this.storageService) {
+      this.logger.info('Cleaning storage service')
+      await this.storageService.clean()
+    }
+
+    if (this.libp2pService) {
+      this.logger.info('Stopping libp2p without closing datastore')
+      await this.libp2pService.close(false)
+
+      this.logger.info('Cleaning libp2p datastore')
+      await this.libp2pService.cleanDatastore()
+
+      this.logger.info('Closing libp2p datastore')
+      await this.libp2pService.closeDatastore()
+    }
+
+    if (this.sigChainService.activeChainTeamName != null) {
+      await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName, true)
+    }
+
+    if (this.localDbService) {
+      this.logger.info('Purging local DB artifacts')
+      await this.localDbService.purgeArtifacts()
+    }
+
+    if (this.storageService) {
+      this.logger.info('Purging storage data')
+      this.storageService.purgeData()
+    }
+
+    this.logger.info('Resetting Tor hidden services')
+    this.tor.resetHiddenServices()
+
+    this.logger.info('Resetting community state')
+    await this.resetState()
+
+    this.logger.info('Reopening local DB')
+    await this.localDbService.open()
   }
 
   async resetState() {
@@ -377,6 +420,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
+    await this.erasePreviousCommunityArtifacts()
 
     this.logger.info(`Creating new LFA chain`)
     const sigchain = await this.sigChainService.createChain(payload.name, payload.username, true)
@@ -441,6 +485,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
+    if (!isPSKcodeValid(inviteData.psk)) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.JOIN_COMMUNITY,
+        message: ErrorMessages.NETWORK_SETUP_FAILED,
+        community: payload.id,
+      })
+      return
+    }
+
+    await this.erasePreviousCommunityArtifacts()
+
     let communityName: string | undefined
     if (
       inviteData &&
@@ -490,7 +545,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       } as NetworkStats
     }
     // this adds bootstrap peers to the local db with the expectation that they are replaced once the user connects
-    this.localDbService.updatePeerStats(bootstrapPeerStats)
+    await this.localDbService.updatePeerStats(bootstrapPeerStats)
 
     const community: Community = {
       id: payload.id,

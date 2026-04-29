@@ -12,7 +12,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
-import { createLibp2pAddress } from '@quiet/common'
+import { createLibp2pAddress, validInvitationDatav1 } from '@quiet/common'
 
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
@@ -250,6 +250,92 @@ describe('ConnectionsManagerService', () => {
     resetStateSpy.mockRestore()
     localDbOpenSpy.mockRestore()
     openSocketSpy.mockRestore()
+  })
+
+  it('erases previous community artifacts before creating a community', async () => {
+    const eraseArtifactsSpy = jest
+      .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+      .mockResolvedValue(undefined)
+    const createChainSpy = jest.spyOn(sigChainService, 'createChain').mockResolvedValue({
+      team: {
+        id: 'team-id',
+      },
+    } as any)
+    jest.spyOn(sigChainService, 'user', 'get').mockReturnValue({ userId: userIdentity.userId } as any)
+    jest.spyOn(connectionsManagerService, 'getNetworkInfo').mockResolvedValue(userIdentity.networkInfo)
+    jest.spyOn(connectionsManagerService['storageService'], 'setIdentity').mockResolvedValue()
+    jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+    jest.spyOn(connectionsManagerService['storageService'], 'addUserProfile').mockResolvedValue({ success: true })
+
+    await connectionsManagerService.createCommunity({
+      id: community.id,
+      name: community.name!,
+      username: 'john',
+      useServer: false,
+      tosAccepted: true,
+    })
+
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
+    expect(createChainSpy).toHaveBeenCalledTimes(1)
+    expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(createChainSpy.mock.invocationCallOrder[0])
+  })
+
+  it('erases previous community artifacts before joining a community', async () => {
+    const eraseArtifactsSpy = jest
+      .spyOn(connectionsManagerService as any, 'erasePreviousCommunityArtifacts')
+      .mockResolvedValue(undefined)
+    const getNetworkInfoSpy = jest
+      .spyOn(connectionsManagerService, 'getNetworkInfo')
+      .mockResolvedValue(userIdentity.networkInfo)
+    jest.spyOn(sigChainService, 'user', 'get').mockReturnValue({ userId: userIdentity.userId } as any)
+    jest.spyOn(connectionsManagerService['storageService'], 'setIdentity').mockResolvedValue()
+    jest.spyOn(connectionsManagerService['storageService'], 'addUserProfile').mockResolvedValue({ success: true })
+
+    await connectionsManagerService.joinCommunity({
+      id: community.id,
+      name: community.name!,
+      username: 'john',
+      inviteData: validInvitationDatav1[0],
+    })
+
+    expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
+    expect(getNetworkInfoSpy).toHaveBeenCalledTimes(1)
+    expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(getNetworkInfoSpy.mock.invocationCallOrder[0])
+  })
+
+  it('pre-community artifact erasure cleans local db, libp2p, storage, tor, and state without closing the socket', async () => {
+    const qssCloseSpy = jest.spyOn(qssService, 'close').mockImplementation(() => {})
+    const storageCleanSpy = jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
+    const libp2pCloseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'close').mockResolvedValue()
+    const cleanDatastoreSpy = jest.spyOn(connectionsManagerService.libp2pService, 'cleanDatastore').mockResolvedValue()
+    const closeDatastoreSpy = jest.spyOn(connectionsManagerService.libp2pService, 'closeDatastore').mockResolvedValue()
+    const deleteChainSpy = jest.spyOn(sigChainService, 'deleteChain').mockResolvedValue()
+    const purgeLocalDbArtifactsSpy = jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
+    const purgeDataSpy = jest
+      .spyOn(connectionsManagerService['storageService'], 'purgeData')
+      .mockImplementation(() => {})
+    const resetHiddenServicesSpy = jest
+      .spyOn(connectionsManagerService['tor'], 'resetHiddenServices')
+      .mockImplementation(() => {})
+    const resetStateSpy = jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
+    const localDbOpenSpy = jest.spyOn(localDbService, 'open').mockResolvedValue()
+    const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
+    sigChainService.activeChainTeamName = community.name
+
+    await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
+
+    expect(qssCloseSpy).toHaveBeenCalledTimes(1)
+    expect(storageCleanSpy).toHaveBeenCalledTimes(1)
+    expect(libp2pCloseSpy).toHaveBeenCalledWith(false)
+    expect(cleanDatastoreSpy).toHaveBeenCalledTimes(1)
+    expect(closeDatastoreSpy).toHaveBeenCalledTimes(1)
+    expect(deleteChainSpy).toHaveBeenCalled()
+    expect(purgeLocalDbArtifactsSpy).toHaveBeenCalledTimes(1)
+    expect(purgeDataSpy).toHaveBeenCalledTimes(1)
+    expect(resetHiddenServicesSpy).toHaveBeenCalledTimes(1)
+    expect(resetStateSpy).toHaveBeenCalledTimes(1)
+    expect(localDbOpenSpy).toHaveBeenCalledTimes(1)
+    expect(closeSocketSpy).not.toHaveBeenCalled()
   })
 
   it('returns false instead of rejecting when leaveCommunity fails through the socket listener', async () => {

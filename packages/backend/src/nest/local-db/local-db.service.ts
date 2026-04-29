@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
 import { Level } from 'level'
+import { rmSync } from 'fs'
 
 import { type Community, NetworkStats, Identity } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
@@ -48,6 +49,16 @@ export class LocalDbService extends EventEmitter {
   public async purge() {
     this.logger.info(`Purging db`)
     await this.db.clear()
+  }
+
+  public async purgeArtifacts() {
+    this.logger.info(`Purging local db artifacts`)
+    if (this.db.status !== 'open') {
+      await this.open()
+    }
+    await this.purge()
+    await this.close()
+    rmSync(this.db.location, { recursive: true, force: true })
   }
 
   public async get(key: string) {

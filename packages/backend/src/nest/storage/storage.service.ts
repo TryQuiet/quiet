@@ -26,7 +26,7 @@ import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
-import { readdirSync, rmSync } from 'fs'
+import { existsSync, readdirSync, rmSync } from 'fs'
 import path from 'path'
 
 @Injectable()
@@ -129,18 +129,23 @@ export class StorageService extends EventEmitter {
     this._purgeFiles()
   }
   private _purgeDataDirectories() {
-    const dirsToRemove = readdirSync(this.quietDir).filter(
-      i =>
-        i.startsWith('Ipfs') ||
-        i.startsWith('OrbitDB') ||
-        i.startsWith('backendDB') ||
-        i.startsWith('Local Storage') ||
-        i.startsWith('libp2pDatastore') ||
-        i.startsWith('databases') ||
-        i.startsWith('TorDataDirectory')
-    )
+    const dirsToRemove = existsSync(this.quietDir)
+      ? readdirSync(this.quietDir).filter(
+          i =>
+            i.startsWith('Ipfs') ||
+            i.startsWith('OrbitDB') ||
+            i.startsWith('backendDB') ||
+            i.startsWith('Local Storage') ||
+            i.startsWith('libp2pDatastore') ||
+            i.startsWith('databases') ||
+            i.startsWith('TorDataDirectory')
+        )
+      : []
+    const dirsToRemovePaths = new Set([this.ipfsRepoPath, this.orbitDbDir])
     for (const dir of dirsToRemove) {
-      const dirPath = path.join(this.quietDir, dir)
+      dirsToRemovePaths.add(path.join(this.quietDir, dir))
+    }
+    for (const dirPath of dirsToRemovePaths) {
       this.logger.info(`Removing dir: ${dirPath}`)
       removeFilesFromDir(dirPath)
     }
