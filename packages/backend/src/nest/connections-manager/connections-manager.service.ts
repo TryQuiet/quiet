@@ -322,26 +322,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
-    // this.logger.info('Resetting StorageService')
-    // await this.storageService.clean()
+    this.logger.info('Resetting StorageService')
+    await this.storageService.clean()
 
-    // this.logger.info('Cleaning libp2p datastore')
-    // await this.libp2pService.cleanDatastore()
+    this.logger.info('Cleaning libp2p datastore')
+    await this.libp2pService.cleanDatastore()
 
-    // this.logger.info('Closing libp2p datastore')
-    // await this.libp2pService.closeDatastore()
+    this.logger.info('Closing libp2p datastore')
+    await this.libp2pService.closeDatastore()
 
-    // this.logger.info('Purging data')
-    // this.storageService.purgeData()
+    this.logger.info('Purging data')
+    this.storageService.purgeData()
 
-    // this.logger.info('Resetting Tor')
-    // this.tor.resetHiddenServices()
+    this.logger.info('Resetting Tor')
+    this.tor.resetHiddenServices()
 
-    // this.logger.info('Resetting state')
-    // await this.resetState()
+    this.logger.info('Resetting state')
+    await this.resetState()
 
-    // this.logger.info('Reopening local DB')
-    // await this.localDbService.open()
+    this.logger.info('Reopening local DB')
+    await this.localDbService.open()
 
     this.logger.info('Restarting socket')
     await this.openSocket()
