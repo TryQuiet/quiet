@@ -35,6 +35,7 @@ import UsernameTakenModalContainer from './components/widgets/usernameTakenModal
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 import TermsOfService from './components/TermsOfService/TermsOfService'
+import NewDirectMessage from './components/NewDirectMessage/NewDirectMessage'
 // Trigger lerna
 
 export const persistor = persistStore(store)

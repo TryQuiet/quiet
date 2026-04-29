@@ -30,7 +30,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
         <SidebarHeader
           title={'Channels'}
           action={createChannelModal.handleOpen}
-          actionTitle={createChannelModal.handleOpen}
+          actionTitle={'createChannel'}
           tooltipText='Create new channel'
         />
       </Grid>

@@ -13,6 +13,7 @@ export interface DirectMessagesPanelProps {
   connectedPeers: string[]
   isTorInitialized: boolean
   setOrCreateDmChannel: (memberIds: string[]) => void
+  openOrCloseNewMessageWindow: (isOpen: boolean) => void
 }
 
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
@@ -22,10 +23,16 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   connectedPeers,
   isTorInitialized,
   setOrCreateDmChannel,
+  openOrCloseNewMessageWindow,
 }) => {
   return (
     <Grid container item xs direction='column'>
-      <SidebarHeader title={'Users'} tooltipText='List of users in this workspace' />
+      <SidebarHeader
+        title={'Direct messages'}
+        tooltipText='Start a new DM'
+        action={() => openOrCloseNewMessageWindow(true)}
+        actionTitle={'createNewMessage'}
+      />
       <List disablePadding data-testid='usersList'>
         {myUserProfile && (
           <DirectMessageListItem

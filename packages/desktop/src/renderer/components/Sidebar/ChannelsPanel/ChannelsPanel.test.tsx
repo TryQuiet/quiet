@@ -125,6 +125,7 @@ describe('Channels panel', () => {
           connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
           isTorInitialized={true}
           setOrCreateDmChannel={jest.fn()}
+          openOrCloseNewMessageWindow={jest.fn()}
         />
       </>
     )

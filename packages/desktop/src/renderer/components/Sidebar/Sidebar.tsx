@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { useContextMenu } from '../../../hooks/useContextMenu'
@@ -31,12 +31,16 @@ const Sidebar = () => {
   const allChannels = useSelector(publicChannels.selectors.sortedChannels)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
+  const generalChannel = useSelector(publicChannels.selectors.generalChannel)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const userId = userProfile?.userId || ''
 
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+
+  const [newMessageOpen, setNewMessageOpen] = useState<boolean>(false)
+  const [prevChannelId, setPrevChannelId] = useState<string | undefined>(currentChannelId)
 
   const setCurrentChannel = (id: string) => {
     dispatch(
@@ -75,6 +79,19 @@ const Sidebar = () => {
     }
   }
 
+  const openOrCloseNewMessageWindow = (isOpen: boolean) => {
+    setNewMessageOpen(isOpen)
+    if (isOpen) {
+      setPrevChannelId(currentChannelId)
+      dispatch(
+        publicChannels.actions.setCurrentChannel({
+          channelId: '-1',
+        })
+      )
+      // navigate('/new-message')
+    }
+  }
+
   if (!currentCommunity || !currentChannelId) {
     return null
   }
@@ -109,6 +126,7 @@ const Sidebar = () => {
     connectedPeers: connectedPeers,
     isTorInitialized: isTorInitialized,
     setOrCreateDmChannel,
+    openOrCloseNewMessageWindow,
   }
 
   return (

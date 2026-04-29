@@ -6,36 +6,34 @@ import { useDispatch, useSelector } from 'react-redux'
 import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData, ChannelType, UserProfile } from '@quiet/types'
 
-import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
+import NewDirectMessageComponent, { NewDirectMessageComponentProps } from './NewDirectMessage.component'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
+import { UploadFilesPreviewsProps } from '../Channel/File/FileAttachmentPreview'
 
 import { getFilesData } from '@quiet/common'
 
-import { FileActionsProps } from './File/FileComponent/FileComponent'
+import { FileActionsProps } from '../Channel/File/FileComponent/FileComponent'
 
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { createLogger } from '../../logger'
 import _ from 'lodash'
-import NewDirectMessageComponent, {
-  NewDirectMessageComponentProps,
-} from '../NewDirectMessage/NewDirectMessage.component'
-import { generalChannel } from 'packages/state-manager/src/sagas/publicChannels/publicChannels.selectors'
+import { useNavigate } from 'react-router'
 
-const logger = createLogger('Channel')
+const logger = createLogger('NewDirectMessage')
 
-const Channel = () => {
+const NewDirectMessage = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const user = useSelector(users.selectors.myUserProfile)
   const userProfiles = useSelector(users.selectors.userProfiles)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
-  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
   const generalChannel = useSelector(publicChannels.selectors.generalChannel)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -67,7 +65,6 @@ const Channel = () => {
   const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
   const [channelName, setChannelName] = useState<string>()
   const [members, setMembers] = useState<UserProfile[]>([])
-  const [prevChannelId, setPrevChannelId] = useState<string | undefined>(currentChannelId)
 
   const filesRef = React.useRef<FilePreviewData>({})
 
@@ -77,9 +74,6 @@ const Channel = () => {
     if (currentChannel == null) return
     logger.info('Channel data', currentChannel)
     setChannelName(currentChannelName)
-    if (currentChannelId !== '-1') {
-      setPrevChannelId(currentChannelId)
-    }
   }, [currentChannel, currentChannelName])
 
   useEffect(() => {
@@ -220,64 +214,25 @@ const Channel = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
 
-  const openOrCloseNewMessageWindow = (isOpen: boolean) => {
-    if (isOpen) {
-      setPrevChannelId(currentChannelId)
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: '-1',
-        })
-      )
-      // navigate('/new-message')
-    } else {
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: prevChannelId ?? generalChannel?.id ?? '-1',
-        })
-      )
-    }
+  const handleClose = () => {
+    dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalChannel!.id }))
+    navigate(`/channel/${generalChannel!.id}`)
   }
 
   if (!currentChannelId) return null
   if (!channelName) return null
 
-  const channelComponentProps: ChannelComponentProps = {
-    user: user,
-    channelId: currentChannelId,
-    channelType: currentChannel?.type ?? ChannelType.CHANNEL,
-    channelName,
-    members,
-    isPublic: currentChannel?.public ?? true,
-    messages: {
-      count: currentChannelMessagesCount,
-      groups: currentChannelDisplayableMessages,
-    },
-    newestMessage: newestCurrentChannelMessage,
-    pendingMessages: pendingMessages,
-    downloadStatuses: downloadStatusesMapping,
-    maxAutodownloadSizeBytes,
-    lazyLoading: lazyLoading,
-    onInputChange: onInputChange,
-    onInputEnter: onInputEnter,
-    openUrl: openUrl,
-    handleFileDrop: handleFileDrop,
-    openFilesDialog: openFilesDialog,
-    isCommunityInitialized: isCommunityInitialized,
-    handleClipboardFiles: handleClipboardFiles,
-    uploadedFileModal: uploadedFileModal,
-    openContextMenu: openContextMenu,
-    pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
-    unregisteredUsernameModalHandleOpen,
-    duplicatedUsernameModalHandleOpen,
-  }
-
-  const newDirectMessageComponentProps: NewDirectMessageComponentProps = {
+  const channelComponentProps: NewDirectMessageComponentProps = {
     user: user,
     userProfiles,
     messages: {
       count: currentChannelMessagesCount,
       groups: currentChannelDisplayableMessages,
     },
+    handleInputChange: (selectedUsers: UserProfile[]) => {
+      logger.warn('Input change', selectedUsers)
+    },
+    handleClose,
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
     downloadStatuses: downloadStatusesMapping,
@@ -295,8 +250,6 @@ const Channel = () => {
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,
-    handleInputChange: () => openOrCloseNewMessageWindow(false),
-    handleClose: () => openOrCloseNewMessageWindow(false),
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
@@ -312,24 +265,14 @@ const Channel = () => {
 
   return (
     <>
-      {currentChannelId &&
-        (currentChannelId !== '-1' ? (
-          <ChannelComponent
-            {...channelComponentProps}
-            {...uploadFilesPreviewProps}
-            {...fileActionsProps}
-            key={currentChannelId}
-          />
-        ) : (
-          <NewDirectMessageComponent
-            {...newDirectMessageComponentProps}
-            {...uploadFilesPreviewProps}
-            {...fileActionsProps}
-            key={'new-message'}
-          />
-        ))}
+      <NewDirectMessageComponent
+        {...channelComponentProps}
+        {...uploadFilesPreviewProps}
+        {...fileActionsProps}
+        key={currentChannelId}
+      />
     </>
   )
 }
 
-export default Channel
+export default NewDirectMessage

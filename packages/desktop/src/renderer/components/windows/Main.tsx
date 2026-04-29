@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid'
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Sidebar from '../Sidebar/Sidebar'
 import Channel from '../Channel/Channel'
+import NewDirectMessage from '../NewDirectMessage/NewDirectMessage'
 
 const MainGridStyled = styled(Grid)(() => ({
   minHeight: '100vh',
