@@ -6,6 +6,7 @@ import { ContextMenu } from './ContextMenu.component'
 import { ContextMenuItemProps } from './ContextMenu.types'
 
 import { createLogger } from '../../utils/logger'
+import { sendLogs } from '../../utils/sendLogs'
 
 const logger = createLogger('contextMenu:stories')
 
@@ -26,6 +27,34 @@ const community_items: ContextMenuItemProps[] = [
     title: 'Settings',
     action: () => {
       logger.info('clicked on settings')
+    },
+  },
+]
+
+const community_dev_items: ContextMenuItemProps[] = [
+  {
+    title: 'Create channel',
+    action: () => {
+      logger.info('clicked on create channel')
+    },
+  },
+  {
+    title: 'Add members',
+    action: () => {
+      logger.info('clicked on add members')
+    },
+  },
+  {
+    title: 'Leave community',
+    action: () => {
+      logger.info('clicked on leave community')
+    },
+  },
+  {
+    title: 'Send logs to devs',
+    action: () => {
+      logger.info('clicked on send logs')
+      void sendLogs()
     },
   },
 ]
@@ -51,6 +80,18 @@ storiesOf('ContextMenu', module)
       <ContextMenu
         title={'Rockets'}
         items={community_items}
+        visible={true}
+        handleClose={() => {
+          logger.info('closing menu')
+        }}
+      />
+    )
+  })
+  .add('Community (dev/alpha — Send logs)', () => {
+    return (
+      <ContextMenu
+        title={'Rockets'}
+        items={community_dev_items}
         visible={true}
         handleClose={() => {
           logger.info('closing menu')
