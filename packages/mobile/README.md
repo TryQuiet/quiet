@@ -213,6 +213,22 @@ const watchFolders = [
     bundle exec pod install 
     ```
 
+1. Set up `GoogleService-Info.plist` for Firebase / push notifications.
+
+    Push notifications use Firebase Cloud Messaging, which requires a `GoogleService-Info.plist` file in `packages/mobile/ios/`. The file is gitignored because it ties device registrations to a specific Firebase project.
+
+    **Most contributors don't need push notifications.** Copy the included stub so the app builds:
+
+    ```bash
+    cp packages/mobile/ios/GoogleService-Info.plist.example packages/mobile/ios/GoogleService-Info.plist
+    ```
+
+    At runtime, `AppDelegate+Firebase.swift` detects the invalid API key and skips Firebase init.
+
+    **If you're on the Quiet team and need push notifications**, get the real `GoogleService-Info.plist` from the team's secret store. Don't share it with untrusted contributors — it lets the holder register devices against Quiet's Firebase project and abuse FCM quota.
+
+    **If you're not on the Quiet team and want to test push notifications**, create your own [Firebase project](https://console.firebase.google.com/), add an iOS app with bundle ID `com.quietmobile` (or your custom bundle ID), and download its `GoogleService-Info.plist`.
+
 1. In `packages/mobile/ios`, create a `.xcode.env.local` file with your Node path:
 
      ```bash
