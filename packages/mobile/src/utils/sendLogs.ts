@@ -33,6 +33,8 @@ export const sendLogs = async (): Promise<void> => {
   await RNFS.mkdir(SHARE_DIR)
 
   const header = [
+    `Please send to ${SUPPORT_EMAIL}`,
+    '',
     `App version: ${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `Device: ${DeviceInfo.getBrand()} ${DeviceInfo.getModel()}`,
