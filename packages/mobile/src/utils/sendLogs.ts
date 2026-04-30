@@ -8,6 +8,8 @@ import { createLogger } from './logger'
 const logger = createLogger('sendLogs')
 
 const LOGS_DIR = RNFS.DocumentDirectoryPath + '/logs'
+const SHARE_DIR = RNFS.CachesDirectoryPath + '/quiet-logs-share'
+const SUPPORT_EMAIL = 'logs@tryquiet.org'
 
 export const sendLogs = async (): Promise<void> => {
   let entries: RNFS.ReadDirItem[]
@@ -25,7 +27,12 @@ export const sendLogs = async (): Promise<void> => {
     return
   }
 
-  const metadata = [
+  if (await RNFS.exists(SHARE_DIR)) {
+    await RNFS.unlink(SHARE_DIR)
+  }
+  await RNFS.mkdir(SHARE_DIR)
+
+  const header = [
     `App version: ${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `Device: ${DeviceInfo.getBrand()} ${DeviceInfo.getModel()}`,
@@ -34,21 +41,30 @@ export const sendLogs = async (): Promise<void> => {
     'WARNING: Quiet logs may contain onion addresses, identity keys, invitation secrets, and message content.',
     'Only share with people you trust.',
     '',
+    `Bundled ${logFiles.length} log file(s).`,
+    '',
   ].join('\n')
 
-  const metadataPath = `${RNFS.CachesDirectoryPath}/quiet-log-metadata.txt`
-  await RNFS.writeFile(metadataPath, metadata, 'utf8')
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const bundlePath = `${SHARE_DIR}/quiet-logs-${stamp}.txt`
 
-  const urls = [`file://${metadataPath}`, ...logFiles.map(f => `file://${f.path}`)]
-  const filenames = ['quiet-log-metadata.txt', ...logFiles.map(f => f.name)]
+  await RNFS.writeFile(bundlePath, header, 'utf8')
+  for (const f of logFiles) {
+    const sep = `\n\n===== ${f.name} =====\n\n`
+    await RNFS.appendFile(bundlePath, sep, 'utf8')
+    const contents = await RNFS.readFile(f.path, 'utf8')
+    await RNFS.appendFile(bundlePath, contents, 'utf8')
+  }
 
   try {
     await Share.open({
       title: 'Quiet logs',
       subject: `Quiet logs ${new Date().toISOString().slice(0, 10)}`,
-      message: metadata,
-      urls,
-      filenames,
+      message: header,
+      email: SUPPORT_EMAIL,
+      url: `file://${bundlePath}`,
+      filename: `quiet-logs-${stamp}.txt`,
+      type: 'text/plain',
       failOnCancel: false,
     })
   } catch (err) {

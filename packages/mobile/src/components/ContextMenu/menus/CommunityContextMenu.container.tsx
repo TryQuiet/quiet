@@ -52,7 +52,7 @@ export const CommunityContextMenu: FC = () => {
 
   if (Config.NODE_ENV !== NodeEnv.Production) {
     items.push({
-      title: 'Send logs to devs',
+      title: 'Share logs',
       action: () => {
         communityContextMenu.handleClose()
         void sendLogs()

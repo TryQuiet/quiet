@@ -51,9 +51,9 @@ const community_dev_items: ContextMenuItemProps[] = [
     },
   },
   {
-    title: 'Send logs to devs',
+    title: 'Share logs',
     action: () => {
-      logger.info('clicked on send logs')
+      logger.info('clicked on share logs')
       void sendLogs()
     },
   },
@@ -87,7 +87,7 @@ storiesOf('ContextMenu', module)
       />
     )
   })
-  .add('Community (dev/alpha — Send logs)', () => {
+  .add('Community (dev/alpha — Share logs)', () => {
     return (
       <ContextMenu
         title={'Rockets'}

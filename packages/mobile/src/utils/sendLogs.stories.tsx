@@ -8,7 +8,7 @@ import { sendLogs } from './sendLogs'
 storiesOf('SendLogs', module).add('Trigger share sheet', () => (
   <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
     <Button
-      title={'Send logs to devs'}
+      title={'Share logs'}
       onPress={() => {
         void sendLogs()
       }}
