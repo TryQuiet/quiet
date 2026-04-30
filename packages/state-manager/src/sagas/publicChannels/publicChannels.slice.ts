@@ -44,6 +44,8 @@ export class PublicChannelsState {
 
   public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
 
+  public newMessageOpen = false
+
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
 }
@@ -162,6 +164,9 @@ export const publicChannelsSlice = createSlice({
       const channel = state.channels.entities[message.channelId]
       if (!channel) return
       channelMessagesAdapter.addOne(channel.messages, message)
+    },
+    setNewMessageOpen: (state, action: PayloadAction<{ isOpen: boolean }>) => {
+      state.newMessageOpen = action.payload.isOpen
     },
   },
 })

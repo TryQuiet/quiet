@@ -285,6 +285,10 @@ export const unreadChannels = createSelector(channelsStatus, status => {
     }, [])
 })
 
+export const dmChannels = createSelector(publicChannels, channels => {
+  return Object.values(channels).filter(channel => channel.type === ChannelType.DM)
+})
+
 export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
   const messageCount = Object.values(currentChannelMessages).length
   return messageCount > 0
@@ -293,6 +297,10 @@ export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySe
 export const areChannelsLoaded = createSelector(publicChannels, channels => {
   const channelCount = channels.length
   return channelCount > 0
+})
+
+export const isNewMessageOpen = createSelector(selectState, state => {
+  return state.newMessageOpen
 })
 
 export const publicChannelsSelectors = {
@@ -318,4 +326,6 @@ export const publicChannelsSelectors = {
   getChannelById,
   areMessagesLoaded,
   areChannelsLoaded,
+  isNewMessageOpen,
+  dmChannels,
 }

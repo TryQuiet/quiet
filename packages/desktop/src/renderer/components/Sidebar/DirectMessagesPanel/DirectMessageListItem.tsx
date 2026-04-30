@@ -1,16 +1,12 @@
 import React, { useRef } from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, ListItemButton, Avatar } from '@mui/material'
+import { Typography, ListItemButton } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import ListItemText from '@mui/material/ListItemText'
-import { UserProfile } from '@quiet/types'
-import { useContextMenu } from '../../../../hooks/useContextMenu'
-import { MenuName } from '../../../../const/MenuNames.enum'
-import { users } from '@quiet/state-manager'
-import { useSelector } from 'react-redux'
+import { PublicChannelStorage, UserProfile } from '@quiet/types'
 import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
-import { myUserProfile } from 'packages/state-manager/src/sagas/users/userProfile/userProfile.selectors'
+import { DmChannelUserData } from './DirectMessagesPanel'
 
 const PREFIX = 'UserProfileListItem'
 
@@ -87,19 +83,19 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 }))
 
 export interface DirectMessageListItemProps {
-  userProfile: UserProfile
-  myUserProfile?: UserProfile
-  userProfileContextMenu: ReturnType<typeof useContextMenu>
-  connected?: boolean
-  setOrCreateDmChannel: (memberIds: string[]) => void
+  channel: PublicChannelStorage
+  me: UserProfile | undefined
+  userProfiles: Record<string, UserProfile>
+  userData: DmChannelUserData | undefined
+  setCurrentChannel: (channelId: string) => void
 }
 
 export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
-  userProfile,
-  myUserProfile,
-  userProfileContextMenu,
-  setOrCreateDmChannel,
-  connected = false,
+  channel,
+  me,
+  userProfiles,
+  userData,
+  setCurrentChannel,
 }) => {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
@@ -111,37 +107,34 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
         [classes.disabled]: false,
       })}
       disableGutters
-      data-testid={`${userProfile.nickname}-user-link`}
+      data-testid={`${channel.id}-dm-link`}
       tabIndex={-1}
       onClick={() => {
-        if (myUserProfile == null) return
-        setOrCreateDmChannel([myUserProfile.userId, userProfile.userId])
+        setCurrentChannel(channel.id)
       }}
       ref={ref}
     >
       <StyledBadge
-        slotProps={{ badge: { 'data-testid': `${userProfile.nickname}-user-link-status-badge` } as any }}
+        slotProps={{ badge: { 'data-testid': `${channel.id}-dm-link-status-badge` } as any }}
         overlap='circular'
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         variant='dot'
-        invisible={!connected}
+        invisible={!userData?.connected}
       >
-        <span className={classes.avatar}>
-          <ProfilePhoto
-            userProfile={userProfile}
-            userId={userProfile.userId}
-            size={theme.componentSizes.avatar.small}
-          />
-        </span>
+        {userData && (
+          <span className={classes.avatar}>
+            <ProfilePhoto
+              userProfile={userData.user}
+              userId={userData.user.userId}
+              size={theme.componentSizes.avatar.small}
+            />
+          </span>
+        )}
       </StyledBadge>
       <ListItemText
         primary={
-          <Typography
-            variant='body2'
-            className={classes.nickname}
-            data-testid={`${userProfile.nickname}-user-link-text`}
-          >
-            {userProfile.nickname}
+          <Typography variant='body2' className={classes.nickname} data-testid={`${channel.id}-dm-link-text`}>
+            {channel.displayedName}
           </Typography>
         }
         classes={{

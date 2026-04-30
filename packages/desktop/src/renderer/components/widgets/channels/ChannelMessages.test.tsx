@@ -48,6 +48,7 @@ describe('ChannelMessages', () => {
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
         openUrl={jest.fn()}
+        allowEmpty={false}
       />
     )
 

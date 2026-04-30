@@ -49,7 +49,7 @@ const EncryptionSignatureSchema = joi.object({
 
 const messageSchema = joi.object({
   id: joi.string().required(),
-  type: joi.number().required().positive().integer(),
+  type: joi.number().required().integer(),
   message: joi.string().required().allow(''),
   createdAt: joi.number().required(),
   channelId: joi.string().required(),

@@ -88,6 +88,7 @@ interface Props {
   pendingGeneralChannelRecreation?: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  allowEmpty: boolean
 }
 
 const logger = createLogger('ChannelMessages')
@@ -97,6 +98,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   pendingMessages = {},
   downloadStatuses = {},
   maxAutodownloadSizeBytes,
+  allowEmpty,
   scrollbarRef,
   onScroll,
   uploadedFileModal,
@@ -246,14 +248,17 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
 
   return (
     <StyledRoot className={classes.scroll} ref={scrollbarRef} data-testid='channelContent'>
-      {Object.values(messages).length < 1 && (
-        <SpinnerLoader
-          size={CHANNEL_UI.SPINNER_SIZE}
-          message={spinnerMessage}
-          className={classes.spinner}
-          color='black'
-        />
-      )}
+      {Object.values(messages).length < 1 &&
+        (!allowEmpty ? (
+          <SpinnerLoader
+            size={CHANNEL_UI.SPINNER_SIZE}
+            message={spinnerMessage}
+            className={classes.spinner}
+            color='black'
+          />
+        ) : (
+          <></>
+        ))}
 
       <FloatingDate title={currentDay} isVisible={userHasInitiatedScroll && isScrolling} />
 

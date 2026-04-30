@@ -259,6 +259,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
             unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+            allowEmpty={false}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>

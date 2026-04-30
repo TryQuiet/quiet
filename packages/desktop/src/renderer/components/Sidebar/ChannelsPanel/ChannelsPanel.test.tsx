@@ -121,11 +121,11 @@ describe('Channels panel', () => {
         <DirectMessagesPanel
           myUserProfile={aliceUserProfile}
           userProfiles={userProfilesMap}
-          userProfileContextMenu={mockUserProfileContextMenu}
           connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
           isTorInitialized={true}
-          setOrCreateDmChannel={jest.fn()}
-          openOrCloseNewMessageWindow={jest.fn()}
+          setCurrentChannel={jest.fn()}
+          openNewMessageWindow={jest.fn()}
+          dmChannels={[]}
         />
       </>
     )

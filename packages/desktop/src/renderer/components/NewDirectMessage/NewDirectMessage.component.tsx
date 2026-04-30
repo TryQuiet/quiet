@@ -36,6 +36,7 @@ import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 import NewMessageGroupHeader from '../widgets/channels/NewMessageGroup/NewMessageGroupHeader'
 import NewMessageGroupSearch from '../widgets/channels/NewMessageGroup/NewMessageGroupSearch'
+import { createLogger } from '../../logger'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -52,6 +53,7 @@ export interface NewDirectMessageComponentProps {
   isPublic: boolean
   handleClose: () => void
   handleInputChange: (selectedUsers: UserProfile[]) => void
+  setOrCreateDmChannel: (memberIds: string[]) => void
   messages: {
     count: number
     groups: MessagesDailyGroups
@@ -87,6 +89,8 @@ const enum ScrollPosition {
 const EMPTY_CHANNEL_NAME = ''
 const EMPTY_CHANNEL_ID = '-1'
 
+const logger = createLogger('NewDirectMessageComponent')
+
 export const NewDirectMessageComponent: React.FC<
   NewDirectMessageComponentProps & UploadFilesPreviewsProps & FileActionsProps
 > = ({
@@ -98,6 +102,7 @@ export const NewDirectMessageComponent: React.FC<
   channelName,
   channelType,
   isPublic,
+  setOrCreateDmChannel,
   messages,
   newestMessage,
   pendingMessages,
@@ -128,6 +133,7 @@ export const NewDirectMessageComponent: React.FC<
   const [infoClass, setInfoClass] = useState<string>('')
   const [scrollPosition, setScrollPosition] = useState(ScrollPosition.BOTTOM)
   const [mathMessagesRendered, onMathMessageRendered] = useState<number>(0)
+  const [selectedMembers, setSelectedMembers] = useState<UserProfile[]>([])
 
   const memoizedScrollHeight = useRef<number>()
 
@@ -158,6 +164,11 @@ export const NewDirectMessageComponent: React.FC<
   }
 
   const onEnterKeyPress = (message: string) => {
+    logger.warn('Setting or creating dm channel and sending message', message, selectedMembers, user)
+    if (user == null) {
+      return
+    }
+    setOrCreateDmChannel(selectedMembers.map(member => member.userId))
     // Send message and files
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
@@ -236,12 +247,21 @@ export const NewDirectMessageComponent: React.FC<
     scrollBottom()
   }, [channelId])
 
+  const handleUserSearchInputChange = (members: UserProfile[]) => {
+    setSelectedMembers(members)
+    handleInputChange(members)
+  }
+
   return (
     <Page>
       <PageHeader>
         <Grid display='flex' flexDirection='column' gap='8px'>
           <NewMessageGroupHeader userProfiles={userProfiles} me={user} handleClose={handleClose} />
-          <NewMessageGroupSearch userProfiles={userProfiles} me={user} handleInputChange={handleInputChange} />
+          <NewMessageGroupSearch
+            userProfiles={userProfiles}
+            me={user}
+            handleInputChange={handleUserSearchInputChange}
+          />
         </Grid>
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
@@ -263,6 +283,7 @@ export const NewDirectMessageComponent: React.FC<
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
             unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+            allowEmpty={true}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>
@@ -281,7 +302,9 @@ export const NewDirectMessageComponent: React.FC<
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={
-              isCommunityInitialized && Boolean(messages.count) ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED
+              isCommunityInitialized && Boolean(selectedMembers.length)
+                ? INPUT_STATE.AVAILABLE
+                : INPUT_STATE.NOT_CONNECTED
             }
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}

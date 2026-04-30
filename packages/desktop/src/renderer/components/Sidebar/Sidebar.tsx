@@ -28,7 +28,7 @@ const Sidebar = () => {
   const userProfileSelector = useSelector(users.selectors.userProfiles)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
-  const allChannels = useSelector(publicChannels.selectors.sortedChannels)
+  const dmChannels = useSelector(publicChannels.selectors.dmChannels)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const generalChannel = useSelector(publicChannels.selectors.generalChannel)
@@ -43,6 +43,7 @@ const Sidebar = () => {
   const [prevChannelId, setPrevChannelId] = useState<string | undefined>(currentChannelId)
 
   const setCurrentChannel = (id: string) => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
     dispatch(
       publicChannels.actions.setCurrentChannel({
         channelId: id,
@@ -50,46 +51,14 @@ const Sidebar = () => {
     )
   }
 
-  const setOrCreateDmChannel = (memberIds: string[]) => {
-    const channelId = generateDmChannelId(memberIds)
-    logger.info('Checking for existence of DM channel', channelId, memberIds)
-    if (allChannels.find(channel => channel.id === channelId)) {
-      logger.info('DM channel found')
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId,
-        })
-      )
-    } else {
-      logger.info('DM channel not found, creating...', channelId, memberIds)
-      const payload: CreateChannelPayload = {
-        id: channelId,
-        name: channelId,
-        type: ChannelType.DM,
-        description: 'foo',
-        public: false,
-        memberIds: _.uniq(memberIds),
-      }
-      dispatch(publicChannels.actions.createChannel(payload))
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId,
-        })
-      )
-    }
-  }
-
-  const openOrCloseNewMessageWindow = (isOpen: boolean) => {
-    setNewMessageOpen(isOpen)
-    if (isOpen) {
-      setPrevChannelId(currentChannelId)
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: '-1',
-        })
-      )
-      // navigate('/new-message')
-    }
+  const openNewMessageWindow = () => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true }))
+    setPrevChannelId(currentChannelId)
+    dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channelId: '-1',
+      })
+    )
   }
 
   if (!currentCommunity || !currentChannelId) {
@@ -122,11 +91,11 @@ const Sidebar = () => {
   const directMessagesPanelProps: DirectMessagesPanelProps = {
     myUserProfile: userProfile,
     userProfiles: userProfileSelector,
-    userProfileContextMenu: userProfileContextMenu,
+    dmChannels,
     connectedPeers: connectedPeers,
     isTorInitialized: isTorInitialized,
-    setOrCreateDmChannel,
-    openOrCloseNewMessageWindow,
+    setCurrentChannel,
+    openNewMessageWindow,
   }
 
   return (
