@@ -46,6 +46,10 @@ const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
 export interface NewDirectMessageComponentProps {
   user: UserProfile | undefined
   userProfiles: Record<string, UserProfile>
+  channelId: string
+  channelName: string
+  channelType: ChannelType
+  isPublic: boolean
   handleClose: () => void
   handleInputChange: (selectedUsers: UserProfile[]) => void
   messages: {
@@ -90,6 +94,10 @@ export const NewDirectMessageComponent: React.FC<
   userProfiles,
   handleInputChange,
   handleClose,
+  channelId,
+  channelName,
+  channelType,
+  isPublic,
   messages,
   newestMessage,
   pendingMessages,
@@ -120,9 +128,6 @@ export const NewDirectMessageComponent: React.FC<
   const [infoClass, setInfoClass] = useState<string>('')
   const [scrollPosition, setScrollPosition] = useState(ScrollPosition.BOTTOM)
   const [mathMessagesRendered, onMathMessageRendered] = useState<number>(0)
-  const [channelId, setChannelId] = useState<string>(EMPTY_CHANNEL_ID)
-  const [channelName, setChannelName] = useState<string>(EMPTY_CHANNEL_NAME)
-  const [currentChannel, setCurrentChannel] = useState<PublicChannelStorage | undefined>(undefined)
 
   const memoizedScrollHeight = useRef<number>()
 

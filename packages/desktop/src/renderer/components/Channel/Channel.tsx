@@ -12,7 +12,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { getFilesData } from '@quiet/common'
+import { generateDmChannelId, getFilesData } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
@@ -36,6 +36,7 @@ const Channel = () => {
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
   const generalChannel = useSelector(publicChannels.selectors.generalChannel)
+  const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -68,6 +69,8 @@ const Channel = () => {
   const [channelName, setChannelName] = useState<string>()
   const [members, setMembers] = useState<UserProfile[]>([])
   const [prevChannelId, setPrevChannelId] = useState<string | undefined>(currentChannelId)
+  const [newMessageOpen, setNewMessageOpen] = useState<boolean>(currentChannelId === '-1')
+  const [channelId, setChannelId] = useState<string | undefined>(currentChannelId)
 
   const filesRef = React.useRef<FilePreviewData>({})
 
@@ -80,7 +83,7 @@ const Channel = () => {
     if (currentChannelId !== '-1') {
       setPrevChannelId(currentChannelId)
     }
-  }, [currentChannel, currentChannelName])
+  }, [currentChannel, currentChannelName, currentChannelId])
 
   useEffect(() => {
     if (currentChannel == null || currentChannel.memberIds == null) {
@@ -218,11 +221,16 @@ const Channel = () => {
 
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
+  }, [channelId])
+
+  useEffect(() => {
+    setChannelId(currentChannelId)
   }, [currentChannelId])
 
   const openOrCloseNewMessageWindow = (isOpen: boolean) => {
+    setNewMessageOpen(isOpen)
     if (isOpen) {
-      setPrevChannelId(currentChannelId)
+      setPrevChannelId(channelId)
       dispatch(
         publicChannels.actions.setCurrentChannel({
           channelId: '-1',
@@ -238,12 +246,20 @@ const Channel = () => {
     }
   }
 
-  if (!currentChannelId) return null
+  const handleNewMessageInputChange = (members: UserProfile[]) => {
+    const memberIds = members.map(member => member.userId)
+    const dmChannelId = generateDmChannelId([...memberIds, user!.userId].sort())
+    if (channels.find(channel => channel.id === dmChannelId)) {
+      setChannelId(dmChannelId)
+    }
+  }
+
+  if (!channelId) return null
   if (!channelName) return null
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,
-    channelId: currentChannelId,
+    channelId,
     channelType: currentChannel?.type ?? ChannelType.CHANNEL,
     channelName,
     members,
@@ -274,6 +290,10 @@ const Channel = () => {
   const newDirectMessageComponentProps: NewDirectMessageComponentProps = {
     user: user,
     userProfiles,
+    channelId,
+    channelType: currentChannel?.type ?? ChannelType.CHANNEL,
+    channelName,
+    isPublic: currentChannel?.public ?? true,
     messages: {
       count: currentChannelMessagesCount,
       groups: currentChannelDisplayableMessages,
@@ -295,7 +315,7 @@ const Channel = () => {
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,
-    handleInputChange: () => openOrCloseNewMessageWindow(false),
+    handleInputChange: handleNewMessageInputChange,
     handleClose: () => openOrCloseNewMessageWindow(false),
   }
 
@@ -312,8 +332,8 @@ const Channel = () => {
 
   return (
     <>
-      {currentChannelId &&
-        (currentChannelId !== '-1' ? (
+      {channelId &&
+        (channelId !== '-1' && !newMessageOpen ? (
           <ChannelComponent
             {...channelComponentProps}
             {...uploadFilesPreviewProps}

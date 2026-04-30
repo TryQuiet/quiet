@@ -264,6 +264,10 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
     setAutoCompleteOptions([])
   }
 
+  useEffect(() => {
+    handleInputChange(selectedMembers.map(member => userProfiles[member.id]))
+  }, [selectedMembers])
+
   const customTheme = (outerTheme: Theme) =>
     createTheme({
       palette: {
