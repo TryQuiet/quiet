@@ -178,6 +178,11 @@ export class SigChainService extends EventEmitter {
       return
     }
 
+    if (process.env.QPS_ALLOWED !== 'true') {
+      this.logger.trace('Not updating IOS keychain because QPS is not allowed in this environment')
+      return
+    }
+
     const generateKeyName = (teamId: string, keyType: string, scope: KeyMetadata): string => {
       return `quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_${keyType}`
     }
@@ -254,6 +259,10 @@ export class SigChainService extends EventEmitter {
    */
   private _updateDeviceCredentials(teamName: string): void {
     if ((process.platform as string) !== 'ios') return
+    if (process.env.QPS_ALLOWED !== 'true') {
+      this.logger.trace('Not emitting device credentials for NSE because QPS is not allowed in this environment')
+      return
+    }
     try {
       const sigchain = this.getChain({ teamName })
       if (sigchain?.team == null) return
