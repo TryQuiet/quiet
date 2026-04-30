@@ -62,6 +62,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * True while waiting for websocket connection to finish connecting
    */
   private _connecting = false
+  private _captchaVerificationQueued = false
   /**
    * Interval for checking for unsent sync messages
    */
@@ -138,6 +139,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
   }
 
+  private _requestCaptchaVerificationAfterConnect = (): void => {
+    this._captchaVerificationQueued = false
+    this.qssClient.requestCaptchaVerification().catch(error => {
+      this.logger.error('Failed to request captcha verification', error)
+    })
+  }
+
   /**
    * Check for pending data sync messages and, if connected, attempt to send to QSS
    */
@@ -201,17 +209,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     })
 
     this.on(QSSEvents.QSS_START_AUTH_CONN, (teamId: string, teamName?: string) => {
-      void this.qssAuthConnManager.startNewConnection(teamId, teamName)
+      void this.startAuthConnection(teamId, teamName)
     })
 
     this.socketService.on(SocketActions.HCAPTCHA_REQUEST, (): void => {
       this.logger.debug('hCaptcha request received')
       if (!this.connected) {
-        this.qssClient.once(QSSEvents.QSS_CONNECTED, (): void => {
-          this.qssClient.requestCaptchaVerification().catch(error => {
-            this.logger.error('Failed to request captcha verification', error)
-          })
-        })
+        if (!this._captchaVerificationQueued) {
+          this._captchaVerificationQueued = true
+          this.qssClient.once(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
+        }
 
         this.connect(this.qssEndpoint, true).catch(error => {
           this.logger.error('Failed to connect to QSS on hCaptcha request', error)
@@ -306,6 +313,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       )
       this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
     })
+  }
+
+  private async startAuthConnection(teamId: string, teamName?: string): Promise<boolean> {
+    try {
+      await this.qssAuthConnManager.startNewConnection(teamId, teamName)
+      return true
+    } catch (e) {
+      this.logger.error('Failed to start QSS auth connection', e)
+      return false
+    }
   }
 
   /**
@@ -404,6 +421,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       clearInterval(interval)
     }
     this._logPullIntervals.clear()
+    this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
+    this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
     this.qssClient.close()
   }
@@ -1294,6 +1313,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._logPullIntervals.clear()
     this._logPullInFlight.clear()
     this._logPullStorageReadyTeams.clear()
+    this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
+    this._captchaVerificationQueued = false
     for (const [hash, waiters] of this._logSyncWaiters.entries()) {
       for (const waiter of waiters) {
         clearTimeout(waiter.timeout)

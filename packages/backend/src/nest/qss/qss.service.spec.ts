@@ -742,6 +742,28 @@ describe('QSSService', () => {
       const initStatus = await qssService.getQssInitStatus()
       expect(initStatus.qssSetup).toBeFalsy()
     })
+
+    it(`catches an error when the auth connection fails to start after sign in`, async () => {
+      await initCommunity()
+      mockSuccessfulSignIn()
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      jest
+        .spyOn(qssAuthConnManager, 'startNewConnection')
+        .mockRejectedValue(new Error(`No chain found for team ID ${sigchainService.activeChain.team!.id}`))
+
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+
+      const result = await qssService.signInToCommunity(
+        sigchainService.activeChain.team!.id,
+        sigchainService.activeChain
+      )
+
+      expect(result).toBe(QSSOperationResult.ERROR)
+      expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      const initStatus = await qssService.getQssInitStatus()
+      expect(initStatus.qssSetup).toBeFalsy()
+    })
   })
 
   describe('sendLogEntrySyncMessage', () => {
