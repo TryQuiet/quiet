@@ -18,6 +18,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 import { QSSService } from '../qss/qss.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
+import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 
 const PUSH_BATCH_SIZE = 500 // FCM allows up to 500 tokens per batch request
 const LEAVE_TOMBSTONE_ACK_TIMEOUT_MS = 5_000
@@ -95,8 +96,18 @@ export class QPSService implements OnModuleInit {
       return true
     }
 
-    const teamId = this.sigChainService.team?.id
-    const userId = this.sigChainService.user.userId
+    let teamId: Base58 | undefined
+    let userId: string | undefined
+    try {
+      const sigchain = this.sigChainService.getActiveChain()
+      teamId = sigchain?.team?.id
+      userId = sigchain.context.user.userId
+    } catch (e) {
+      this.logger.warn('Cannot tombstone notification tokens before leave: no active team chain')
+      this._pendingDeviceToken = undefined
+      return false
+    }
+
     if (teamId == null) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team id')
       this._pendingDeviceToken = undefined
