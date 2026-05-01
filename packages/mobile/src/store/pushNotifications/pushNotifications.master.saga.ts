@@ -115,7 +115,7 @@ function* syncCurrentDeviceTokenSaga(): Generator {
     logger.info('Fetched current FCM token from native module')
     yield* call(sendDeviceTokenToBackendSaga, token)
   } catch (error) {
-    logger.error('Failed to fetch current FCM token', error)
+    logger.info('Failed to fetch current FCM token')
   }
 }
 
