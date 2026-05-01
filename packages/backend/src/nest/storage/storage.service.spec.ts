@@ -168,6 +168,18 @@ describe('StorageService', () => {
       expect(startSyncSpy).toHaveBeenCalled()
     })
 
+    it('init should apply team metadata before starting sync', async () => {
+      const teamId = 'team-id'
+      const addTeamIdToDbMetasSpy = jest.spyOn(storageService, 'addTeamIdToDbMetas').mockImplementation(() => {})
+      const startSyncSpy = jest.spyOn(storageService as any, 'startSync').mockResolvedValue(undefined)
+
+      await storageService.init(teamId)
+
+      expect(addTeamIdToDbMetasSpy).toHaveBeenCalledWith(teamId)
+      expect(startSyncSpy).toHaveBeenCalledTimes(1)
+      expect(addTeamIdToDbMetasSpy.mock.invocationCallOrder[0]).toBeLessThan(startSyncSpy.mock.invocationCallOrder[0])
+    })
+
     it('init should wait for an in-flight initialization', async () => {
       const initDatabasesSpy = jest.spyOn(storageService, 'initDatabases')
       const startSyncSpy = jest.spyOn(storageService as any, 'startSync')

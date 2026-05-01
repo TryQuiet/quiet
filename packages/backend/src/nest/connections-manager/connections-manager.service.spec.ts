@@ -22,6 +22,7 @@ import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
+import { CaptchaService } from '../captcha/captcha.service'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -38,6 +39,7 @@ describe('ConnectionsManagerService', () => {
   let sigChainService: SigChainService
   let qssService: QSSService
   let qpsService: QPSService
+  let captchaService: CaptchaService
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -63,7 +65,9 @@ describe('ConnectionsManagerService', () => {
     sigChainService = await module.resolve(SigChainService)
     qssService = await module.resolve(QSSService)
     qpsService = await module.resolve(QPSService)
-    localDbService.open()
+    captchaService = await module.resolve(CaptchaService)
+    jest.spyOn(qssService as any, 'processDLQDecrypt').mockResolvedValue(undefined)
+    await localDbService.open()
 
     // initialize sigchain on local db
     await sigChainService.createChain(community.name!, 'john', false)
@@ -146,7 +150,7 @@ describe('ConnectionsManagerService', () => {
     const libp2pPauseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'pause').mockResolvedValue(true)
     const libp2pResumeSpy = jest.spyOn(connectionsManagerService.libp2pService, 'resume').mockResolvedValue(true)
     const qssPauseSpy = jest.spyOn(qssService, 'pause').mockImplementation(() => {})
-    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue(QSSOperationResult.SUCCESS)
+    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue()
 
     await connectionsManagerService.pause()
     expect(qssPauseSpy).toHaveBeenCalledTimes(1)
@@ -190,9 +194,6 @@ describe('ConnectionsManagerService', () => {
     const storageInitSpy = jest
       .spyOn(connectionsManagerService['storageService'], 'init')
       .mockReturnValue(storageInitPromise)
-    const addTeamIdToDbMetasSpy = jest
-      .spyOn(connectionsManagerService['storageService'], 'addTeamIdToDbMetas')
-      .mockImplementation(() => {})
     const markTeamStorageReadySpy = jest.spyOn(qssService, 'markTeamStorageReady').mockImplementation(() => {})
 
     let launchResolved = false
@@ -205,16 +206,15 @@ describe('ConnectionsManagerService', () => {
     qssService.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
     connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, { peer: 'peer-id' })
 
-    await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledTimes(1))
-    expect(addTeamIdToDbMetasSpy).not.toHaveBeenCalled()
+    await waitForExpect(() => expect(storageInitSpy).toHaveBeenCalledWith(teamId))
     expect(markTeamStorageReadySpy).not.toHaveBeenCalled()
     expect(launchResolved).toBe(false)
 
     resolveStorageInit!()
 
-    await waitForExpect(() => expect(addTeamIdToDbMetasSpy).toHaveBeenCalledTimes(1))
+    await waitForExpect(() => expect(markTeamStorageReadySpy).toHaveBeenCalledTimes(1))
     await launchPromise
-    expect(addTeamIdToDbMetasSpy).toHaveBeenCalledWith(teamId)
+    expect(storageInitSpy).toHaveBeenCalledTimes(1)
     expect(markTeamStorageReadySpy).toHaveBeenCalledTimes(1)
     expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
     expect(launchResolved).toBe(true)
@@ -222,6 +222,8 @@ describe('ConnectionsManagerService', () => {
 
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {
     const tombstoneSpy = jest.spyOn(qpsService, 'tombstoneCurrentUserNotificationTokens').mockResolvedValue(false)
+    const captchaResetSpy = jest.spyOn(captchaService, 'reset')
+    captchaService.hcaptchaToken = 'used-token'
     const closeAllServicesSpy = jest.spyOn(connectionsManagerService, 'closeAllServices').mockResolvedValue()
     const storageCleanSpy = jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
     const cleanDatastoreSpy = jest.spyOn(connectionsManagerService.libp2pService, 'cleanDatastore').mockResolvedValue()
@@ -235,13 +237,20 @@ describe('ConnectionsManagerService', () => {
     const resetStateSpy = jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     const localDbOpenSpy = jest.spyOn(connectionsManagerService['localDbService'], 'open').mockResolvedValue()
     const openSocketSpy = jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
+    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue()
 
     await connectionsManagerService.leaveCommunity()
 
     expect(tombstoneSpy).toHaveBeenCalledTimes(1)
+    expect(captchaResetSpy).toHaveBeenCalledTimes(1)
+    expect(captchaService.hcaptchaToken).toBeNull()
     expect(closeAllServicesSpy).toHaveBeenCalledTimes(1)
+    expect(qssResumeSpy).toHaveBeenCalledTimes(1)
+    expect(openSocketSpy.mock.invocationCallOrder[0]).toBeLessThan(qssResumeSpy.mock.invocationCallOrder[0])
     expect(tombstoneSpy.mock.invocationCallOrder[0]).toBeLessThan(closeAllServicesSpy.mock.invocationCallOrder[0])
+    expect(captchaResetSpy.mock.invocationCallOrder[0]).toBeLessThan(closeAllServicesSpy.mock.invocationCallOrder[0])
 
+    captchaResetSpy.mockRestore()
     storageCleanSpy.mockRestore()
     cleanDatastoreSpy.mockRestore()
     closeDatastoreSpy.mockRestore()
@@ -250,6 +259,7 @@ describe('ConnectionsManagerService', () => {
     resetStateSpy.mockRestore()
     localDbOpenSpy.mockRestore()
     openSocketSpy.mockRestore()
+    qssResumeSpy.mockRestore()
   })
 
   it('erases previous community artifacts before creating a community', async () => {
@@ -304,7 +314,6 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('pre-community artifact erasure cleans local db, libp2p, storage, tor, and state without closing the socket', async () => {
-    const qssCloseSpy = jest.spyOn(qssService, 'close').mockImplementation(() => {})
     const storageCleanSpy = jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
     const libp2pCloseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'close').mockResolvedValue()
     const cleanDatastoreSpy = jest.spyOn(connectionsManagerService.libp2pService, 'cleanDatastore').mockResolvedValue()
@@ -324,7 +333,6 @@ describe('ConnectionsManagerService', () => {
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 
-    expect(qssCloseSpy).toHaveBeenCalledTimes(1)
     expect(storageCleanSpy).toHaveBeenCalledTimes(1)
     expect(libp2pCloseSpy).toHaveBeenCalledWith(false)
     expect(cleanDatastoreSpy).toHaveBeenCalledTimes(1)

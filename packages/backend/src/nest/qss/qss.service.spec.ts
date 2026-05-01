@@ -19,9 +19,10 @@ import {
   LogEntrySyncResponseMessage,
   LogEntryPullResponseMessage,
   QSSOperationResult,
+  QSSEvents,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity, SocketEvents } from '@quiet/types'
+import { Community, Identity, SocketActions, SocketEvents } from '@quiet/types'
 import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -34,6 +35,8 @@ import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { LocalDbService } from '../local-db/local-db.service'
+import { LocalDbEvents } from '../local-db/local-db.types'
+import { SocketService } from '../socket/socket.service'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { spawnLibp2pInstancesInMemory } from '../common/test-utils'
 import * as fs from 'fs'
@@ -49,7 +52,7 @@ import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
-import { QSSAuthConnStatus } from './qss.const'
+import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 
 describe('QSSService', () => {
   let store: Store
@@ -58,6 +61,7 @@ describe('QSSService', () => {
   let qssClient: QSSClient
   let qssService: QSSService
   let qssAuthConnManager: QSSAuthConnectionManager
+  let socketService: SocketService
   let sigchainService: SigChainService
   let libp2pService: Libp2pService
   let ipfsService: IpfsService
@@ -94,6 +98,7 @@ describe('QSSService', () => {
     qssService = module.get<QSSService>(QSSService)
     qssClient = module.get<QSSClient>(QSSClient)
     qssAuthConnManager = module.get<QSSAuthConnectionManager>(QSSAuthConnectionManager)
+    socketService = module.get<SocketService>(SocketService)
     libp2pService = await module.resolve(Libp2pService)
     libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
 
@@ -250,6 +255,159 @@ describe('QSSService', () => {
       await qssService.connect('')
       expect(qssService.connected).toBeFalsy()
       expect(qssService.canConnect).toBeFalsy()
+    })
+
+    it('reconnects when the requested QSS endpoint changes', async () => {
+      await initCommunity()
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      await qssService.connect('ws://localhost:3000')
+      await qssService.connect('ws://localhost:3000')
+      await qssService.connect('ws://localhost:3001')
+
+      expect(mockedCreateSocket).toHaveBeenCalledTimes(2)
+      expect(mockedCreateSocket).toHaveBeenNthCalledWith(1, 'ws://localhost:3000')
+      expect(mockedCreateSocket).toHaveBeenNthCalledWith(2, 'ws://localhost:3001')
+    })
+
+    it('backs off reconnect attempts after failures and resets after success', async () => {
+      await initCommunity()
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      mockedCreateSocket.mockRejectedValue(new Error('QSS unavailable'))
+
+      const reconnectDelays: number[] = []
+      const setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(((
+        _callback: () => void,
+        delay?: number
+      ) => {
+        reconnectDelays.push(delay as number)
+        return {} as NodeJS.Timeout
+      }) as any)
+
+      try {
+        await qssService.connect('ws://localhost:3000')
+        // @ts-ignore - clear scheduled reconnect to simulate the timer having fired
+        qssService._reconnectQueueProcessor = undefined
+
+        await qssService.connect('ws://localhost:3000')
+        // @ts-ignore - clear scheduled reconnect to simulate the timer having fired
+        qssService._reconnectQueueProcessor = undefined
+
+        mockedCreateSocket.mockResolvedValue({} as ClientSocket)
+        await qssService.connect('ws://localhost:3000')
+        expect(reconnectDelays).toEqual([QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR])
+
+        qssClient.emit(QSSEvents.QSS_DISCONNECTED)
+
+        expect(reconnectDelays).toEqual([
+          QSS_RECONNECT_DELAY_MS,
+          QSS_RECONNECT_DELAY_MS * QSS_RECONNECT_BACKOFF_FACTOR,
+          QSS_RECONNECT_DELAY_MS,
+        ])
+      } finally {
+        setTimeoutSpy.mockRestore()
+        // @ts-ignore - prevent cleanup from clearing a mocked timeout object
+        qssService._reconnectQueueProcessor = undefined
+        // @ts-ignore - reset private state in case the assertion above fails
+        qssService._reconnectDelayMs = QSS_RECONNECT_DELAY_MS
+      }
+    })
+
+    it('re-arms lifecycle handlers and the dead letter queue after close/resume without duplicates', async () => {
+      const countHandler = (emitter: any, event: string, handler: (...args: any[]) => void): number => {
+        return emitter.listeners(event).filter((listener: (...args: any[]) => void) => listener === handler).length
+      }
+      const expectLifecycleHandlers = (expected: number): void => {
+        expect(countHandler(qssAuthConnManager, QSSEvents.QSS_AUTH_JOINED, qssService['_handleQssAuthJoined'])).toBe(
+          expected
+        )
+        expect(countHandler(qssService, QSSEvents.QSS_START_AUTH_CONN, qssService['_handleStartAuthConnection'])).toBe(
+          expected
+        )
+        expect(countHandler(socketService, SocketActions.HCAPTCHA_REQUEST, qssService['_handleHcaptchaRequest'])).toBe(
+          expected
+        )
+        expect(countHandler(qssClient, QSSEvents.QSS_CAPTCHA_REQUIRED, qssService['_handleCaptchaRequired'])).toBe(
+          expected
+        )
+        expect(countHandler(localDbService, LocalDbEvents.COMMUNITY_ADDED, qssService['_handleCommunityAdded'])).toBe(
+          expected
+        )
+        expect(countHandler(qssClient, QSSEvents.QSS_CONNECTED, qssService['_handleQssConnected'])).toBe(expected)
+        expect(countHandler(qssClient, QSSEvents.QSS_DISCONNECTED, qssService['_handleQssDisconnected'])).toBe(expected)
+        expect(countHandler(qssClient, WebsocketEvents.LOG_ENTRY_SYNC, qssService['_handleLogEntrySync'])).toBe(
+          expected
+        )
+        expect(countHandler(qssService, QSSEvents.QSS_HANDLE_SIGN_IN, qssService['_handleQssHandleSignIn'])).toBe(
+          expected
+        )
+        expect(
+          countHandler(qssAuthConnManager, QSSEvents.QSS_SELF_ASSIGN_MEMBER, qssService['_handleSelfAssignMember'])
+        ).toBe(expected)
+        expect(countHandler(sigchainService, 'updated', qssService['_handleSigChainUpdated'])).toBe(expected)
+      }
+
+      const initialDeadLetterQueueProcessor = qssService['_deadLetterQueueProcessor']
+      expect(initialDeadLetterQueueProcessor).toBeDefined()
+      expectLifecycleHandlers(1)
+
+      await qssService.resume()
+
+      expect(qssService['_deadLetterQueueProcessor']).toBe(initialDeadLetterQueueProcessor)
+      expectLifecycleHandlers(1)
+
+      qssService.close()
+
+      expect(qssService['_deadLetterQueueProcessor']).toBeUndefined()
+      expectLifecycleHandlers(0)
+
+      await qssService.resume()
+      const resumedDeadLetterQueueProcessor = qssService['_deadLetterQueueProcessor']
+
+      expect(resumedDeadLetterQueueProcessor).toBeDefined()
+      expectLifecycleHandlers(1)
+
+      await qssService.resume()
+
+      expect(qssService['_deadLetterQueueProcessor']).toBe(resumedDeadLetterQueueProcessor)
+      expectLifecycleHandlers(1)
+    })
+
+    it('serializes concurrent connect requests without overlapping attempts', async () => {
+      let resolveConnect: (() => void) | undefined
+      let inFlightConnects = 0
+      let maxInFlightConnects = 0
+      let connectAttempts = 0
+      const connectImplSpy = jest.spyOn(qssService as any, '_connectImpl').mockImplementation(async () => {
+        connectAttempts += 1
+        inFlightConnects += 1
+        maxInFlightConnects = Math.max(maxInFlightConnects, inFlightConnects)
+        if (connectAttempts === 1) {
+          await new Promise<void>(resolve => {
+            resolveConnect = resolve
+          })
+        }
+        inFlightConnects -= 1
+        return QSSOperationResult.SUCCESS
+      })
+
+      try {
+        const firstConnect = qssService.connect('ws://localhost:3000')
+        const secondConnect = qssService.connect('ws://localhost:3000')
+
+        await waitForExpect(() => {
+          expect(resolveConnect).toBeDefined()
+        })
+
+        expect(maxInFlightConnects).toBe(1)
+        resolveConnect!()
+
+        await expect(firstConnect).resolves.toBe(QSSOperationResult.SUCCESS)
+        await expect(secondConnect).resolves.toBe(QSSOperationResult.SUCCESS)
+        expect(maxInFlightConnects).toBe(1)
+      } finally {
+        connectImplSpy.mockRestore()
+      }
     })
   })
 

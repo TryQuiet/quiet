@@ -61,9 +61,12 @@ export class StorageService extends EventEmitter {
     }
   }
 
-  public async init() {
+  public async init(teamId?: string) {
     if (this.initialized === true) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
+      if (teamId != null) {
+        this.addTeamIdToDbMetas(teamId)
+      }
       return
     }
 
@@ -72,14 +75,14 @@ export class StorageService extends EventEmitter {
       return this.initPromise
     }
 
-    this.initPromise = this.initInternal().finally(() => {
+    this.initPromise = this.initInternal(teamId).finally(() => {
       this.initPromise = undefined
     })
 
     return this.initPromise
   }
 
-  private async initInternal() {
+  private async initInternal(teamId?: string) {
     this.logger.info('Initializing storage')
     this.prepare()
 
@@ -98,6 +101,10 @@ export class StorageService extends EventEmitter {
 
     this.logger.info(`Initializing Databases`)
     await this.initDatabases()
+
+    if (teamId != null) {
+      this.addTeamIdToDbMetas(teamId)
+    }
 
     this.logger.info(`Starting database sync`)
     await this.startSync()

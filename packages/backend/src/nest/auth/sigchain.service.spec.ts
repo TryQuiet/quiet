@@ -142,7 +142,9 @@ describe('SigChainService - listener lifecycle', () => {
 
   it('emits new keys to iOS once and does not resend already-stored keys', async () => {
     const originalPlatform = process.platform
+    const originalQpsAllowed = process.env.QPS_ALLOWED
     Object.defineProperty(process, 'platform', { value: 'ios' })
+    process.env.QPS_ALLOWED = 'true'
 
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
@@ -167,12 +169,19 @@ describe('SigChainService - listener lifecycle', () => {
       expect(await localDbService.getKeysStoredInKeychain(teamId)).toEqual(storedKeysAfterFirstUpdate)
     } finally {
       Object.defineProperty(process, 'platform', { value: originalPlatform })
+      if (originalQpsAllowed == null) {
+        delete process.env.QPS_ALLOWED
+      } else {
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
     }
   })
 
   it('emits device credentials for the NSE on ios', async () => {
     const originalPlatform = process.platform
+    const originalQpsAllowed = process.env.QPS_ALLOWED
     Object.defineProperty(process, 'platform', { value: 'ios' })
+    process.env.QPS_ALLOWED = 'true'
 
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
@@ -189,6 +198,11 @@ describe('SigChainService - listener lifecycle', () => {
       })
     } finally {
       Object.defineProperty(process, 'platform', { value: originalPlatform })
+      if (originalQpsAllowed == null) {
+        delete process.env.QPS_ALLOWED
+      } else {
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
     }
   })
 })

@@ -30,6 +30,7 @@ export class QSSClient extends EventEmitter {
    * Socket.io socket instance
    */
   private _clientSocket: ClientSocket | undefined = undefined
+  private _clientSocketEndpoint: string | undefined = undefined
   private _connectPromise: Promise<ClientSocket> | undefined = undefined
   private _captchaVerified = false
   private _socketEventHandlers:
@@ -97,14 +98,15 @@ export class QSSClient extends EventEmitter {
 
   private async _createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
     try {
-      this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
+      const requestedEndpoint = qssEndpoint ?? this.qssEndpoint
+      this.qssEndpoint = requestedEndpoint
 
       if (!this.qssAllowed || this.qssEndpoint == null) {
         throw new QSSNotInitializedError(`QSS is not enabled`)
       }
 
-      // check for an existing socket instance and, if connected, return that socket and move on
-      if (this.connected) {
+      // check for an existing socket instance on the requested endpoint and, if connected, return that socket
+      if (this.connected && this._clientSocketEndpoint === requestedEndpoint) {
         this.logger.warn('createSocket was already called and the socket is active!')
         return this._clientSocket!
       }
@@ -121,6 +123,7 @@ export class QSSClient extends EventEmitter {
         transports: CLIENT_TRANSPORTS,
       })
       this._clientSocket = socket
+      this._clientSocketEndpoint = this.qssEndpoint
       // wait for socket to connect with QSS instance
       await this._waitForConnect()
 
@@ -148,6 +151,7 @@ export class QSSClient extends EventEmitter {
 
     this._attachSocketEventHandlers(socket)
 
+    this.logger.debug('Waiting for QSS socket to connect...')
     await new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => {
         socket.off('connect', onConnect)
@@ -225,6 +229,7 @@ export class QSSClient extends EventEmitter {
 
     if (wasCurrentSocket) {
       this._clientSocket = undefined
+      this._clientSocketEndpoint = undefined
     }
     this.captchaVerified = false
 

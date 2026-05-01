@@ -72,6 +72,7 @@ import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
+import { CaptchaService } from '../captcha/captcha.service'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -98,7 +99,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly tor: Tor,
     private readonly sigChainService: SigChainService,
     private readonly qssService: QSSService,
-    private readonly qpsService: QPSService
+    private readonly qpsService: QPSService,
+    private readonly captchaService: CaptchaService
   ) {
     super()
   }
@@ -320,6 +322,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn('Proceeding with leave without confirmed notification token tombstone ack')
     }
 
+    this.logger.info('Resetting captcha tokens before leave')
+    this.captchaService.reset()
+
     await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
     this.logger.info('Resetting StorageService')
@@ -345,6 +350,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.logger.info('Restarting socket')
     await this.openSocket()
+
+    this.logger.info('Resuming QSS service')
+    await this.qssService.resume()
 
     return true
   }
@@ -701,8 +709,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
       setupStorageWithTeamMetaPromise = (async () => {
         this.logger.info('Setting up storage')
-        await this.storageService.init()
-        this.storageService.addTeamIdToDbMetas(teamId)
+        await this.storageService.init(teamId)
         this.qssService.markTeamStorageReady(teamId)
       })()
 
@@ -712,8 +719,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const activeChain = this.sigChainService.getActiveChain()
     const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
     if (hasStorageReadyChain) {
+      this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await setupStorageWithTeamMeta(activeChain.team!.id)
     } else {
+      this.logger.debug(
+        'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
+      )
       const storageReadyPromise = new Promise<void>((resolve, reject) => {
         const handleStorageReady = async (teamId: string) => {
           try {

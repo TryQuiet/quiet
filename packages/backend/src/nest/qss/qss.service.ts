@@ -30,7 +30,6 @@ import { DateTime } from 'luxon'
 import * as url from 'node:url'
 import EventEmitter from 'node:events'
 
-import { sleep } from '../common/sleep'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { LogEntry } from '@orbitdb/core'
@@ -42,7 +41,12 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import { QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
+import {
+  QSS_RECONNECT_BACKOFF_FACTOR,
+  QSS_RECONNECT_DELAY_MS,
+  QSS_RECONNECT_MAX_DELAY_MS,
+  QSSAuthConnStatus,
+} from './qss.const'
 import {
   CompoundError,
   InvitationDataV3,
@@ -58,19 +62,18 @@ import { Serializer } from '../common/serializer.service'
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
   private _paused = false
-  /**
-   * True while waiting for websocket connection to finish connecting
-   */
-  private _connecting = false
   private _captchaVerificationQueued = false
   /**
    * Interval for checking for unsent sync messages
    */
-  private _deadLetterQueueProcessor: NodeJS.Timeout
+  private _deadLetterQueueProcessor: NodeJS.Timeout | undefined = undefined
   /**
-   * Interval for retrying/reconnecting to QSS
+   * Timer for retrying/reconnecting to QSS
    */
   private _reconnectQueueProcessor: NodeJS.Timeout | undefined
+  private _reconnectDelayMs = QSS_RECONNECT_DELAY_MS
+  private _reconnectQssEndpoint: string | undefined
+  private _reconnectEnabledOverride = false
 
   /**
    * Map of team IDs to intervals pulling log entries
@@ -101,11 +104,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Mutexes for createCommunity per teamId
    */
   private _signInMutex: Mutex = new Mutex()
+  private _connectMutex: Mutex = new Mutex()
   private readonly _logSyncWaiters: Map<
     string,
     { resolve: () => void; reject: (error: Error) => void; timeout: NodeJS.Timeout }[]
   > = new Map()
   private readonly _recentLogSyncResults: Map<string, { success: boolean; error?: Error }> = new Map()
+  private _eventHandlersConfigured = false
 
   private readonly logger = createLogger(`qss:service`)
 
@@ -122,10 +127,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   ) {
     super({ captureRejections: true })
     this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
-    this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
+    this._startDeadLetterQueueProcessor()
     this.connect = this.connect.bind(this)
     this._configureEventHandlers()
-    this.sigChainService.on('updated', (teamName: string) => void this.processDLQDecrypt(teamName))
   }
 
   public onModuleDestroy() {
@@ -144,6 +148,143 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.qssClient.requestCaptchaVerification().catch(error => {
       this.logger.error('Failed to request captcha verification', error)
     })
+  }
+
+  private _handleQssDisconnected = (): void => {
+    this.logger.debug('QSS disconnected, scheduling reconnect if enabled')
+    this._scheduleReconnect(QSSOperationResult.ERROR)
+  }
+
+  private _handleQssAuthJoined = (): void => {
+    this.logger.debug('Auth connection joined via QSS')
+    this.emit(QSSEvents.QSS_AUTH_JOINED)
+  }
+
+  private _handleStartAuthConnection = (teamId: string, teamName?: string): void => {
+    void this.startAuthConnection(teamId, teamName)
+  }
+
+  private _handleHcaptchaRequest = (): void => {
+    this.logger.debug('hCaptcha request received')
+    if (!this.connected) {
+      if (!this._captchaVerificationQueued) {
+        this._captchaVerificationQueued = true
+        this.qssClient.once(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
+      }
+
+      this.connect(this.qssEndpoint, true).catch(error => {
+        this.logger.error('Failed to connect to QSS on hCaptcha request', error)
+      })
+    } else {
+      this.qssClient.requestCaptchaVerification().catch(error => {
+        this.logger.error('Failed to request captcha verification', error)
+      })
+    }
+  }
+
+  private _handleCaptchaRequired = (): void => {
+    this.logger.debug('Captcha required event received from QSS')
+    this.qssClient.requestCaptchaVerification().catch(error => {
+      this.logger.error('Failed to request captcha verification', error)
+    })
+  }
+
+  private _handleCommunityAdded = (): void => {
+    this.logger.debug('Community stored, attempting to authenticate with QSS')
+    this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+  }
+
+  private _handleQssConnected = async (): Promise<void> => {
+    this.logger.debug('QSS connected, handling appropriate authentication operation')
+    this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+  }
+
+  private _handleLogEntrySync = async (message: LogEntrySyncMessage): Promise<void> => {
+    this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
+    const ingested = await this.orbitDbService.handleFanoutMessage(message)
+    if (message.payload.syncSeq != null) {
+      await this.handleObservedSyncSeq(
+        message.payload.teamId,
+        message.payload.syncSeq,
+        ingested,
+        `fanout hash=${message.payload.hash}`
+      )
+    }
+  }
+
+  private _handleQssHandleSignIn = async (): Promise<void> => {
+    await this._signInMutex.runExclusive(async () => {
+      const initStatus = await this.getQssInitStatus()
+      if (!initStatus.communityInitialized || initStatus.community == null) {
+        this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
+        return
+      }
+
+      if (!initStatus.qssEnabled) {
+        this.logger.trace('QSS not enabled for this community, skipping sign in')
+        return
+      }
+
+      let sigChain: SigChain
+      try {
+        sigChain = this.sigChainService.activeChain
+      } catch (e) {
+        this.logger.error('No active sigchain present, cannot perform QSS operations')
+        return
+      }
+
+      if (
+        !(initStatus.qssSetup ?? false) &&
+        sigChain.team != null &&
+        this.sigChainService.users.getAllUsers().length === 1
+      ) {
+        await this.createCommunity(sigChain)
+      } else {
+        const teamId =
+          sigChain.team != null
+            ? sigChain.team.id
+            : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
+        const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
+        this.logger.trace('QSS Sign in', teamId, teamName)
+        await this.signInToCommunity(teamId, sigChain, teamName)
+      }
+    })
+  }
+
+  private _handleSelfAssignMember = async (teamId: string): Promise<void> => {
+    this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
+    const initStatus = await this.getQssInitStatus()
+    const sigchain = this.sigChainService.getChain({ teamId })
+    const authData = (initStatus.community?.inviteData as InvitationDataV3).authData
+    if (authData.salt != null) {
+      sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
+    }
+    this.logger.trace(
+      `Is user now member through self-assign?`,
+      sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
+    )
+    this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+  }
+
+  private _handleSigChainUpdated = (teamName: string): void => {
+    void this.processDLQDecrypt(teamName)
+  }
+
+  private _startDeadLetterQueueProcessor(): void {
+    if (this._deadLetterQueueProcessor != null) {
+      return
+    }
+
+    this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
+  }
+
+  private _stopDeadLetterQueueProcessor(): void {
+    if (this._deadLetterQueueProcessor == null) {
+      return
+    }
+
+    clearInterval(this._deadLetterQueueProcessor)
+    this._deadLetterQueueProcessor = undefined
   }
 
   /**
@@ -203,116 +344,41 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   }
 
   private _configureEventHandlers(): void {
-    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, () => {
-      this.logger.debug('Auth connection joined via QSS')
-      this.emit(QSSEvents.QSS_AUTH_JOINED)
-    })
+    if (this._eventHandlersConfigured) {
+      return
+    }
 
-    this.on(QSSEvents.QSS_START_AUTH_CONN, (teamId: string, teamName?: string) => {
-      void this.startAuthConnection(teamId, teamName)
-    })
+    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
+    this.on(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
+    this.socketService.on(SocketActions.HCAPTCHA_REQUEST, this._handleHcaptchaRequest)
+    this.qssClient.on(QSSEvents.QSS_CAPTCHA_REQUIRED, this._handleCaptchaRequired)
+    this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, this._handleCommunityAdded)
+    this.qssClient.on(QSSEvents.QSS_CONNECTED, this._handleQssConnected)
+    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, this._handleQssDisconnected)
+    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, this._handleLogEntrySync)
+    this.on(QSSEvents.QSS_HANDLE_SIGN_IN, this._handleQssHandleSignIn)
+    this.qssAuthConnManager.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this._handleSelfAssignMember)
+    this.sigChainService.on('updated', this._handleSigChainUpdated)
+    this._eventHandlersConfigured = true
+  }
 
-    this.socketService.on(SocketActions.HCAPTCHA_REQUEST, (): void => {
-      this.logger.debug('hCaptcha request received')
-      if (!this.connected) {
-        if (!this._captchaVerificationQueued) {
-          this._captchaVerificationQueued = true
-          this.qssClient.once(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
-        }
+  private _teardownEventHandlers(): void {
+    if (!this._eventHandlersConfigured) {
+      return
+    }
 
-        this.connect(this.qssEndpoint, true).catch(error => {
-          this.logger.error('Failed to connect to QSS on hCaptcha request', error)
-        })
-      } else {
-        this.qssClient.requestCaptchaVerification().catch(error => {
-          this.logger.error('Failed to request captcha verification', error)
-        })
-      }
-    })
-
-    this.qssClient.on(QSSEvents.QSS_CAPTCHA_REQUIRED, (): void => {
-      this.logger.debug('Captcha required event received from QSS')
-      this.qssClient.requestCaptchaVerification().catch(error => {
-        this.logger.error('Failed to request captcha verification', error)
-      })
-    })
-
-    this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, () => {
-      this.logger.debug('Community stored, attempting to authenticate with QSS')
-      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
-    })
-
-    this.qssClient.on(QSSEvents.QSS_CONNECTED, async (): Promise<void> => {
-      this.logger.debug('QSS connected, handling appropriate authentication operation')
-      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
-    })
-
-    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, async (message: LogEntrySyncMessage): Promise<void> => {
-      this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
-      const ingested = await this.orbitDbService.handleFanoutMessage(message)
-      if (message.payload.syncSeq != null) {
-        await this.handleObservedSyncSeq(
-          message.payload.teamId,
-          message.payload.syncSeq,
-          ingested,
-          `fanout hash=${message.payload.hash}`
-        )
-      }
-    })
-
-    this.on(QSSEvents.QSS_HANDLE_SIGN_IN, async () => {
-      await this._signInMutex.runExclusive(async () => {
-        const initStatus = await this.getQssInitStatus()
-        if (!initStatus.communityInitialized || initStatus.community == null) {
-          this.logger.warn('Community is null, skipping qss operation reprocessing until community is stored')
-          return
-        }
-
-        if (!initStatus.qssEnabled) {
-          this.logger.trace('QSS not enabled for this community, skipping sign in')
-          return
-        }
-
-        let sigChain: SigChain
-        try {
-          sigChain = this.sigChainService.activeChain
-        } catch (e) {
-          this.logger.error('No active sigchain present, cannot perform QSS operations')
-          return
-        }
-
-        if (
-          !(initStatus.qssSetup ?? false) &&
-          sigChain.team != null &&
-          this.sigChainService.users.getAllUsers().length === 1
-        ) {
-          await this.createCommunity(sigChain)
-        } else {
-          const teamId =
-            sigChain.team != null
-              ? sigChain.team.id
-              : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
-          const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
-          this.logger.trace('QSS Sign in', teamId, teamName)
-          await this.signInToCommunity(teamId, sigChain, teamName)
-        }
-      })
-    })
-
-    this.qssAuthConnManager.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, async (teamId: string) => {
-      this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
-      const initStatus = await this.getQssInitStatus()
-      const sigchain = this.sigChainService.getChain({ teamId })
-      const authData = (initStatus.community?.inviteData as InvitationDataV3).authData
-      if (authData.salt != null) {
-        sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
-      }
-      this.logger.trace(
-        `Is user now member through self-assign?`,
-        sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
-      )
-      this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
-    })
+    this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
+    this.off(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
+    this.socketService.off(SocketActions.HCAPTCHA_REQUEST, this._handleHcaptchaRequest)
+    this.qssClient.off(QSSEvents.QSS_CAPTCHA_REQUIRED, this._handleCaptchaRequired)
+    this.localDbService.off(LocalDbEvents.COMMUNITY_ADDED, this._handleCommunityAdded)
+    this.qssClient.off(QSSEvents.QSS_CONNECTED, this._handleQssConnected)
+    this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._handleQssDisconnected)
+    this.qssClient.off(WebsocketEvents.LOG_ENTRY_SYNC, this._handleLogEntrySync)
+    this.off(QSSEvents.QSS_HANDLE_SIGN_IN, this._handleQssHandleSignIn)
+    this.qssAuthConnManager.off(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this._handleSelfAssignMember)
+    this.sigChainService.off('updated', this._handleSigChainUpdated)
+    this._eventHandlersConfigured = false
   }
 
   private async startAuthConnection(teamId: string, teamName?: string): Promise<boolean> {
@@ -395,28 +461,63 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return QSSOperationResult.DISABLED
     }
 
-    let connStatus: QSSOperationResult
-    try {
-      connStatus = await this._connectImpl(qssEndpoint, enabledOverride)
-    } catch (e) {
-      this.logger.error('Error while connecting to QSS', e)
-      connStatus = QSSOperationResult.ERROR
+    return await this._connectMutex.runExclusive(async () => {
+      if (this._paused) {
+        this.logger.debug('Skipping QSS connect because service is paused')
+        return QSSOperationResult.DISABLED
+      }
+
+      this._reconnectQssEndpoint = qssEndpoint ?? this.qssEndpoint
+      this._reconnectEnabledOverride = enabledOverride
+
+      let connStatus: QSSOperationResult
+      try {
+        connStatus = await this._connectImpl(qssEndpoint, enabledOverride)
+      } catch (e) {
+        this.logger.error('Error while connecting to QSS', e)
+        connStatus = QSSOperationResult.ERROR
+      }
+
+      this._scheduleReconnect(connStatus)
+
+      return connStatus
+    })
+  }
+
+  private _clearReconnectTimer(resetDelay = false): void {
+    if (this._reconnectQueueProcessor != null) {
+      clearTimeout(this._reconnectQueueProcessor)
+      this._reconnectQueueProcessor = undefined
     }
 
-    if (this._reconnectQueueProcessor == null) {
-      this._reconnectQueueProcessor = setInterval(this.connect, QSS_RECONNECT_DELAY_MS, qssEndpoint, enabledOverride)
+    if (resetDelay) {
+      this._reconnectDelayMs = QSS_RECONNECT_DELAY_MS
+    }
+  }
+
+  private _scheduleReconnect(connStatus: QSSOperationResult): void {
+    if (connStatus === QSSOperationResult.SUCCESS) {
+      this._clearReconnectTimer(true)
+      return
     }
 
-    return connStatus
+    if (this._paused || this._reconnectQueueProcessor != null) {
+      return
+    }
+
+    const reconnectDelayMs = this._reconnectDelayMs
+    this._reconnectDelayMs = Math.min(reconnectDelayMs * QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_MAX_DELAY_MS)
+
+    this._reconnectQueueProcessor = setTimeout(() => {
+      this._reconnectQueueProcessor = undefined
+      void this.connect(this._reconnectQssEndpoint ?? this.qssEndpoint, this._reconnectEnabledOverride)
+    }, reconnectDelayMs)
   }
 
   public pause(): void {
     this.logger.info('Pausing QSS service')
     this._paused = true
-    if (this._reconnectQueueProcessor != null) {
-      clearInterval(this._reconnectQueueProcessor)
-      this._reconnectQueueProcessor = undefined
-    }
+    this._clearReconnectTimer(true)
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }
@@ -427,10 +528,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.qssClient.close()
   }
 
-  public async resume(): Promise<QSSOperationResult> {
-    this.logger.info('Resuming QSS service')
+  public async resume(): Promise<void> {
+    this.logger.info(`Resuming QSS service`)
     this._paused = false
-    return await this.connect(this.qssEndpoint)
+    this._startDeadLetterQueueProcessor()
+    this._configureEventHandlers()
   }
 
   /**
@@ -440,26 +542,17 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @returns True if connection was successful
    */
   private async _connectImpl(qssEndpoint: string | undefined, enabledOverride: boolean): Promise<QSSOperationResult> {
-    // wait for existing socket to finish connecting, if present
-    if (this._connecting) {
-      this.logger.trace('Already connecting to QSS, waiting for results of previous connection attempt')
-      const waitTime = DateTime.utc().toMillis() + 15_000
-      while (!this.connected && DateTime.utc().toMillis() < waitTime) {
-        await sleep(500)
-      }
-    }
+    const requestedEndpoint = qssEndpoint ?? this._qssEndpoint
+    const endpointChanged = qssEndpoint != null && qssEndpoint !== this._qssEndpoint
+    this._qssEndpoint = requestedEndpoint
 
     // if we are already connected return true and move on
-    if (this.connected) {
+    if (this.connected && !endpointChanged) {
       return QSSOperationResult.SUCCESS
     }
 
-    this._connecting = true
-
-    this._qssEndpoint = qssEndpoint ?? this._qssEndpoint
     if (!this.canConnect) {
       this.logger.trace(`Can't connect to QSS because QSS is not initialized`)
-      this._connecting = false
       return QSSOperationResult.DISABLED
     }
 
@@ -467,13 +560,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       const initStatus = await this.getQssInitStatus()
       if (!initStatus.communityInitialized) {
         this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
-        this._connecting = false
         return QSSOperationResult.ERROR
       }
 
       if (!initStatus.qssEnabled) {
         this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
-        this._connecting = false
         return QSSOperationResult.DISABLED
       }
     }
@@ -486,11 +577,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       this.logger.info(`Connection established`)
       connStatus = QSSOperationResult.SUCCESS
     } catch (e) {
-      this.logger.error(`Error while connecting to QSS`, e)
+      this.logger.info(`Error while connecting to QSS`, e.message)
       connStatus = QSSOperationResult.ERROR
     }
 
-    this._connecting = false
     return connStatus
   }
 
@@ -860,7 +950,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    this.emit(QSSEvents.QSS_START_AUTH_CONN, teamId, teamName)
+    const authConnectionStarted = await this.startAuthConnection(teamId, teamName)
+    if (!authConnectionStarted) {
+      return QSSOperationResult.ERROR
+    }
+
     const community = await this.localDbService.getCurrentCommunity()
     await this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
     return QSSOperationResult.SUCCESS
@@ -1302,17 +1396,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    */
   public close(): void {
     this.logger.info(`Closing QSS service`)
-    clearInterval(this._deadLetterQueueProcessor)
-    if (this._reconnectQueueProcessor != null) {
-      clearInterval(this._reconnectQueueProcessor)
-      this._reconnectQueueProcessor = undefined
-    }
+    this._paused = true
+    this._stopDeadLetterQueueProcessor()
+    this._clearReconnectTimer(true)
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }
     this._logPullIntervals.clear()
     this._logPullInFlight.clear()
     this._logPullStorageReadyTeams.clear()
+    this._teardownEventHandlers()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false
     for (const [hash, waiters] of this._logSyncWaiters.entries()) {
