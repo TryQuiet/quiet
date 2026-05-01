@@ -7,10 +7,11 @@ struct SharedDefaults {
 
     // MARK: - Keys
 
-    static let lastSyncSeqKey    = "quiet.nse.lastSyncSeq"
-    static let lastSyncTeamIdKey = "quiet.nse.lastSyncTeamId"
-    static let qssUrlsKey        = "quiet.nse.qssUrls"
-    static let badgeCountKey     = "quiet.nse.badgeCount"
+    static let lastSyncSeqKey     = "quiet.nse.lastSyncSeq"
+    static let lastSyncTeamIdKey  = "quiet.nse.lastSyncTeamId"
+    static let qssUrlsKey         = "quiet.nse.qssUrls"
+    static let qssFallbackUrlKey  = "quiet.nse.qssFallbackUrl"
+    static let badgeCountKey      = "quiet.nse.badgeCount"
     static let appIsForegroundKey = "quiet.app.isForeground"
 
     static let defaults: UserDefaults = {
@@ -73,6 +74,17 @@ struct SharedDefaults {
         var existing = defaults.dictionary(forKey: qssUrlsKey) as? [String: String] ?? [:]
         existing[teamId] = url
         defaults.set(existing, forKey: qssUrlsKey)
+    }
+
+    static func getFallbackQssUrl() -> URL? {
+        guard let urlString = defaults.string(forKey: qssFallbackUrlKey), !urlString.isEmpty else {
+            return nil
+        }
+        return URL(string: urlString)
+    }
+
+    static func saveFallbackQssUrl(_ url: String) {
+        defaults.set(url, forKey: qssFallbackUrlKey)
     }
 
     // MARK: - Clear all

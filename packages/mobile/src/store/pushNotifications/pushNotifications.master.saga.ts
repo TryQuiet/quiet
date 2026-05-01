@@ -10,9 +10,10 @@ import {
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
 import { NotificationPermissionStatus } from './pushNotifications.types'
-import { pushNotifications } from '@quiet/state-manager'
+import { communities, pushNotifications } from '@quiet/state-manager'
 import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
+import Config from 'react-native-config'
 
 const logger = createLogger('pushNotificationsMasterSaga')
 
@@ -33,6 +34,10 @@ function* checkPermissionSaga(): Generator {
 }
 
 function* triggerPermissionRequestSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping automatic permission request trigger')
+    return
+  }
   const alreadyRequested = yield* select(pushNotificationsSelectors.permissionRequested)
   logger.info(`App opened. alreadyRequested=${alreadyRequested}`)
 
@@ -89,6 +94,11 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
 }
 
 function* syncCurrentDeviceTokenSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping device token sync')
+    return
+  }
+
   if (!firebaseMessagingModule?.getToken) {
     logger.warn('FirebaseMessagingModule.getToken is unavailable, skipping initial token sync')
     return
@@ -165,8 +175,8 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
-  if (Platform.OS !== 'ios') {
-    logger.info('Skipping push notifications saga on non-iOS')
+  if (Platform.OS !== 'ios' || Config.QPS_ALLOWED !== 'true') {
+    logger.info(`Skipping push notifications saga (platform=${Platform.OS}, QPS_ALLOWED=${Config.QPS_ALLOWED})`)
     return
   }
 
@@ -180,6 +190,7 @@ export function* pushNotificationsMasterSaga(): Generator {
     yield* all([
       takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
       takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
+      takeEvery(communities.actions.setCurrentCommunity.type, syncCurrentDeviceTokenSaga),
       fork(triggerPermissionRequestSaga),
     ])
   } finally {

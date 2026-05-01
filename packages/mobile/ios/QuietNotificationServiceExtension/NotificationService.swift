@@ -71,8 +71,16 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
 
-        guard let qssUrl = SharedDefaults.getQssUrl(teamId: teamId) else {
-            os_log("fetchAndUpdate: missing stored QSS URL for teamId=%{public}@",
+        let storedQssUrl = SharedDefaults.getQssUrl(teamId: teamId)
+        let qssUrl: URL
+        if let url = storedQssUrl {
+            qssUrl = url
+        } else if let fallback = SharedDefaults.getFallbackQssUrl() {
+            os_log("fetchAndUpdate: no team-specific QSS URL for teamId=%{public}@, using env fallback",
+                   log: nseLog, type: .info, teamId)
+            qssUrl = fallback
+        } else {
+            os_log("fetchAndUpdate: missing QSS URL for teamId=%{public}@ and no fallback configured",
                    log: nseLog, type: .error, teamId)
             return
         }
