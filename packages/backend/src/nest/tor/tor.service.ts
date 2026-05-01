@@ -27,6 +27,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private readonly logger = createLogger(Tor.name)
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
+  public bootstrapped = false
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -160,6 +161,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
               if (!bootstrapDone) return
 
               this.logger.info(`Sending ${SocketEvents.TOR_INITIALIZED}`)
+              this.bootstrapped = true
+              this.emit('bootstrapped')
               this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
               clearInterval(this.interval)
               this.interval = undefined

@@ -509,6 +509,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       return
     }
 
+    if (connStatus === QSSOperationResult.DISABLED) {
+      this.logger.debug('Not scheduling QSS reconnect because QSS is disabled')
+      this._clearReconnectTimer(true)
+      return
+    }
+
     if (this._paused || this._reconnectQueueProcessor != null) {
       return
     }

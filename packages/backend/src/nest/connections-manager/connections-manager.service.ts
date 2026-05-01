@@ -690,6 +690,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
+      torBootstrap: this.tor,
     }
     await this.libp2pService.createInstance(params)
     this.qssService.connect(community.qssEndpoint)
