@@ -35,6 +35,7 @@ import {
   Libp2pEvents,
   Libp2pNodeParams,
   Libp2pPeerInfo,
+  TorBootstrapProvider,
 } from './libp2p.types'
 import { createLogger } from '../common/logger'
 import { Libp2pDatastore } from './libp2p.datastore'
@@ -70,6 +71,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   private _dialQueueInterval: NodeJS.Timeout | null = null
   private authService: Libp2pAuth | undefined
   public state: Libp2pState = Libp2pState.Stopped
+  private torBootstrap?: TorBootstrapProvider
 
   private logger = createLogger(Libp2pService.name)
 
@@ -430,6 +432,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     })
 
     this.localAddress = params.localAddress
+    this.torBootstrap = params.torBootstrap
 
     let libp2p: Libp2p
 
@@ -696,7 +699,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     await this.libp2pInstance.start()
     this.setState(Libp2pState.Started)
     this.logger.debug('Queueing peers for initial dialing')
-    this.ensureDialQueueInterval()
+    if (this.torBootstrap == null || this.torBootstrap.bootstrapped) {
+      this.resumeDialQueue()
+    } else {
+      this.logger.debug('Waiting for Tor to bootstrap before starting dial queue')
+      this.torBootstrap.once('bootstrapped', () => {
+        if (this.state !== Libp2pState.Stopping && this.state !== Libp2pState.Stopped) {
+          this.logger.debug('Tor bootstrapped, starting dial queue')
+          this.resumeDialQueue()
+        }
+      })
+    }
 
     this._connectedPeersInterval = setInterval(async () => {
       const connections: Libp2pConnectedPeer[] = []

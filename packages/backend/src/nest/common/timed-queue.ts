@@ -106,13 +106,13 @@ export class TimedQueue {
    * @param processDef Task definition
    */
   public async enqueue(processDef: TimedQueueProcessDef): Promise<void> {
-    this.logger.debug(`Adding task with key ${processDef.key} to timed queue`)
+    this.logger.debug(`Adding task with key ${processDef.key} to timed queue, delayMs: ${processDef.delayMs}`)
     if (this.scheduled.has(processDef.key)) {
-      this.logger.trace(`Task ${processDef.key} already scheduled – skipping`)
+      this.logger.debug(`Task ${processDef.key} already scheduled – skipping`)
       return
     }
     if (this.inProcess.has(processDef.key)) {
-      this.logger.trace(`Task ${processDef.key} already running – skipping`)
+      this.logger.debug(`Task ${processDef.key} already running – skipping`)
       return
     }
     this.scheduled.add(processDef.key)
