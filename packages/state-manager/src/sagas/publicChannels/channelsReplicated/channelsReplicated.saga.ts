@@ -4,10 +4,10 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { communitiesSelectors, isOwner } from '../../communities/communities.selectors'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
-import { ChannelType, PublicChannel } from '@quiet/types'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('channelsReplicatedSaga')
 

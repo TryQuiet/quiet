@@ -30,7 +30,6 @@ const Sidebar = () => {
   const unreadDms = useSelector(publicChannels.selectors.unreadDms)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
-  const generalChannel = useSelector(publicChannels.selectors.generalChannel)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const userId = userProfile?.userId || ''

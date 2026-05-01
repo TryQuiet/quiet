@@ -64,6 +64,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
+    | ReturnType<typeof publicChannelsActions.syncChannelDisplayNames>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.updateIdentity>
@@ -146,6 +147,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
       logger.info(`${SocketEvents.CHANNELS_STORED}`, payload)
       emit(publicChannelsActions.channelsReplicated(payload))
+      emit(publicChannelsActions.syncChannelDisplayNames())
     })
     socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
@@ -183,6 +185,7 @@ export function subscribe(socket: Socket) {
         payload.users.map(user => user.userId)
       )
       emit(usersActions.setUsers(payload.users))
+      emit(publicChannelsActions.syncChannelDisplayNames())
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })
 

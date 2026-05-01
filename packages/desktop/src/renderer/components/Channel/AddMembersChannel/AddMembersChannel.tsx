@@ -35,7 +35,7 @@ export const AddMembersChannel: FC = () => {
 
   return (
     <AddMembersChannelComponent
-      channelName={channel.name}
+      channelName={channel.displayedName}
       channelId={channel.id}
       possibleMembers={userProfiles}
       allUsers={allUsers}

@@ -119,6 +119,7 @@ export const publicChannelsSlice = createSlice({
       })
     },
     channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
+    syncChannelDisplayNames: state => state,
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
       const { channelId } = action.payload
       state.currentChannelId = channelId
@@ -180,6 +181,15 @@ export const publicChannelsSlice = createSlice({
         state.currentChannelId = EMPTY_CHANNEL_ID
       }
       state.newMessageOpen = isOpen
+    },
+    setDisplayedName: (state, action: PayloadAction<{ channelId: string; displayedName: string }>) => {
+      const { channelId, displayedName } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          displayedName,
+        },
+      })
     },
   },
 })

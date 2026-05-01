@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { useSelector } from 'react-redux'
 
-import { communities, publicChannels } from '@quiet/state-manager'
+import { communities, publicChannels, users } from '@quiet/state-manager'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { MenuName } from '../../../../const/MenuNames.enum'
@@ -13,16 +13,21 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { exportChats } from '../../../../utils/functions/exportMessages'
 import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
+import { ChannelType, PublicChannelStorage, UserProfile } from '@quiet/types'
+import DMProfilePhoto from '../../widgets/channels/DMProfilePhoto'
+import { isDefined } from '@quiet/common'
 
 export const ChannelContextMenu: FC = () => {
   const [showDebug, setShowDebug] = React.useState(false)
   const isOwner = useSelector(communities.selectors.isOwner)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
+  const userProfiles = useSelector(users.selectors.userProfiles)
+  const me = useSelector(users.selectors.myUserProfile)
 
   let title = ''
   if (channel) {
-    title = `${channel.name}`
+    title = `${channel.displayedName}`
   }
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
@@ -32,7 +37,7 @@ export const ChannelContextMenu: FC = () => {
 
   const items: ContextMenuItemProps[] = []
 
-  if (!(channel?.public ?? true)) {
+  if (channel && !channel.public && channel.type !== ChannelType.DM) {
     items.push({
       title: 'Add members',
       action: () => {
@@ -64,21 +69,42 @@ export const ChannelContextMenu: FC = () => {
     })
   }
 
-  return showDebug ? (
-    <ContextMenu title={title + ' Debug'} {...channelContextMenu} handleBack={() => setShowDebug(false)}>
-      <DebugChannelComponent />
-    </ContextMenu>
-  ) : (
-    <ContextMenu
-      title={title}
-      titleIcon={
+  const TitleIcon: FC<{
+    channel: PublicChannelStorage | undefined
+    me: UserProfile | undefined
+    userProfiles: Record<string, UserProfile>
+  }> = ({ channel, me, userProfiles }) => {
+    if (channel == null) {
+      return <></>
+    }
+    if (channel.type === ChannelType.CHANNEL) {
+      return (
         <ChannelTypeIcon
           isPublic={channel?.public ?? true}
           fill={'currentColor'}
           style={{ fontSize: 16, fontWeight: 'medium' }}
           data-testid={`contextMenu-channel-settings-type-icon`}
         />
-      }
+      )
+    }
+
+    const members = channel.memberIds?.map(memberId => userProfiles[memberId]).filter(isDefined) ?? []
+    return <DMProfilePhoto me={me} members={members} />
+  }
+
+  return showDebug ? (
+    <ContextMenu
+      title={title + ' Debug'}
+      titleIcon={<TitleIcon channel={channel} me={me} userProfiles={userProfiles} />}
+      {...channelContextMenu}
+      handleBack={() => setShowDebug(false)}
+    >
+      <DebugChannelComponent />
+    </ContextMenu>
+  ) : (
+    <ContextMenu
+      title={title}
+      titleIcon={<TitleIcon channel={channel} me={me} userProfiles={userProfiles} />}
       {...channelContextMenu}
     >
       <ContextMenuItemList items={items} />

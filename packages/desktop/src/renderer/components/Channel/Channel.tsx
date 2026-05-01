@@ -21,7 +21,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { generateDmChannelId, getFilesData } from '@quiet/common'
+import { generateDmChannelId, getFilesData, isDefined } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
@@ -88,15 +88,15 @@ const Channel = () => {
     if (currentChannel == null) return
     logger.info('Channel data', currentChannel)
     setChannelName(currentChannelName)
-  }, [currentChannel, currentChannelName, currentChannelId])
+  }, [currentChannel, currentChannelName])
 
   useEffect(() => {
     if (currentChannel == null || currentChannel.memberIds == null) {
       setMembers(Object.values(userProfiles))
       return
     }
-    setMembers(_.filter(userProfiles, profile => currentChannel.memberIds!.includes(profile.userId)))
-  }, [userProfiles])
+    setMembers(currentChannel.memberIds?.map(memberId => userProfiles[memberId]).filter(isDefined) ?? [])
+  }, [userProfiles, currentChannel])
 
   const onInputChange = useCallback((_value: string) => {
     // TODO https://github.com/TryQuiet/ZbayLite/issues/442
@@ -306,6 +306,7 @@ const Channel = () => {
 
   if (!currentChannelId) return null
   if (!channelName) return null
+  if (!isNewMessageOpen && currentChannelId === EMPTY_CHANNEL_ID) return null
 
   const channelComponentProps: ChannelComponentProps = {
     user: me,
@@ -380,8 +381,6 @@ const Channel = () => {
     downloadFile: downloadFile,
     cancelDownload: cancelDownload,
   }
-
-  logger.warn('Is new message open', isNewMessageOpen, currentChannelId)
 
   return (
     <>
