@@ -13,6 +13,7 @@ interface ProfilePhotoProps {
   size?: number
   style?: React.CSSProperties
   alt?: string
+  borderRadius?: string | number
 }
 
 const hasProfilePhoto = (
@@ -34,6 +35,7 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   className,
   size = 96,
   style,
+  borderRadius = 4,
   alt,
 }) => {
   const theme = useTheme()
@@ -42,7 +44,7 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   const defaultStyle = {
     width: `${size}px`,
     height: `${size}px`,
-    borderRadius: '4px',
+    borderRadius,
     marginBottom: '16px',
     ...style,
   }

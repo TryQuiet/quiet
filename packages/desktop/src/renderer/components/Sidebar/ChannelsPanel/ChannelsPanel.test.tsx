@@ -125,6 +125,8 @@ describe('Channels panel', () => {
           isTorInitialized={true}
           setCurrentChannel={jest.fn()}
           openNewMessageWindow={jest.fn()}
+          currentChannelId={generalChannel.id}
+          unreadDms={[]}
           dmChannels={[]}
         />
       </>

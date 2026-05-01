@@ -3,13 +3,15 @@ import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import DirectMessageListItem from './DirectMessageListItem'
-import { PublicChannelStorage, UserProfile } from '@quiet/types'
+import { PublicChannelStatus, PublicChannelStorage, UserProfile } from '@quiet/types'
 import _ from 'lodash'
 
 export interface DirectMessagesPanelProps {
   myUserProfile?: UserProfile
   userProfiles: Record<string, UserProfile>
   dmChannels: PublicChannelStorage[]
+  unreadDms: string[]
+  currentChannelId: string
   connectedPeers: string[]
   isTorInitialized: boolean
   setCurrentChannel: (channelId: string) => void
@@ -65,6 +67,8 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   myUserProfile,
   userProfiles,
   dmChannels,
+  unreadDms,
+  currentChannelId,
   connectedPeers,
   isTorInitialized,
   setCurrentChannel,
@@ -90,6 +94,8 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
           })
           .map(channel => {
             const userData = getUserDataForDmChannel(channel, myUserProfile, userProfiles, connectedPeers)
+            const unread = unreadDms.some(unreadDmId => unreadDmId === channel.id)
+            const selected = currentChannelId === channel.id
             return (
               <DirectMessageListItem
                 me={myUserProfile}
@@ -97,6 +103,8 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
                 userData={userData}
                 channel={channel}
                 key={channel.id}
+                unread={unread}
+                selected={selected}
                 setCurrentChannel={setCurrentChannel}
               />
             )

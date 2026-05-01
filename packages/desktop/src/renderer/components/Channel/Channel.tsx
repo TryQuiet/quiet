@@ -12,6 +12,7 @@ import {
   ChannelType,
   UserProfile,
   CreateChannelPayload,
+  EMPTY_CHANNEL_ID,
 } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -31,7 +32,6 @@ import _ from 'lodash'
 import NewDirectMessageComponent, {
   NewDirectMessageComponentProps,
 } from '../NewDirectMessage/NewDirectMessage.component'
-import { generalChannel } from 'packages/state-manager/src/sagas/publicChannels/publicChannels.selectors'
 
 const logger = createLogger('Channel')
 
@@ -44,6 +44,7 @@ const Channel = () => {
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
   const generalChannel = useSelector(publicChannels.selectors.generalChannel)
+  const prevChannelId = useSelector(publicChannels.selectors.prevChannelId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
 
@@ -77,7 +78,6 @@ const Channel = () => {
   const [attachingFiles, setAttachingFiles] = React.useState<FilePreviewData>({})
   const [channelName, setChannelName] = useState<string>()
   const [members, setMembers] = useState<UserProfile[]>([])
-  const [prevChannelId, setPrevChannelId] = useState<string | undefined>(currentChannelId)
   const [me, setMe] = useState<UserProfile | undefined>(myUserProfile)
 
   const filesRef = React.useRef<FilePreviewData>({})
@@ -88,9 +88,6 @@ const Channel = () => {
     if (currentChannel == null) return
     logger.info('Channel data', currentChannel)
     setChannelName(currentChannelName)
-    if (currentChannelId !== '-1') {
-      setPrevChannelId(currentChannelId)
-    }
   }, [currentChannel, currentChannelName, currentChannelId])
 
   useEffect(() => {
@@ -235,23 +232,9 @@ const Channel = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
 
-  const openOrCloseNewMessageWindow = (isOpen: boolean) => {
-    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen }))
-    if (isOpen) {
-      setPrevChannelId(currentChannelId)
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: '-1',
-        })
-      )
-      // navigate('/new-message')
-    } else {
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: prevChannelId ?? generalChannel?.id ?? '-1',
-        })
-      )
-    }
+  const closeNewMessageWindow = () => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+    dispatch(publicChannels.actions.setCurrentChannel({ channelId: prevChannelId }))
   }
 
   const generateDmChannelIdFromMemberIds = (
@@ -268,8 +251,8 @@ const Channel = () => {
   const handleNewMessageInputChange = (members: UserProfile[]) => {
     logger.warn('Handling new message input', members)
     const memberIds = members.map(member => member.userId)
-    if (me == null) {
-      dispatch(publicChannels.actions.setCurrentChannel({ channelId: '-1' }))
+    if (me == null || members.length === 0) {
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
       return
     }
     const { channelId: dmChannelId } = generateDmChannelIdFromMemberIds(memberIds, me)
@@ -277,15 +260,15 @@ const Channel = () => {
       logger.warn('Found dm channel', dmChannelId)
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: dmChannelId }))
     } else {
-      dispatch(publicChannels.actions.setCurrentChannel({ channelId: '-1' }))
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
     }
   }
 
   const setOrCreateDmChannel = useCallback(
     (memberIds: string[]) => {
       logger.warn('creating or setting', memberIds, me)
-      if (me == null) {
-        dispatch(publicChannels.actions.setCurrentChannel({ channelId: '-1' }))
+      if (me == null || memberIds.length === 0) {
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
       }
 
@@ -293,14 +276,12 @@ const Channel = () => {
       const dmChannel = channels.find(channel => channel.id === channelId)
       if (dmChannel != null) {
         logger.warn('found', channelId)
-        if (channelId === currentChannelId) {
-          dispatch(
-            publicChannels.actions.setCurrentChannel({
-              channelId,
-            })
-          )
-        }
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+        dispatch(
+          publicChannels.actions.setCurrentChannel({
+            channelId,
+          })
+        )
       } else {
         logger.info('DM channel not found, creating...', channelId, uniqueMemberIds)
         const payload: CreateChannelPayload = {
@@ -312,12 +293,12 @@ const Channel = () => {
           memberIds: uniqueMemberIds,
         }
         dispatch(publicChannels.actions.createChannel(payload))
+        dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
             channelId,
           })
         )
-        dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
       }
     },
     [dispatch, me, channels]
@@ -385,7 +366,7 @@ const Channel = () => {
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,
     handleInputChange: handleNewMessageInputChange,
-    handleClose: () => openOrCloseNewMessageWindow(false),
+    handleClose: closeNewMessageWindow,
     setOrCreateDmChannel,
   }
 

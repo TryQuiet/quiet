@@ -10,8 +10,6 @@ import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
-import { generateDmChannelId, getChannelNameFromChannelId } from '@quiet/common'
-import { ChannelType, CreateChannelPayload } from '@quiet/types'
 import { createLogger } from '../../logger'
 import _ from 'lodash'
 
@@ -29,6 +27,7 @@ const Sidebar = () => {
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
   const dmChannels = useSelector(publicChannels.selectors.dmChannels)
+  const unreadDms = useSelector(publicChannels.selectors.unreadDms)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const generalChannel = useSelector(publicChannels.selectors.generalChannel)
@@ -38,9 +37,6 @@ const Sidebar = () => {
 
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
-
-  const [newMessageOpen, setNewMessageOpen] = useState<boolean>(false)
-  const [prevChannelId, setPrevChannelId] = useState<string | undefined>(currentChannelId)
 
   const setCurrentChannel = (id: string) => {
     dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
@@ -52,13 +48,7 @@ const Sidebar = () => {
   }
 
   const openNewMessageWindow = () => {
-    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true }))
-    setPrevChannelId(currentChannelId)
-    dispatch(
-      publicChannels.actions.setCurrentChannel({
-        channelId: '-1',
-      })
-    )
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true, prevChannelId: currentChannelId }))
   }
 
   if (!currentCommunity || !currentChannelId) {
@@ -73,8 +63,8 @@ const Sidebar = () => {
   const channelsPanelProps: ChannelsPanelProps = {
     channels: publicChannelsSelector,
     userProfiles: userProfileSelector,
-    connectedPeers: connectedPeers,
-    unreadChannels: unreadChannels,
+    connectedPeers,
+    unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
@@ -92,6 +82,8 @@ const Sidebar = () => {
     myUserProfile: userProfile,
     userProfiles: userProfileSelector,
     dmChannels,
+    unreadDms,
+    currentChannelId,
     connectedPeers: connectedPeers,
     isTorInitialized: isTorInitialized,
     setCurrentChannel,

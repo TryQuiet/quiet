@@ -30,8 +30,10 @@ import {
   type UpdateNewestMessagePayload,
   User,
   AddMembersChannelPayload,
+  EMPTY_CHANNEL_ID,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { prevChannelId } from './publicChannels.selectors'
 
 const logger = createLogger('publicChannelsSlice')
 
@@ -45,6 +47,8 @@ export class PublicChannelsState {
   public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
 
   public newMessageOpen = false
+
+  public prevChannelId: string = INITIAL_CURRENT_CHANNEL_ID
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
@@ -103,6 +107,7 @@ export const publicChannelsSlice = createSlice({
         unread: false,
         newestMessage: null,
         public: channel.public,
+        type: channel.type,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
@@ -165,8 +170,16 @@ export const publicChannelsSlice = createSlice({
       if (!channel) return
       channelMessagesAdapter.addOne(channel.messages, message)
     },
-    setNewMessageOpen: (state, action: PayloadAction<{ isOpen: boolean }>) => {
-      state.newMessageOpen = action.payload.isOpen
+    setNewMessageOpen: (state, action: PayloadAction<{ isOpen: boolean; prevChannelId?: string }>) => {
+      const { isOpen, prevChannelId } = action.payload
+      if (prevChannelId != null) {
+        state.prevChannelId = prevChannelId
+      }
+
+      if (isOpen) {
+        state.currentChannelId = EMPTY_CHANNEL_ID
+      }
+      state.newMessageOpen = isOpen
     },
   },
 })

@@ -16,6 +16,7 @@ import {
   ChannelMessage,
   ChannelType,
   DownloadStatus,
+  EMPTY_CHANNEL_ID,
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannelStorage,
@@ -86,10 +87,11 @@ const enum ScrollPosition {
   BOTTOM = 1,
 }
 
-const EMPTY_CHANNEL_NAME = ''
-const EMPTY_CHANNEL_ID = '-1'
-
 const logger = createLogger('NewDirectMessageComponent')
+
+const EMPTY_CHANNEL_PLACEHOLDER_TEXT = ''
+const ERROR_EMPTY_INPUT_NEW_DM = 'Enter a message to send when creating a new DM'
+const ERROR_CANT_DETERMINE_MEMBERSHIP = `Can't determine membership of this DM because your user profile was undefined`
 
 export const NewDirectMessageComponent: React.FC<
   NewDirectMessageComponentProps & UploadFilesPreviewsProps & FileActionsProps
@@ -134,6 +136,9 @@ export const NewDirectMessageComponent: React.FC<
   const [scrollPosition, setScrollPosition] = useState(ScrollPosition.BOTTOM)
   const [mathMessagesRendered, onMathMessageRendered] = useState<number>(0)
   const [selectedMembers, setSelectedMembers] = useState<UserProfile[]>([])
+  const [inputPlaceholderText, setInputPlaceholderText] = useState<string>(EMPTY_CHANNEL_PLACEHOLDER_TEXT)
+  const [inputErrorMessage, setInputErrorMessage] = useState<string | undefined>(undefined)
+  const [potentialChannelName, setPotentialChannelName] = useState<string | undefined>(undefined)
 
   const memoizedScrollHeight = useRef<number>()
 
@@ -166,6 +171,11 @@ export const NewDirectMessageComponent: React.FC<
   const onEnterKeyPress = (message: string) => {
     logger.warn('Setting or creating dm channel and sending message', message, selectedMembers, user)
     if (user == null) {
+      setInputErrorMessage(ERROR_CANT_DETERMINE_MEMBERSHIP)
+      return
+    }
+    if (channelId === EMPTY_CHANNEL_ID && message === '') {
+      setInputErrorMessage(ERROR_EMPTY_INPUT_NEW_DM)
       return
     }
     setOrCreateDmChannel(selectedMembers.map(member => member.userId))
@@ -252,6 +262,20 @@ export const NewDirectMessageComponent: React.FC<
     handleInputChange(members)
   }
 
+  useEffect(() => {
+    if (selectedMembers.length === 0) {
+      setInputPlaceholderText(EMPTY_CHANNEL_PLACEHOLDER_TEXT)
+      return
+    }
+    if (channelId !== EMPTY_CHANNEL_ID) {
+      setInputPlaceholderText(`${channelName}${user ? ` as @${user?.nickname}` : ''}`)
+      return
+    }
+    const _potentialChannelName = selectedMembers.map(member => member.nickname).join(', ')
+    setPotentialChannelName(_potentialChannelName)
+    setInputPlaceholderText(`${_potentialChannelName}${user ? ` as @${user?.nickname}` : ''}`)
+  }, [selectedMembers, channelId, channelName, user, potentialChannelName])
+
   return (
     <Page>
       <PageHeader>
@@ -291,8 +315,9 @@ export const NewDirectMessageComponent: React.FC<
             channelId={channelId}
             channelName={channelName}
             // TODO https://github.com/TryQuiet/ZbayLite/issues/443
-            inputPlaceholder={`#${channelName}${user ? ` as @${user?.nickname}` : ''}`}
+            inputPlaceholder={inputPlaceholderText}
             onChange={value => {
+              setInputErrorMessage(undefined)
               onInputChange(value)
             }}
             onKeyPress={message => {
@@ -301,11 +326,8 @@ export const NewDirectMessageComponent: React.FC<
             openFilesDialog={openFilesDialog}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
-            inputState={
-              isCommunityInitialized && Boolean(selectedMembers.length)
-                ? INPUT_STATE.AVAILABLE
-                : INPUT_STATE.NOT_CONNECTED
-            }
+            inputState={INPUT_STATE.AVAILABLE}
+            inputStateErrorMessage={inputErrorMessage}
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}
           >

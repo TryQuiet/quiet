@@ -18,6 +18,7 @@ const classes = {
   itemText: `${PREFIX}itemText`,
   selected: `${PREFIX}selected`,
   disabled: `${PREFIX}disabled`,
+  newMessages: `${PREFIX}newMessages`,
 }
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -80,6 +81,14 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     pointerEvents: 'none',
     cursor: 'not-allowed',
   },
+  [`& .${classes.newMessages}`]: {
+    opacity: 1,
+    fontWeight: 600,
+  },
+
+  [`&.${classes.root}:hover`]: {
+    backgroundColor: theme.palette.colors.sidebarHover,
+  },
 }))
 
 export interface DirectMessageListItemProps {
@@ -87,6 +96,8 @@ export interface DirectMessageListItemProps {
   me: UserProfile | undefined
   userProfiles: Record<string, UserProfile>
   userData: DmChannelUserData | undefined
+  selected: boolean
+  unread: boolean
   setCurrentChannel: (channelId: string) => void
 }
 
@@ -95,6 +106,8 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
   me,
   userProfiles,
   userData,
+  selected,
+  unread,
   setCurrentChannel,
 }) => {
   const theme = useTheme()
@@ -103,7 +116,7 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
   return (
     <StyledListItemButton
       className={classNames(classes.root, {
-        [classes.selected]: false,
+        [classes.selected]: selected,
         [classes.disabled]: false,
       })}
       disableGutters
@@ -127,13 +140,20 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
               userProfile={userData.user}
               userId={userData.user.userId}
               size={theme.componentSizes.avatar.small}
+              borderRadius={8}
             />
           </span>
         )}
       </StyledBadge>
       <ListItemText
         primary={
-          <Typography variant='body2' className={classes.nickname} data-testid={`${channel.id}-dm-link-text`}>
+          <Typography
+            variant='body2'
+            className={classNames(classes.nickname, {
+              [classes.newMessages]: unread,
+            })}
+            data-testid={`${channel.id}-dm-link-text`}
+          >
             {channel.displayedName}
           </Typography>
         }

@@ -1,11 +1,14 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Grid, Typography } from '@mui/material'
+import { INPUT_STATE } from './InputState.enum'
+import classNames from 'classnames'
 
 const PREFIX = 'ChannelInputInfoMessage'
 
 const classes = {
   info: `${PREFIX}info`,
+  error: `${PREFIX}error`,
   bold: `${PREFIX}bold`,
   boot: `${PREFIX}boot`,
 }
@@ -13,6 +16,12 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.info}`]: {
     color: theme.palette.colors.trueBlack,
+    width: '100px',
+    letterSpacing: '0.4px',
+  },
+
+  [`& .${classes.error}`]: {
+    color: theme.palette.error.main,
     width: '100px',
     letterSpacing: '0.4px',
   },
@@ -29,16 +38,30 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 }))
 
 interface ChannelInputInfoMessageProps {
-  showInfoMessage: boolean
+  state: INPUT_STATE
+  errorMessage?: string
 }
 
-const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showInfoMessage }) => {
+const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ state, errorMessage }) => {
+  let infoMessage: string | undefined = undefined
+  if (state === INPUT_STATE.NOT_CONNECTED) {
+    infoMessage = 'Initializing community. This may take a few minutes...'
+  } else if (errorMessage != null) {
+    infoMessage = errorMessage
+  }
+
   return (
     <StyledGrid container className={classes.boot}>
       <Grid item xs>
-        {showInfoMessage && (
-          <Typography variant='caption' className={classes.info}>
-            Initializing community. This may take a few minutes...
+        {infoMessage != null && (
+          <Typography
+            variant='caption'
+            className={classNames({
+              [classes.info]: state === INPUT_STATE.NOT_CONNECTED,
+              [classes.error]: errorMessage != null,
+            })}
+          >
+            {infoMessage}
           </Typography>
         )}
       </Grid>

@@ -5,6 +5,7 @@ import { Base58, KeyMetadata } from '@localfirst/crdx'
 export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
+export const EMPTY_CHANNEL_ID = '-1'
 
 export enum ChannelType {
   CHANNEL = 'channel',
@@ -34,6 +35,7 @@ export interface PublicChannelStatus {
   unread: boolean
   newestMessage: ChannelMessage | null
   public: boolean
+  type: ChannelType
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {

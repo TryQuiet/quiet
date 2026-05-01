@@ -215,6 +215,7 @@ export interface ChannelInputProps {
   channelName?: string
   inputPlaceholder: string
   inputState?: INPUT_STATE
+  inputStateErrorMessage?: string
   initialMessage?: string
   onChange: (arg: string) => void
   onKeyPress: (input: string) => void
@@ -230,6 +231,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   channelId,
   inputPlaceholder,
   inputState = INPUT_STATE.AVAILABLE,
+  inputStateErrorMessage,
   initialMessage = '',
   onChange,
   onKeyPress,
@@ -653,7 +655,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             </Grid>
           </ClickAwayListener>
         </Grid>
-        <ChannelInputInfoMessage showInfoMessage={inputState !== INPUT_STATE.AVAILABLE} />
+        <ChannelInputInfoMessage state={inputState} errorMessage={inputStateErrorMessage} />
       </Grid>
     </StyledChannelInput>
   )

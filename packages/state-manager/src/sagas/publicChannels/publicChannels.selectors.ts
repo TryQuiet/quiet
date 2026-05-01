@@ -274,19 +274,27 @@ export const channelsStatusSorted = createSelector(selectState, state => {
     .reverse()
 })
 
-export const unreadChannels = createSelector(channelsStatus, status => {
-  return Object.values(status)
-    .filter(isDefined)
-    .reduce((result: string[], channel: PublicChannelStatus) => {
-      if (channel.unread) {
-        result.push(channel.id)
+export const getUnreadChannelsByType = (channelType: ChannelType) =>
+  createSelector(channelsStatus, status => {
+    const unreadIds: string[] = []
+    Object.values(status).forEach(thisStatus => {
+      if (isDefined(thisStatus) && thisStatus.type === channelType && thisStatus.unread) {
+        unreadIds.push(thisStatus.id)
       }
-      return result
-    }, [])
+    })
+    return unreadIds
+  })
+
+export const unreadChannels = createSelector(getUnreadChannelsByType(ChannelType.CHANNEL), unreadChannels => {
+  return unreadChannels
+})
+
+export const unreadDms = createSelector(getUnreadChannelsByType(ChannelType.DM), unreadDms => {
+  return unreadDms
 })
 
 export const dmChannels = createSelector(publicChannels, channels => {
-  return Object.values(channels).filter(channel => channel.type === ChannelType.DM)
+  return channels.filter(channel => channel.type === ChannelType.DM)
 })
 
 export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
@@ -301,6 +309,10 @@ export const areChannelsLoaded = createSelector(publicChannels, channels => {
 
 export const isNewMessageOpen = createSelector(selectState, state => {
   return state.newMessageOpen
+})
+
+export const prevChannelId = createSelector(selectState, state => {
+  return state.prevChannelId
 })
 
 export const publicChannelsSelectors = {
@@ -328,4 +340,6 @@ export const publicChannelsSelectors = {
   areChannelsLoaded,
   isNewMessageOpen,
   dmChannels,
+  unreadDms,
+  prevChannelId,
 }
