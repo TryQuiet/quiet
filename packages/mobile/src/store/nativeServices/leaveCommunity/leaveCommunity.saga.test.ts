@@ -10,15 +10,33 @@ describe('leaveCommunitySaga', () => {
     jest.clearAllMocks()
   })
 
-  it('closes backend services and clears native sensitive data', async () => {
+  it('closes backend services, deletes Firebase token, and clears native sensitive data', async () => {
     await expectSaga(leaveCommunitySaga)
-      .provide([[call.fn(NativeModules.CommunicationModule.clearSensitiveData), null]])
+      .provide([
+        [call.fn(NativeModules.FirebaseMessagingModule.deleteToken), null],
+        [call.fn(NativeModules.CommunicationModule.clearSensitiveData), null],
+      ])
       .put.like({
         action: {
           type: app.actions.closeServices.type,
         },
       })
+      .call.fn(NativeModules.FirebaseMessagingModule.deleteToken)
       .call.fn(NativeModules.CommunicationModule.clearSensitiveData)
+      .run()
+  })
+
+  it('still leaves the community when Firebase token deletion throws', async () => {
+    jest.spyOn(NativeModules.FirebaseMessagingModule, 'deleteToken').mockImplementation(() => {
+      throw new Error('delete failed')
+    })
+
+    await expectSaga(leaveCommunitySaga)
+      .put.like({
+        action: {
+          type: app.actions.closeServices.type,
+        },
+      })
       .run()
   })
 

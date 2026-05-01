@@ -56,9 +56,7 @@ jest.mock('react-native', () => {
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),
-  }
-  rn.NativeModules.FirebaseMessagingModule = {
-    getToken: jest.fn(),
+    deleteToken: jest.fn(),
   }
   return rn
 })
