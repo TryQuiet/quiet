@@ -1393,8 +1393,11 @@ describe('QSSService', () => {
       })
 
       const interval = setInterval(() => undefined, 30_000)
+      const timeout = setTimeout(() => undefined, 30_000)
       // @ts-ignore - seed the interval map to verify _pullLatestLogEntriesForTeam stops it on success
       qssService._logPullIntervals.set(teamId, interval)
+      // @ts-ignore - seed the timeout map to verify _pullLatestLogEntriesForTeam stops it on success
+      qssService._logPullSuccessTimeouts.set(teamId, timeout)
 
       // @ts-ignore
       await qssService._pullLatestLogEntriesForTeam(teamId)
@@ -1402,6 +1405,8 @@ describe('QSSService', () => {
       expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
       // @ts-ignore
       expect(qssService._logPullIntervals.has(teamId)).toBe(false)
+      // @ts-ignore
+      expect(qssService._logPullSuccessTimeouts.has(teamId)).toBe(false)
     })
 
     it('retries log pull interval on failure', async () => {
@@ -1420,8 +1425,11 @@ describe('QSSService', () => {
         })
 
       const interval = setInterval(() => undefined, 30_000)
+      const timeout = setTimeout(() => undefined, 30_000)
       // @ts-ignore - seed the interval map to verify failure keeps it alive and success clears it
       qssService._logPullIntervals.set(teamId, interval)
+      // @ts-ignore - seed the timeout map to verify failure keeps it alive and success clears it
+      qssService._logPullSuccessTimeouts.set(teamId, timeout)
 
       // @ts-ignore
       await qssService._pullLatestLogEntriesForTeam(teamId)
@@ -1430,6 +1438,8 @@ describe('QSSService', () => {
       expect(mockedPullLogEntries).toHaveBeenCalledTimes(1)
       // @ts-ignore
       expect(qssService._logPullIntervals.has(teamId)).toBe(true)
+      // @ts-ignore
+      expect(qssService._logPullSuccessTimeouts.has(teamId)).toBe(true)
 
       // @ts-ignore
       await qssService._pullLatestLogEntriesForTeam(teamId)
@@ -1439,6 +1449,38 @@ describe('QSSService', () => {
       // Interval should stop after successful pull
       // @ts-ignore
       expect(qssService._logPullIntervals.has(teamId)).toBe(false)
+      // @ts-ignore
+      expect(qssService._logPullSuccessTimeouts.has(teamId)).toBe(false)
+    })
+
+    it('stops log pull interval if no pull succeeds within timeout', async () => {
+      jest.useFakeTimers()
+      try {
+        const teamId = sigchainService.activeChain.team!.id
+
+        mockedPullLogEntries.mockResolvedValue({
+          ts: DateTime.utc().toMillis(),
+          status: CommunityOperationStatus.UNAUTHORIZED,
+          reason: 'Temporary error',
+        })
+
+        qssService.startLogPullInterval(teamId)
+
+        // @ts-ignore
+        expect(qssService._logPullIntervals.has(teamId)).toBe(true)
+        // @ts-ignore
+        expect(qssService._logPullSuccessTimeouts.has(teamId)).toBe(true)
+
+        jest.advanceTimersByTime(10_000)
+
+        // @ts-ignore
+        expect(qssService._logPullIntervals.has(teamId)).toBe(false)
+        // @ts-ignore
+        expect(qssService._logPullSuccessTimeouts.has(teamId)).toBe(false)
+      } finally {
+        qssService.close()
+        jest.useRealTimers()
+      }
     })
   })
 

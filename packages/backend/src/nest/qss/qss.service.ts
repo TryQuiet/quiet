@@ -59,6 +59,9 @@ import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { Serializer } from '../common/serializer.service'
 
+const LOG_PULL_INTERVAL_MS = 1_000
+const LOG_PULL_SUCCESS_TIMEOUT_MS = 10_000
+
 @Injectable()
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
   private _paused = false
@@ -79,6 +82,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Map of team IDs to intervals pulling log entries
    */
   private readonly _logPullIntervals: Map<string, NodeJS.Timeout> = new Map()
+
+  /**
+   * Map of team IDs to timeouts that stop log pull retries if none succeeds.
+   */
+  private readonly _logPullSuccessTimeouts: Map<string, NodeJS.Timeout> = new Map()
 
   /**
    * Team IDs whose local storage is ready to ingest QSS log history.
@@ -522,6 +530,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       clearInterval(interval)
     }
     this._logPullIntervals.clear()
+    for (const timeout of this._logPullSuccessTimeouts.values()) {
+      clearTimeout(timeout)
+    }
+    this._logPullSuccessTimeouts.clear()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
@@ -794,6 +806,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       clearInterval(existingInterval)
       this._logPullIntervals.delete(teamId)
     }
+
+    const existingTimeout = this._logPullSuccessTimeouts.get(teamId)
+    if (existingTimeout != null) {
+      clearTimeout(existingTimeout)
+      this._logPullSuccessTimeouts.delete(teamId)
+    }
   }
 
   public startLogPullInterval(teamId: string): void {
@@ -805,9 +823,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
     const interval = setInterval(() => {
       void this._pullLatestLogEntriesForTeam(teamId)
-    }, 1_000)
+    }, LOG_PULL_INTERVAL_MS)
+    const successTimeout = setTimeout(() => {
+      this.logger.warn('Stopping log pull interval after timeout waiting for success', teamId)
+      this._stopLogPullInterval(teamId)
+    }, LOG_PULL_SUCCESS_TIMEOUT_MS)
 
     this._logPullIntervals.set(teamId, interval)
+    this._logPullSuccessTimeouts.set(teamId, successTimeout)
     void this._pullLatestLogEntriesForTeam(teamId)
   }
 
@@ -1137,6 +1160,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       throw new Error('Nullish response from QSS')
     }
 
+    if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
+      this.logger.error(`Error while pulling log entries from QSS - ${pullResponse.status}: ${pullResponse.reason}`)
+      return pullResponse
+    }
+
     this.logger.info(`Successfully pulled ${pullResponse.payload.entries.length} entries from QSS`, payload.teamId)
     return pullResponse
   }
@@ -1403,6 +1431,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       clearInterval(interval)
     }
     this._logPullIntervals.clear()
+    for (const timeout of this._logPullSuccessTimeouts.values()) {
+      clearTimeout(timeout)
+    }
+    this._logPullSuccessTimeouts.clear()
     this._logPullInFlight.clear()
     this._logPullStorageReadyTeams.clear()
     this._teardownEventHandlers()
