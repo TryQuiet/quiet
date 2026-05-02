@@ -14,6 +14,9 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 import { capitalizeFirstLetter } from '@quiet/common'
+import Config from 'react-native-config'
+import { NodeEnv } from '../../../utils/const/NodeEnv.enum'
+import { sendLogs } from '../../../utils/sendLogs'
 
 export const CommunityContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -46,6 +49,16 @@ export const CommunityContextMenu: FC = () => {
     { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
   ]
+
+  if (Config.NODE_ENV !== NodeEnv.Production) {
+    items.push({
+      title: 'Share logs',
+      action: () => {
+        communityContextMenu.handleClose()
+        void sendLogs()
+      },
+    })
+  }
 
   useEffect(() => {
     communityContextMenu.handleClose()
