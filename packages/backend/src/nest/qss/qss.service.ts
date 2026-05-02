@@ -166,6 +166,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private _handleQssAuthJoined = (): void => {
     this.logger.debug('Auth connection joined via QSS')
     this.emit(QSSEvents.QSS_AUTH_JOINED)
+    void this.processDeadLetterQueue()
   }
 
   private _handleStartAuthConnection = (teamId: string, teamName?: string): void => {
