@@ -318,11 +318,17 @@ tasks.register("copyDownloadableDepsToLibs", Copy) {
 }
 
 // Additional configuration
+// Keys are matched by dotenv.gradle's getCurrentFlavor(), which captures the
+// trailing CamelCase segment of the gradle task name and lowercases it (e.g.
+// installStandardDebug -> "standarddebug"). With product flavors in play the
+// bare buildType keys ("debug", "release") never match, so keys must include
+// the flavor prefix.
 project.ext.envConfigFiles = [
-        debug    : ".env.development",
-        storybook: ".env.storybook",
-        release  : ".env.staging",
-        prod     : ".env.production",
+        standarddebug   : ".env.development",
+        standardrelease : ".env.staging",
+        standardprod    : ".env.production",
+        storybookdebug  : ".env.storybook",
+        storybookrelease: ".env.storybook",
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
