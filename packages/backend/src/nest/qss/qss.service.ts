@@ -66,10 +66,7 @@ const LOG_PULL_SUCCESS_TIMEOUT_MS = 10_000
 export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
   private _paused = false
   private _captchaVerificationQueued = false
-  /**
-   * Interval for checking for unsent sync messages
-   */
-  private _deadLetterQueueProcessor: NodeJS.Timeout | undefined = undefined
+
   /**
    * Timer for retrying/reconnecting to QSS
    */
@@ -91,7 +88,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Team IDs whose local storage is ready to ingest QSS log history.
    */
-  private readonly _logPullStorageReadyTeams: Set<string> = new Set()
+  private readonly _storageReadyTeams: Set<string> = new Set()
 
   /**
    * Track log pull operations currently executing by team ID
@@ -134,9 +131,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     private readonly serializer: Serializer
   ) {
     super({ captureRejections: true })
-    this.processDeadLetterQueue = this.processDeadLetterQueue.bind(this)
-    this._startDeadLetterQueueProcessor()
-    this.connect = this.connect.bind(this)
     this._configureEventHandlers()
   }
 
@@ -163,10 +157,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._scheduleReconnect(QSSOperationResult.ERROR)
   }
 
-  private _handleQssAuthJoined = (): void => {
+  private _handleQssAuthJoined = (teamId: string): void => {
     this.logger.debug('Auth connection joined via QSS')
     this.emit(QSSEvents.QSS_AUTH_JOINED)
-    void this.processDeadLetterQueue()
+    void this.processDeadLetterQueue(teamId)
   }
 
   private _handleStartAuthConnection = (teamId: string, teamName?: string): void => {
@@ -273,34 +267,23 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
     )
     this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
+    void this.processDeadLetterQueue(teamId)
   }
 
   private _handleSigChainUpdated = (teamName: string): void => {
     void this.processDLQDecrypt(teamName)
   }
 
-  private _startDeadLetterQueueProcessor(): void {
-    if (this._deadLetterQueueProcessor != null) {
-      return
-    }
-
-    this._deadLetterQueueProcessor = setInterval(this.processDeadLetterQueue, 30_000)
-  }
-
-  private _stopDeadLetterQueueProcessor(): void {
-    if (this._deadLetterQueueProcessor == null) {
-      return
-    }
-
-    clearInterval(this._deadLetterQueueProcessor)
-    this._deadLetterQueueProcessor = undefined
-  }
-
   /**
    * Check for pending data sync messages and, if connected, attempt to send to QSS
    */
-  private async processDeadLetterQueue(): Promise<void> {
+  private async processDeadLetterQueue(teamId: string): Promise<void> {
     if (!this.connected) {
+      return
+    }
+
+    if (!this._storageReadyTeams.has(teamId)) {
+      this.logger.warn(`Storage not ready to process dlq of log sync messages for team ${teamId}, skipping until ready`)
       return
     }
 
@@ -550,7 +533,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public async resume(): Promise<void> {
     this.logger.info(`Resuming QSS service`)
     this._paused = false
-    this._startDeadLetterQueueProcessor()
     this._configureEventHandlers()
   }
 
@@ -843,12 +825,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public markTeamStorageReady(teamId: string): void {
     this.logger.debug('Marking team storage ready for QSS log pulls', teamId)
-    this._logPullStorageReadyTeams.add(teamId)
+    this._storageReadyTeams.add(teamId)
     this.startLogPullIntervalIfReady(teamId)
+    void this.processDeadLetterQueue(teamId)
   }
 
   private startLogPullIntervalIfReady(teamId: string, sigChain?: SigChain): void {
-    if (!this._logPullStorageReadyTeams.has(teamId)) {
+    if (!this._storageReadyTeams.has(teamId)) {
       this.logger.info('QSS auth is connected, waiting for storage before pulling historical log entries', teamId)
       return
     }
@@ -915,6 +898,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       authConnection?.on?.(QSSEvents.QSS_AUTH_CONNECTED, () => {
         this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
         this.startLogPullIntervalIfReady(teamId, sigChain)
+        void this.processDeadLetterQueue(teamId)
       })
       authConnection?.on?.(QSSEvents.QSS_DISCONNECTED, () => {
         this.logger.info('Disconnected event received, stopping log entry pull interval', teamId)
@@ -1065,17 +1049,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (!this.connected) {
       this.logger.warn('QSS not connected, writing entry to dead letter queue', hash, teamId)
       this.recordLogSyncFailure(hash, `QSS not connected; cannot sync log entry ${hash}`)
-      try {
-        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
-      } catch (e) {
-        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
-      }
-      return undefined
-    }
-
-    if (this.joinStatus(teamId) !== JoinStatus.JOINED) {
-      this.logger.warn('QSS not signed in, writing entry to dead letter queue', hash, teamId)
-      this.recordLogSyncFailure(hash, `QSS not signed in for team ${teamId}; cannot sync log entry ${hash}`)
       try {
         await this.localDbService.addPendingQssLogSyncMessage(address, hash)
       } catch (e) {
@@ -1432,7 +1405,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   public close(): void {
     this.logger.info(`Closing QSS service`)
     this._paused = true
-    this._stopDeadLetterQueueProcessor()
     this._clearReconnectTimer(true)
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
@@ -1443,7 +1415,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     }
     this._logPullSuccessTimeouts.clear()
     this._logPullInFlight.clear()
-    this._logPullStorageReadyTeams.clear()
+    this._storageReadyTeams.clear()
     this._teardownEventHandlers()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false

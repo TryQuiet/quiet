@@ -448,6 +448,7 @@ export class LocalDbService extends EventEmitter {
   public async removePendingQssLogSyncMessages(sentMessageHashes: Record<string, string[]>): Promise<void> {
     const pendingHashes = await this.getPendingQssLogSyncMessages()
     for (const [address, sentHashes] of Object.entries(sentMessageHashes)) {
+      this.logger.debug(`Removing pending QSS log sync messages for address ${address}:`, sentHashes)
       let arr = pendingHashes[address]
       for (const sentHash of sentHashes) {
         arr = arr.filter(pendingHash => pendingHash !== sentHash)

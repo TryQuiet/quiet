@@ -313,7 +313,7 @@ describe('QSSService', () => {
       }
     })
 
-    it('re-arms lifecycle handlers and the dead letter queue after close/resume without duplicates', async () => {
+    it('re-arms lifecycle handlers after close/resume without duplicates', async () => {
       const countHandler = (emitter: any, event: string, handler: (...args: any[]) => void): number => {
         return emitter.listeners(event).filter((listener: (...args: any[]) => void) => listener === handler).length
       }
@@ -347,29 +347,22 @@ describe('QSSService', () => {
         expect(countHandler(sigchainService, 'updated', qssService['_handleSigChainUpdated'])).toBe(expected)
       }
 
-      const initialDeadLetterQueueProcessor = qssService['_deadLetterQueueProcessor']
-      expect(initialDeadLetterQueueProcessor).toBeDefined()
       expectLifecycleHandlers(1)
 
       await qssService.resume()
 
-      expect(qssService['_deadLetterQueueProcessor']).toBe(initialDeadLetterQueueProcessor)
       expectLifecycleHandlers(1)
 
       qssService.close()
 
-      expect(qssService['_deadLetterQueueProcessor']).toBeUndefined()
       expectLifecycleHandlers(0)
 
       await qssService.resume()
-      const resumedDeadLetterQueueProcessor = qssService['_deadLetterQueueProcessor']
 
-      expect(resumedDeadLetterQueueProcessor).toBeDefined()
       expectLifecycleHandlers(1)
 
       await qssService.resume()
 
-      expect(qssService['_deadLetterQueueProcessor']).toBe(resumedDeadLetterQueueProcessor)
       expectLifecycleHandlers(1)
     })
 

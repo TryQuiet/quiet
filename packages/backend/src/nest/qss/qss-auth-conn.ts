@@ -175,10 +175,9 @@ export class QSSAuthConnection extends EventEmitter {
     }
 
     this._clientSocket = clientSocket
-    await this._initNewConn(sigChain)
-
     this.logger.info(`Auth connection established with QSS`)
     this._connStatus = QSSAuthConnStatus.STARTING
+    await this._initNewConn(sigChain)
     this._authConnection!.start()
   }
 
@@ -292,7 +291,7 @@ export class QSSAuthConnection extends EventEmitter {
   }
 
   public deliver(message: Uint8Array): void {
-    if (this._authConnection == null || !this.active) {
+    if (this._authConnection == null) {
       throw new Error(`Auth connection with QSS for team ${this.teamId} needs to be initialized!`)
     }
 
