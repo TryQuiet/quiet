@@ -74,7 +74,9 @@ jobs:
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build .aab"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
+        env:
+          ENVFILE: ${{ github.event.release.prerelease && '../.env.staging' || '../.env.production' }}
+        run: cd ./packages/mobile/android && ./gradlew bundleStandardRelease
 
       - name: "Upload .abb to artifacts"
         continue-on-error: true
