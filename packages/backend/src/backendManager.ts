@@ -155,6 +155,11 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
   })
 
   process.on('unhandledRejection', async (reason: any, promise) => {
+    // AbortErrors from stream reads are expected when a libp2p connection closes mid-handshake
+    if (reason instanceof Error && reason.name === 'AbortError') {
+      logger.debug('Ignoring AbortError unhandled rejection (stream read aborted on connection close)')
+      return
+    }
     let reasonMsg = ''
     if (reason instanceof Error) {
       reasonMsg = reason.stack || reason.message

@@ -203,7 +203,11 @@ export class Libp2pAuth {
     // Process messages from the stream
     this.handleIncomingMessages(peerId, stream, abortController)
       .catch(err => {
-        this.logger.error(`Error processing incoming stream from ${peerId.toString()}`, err)
+        if (err instanceof Error && err.name === 'AbortError') {
+          this.logger.debug(`Incoming stream from ${peerId.toString()} aborted (connection closed)`)
+        } else {
+          this.logger.error(`Error processing incoming stream from ${peerId.toString()}`, err)
+        }
         if (!abortController.signal.aborted) {
           abortController.abort(err)
         }
@@ -224,19 +228,27 @@ export class Libp2pAuth {
       stream,
       source => decode(source),
       async source => {
-        for await (const data of abortableAsyncIterable(source, abortController.signal)) {
-          try {
-            const authConn = this.authConnections.get(peerId.toString())
-            if (!authConn) {
-              this.logger.error(`No auth connection established for ${peerId.toString()}`)
-            } else {
-              authConn.deliver(data.subarray())
+        try {
+          for await (const data of abortableAsyncIterable(source, abortController.signal)) {
+            try {
+              const authConn = this.authConnections.get(peerId.toString())
+              if (!authConn) {
+                this.logger.error(`No auth connection established for ${peerId.toString()}`)
+              } else {
+                authConn.deliver(data.subarray())
+              }
+            } catch (e) {
+              this.logger.error(`Error while delivering message to ${peerId.toString()}`, e)
+              if (!abortController.signal.aborted) {
+                abortController.abort(e)
+              }
             }
-          } catch (e) {
-            this.logger.error(`Error while delivering message to ${peerId.toString()}`, e)
-            if (!abortController.signal.aborted) {
-              abortController.abort(e)
-            }
+          }
+        } catch (e) {
+          if (e instanceof Error && e.name === 'AbortError') {
+            this.logger.debug(`Stream from ${peerId.toString()} aborted (connection closed)`)
+          } else {
+            throw e
           }
         }
       }
