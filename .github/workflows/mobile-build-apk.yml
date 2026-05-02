@@ -87,7 +87,9 @@ jobs:
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardRelease
+        env:
+          ENVFILE: ${{ github.event.release.prerelease && '../.env.staging' || '../.env.production' }}
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardRelease
 
       - name: "Upload .apk to artifacts"
         continue-on-error: true
@@ -97,7 +99,9 @@ jobs:
           path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
       - name: "Build debug .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardDebug
+        env:
+          ENVFILE: ${{ github.event.release.prerelease && '../.env.staging' || '../.env.production' }}
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardDebug
 
       - name: "Upload debug .apk to artifacts"
         continue-on-error: true
