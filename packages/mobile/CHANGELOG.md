@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.1.0-alpha.21](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.0-alpha.20...@quiet/mobile@7.1.0-alpha.21) (2026-05-04)
-
-
-### Bug Fixes
-
-* disable waitsForConnectivity in NSENetworkClient and improve sync sequence handling in NotificationService ([6794d61](https://github.com/TryQuiet/quiet/commit/6794d61790c22e167d5f495ab09203d5179104d4))
-
-
-
-
-
 # Changelog
 
 ## [7.1.0]
