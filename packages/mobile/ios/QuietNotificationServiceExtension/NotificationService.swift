@@ -19,6 +19,7 @@ class NotificationService: UNNotificationServiceExtension {
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
     var fetchTask: Task<Void, Never>?
+    private var pendingSyncSeq: Int64?
 
     private let crypto = NSECryptoService()
     private let tokenCache = NSEAuthTokenCache()
@@ -123,12 +124,12 @@ class NotificationService: UNNotificationServiceExtension {
                 let notificationEntries = sortedEntries
                 let maxSyncSeq = notificationEntries.map(\.syncSeq).max() ?? baselineSeq
                 os_log(
-                    "fetchAndUpdate: saving sync seq=%{public}lld",
+                    "fetchAndUpdate: staging sync seq=%{public}lld (saved on delivery)",
                     log: nseLog,
                     type: .info,
                     maxSyncSeq
                 )
-                SharedDefaults.saveLastSyncSeq(maxSyncSeq)
+                pendingSyncSeq = maxSyncSeq
 
                 guard let content = bestAttemptContent else {
                     os_log("fetchAndUpdate: bestAttemptContent is nil, cannot update badge", log: nseLog, type: .error)
@@ -244,7 +245,15 @@ class NotificationService: UNNotificationServiceExtension {
             return false
         }
 
-        return authError.isRetryableNetworkFailure
+        switch authError {
+        case .networkError:
+            return authError.isRetryableNetworkFailure
+        case .logFetchFailed(let statusCode) where statusCode == 502 || statusCode == 503:
+            // Proxy (iCloud Private Relay) or gateway transiently unavailable.
+            return true
+        default:
+            return false
+        }
     }
 
     private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, to content: UNMutableNotificationContent) {
@@ -287,6 +296,12 @@ class NotificationService: UNNotificationServiceExtension {
         // Nil contentHandler first to prevent double-delivery if serviceExtensionTimeWillExpire
         // races with task completion — both paths call deliver(), only the first wins.
         contentHandler = nil
+        // Persist the seq cursor only at the moment of delivery so a mid-run NSE kill
+        // (XPC_ERROR_CONNECTION_INTERRUPTED) cannot advance the cursor past undelivered entries.
+        if let seq = pendingSyncSeq {
+            SharedDefaults.saveLastSyncSeq(seq)
+            pendingSyncSeq = nil
+        }
         handler(content)
     }
 }
