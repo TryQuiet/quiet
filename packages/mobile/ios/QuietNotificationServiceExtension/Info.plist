@@ -26,14 +26,6 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<false />
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>qss-lb-d981e6979ef09da9.elb.us-east-1.amazonaws.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true />
-			</dict>
-		</dict>
 	</dict>
 	<key>QuietKeychainAccessGroup</key>
 	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
