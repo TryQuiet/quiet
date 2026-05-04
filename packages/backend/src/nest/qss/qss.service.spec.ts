@@ -1520,6 +1520,143 @@ describe('QSSService', () => {
     })
   })
 
+  describe('processDeadLetterQueue', () => {
+    it('skips processing when storage is not ready for team', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+
+      const teamId = sigchainService.activeChain.team!.id
+      const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages')
+
+      // Storage not marked ready — processDeadLetterQueue should bail early
+      // @ts-ignore
+      await qssService.processDeadLetterQueue(teamId)
+
+      expect(getPendingSpy).not.toHaveBeenCalled()
+      getPendingSpy.mockRestore()
+    })
+
+    it('skips processing when not connected', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+
+      const teamId = sigchainService.activeChain.team!.id
+      // Mark storage ready but leave QSS disconnected
+      qssService.markTeamStorageReady(teamId)
+      expect(qssService.connected).toBeFalsy()
+
+      const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages')
+
+      // @ts-ignore
+      await qssService.processDeadLetterQueue(teamId)
+
+      expect(getPendingSpy).not.toHaveBeenCalled()
+      getPendingSpy.mockRestore()
+    })
+
+    it('invokes getPendingQssLogSyncMessages when connected and storage is ready', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+
+      const teamId = sigchainService.activeChain.team!.id
+      qssService.markTeamStorageReady(teamId)
+
+      const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages').mockResolvedValue({})
+
+      // @ts-ignore
+      await qssService.processDeadLetterQueue(teamId)
+
+      expect(getPendingSpy).toHaveBeenCalled()
+      getPendingSpy.mockRestore()
+    })
+
+    it('triggers DLQ processing when markTeamStorageReady is called', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+
+      const teamId = sigchainService.activeChain.team!.id
+      // @ts-ignore
+      const dlqSpy = jest.spyOn(qssService, 'processDeadLetterQueue')
+
+      qssService.markTeamStorageReady(teamId)
+
+      expect(dlqSpy).toHaveBeenCalledWith(teamId)
+      dlqSpy.mockRestore()
+    })
+
+    it('triggers DLQ processing with teamId when QSS_AUTH_JOINED fires', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+
+      const teamId = sigchainService.activeChain.team!.id
+      // @ts-ignore
+      const dlqSpy = jest.spyOn(qssService, 'processDeadLetterQueue')
+
+      qssAuthConnManager.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
+
+      await waitForExpect(() => {
+        expect(dlqSpy).toHaveBeenCalledWith(teamId)
+      })
+      dlqSpy.mockRestore()
+    })
+  })
+
+  describe('sendLogEntrySyncMessage (no join-status gate)', () => {
+    it('sends message to QSS when connected regardless of join status', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+
+      const teamId = sigchainService.activeChain.team!.id
+      // Explicitly leave join status as NOT_STARTED — old code would have written to DLQ here
+      expect(qssService.joinStatus(teamId)).toBe(JoinStatus.NOT_STARTED)
+
+      mockedSendMessage = jest
+        .spyOn(qssClient, 'sendMessage')
+        .mockImplementation(async <T>(event: WebsocketEvents): Promise<T | undefined> => {
+          if (event === WebsocketEvents.LOG_ENTRY_SYNC) {
+            return {
+              ts: DateTime.now().toMillis(),
+              status: CommunityOperationStatus.SUCCESS,
+              payload: { teamId, hash: 'test-hash', hashedDbId: 'test-id', syncSeq: 1 },
+            } as LogEntrySyncResponseMessage as T
+          }
+          return undefined
+        })
+
+      addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
+
+      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.joinstatus`, {
+        type: 'events',
+        Database: EventsWithStorage(),
+        AccessController: MessagesAccessController({ write: ['*'] }),
+        sync: true,
+      })
+      const hash = await db.add(
+        sigchainService.activeChain.crypto.encryptAndSign('test message', {
+          type: EncryptionScopeType.ROLE,
+          name: RoleName.MEMBER,
+        })
+      )
+      const entry = await db.log.get(hash)
+      const update = logEntryToLogUpdate(entry, db.address, teamId)
+      const result = await qssService.sendLogEntrySyncMessage(update)
+
+      // Should have been sent, not deferred to DLQ
+      expect(result).toBe(true)
+      expect(mockedSendMessage).toHaveBeenCalledWith(
+        WebsocketEvents.LOG_ENTRY_SYNC,
+        expect.objectContaining({ status: CommunityOperationStatus.SENDING }),
+        true
+      )
+      expect(addPendingMessageSpy).not.toHaveBeenCalled()
+    })
+  })
+
   describe('processDLQDecrypt', () => {
     it('recovers entries from DLQ when sigchain updates', async () => {
       await initCommunity({ qssEnabled: true, qssSetup: true })

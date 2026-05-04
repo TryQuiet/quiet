@@ -58,7 +58,22 @@ export class LocalDbService extends EventEmitter {
     }
     await this.purge()
     await this.close()
-    rmSync(this.db.location, { recursive: true, force: true })
+    // On Windows, LevelDB file handles (especially LOG) may remain locked briefly
+    // after close() resolves. Retry with backoff to handle EBUSY errors.
+    const location = this.db.location
+    const maxRetries = 5
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        rmSync(location, { recursive: true, force: true })
+        return
+      } catch (e: any) {
+        if (e.code === 'EBUSY' && attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)))
+          continue
+        }
+        throw e
+      }
+    }
   }
 
   public async get(key: string) {

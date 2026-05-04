@@ -11,6 +11,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSS_ALLOWED } from '../const'
 import { QSSEvents } from './qss.types'
+import { QSSAuthConnStatus } from './qss.const'
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
@@ -144,5 +145,68 @@ describe('QSSAuthConnectionManager', () => {
     expect(newConn!.id).not.toEqual(conn!.id)
     expect(newConn?.active).toBeTruthy()
     expect(conn?.active).toBeFalsy()
+  })
+
+  describe('QSSAuthConnection.deliver', () => {
+    it('does not throw when auth connection is initialized but connection is not active', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      await qssAuthConnManager.startNewConnection(teamId)
+      const conn = qssAuthConnManager.getConnection(teamId)
+      expect(conn).toBeDefined()
+      expect(conn?.active).toBeTruthy()
+
+      // Simulate the race window: _authConnection is populated but connStatus has regressed.
+      // Old deliver() guard checked `!this.active` and would throw here;
+      // new guard only checks `_authConnection == null`.
+      // @ts-ignore
+      conn!['_connStatus'] = QSSAuthConnStatus.NOT_STARTED
+      expect(conn?.active).toBeFalsy()
+      // @ts-ignore
+      expect(conn!['_authConnection']).not.toBeNull()
+
+      // Must not throw — inner errors from the LFA layer are caught and logged by deliver()
+      expect(() => conn!.deliver(new Uint8Array([1, 2, 3]))).not.toThrow()
+    })
+
+    it('throws when _authConnection has never been initialized', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      await qssAuthConnManager.startNewConnection(teamId)
+      const conn = qssAuthConnManager.getConnection(teamId)
+      expect(conn).toBeDefined()
+
+      // Force _authConnection to null to simulate pre-init state
+      // @ts-ignore
+      conn!['_authConnection'] = undefined
+
+      expect(() => conn!.deliver(new Uint8Array([1]))).toThrow('needs to be initialized')
+    })
+
+    it('sets connStatus to STARTING before _initNewConn is called during start', async () => {
+      const teamId = sigchainService.activeChain.team!.id
+      await qssAuthConnManager.startNewConnection(teamId)
+      const conn = qssAuthConnManager.getConnection(teamId)
+      expect(conn).toBeDefined()
+
+      // Simulate an inactive connection while preserving _clientSocket so the manager
+      // will call start() on the same instance rather than creating a new one.
+      // (stop() clears _clientSocket which causes the manager to replace the conn.)
+      // @ts-ignore
+      conn!['_authConnection'] = undefined
+      // @ts-ignore
+      conn!['_connStatus'] = QSSAuthConnStatus.INACTIVE
+      expect(conn?.active).toBeFalsy()
+
+      let statusDuringInit: QSSAuthConnStatus | undefined
+      const origInitNewConn = (conn as any)._initNewConn.bind(conn)
+      jest.spyOn(conn as any, '_initNewConn').mockImplementation(async function (this: any, ...args: any[]) {
+        statusDuringInit = this._connStatus
+        return origInitNewConn(...args)
+      })
+
+      // Manager sees an inactive conn with the same socket and calls existingConn.start()
+      await qssAuthConnManager.startNewConnection(teamId)
+
+      expect(statusDuringInit).toBe(QSSAuthConnStatus.STARTING)
+    })
   })
 })
