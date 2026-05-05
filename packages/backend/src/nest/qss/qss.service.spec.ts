@@ -4,7 +4,7 @@ import { QSSModule } from './qss.module'
 import { QSSClient } from './qss.client'
 import MockedSocket from 'socket.io-mock'
 import { jest } from '@jest/globals'
-import { type Socket as ClientSocket } from 'socket.io-client'
+import { Socket, type Socket as ClientSocket } from 'socket.io-client'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from './qss.service'
@@ -78,6 +78,9 @@ describe('QSSService', () => {
   let community: Community
   let userIdentity: Identity
   let mockedCaptchaVerified: jest.SpiedGetter<any> | undefined
+  let mockedCanConnect: jest.SpiedGetter<any> | undefined
+  let mockedClientClose: jest.SpiedFunction<any> | undefined
+  let socket: Socket | undefined
 
   const teamName = 'foobar'
   const username = 'testuser'
@@ -119,14 +122,6 @@ describe('QSSService', () => {
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
 
-    let socket = {
-      ...new MockedSocket(),
-      close: () => {},
-      on: (event: string, callback: (...args: any[]) => void) => {},
-      emit: (event: string, payload: any) => {},
-      connected: false,
-      active: false,
-    } as any as ClientSocket
     mockedCreateSocket = jest
       .spyOn(qssClient, 'createSocketAndConnect')
       .mockImplementation(async (_qssEndpoint: string | undefined): Promise<ClientSocket> => {
@@ -142,6 +137,9 @@ describe('QSSService', () => {
       })
     mockedGetSocket = jest.spyOn(qssClient, 'getClientSocket').mockImplementation((): ClientSocket | undefined => {
       return socket
+    })
+    mockedClientClose = jest.spyOn(qssClient, 'close').mockImplementation((): void => {
+      socket = undefined
     })
   })
 
@@ -172,6 +170,10 @@ describe('QSSService', () => {
     if (mockedGetAuthConnection != null) {
       mockedGetAuthConnection.mockRestore()
       mockedGetAuthConnection = undefined
+    }
+    if (mockedCanConnect != null) {
+      mockedCanConnect.mockRestore()
+      mockedCanConnect = undefined
     }
   })
 
@@ -314,6 +316,9 @@ describe('QSSService', () => {
     })
 
     it('re-arms lifecycle handlers after close/resume without duplicates', async () => {
+      await initCommunity()
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      mockedCanConnect = jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
       const countHandler = (emitter: any, event: string, handler: (...args: any[]) => void): number => {
         return emitter.listeners(event).filter((listener: (...args: any[]) => void) => listener === handler).length
       }
@@ -353,7 +358,7 @@ describe('QSSService', () => {
 
       expectLifecycleHandlers(1)
 
-      qssService.close()
+      qssService.pause()
 
       expectLifecycleHandlers(0)
 
@@ -364,6 +369,20 @@ describe('QSSService', () => {
       await qssService.resume()
 
       expectLifecycleHandlers(1)
+    })
+
+    it('disconnects and reconnects on pause/resume', async () => {
+      await initCommunity()
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBe(true)
+
+      qssService.pause()
+      expect(qssService.connected).toBe(false)
+
+      await qssService.resume()
+      expect(qssService.connected).toBe(true)
     })
 
     it('serializes concurrent connect requests without overlapping attempts', async () => {
