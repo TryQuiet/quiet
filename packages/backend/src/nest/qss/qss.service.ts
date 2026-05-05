@@ -72,8 +72,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    */
   private _reconnectQueueProcessor: NodeJS.Timeout | undefined
   private _reconnectDelayMs = QSS_RECONNECT_DELAY_MS
-  private _reconnectQssEndpoint: string | undefined
-  private _reconnectEnabledOverride = false
+  private _enabledOverride = false
 
   /**
    * Map of team IDs to intervals pulling log entries
@@ -459,8 +458,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         return QSSOperationResult.DISABLED
       }
 
-      this._reconnectQssEndpoint = qssEndpoint ?? this.qssEndpoint
-      this._reconnectEnabledOverride = enabledOverride
+      this._enabledOverride = enabledOverride
 
       let connStatus: QSSOperationResult
       try {
@@ -509,13 +507,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.debug('Scheduling QSS reconnect in', reconnectDelayMs, 'ms')
     this._reconnectQueueProcessor = setTimeout(() => {
       this._reconnectQueueProcessor = undefined
-      void this.connect(this._reconnectQssEndpoint ?? this.qssEndpoint, this._reconnectEnabledOverride)
+      void this.connect(this.qssEndpoint, this._enabledOverride)
     }, reconnectDelayMs)
   }
 
   public pause(): void {
+    if (!this.canConnect) {
+      this.logger.trace(`Skipping QSS pause because QSS isn't enabled`)
+      return
+    }
+
     this.logger.info('Pausing QSS service')
     this._paused = true
+    this._teardownEventHandlers()
     this._clearReconnectTimer(true)
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
@@ -525,16 +529,21 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       clearTimeout(timeout)
     }
     this._logPullSuccessTimeouts.clear()
-    this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
     this.qssClient.close()
   }
 
   public async resume(): Promise<void> {
+    if (!this.canConnect) {
+      this.logger.trace(`Skipping QSS resume because QSS isn't enabled`)
+      return
+    }
+
     this.logger.info(`Resuming QSS service`)
     this._paused = false
     this._configureEventHandlers()
+    await this.connect(this.qssEndpoint, this._enabledOverride)
   }
 
   /**
@@ -547,6 +556,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const requestedEndpoint = qssEndpoint ?? this._qssEndpoint
     const endpointChanged = qssEndpoint != null && qssEndpoint !== this._qssEndpoint
     this._qssEndpoint = requestedEndpoint
+    this._enabledOverride = enabledOverride
 
     // if we are already connected return true and move on
     if (this.connected && !endpointChanged) {
