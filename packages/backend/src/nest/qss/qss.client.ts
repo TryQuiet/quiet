@@ -33,6 +33,7 @@ export class QSSClient extends EventEmitter {
   private _clientSocketEndpoint: string | undefined = undefined
   private _connectPromise: Promise<ClientSocket> | undefined = undefined
   private _captchaVerified = false
+  private _captchaVerificationPromise: Promise<boolean> | null = null
   private _socketEventHandlers:
     | {
         socket: ClientSocket
@@ -337,6 +338,20 @@ export class QSSClient extends EventEmitter {
       return true
     }
 
+    if (this._captchaVerificationPromise != null) {
+      this.logger.debug('Captcha verification already in progress, awaiting existing verification')
+      return this._captchaVerificationPromise
+    }
+
+    this._captchaVerificationPromise = this._requestCaptchaVerificationImpl()
+    try {
+      return await this._captchaVerificationPromise
+    } finally {
+      this._captchaVerificationPromise = null
+    }
+  }
+
+  private async _requestCaptchaVerificationImpl(): Promise<boolean> {
     if (!this.connected) {
       await this.createSocketAndConnect(this.qssEndpoint)
     }
