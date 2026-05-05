@@ -799,14 +799,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       SocketActions.CREATE_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: ResponseCreateCommunityPayload | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActions.CREATE_COMMUNITY}`)
-        callback(await this.createCommunity(args))
+        try {
+          callback(await this.createCommunity(args))
+        } catch (e) {
+          this.logger.error('Error while handling create community request', e)
+          callback(undefined)
+        }
       }
     )
     this.socketService.on(
       SocketActions.JOIN_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: ResponseJoinCommunityPayload | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActions.JOIN_COMMUNITY}`)
-        callback(await this.joinCommunity(args))
+        try {
+          callback(await this.joinCommunity(args))
+        } catch (e) {
+          this.logger.error('Error while handling join community request', e)
+          callback(undefined)
+        }
       }
     )
 

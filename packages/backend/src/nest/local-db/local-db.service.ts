@@ -67,11 +67,12 @@ export class LocalDbService extends EventEmitter {
         rmSync(location, { recursive: true, force: true })
         return
       } catch (e: any) {
-        if (e.code === 'EBUSY' && attempt < maxRetries - 1) {
+        if (['EBUSY', 'EPERM'].includes(e.code) && attempt < maxRetries - 1) {
           await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)))
           continue
         }
-        throw e
+        this.logger.warn(`Failed to remove local DB directory after ${maxRetries} attempts, continuing`, e)
+        return
       }
     }
   }
