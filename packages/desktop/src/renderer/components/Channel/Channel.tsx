@@ -95,8 +95,8 @@ const Channel = () => {
       setMembers(Object.values(userProfiles))
       return
     }
-    setMembers(currentChannel.memberIds?.map(memberId => userProfiles[memberId]).filter(isDefined) ?? [])
-  }, [userProfiles, currentChannel])
+    setMembers(currentChannel.memberIds.map(memberId => userProfiles[memberId]).filter(isDefined) ?? [])
+  }, [userProfiles, currentChannel, currentChannelId])
 
   const onInputChange = useCallback((_value: string) => {
     // TODO https://github.com/TryQuiet/ZbayLite/issues/442
@@ -266,7 +266,6 @@ const Channel = () => {
 
   const setOrCreateDmChannel = useCallback(
     (memberIds: string[]) => {
-      logger.warn('creating or setting', memberIds, me)
       if (me == null || memberIds.length === 0) {
         dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
@@ -275,7 +274,6 @@ const Channel = () => {
       const { channelId, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
       const dmChannel = channels.find(channel => channel.id === channelId)
       if (dmChannel != null) {
-        logger.warn('found', channelId)
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
@@ -283,7 +281,6 @@ const Channel = () => {
           })
         )
       } else {
-        logger.info('DM channel not found, creating...', channelId, uniqueMemberIds)
         const payload: CreateChannelPayload = {
           id: channelId,
           name: channelId,

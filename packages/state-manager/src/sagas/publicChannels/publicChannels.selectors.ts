@@ -297,6 +297,20 @@ export const dmChannels = createSelector(publicChannels, channels => {
   return channels.filter(channel => channel.type === ChannelType.DM)
 })
 
+export const sortedDmChannels = createSelector(dmChannels, dmChannels => {
+  const sorted = dmChannels.sort((a, b) => {
+    if (a.memberIds != null && a.memberIds.length === 1) {
+      return -1
+    }
+    if (b.memberIds != null && b.memberIds.length === 1) {
+      return 1
+    }
+    return a.displayedName.localeCompare(b.displayedName)
+  })
+
+  return sorted
+})
+
 export const areMessagesLoaded = createSelector(currentChannelMessagesMergedBySender, currentChannelMessages => {
   const messageCount = Object.values(currentChannelMessages).length
   return messageCount > 0
@@ -340,6 +354,7 @@ export const publicChannelsSelectors = {
   areChannelsLoaded,
   isNewMessageOpen,
   dmChannels,
+  sortedDmChannels,
   unreadDms,
   prevChannelId,
 }

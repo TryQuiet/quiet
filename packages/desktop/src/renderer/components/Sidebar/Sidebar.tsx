@@ -26,7 +26,7 @@ const Sidebar = () => {
   const userProfileSelector = useSelector(users.selectors.userProfiles)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
-  const dmChannels = useSelector(publicChannels.selectors.dmChannels)
+  const dmChannels = useSelector(publicChannels.selectors.sortedDmChannels)
   const unreadDms = useSelector(publicChannels.selectors.unreadDms)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)

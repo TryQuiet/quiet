@@ -15,7 +15,7 @@ export interface DMProfilePhotoProps {
 const STYLE: React.CSSProperties = {
   paddingBottom: 0,
   padding: 0,
-  marginLeft: 0,
+  marginLeft: -2,
   marginRight: 2,
   marginBottom: 0,
   fontSize: '1rem',

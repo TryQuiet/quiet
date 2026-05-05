@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import DirectMessageListItem from './DirectMessageListItem'
-import { PublicChannelStatus, PublicChannelStorage, UserProfile } from '@quiet/types'
+import { PublicChannelStorage, UserProfile } from '@quiet/types'
 import _ from 'lodash'
 
 export interface DirectMessagesPanelProps {
@@ -83,32 +83,23 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
         actionTitle={'createNewMessage'}
       />
       <List disablePadding data-testid='usersList'>
-        {dmChannels
-          .sort((a, b) => {
-            const aResult = getUserDataForDmChannel(a, myUserProfile, userProfiles, connectedPeers)
-            const bResult = getUserDataForDmChannel(b, myUserProfile, userProfiles, connectedPeers)
-            if (aResult != null && bResult != null && aResult?.connected === bResult?.connected) {
-              return aResult?.user.nickname.localeCompare(bResult?.user.nickname, undefined, { sensitivity: 'base' })
-            }
-            return aResult?.connected ? -1 : 1
-          })
-          .map(channel => {
-            const userData = getUserDataForDmChannel(channel, myUserProfile, userProfiles, connectedPeers)
-            const unread = unreadDms.some(unreadDmId => unreadDmId === channel.id)
-            const selected = currentChannelId === channel.id
-            return (
-              <DirectMessageListItem
-                me={myUserProfile}
-                userProfiles={userProfiles}
-                userData={userData}
-                channel={channel}
-                key={channel.id}
-                unread={unread}
-                selected={selected}
-                setCurrentChannel={setCurrentChannel}
-              />
-            )
-          })}
+        {dmChannels.map(channel => {
+          const userData = getUserDataForDmChannel(channel, myUserProfile, userProfiles, connectedPeers)
+          const unread = unreadDms.some(unreadDmId => unreadDmId === channel.id)
+          const selected = currentChannelId === channel.id
+          return (
+            <DirectMessageListItem
+              me={myUserProfile}
+              userProfiles={userProfiles}
+              userData={userData}
+              channel={channel}
+              key={channel.id}
+              unread={unread}
+              selected={selected}
+              setCurrentChannel={setCurrentChannel}
+            />
+          )
+        })}
       </List>
     </Grid>
   )

@@ -41,6 +41,7 @@ import {
   HCaptchaRequest,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
+  ClearConnectedPeersPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -75,6 +76,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.setCurrentCommunity>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
+    | ReturnType<typeof networkActions.clearConnectedPeers>
     | ReturnType<typeof connectionActions.setNetworkData>
     | ReturnType<typeof connectionActions.updateNetworkData>
     | ReturnType<typeof networkActions.addConnectedPeers>
@@ -112,6 +114,10 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
+    socket.on(SocketEvents.PEER_CLEAR, (payload: ClearConnectedPeersPayload) => {
+      logger.info(`${SocketEvents.PEER_CLEAR}`, payload)
+      emit(networkActions.clearConnectedPeers(payload))
+    })
     socket.on(SocketEvents.PEER_CONNECTED, (payload: NetworkDataPayload) => {
       logger.info(`${SocketEvents.PEER_CONNECTED}`, payload)
       emit(networkActions.addConnectedPeers([payload.peer]))

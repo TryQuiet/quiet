@@ -53,6 +53,7 @@ import {
   AddMembersChannelResponse,
   PublicChannel,
   User,
+  ChannelType,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -558,6 +559,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     this.communityState = ServiceState.LAUNCHING
     this.logger.info(`Community state is now ${this.communityState}`)
+
+    this.logger.debug('Clearing connected peers from frontend')
+    this.serverIoProvider.io.emit(SocketEvents.PEER_CLEAR, { communityId: community.id })
 
     if (community.name) {
       try {

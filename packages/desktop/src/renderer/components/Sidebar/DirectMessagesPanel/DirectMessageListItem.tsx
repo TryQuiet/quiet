@@ -132,6 +132,8 @@ interface ProfilePhotoWithBadgeProps {
   channel: PublicChannelStorage
 }
 
+const MAX_BADGE_MEMBER_COUNT = 9
+
 const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({ channel, userData }) => {
   const theme = useTheme()
   let variant: 'dot' | 'standard' = 'dot'
@@ -155,7 +157,7 @@ const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({ channel, 
       variant={variant}
       invisible={invisible}
       badgeContent={badgeContent}
-      max={2}
+      max={MAX_BADGE_MEMBER_COUNT}
     >
       {userData && (
         <span className={classes.avatar}>
