@@ -506,6 +506,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const reconnectDelayMs = this._reconnectDelayMs
     this._reconnectDelayMs = Math.min(reconnectDelayMs * QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_MAX_DELAY_MS)
 
+    this.logger.debug('Scheduling QSS reconnect in', reconnectDelayMs, 'ms')
     this._reconnectQueueProcessor = setTimeout(() => {
       this._reconnectQueueProcessor = undefined
       void this.connect(this._reconnectQssEndpoint ?? this.qssEndpoint, this._reconnectEnabledOverride)
