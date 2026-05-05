@@ -555,9 +555,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private async _connectImpl(qssEndpoint: string | undefined, enabledOverride: boolean): Promise<QSSOperationResult> {
     const requestedEndpoint = qssEndpoint ?? this._qssEndpoint
     const endpointChanged = qssEndpoint != null && qssEndpoint !== this._qssEndpoint
-    if (endpointChanged) {
-      this._qssEndpoint = requestedEndpoint
-    }
+    this._qssEndpoint = requestedEndpoint
     this._enabledOverride = enabledOverride
 
     // if we are already connected return true and move on
