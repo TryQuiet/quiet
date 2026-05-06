@@ -1581,7 +1581,8 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
 
       const teamId = sigchainService.activeChain.team!.id
-      qssService.markTeamStorageReady(teamId)
+      // @ts-ignore Mark storage ready without triggering processDeadLetterQueue before the spy is installed.
+      qssService._storageReadyTeams.add(teamId)
 
       const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages').mockResolvedValue({})
 
@@ -1590,6 +1591,102 @@ describe('QSSService', () => {
 
       expect(getPendingSpy).toHaveBeenCalled()
       getPendingSpy.mockRestore()
+    })
+
+    it('coalesces overlapping DLQ processing to avoid duplicate QSS sends and push triggers', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+
+      const teamId = sigchainService.activeChain.team!.id
+      const address = 'channels.dlq-race'
+      const hash = 'dlq-race-hash'
+      const entry = {
+        hash,
+        id: 'dlq-race-db-id',
+        payload: {
+          value: {
+            teamId,
+          },
+        },
+      } as any
+
+      // @ts-ignore Exercise the private DLQ processor directly without triggering markTeamStorageReady side effects.
+      qssService._storageReadyTeams.add(teamId)
+
+      let pendingHashes = [hash]
+      const getPendingSpy = jest
+        .spyOn(localDbService, 'getPendingQssLogSyncMessages')
+        .mockImplementation(async () => {
+          const result: Record<string, string[]> = pendingHashes.length > 0 ? { [address]: [...pendingHashes] } : {}
+          return result
+        })
+      const removeSpy = jest
+        .spyOn(localDbService, 'removePendingQssLogSyncMessages')
+        .mockImplementation(async (sentMessageHashes: Record<string, string[]>) => {
+          pendingHashes = pendingHashes.filter(pendingHash => !sentMessageHashes[address]?.includes(pendingHash))
+        })
+      const getLogEntriesSpy = jest.spyOn(orbitDbService, 'getLogEntriesByHashes').mockResolvedValue([entry])
+      const pushTriggerSpy = jest.fn()
+      qssClient.on(QSSEvents.QSS_LOG_SYNCED, pushTriggerSpy)
+
+      const successResponse: LogEntrySyncResponseMessage = {
+        ts: DateTime.utc().toMillis(),
+        status: CommunityOperationStatus.SUCCESS,
+        payload: {
+          teamId,
+          hash,
+          hashedDbId: entry.id,
+        },
+      }
+      let logSyncSendCount = 0
+      let resolveFirstSend!: (response: LogEntrySyncResponseMessage) => void
+      mockedSendMessage = jest
+        .spyOn(qssClient, 'sendMessage')
+        .mockImplementation(async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
+          logger.debug('Sending event to QSS', event, payload, withAck)
+          if (event !== WebsocketEvents.LOG_ENTRY_SYNC || !withAck) {
+            return undefined
+          }
+
+          logSyncSendCount += 1
+          if (logSyncSendCount > 1) {
+            return successResponse as T
+          }
+
+          return new Promise<T>(resolve => {
+            resolveFirstSend = response => resolve(response as T)
+          })
+        })
+
+      // @ts-ignore
+      const firstRun = qssService.processDeadLetterQueue(teamId)
+      await waitForExpect(() => {
+        expect(logSyncSendCount).toBe(1)
+        expect(resolveFirstSend).toBeDefined()
+      })
+
+      // @ts-ignore Simulates a second lifecycle trigger while the first QSS ack is still pending.
+      const secondRun = qssService.processDeadLetterQueue(teamId)
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+
+      resolveFirstSend(successResponse)
+
+      await Promise.all([firstRun, secondRun])
+
+      expect(getPendingSpy).toHaveBeenCalled()
+      expect(getLogEntriesSpy).toHaveBeenCalledWith(address, [hash])
+      expect(mockedSendMessage).toHaveBeenCalledTimes(1)
+      expect(pushTriggerSpy).toHaveBeenCalledTimes(1)
+      expect(removeSpy).toHaveBeenCalledTimes(1)
+      expect(await localDbService.getPendingQssLogSyncMessages()).toEqual({})
+
+      qssClient.off(QSSEvents.QSS_LOG_SYNCED, pushTriggerSpy)
+      getPendingSpy.mockRestore()
+      removeSpy.mockRestore()
+      getLogEntriesSpy.mockRestore()
     })
 
     it('triggers DLQ processing when markTeamStorageReady is called', async () => {
