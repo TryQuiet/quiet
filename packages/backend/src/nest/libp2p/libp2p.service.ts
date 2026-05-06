@@ -15,11 +15,8 @@ import { ConnectionMonitorInit, createLibp2p } from 'libp2p'
 import { isMultiaddr, multiaddr } from '@multiformats/multiaddr'
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 
-import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { DateTime } from 'luxon'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 import { ConnectionProcessInfo, type NetworkDataPayload, NetworkStats, SocketEvents } from '@quiet/types'
@@ -48,8 +45,6 @@ import { defaultLogger } from './libp2p.logger'
 import { QSSService } from '../qss/qss.service'
 
 const CONNECTION_LIMIT = 20
-const KEY_LENGTH = 32
-export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 
 export enum Libp2pState {
   Started = 'started',
@@ -322,26 +317,6 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public readonly createLibp2pListenAddress = (address: string): string => {
     return createLibp2pListenAddress(address)
-  }
-
-  /**
-   * Based on 'libp2p/pnet' generateKey
-   *
-   * @param key: base64 encoded psk
-   */
-  public static generateLibp2pPSK(key?: string) {
-    let psk: Buffer | undefined = undefined
-
-    if (key) {
-      psk = Buffer.from(key, 'base64')
-    } else {
-      psk = crypto.randomBytes(KEY_LENGTH)
-    }
-
-    const base16StringKey = uint8ArrayToString(psk, 'base16')
-    const fullKey = uint8ArrayFromString(LIBP2P_PSK_METADATA + base16StringKey)
-
-    return { psk: psk.toString('base64'), fullKey }
   }
 
   public async hangUpPeers(peers?: string[]) {

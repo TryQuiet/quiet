@@ -4,7 +4,7 @@ import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { createPeerId } from '../common/utils'
+import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import {
@@ -451,7 +451,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       id: payload.id,
       name: payload.name,
       peerList: [localAddress],
-      psk: Libp2pService.generateLibp2pPSK().psk,
+      psk: generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.team?.id,
       qssEnabled: this.qssAllowed && payload.useServer,
@@ -689,7 +689,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
-      psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
+      psk: generateLibp2pPSK(community.psk).fullKey,
       torBootstrap: this.tor,
     }
     await this.libp2pService.createInstance(params)

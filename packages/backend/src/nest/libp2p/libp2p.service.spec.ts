@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { jest } from '@jest/globals'
 import { TestModule } from '../common/test.module'
-import { libp2pInstanceParams } from '../common/utils'
+import { generateLibp2pPSK, LIBP2P_PSK_METADATA, libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
-import { LIBP2P_PSK_METADATA, Libp2pService } from './libp2p.service'
+import { Libp2pService } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
@@ -61,8 +61,8 @@ describe('Libp2pService', () => {
   })
 
   it('Generated libp2p psk matches psk composed from existing key', () => {
-    const generatedKey = Libp2pService.generateLibp2pPSK()
-    const retrievedKey = Libp2pService.generateLibp2pPSK(generatedKey.psk)
+    const generatedKey = generateLibp2pPSK()
+    const retrievedKey = generateLibp2pPSK(generatedKey.psk)
     expect(generatedKey).toEqual(retrievedKey)
     expect(validator.isBase64(generatedKey.psk)).toBeTruthy()
 
