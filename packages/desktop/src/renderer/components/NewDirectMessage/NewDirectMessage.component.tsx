@@ -35,8 +35,8 @@ import { NewMessagesInfoComponent } from '../Channel/NewMessagesInfo/NewMessages
 import { FileActionsProps } from '../Channel/File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
-import NewMessageGroupHeader from '../widgets/channels/NewMessageGroup/NewMessageGroupHeader'
-import NewMessageGroupSearch from '../widgets/channels/NewMessageGroup/NewMessageGroupSearch'
+import NewMessageGroupHeader from '../widgets/channels/NewMessageGroupHeader'
+import UserSearchAutocomplete from '../widgets/userSearch/UserSearchAutoComplete'
 import { createLogger } from '../../logger'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
@@ -92,6 +92,7 @@ const logger = createLogger('NewDirectMessageComponent')
 const EMPTY_CHANNEL_PLACEHOLDER_TEXT = ''
 const ERROR_EMPTY_INPUT_NEW_DM = 'Enter a message to send when creating a new DM'
 const ERROR_CANT_DETERMINE_MEMBERSHIP = `Can't determine membership of this DM because your user profile was undefined`
+const SEARCH_PLACEHOLDER_TEXT = 'Search for members or chats'
 
 export const NewDirectMessageComponent: React.FC<
   NewDirectMessageComponentProps & UploadFilesPreviewsProps & FileActionsProps
@@ -281,9 +282,10 @@ export const NewDirectMessageComponent: React.FC<
       <PageHeader>
         <Grid display='flex' flexDirection='column' gap='8px'>
           <NewMessageGroupHeader userProfiles={userProfiles} me={user} handleClose={handleClose} />
-          <NewMessageGroupSearch
+          <UserSearchAutocomplete
             userProfiles={userProfiles}
             me={user}
+            placeholderText={SEARCH_PLACEHOLDER_TEXT}
             handleInputChange={handleUserSearchInputChange}
           />
         </Grid>

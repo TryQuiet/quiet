@@ -139,6 +139,7 @@
     "electron-localshortcut": "^3.2.1",
     "electron-store": "^8.2.0",
     "electron-updater": "^5.0.1",
+    "fuse.js": "^7.3.0",
     "get-port": "^5.1.1",
     "keymirror": "0.1.1",
     "libsodium-wrappers-sumo": "0.7.15",

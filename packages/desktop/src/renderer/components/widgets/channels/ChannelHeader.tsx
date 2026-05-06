@@ -33,6 +33,9 @@ const classes = {
   bold: `${PREFIX}bold`,
   menu: `${PREFIX}menu`,
   lock: `${PREFIX}lock`,
+  headerTitle: `${PREFIX}headerTitle`,
+  headerTitleChannel: `${PREFIX}headerTitleChannel`,
+  headerTitleDm: `${PREFIX}headerTitleDm`,
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -122,6 +125,23 @@ const Root = styled('div')(({ theme }) => ({
     marginRight: -2,
     marginLeft: -2,
   },
+
+  [`& .${classes.headerTitle}`]: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyItems: 'center',
+    display: 'flex',
+    direction: 'row',
+  },
+
+  [`& .${classes.headerTitleChannel}`]: {
+    gap: '2px',
+  },
+
+  [`& .${classes.headerTitleDm}`]: {
+    gap: '4px',
+  },
 }))
 
 export interface ChannelHeaderProps {
@@ -198,13 +218,10 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
             <Grid
               container
               item
-              justifyContent='space-between'
-              alignItems='center'
-              alignContent='center'
-              justifyItems='center'
-              display='flex'
-              direction='row'
-              gap='2px'
+              className={classNames(classes.headerTitle, {
+                [classes.headerTitleChannel]: channelType === ChannelType.CHANNEL,
+                [classes.headerTitleDm]: channelType === ChannelType.DM,
+              })}
             >
               {channelType === ChannelType.CHANNEL ? (
                 <ChannelTypeIcon

@@ -4,12 +4,10 @@ import classNames from 'classnames'
 import { styled, ThemeProvider, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import Fuse from 'fuse.js'
 
-import { createLogger } from '../../../../logger'
-import ChannelTypeIcon from '../ChannelTypeIcon'
-import { ChannelType, UserProfile } from '@quiet/types'
-import ProfilePhoto from '../../../ProfilePhoto/ProfilePhoto'
+import { createLogger } from '../../../logger'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import _ from 'lodash'
 import {
   Autocomplete,
@@ -18,13 +16,15 @@ import {
   autocompleteClasses,
   createTheme,
   IconButton,
+  InputBase,
+  Paper,
   TextField,
   Theme,
 } from '@mui/material'
-import { Box } from '../../../ui'
-import CloseIcon from '@mui/icons-material/Close'
+import { Box } from '../../ui'
+import { SelectableListOption, UserSearchFuzzyProps, UserSearchProps } from './UserSearch.types'
 
-const PREFIX = 'NewMessageGroupHeader'
+const PREFIX = 'UserSearchFuzzy'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -53,15 +53,18 @@ const classes = {
 
 const Root = styled('div')(({ theme }) => ({
   [`& .${classes.root}`]: {
-    height: '75px',
+    paddingTop: 8,
+    paddingBottom: 8,
     paddingLeft: 20,
     paddingRight: 24,
     borderBottom: `1px solid ${theme.palette.colors.border01}`,
+    minHeight: 55,
   },
 
   [`& .${classes.title}`]: {
     fontSize: '1rem',
     lineHeight: '1.68',
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.subtitle}`]: {
@@ -176,45 +179,14 @@ const Root = styled('div')(({ theme }) => ({
   },
 }))
 
-export interface NewMessageGroupHeaderProps {
-  me: UserProfile | undefined
-  userProfiles: Record<string, UserProfile>
-  handleClose: () => void
-}
+const logger = createLogger('widgets:UserSearchFuzzy')
 
-interface AutoCompleteOption {
-  id: string
-  label: string
-  index: number
-  selected: boolean
-}
-
-interface CloseButtonProps {
-  handleClose: () => void
-}
-
-const CloseButton: React.FC<CloseButtonProps> = ({ handleClose }) => {
-  return (
-    <Grid>
-      <IconButton
-        className={classes.iconButton}
-        onClick={event => {
-          event.persist()
-          handleClose()
-        }}
-        edge='end'
-        data-testid={`new-message-close-button`}
-        size='large'
-      >
-        <CloseIcon />
-      </IconButton>
-    </Grid>
-  )
-}
-
-const logger = createLogger('channels:NewMessageGroupHeader')
-
-export const NewMessageGroupHeader: React.FC<NewMessageGroupHeaderProps> = ({ userProfiles, me, handleClose }) => {
+export const UserSearchFuzzy: React.FC<UserSearchFuzzyProps> = ({
+  placeholderText,
+  options,
+  setOptions,
+  handleInputChange,
+}) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
@@ -245,102 +217,90 @@ export const NewMessageGroupHeader: React.FC<NewMessageGroupHeaderProps> = ({ us
     return window.removeEventListener('resize', handleResize)
   })
 
-  const DMProfilePhoto: React.FC<{ members: UserProfile[]; me: UserProfile | undefined }> = ({ members, me }) => {
-    const notMe = _.find(members, member => member.userId !== me?.userId)
-    if (notMe) {
-      return (
-        <ProfilePhoto
-          userProfile={notMe}
-          userId={notMe.userId}
-          size={theme.componentSizes.avatar.small}
-          style={{
-            paddingBottom: 0,
-            padding: 0,
-            marginLeft: 0,
-            marginRight: 2,
-            marginBottom: 0,
-            fontSize: '1rem',
-            lineHeight: '1.68',
-            borderRadius: 4,
-          }}
-        />
-      )
-    } else if (me) {
-      return (
-        <ProfilePhoto
-          userProfile={me}
-          userId={me.userId}
-          size={theme.componentSizes.avatar.small}
-          style={{
-            paddingBottom: 0,
-            padding: 0,
-            marginLeft: 0,
-            marginRight: 2,
-            marginBottom: 0,
-            fontSize: '1rem',
-            lineHeight: '1.68',
-            borderRadius: 4,
-          }}
-        />
-      )
+  const [visibleIndices, setVisibleIndices] = useState<Set<number>>(new Set())
+  const [initialized, setInitialized] = useState<boolean>(false)
+  const [currentPlaceholderText, setCurrentPlaceholderText] = useState<string>(placeholderText)
+  const [fuzzySearch, setFuzzySearch] = useState<Fuse<SelectableListOption> | undefined>(undefined)
+  const [membershipSearchInput, setMembershipSearchInput] = useState<string | undefined>(undefined)
+
+  const _initialize = () => {
+    setVisibleIndices(_getAllOptionsVisible())
+    setFuzzySearch(
+      new Fuse(options, {
+        keys: ['label'],
+        minMatchCharLength: 1,
+        ignoreDiacritics: true,
+        threshold: 0.3,
+      })
+    )
+  }
+
+  useEffect(() => {
+    _initialize()
+  }, [options])
+
+  const _getAllOptionsVisible = (): Set<number> => {
+    logger.warn('options length', options.length)
+    if (options == null) return new Set()
+    return new Set(options.filter(option => !option.hide).map(option => option.index))
+  }
+
+  const _parseFilterText = (rawFilterText: string): string => {
+    if (rawFilterText === '@') {
+      return ''
     }
-    return <></>
+    if (rawFilterText.startsWith('@')) {
+      return rawFilterText.slice(1)
+    }
+    return rawFilterText
+  }
+
+  const _fuzzyFilterUsers = (filterText: string): Set<number> => {
+    if (fuzzySearch == null || options == null) {
+      return _getAllOptionsVisible()
+    }
+    const searchResults = fuzzySearch.search(filterText)
+    return new Set(searchResults.map(result => result.item.index))
+  }
+
+  const onChangeText = (value?: string) => {
+    logger.warn(value)
+    setMembershipSearchInput(value)
+    let newVisibleIndices: Set<number>
+    if (value === '' || value == null) {
+      logger.warn('setting all visible')
+      newVisibleIndices = _getAllOptionsVisible()
+      setCurrentPlaceholderText(placeholderText)
+      logger.warn(visibleIndices.size)
+    } else {
+      setCurrentPlaceholderText('')
+      newVisibleIndices = _fuzzyFilterUsers(_parseFilterText(value))
+    }
+    setVisibleIndices(newVisibleIndices)
+    handleInputChange(options.filter(option => newVisibleIndices.has(option.index)))
   }
 
   return (
     <Root className={classes.wrapper}>
-      <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
-        <Grid item>
-          <Grid item container alignItems='center'>
-            <Grid item>
-              <Grid
-                container
-                item
-                justifyContent='stretch'
-                alignItems='stretch'
-                alignContent='center'
-                display='flex'
-                flexDirection='row'
-                flex={1}
-              >
-                {/* {channelType === ChannelType.CHANNEL ? (
-                    <ChannelTypeIcon
-                      isPublic={isPublic}
-                      fill={'currentColor'}
-                      style={{ ...theme.typography.subtitle1 }}
-                      className={classNames({
-                        [classes.title]: true,
-                        [classes.bold]: true,
-                        [classes.lock]: true,
-                      })}
-                      data-testid={`channelTitle-icon-${isPublic ? 'public' : 'private'}`}
-                    />
-                  ) : (
-                    <DMProfilePhoto members={members} me={me} />
-                  )} */}
-                <Grid item alignItems='center' flex={10}>
-                  <Typography
-                    noWrap
-                    variant='subtitle1'
-                    className={classNames({
-                      [classes.title]: true,
-                      [classes.bold]: true,
-                    })}
-                    data-testid={'Header title'}
-                  >
-                    New message
-                  </Typography>
-                </Grid>
-                <Grid item flex={2}>
-                  <CloseButton handleClose={handleClose} />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+      <Grid
+        container
+        item
+        className={classes.root}
+        justifyContent='flex-start'
+        alignItems='center'
+        alignContent='center'
+        direction='row'
+      >
+        <Grid item alignItems='center' flex={12}>
+          <InputBase
+            onChange={event => onChangeText(event.currentTarget.value)}
+            placeholder={currentPlaceholderText}
+            sx={{ ml: 0, alignItems: 'center', alignContent: 'center', width: 375 }}
+          />
         </Grid>
       </Grid>
     </Root>
   )
 }
 
-export default NewMessageGroupHeader
+export default UserSearchFuzzy

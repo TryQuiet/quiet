@@ -44,8 +44,8 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   const defaultStyle = {
     width: `${size}px`,
     height: `${size}px`,
+    size,
     borderRadius,
-    marginBottom: '16px',
     ...style,
   }
 
@@ -54,9 +54,13 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   return (
     <>
       {userProfile?.photo ? (
-        <img className={className} src={userProfile.photo} alt={altText} style={defaultStyle} />
+        <div style={defaultStyle}>
+          <img className={className} src={userProfile.photo} alt={altText} style={defaultStyle} />
+        </div>
       ) : profilePhotoPath ? (
-        <img className={className} src={profilePhotoPath} alt={altText} style={defaultStyle} />
+        <div style={defaultStyle}>
+          <img className={className} src={profilePhotoPath} alt={altText} style={defaultStyle} />
+        </div>
       ) : (
         <Jdenticon
           value={userId}

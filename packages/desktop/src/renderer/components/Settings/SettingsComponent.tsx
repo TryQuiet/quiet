@@ -69,6 +69,13 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
+          <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('communityMembership')}>
+            <ListItemText>Community membership</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
           <ListItemButton data-testid={'notifications-settings-tab'} onClick={() => handleChange('notifications')}>
             <ListItemText>Notifications</ListItemText>
             <ListItemIcon>

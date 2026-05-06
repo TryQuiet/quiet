@@ -4,12 +4,9 @@ import classNames from 'classnames'
 import { styled, ThemeProvider, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 
-import { createLogger } from '../../../../logger'
-import ChannelTypeIcon from '../ChannelTypeIcon'
-import { ChannelType, UserProfile } from '@quiet/types'
-import ProfilePhoto from '../../../ProfilePhoto/ProfilePhoto'
+import { createLogger } from '../../../logger'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import _ from 'lodash'
 import {
   Autocomplete,
@@ -23,10 +20,10 @@ import {
   TextField,
   Theme,
 } from '@mui/material'
-import { Box } from '../../../ui'
-import CloseIcon from '@mui/icons-material/Close'
+import { Box } from '../../ui'
+import { SelectableListOption, UserSearchProps } from './UserSearch.types'
 
-const PREFIX = 'NewMessageGroupSearch'
+const PREFIX = 'UserSearchAutocomplete'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -181,26 +178,11 @@ const Root = styled('div')(({ theme }) => ({
   },
 }))
 
-export interface NewMessageGroupSearchProps {
-  me: UserProfile | undefined
-  userProfiles: Record<string, UserProfile>
-  handleInputChange: (selectedUsers: UserProfile[]) => void
-}
+const logger = createLogger('widgets:UserSearchAutocomplete')
 
-interface AutoCompleteOption {
-  id: string
-  label: string
-  index: number
-  selected: boolean
-}
-
-const logger = createLogger('channels:NewMessageGroupSearch')
-
-const DEFAULT_PLACEHOLDER_TEXT = 'Search for members or chats'
-
-export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
+export const UserSearchAutocomplete: React.FC<UserSearchProps> = ({
   userProfiles,
-  me,
+  placeholderText,
   handleInputChange,
 }) => {
   const theme = useTheme()
@@ -233,16 +215,16 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
     return window.removeEventListener('resize', handleResize)
   })
 
-  const [selectedMembers, setSelectedMembers] = useState<AutoCompleteOption[]>([])
-  const [autoCompleteOptions, setAutoCompleteOptions] = useState<AutoCompleteOption[]>([])
+  const [selectedMembers, setSelectedMembers] = useState<SelectableListOption[]>([])
+  const [autoCompleteOptions, setAutoCompleteOptions] = useState<SelectableListOption[]>([])
   const [initialized, setInitialized] = useState<boolean>(false)
-  const [placeholderText, setPlaceholderText] = useState<string>(DEFAULT_PLACEHOLDER_TEXT)
+  const [currentPlaceholderText, setCurrentPlaceholderText] = useState<string>(placeholderText)
 
   const _updateAutoCompleteOptions = () => {
-    const updatedOptions: AutoCompleteOption[] = []
+    const updatedOptions: SelectableListOption[] = []
     let index = 0
     for (const user of Object.values(userProfiles)) {
-      updatedOptions.push({ label: user.nickname, id: user.userId, selected: false, index })
+      updatedOptions.push({ label: user.nickname, id: user.userId, selected: false, mutable: true, hide: false, index })
       index++
     }
     setAutoCompleteOptions(updatedOptions)
@@ -257,12 +239,6 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
       setInitialized(false)
     }
   }, [open])
-
-  const handleOpenNewMessage = (): void => {
-    // addMembersToChannel(selectedMembers.map(option => option.id))
-    setSelectedMembers([])
-    setAutoCompleteOptions([])
-  }
 
   useEffect(() => {
     handleInputChange(selectedMembers.map(member => userProfiles[member.id]))
@@ -326,9 +302,9 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
 
   const handleAutoCompleteChange = (
     event: React.SyntheticEvent,
-    selected: AutoCompleteOption[],
+    selected: SelectableListOption[],
     reason: AutocompleteChangeReason,
-    details?: AutocompleteChangeDetails<AutoCompleteOption>
+    details?: AutocompleteChangeDetails<SelectableListOption>
   ) => {
     setSelectedMembers(selected.map(option => ({ ...option, selected: true })))
     if (reason === 'selectOption') {
@@ -341,9 +317,9 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
 
   useEffect(() => {
     if (selectedMembers.length > 0) {
-      setPlaceholderText('')
+      setCurrentPlaceholderText('')
     } else {
-      setPlaceholderText(DEFAULT_PLACEHOLDER_TEXT)
+      setCurrentPlaceholderText(placeholderText)
     }
   }, [selectedMembers])
 
@@ -383,7 +359,7 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
                   <InputBase
                     {...params.InputProps}
                     {...rest}
-                    placeholder={placeholderText}
+                    placeholder={currentPlaceholderText}
                     sx={{ ml: 0, alignItems: 'center', alignContent: 'center' }}
                   />
                 )
@@ -398,4 +374,4 @@ export const NewMessageGroupSearch: React.FC<NewMessageGroupSearchProps> = ({
   )
 }
 
-export default NewMessageGroupSearch
+export default UserSearchAutocomplete
