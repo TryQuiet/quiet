@@ -172,7 +172,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: linux
-          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
+          envfile: .env.production
 
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
@@ -211,6 +211,38 @@ jobs:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
           asset_name: Quiet-${{ steps.extract_version.outputs.version }}.AppImage
+          asset_content_type: application/.AppImage
+
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: linux
+          envfile: .env.staging
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ARCH: x86_64
+        run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p never --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Tag experimental Linux artifact
+        if: github.event.release.prerelease
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}-experimental.AppImage
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}-experimental.AppImage
+          asset_name: Quiet-${{ steps.extract_version.outputs.version }}-experimental.AppImage
           asset_content_type: application/.AppImage
 
       - name: Send Release Notificaton
@@ -258,7 +290,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: darwin
-          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
+          envfile: .env.production
 
       - name: "Remove crud files"
         run: xattr -crs .
@@ -279,6 +311,9 @@ jobs:
           USE_HARD_LINKS: false
         run: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
 
+      - name: Tag Intel artifact
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
+
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
@@ -291,8 +326,48 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
+          asset_content_type: application/.dmg
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+          envfile: .env.staging
+
+      - name: "Remove crud files for experimental build"
+        if: github.event.release.prerelease
+        run: xattr -crs .
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Tag experimental Intel artifact
+        if: github.event.release.prerelease
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-x64.dmg
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-x64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-experimental-x64.dmg
           asset_content_type: application/.dmg
 
       - name: Send Release Notificaton
@@ -339,7 +414,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: darwin
-          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
+          envfile: .env.production
 
       - name: "Remove crud files"
         run: xattr -crs .
@@ -374,6 +449,46 @@ jobs:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
           asset_name: Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
+          asset_content_type: application/.dmg
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+          envfile: .env.staging
+
+      - name: "Remove crud files for experimental build"
+        if: github.event.release.prerelease
+        run: xattr -crs .
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --mac --arm64 ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Tag experimental arm64 artifact
+        if: github.event.release.prerelease
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-arm64.dmg
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-arm64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-experimental-arm64.dmg
           asset_content_type: application/.dmg
 
       - name: Send Release Notificaton
@@ -430,7 +545,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: win32
-          envfile: ${{ github.event.release.prerelease && '.env.staging' || '.env.production' }}
+          envfile: .env.production
 
       - name: "Set electron-builder props"
         shell: bash
@@ -462,6 +577,42 @@ jobs:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
           asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_content_type: application/.exe
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
+          envfile: .env.staging
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Tag experimental Windows artifact
+        if: github.event.release.prerelease
+        shell: bash
+        run: mv "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe" "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}-experimental.exe"
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}-experimental.exe
+          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}-experimental.exe
           asset_content_type: application/.exe
 
       - name: Send Release Notificaton
