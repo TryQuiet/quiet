@@ -18,7 +18,7 @@ import {
   QSSNotInitializedError,
   WebsocketEvents,
 } from './qss.types'
-import { CLIENT_TRANSPORTS } from './qss.const'
+import { CLIENT_TRANSPORTS, QSS_HANDSHAKE_TIMEOUT_MS } from './qss.const'
 import { CaptchaErrorMessages, CompoundError, SocketEvents } from '@quiet/types'
 import EventEmitter from 'node:events'
 import { CaptchaService } from '../captcha/captcha.service'
@@ -160,7 +160,7 @@ export class QSSClient extends EventEmitter {
         this.logger.error('QSS client failed to connect within timeout, closing socket')
         this._closeSocket(socket)
         reject(new QSSConnectionError(`Client didn't connect in time!`))
-      }, 10_000)
+      }, QSS_HANDSHAKE_TIMEOUT_MS)
 
       const onConnect = (): void => {
         clearTimeout(timer)
