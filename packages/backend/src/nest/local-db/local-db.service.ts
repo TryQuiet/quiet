@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common'
 import { CID } from 'multiformats/cid'
 import { base58btc } from 'multiformats/bases/base58'
 import { Level } from 'level'
-import { rmSync } from 'fs'
 
 import { type Community, NetworkStats, Identity } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
@@ -23,6 +22,7 @@ import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
+import { removeFilesFromDir } from '../common/utils'
 
 @Injectable()
 export class LocalDbService extends EventEmitter {
@@ -58,23 +58,7 @@ export class LocalDbService extends EventEmitter {
     }
     await this.purge()
     await this.close()
-    // On Windows, LevelDB file handles (especially LOG) may remain locked briefly
-    // after close() resolves. Retry with backoff to handle EBUSY errors.
-    const location = this.db.location
-    const maxRetries = 5
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        rmSync(location, { recursive: true, force: true })
-        return
-      } catch (e: any) {
-        if (['EBUSY', 'EPERM'].includes(e.code) && attempt < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)))
-          continue
-        }
-        this.logger.warn(`Failed to remove local DB directory after ${maxRetries} attempts, continuing`, e)
-        return
-      }
-    }
+    removeFilesFromDir(this.db.location, { throwOnError: false, maxRetries: 2, retryDelay: 100 })
   }
 
   public async get(key: string) {

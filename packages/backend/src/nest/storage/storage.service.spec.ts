@@ -257,5 +257,21 @@ describe('StorageService', () => {
       expect(arg['peer1'].peerId).toEqual('peer1')
       expect(arg['peer1'].address).toEqual(expectedMultiaddr)
     })
+
+    it('purgeData continues when a data directory is locked', async () => {
+      const lockedDir = path.join(storageService.quietDir, 'Ipfs-locked')
+      fs.mkdirSync(lockedDir, { recursive: true })
+      const rmSync = jest.spyOn(fs, 'rmSync').mockImplementation((target, options) => {
+        if (target === lockedDir) {
+          throw Object.assign(new Error('locked'), { code: 'EBUSY' })
+        }
+        return jest.requireActual<typeof fs>('fs').rmSync(target, options as any)
+      })
+
+      expect(() => storageService.purgeData()).not.toThrow()
+
+      rmSync.mockRestore()
+      fs.rmSync(lockedDir, { recursive: true, force: true })
+    })
   })
 })

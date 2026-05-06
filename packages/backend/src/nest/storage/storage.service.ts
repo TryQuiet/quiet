@@ -154,7 +154,7 @@ export class StorageService extends EventEmitter {
     }
     for (const dirPath of dirsToRemovePaths) {
       this.logger.info(`Removing dir: ${dirPath}`)
-      removeFilesFromDir(dirPath)
+      removeFilesFromDir(dirPath, { throwOnError: false, maxRetries: 1, retryDelay: 100 })
     }
   }
 

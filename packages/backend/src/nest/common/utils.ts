@@ -38,10 +38,21 @@ export function createPaths(paths: string[]) {
   }
 }
 
-export function removeFilesFromDir(dirPath: string) {
+export function removeFilesFromDir(
+  dirPath: string,
+  options: { throwOnError?: boolean; maxRetries?: number; retryDelay?: number } = {}
+) {
+  const { throwOnError = true, maxRetries = 5, retryDelay = 200 } = options
   if (fs.existsSync(dirPath)) {
     logger.info(`Removing ${dirPath}`)
-    fs.rmdirSync(dirPath, { recursive: true })
+    try {
+      fs.rmSync(dirPath, { recursive: true, force: true, maxRetries, retryDelay })
+    } catch (e) {
+      if (throwOnError) {
+        throw e
+      }
+      logger.warn(`Failed to remove ${dirPath}, continuing`, e)
+    }
   }
 }
 
