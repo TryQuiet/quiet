@@ -282,7 +282,13 @@ export class QSSClient extends EventEmitter {
           status: CommunityOperationStatus.SENDING,
         },
         true,
-        2000
+        // Was 2000 — too tight under sustained downstream latency. With 3 s ±
+        // 1.5 s on the QSS link the ack can arrive 1.5–4.5 s late, the
+        // timeout fires before the response, sendMessage swallows the error,
+        // this returns null, and the create-community auto-flow stalls
+        // permanently because nothing re-fires QSS_HANDLE_SIGN_IN.
+        // 5 s matches the default `timeoutAck` in `sendMessage`.
+        5000
       )
       this.logger.info('Received response from QSS for hCaptcha site key request')
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.siteKey) {
