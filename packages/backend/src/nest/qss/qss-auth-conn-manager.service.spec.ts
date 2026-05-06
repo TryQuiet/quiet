@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { type ModuleRef } from '@nestjs/core'
 import { TestModule } from '../common/test.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
+import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSModule } from './qss.module'
 import { QSSClient } from './qss.client'
 import MockedSocket from 'socket.io-mock'
@@ -22,6 +24,25 @@ describe('QSSAuthConnectionManager', () => {
 
   const teamName = 'foobar'
   const username = 'testuser'
+  const createDeferred = <T>() => {
+    let resolve!: (value: T) => void
+    const promise = new Promise<T>(res => {
+      resolve = res
+    })
+    return { promise, resolve }
+  }
+
+  const createMockAuthConnection = (id: string): QSSAuthConnection =>
+    ({
+      id,
+      teamId: undefined,
+      active: true,
+      on: jest.fn(),
+      start: jest.fn(async (_teamName?: string) => {}),
+      stop: jest.fn(),
+      isForClientSocket: jest.fn(() => true),
+    }) as unknown as QSSAuthConnection
+
   const createMockSocket = (id: string): ClientSocket =>
     ({
       ...new MockedSocket(),
@@ -83,6 +104,31 @@ describe('QSSAuthConnectionManager', () => {
     expect(possiblyNewConn).toBeDefined()
     expect(possiblyNewConn!.id).toEqual(conn!.id)
     expect(possiblyNewConn?.active).toBeTruthy()
+  })
+
+  it('coalesces overlapping starts for the same team while auth connection creation is in flight', async () => {
+    const teamId = 'race-team-id'
+    const moduleRef = (qssAuthConnManager as any).moduleRef as ModuleRef
+    const createDeferredConnection = createDeferred<QSSAuthConnection>()
+    const authConnection = createMockAuthConnection('race-auth-connection')
+    const createSpy = jest.spyOn(moduleRef, 'create').mockReturnValue(createDeferredConnection.promise as any)
+
+    const firstStart = qssAuthConnManager.startNewConnection(teamId, 'race-team')
+    expect(createSpy).toHaveBeenCalledTimes(1)
+    expect(qssAuthConnManager.getConnection(teamId)).toBeUndefined()
+
+    const secondStart = qssAuthConnManager.startNewConnection(teamId, 'race-team')
+    expect(createSpy).toHaveBeenCalledTimes(1)
+    expect(qssAuthConnManager.getConnection(teamId)).toBeUndefined()
+
+    createDeferredConnection.resolve(authConnection)
+    await Promise.all([firstStart, secondStart])
+
+    expect(createSpy).toHaveBeenCalledTimes(1)
+    expect(authConnection.teamId).toBe(teamId)
+    expect(authConnection.start).toHaveBeenCalledTimes(1)
+    expect(authConnection.start).toHaveBeenCalledWith('race-team')
+    expect(qssAuthConnManager.getConnection(teamId)).toBe(authConnection)
   })
 
   it(`starts a replacement connection when the existing connection was stopped`, async () => {

@@ -18,6 +18,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * Map of team IDs to QSS auth sync connections
    */
   private readonly authConnMap: Map<string, QSSAuthConnection> = new Map()
+  private readonly startConnectionPromises: Map<string, Promise<void>> = new Map()
 
   private readonly logger = createLogger('qss:auth:conn:manager')
 
@@ -89,6 +90,24 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * @param teamName Optional team name to pass in for filtering purposes
    */
   public async startNewConnection(teamId: string, teamName?: string): Promise<void> {
+    const existingStartPromise = this.startConnectionPromises.get(teamId)
+    if (existingStartPromise != null) {
+      this.logger.warn('QSS auth connection start already in progress for team ID', teamId)
+      return existingStartPromise
+    }
+
+    const startPromise = this._startNewConnection(teamId, teamName)
+    this.startConnectionPromises.set(teamId, startPromise)
+    try {
+      await startPromise
+    } finally {
+      if (this.startConnectionPromises.get(teamId) === startPromise) {
+        this.startConnectionPromises.delete(teamId)
+      }
+    }
+  }
+
+  private async _startNewConnection(teamId: string, teamName?: string): Promise<void> {
     const currentClientSocket = this.qssClient.getClientSocket()
     if (currentClientSocket == null || !currentClientSocket.connected || !currentClientSocket.active) {
       throw new Error('Must have an active QSS client socket prior to starting an auth connection!')
