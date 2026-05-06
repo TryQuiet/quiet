@@ -693,7 +693,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       torBootstrap: this.tor,
     }
     await this.libp2pService.createInstance(params)
-    this.qssService.connect(community.qssEndpoint)
 
     let storageTeamId: string | undefined
     let setupStorageWithTeamMetaPromise: Promise<void> | undefined
@@ -722,6 +721,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (hasStorageReadyChain) {
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await setupStorageWithTeamMeta(activeChain.team!.id)
+      this.qssService.connect(community.qssEndpoint)
     } else {
       this.logger.debug(
         'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
@@ -750,6 +750,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           void handleStorageReady(teamId)
         })
       })
+
+      this.qssService.connect(community.qssEndpoint)
 
       if (await this.tor.isBootstrappingFinished()) {
         this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
