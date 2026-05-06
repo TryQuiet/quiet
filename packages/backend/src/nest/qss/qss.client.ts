@@ -32,6 +32,8 @@ export class QSSClient extends EventEmitter {
   private _clientSocket: ClientSocket | undefined = undefined
   private _clientSocketEndpoint: string | undefined = undefined
   private _connectPromise: Promise<ClientSocket> | undefined = undefined
+  private _connectPromiseEndpoint: string | undefined = undefined
+  private _connectAbortController: AbortController | undefined = undefined
   private _captchaVerified = false
   private _captchaVerificationPromise: Promise<boolean> | null = null
   private _socketEventHandlers:
@@ -80,24 +82,46 @@ export class QSSClient extends EventEmitter {
    * @returns Connected socket.io socket instance
    */
   public async createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
+    const requestedEndpoint = qssEndpoint ?? this.qssEndpoint
+
     if (this._connectPromise != null) {
-      this.logger.debug('QSS connection already in flight, returning existing connection promise')
-      return this._connectPromise
+      if (this._connectPromiseEndpoint !== requestedEndpoint) {
+        this.logger.warn(
+          'QSS connection already in flight for a different endpoint, aborting stale connection',
+          this._connectPromiseEndpoint,
+          requestedEndpoint
+        )
+        this._connectAbortController?.abort()
+        this._connectPromise = undefined
+        this._connectPromiseEndpoint = undefined
+        this._connectAbortController = undefined
+      } else {
+        this.logger.debug('QSS connection already in flight, returning existing connection promise')
+        return this._connectPromise
+      }
     }
 
-    const connectPromise = this._createSocketAndConnect(qssEndpoint)
+    const abortController = new AbortController()
+    const connectPromise = this._createSocketAndConnect(requestedEndpoint, abortController.signal)
     this._connectPromise = connectPromise
+    this._connectPromiseEndpoint = requestedEndpoint
+    this._connectAbortController = abortController
 
     try {
       return await connectPromise
     } finally {
       if (this._connectPromise === connectPromise) {
         this._connectPromise = undefined
+        this._connectPromiseEndpoint = undefined
+        this._connectAbortController = undefined
       }
     }
   }
 
-  private async _createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
+  private async _createSocketAndConnect(
+    qssEndpoint: string | undefined,
+    abortSignal?: AbortSignal
+  ): Promise<ClientSocket> {
     try {
       const requestedEndpoint = qssEndpoint ?? this.qssEndpoint
       this.qssEndpoint = requestedEndpoint
@@ -126,7 +150,7 @@ export class QSSClient extends EventEmitter {
       this._clientSocket = socket
       this._clientSocketEndpoint = this.qssEndpoint
       // wait for socket to connect with QSS instance
-      await this._waitForConnect()
+      await this._waitForConnect(socket, abortSignal)
 
       return socket
     } catch (e) {
@@ -139,12 +163,7 @@ export class QSSClient extends EventEmitter {
   /**
    * Wait for QSS socket connection to finish connecting
    */
-  private async _waitForConnect(): Promise<void> {
-    const socket = this._clientSocket
-    if (socket == null) {
-      throw new QSSNotInitializedError(`Must run createSocket first!`)
-    }
-
+  private async _waitForConnect(socket: ClientSocket, abortSignal?: AbortSignal): Promise<void> {
     if (this.connected) {
       this.logger.debug('QSS already connected')
       return
@@ -154,29 +173,59 @@ export class QSSClient extends EventEmitter {
 
     this.logger.debug('Waiting for QSS socket to connect...')
     await new Promise<void>((resolve, reject) => {
+      let settled = false
       const timer = setTimeout(() => {
-        socket.off('connect', onConnect)
-        socket.off('connect_error', onError)
         this.logger.error('QSS client failed to connect within timeout, closing socket')
-        this._closeSocket(socket)
-        reject(new QSSConnectionError(`Client didn't connect in time!`))
+        fail(new QSSConnectionError(`Client didn't connect in time!`))
       }, 10_000)
 
-      const onConnect = (): void => {
+      const cleanup = (): void => {
         clearTimeout(timer)
+        socket.off('connect', onConnect)
         socket.off('connect_error', onError)
+        abortSignal?.removeEventListener('abort', onAbort)
+      }
+
+      const succeed = (): void => {
+        if (settled) {
+          return
+        }
+        settled = true
+        cleanup()
         resolve()
       }
 
-      const onError = (err: Error): void => {
-        clearTimeout(timer)
-        socket.off('connect', onConnect)
+      const fail = (error: Error): void => {
+        if (settled) {
+          return
+        }
+        settled = true
+        cleanup()
         this._closeSocket(socket)
-        reject(new QSSConnectionError(`Client failed to connect: ${err.message}`, err as any))
+        reject(error)
+      }
+
+      const onConnect = (): void => {
+        succeed()
+      }
+
+      const onError = (err: Error): void => {
+        fail(new QSSConnectionError(`Client failed to connect: ${err.message}`, err as any))
+      }
+
+      const onAbort = (): void => {
+        fail(new QSSConnectionError(`Client connection was replaced by a request for another QSS endpoint`))
       }
 
       socket.once('connect', onConnect)
       socket.once('connect_error', onError)
+      abortSignal?.addEventListener('abort', onAbort, { once: true })
+
+      if (abortSignal?.aborted) {
+        onAbort()
+        return
+      }
+
       socket.connect()
     })
   }
