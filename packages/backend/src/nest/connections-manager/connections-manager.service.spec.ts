@@ -144,6 +144,32 @@ describe('ConnectionsManagerService', () => {
     expect(launchSpy).toBeCalledTimes(1)
   })
 
+  it('waits for current community id to be persisted before launching community services', async () => {
+    await localDbService.setCommunity(community)
+
+    let resolveSetCurrentCommunityId!: () => void
+    const setCurrentCommunityIdPromise = new Promise<void>(resolve => {
+      resolveSetCurrentCommunityId = resolve
+    })
+    const setCurrentCommunityIdSpy = jest
+      .spyOn(localDbService, 'setCurrentCommunityId')
+      .mockReturnValue(setCurrentCommunityIdPromise)
+    const loadChainSpy = jest.spyOn(sigChainService, 'loadChain').mockResolvedValue({} as any)
+    const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue()
+
+    const launchCommunityPromise = connectionsManagerService.launchCommunity(community.id)
+
+    await waitForExpect(() => expect(setCurrentCommunityIdSpy).toHaveBeenCalledWith(community.id))
+    expect(loadChainSpy).not.toHaveBeenCalled()
+    expect(launchSpy).not.toHaveBeenCalled()
+
+    resolveSetCurrentCommunityId()
+    await launchCommunityPromise
+
+    expect(loadChainSpy).toHaveBeenCalledWith(community.name, true)
+    expect(launchSpy).toHaveBeenCalledWith(community)
+  })
+
   it('pauses and resumes qss alongside the mobile lifecycle', async () => {
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
     const openSocketSpy = jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()

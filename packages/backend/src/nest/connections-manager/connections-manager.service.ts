@@ -599,7 +599,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
-    this.localDbService.setCurrentCommunityId(id)
+    await this.localDbService.setCurrentCommunityId(id)
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
