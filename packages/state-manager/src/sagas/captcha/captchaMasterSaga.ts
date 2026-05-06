@@ -1,0 +1,21 @@
+import { type Socket } from '../../types'
+import { all, takeEvery, cancelled, takeLeading } from 'typed-redux-saga'
+import { createLogger } from '../../utils/logger'
+import { captchaRelaySaga } from './captchaRelay.saga'
+import { captchaChallengeSaga } from './captchaChallenge.saga'
+import { captchaActions } from './captcha.slice'
+
+const logger = createLogger('captchaMasterSaga')
+
+export function* captchaMasterSaga(socket: Socket): Generator {
+  try {
+    yield all([
+      takeEvery(captchaActions.captchaFormResponse.type, captchaRelaySaga, socket),
+      takeLeading(captchaActions.presentChallenge.type, captchaChallengeSaga, socket),
+    ])
+  } finally {
+    if (yield cancelled()) {
+      logger.info('captchaMasterSaga cancelled')
+    }
+  }
+}

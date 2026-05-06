@@ -1,0 +1,23 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "version": "independent",
+  "command": {
+    "version": {
+      "allowBranch": ["*"],
+      "conventionalCommits": true,
+      "createRelease": "github"
+    },
+    "bootstrap" : {
+      "hoist": [
+        "eslint*",
+        "@typescript-eslint/*",
+        "prettier*",
+        "lerna",
+        "husky",
+        "pnpm"
+      ]
+    }
+  }
+}

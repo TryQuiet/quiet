@@ -1,0 +1,975 @@
+import React from 'react'
+import MockedSocket from 'socket.io-mock'
+import { ioMock } from '../../../../shared/setupTests'
+import { prepareStore, testReducers } from '../../../testUtils/prepareStore'
+import { renderComponent } from '../../../testUtils/renderComponent'
+import { getReduxStoreFactory, publicChannels, communities, identity, users } from '@quiet/state-manager'
+import ChannelsPanel from './ChannelsPanel'
+import DirectMessagesPanel from '../DirectMessagesPanel/DirectMessagesPanel'
+import { DateTime } from 'luxon'
+import { generateChannelId } from '@quiet/common'
+import { Identity, UserProfile } from '@quiet/types'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('ChannelsPanelTest')
+
+describe('Channels panel', () => {
+  let socket: MockedSocket
+
+  beforeEach(() => {
+    socket = new MockedSocket()
+    ioMock.mockImplementation(() => socket)
+  })
+
+  it('displays channels and users in proper order', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork State manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+
+    const community = await factory.create('Community')
+    const generalChannel = publicChannels.selectors.generalChannel(store.getState())
+    expect(generalChannel).not.toBeUndefined()
+    const alice: Identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const aliceUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: alice.userId,
+      name: 'Alice',
+    })
+    logger.info('Alice user profile created:', JSON.stringify(aliceUserProfile, null, 2))
+    const aliceUser = await factory.create('User', {
+      userId: alice.userId,
+    })
+
+    // Create additional users for the users list
+    const bob: Identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const bobUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: bob.userId,
+      name: 'Bob',
+    })
+    const bobUser = await factory.create('User', {
+      userId: bob.userId,
+    })
+
+    const charlie: Identity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    const charlieUserProfile: UserProfile = await factory.create('UserProfile', {
+      userId: charlie.userId,
+      name: 'Charlie',
+    })
+    const charlieUser = await factory.create('User', {
+      userId: charlie.userId,
+    })
+
+    // Setup channels
+    const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
+
+    for (const name of channelNames) {
+      await factory.create('PublicChannel', {
+        channel: {
+          name: name,
+          description: `Welcome to #${name}`,
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.userId,
+          id: generateChannelId(name),
+        },
+      })
+    }
+
+    const channels = publicChannels.selectors.publicChannels(store.getState())
+    const userProfilesMap = users.selectors.userProfiles(store.getState())
+
+    if (!generalChannel) throw new Error('generalChannel is undefined')
+
+    // Mock userProfileContextMenu
+    const mockUserProfileContextMenu = {
+      visible: false,
+      handleOpen: jest.fn(),
+      handleClose: jest.fn(),
+      setUserId: jest.fn(),
+      setPosition: jest.fn(),
+      closeMenu: jest.fn(),
+      userId: '',
+      users: {},
+      position: { x: 0, y: 0 },
+    }
+
+    const result = renderComponent(
+      <>
+        <ChannelsPanel
+          channels={channels}
+          userProfiles={userProfilesMap}
+          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          unreadChannels={[]}
+          setCurrentChannel={function (_id: string): void {}}
+          currentChannelId={generalChannel.id}
+          createChannelModal={{
+            open: false,
+            handleOpen: function (_args?: any): any {},
+            handleClose: function (): any {},
+          }}
+          myUserProfile={aliceUserProfile}
+          isTorInitialized={true}
+        />
+        <DirectMessagesPanel
+          myUserProfile={aliceUserProfile}
+          userProfiles={userProfilesMap}
+          userProfileContextMenu={mockUserProfileContextMenu}
+          connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
+          isTorInitialized={true}
+        />
+      </>
+    )
+
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "asFragment": [Function],
+        "baseElement": <body>
+          <div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                    >
+                      Channels
+                    </p>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                  >
+                    <span>
+                      <button
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
+                        data-mui-internal-clone-element="true"
+                        data-testid="addChannelButton"
+                        tabindex="0"
+                        type="button"
+                      >
+                        <svg
+                          fill="none"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          width="18"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
+                            stroke="white"
+                            stroke-width="1.5"
+                          />
+                          <path
+                            clip-rule="evenodd"
+                            d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
+                            fill="white"
+                            fill-rule="evenodd"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              >
+                <ul
+                  class="MuiList-root css-1mk9mw3-MuiList-root"
+                  data-testid="channelsList"
+                >
+                  <div
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    data-testid="general-link"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <div
+                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          >
+                            <p
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              data-testid="general-channel-link-text"
+                            >
+                              # general
+                            </p>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    data-testid="allergies-link"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <div
+                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          >
+                            <p
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              data-testid="allergies-channel-link-text"
+                            >
+                              # allergies
+                            </p>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    data-testid="antiques-link"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <div
+                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          >
+                            <p
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              data-testid="antiques-channel-link-text"
+                            >
+                              # antiques
+                            </p>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    data-testid="croatia-link"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <div
+                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          >
+                            <p
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              data-testid="croatia-channel-link-text"
+                            >
+                              # croatia
+                            </p>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    data-testid="pets-link"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <div
+                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          >
+                            <p
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              data-testid="pets-channel-link-text"
+                            >
+                              # pets
+                            </p>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                    data-testid="sailing-link"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <div
+                      class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                          >
+                            <p
+                              class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                              data-testid="sailing-channel-link-text"
+                            >
+                              # sailing
+                            </p>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </div>
+                </ul>
+              </div>
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                  >
+                    Users
+                  </p>
+                </div>
+              </div>
+              <ul
+                class="MuiList-root css-1mk9mw3-MuiList-root"
+                data-testid="usersList"
+              >
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="user_2-user-link"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  >
+                    <span
+                      class="UserProfileListItemavatar"
+                    >
+                      <img
+                        alt="user_2"
+                        src="dGVzdAo="
+                        style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      data-testid="user_2-user-link-status-badge"
+                    />
+                  </span>
+                  <div
+                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                      data-testid="user_2-user-link-text"
+                    >
+                      user_2
+                    </p>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="user_4-user-link"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  >
+                    <span
+                      class="UserProfileListItemavatar"
+                    >
+                      <img
+                        alt="user_4"
+                        src="dGVzdAo="
+                        style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      data-testid="user_4-user-link-status-badge"
+                    />
+                  </span>
+                  <div
+                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                      data-testid="user_4-user-link-text"
+                    >
+                      user_4
+                    </p>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="user_6-user-link"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                  >
+                    <span
+                      class="UserProfileListItemavatar"
+                    >
+                      <img
+                        alt="user_6"
+                        src="dGVzdAo="
+                        style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                      data-testid="user_6-user-link-status-badge"
+                    />
+                  </span>
+                  <div
+                    class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                      data-testid="user_6-user-link-text"
+                    >
+                      user_6
+                    </p>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+              </ul>
+            </div>
+          </div>
+        </body>,
+        "container": <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                  >
+                    Channels
+                  </p>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                >
+                  <span>
+                    <button
+                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
+                      data-mui-internal-clone-element="true"
+                      data-testid="addChannelButton"
+                      tabindex="0"
+                      type="button"
+                    >
+                      <svg
+                        fill="none"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M22.0499 12C22.0499 17.5505 17.5504 22.05 12 22.05C6.44949 22.05 1.94995 17.5505 1.94995 12C1.94995 6.44955 6.44949 1.95001 12 1.95001C17.5504 1.95001 22.0499 6.44955 22.0499 12Z"
+                          stroke="white"
+                          stroke-width="1.5"
+                        />
+                        <path
+                          clip-rule="evenodd"
+                          d="M17.3415 12.5982H12.5983V17.3415H11.4018V12.5982H6.65857V11.4018H11.4018V6.65851H12.5983V11.4018H17.3415V12.5982Z"
+                          fill="white"
+                          fill-rule="evenodd"
+                        />
+                      </svg>
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+            >
+              <ul
+                class="MuiList-root css-1mk9mw3-MuiList-root"
+                data-testid="channelsList"
+              >
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="general-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            data-testid="general-channel-link-text"
+                          >
+                            # general
+                          </p>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="allergies-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            data-testid="allergies-channel-link-text"
+                          >
+                            # allergies
+                          </p>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="antiques-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            data-testid="antiques-channel-link-text"
+                          >
+                            # antiques
+                          </p>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="croatia-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            data-testid="croatia-channel-link-text"
+                          >
+                            # croatia
+                          </p>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="pets-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            data-testid="pets-channel-link-text"
+                          >
+                            # pets
+                          </p>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+                <div
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                  data-testid="sailing-link"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                            data-testid="sailing-channel-link-text"
+                          >
+                            # sailing
+                          </p>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </div>
+              </ul>
+            </div>
+          </div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              >
+                <p
+                  class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
+                >
+                  Users
+                </p>
+              </div>
+            </div>
+            <ul
+              class="MuiList-root css-1mk9mw3-MuiList-root"
+              data-testid="usersList"
+            >
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="user_2-user-link"
+                role="button"
+                tabindex="-1"
+              >
+                <span
+                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                >
+                  <span
+                    class="UserProfileListItemavatar"
+                  >
+                    <img
+                      alt="user_2"
+                      src="dGVzdAo="
+                      style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    data-testid="user_2-user-link-status-badge"
+                  />
+                </span>
+                <div
+                  class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                    data-testid="user_2-user-link-text"
+                  >
+                    user_2
+                  </p>
+                </div>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="user_4-user-link"
+                role="button"
+                tabindex="-1"
+              >
+                <span
+                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                >
+                  <span
+                    class="UserProfileListItemavatar"
+                  >
+                    <img
+                      alt="user_4"
+                      src="dGVzdAo="
+                      style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    data-testid="user_4-user-link-status-badge"
+                  />
+                </span>
+                <div
+                  class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                    data-testid="user_4-user-link-text"
+                  >
+                    user_4
+                  </p>
+                </div>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </div>
+              <div
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                data-testid="user_6-user-link"
+                role="button"
+                tabindex="-1"
+              >
+                <span
+                  class="MuiBadge-root MuiBadge-root css-1vjx4ah-MuiBadge-root"
+                >
+                  <span
+                    class="UserProfileListItemavatar"
+                  >
+                    <img
+                      alt="user_6"
+                      src="dGVzdAo="
+                      style="width: 24px; height: 24px; border-radius: 4px; margin-bottom: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
+                    data-testid="user_6-user-link-status-badge"
+                  />
+                </span>
+                <div
+                  class="MuiListItemText-root UserProfileListItemitemText css-tlelie-MuiListItemText-root"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body2 UserProfileListItemnickname css-16d47hw-MuiTypography-root"
+                    data-testid="user_6-user-link-text"
+                  >
+                    user_6
+                  </p>
+                </div>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </div>
+            </ul>
+          </div>
+        </div>,
+        "debug": [Function],
+        "findAllByAltText": [Function],
+        "findAllByDisplayValue": [Function],
+        "findAllByLabelText": [Function],
+        "findAllByPlaceholderText": [Function],
+        "findAllByRole": [Function],
+        "findAllByTestId": [Function],
+        "findAllByText": [Function],
+        "findAllByTitle": [Function],
+        "findByAltText": [Function],
+        "findByDisplayValue": [Function],
+        "findByLabelText": [Function],
+        "findByPlaceholderText": [Function],
+        "findByRole": [Function],
+        "findByTestId": [Function],
+        "findByText": [Function],
+        "findByTitle": [Function],
+        "getAllByAltText": [Function],
+        "getAllByDisplayValue": [Function],
+        "getAllByLabelText": [Function],
+        "getAllByPlaceholderText": [Function],
+        "getAllByRole": [Function],
+        "getAllByTestId": [Function],
+        "getAllByText": [Function],
+        "getAllByTitle": [Function],
+        "getByAltText": [Function],
+        "getByDisplayValue": [Function],
+        "getByLabelText": [Function],
+        "getByPlaceholderText": [Function],
+        "getByRole": [Function],
+        "getByTestId": [Function],
+        "getByText": [Function],
+        "getByTitle": [Function],
+        "queryAllByAltText": [Function],
+        "queryAllByDisplayValue": [Function],
+        "queryAllByLabelText": [Function],
+        "queryAllByPlaceholderText": [Function],
+        "queryAllByRole": [Function],
+        "queryAllByTestId": [Function],
+        "queryAllByText": [Function],
+        "queryAllByTitle": [Function],
+        "queryByAltText": [Function],
+        "queryByDisplayValue": [Function],
+        "queryByLabelText": [Function],
+        "queryByPlaceholderText": [Function],
+        "queryByRole": [Function],
+        "queryByTestId": [Function],
+        "queryByText": [Function],
+        "queryByTitle": [Function],
+        "rerender": [Function],
+        "unmount": [Function],
+      }
+    `)
+  })
+})

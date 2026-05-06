@@ -1,0 +1,34 @@
+// tsconfig.json for the desktop package
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "ES2020",
+    "target": "ES2020",
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "jsx": "react",
+    "allowJs": true,
+    "lib": [
+      "ES2020",
+      "DOM.Iterable",
+      "dom"
+    ],
+    "typeRoots": [
+      "../@types",
+      "jest",
+      "./node_modules/@types",
+      "./src/renderer/expanded-theme.ts"
+    ],
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*",
+    "**/__mocks__/*",
+    "**/*.cy.tsx"
+  ]
+}

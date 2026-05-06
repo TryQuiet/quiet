@@ -1,0 +1,866 @@
+import React from 'react'
+import { useState } from 'react'
+import { DateTime } from 'luxon'
+import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { withTheme } from '../../storybook/decorators'
+import { mock_messages, users } from '../../storybook/utils'
+import { ModalName } from '../../sagas/modals/modals.types'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
+import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
+import { DownloadState, DisplayableMessage } from '@quiet/types'
+import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+
+// Provide a user object that satisfies 'Identity'
+const validUser = {
+  id: 'id',
+  userId: 'userId',
+  nickname: 'vader',
+  hiddenService: {
+    onionAddress: 'onionAddress',
+    privateKey: 'privateKey',
+  },
+  peerId: {
+    id: 'myPeerId',
+    privKey: 'myPrivKey',
+    noiseKey: 'myNoiseKey',
+  },
+  userCsr: {
+    userCsr: 'fakeCsr',
+    userKey: 'fakeUserKey',
+    pkcs10: {
+      publicKey: 'fakeuserId',
+      privateKey: 'fakePrivKey',
+      pkcs10: 'fakePkcs10',
+    },
+  },
+  userCertificate: 'fakeCertificate',
+  joinTimestamp: null,
+}
+
+// Add placeholders for the required fields
+const dummyFn = () => {}
+
+const dummyRemoveFile = (_fileId: string) => {}
+
+// Add properly typed modal handlers that return the expected structure
+const dummyDuplicatedUsernameModalHandler: HandleOpenModalType = () => {
+  return {
+    payload: {
+      name: ModalName.duplicatedUsernameModal,
+    },
+    type: 'Modals/openModal' as const,
+  }
+}
+
+const dummyUnregisteredUsernameModalHandler: HandleOpenModalType = () => {
+  return {
+    payload: {
+      name: ModalName.unregisteredUsernameModal,
+    },
+    type: 'Modals/openModal' as const,
+  }
+}
+
+const defaultIsCommunityInitialized = true
+
+// Use same timestamp constants as utils.ts
+const OCT_28_2023 = 1698451200 // Unix timestamp for Oct 28, 2023 00:00:00 UTC
+
+const formatTimeOnly = (timestamp: number) => DateTime.fromSeconds(timestamp).toFormat('HH:mm')
+
+const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
+  user: {
+    userId: 'userId',
+    nickname: 'nickname',
+  },
+  uploadedFileModal: {
+    open: false,
+    handleOpen(_args?: { src: string }) {
+      return {
+        type: 'Modals/openModal',
+        payload: {
+          name: ModalName.uploadedFileModal,
+          args: { src: _args?.src || '' },
+        },
+      }
+    },
+    handleClose() {
+      return {
+        type: 'Modals/closeModal',
+        payload: ModalName.uploadedFileModal,
+      }
+    },
+    src: 'images/butterfly.jpeg',
+  },
+
+  // If these are causing the same "() => void" error,
+  // return a Redux action shape here, too:
+  duplicatedUsernameModalHandleOpen() {
+    return {
+      type: 'Modals/openModal',
+      payload: { name: ModalName.duplicatedUsernameModal },
+    }
+  },
+  unregisteredUsernameModalHandleOpen() {
+    return {
+      type: 'Modals/openModal',
+      payload: { name: ModalName.unregisteredUsernameModal },
+    }
+  },
+
+  messages: mock_messages(),
+  newestMessage: {
+    id: '31',
+    type: 1,
+    message: 'I agree!',
+    createdAt: OCT_28_2023,
+    channelId: 'general',
+    userId: 'test',
+  },
+  pendingMessages: {},
+  channelId: 'general',
+  channelName: 'general',
+  lazyLoading: function (_load: boolean): void {},
+  onInputChange: function (_value: string): void {},
+  onInputEnter: function (_message: string): void {},
+  filesData: {},
+  removeFile: dummyRemoveFile,
+  openUrl: dummyFn,
+  openFilesDialog: dummyFn,
+  handleFileDrop: dummyFn,
+  isCommunityInitialized: defaultIsCommunityInitialized,
+  handleClipboardFiles: dummyFn,
+  pendingGeneralChannelRecreation: false,
+}
+
+const Template: ComponentStory<typeof ChannelComponent> = args => {
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <ChannelComponent {...args} />
+    </DndProvider>
+  )
+}
+
+export const Normal = Template.bind({})
+export const Pending = Template.bind({})
+
+Normal.args = args
+Pending.args = {
+  ...args,
+  pendingMessages: {
+    33: {
+      id: '33',
+      status: 0,
+    },
+  },
+}
+
+// Images
+export const ImagePreview = Template.bind({})
+export const ImagePlaceholder = Template.bind({})
+export const SentImage = Template.bind({})
+
+ImagePreview.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 2,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.png',
+      name: 'test-image',
+      width: 1200,
+      height: 580,
+      path: null,
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'userId',
+  }),
+  downloadStatuses: {
+    32: {
+      mid: '',
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      downloadState: DownloadState.None,
+      downloadProgress: undefined,
+    },
+  },
+}
+ImagePlaceholder.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 2,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.png',
+      name: 'test-image',
+      width: 1200,
+      height: 580,
+      path: null,
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      mid: '',
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      downloadState: DownloadState.None,
+      downloadProgress: undefined,
+    },
+  },
+}
+SentImage.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 2,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.png',
+      name: 'test-image',
+      width: 1200,
+      height: 580,
+      path: 'images/test-image.png',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      mid: '',
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      downloadState: DownloadState.Completed,
+      downloadProgress: undefined,
+    },
+  },
+}
+
+// Files
+export const FilePreview = Template.bind({})
+export const MultipleMediaPreview = Template.bind({})
+export const AttachingFile = Template.bind({})
+export const HostedFile = Template.bind({})
+export const ReadyDownload = Template.bind({})
+export const Downloading = Template.bind({})
+export const CompletedDownload = Template.bind({})
+export const CancelingDownload = Template.bind({})
+export const CanceledDownload = Template.bind({})
+export const MaliciousDownload = Template.bind({})
+
+FilePreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip',
+    },
+  },
+}
+MultipleMediaPreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip',
+    },
+    image_id: {
+      path: 'images/test-image.png',
+      name: 'test-image',
+      ext: '.png',
+    },
+  },
+}
+AttachingFile.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'attaching_32',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      width: undefined,
+      height: undefined,
+      path: null,
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'attaching_32',
+      mid: 'mid',
+      downloadState: DownloadState.Attaching,
+      downloadProgress: undefined,
+    },
+  },
+}
+HostedFile.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      mid: 'mid',
+      downloadState: DownloadState.Hosted,
+      downloadProgress: undefined,
+    },
+  },
+}
+ReadyDownload.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      mid: 'mid',
+      downloadState: DownloadState.Ready,
+      downloadProgress: undefined,
+    },
+  },
+}
+Downloading.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      mid: 'mid',
+      downloadState: DownloadState.Downloading,
+      downloadProgress: {
+        size: 2048,
+        downloaded: 256,
+        transferSpeed: 32,
+      },
+    },
+  },
+}
+CompletedDownload.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      mid: 'mid',
+      downloadState: DownloadState.Completed,
+      downloadProgress: {
+        size: 2048,
+        downloaded: 1024,
+        transferSpeed: 0,
+      },
+    },
+  },
+}
+CancelingDownload.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      mid: 'mid',
+      downloadState: DownloadState.Canceling,
+      downloadProgress: {
+        size: 2048,
+        downloaded: 0,
+        transferSpeed: 0,
+      },
+    },
+  },
+}
+CanceledDownload.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      mid: 'mid',
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      downloadState: DownloadState.Canceled,
+      downloadProgress: undefined,
+    },
+  },
+}
+MaliciousDownload.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      message: {
+        channelId: 'general',
+        id: 'wgtlstx3u7',
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+    },
+    message: '',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  downloadStatuses: {
+    32: {
+      mid: 'mid',
+      cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
+      downloadState: DownloadState.Malicious,
+      downloadProgress: undefined,
+    },
+  },
+}
+
+// Info
+export const NewUserMessage = Template.bind({})
+
+NewUserMessage.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 3,
+    media: undefined,
+    message: 'Hey, @the-emperor just joined!',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+}
+
+// Link
+export const Link = Template.bind({})
+
+Link.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 1,
+    media: undefined,
+    message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+}
+
+// MathJax
+export const MathJaxMiddle = Template.bind({})
+export const MathJaxBeginning = Template.bind({})
+export const MathJaxPending = Template.bind({})
+
+MathJaxMiddle.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 1,
+    media: undefined,
+    message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+}
+MathJaxPending.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 1,
+    media: undefined,
+    message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+  pendingMessages: {
+    32: {
+      id: '32',
+      status: 0,
+    },
+  },
+}
+MathJaxBeginning.args = {
+  ...args,
+  messages: mock_messages({
+    id: '32',
+    type: 1,
+    media: undefined,
+    message: String.raw`$$a^2 +b^2=c^2$$`,
+    createdAt: OCT_28_2023,
+    date: formatTimeOnly(OCT_28_2023),
+    nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    userId: 'test',
+  }),
+}
+
+// Emojis
+export const Emojis = Template.bind({})
+
+Emojis.args = {
+  ...args,
+  messages: {
+    count: 34,
+    groups: {
+      ...mock_messages().groups,
+      Today: [
+        [
+          {
+            id: '40',
+            type: 1,
+            message: 'Hey there! 👋 How is everyone doing today?',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.alice.nickname,
+            isRegistered: true,
+            isDuplicated: false,
+            userId: users.alice.userId,
+          },
+        ],
+        [
+          {
+            id: '41',
+            type: 1,
+            message: 'I just finished the new feature! 🎉🚀',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.john.nickname,
+            isRegistered: true,
+            isDuplicated: false,
+            userId: users.john.userId,
+          },
+        ],
+        [
+          {
+            id: '42',
+            type: 1,
+            message: '😊',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.luke.nickname,
+            isRegistered: true,
+            isDuplicated: false,
+            userId: users.luke.userId,
+          },
+        ],
+        [
+          {
+            id: '43',
+            type: 1,
+            message: '👍 Great job! The code looks really clean.',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.vader.nickname,
+            isRegistered: true,
+            isDuplicated: false,
+            userId: users.vader.userId,
+          },
+        ],
+        [
+          {
+            id: '44',
+            type: 1,
+            message: '❤️ 🔥 💯',
+            createdAt: OCT_28_2023,
+            date: formatTimeOnly(OCT_28_2023),
+            nickname: users.yoda.nickname,
+            isRegistered: true,
+            isDuplicated: false,
+            userId: users.yoda.userId,
+          },
+        ],
+      ],
+    },
+  },
+  newestMessage: {
+    id: '44',
+    type: 1,
+    message: '❤️ 🔥 💯',
+    createdAt: OCT_28_2023,
+    channelId: 'general',
+    userId: 'userId',
+  },
+}
+
+const component: ComponentMeta<typeof ChannelComponent> = {
+  title: 'Components/ChannelComponent',
+  decorators: [withTheme],
+  component: ChannelComponent,
+}
+
+export default component
+
+export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> = () => {
+  const [localMessages, setLocalMessages] = useState<{
+    count: number
+    groups: { [day: string]: DisplayableMessage[][] }
+  }>(mock_messages())
+
+  const handleSend = (message: string) => {
+    const now = DateTime.now()
+    const newMessage: DisplayableMessage = {
+      id: String(now.toMillis()),
+      type: 1,
+      message,
+      createdAt: now.toSeconds(),
+      date: now.toFormat('HH:mm'),
+      nickname: 'vader',
+      isRegistered: true,
+      isDuplicated: false,
+      userId: 'userId',
+    }
+
+    setLocalMessages(prev => {
+      const dateKeys = Object.keys(prev.groups)
+      const today = dateKeys[dateKeys.length - 1]
+      const updatedGroups = {
+        ...prev.groups,
+        [today]: [...prev.groups[today], [newMessage]],
+      }
+      return {
+        count: prev.count + 1,
+        groups: updatedGroups,
+      }
+    })
+  }
+
+  const now = DateTime.now()
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <ChannelComponent
+        {...args}
+        messages={localMessages}
+        onInputEnter={handleSend}
+        user={validUser}
+        channelId='general'
+        channelName='general'
+        newestMessage={
+          args.newestMessage || {
+            id: '31',
+            type: 1,
+            message: 'I agree!',
+            createdAt: 0,
+            channelId: 'general',
+            userId: 'userId',
+          }
+        }
+        pendingMessages={args.pendingMessages || {}}
+        maxAutodownloadSizeBytes={args.maxAutodownloadSizeBytes || DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
+        lazyLoading={args.lazyLoading || function (_load: boolean): void {}}
+        onInputChange={args.onInputChange || function (_value: string): void {}}
+        openUrl={args.openUrl || dummyFn}
+        openFilesDialog={args.openFilesDialog || dummyFn}
+        handleFileDrop={args.handleFileDrop || dummyFn}
+        isCommunityInitialized={args.isCommunityInitialized !== undefined ? args.isCommunityInitialized : true}
+        handleClipboardFiles={args.handleClipboardFiles || dummyFn}
+        pendingGeneralChannelRecreation={
+          args.pendingGeneralChannelRecreation !== undefined ? args.pendingGeneralChannelRecreation : false
+        }
+        duplicatedUsernameModalHandleOpen={
+          args.duplicatedUsernameModalHandleOpen || dummyDuplicatedUsernameModalHandler
+        }
+        unregisteredUsernameModalHandleOpen={
+          args.unregisteredUsernameModalHandleOpen || dummyUnregisteredUsernameModalHandler
+        }
+        removeFile={args.removeFile || dummyRemoveFile}
+        filesData={args.filesData || {}}
+      />
+    </DndProvider>
+  )
+}

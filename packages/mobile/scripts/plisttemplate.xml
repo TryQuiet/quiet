@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildMachineOSBuild</key>
+	<string>{ENV_MAC_OS_X_PRODUCT_BUILD_VERSION}</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>{VAR_BINARY_NAME}</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.janeasystems.{VAR_BINARY_NAME}</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>{VAR_BINARY_NAME}</string>
+	<key>CFBundlePackageType</key>
+	<string>FMWK</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>iPhoneOS</string>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>DTCompiler</key>
+	<string>{ENV_DEFAULT_COMPILER}</string>
+	<key>DTPlatformBuild</key>
+	<string>{ENV_PLATFORM_PRODUCT_BUILD_VERSION}</string>
+	<key>DTPlatformName</key>
+	<string>iphoneos</string>
+	<key>DTPlatformVersion</key>
+	<string>{ENV_SDK_VERSION}</string>
+	<key>DTSDKBuild</key>
+	<string>{ENV_SDK_PRODUCT_BUILD_VERSION}</string>
+	<key>DTSDKName</key>
+	<string>{ENV_SDK_NAME}</string>
+	<key>DTXcode</key>
+	<string>{ENV_XCODE_VERSION_ACTUAL}</string>
+	<key>DTXcodeBuild</key>
+	<string>{ENV_XCODE_PRODUCT_BUILD_VERSION}</string>
+	<key>MinimumOSVersion</key>
+	<string>9.0</string>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+	</array>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+</dict>
+</plist>

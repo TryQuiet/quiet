@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`channelMessagesToText should convert channel messages to text format: 
+      "[JohnDoe Nov 22, 12:18 PM]
+      Hello, World!
+
+      [JaneDoe Nov 22, 12:18 PM]
+      How are you?
+
+      [Alice Nov 22, 1:14 PM]
+      Hi there!
+     1`] = `
+"[JohnDoe Nov 22, 12:18 PM]
+Hello, World!
+
+[JaneDoe Nov 22, 12:18 PM]
+How are you?
+
+[Alice Nov 22, 1:14 PM]
+Hi there!
+
+"
+`;

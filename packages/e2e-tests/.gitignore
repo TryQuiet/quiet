@@ -1,0 +1,7 @@
+lib/
+screenshots/
+.DS_Store
+
+Quiet/Quiet**
+.env
+src/tests/resources/bigTestFile.bin

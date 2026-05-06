@@ -1,0 +1,55 @@
+import React from 'react'
+import { AnyAction, Dispatch, bindActionCreators } from 'redux'
+import { useDispatch } from 'react-redux'
+import updateHandlers from '../../../store/handlers/update'
+
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
+
+import UpdateModalComponent from '../../../components/widgets/update/UpdateModalComponent'
+
+import Button from '@mui/material/Button'
+import { useTheme } from '@mui/material'
+
+export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
+  bindActionCreators(
+    {
+      handleUpdate: updateHandlers.epics.startApplicationUpdate,
+      rejectUpdate: updateHandlers.epics.declineUpdate,
+    },
+    dispatch
+  )
+
+const ApplicationUpdateModal: React.FC = () => {
+  const dispatch = useDispatch()
+  const theme = useTheme()
+
+  const actions = mapDispatchToProps(dispatch)
+  const modal = useModal(ModalName.applicationUpdate)
+
+  const title = 'Software update'
+  const message =
+    'A new version of Quiet is ready. It will be installed the next time you restart the app, or you can update now.'
+
+  const button = (
+    <Button
+      variant='contained'
+      size='large'
+      color='primary'
+      type='submit'
+      onClick={actions.handleUpdate}
+      style={{
+        height: 55,
+        fontSize: '0.9rem',
+        backgroundColor: theme.palette.colors.quietBlue,
+      }}
+      fullWidth
+    >
+      Update now
+    </Button>
+  )
+
+  return <UpdateModalComponent {...modal} {...actions} buttons={[button]} title={title} message={message} />
+}
+
+export default ApplicationUpdateModal

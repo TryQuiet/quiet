@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`publicChannelsSelectors get messages sorted by date 1`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "1",
+  "message": "message_1",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 2`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "2",
+  "message": "message_2",
+  "type": 3,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 3`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "3",
+  "message": "message_3",
+  "type": 3,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 4`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "4",
+  "message": "message_4",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 5`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "5",
+  "message": "message_5",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 6`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "6",
+  "message": "message_6",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 7`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "7",
+  "message": "message_7",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 8`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "8",
+  "message": "message_8",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;
+
+exports[`publicChannelsSelectors get messages sorted by date 9`] = `
+Object {
+  "channelId": "general_ec4bca1fa76046c53dff1e49979c3647",
+  "createdAt": Any<Number>,
+  "id": "9",
+  "message": "message_9",
+  "type": 1,
+  "userId": Any<String>,
+}
+`;

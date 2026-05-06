@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2020",
+    "outDir": "./lib",
+    "typeRoots": [
+      "../@types",
+      "./node_modules/@types",
+      "../../3rd-party/auth/packages/auth/dist",
+      "../../3rd-party/crdx/packages/crdx/dist",
+    ],
+    "declaration": true
+  },
+  "include": [
+    "src",
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
+  ]
+}

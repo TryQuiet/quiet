@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2020",
+    "target": "ES2020",
+    "types": ["cypress", "node"],
+    "isolatedModules": false,
+    "typeRoots": ["./node_modules/@types", "../@types"],
+    "jsx": "react",
+    "allowJs": true,
+  },
+  "include": [
+    "src/**/*.cy.ts",
+    "src/**/*.cy.tsx",
+    "cypress/**/*.ts",
+    "cypress.config.ts"
+  ],
+  "exclude": ["node_modules"]
+}

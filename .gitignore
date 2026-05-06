@@ -1,0 +1,26 @@
+node_modules
+*.log
+c4/.structurizr
+c4/workspace.json
+.ignore
+.DS_Store
+.vscode
+packages/.DS_Store
+.idea
+*.log
+clangd/
+**/.claude/settings.local.json
+.claude/worktrees
+
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Firebase
+GoogleService-Info.plist
+google-services.json

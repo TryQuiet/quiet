@@ -1,0 +1,432 @@
+import React, { FC, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'rc-scrollbars'
+import { styled, Grid, List, Typography, useTheme } from '@mui/material'
+
+import { identity, users } from '@quiet/state-manager'
+import { UserProfile } from '@quiet/types'
+
+import { useContextMenu } from '../../../../hooks/useContextMenu'
+import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
+import { MenuName } from '../../../../const/MenuNames.enum'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('userProfileContextMenu:container')
+
+const PREFIX = 'UserProfileContextMenu'
+
+const classes = {
+  profilePhotoContainer: `${PREFIX}profilePhotoContainer`,
+  profilePhoto: `${PREFIX}profilePhoto`,
+  profilePhotoError: `${PREFIX}profilePhotoError`,
+  nickname: `${PREFIX}nickname`,
+  editUsernameField: `${PREFIX}editUsernameField`,
+  editUsernameFieldLabel: `${PREFIX}editUsernameFieldLabel`,
+  editPhotoButton: `${PREFIX}editPhotoButton`,
+}
+
+const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
+  zIndex: 9002,
+  flex: 1,
+
+  [`& .${classes.profilePhotoContainer}`]: {
+    padding: '24px 16px 16px 16px',
+  },
+
+  [`& .${classes.profilePhoto}`]: {
+    width: '96px',
+    height: '96px',
+    borderRadius: '8px',
+    marginBottom: '16px',
+  },
+
+  [`& .${classes.profilePhotoError}`]: {
+    marginTop: '16px',
+    textAlign: 'center',
+    display: 'hidden',
+  },
+
+  [`& .${classes.profilePhotoError}.show`]: {
+    display: 'inline-block',
+  },
+
+  [`& .${classes.nickname}`]: {
+    fontSize: '16px',
+    fontStyle: 'normal',
+    fontWeight: '500',
+  },
+
+  [`& .${classes.editUsernameFieldLabel}`]: {
+    margin: '0px 16px 8px 16px',
+    fontSize: '14px',
+    fontWeight: '400',
+    fontFamily: 'Rubik, sans-serif',
+  },
+
+  [`& .${classes.editUsernameField}`]: {
+    background: theme.palette.background.paper,
+    margin: '0px 16px',
+    padding: '16px',
+    border: `1px solid ${theme.palette.colors.border02}`,
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '400',
+    fontFamily: 'Rubik, sans-serif',
+  },
+
+  [`& .${classes.editPhotoButton}`]: {
+    background: 'inherit',
+    padding: '6px 12px',
+    borderRadius: '16px',
+    border: `1px solid ${theme.palette.colors.border02}`,
+    fontSize: '14px',
+    fontWeight: '400',
+    textTransform: 'none',
+    fontFamily: 'Rubik, sans-serif',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.background.paper,
+    },
+  },
+}))
+
+export interface UserProfileContextMenuArgs {
+  userProfile?: UserProfile
+}
+
+/**
+ * Context menu view that switches between user profile subviews.
+ */
+export const UserProfileContextMenu: FC = () => {
+  const contextMenu = useContextMenu<UserProfileContextMenuArgs>(MenuName.UserProfile)
+  const userProfile = contextMenu.userProfile
+  const [route, setRoute] = useState('userProfile')
+  const myUserProfile = useSelector(users.selectors.myUserProfile)
+  const isMyProfile = myUserProfile?.userId === userProfile?.userId
+  // Use a selector to make the user profile view reactive
+  const userProfileSelector = useSelector(users.selectors.getUserProfileById(userProfile?.userId || ''))
+
+  if (!userProfile) return null
+
+  const views: Map<string, JSX.Element> = new Map()
+  views.set(
+    'userProfile',
+    <UserProfileMenuProfileView
+      username={userProfile.nickname}
+      userId={userProfile.userId}
+      userProfile={userProfileSelector || userProfile}
+      contextMenu={contextMenu}
+      setRoute={setRoute}
+      isMyProfile={isMyProfile}
+    />
+  )
+  if (isMyProfile) {
+    views.set('userProfile/edit', <UserProfileMenuEditComponent setRoute={setRoute} />)
+  }
+  return views.get(route) || (views.get('userProfile') as JSX.Element)
+}
+
+/**
+ * Context menu view that allows the user to view their user profile
+ * and associated actions (e.g. edit profile)
+ */
+export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => void }> = ({ setRoute }) => {
+  const userProfile = useSelector(users.selectors.myUserProfile)
+  const username = userProfile?.nickname || ''
+  const userId = userProfile?.userId || ''
+  const contextMenu = useContextMenu(MenuName.UserProfile)
+
+  return (
+    <UserProfileMenuProfileView
+      username={username}
+      userId={userId}
+      userProfile={userProfile}
+      contextMenu={contextMenu}
+      setRoute={setRoute}
+    />
+  )
+}
+
+export interface UserProfileMenuProfileViewProps {
+  username: string
+  userId: string
+  userProfile?: UserProfile
+  contextMenu: {
+    visible: boolean
+    handleOpen: (args?: object | undefined) => any
+    handleClose: () => any
+  }
+  setRoute: (route: string) => void
+  isMyProfile?: boolean
+}
+
+export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = ({
+  username,
+  userId,
+  userProfile,
+  contextMenu,
+  setRoute,
+  isMyProfile = false,
+}) => {
+  const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null)
+  const scrollbarRef = useRef(null)
+  const [offset, setOffset] = useState(0)
+  const theme = useTheme()
+
+  const adjustOffset = () => {
+    if (!contentRef?.clientWidth) return
+    if (contentRef.clientWidth > 800) {
+      setOffset((contentRef.clientWidth - 800) / 2)
+    }
+  }
+
+  React.useEffect(() => {
+    if (contentRef) {
+      window.addEventListener('resize', adjustOffset)
+      adjustOffset()
+    }
+  }, [contentRef])
+
+  return (
+    <ContextMenu title='Profile' {...contextMenu}>
+      <StyledContextMenuContent
+        container
+        ref={ref => {
+          if (ref) {
+            setContentRef(ref)
+          }
+        }}
+      >
+        <Grid item xs>
+          <AutoSizer>
+            {({ width, height }) => {
+              const maxWidth = width > 632 ? 632 : width
+              return (
+                <Scrollbars
+                  ref={scrollbarRef}
+                  autoHideTimeout={500}
+                  style={{ width: maxWidth + offset, height: height }}
+                >
+                  <Grid container direction='column'>
+                    <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
+                      <ProfilePhoto
+                        userProfile={userProfile}
+                        userId={userId}
+                        className={classes.profilePhoto}
+                        size={96}
+                      />
+                      <Typography variant='body2' className={classes.nickname}>
+                        {username}
+                      </Typography>
+                    </Grid>
+                    {isMyProfile && (
+                      <Grid item>
+                        <ContextMenuItemList
+                          items={[
+                            {
+                              title: 'Edit profile',
+                              action: () => setRoute('userProfile/edit'),
+                            },
+                          ]}
+                        />
+                      </Grid>
+                    )}
+                  </Grid>
+                </Scrollbars>
+              )
+            }}
+          </AutoSizer>
+        </Grid>
+      </StyledContextMenuContent>
+    </ContextMenu>
+  )
+}
+
+/**
+ * A button that shows a file input dialog for attaching a profile
+ * photo and passes the chosen file to a callback.
+ */
+export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onChange }) => {
+  const fileInput = React.useRef<HTMLInputElement>(null)
+
+  return (
+    <button className={classes.editPhotoButton} onClick={evt => fileInput.current?.click()}>
+      <Typography variant='body2' style={{ lineHeight: '20px' }}>
+        Edit photo
+      </Typography>
+      <input
+        ref={fileInput}
+        type='file'
+        data-testid='user-profile-edit-photo-input'
+        onChange={evt => onChange(evt.target.files?.[0])}
+        // Value needs to be cleared to allow the user
+        // to upload the same image more than once
+        onClick={evt => {
+          ;(evt.target as HTMLInputElement).value = ''
+        }}
+        accept='image/png, image/jpeg'
+        hidden
+      />
+    </button>
+  )
+}
+
+/**
+ * Context menu view that allows the user to edit their user profile
+ */
+export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => void }> = ({ setRoute }) => {
+  const dispatch = useDispatch()
+  const userProfile = useSelector(users.selectors.myUserProfile)
+  const username = userProfile?.nickname || ''
+  const userId = userProfile?.userId || ''
+  const contextMenu = useContextMenu(MenuName.UserProfile)
+  const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
+  const onSaveUserProfile = ({ photo }: { photo: File }) => {
+    dispatch(users.actions.saveUserProfile({ photo }))
+  }
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(users.actions.setSaveUserProfileError(null))
+    }
+  }, [dispatch])
+
+  return (
+    <UserProfileMenuEditView
+      username={username}
+      userId={userId}
+      userProfile={userProfile}
+      contextMenu={contextMenu}
+      setRoute={setRoute}
+      onSaveUserProfile={onSaveUserProfile}
+      errorBanner={saveUserProfileError}
+    />
+  )
+}
+
+export interface UserProfileMenuEditViewProps {
+  username: string
+  userId: string
+  userProfile?: UserProfile
+  contextMenu: {
+    visible: boolean
+    handleOpen: (args?: object | undefined) => any
+    handleClose: () => any
+  }
+  setRoute: (route: string) => void
+  onSaveUserProfile: ({ photo }: { photo: File }) => void
+  errorBanner?: string | null
+}
+
+export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
+  username,
+  userId,
+  userProfile,
+  contextMenu,
+  setRoute,
+  onSaveUserProfile,
+  errorBanner,
+}) => {
+  const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null)
+  const scrollbarRef = useRef(null)
+  const [offset, setOffset] = useState(0)
+
+  const theme = useTheme()
+
+  const adjustOffset = () => {
+    if (!contentRef?.clientWidth) return
+    if (contentRef.clientWidth > 800) {
+      setOffset((contentRef.clientWidth - 800) / 2)
+    }
+  }
+
+  const { handleClose, ...ctxMenu } = contextMenu
+
+  const handleCloseWrapped = () => {
+    setRoute('userProfile')
+    handleClose()
+  }
+
+  const onChange = async (photo?: File) => {
+    if (!photo) {
+      return
+    }
+
+    onSaveUserProfile({ photo })
+  }
+
+  React.useEffect(() => {
+    if (contentRef) {
+      window.addEventListener('resize', adjustOffset)
+      adjustOffset()
+    }
+  }, [contentRef])
+
+  return (
+    <ContextMenu
+      title='Edit profile'
+      handleBack={() => setRoute('userProfile')}
+      handleClose={handleCloseWrapped}
+      {...ctxMenu}
+    >
+      <StyledContextMenuContent
+        container
+        ref={ref => {
+          if (ref) {
+            setContentRef(ref)
+          }
+        }}
+      >
+        <Grid item xs>
+          <AutoSizer>
+            {({ width, height }) => {
+              const maxWidth = width > 632 ? 632 : width
+              return (
+                <Scrollbars
+                  ref={scrollbarRef}
+                  autoHideTimeout={500}
+                  style={{ width: maxWidth + offset, height: height }}
+                >
+                  <Grid container direction='column'>
+                    {/* Error banner for saveUserProfile error */}
+                    {errorBanner && (
+                      <Grid
+                        item
+                        style={{
+                          background: '#ffebee',
+                          color: '#b71c1c',
+                          padding: '12px 16px',
+                          borderRadius: 8,
+                          margin: '8px 16px',
+                        }}
+                      >
+                        <Typography variant='body2'>{errorBanner}</Typography>
+                      </Grid>
+                    )}
+                    <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
+                      <ProfilePhoto
+                        userProfile={userProfile}
+                        userId={userId}
+                        className={classes.profilePhoto}
+                        size={96}
+                      />
+                      <EditPhotoButton onChange={onChange} />
+                    </Grid>
+                    <label htmlFor='username' className={classes.editUsernameFieldLabel}>
+                      Username
+                    </label>
+                    <input type='text' id='name' className={classes.editUsernameField} value={username} disabled />
+                  </Grid>
+                </Scrollbars>
+              )
+            }}
+          </AutoSizer>
+        </Grid>
+      </StyledContextMenuContent>
+    </ContextMenu>
+  )
+}
+
+export default UserProfileContextMenu

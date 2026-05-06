@@ -1,0 +1,23 @@
+export enum StoreKeys {
+  NativeServices = 'NativeServices',
+  Init = 'Init',
+  Assets = 'Assets',
+  Socket = 'Socket',
+  Identity = 'Identity',
+  PublicChannels = 'PublicChannels',
+  Messages = 'Messages',
+  Modals = 'Modals',
+  Users = 'Users',
+  Errors = 'Errors',
+  Communities = 'Communities',
+  Captcha = 'Captcha',
+  App = 'App',
+  Connection = 'Connection',
+  Settings = 'Settings',
+  Files = 'Files',
+  PushNotifications = 'PushNotifications',
+  // For testing purposes
+  LastAction = 'LastAction',
+  CollectData = 'CollectData',
+  Network = 'Network',
+}

@@ -1,0 +1,29 @@
+import { combineReducers, AnyAction } from '@reduxjs/toolkit'
+import stateManagerReducers, { resetStateAndSaveTorConnectionData } from '@quiet/state-manager'
+import { StoreKeys } from './store.keys'
+import { initReducer } from './init/init.slice'
+import { navigationReducer } from './navigation/navigation.slice'
+import { nativeServicesReducer, nativeServicesActions } from './nativeServices/nativeServices.slice'
+import { pushNotificationsReducer } from './pushNotifications/pushNotifications.slice'
+import { keysReducer } from './keys/keys.slice'
+import { usersMetadataReducer } from './userMetadata/usersMetadata.slice'
+
+export const reducers = {
+  ...stateManagerReducers.reducers,
+  [StoreKeys.Init]: initReducer,
+  [StoreKeys.Navigation]: navigationReducer,
+  [StoreKeys.NativeServices]: nativeServicesReducer,
+  [StoreKeys.PushNotifications]: pushNotificationsReducer,
+  [StoreKeys.Keys]: keysReducer,
+  [StoreKeys.UsersMetadata]: usersMetadataReducer,
+}
+
+export const allReducers = combineReducers(reducers)
+
+export const rootReducer = (state: any, action: AnyAction) => {
+  if (action.type === nativeServicesActions.resetApp.type) {
+    state = resetStateAndSaveTorConnectionData()
+  }
+
+  return allReducers(state, action)
+}

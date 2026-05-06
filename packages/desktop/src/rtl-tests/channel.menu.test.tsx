@@ -1,0 +1,122 @@
+import React from 'react'
+import '@testing-library/jest-dom/extend-expect'
+import { screen } from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
+import MockedSocket from 'socket.io-mock'
+import { ioMock } from '../shared/setupTests'
+import { renderComponent } from '../renderer/testUtils/renderComponent'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
+import Channel from '../renderer/components/Channel/Channel'
+import ChannelContextMenu from '../renderer/components/ContextMenu/menus/ChannelContextMenu.container'
+import DeleteChannel from '../renderer/components/Channel/DeleteChannel/DeleteChannel'
+import { identity, getReduxStoreFactory, communities } from '@quiet/state-manager'
+import { CommunityOwnership } from '@quiet/types'
+
+jest.setTimeout(20_000)
+
+describe('Channel menu', () => {
+  let socket: MockedSocket
+
+  beforeEach(() => {
+    socket = new MockedSocket()
+    ioMock.mockImplementation(() => socket)
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }))
+  })
+
+  it('hides channel deletion for non-owners', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+
+    const community = await factory.create('Community', {
+      id: '0',
+      name: 'community',
+      CA: null,
+      rootCa: '',
+      peerList: [],
+      ownership: CommunityOwnership.User,
+    })
+
+    await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+        <ChannelContextMenu />
+        <DeleteChannel />
+      </>,
+      store
+    )
+
+    const menu = screen.getByTestId('channelContextMenuButton')
+    expect(menu).toBeVisible()
+
+    await userEvent.click(menu)
+
+    const channelContextMenu = screen.getByTestId('contextMenu')
+    expect(channelContextMenu).toBeVisible()
+
+    const deleteChannelItem = screen.queryByTestId('contextMenuItemDelete')
+    expect(deleteChannelItem).not.toBeInTheDocument()
+  })
+
+  it('deletes channel', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+
+    const community = await factory.create('Community')
+
+    await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+        <ChannelContextMenu />
+        <DeleteChannel />
+      </>,
+      store
+    )
+
+    const menu = screen.getByTestId('channelContextMenuButton')
+    expect(menu).toBeVisible()
+
+    await userEvent.click(menu)
+
+    // Confirm context menu has opened
+    const deleteChannelItem = screen.getByTestId('contextMenuItemDelete')
+    expect(deleteChannelItem).toBeVisible()
+
+    await userEvent.click(deleteChannelItem)
+
+    setTimeout(() => {
+      // Confirm context menu hides automatically (give time for the animation)
+      const channelContextMenu = screen.getByTestId('contextMenu')
+      expect(channelContextMenu).toBeNull()
+    }, 500)
+
+    // Confirm confirmation modal pops up
+    const deleteChannelModal = await screen.findByText('Are you sure?')
+    expect(deleteChannelModal).toBeVisible()
+  })
+})

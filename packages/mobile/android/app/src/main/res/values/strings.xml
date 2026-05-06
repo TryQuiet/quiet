@@ -1,0 +1,26 @@
+<resources>
+    <!-- Debug -->
+    <string name="debug_app_name">Debug Quiet</string>
+
+    <!-- App -->
+    <string name="app_name">Quiet</string>
+
+    <!-- Notification -->
+    <string name="foreground_service_channel_name">Backend</string>
+    <string name="foreground_service_channel_description">Continuously synchronise data and receive incoming messages</string>
+
+    <string name="notification_channel_name">Incoming messages</string>
+    <string name="notification_channel_description">Inform the user about incoming messages</string>
+
+    <!-- Metadata -->
+    <string name="asset_statements">
+        [{
+            \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+            \"target\": {
+            \"namespace\": \"web\",
+            \"site\": \"https://tryquiet.org\"
+            }
+        }]
+    </string>
+
+</resources>

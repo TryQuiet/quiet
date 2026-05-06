@@ -1,0 +1,676 @@
+import { Buffer } from 'buffer'
+import { Inject, Injectable } from '@nestjs/common'
+import { CID } from 'multiformats/cid'
+import { base58btc } from 'multiformats/bases/base58'
+import { Level } from 'level'
+import { rmSync } from 'fs'
+
+import { type Community, NetworkStats, Identity } from '@quiet/types'
+import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
+import { EncryptedAndSignedPayload } from '../auth/services/crypto/types'
+import { LEVEL_DB } from '../const'
+import {
+  LocalDbEvents,
+  LocalDBKeys,
+  LocalDbStatus,
+  DLQDecryptEntry,
+  DLQDecryptGetOptions,
+  DLQSerializer,
+  DLQ_TTL_MS,
+} from './local-db.types'
+import { createLogger } from '../common/logger'
+import { SerializedSigChain, SigChainSaveData } from '../auth/types'
+import { SigChain } from '../auth/sigchain'
+import { Keyring } from '@localfirst/crdx'
+import EventEmitter from 'events'
+
+@Injectable()
+export class LocalDbService extends EventEmitter {
+  peers: any
+  private readonly logger = createLogger(LocalDbService.name)
+  constructor(@Inject(LEVEL_DB) private readonly db: Level) {
+    super()
+  }
+
+  public async close() {
+    this.logger.info('Closing leveldb')
+    await this.db.close()
+  }
+
+  public async open() {
+    this.logger.info('Opening leveldb')
+    await this.db.open()
+  }
+
+  public getStatus(): LocalDbStatus {
+    return this.db.status
+  }
+
+  public async purge() {
+    this.logger.info(`Purging db`)
+    await this.db.clear()
+  }
+
+  public async purgeArtifacts() {
+    this.logger.info(`Purging local db artifacts`)
+    if (this.db.status !== 'open') {
+      await this.open()
+    }
+    await this.purge()
+    await this.close()
+    // On Windows, LevelDB file handles (especially LOG) may remain locked briefly
+    // after close() resolves. Retry with backoff to handle EBUSY errors.
+    const location = this.db.location
+    const maxRetries = 5
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        rmSync(location, { recursive: true, force: true })
+        return
+      } catch (e: any) {
+        if (['EBUSY', 'EPERM'].includes(e.code) && attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)))
+          continue
+        }
+        this.logger.warn(`Failed to remove local DB directory after ${maxRetries} attempts, continuing`, e)
+        return
+      }
+    }
+  }
+
+  public async get(key: string) {
+    let data: any
+    try {
+      data = await this.db.get(key)
+    } catch (e) {
+      return null
+    }
+    return data
+  }
+
+  public async exists(key: string): Promise<boolean> {
+    return Boolean(await this.get(key))
+  }
+
+  public async put(key: string, value: any) {
+    await this.db.put(key, value)
+  }
+
+  public async update(key: string, value: object) {
+    /**
+     * Update data instead of replacing it
+     */
+    const data = await this.get(key)
+    if (!data) {
+      await this.put(key, value)
+      return null
+    }
+    const updatedObj = Object.assign(data, value)
+    await this.put(key, updatedObj)
+  }
+
+  public async find(key: string, prop: string) {
+    const obj = await this.get(key)
+    if (!obj || !(prop in obj)) {
+      this.logger.error(`${prop} not found in ${key}`)
+      return null
+    }
+    return obj[prop]
+  }
+
+  public async delete(key: string) {
+    await this.db.del(key)
+  }
+
+  public async load(data: any) {
+    for (const key in data) {
+      if (typeof data[key] === 'object' && Object.keys(data[key]).length === 0) {
+        continue
+      }
+      if (typeof data[key] === 'string' && data[key].length === 0) {
+        continue
+      }
+      if (Array.isArray(data[key]) && data[key].length === 0) {
+        continue
+      }
+      await this.put(key, data[key])
+    }
+  }
+
+  /**
+   * Overwrite the complete local db entry for peers with the given stats
+   * @param stats
+   */
+  public async setPeerStats(stats: Record<string, NetworkStats>) {
+    this.logger.debug('Setting peer stats', stats)
+    await this.put(LocalDBKeys.PEERS, stats)
+  }
+
+  /**
+   * Update the local db entry for the given peers with the given stats
+   * @param stats
+   */
+  public async updatePeerStats(stats: Record<string, NetworkStats>) {
+    this.logger.debug('Updating peer stats', JSON.stringify(stats, null, 2))
+    const existingStats = await this.get(LocalDBKeys.PEERS)
+    if (!existingStats) {
+      await this.put(LocalDBKeys.PEERS, stats)
+      return
+    }
+    const updatedStats = { ...existingStats, ...stats }
+    await this.put(LocalDBKeys.PEERS, updatedStats)
+  }
+
+  /**
+   * Get the local db entry for peers
+   */
+  public async getPeerStats(peerId: string): Promise<NetworkStats | null>
+  public async getPeerStats(): Promise<Record<string, NetworkStats>>
+  public async getPeerStats(peerId?: string): Promise<NetworkStats | Record<string, NetworkStats> | null> {
+    if (peerId) {
+      return await this.find(LocalDBKeys.PEERS, peerId)
+    }
+    return await this.get(LocalDBKeys.PEERS)
+  }
+
+  /**
+   * Retrieves a sorted list of peer addresses from the local database.
+   *
+   * @param includeLocalPeerAddress - A boolean flag indicating whether to include the local peer's address
+   * in the sorted list. Defaults to `true`.
+   * @returns A promise that resolves to an array of sorted peer multiaddr.
+   */
+  public async getSortedPeers(includeLocalPeerAddress: boolean = true): Promise<string[]> {
+    let entries = await this.getPeerStats()
+    if (entries == null) {
+      entries = {}
+    }
+
+    const stats: NetworkStats[] = Object.values(entries)
+    const addresses: string[] = stats
+      .map((peer: NetworkStats) => peer.address)
+      .filter((address): address is string => address !== undefined)
+
+    if (includeLocalPeerAddress) {
+      const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))
+
+      let localPeerAddress: string | undefined = undefined
+      if (identity) {
+        localPeerAddress = createLibp2pAddress(
+          identity.networkInfo.hiddenService.onionAddress,
+          identity.networkInfo.peerId.id
+        )
+        return filterAndSortPeers(addresses, stats, localPeerAddress, includeLocalPeerAddress)
+      }
+    }
+    const sortedPeers = filterAndSortPeers(addresses, stats, undefined, includeLocalPeerAddress)
+    return sortedPeers
+  }
+
+  public async setCommunity(community: Community) {
+    this.logger.info('Setting community', community.id, community.name, community)
+    let communities = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    communities[community.id] = community
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+  }
+
+  public async updateCommunity(id: string, updates: Partial<Community>) {
+    this.logger.info('Updating community', id, updates)
+    let communities: { [id: string]: Community } = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    if (!Object.keys(communities).includes(id)) {
+      throw new Error(`No community found for id, can't update`)
+    }
+    communities[id] = {
+      ...communities[id],
+      ...updates,
+    }
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+  }
+
+  public async setCurrentCommunityId(communityId: string) {
+    this.logger.info('Setting current community id', communityId)
+    await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, communityId)
+    this.emit(LocalDbEvents.COMMUNITY_ADDED, communityId)
+  }
+
+  public async getCommunity(id: string): Promise<Community | undefined> {
+    const communities = await this.get(LocalDBKeys.COMMUNITIES)
+    return communities?.[id]
+  }
+
+  public async getCommunities(): Promise<Record<string, Community>> {
+    return await this.get(LocalDBKeys.COMMUNITIES)
+  }
+
+  public async getCurrentCommunity(): Promise<Community | undefined> {
+    this.logger.info('Getting current community')
+    const currentCommunityId = await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID)
+    const communities = await this.get(LocalDBKeys.COMMUNITIES)
+
+    return communities?.[currentCommunityId]
+  }
+
+  public async communityExists(communityId: string): Promise<boolean> {
+    return communityId in ((await this.getCommunities()) ?? {})
+  }
+
+  public async deleteCommunity(id: string) {
+    this.logger.info('Deleting community', id)
+    let communities = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    delete communities[id]
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+
+    const currentCommunityId = await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID)
+    if (currentCommunityId === id) {
+      await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, '')
+    }
+  }
+
+  // temporarily shoving identity creation here
+  public async setIdentity(identity: Identity) {
+    let identities = await this.get(LocalDBKeys.IDENTITIES)
+    if (!identities) {
+      identities = {}
+    }
+    identities[identity.communityId] = identity
+    await this.put(LocalDBKeys.IDENTITIES, identities)
+  }
+
+  public async getIdentity(id: string): Promise<Identity | undefined> {
+    const identities = await this.get(LocalDBKeys.IDENTITIES)
+    return identities?.[id]
+  }
+
+  public async getIdentities(): Promise<Record<string, Identity>> {
+    return await this.get(LocalDBKeys.IDENTITIES)
+  }
+
+  public async setSigChain(sigChain: SigChain, teamName: string) {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
+    let serializedTeam: string | undefined = undefined
+    let teamKeyring: Keyring | undefined = undefined
+    if (sigChain.team) {
+      serializedTeam = Buffer.from(sigChain.save()).toString('base64')
+      teamKeyring = sigChain.team.teamKeyring()
+    }
+    const serializedSigChain: SigChainSaveData = {
+      serializedTeam: serializedTeam,
+      localUserContext: { user: sigChain.user, device: sigChain.device },
+      teamKeyRing: teamKeyring,
+    }
+    this.logger.info('Saving sigchain', teamName)
+    await this.put(key, serializedSigChain)
+  }
+
+  public async getSigChain(teamName: string): Promise<SerializedSigChain | undefined> {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
+    this.logger.info('Getting sigchain', teamName, key)
+    const sigChainBlob = await this.get(key)
+    if (sigChainBlob == null) {
+      this.logger.error(`No sig chain stored in local DB for key`, key)
+      return undefined
+    }
+
+    try {
+      let serializedTeam: Uint8Array | undefined = undefined
+      if (sigChainBlob.serializedTeam) {
+        try {
+          serializedTeam = Buffer.from(sigChainBlob.serializedTeam, 'base64')
+        } catch (e) {
+          this.logger.error('Failed to load serialized team', e)
+        }
+        serializedTeam = Buffer.from(sigChainBlob.serializedTeam, 'base64')
+      }
+      return {
+        serializedTeam: serializedTeam,
+        localUserContext: sigChainBlob.localUserContext,
+        teamKeyRing: sigChainBlob.teamKeyRing ? sigChainBlob.teamKeyRing : undefined,
+      } as SerializedSigChain
+    } catch (e) {
+      this.logger.error('Failed to get sigchain', e)
+      return undefined
+    }
+  }
+
+  public async deleteSigChain(teamName: string) {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
+    await this.delete(key)
+  }
+
+  /**
+   * Pending heads helpers for OrbitDbService (per-address key version)
+   */
+
+  public async getPendingHeads(address?: string): Promise<Record<string, CID[]> | CID[]> {
+    if (address) {
+      let arr = (await this.get(`${LocalDBKeys.PENDING_HEADS}:${address}`)) || []
+      if (typeof arr === 'string') {
+        try {
+          arr = JSON.parse(arr)
+        } catch {
+          arr = []
+        }
+      }
+      return arr.map((cid: string) => CID.parse(cid, base58btc))
+    }
+    // Get all keys with the PENDING_HEADS: prefix
+    const result: Record<string, CID[]> = {}
+    for await (const [key, value] of this.db.iterator({
+      gte: `${LocalDBKeys.PENDING_HEADS}:`,
+      lte: `${LocalDBKeys.PENDING_HEADS}:~`,
+    })) {
+      let arr: string[] = []
+      if (typeof value === 'string') {
+        try {
+          arr = JSON.parse(value)
+        } catch {
+          arr = []
+        }
+      } else {
+        arr = value
+      }
+      const addr = key.slice(`${LocalDBKeys.PENDING_HEADS}:`.length)
+      result[addr] = Array.isArray(arr) ? arr.map((cid: string) => CID.parse(cid, base58btc)) : []
+    }
+    return result
+  }
+
+  public async addPendingHead(address: string, heads: CID[]): Promise<void> {
+    const key = `${LocalDBKeys.PENDING_HEADS}:${address}`
+    let arr: string[] = (await this.get(key)) || []
+    if (typeof arr === 'string') {
+      try {
+        arr = JSON.parse(arr)
+      } catch {
+        arr = []
+      }
+    }
+    const newCids = heads.map(cid => cid.toString(base58btc))
+    for (const headStr of newCids) {
+      if (!arr.includes(headStr)) {
+        arr.push(headStr)
+      }
+    }
+    await this.put(key, arr)
+  }
+
+  public async removePendingHead(address: string, heads: CID[]): Promise<void> {
+    const key = `${LocalDBKeys.PENDING_HEADS}:${address}`
+    let arr: string[] = (await this.get(key)) || []
+    if (typeof arr === 'string') {
+      try {
+        arr = JSON.parse(arr)
+      } catch {
+        arr = []
+      }
+    }
+    for (const head of heads) {
+      arr = arr.filter(cidStr => !CID.parse(cidStr, base58btc).equals(head))
+    }
+    if (arr.length === 0) {
+      await this.delete(key)
+    } else {
+      await this.put(key, arr)
+    }
+  }
+
+  /**
+   * Pending qss log sync message helpers for QSSService
+   */
+
+  public async addPendingQssLogSyncMessage(address: string, hash: string): Promise<boolean> {
+    const key = `${LocalDBKeys.PENDING_QSS_LOG_SYNCS}:${address}`
+    const arr: string[] = (await this.get(key)) || []
+    if (!arr.includes(hash)) {
+      arr.push(hash)
+      await this.put(key, arr)
+      return true
+    }
+
+    return false
+  }
+
+  public async getPendingQssLogSyncMessages(): Promise<Record<string, string[]>> {
+    // Get all keys with the pending qss sync prefix
+    const result: Record<string, string[]> = {}
+    for await (const [key, value] of this.db.iterator({
+      gte: `${LocalDBKeys.PENDING_QSS_LOG_SYNCS}:`,
+      lte: `${LocalDBKeys.PENDING_QSS_LOG_SYNCS}:~`,
+    })) {
+      let arr: string[] = []
+      if (typeof value === 'string') {
+        try {
+          arr = JSON.parse(value)
+        } catch {
+          arr = []
+        }
+      } else {
+        arr = value
+      }
+      const addr = key.slice(`${LocalDBKeys.PENDING_QSS_LOG_SYNCS}:`.length)
+      result[addr] = arr ?? []
+    }
+    return result
+  }
+
+  public async removePendingQssLogSyncMessages(sentMessageHashes: Record<string, string[]>): Promise<void> {
+    const pendingHashes = await this.getPendingQssLogSyncMessages()
+    for (const [address, sentHashes] of Object.entries(sentMessageHashes)) {
+      this.logger.debug(`Removing pending QSS log sync messages for address ${address}:`, sentHashes)
+      let arr = pendingHashes[address]
+      for (const sentHash of sentHashes) {
+        arr = arr.filter(pendingHash => pendingHash !== sentHash)
+      }
+      const key = `${LocalDBKeys.PENDING_QSS_LOG_SYNCS}:${address}`
+      if (arr.length === 0) {
+        await this.delete(key)
+      } else {
+        await this.put(key, arr)
+      }
+    }
+  }
+
+  /**
+   * Set the last QSS log sync seq for a given team
+   * @param teamId string team id
+   * @param syncSeq number sequence number
+   */
+  public async setLastSyncSeq(teamId: string, syncSeq: number): Promise<void> {
+    await this.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${teamId}`, syncSeq.toString())
+  }
+
+  /**
+   * Get the last QSS log sync seq for a given team
+   * @param teamId string team id
+   * @returns number | null sequence number or null if not found
+   */
+  public async getLastSyncSeq(teamId: string): Promise<number | null> {
+    const seq = await this.get(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${teamId}`)
+    if (seq === null) {
+      return null
+    }
+    const num = Number(seq)
+    return isNaN(num) ? null : num
+  }
+
+  /**
+   * Dead Letter Queue for failed decryption entries
+   */
+
+  private computeDLQHash(payload: EncryptedAndSignedPayload): string {
+    const data = JSON.stringify({
+      encrypted: Array.from(payload.encrypted.contents),
+      scope: payload.encrypted.scope,
+      signature: payload.signature,
+      ts: payload.ts,
+      userId: payload.userId,
+    })
+    // Use a simple hash to get a shorter unique identifier
+    let hash = 0
+    for (let i = 0; i < data.length; i++) {
+      const char = data.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(36)
+  }
+
+  public async addDLQDecryptEntry(
+    teamId: string,
+    entry: EncryptedAndSignedPayload,
+    serializer: DLQSerializer
+  ): Promise<void> {
+    const hash = this.computeDLQHash(entry)
+    const timestamp = Date.now()
+    const primaryKey = `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:${timestamp}:${hash}`
+    const scopeType = entry.encrypted.scope.type
+    const scopeGen = entry.encrypted.scope.generation
+    const indexKey = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${scopeType}:${scopeGen}:${hash}`
+
+    // Check for existing entry with same hash
+    for await (const [key] of this.db.iterator({
+      gte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:`,
+      lte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:~`,
+    })) {
+      if (key.endsWith(`:${hash}`)) {
+        this.logger.debug('DLQ entry already exists, skipping', hash)
+        return
+      }
+    }
+
+    const dlqEntry: DLQDecryptEntry = {
+      payload: entry,
+      addedAt: timestamp,
+    }
+    const serialized = serializer.serialize(dlqEntry)
+    // Store as base64 string since LevelDB values are stored as strings
+    const base64Value = serialized.toString('base64')
+    await this.put(primaryKey, base64Value)
+    await this.put(indexKey, primaryKey)
+    this.logger.debug('Added DLQ decrypt entry', { teamId, hash })
+  }
+
+  public async getDLQDecryptEntries(
+    teamId: string,
+    serializer: DLQSerializer,
+    opts?: DLQDecryptGetOptions
+  ): Promise<{ key: string; entry: DLQDecryptEntry }[]> {
+    const results: { key: string; entry: DLQDecryptEntry }[] = []
+    const limit = opts?.limit ?? 100
+    const now = Date.now()
+
+    if (opts?.scopeType != null && opts?.scopeGen != null) {
+      // Use index for scoped query
+      const indexPrefix = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${opts.scopeType}:${opts.scopeGen}:`
+      for await (const [indexKey, primaryKey] of this.db.iterator({
+        gte: indexPrefix,
+        lte: `${indexPrefix}~`,
+      })) {
+        if (results.length >= limit) break
+        const base64Value = await this.get(primaryKey)
+        if (base64Value) {
+          try {
+            const buffer = Buffer.from(base64Value, 'base64')
+            const entry = serializer.deserialize(buffer) as DLQDecryptEntry
+            if (now - entry.addedAt > DLQ_TTL_MS) {
+              await this.delete(primaryKey)
+              await this.delete(indexKey)
+              this.logger.debug('Removed expired DLQ entry', { teamId, addedAt: entry.addedAt })
+              continue
+            }
+            results.push({ key: primaryKey, entry })
+          } catch (e) {
+            this.logger.error('Failed to deserialize DLQ entry', e)
+          }
+        }
+      }
+    } else {
+      // Full scan
+      for await (const [key, value] of this.db.iterator({
+        gte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:`,
+        lte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:~`,
+      })) {
+        if (results.length >= limit) break
+        try {
+          const buffer = Buffer.from(value, 'base64')
+          const entry = serializer.deserialize(buffer) as DLQDecryptEntry
+          if (now - entry.addedAt > DLQ_TTL_MS) {
+            const hash = this.computeDLQHash(entry.payload)
+            const scopeType = entry.payload.encrypted.scope.type
+            const scopeGen = entry.payload.encrypted.scope.generation
+            const indexKey = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${scopeType}:${scopeGen}:${hash}`
+            await this.delete(key)
+            await this.delete(indexKey)
+            this.logger.debug('Removed expired DLQ entry', { teamId, addedAt: entry.addedAt })
+            continue
+          }
+          results.push({ key, entry })
+        } catch (e) {
+          this.logger.error('Failed to deserialize DLQ entry', e)
+        }
+      }
+    }
+
+    return results
+  }
+
+  public async removeDLQDecryptEntries(
+    teamId: string,
+    entries: { key: string; entry: DLQDecryptEntry }[]
+  ): Promise<void> {
+    for (const { key, entry } of entries) {
+      const hash = this.computeDLQHash(entry.payload)
+      const scopeType = entry.payload.encrypted.scope.type
+      const scopeGen = entry.payload.encrypted.scope.generation
+      const indexKey = `${LocalDBKeys.DLQ_DECRYPT_IDX}:${teamId}:${scopeType}:${scopeGen}:${hash}`
+
+      await this.delete(key)
+      await this.delete(indexKey)
+    }
+    this.logger.debug('Removed DLQ decrypt entries', { teamId, count: entries.length })
+  }
+
+  public async getDLQDecryptCount(teamId: string): Promise<number> {
+    let count = 0
+    for await (const _ of this.db.iterator({
+      gte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:`,
+      lte: `${LocalDBKeys.DLQ_DECRYPT}:${teamId}:~`,
+    })) {
+      count++
+    }
+    return count
+  }
+
+  /**
+   * Update list of kys for a given team ID that were stored in the IOS keychain
+   *
+   * @param teamId LFA team ID
+   * @param keyNames Names of keys that were added to IOS keychain
+   */
+  public async updateKeysStoredInKeychain(teamId: string, keyNames: string[]): Promise<void> {
+    const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
+    const arr: string[] = (await this.get(key)) || []
+    arr.push(...keyNames)
+    await this.put(key, arr)
+  }
+
+  /**
+   * Get the list of key names for a given team ID that have been stored in the IOS keychain
+   *
+   * @param teamId LFA team ID
+   * @returns List of key names
+   */
+  public async getKeysStoredInKeychain(teamId: string): Promise<string[]> {
+    const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
+    const arr: string[] = (await this.get(key)) || []
+    return arr
+  }
+}

@@ -1,0 +1,149 @@
+import React from 'react'
+import { styled } from '@mui/material/styles'
+import classNames from 'classnames'
+import { Grid, useTheme } from '@mui/material'
+
+import ImageAttachment from '../../Channel/File/ImageAttachment/ImageAttachment'
+import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import { displayMathRegex } from '../../../../utils/functions/splitByTex'
+import { TextMessageComponent } from './TextMessage'
+import { MathMessageComponent } from '../../MathMessage/MathMessageComponent'
+import { UseModalType } from '../../../containers/hooks'
+import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/types'
+
+const PREFIX = 'NestedMessageContent'
+
+const classes = {
+  message: `${PREFIX}message`,
+  pending: `${PREFIX}pending`,
+  info: `${PREFIX}info`,
+}
+
+const StyledGrid = styled(Grid)(({ theme }) => ({
+  [`& .${classes.message}`]: {
+    fontSize: '0.855rem',
+    whiteSpace: 'pre-line',
+    lineHeight: '21px',
+    overflowWrap: 'anywhere',
+  },
+
+  [`& .${classes.pending}`]: {
+    color: theme.palette.colors.lightGray,
+  },
+
+  [`& .${classes.info}`]: {
+    color: theme.palette.colors.white,
+  },
+}))
+
+export interface NestedMessageContentProps {
+  message: DisplayableMessage
+  pending: boolean
+  downloadStatus?: DownloadStatus
+  maxAutodownloadSizeBytes: number
+  openUrl: (url: string) => void
+  uploadedFileModal?: UseModalType<{
+    src: string
+  }>
+  onMathMessageRendered?: () => void
+}
+
+export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
+  message,
+  pending,
+  downloadStatus,
+  maxAutodownloadSizeBytes,
+  uploadedFileModal,
+  onMathMessageRendered,
+  openUrl,
+  openContainingFolder,
+  downloadFile,
+  cancelDownload,
+}) => {
+  const theme = useTheme()
+
+  const renderMessage = () => {
+    const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
+
+    switch (message.type) {
+      case 2: {
+        // MessageType.Image (cypress tests incompatibility with enums)
+        const size = message?.media?.size
+        const isDownloaded = Boolean(message?.media?.path)
+        const fileDisplay = !isMalicious && (isDownloaded || !size || size < maxAutodownloadSizeBytes)
+        return (
+          <div
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending,
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}
+          >
+            {fileDisplay && message.media ? (
+              <ImageAttachment
+                media={message.media}
+                uploadedFileModal={uploadedFileModal}
+                downloadStatus={downloadStatus}
+              />
+            ) : (
+              <FileComponent
+                message={message}
+                downloadStatus={downloadStatus}
+                openContainingFolder={openContainingFolder}
+                downloadFile={downloadFile}
+                cancelDownload={cancelDownload}
+              />
+            )}
+          </div>
+        )
+      }
+      case 4: {
+        // MessageType.File
+        return (
+          <div
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending,
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}
+          >
+            <FileComponent
+              message={message}
+              downloadStatus={downloadStatus}
+              openContainingFolder={openContainingFolder}
+              downloadFile={downloadFile}
+              cancelDownload={cancelDownload}
+            />
+          </div>
+        )
+      }
+      default: {
+        if (!displayMathRegex.test(message.message)) {
+          // Regular text message
+          return (
+            <TextMessageComponent
+              message={message.message}
+              messageId={message.id}
+              pending={pending}
+              openUrl={openUrl}
+            />
+          )
+        }
+
+        return (
+          <MathMessageComponent
+            message={message.message}
+            messageId={message.id}
+            pending={pending}
+            openUrl={openUrl}
+            onMathMessageRendered={onMathMessageRendered}
+          />
+        )
+      }
+    }
+  }
+
+  return <StyledGrid item>{renderMessage()}</StyledGrid>
+}
+
+export default NestedMessageContent

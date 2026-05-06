@@ -1,0 +1,723 @@
+import { jest } from '@jest/globals'
+
+import { Test, TestingModule } from '@nestjs/testing'
+import { FileMetadata } from '@quiet/types'
+import path from 'path'
+import fs from 'fs'
+import { DirResult } from 'tmp'
+import { fileURLToPath } from 'url'
+import waitForExpect from 'wait-for-expect'
+import { TestModule } from '../common/test.module'
+import { createTmpDir, libp2pInstanceParams } from '../common/utils'
+import { IpfsModule } from '../ipfs/ipfs.module'
+import { IpfsService } from '../ipfs/ipfs.service'
+import { Libp2pModule } from '../libp2p/libp2p.module'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { SocketModule } from '../socket/socket.module'
+import { StorageEvents } from '../storage/storage.types'
+import { IpfsFileManagerModule } from './ipfs-file-manager.module'
+import { IpfsFileManagerService } from './ipfs-file-manager.service'
+import { IpfsFilesManagerEvents } from './ipfs-file-manager.types'
+import { sleep } from '../common/sleep'
+import { LocalDbModule } from '../local-db/local-db.module'
+import { LocalDbService } from '../local-db/local-db.service'
+import { SigChainModule } from '../auth/sigchain.service.module'
+import { SigChainService } from '../auth/sigchain.service'
+import { EncryptionScopeType } from '../auth/services/crypto/types'
+import { RoleName } from '../auth/services/roles/roles'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+describe('IpfsFileManagerService', () => {
+  let module: TestingModule
+  let ipfsFileManagerService: IpfsFileManagerService
+  let localDbService: LocalDbService
+  let ipfsService: IpfsService
+  let libp2pService: Libp2pService
+  let sigChainService: SigChainService
+
+  let tmpDir: DirResult
+  let filePath: string
+
+  beforeEach(async () => {
+    tmpDir = createTmpDir()
+    // tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
+    filePath = path.join(dirname, '/testUtils/500kB-file.txt')
+
+    module = await Test.createTestingModule({
+      imports: [
+        TestModule,
+        IpfsFileManagerModule,
+        IpfsModule,
+        SocketModule,
+        Libp2pModule,
+        LocalDbModule,
+        SigChainModule,
+      ],
+    }).compile()
+
+    sigChainService = await module.resolve(SigChainService)
+    await sigChainService.createChain('community', 'username', true)
+
+    ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
+    localDbService = await module.resolve(LocalDbService)
+
+    libp2pService = await module.resolve(Libp2pService)
+    const params = await libp2pInstanceParams()
+    await libp2pService.createInstance(params)
+    expect(libp2pService.libp2pInstance).not.toBeNull()
+
+    ipfsService = await module.resolve(IpfsService)
+    await ipfsService.createInstance()
+    expect(ipfsService.ipfsInstance).not.toBeNull()
+
+    await ipfsFileManagerService.init()
+
+    if (localDbService.getStatus() === 'closed') {
+      await localDbService.open()
+    }
+  })
+
+  afterEach(async () => {
+    tmpDir.removeCallback()
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath)
+    }
+    await ipfsService.stop()
+    await libp2pService.close()
+    await module.close()
+    sleep(1000)
+  })
+
+  afterAll(async () => {
+    tmpDir.removeCallback()
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath)
+    }
+    await ipfsService.stop()
+    await ipfsFileManagerService.stop()
+    await libp2pService.close()
+    await localDbService.close()
+    await module.close()
+  })
+
+  it('attaches image', async () => {
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+    const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
+      ext: '.png',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.attachFile(metadata)
+    expect(copyFileSpy).toHaveBeenCalled()
+    const newFilePath = copyFileSpy.mock.results[0].value as string
+    metadata.path = newFilePath
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.FILE_ATTACHED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.png',
+          height: 44,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-image',
+          size: 15881,
+          width: 824,
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: undefined,
+        downloadState: 'hosted',
+        mid: 'id',
+      })
+    })
+  })
+
+  it('attaches file other than image', async () => {
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
+      name: 'test-file',
+      ext: '.pdf',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.attachFile(metadata)
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.FILE_ATTACHED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.pdf',
+          height: undefined,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-file',
+          size: 761848,
+          width: undefined,
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: undefined,
+        downloadState: 'hosted',
+        mid: 'id',
+      })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        4,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.pdf',
+          height: undefined,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-file',
+          size: 761848,
+          width: undefined,
+        })
+      )
+    })
+  })
+
+  it('removes temporary file', async () => {
+    // Create tmp file
+    const tmpFilePath = path.join(tmpDir.name, '/tmp-test-image.png')
+    fs.copyFileSync(path.join(dirname, '/testUtils/test-image.png'), tmpFilePath)
+    expect(fs.existsSync(tmpFilePath)).toBeTruthy()
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+    const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
+    const deleteFileSpy = jest.spyOn(ipfsFileManagerService, 'deleteFile')
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-image.png'),
+      tmpPath: tmpFilePath,
+      name: 'test-image',
+      ext: '.png',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.attachFile(metadata)
+    expect(copyFileSpy).toHaveBeenCalled()
+    expect(deleteFileSpy).toHaveBeenCalled()
+    const newFilePath = copyFileSpy.mock.results[0].value as string
+    metadata.path = newFilePath
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.FILE_ATTACHED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.png',
+          height: 44,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-image',
+          size: 15881,
+          width: 824,
+          tmpPath: undefined,
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: undefined,
+        downloadState: 'hosted',
+        mid: 'id',
+      })
+    })
+    expect(fs.existsSync(tmpFilePath)).toBeFalsy()
+  })
+
+  it("throws error if file doesn't exists", async () => {
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/non-existent.png'),
+      name: 'test-image',
+      ext: '.png',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await waitForExpect(async () => {
+      await expect(ipfsFileManagerService.attachFile(metadata)).rejects.toThrow()
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).not.toHaveBeenCalled()
+    })
+  })
+
+  it('throws error if reported file size is malicious', async () => {
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
+      name: 'test-file',
+      ext: '.pdf',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.attachFile(metadata)
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.FILE_ATTACHED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.pdf',
+          height: undefined,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-file',
+          size: 761848,
+          width: undefined,
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: undefined,
+        downloadState: 'hosted',
+        mid: 'id',
+      })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        4,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.pdf',
+          height: undefined,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-file',
+          size: 761848,
+          width: undefined,
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    })
+
+    // Downloading
+
+    const uploadMetadata: any = eventSpy.mock.calls[1][1]
+
+    ipfsFileManagerService.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, {
+      ...uploadMetadata,
+      size: 20400,
+    })
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(5, IpfsFilesManagerEvents.DOWNLOAD_FILE, {
+        ...uploadMetadata,
+        size: 20400,
+      })
+    })
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: undefined,
+        downloadState: 'malicious',
+        mid: 'id',
+      })
+    }, 20000)
+
+    expect(eventSpy).toBeCalledTimes(6)
+  })
+
+  it('file uploaded to IPFS then can be downloaded', async () => {
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
+      ext: '.png',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.attachFile(metadata)
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'attachment_id' })
+    }, 5_000)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.FILE_ATTACHED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.png',
+          height: 44,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-image',
+          size: 15881,
+          width: 824,
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    }, 10_000)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: undefined,
+        downloadState: 'hosted',
+        mid: 'id',
+      })
+    }, 10_000)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        4,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.png',
+          height: 44,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-image',
+          size: 15881,
+          width: 824,
+          path: expect.stringContaining('_test-image.png'),
+        })
+      )
+    }, 10_000)
+
+    // Downloading
+
+    const uploadMetadata = eventSpy.mock.calls[1][1]
+
+    ipfsFileManagerService.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(5, IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+    }, 10_000)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: { downloaded: 15881, size: 15881, transferSpeed: 0 },
+        downloadState: 'downloading',
+        mid: 'id',
+      })
+    }, 20_000)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        7,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
+        expect.objectContaining({
+          cid: expect.stringContaining('bafy'),
+          ext: '.png',
+          height: 44,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-image',
+          size: 15881,
+          width: 824,
+          path: expect.stringContaining('.png'),
+          enc: {
+            header: expect.any(String),
+            recipient: {
+              generation: 0,
+              type: EncryptionScopeType.ROLE,
+              name: RoleName.MEMBER,
+            },
+          },
+        })
+      )
+    }, 20_000)
+
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(8, StorageEvents.DOWNLOAD_PROGRESS, {
+        cid: expect.stringContaining('bafy'),
+        downloadProgress: { downloaded: 15881, size: 15881, transferSpeed: 0 },
+        downloadState: 'completed',
+        mid: 'id',
+      })
+    }, 20_000)
+
+    expect(eventSpy).toBeCalledTimes(8)
+  })
+
+  // this case causes other tests to fail
+  it.skip('downloaded file matches uploaded file', async () => {
+    // Attaching
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+    const filePath = path.join(dirname, '/testUtils/test-image.png')
+    const metadata: FileMetadata = {
+      path: filePath,
+      name: 'test-image',
+      ext: '.png',
+      cid: 'attachment_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.attachFile(metadata)
+
+    const uploadMetadata = eventSpy.mock.calls[1][1]
+
+    ipfsFileManagerService.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+
+    const downloadMetadata = eventSpy.mock.calls[3][1]
+
+    const attachFileBuffer = fs.readFileSync(filePath)
+    // @ts-ignore
+    const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
+
+    await waitForExpect(() => {
+      expect(attachFileBuffer).toStrictEqual(downloadFileBuffer)
+    })
+  })
+
+  it('copies file and returns a new path', async () => {
+    const originalPath = path.join(dirname, '/testUtils/test-image.png')
+    const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
+    expect(fs.existsSync(newPath)).toBeTruthy()
+    expect(originalPath).not.toEqual(newPath)
+  })
+
+  it('tries to copy files, returns original path on error', async () => {
+    const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
+    const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
+    expect(originalPath).toEqual(newPath)
+  })
+
+  it('copies file with filename containing whitespace but removes whitespace in the new path', () => {
+    const newFilePath = ipfsFileManagerService.copyFile(
+      path.join(dirname, '/testUtils/test-image.png'),
+      'test ima ge.png'
+    )
+    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'uploads', 'testimage.png'))
+  })
+
+  it('copies file with encoded filename containing whitespace but removes whitespace in the new path', () => {
+    const newFilePath = ipfsFileManagerService.copyFile(
+      path.join(dirname, '/testUtils/test-image.png'),
+      'Screenshot_%20with%20whitespace%2020230721-004943.png'
+    )
+    expect(newFilePath).toEqual(
+      path.join(ipfsFileManagerService.quietDir, 'uploads', 'Screenshot_withwhitespace20230721-004943.png')
+    )
+  })
+
+  it('only tries to compress/process JPEG/JPG images, not e.g. a .txt file', async () => {
+    // Spy on the imageCompressionService.processImage method
+    const imageCompressionSpy = jest.spyOn(ipfsFileManagerService['imageCompressionService'], 'processImage')
+
+    // Create test JPG file path
+    const jpegPath = path.join(dirname, '/testUtils/test-image.jpg')
+
+    // Create a test jpg file if it doesn't exist
+    if (!fs.existsSync(jpegPath)) {
+      fs.copyFileSync(path.join(dirname, '/testUtils/test-image.png'), jpegPath)
+    }
+
+    // Upload a JPEG file
+    const jpegMetadata: FileMetadata = {
+      path: jpegPath,
+      name: 'test-jpeg-image',
+      ext: '.jpg',
+      cid: 'jpeg_id',
+      message: { id: 'jpeg_id', channelId: 'channelId' },
+    }
+
+    await ipfsFileManagerService.attachFile(jpegMetadata)
+
+    // The image compression service should be called for JPG files
+    expect(imageCompressionSpy).toHaveBeenCalledWith(expect.any(String), '.jpg')
+
+    // Reset the spy
+    imageCompressionSpy.mockClear()
+
+    // Upload a PNG file
+    const pngMetadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-image.png'),
+      name: 'test-png-image',
+      ext: '.png',
+      cid: 'png_id',
+      message: { id: 'png_id', channelId: 'channelId' },
+    }
+
+    await ipfsFileManagerService.attachFile(pngMetadata)
+
+    // The image compression service should NOT be called for PNG files
+    expect(imageCompressionSpy).not.toHaveBeenCalled()
+
+    // Reset the spy
+    imageCompressionSpy.mockClear()
+
+    // Upload a text file
+    const textMetadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
+      name: 'test-text-file',
+      ext: '.pdf',
+      cid: 'text_id',
+      message: { id: 'text_id', channelId: 'channelId' },
+    }
+
+    await ipfsFileManagerService.attachFile(textMetadata)
+
+    // The image compression service should NOT be called for text files
+    expect(imageCompressionSpy).not.toHaveBeenCalled()
+
+    // Clean up test file
+    if (fs.existsSync(jpegPath)) {
+      fs.unlinkSync(jpegPath)
+    }
+  })
+
+  // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
+  //   const fileSize = 52428800 // 50MB
+  //   createFile(filePath, fileSize)
+
+  //   const mockDateNow = jest.fn<() => number>()
+
+  //   global.Date.now = mockDateNow
+  //   mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z') as unknown as number)
+
+  //   ipfsInstance = await create()
+
+  //   fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
+
+  //   // Attaching
+  //   const eventSpy = jest.spyOn(fileManager, 'emit')
+
+  //   const metadata: FileMetadata = {
+  //     path: filePath,
+  //     name: 'new-file',
+  //     ext: '.txt',
+  //     cid: 'attachment_id',
+  //     message: {
+  //       id: 'id',
+  //       channelId: 'channelId',
+  //     },
+  //   }
+
+  //   await fileManager.attachFile(metadata)
+
+  //   // Downloading
+  //   const uploadMetadata: FileMetadata = eventSpy.mock.calls[1][1]
+
+  //   fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+
+  //   const transferSpeeds: number[] = []
+
+  //   eventSpy.mock.calls.map(call => {
+  //     if (call[0] === StorageEvents.DOWNLOAD_PROGRESS) {
+  //       // @ts-ignore
+  //       transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
+  //     }
+  //   })
+  //   const unwantedValues = [undefined, null, Infinity]
+  //   for (const value of unwantedValues) {
+  //     await waitForExpect(() => {
+  //       expect(transferSpeeds).not.toContain(value)
+  //     })
+  //   }
+  // })
+})

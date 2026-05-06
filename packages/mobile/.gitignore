@@ -1,0 +1,86 @@
+# OSX
+#
+.DS_Store
+
+# Project
+#
+lib
+
+# Xcode
+#
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+ios/.xcode.env.local
+.xcode.env.local
+ios/LocalDev.xcconfig
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.aab
+*.apk
+android/app/release/
+
+# node.js
+#
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+!debug.keystore
+
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/
+
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Bundle artifact
+*.jsbundle
+
+# Ruby / CocoaPods
+/ios/Pods/
+/vendor/bundle/
+
+# Backend
+/nodejs-assets/nodejs-project/bundle.cjs
+/nodejs-assets/build-native-modules-MacOS-helper-script-node.sh
+/nodejs-assets/build-native-modules-MacOS-helper-script-npm.sh
+
+# Native
+/android/app/.cxx
+.env
+
+# Detox
+/e2e/artifacts
+/e2e/visual-regressions/local

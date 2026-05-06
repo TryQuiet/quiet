@@ -1,0 +1,73 @@
+import { NativeModules } from 'react-native'
+import { call, put, take, select } from 'typed-redux-saga'
+import { initSelectors } from '../../init/init.selectors'
+import { navigationSelectors } from '../navigation.selectors'
+import { navigationActions } from '../navigation.slice'
+import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { APP_READY_CHANNEL, communities, identity } from '@quiet/state-manager'
+import { initActions } from '../../init/init.slice'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('redirection')
+
+export function* redirectionSaga(): Generator {
+  // Let the native modules know to init web socket connection
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, APP_READY_CHANNEL, null, null)
+
+  // Do not redirect if user opened the app from url (quiet://)
+  const deepLinking = yield* select(initSelectors.deepLinking)
+  if (deepLinking) {
+    logger.info('INIT_NAVIGATION: Proceeding with deep link flow.')
+    return
+  }
+
+  // Redirect if user opened the app from push notification
+  const pendingNavigation = yield* select(navigationSelectors.pendingNavigation)
+  if (pendingNavigation) {
+    logger.info('INIT_NAVIGATION: Pending navigation redirection: ', pendingNavigation)
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: pendingNavigation,
+      })
+    )
+
+    yield* put(navigationActions.clearPendingNavigation())
+
+    return
+  }
+
+  logger.info('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
+  const connection = yield* select(initSelectors.isWebsocketConnected)
+  if (!connection) {
+    yield* take(initActions.setWebsocketConnected)
+  }
+
+  // If user belongs to a community, let him directly into the app
+  const communityMembership = yield* select(identity.selectors.communityMembership)
+
+  if (communityMembership) {
+    logger.info('INIT_NAVIGATION: Switching to the channel list screen (community membership).')
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ChannelListScreen,
+      })
+    )
+    return
+  }
+
+  const currentCommunity = yield* select(communities.selectors.currentCommunity)
+  const currentIdentity = yield* select(identity.selectors.currentIdentity)
+
+  if (currentCommunity && !currentIdentity) {
+    logger.info('INIT_NAVIGATION: User abandoned username registration. Clearing current community.')
+    yield* put(communities.actions.deleteCommunity(currentCommunity.id))
+    yield* put(communities.actions.setCurrentCommunity(''))
+  }
+
+  logger.info('INIT_NAVIGATION: Switching to the join community screen.')
+  yield* put(
+    navigationActions.replaceScreen({
+      screen: ScreenNames.JoinCommunityScreen,
+    })
+  )
+}

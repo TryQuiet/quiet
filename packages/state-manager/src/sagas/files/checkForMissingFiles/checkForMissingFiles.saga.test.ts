@@ -1,0 +1,788 @@
+import { setupCrypto } from '@quiet/identity'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT, connection } from '../../..'
+import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { DateTime } from 'luxon'
+import { checkForMissingFilesSaga } from './checkForMissingFiles.saga'
+import { type Socket } from '../../../types'
+import { filesActions } from '../files.slice'
+import { networkActions } from '../../network/network.slice'
+import { DownloadState, type FileMetadata, MessageType, SocketActions } from '@quiet/types'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { connectionActions } from '../../appConnection/connection.slice'
+
+describe('checkForMissingFilesSaga', () => {
+  beforeAll(async () => {
+    setupCrypto()
+  })
+
+  test('download image after restarting the app', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-image',
+      ext: '.jpeg',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.Image,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(connectionActions.setTorInitialized())
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Downloading,
+      })
+    )
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  test('download file after restarting the app', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(connectionActions.setTorInitialized())
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Downloading,
+      })
+    )
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  test('resume download of all valid files after restarting the app', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message1 = Math.random().toString(36).substr(2.9)
+    const message2 = Math.random().toString(36).substr(2.9)
+
+    const channelId = generalChannel.id
+
+    const missingFileCanceled: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message1,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    const missingFilePending: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message2,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message1,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFileCanceled,
+      },
+    })
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message2,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFilePending,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFileCanceled.message.id,
+        cid: missingFileCanceled.cid,
+        downloadState: DownloadState.Canceled,
+      })
+    )
+
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFilePending.message.id,
+        cid: missingFilePending.cid,
+        downloadState: DownloadState.Downloading,
+      })
+    )
+    store.dispatch(connectionActions.setTorInitialized())
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFileCanceled.message.id,
+          cid: missingFileCanceled.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFileCanceled,
+        },
+      ])
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFilePending.message.id,
+          cid: missingFilePending.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFilePending,
+        },
+      ])
+      .run()
+  })
+
+  test('do not download file after restarting the app if file exceeds autodownload size limit', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(connectionActions.setTorInitialized())
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Ready,
+      })
+    )
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  test('resume download after restarting the app even if file exceeds autodownload size limit (download started manually)', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(connectionActions.setTorInitialized())
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Downloading,
+      })
+    )
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  test('do not download file after restarting the app if downloading status is canceled', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Canceled,
+      })
+    )
+    store.dispatch(connectionActions.setTorInitialized())
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  test('do not download file after restarting the app if downloading status is malicious', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Malicious,
+      })
+    )
+    store.dispatch(connectionActions.setTorInitialized())
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .not.apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  test('do not throw error if download status is not present', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getReduxStoreFactory(initialState)
+
+    const community = await factory.create('Community')
+
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
+    const alice = await factory.create('Identity', {
+      communityId: community.id,
+      nickname: 'alice',
+    })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelId = generalChannel.id
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelId,
+      },
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
+    }
+
+    await factory.create('TestMessage', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media: missingFile,
+      },
+    })
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(
+      filesActions.removeDownloadStatus({
+        cid: missingFile.cid,
+      })
+    )
+    store.dispatch(connectionActions.setTorInitialized())
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket as unknown as Socket,
+      filesActions.checkForMissingFiles(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      .apply(socket, socket.emit, [
+        SocketActions.DOWNLOAD_FILE,
+        {
+          peerId: alice.networkInfo.peerId.id,
+          metadata: missingFile,
+        },
+      ])
+      .run()
+  })
+
+  it.each([[DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1], [DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 1024]])(
+    'resume downloading for file of any size if it is already in queue (%s)',
+    async (size: number) => {
+      const initialState = prepareStore().store
+
+      const factory = await getReduxStoreFactory(initialState)
+
+      const community = await factory.create('Community')
+
+      const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+      if (!generalChannel) return
+      expect(generalChannel).not.toBeUndefined()
+      const alice = await factory.create('Identity', {
+        communityId: community.id,
+      })
+
+      const message = Math.random().toString(36).substr(2.9)
+      const channelId = generalChannel.id
+      const missingFile: FileMetadata = {
+        cid: Math.random().toString(36).substr(2.9),
+        path: null,
+        name: 'test-file',
+        ext: '.zip',
+        message: {
+          id: message,
+          channelId,
+        },
+        size,
+      }
+
+      await factory.create('TestMessage', {
+        message: {
+          id: message,
+          type: MessageType.File,
+          createdAt: DateTime.utc().valueOf(),
+          channelId: generalChannel.id,
+          media: missingFile,
+          userId: alice.id,
+        },
+      })
+
+      const store = prepareStore(initialState.getState()).store
+      const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+      store.dispatch(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued,
+        })
+      )
+      store.dispatch(connectionActions.setTorInitialized())
+
+      const reducer = combineReducers(testReducers)
+      await expectSaga(
+        checkForMissingFilesSaga,
+        socket as unknown as Socket,
+        filesActions.checkForMissingFiles(community.id)
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .apply(socket, socket.emit, [
+          SocketActions.DOWNLOAD_FILE,
+          {
+            peerId: alice.networkInfo.peerId.id,
+            metadata: missingFile,
+          },
+        ])
+        .run()
+    }
+  )
+})

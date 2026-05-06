@@ -1,0 +1,55 @@
+name: 'Prepare app build'
+
+inputs:
+  source-path:
+    description: 'OS name (linux | darwin | win32)'
+    required: true
+  envfile:
+    description: 'Env file to use (.env.production | .env.staging | .env.development | .env.e2e | .env.e2e.qss)'
+    required: false
+    default: '.env.production'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Bundle backend for production
+      run: cd packages/backend && npm run webpack:prod
+      shell: bash
+
+    - name: "Copy tor binary for Linux"
+      if: ${{ inputs.source-path == 'linux' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
+      shell: bash
+
+    - name: "Pull libssl binary for Linux"
+      if: ${{ inputs.source-path == 'linux' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run pullLibs
+      shell: bash
+
+
+    - name: "Copy tor binary for MacOS"
+      if: ${{ inputs.source-path == 'darwin' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesDarwin
+      shell: bash
+
+    - name: "Copy tor binary for Windows"
+      if: ${{ inputs.source-path == 'win32' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin
+      shell: bash
+
+    - name: "Verify test mode setup"
+      run: echo $TEST_MODE
+      shell: bash
+
+    - name: "Verify bucket setup"
+      run: echo $S3_BUCKET
+      shell: bash
+
+    - name: "Set ENVFILE"
+      if: ${{ inputs.envfile != '' }}
+      run: echo "ENVFILE=${{ inputs.envfile }}" >> $GITHUB_ENV && export ENVFILE=${{ inputs.envfile }}
+      shell: bash
+
+    - name: "Build the project"
+      run: lerna run build:prod --scope @quiet/desktop
+      shell: bash

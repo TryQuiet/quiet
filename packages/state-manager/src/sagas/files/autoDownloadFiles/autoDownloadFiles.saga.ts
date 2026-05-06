@@ -1,0 +1,69 @@
+import type { PayloadAction } from '@reduxjs/toolkit'
+import type { messagesActions } from '../../messages/messages.slice'
+import { apply, put, select } from 'typed-redux-saga'
+import { identitySelectors } from '../../identity/identity.selectors'
+import { messagesSelectors } from '../../messages/messages.selectors'
+import { settingsSelectors } from '../../settings/settings.selectors'
+import { filesActions } from '../files.slice'
+import { applyEmitParams, type Socket } from '../../../types'
+import { type DownloadFilePayload, DownloadState, MessageType, SocketActions } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('autoDownloadFilesSaga')
+
+export function* autoDownloadFilesSaga(
+  socket: Socket,
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
+): Generator {
+  const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) {
+    logger.error('Could not autodownload files, no identity')
+    return
+  }
+
+  const { messages } = action.payload
+
+  for (const message of messages) {
+    // Proceed for images and files only
+    if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) {
+      continue
+    }
+    const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelId))
+    const maxAutodownloadSizeBytes = yield* select(settingsSelectors.maxAutodownloadBytes)
+
+    const draft = channelMessages[message.id]
+
+    // Do not download if already present in local file system
+    if (draft?.media?.path) continue
+
+    // Do not autodownload above certain size
+    const messageMediaSize = message.media.size || 0
+    if (messageMediaSize > maxAutodownloadSizeBytes) {
+      yield* put(
+        filesActions.updateDownloadStatus({
+          mid: message.id,
+          cid: message.media.cid,
+          downloadState: DownloadState.Ready,
+        })
+      )
+      continue
+    }
+
+    yield* put(
+      filesActions.updateDownloadStatus({
+        mid: message.id,
+        cid: message.media.cid,
+        downloadState: DownloadState.Queued,
+      })
+    )
+
+    yield* apply(
+      socket,
+      socket.emit,
+      applyEmitParams(SocketActions.DOWNLOAD_FILE, {
+        peerId: identity.networkInfo.peerId.id,
+        metadata: message.media,
+      } as DownloadFilePayload)
+    )
+  }
+}

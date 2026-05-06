@@ -1,0 +1,100 @@
+import { type EntityState } from '@reduxjs/toolkit'
+import { type FileMetadata } from './files'
+import { type ChannelMessage } from './channel'
+import { type Identity } from './identity'
+
+export enum MessageType {
+  Empty = -1,
+  Basic = 1,
+  Image = 2,
+  Info = 3,
+  File = 4,
+}
+
+export enum SendingStatus {
+  Pending = 0,
+  Sent = 1,
+}
+
+export interface SendMessagePayload {
+  message: ChannelMessage
+}
+
+export interface PushNotificationPayload {
+  message: string
+  username: string
+}
+
+export interface WriteMessagePayload {
+  message: string
+  id?: string
+  channelId?: string
+  type?: MessageType
+  media?: FileMetadata
+}
+
+export interface PublicKeyMappingPayload {
+  publicKey: string
+  cryptoKey: CryptoKey
+}
+
+export interface AddPublicChannelsMessagesBasePayload {
+  channelId: string
+}
+
+export interface PublicChannelsMessagesBase {
+  channelId: string
+  messages: EntityState<ChannelMessage>
+  display: number
+}
+
+export interface SetDisplayedMessagesNumberPayload {
+  channelId: string
+  display: number
+}
+
+export interface LazyLoadingPayload {
+  load: boolean
+}
+
+export interface MessageVerificationStatus {
+  id: string
+  isVerified: boolean
+}
+
+export interface MessageSendingStatus {
+  id: string
+  status: SendingStatus
+}
+
+export interface MessageSendingStatusPayload {
+  message: ChannelMessage
+  status: SendingStatus
+}
+
+export interface GetMessagesPayload {
+  ids: string[]
+  peerId: string
+  channelId: string
+  communityId: string
+}
+
+export interface ChannelMessageIdsResponse {
+  ids: string[]
+  channelId: string
+  communityId: string
+}
+
+export interface DeleteChannelEntryPayload {
+  channelId: string
+}
+
+export interface SendDeletionMessagePayload {
+  channelId: string
+}
+
+export interface TestMessage {
+  message: ChannelMessage
+  identity: Identity
+  verifyAutomatically: boolean
+}

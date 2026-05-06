@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Quiet
+Comment=Quiet Desktop
+GenericName=Quiet Client for Linux
+Type=Application
+StartupNotify=true
+MimeType=x-scheme-handler/quiet
+SingleMainWindow=true
+Categories=Network;Chat;

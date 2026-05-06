@@ -1,0 +1,139 @@
+import React, { FC, useRef, useEffect } from 'react'
+import { View, TouchableWithoutFeedback, Animated, Easing, Platform } from 'react-native'
+import { defaultPalette } from '../../styles/palettes/default.palette'
+import { Typography } from '../Typography/Typography.component'
+import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
+import { icons } from '../../assets'
+import { Site } from '@quiet/common'
+import { ConnectionProcessInfo } from '@quiet/types'
+
+const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ connectionProcess, openUrl }) => {
+  const animationValue = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(animationValue, {
+        toValue: 1,
+        duration: 7000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start()
+  }, [])
+
+  const transformValues = animationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  })
+
+  const processAnimation = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    if (connectionProcess.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY) {
+      Animated.loop(
+        Animated.timing(processAnimation, {
+          toValue: 1,
+          duration: 6000,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        })
+      ).start()
+    } else {
+      processAnimation.stopAnimation()
+    }
+  }, [processAnimation, connectionProcess])
+
+  const processAnimationWidth = processAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [150, 300],
+  })
+
+  return (
+    <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }} testID={'connection-process-component'}>
+      <View
+        style={{
+          padding: '10%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          width: '100%',
+        }}
+      >
+        <Animated.Image
+          style={{ transform: [{ rotate: transformValues }], width: 120, height: 120 }}
+          source={icons.join_community}
+        />
+        <Typography
+          fontSize={18}
+          fontWeight={'medium'}
+          style={{ marginTop: 24, marginBottom: 16 }}
+          testID={'connection-process-title'}
+        >
+          Joining now!
+        </Typography>
+
+        <View
+          style={{
+            width: 300,
+            height: 4,
+            backgroundColor: '#F0F0F0',
+            borderRadius: 4,
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: '#2196f3',
+              height: 4,
+              width: connectionProcess.number * 3,
+              borderRadius: 4,
+              position: 'relative',
+              zIndex: 3,
+            }}
+          ></View>
+
+          {connectionProcess.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY && (
+            <Animated.View
+              style={{
+                backgroundColor: '#67BFD3',
+                height: 4,
+                width: processAnimationWidth,
+                borderRadius: 4,
+                position: 'absolute',
+                zIndex: 2,
+              }}
+            />
+          )}
+        </View>
+        <Typography
+          testID='connection-process-text'
+          fontSize={14}
+          style={{ lineHeight: 20, textAlign: 'center', marginTop: 8 }}
+        >
+          {connectionProcess.text}
+        </Typography>
+
+        <Typography fontSize={14} fontWeight={'medium'} style={{ lineHeight: 20, textAlign: 'center', marginTop: 40 }}>
+          Please leave this screen open. Joining the first time can take a few minutes or more.
+        </Typography>
+
+        <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 25 }}>
+          Quiet stores data on your community’s devices using the battle-tested privacy tool Tor to protect your
+          information. Tor is fast once connected, but it can be slow at first, and leaving this screen
+          {Platform.OS === 'ios' ? ' will stop the process of joining.' : ' could stop the process of joining.'}
+        </Typography>
+
+        <TouchableWithoutFeedback onPress={() => openUrl(Site.MAIN_PAGE)} testID={'learn-more-link'}>
+          <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 40, color: '#2373EA' }}>
+            Learn more about Tor and Quiet
+          </Typography>
+        </TouchableWithoutFeedback>
+      </View>
+    </View>
+  )
+}
+
+export default ConnectionProcessComponent

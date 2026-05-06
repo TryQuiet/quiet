@@ -1,0 +1,11 @@
+--- node_modules/factory-girl/package.json
++++ node_modules/factory-girl/package.json.backup
+@@ -1,7 +1,7 @@
+ {
+   "name": "factory-girl",
+   "description": "A factory library for Node.js and JavaScript inspired by factory_girl",
+-  "main": "./src/index",
++  "main": "index.js",
+   "author": [
+     "@aexmachina",
+     "@chetanism"
