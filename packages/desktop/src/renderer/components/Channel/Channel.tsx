@@ -29,9 +29,7 @@ import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { createLogger } from '../../logger'
 import _ from 'lodash'
-import NewDirectMessageComponent, {
-  NewDirectMessageComponentProps,
-} from '../NewDirectMessage/NewDirectMessage.component'
+import NewDirectMessageComponent, { NewDirectMessageComponentProps } from './NewDirectMessage.component'
 
 const logger = createLogger('Channel')
 
@@ -339,9 +337,7 @@ const Channel = () => {
     user: me,
     userProfiles,
     channelId: currentChannelId,
-    channelType: currentChannel?.type ?? ChannelType.CHANNEL,
     channelName,
-    isPublic: currentChannel?.public ?? true,
     messages: {
       count: currentChannelMessagesCount,
       groups: currentChannelDisplayableMessages,
@@ -356,10 +352,8 @@ const Channel = () => {
     openUrl: openUrl,
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
-    isCommunityInitialized: isCommunityInitialized,
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal: uploadedFileModal,
-    openContextMenu: openContextMenu,
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,

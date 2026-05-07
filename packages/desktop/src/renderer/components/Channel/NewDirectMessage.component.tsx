@@ -26,13 +26,13 @@ import {
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 
-import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from '../Channel/File/FileAttachmentPreview'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { DropZoneComponent } from '../Channel/DropZone/DropZoneComponent'
+import { DropZoneComponent } from './DropZone/DropZoneComponent'
 
-import { NewMessagesInfoComponent } from '../Channel/NewMessagesInfo/NewMessagesInfoComponent'
+import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
 
-import { FileActionsProps } from '../Channel/File/FileComponent/FileComponent'
+import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 import NewMessageGroupHeader from '../widgets/channels/NewMessageGroupHeader'
@@ -50,8 +50,6 @@ export interface NewDirectMessageComponentProps {
   userProfiles: Record<string, UserProfile>
   channelId: string
   channelName: string
-  channelType: ChannelType
-  isPublic: boolean
   handleClose: () => void
   handleInputChange: (selectedUsers: UserProfile[]) => void
   setOrCreateDmChannel: (memberIds: string[]) => void
@@ -69,13 +67,10 @@ export interface NewDirectMessageComponentProps {
   openUrl: (url: string) => void
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
-  isCommunityInitialized: boolean
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
   }>
-  openContextMenu?: () => void
-  enableContextMenu?: boolean
   pendingGeneralChannelRecreation: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
@@ -103,8 +98,6 @@ export const NewDirectMessageComponent: React.FC<
   handleClose,
   channelId,
   channelName,
-  channelType,
-  isPublic,
   setOrCreateDmChannel,
   messages,
   newestMessage,
@@ -118,15 +111,12 @@ export const NewDirectMessageComponent: React.FC<
   removeFile,
   handleFileDrop,
   filesData,
-  isCommunityInitialized = true,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
   openContainingFolder,
   downloadFile,
   cancelDownload,
-  openContextMenu,
-  enableContextMenu = true,
   pendingGeneralChannelRecreation,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
