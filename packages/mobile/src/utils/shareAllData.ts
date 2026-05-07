@@ -38,8 +38,7 @@ export const shareAllData = async (): Promise<void> => {
   await RNFS.mkdir(SHARE_DIR)
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const stagingDir = `${SHARE_DIR}/quiet-data-${stamp}`
-  await RNFS.mkdir(stagingDir)
+  const readmePath = `${SHARE_DIR}/README.txt`
 
   const headerLines = [
     `Please send to ${SUPPORT_EMAIL}`,
@@ -53,29 +52,28 @@ export const shareAllData = async (): Promise<void> => {
     '',
   ]
   const header = headerLines.join('\n')
-  await RNFS.writeFile(`${stagingDir}/README.txt`, header, 'utf8')
+  await RNFS.writeFile(readmePath, header, 'utf8')
 
-  await RNFS.mkdir(`${stagingDir}/data`)
-  await RNFS.copyFile(DATA_DIR, `${stagingDir}/data`)
-
+  const sources: string[] = [readmePath, DATA_DIR]
   if (await RNFS.exists(LOGS_DIR)) {
-    await RNFS.mkdir(`${stagingDir}/logs`)
-    await RNFS.copyFile(LOGS_DIR, `${stagingDir}/logs`)
+    sources.push(LOGS_DIR)
   }
+
+  Alert.alert(
+    'Preparing archive',
+    'Zipping the data directory. This can take a while for large communities — leave the app open until the share sheet appears.'
+  )
 
   const zipPath = `${SHARE_DIR}/quiet-data-${stamp}.zip`
   try {
-    await zip(stagingDir, zipPath)
+    logger.info(`Zipping ${sources.length} source(s) into ${zipPath}`)
+    const start = Date.now()
+    await zip(sources, zipPath)
+    logger.info(`Zip complete in ${Date.now() - start}ms`)
   } catch (err) {
     logger.error('Failed to zip data directory', err)
-    Alert.alert('Could not zip data', 'See logs for details.')
+    Alert.alert('Could not zip data', String(err))
     return
-  }
-
-  try {
-    await RNFS.unlink(stagingDir)
-  } catch (err) {
-    logger.warn('Failed to clean up staging dir', err)
   }
 
   try {
