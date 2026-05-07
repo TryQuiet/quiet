@@ -139,13 +139,19 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
         {Config.NODE_ENV !== NodeEnv.Production && (
           <>
             <TouchableWithoutFeedback onPress={() => void sendLogs()} testID={'share-logs-link'}>
-              <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}>
+              <Typography
+                fontSize={14}
+                style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}
+              >
                 Share logs
               </Typography>
             </TouchableWithoutFeedback>
 
             <TouchableWithoutFeedback onPress={() => void shareAllData()} testID={'share-all-data-link'}>
-              <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}>
+              <Typography
+                fontSize={14}
+                style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}
+              >
                 Share all data
               </Typography>
             </TouchableWithoutFeedback>
