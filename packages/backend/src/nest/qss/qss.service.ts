@@ -104,6 +104,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    */
   private _dlqDecryptRetryRequested = false
 
+  private _deadLetterQueueInFlight = false
+  private readonly _deadLetterQueueRetryTeamIds: Set<string> = new Set()
+
   /**
    * Mutexes for createCommunity per teamId
    */
@@ -277,6 +280,28 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * Check for pending data sync messages and, if connected, attempt to send to QSS
    */
   private async processDeadLetterQueue(teamId: string): Promise<void> {
+    this._deadLetterQueueRetryTeamIds.add(teamId)
+    if (this._deadLetterQueueInFlight) {
+      this.logger.debug('QSS data sync dead letter queue already processing, requesting retry', teamId)
+      return
+    }
+
+    this._deadLetterQueueInFlight = true
+    try {
+      while (this._deadLetterQueueRetryTeamIds.size > 0) {
+        const nextTeamId = this._deadLetterQueueRetryTeamIds.values().next().value
+        if (nextTeamId == null) {
+          break
+        }
+        this._deadLetterQueueRetryTeamIds.delete(nextTeamId)
+        await this._processDeadLetterQueueOnce(nextTeamId)
+      }
+    } finally {
+      this._deadLetterQueueInFlight = false
+    }
+  }
+
+  private async _processDeadLetterQueueOnce(teamId: string): Promise<void> {
     if (!this.connected) {
       return
     }
@@ -1427,6 +1452,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._logPullSuccessTimeouts.clear()
     this._logPullInFlight.clear()
     this._storageReadyTeams.clear()
+    this._deadLetterQueueRetryTeamIds.clear()
     this._teardownEventHandlers()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false
