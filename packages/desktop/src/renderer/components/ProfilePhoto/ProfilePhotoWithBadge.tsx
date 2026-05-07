@@ -118,23 +118,21 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
       badgeContent={badgeContent}
       max={MAX_BADGE_MEMBER_COUNT}
     >
-      {userData && (
-        <span
-          className={classNames(classes.avatar, {
-            [classes.avatarSmall]: size === ProfilePhotoSize.SMALL,
-            [classes.avatarMedium]: size === ProfilePhotoSize.MEDIUM,
-            [classes.avatarLarge]: size === ProfilePhotoSize.LARGE,
-          })}
-          style={{ borderRadius }}
-        >
-          <ProfilePhoto
-            userProfile={userData.user}
-            userId={userData.user.userId}
-            size={componentSize}
-            borderRadius={borderRadius}
-          />
-        </span>
-      )}
+      <span
+        className={classNames(classes.avatar, {
+          [classes.avatarSmall]: size === ProfilePhotoSize.SMALL,
+          [classes.avatarMedium]: size === ProfilePhotoSize.MEDIUM,
+          [classes.avatarLarge]: size === ProfilePhotoSize.LARGE,
+        })}
+        style={{ borderRadius }}
+      >
+        <ProfilePhoto
+          userProfile={userData?.user}
+          userId={userData?.user.userId ?? randomUUID()}
+          size={componentSize}
+          borderRadius={borderRadius}
+        />
+      </span>
     </StyledBadge>
   )
 }
