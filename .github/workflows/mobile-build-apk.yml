@@ -112,8 +112,9 @@ jobs:
 
       - name: "Preserve standard .apk release assets"
         run: |
-          cp ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release-production.apk
-          cp ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug-production.apk
+          mkdir -p ./packages/mobile/android/app/build/release-assets
+          cp ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
+          cp ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
 
       - name: "Build experimental .apk"
         if: github.event.release.prerelease
@@ -155,7 +156,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release-production.apk
+          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
           asset_name: app-standard-release.apk
           asset_content_type: application/.apk
 
@@ -165,7 +166,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug-production.apk
+          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
           asset_name: app-standard-debug.apk
           asset_content_type: application/.apk
 
