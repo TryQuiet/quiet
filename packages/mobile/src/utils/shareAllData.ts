@@ -14,16 +14,15 @@ const SHARE_DIR = RNFS.CachesDirectoryPath + '/quiet-data-share'
 const SUPPORT_EMAIL = 'logs@tryquiet.org'
 
 const WARNING_LINES = [
-  'EXTREME PRIVACY WARNING — read before sending.',
+  'PRIVACY/SECURITY WARNING: Do **NOT** use this feature with a live community you care about. This feature is for internal use on Alpha builds only. It will share ALL QUIET APPLICATION DATA, including:',
   '',
-  'This archive contains the FULL Quiet data directory, which includes:',
-  '  • Your identity private keys (anyone with these can IMPERSONATE you in your communities, post as you, and read your future messages)',
+  '  • Your identity private keys (anyone with these can impersonate you in your communities, post as you, and read your future messages)',
   '  • All message content, channels, and history stored on this device',
   '  • Community membership, peer info, and onion addresses',
   '  • Invitation secrets and Tor state',
   '',
-  'Sending this to someone gives them PERMANENT ability to act as you in your communities.',
-  'Only share with a Quiet developer you trust. Consider rotating your identity afterwards.',
+  'Sending this to someone gives them permanent ability to act as you in your communities.',
+  'Only share with a Quiet developer you trust.',
 ]
 
 export const shareAllData = async (): Promise<void> => {
@@ -41,14 +40,16 @@ export const shareAllData = async (): Promise<void> => {
   const readmePath = `${SHARE_DIR}/README.txt`
 
   const headerLines = [
-    `Please send to ${SUPPORT_EMAIL}`,
+    ...WARNING_LINES,
+    '',
+    '---',
     '',
     `App version: ${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `Device: ${DeviceInfo.getBrand()} ${DeviceInfo.getModel()}`,
     `Generated: ${new Date().toISOString()}`,
     '',
-    ...WARNING_LINES,
+    `Contact: ${SUPPORT_EMAIL}`,
     '',
   ]
   const header = headerLines.join('\n')
@@ -81,7 +82,6 @@ export const shareAllData = async (): Promise<void> => {
       title: 'Quiet ALL DATA',
       subject: `Quiet ALL DATA ${new Date().toISOString().slice(0, 10)} — contains identity keys`,
       message: header,
-      email: SUPPORT_EMAIL,
       url: `file://${zipPath}`,
       filename: `quiet-data-${stamp}.zip`,
       type: 'application/zip',
