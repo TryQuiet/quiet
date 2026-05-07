@@ -144,6 +144,9 @@ describe('ChannelsService', () => {
       await channelsService.subscribeToChannel(channel1)
       await channelsService.subscribeToChannel(channel2)
 
+      expect(await channelsService.getChannel(channel1.id)).toBeDefined()
+      expect(await channelsService.getChannel(channel2.id)).toBeDefined()
+
       // send a message to channel1
       const message1 = await factory.build<ChannelMessage>('ChannelMessage', {
         channelId: channel1.id,

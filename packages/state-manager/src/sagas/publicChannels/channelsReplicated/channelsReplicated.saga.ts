@@ -8,6 +8,7 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 import { ChannelType } from '@quiet/types'
+import { generateDmChannelName } from '@quiet/common'
 
 const logger = createLogger('channelsReplicatedSaga')
 
@@ -26,21 +27,10 @@ export function* channelsReplicatedSaga(
 
   logger.info({ locallyStoredChannels, databaseStoredChannelsIds })
 
-  const _generateDmChannelName = (memberIds: string[] | undefined): string => {
-    if (memberIds == null) return 'Empty DM Channel Name'
-    if (memberIds.length === 1) {
-      return me?.nickname ?? 'Me'
-    }
-    return memberIds
-      .filter(id => id !== me?.userId)
-      .map(id => userProfiles[id]?.nickname)
-      .join(', ')
-  }
-
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     const displayedName =
-      channel.type === ChannelType.CHANNEL ? channel.name : _generateDmChannelName(channel.memberIds)
+      channel.type === ChannelType.CHANNEL ? channel.name : generateDmChannelName(channel.memberIds, userProfiles, me)
     if (!locallyStoredChannels.includes(channel.id)) {
       logger.info(`Adding #${channel.name} to store`)
       yield* putResolve(

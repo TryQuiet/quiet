@@ -17,6 +17,7 @@ export const identitySlice = createSlice({
   name: StoreKeys.Identity,
   reducers: {
     addNewIdentity: (state, action: PayloadAction<Identity>) => {
+      logger.info('Adding new identity', JSON.stringify(action.payload))
       identityAdapter.addOne(state.identities, action.payload)
     },
     updateIdentity: (state, action: PayloadAction<Identity>) => {

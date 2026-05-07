@@ -24,6 +24,11 @@ class DMService extends ChainServiceBase {
     return roleName
   }
 
+  public memberHasDmRole(memberId: string, roleName: string): boolean {
+    logger.trace(`Checking for membership in DM role`, memberId, roleName)
+    return this.sigChain.roles.memberHasRole(memberId, roleName)
+  }
+
   public delete(memberIds: string[]) {
     logger.info(`Removing role for DM with members`, memberIds)
     const roleName = this.generateDmRoleName(memberIds)

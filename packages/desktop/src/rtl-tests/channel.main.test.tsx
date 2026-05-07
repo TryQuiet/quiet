@@ -846,10 +846,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1007,12 +1007,12 @@ describe('PublicChannel', () => {
         "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1105,10 +1105,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1225,10 +1225,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1340,10 +1340,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
@@ -1487,10 +1487,10 @@ describe('PublicChannel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
+        "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",

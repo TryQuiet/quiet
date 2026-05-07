@@ -80,7 +80,7 @@ export const publicChannels = createSelector(selectChannels, selectChannelsSelec
     if (b.name === 'general') {
       return 0
     }
-    return a.name.localeCompare(b.name)
+    return a.displayedName.localeCompare(b.displayedName)
   })
 
   return sorted

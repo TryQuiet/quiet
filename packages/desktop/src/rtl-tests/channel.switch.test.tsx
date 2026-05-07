@@ -21,7 +21,7 @@ import {
   messages,
   generateMessageFactoryContentWithId,
 } from '@quiet/state-manager'
-import { Identity, MessageType, ChannelMessage, SocketEvents } from '@quiet/types'
+import { Identity, MessageType, ChannelMessage, SocketEvents, ChannelType } from '@quiet/types'
 
 import { DateTime } from 'luxon'
 
@@ -94,6 +94,7 @@ describe('Switch channels', () => {
           owner: alice.userId,
           id: name,
           public: isPublic,
+          type: ChannelType.CHANNEL,
         },
       })
     }
