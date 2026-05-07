@@ -1615,12 +1615,10 @@ describe('QSSService', () => {
       qssService._storageReadyTeams.add(teamId)
 
       let pendingHashes = [hash]
-      const getPendingSpy = jest
-        .spyOn(localDbService, 'getPendingQssLogSyncMessages')
-        .mockImplementation(async () => {
-          const result: Record<string, string[]> = pendingHashes.length > 0 ? { [address]: [...pendingHashes] } : {}
-          return result
-        })
+      const getPendingSpy = jest.spyOn(localDbService, 'getPendingQssLogSyncMessages').mockImplementation(async () => {
+        const result: Record<string, string[]> = pendingHashes.length > 0 ? { [address]: [...pendingHashes] } : {}
+        return result
+      })
       const removeSpy = jest
         .spyOn(localDbService, 'removePendingQssLogSyncMessages')
         .mockImplementation(async (sentMessageHashes: Record<string, string[]>) => {
@@ -1643,21 +1641,23 @@ describe('QSSService', () => {
       let resolveFirstSend!: (response: LogEntrySyncResponseMessage) => void
       mockedSendMessage = jest
         .spyOn(qssClient, 'sendMessage')
-        .mockImplementation(async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
-          logger.debug('Sending event to QSS', event, payload, withAck)
-          if (event !== WebsocketEvents.LOG_ENTRY_SYNC || !withAck) {
-            return undefined
-          }
+        .mockImplementation(
+          async <T>(event: WebsocketEvents, payload: unknown, withAck = false): Promise<T | undefined> => {
+            logger.debug('Sending event to QSS', event, payload, withAck)
+            if (event !== WebsocketEvents.LOG_ENTRY_SYNC || !withAck) {
+              return undefined
+            }
 
-          logSyncSendCount += 1
-          if (logSyncSendCount > 1) {
-            return successResponse as T
-          }
+            logSyncSendCount += 1
+            if (logSyncSendCount > 1) {
+              return successResponse as T
+            }
 
-          return new Promise<T>(resolve => {
-            resolveFirstSend = response => resolve(response as T)
-          })
-        })
+            return new Promise<T>(resolve => {
+              resolveFirstSend = response => resolve(response as T)
+            })
+          }
+        )
 
       // @ts-ignore
       const firstRun = qssService.processDeadLetterQueue(teamId)
