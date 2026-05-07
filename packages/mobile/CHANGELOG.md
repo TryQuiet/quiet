@@ -4,6 +4,7 @@
 
 ### Features
 
+* Adds dev/alpha-only "Share all data" action (menu + joining-progress screen) that zips the local Quiet data directory and opens the native share sheet, with a strong privacy warning in the share email body
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
 * Add ability to adjust image/file auto-download size threshold [#3019](https://github.com/TryQuiet/quiet/pull/3019)
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
