@@ -18,7 +18,12 @@ import {
   QSSNotInitializedError,
   WebsocketEvents,
 } from './qss.types'
-import { CLIENT_TRANSPORTS } from './qss.const'
+import {
+  CLIENT_TRANSPORTS,
+  QSS_CONNECT_TIMEOUT_BACKOFF_FACTOR,
+  QSS_CONNECT_TIMEOUT_INITIAL_MS,
+  QSS_CONNECT_TIMEOUT_MAX_MS,
+} from './qss.const'
 import { CaptchaErrorMessages, CompoundError, SocketEvents } from '@quiet/types'
 import EventEmitter from 'node:events'
 import { CaptchaService } from '../captcha/captcha.service'
@@ -34,6 +39,7 @@ export class QSSClient extends EventEmitter {
   private _connectPromise: Promise<ClientSocket> | undefined = undefined
   private _captchaVerified = false
   private _captchaVerificationPromise: Promise<boolean> | null = null
+  private _connectTimeout: number = QSS_CONNECT_TIMEOUT_INITIAL_MS
   private _socketEventHandlers:
     | {
         socket: ClientSocket
@@ -159,11 +165,16 @@ export class QSSClient extends EventEmitter {
         socket.off('connect_error', onError)
         this.logger.error('QSS client failed to connect within timeout, closing socket')
         this._closeSocket(socket)
+        this._connectTimeout = Math.min(
+          this._connectTimeout * QSS_CONNECT_TIMEOUT_BACKOFF_FACTOR,
+          QSS_CONNECT_TIMEOUT_MAX_MS
+        )
         reject(new QSSConnectionError(`Client didn't connect in time!`))
-      }, 10_000)
+      }, this._connectTimeout)
 
       const onConnect = (): void => {
         clearTimeout(timer)
+        this._connectTimeout = QSS_CONNECT_TIMEOUT_INITIAL_MS
         socket.off('connect_error', onError)
         resolve()
       }
@@ -282,12 +293,6 @@ export class QSSClient extends EventEmitter {
           status: CommunityOperationStatus.SENDING,
         },
         true,
-        // Was 2000 — too tight under sustained downstream latency. With 3 s ±
-        // 1.5 s on the QSS link the ack can arrive 1.5–4.5 s late, the
-        // timeout fires before the response, sendMessage swallows the error,
-        // this returns null, and the create-community auto-flow stalls
-        // permanently because nothing re-fires QSS_HANDLE_SIGN_IN.
-        // 5 s matches the default `timeoutAck` in `sendMessage`.
         5000
       )
       this.logger.info('Received response from QSS for hCaptcha site key request')
