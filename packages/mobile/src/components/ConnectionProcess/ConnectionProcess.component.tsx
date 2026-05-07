@@ -9,6 +9,7 @@ import { Site } from '@quiet/common'
 import { ConnectionProcessInfo } from '@quiet/types'
 import { NodeEnv } from '../../utils/const/NodeEnv.enum'
 import { sendLogs } from '../../utils/sendLogs'
+import { shareAllData } from '../../utils/shareAllData'
 
 const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ connectionProcess, openUrl }) => {
   const animationValue = useRef(new Animated.Value(0)).current
@@ -136,11 +137,19 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
         </TouchableWithoutFeedback>
 
         {Config.NODE_ENV !== NodeEnv.Production && (
-          <TouchableWithoutFeedback onPress={() => void sendLogs()} testID={'share-logs-link'}>
-            <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}>
-              Share logs
-            </Typography>
-          </TouchableWithoutFeedback>
+          <>
+            <TouchableWithoutFeedback onPress={() => void sendLogs()} testID={'share-logs-link'}>
+              <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}>
+                Share logs
+              </Typography>
+            </TouchableWithoutFeedback>
+
+            <TouchableWithoutFeedback onPress={() => void shareAllData()} testID={'share-all-data-link'}>
+              <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}>
+                Share all data
+              </Typography>
+            </TouchableWithoutFeedback>
+          </>
         )}
       </View>
     </View>

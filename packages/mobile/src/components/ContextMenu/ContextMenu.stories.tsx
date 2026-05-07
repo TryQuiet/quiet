@@ -7,6 +7,7 @@ import { ContextMenuItemProps } from './ContextMenu.types'
 
 import { createLogger } from '../../utils/logger'
 import { sendLogs } from '../../utils/sendLogs'
+import { shareAllData } from '../../utils/shareAllData'
 
 const logger = createLogger('contextMenu:stories')
 
@@ -57,6 +58,13 @@ const community_dev_items: ContextMenuItemProps[] = [
       void sendLogs()
     },
   },
+  {
+    title: 'Share all data',
+    action: () => {
+      logger.info('clicked on share all data')
+      void shareAllData()
+    },
+  },
 ]
 
 const invitation_items: ContextMenuItemProps[] = [
@@ -87,7 +95,7 @@ storiesOf('ContextMenu', module)
       />
     )
   })
-  .add('Community (dev/alpha — Share logs)', () => {
+  .add('Community (dev/alpha — Share logs + Share all data)', () => {
     return (
       <ContextMenu
         title={'Rockets'}

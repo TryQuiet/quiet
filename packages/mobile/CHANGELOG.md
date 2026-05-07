@@ -4,6 +4,8 @@
 
 ### Features
 
+* Adds dev/alpha-only "Share logs" link to the joining-progress screen so testers stuck in the join flow can grab logs without leaving the screen
+* Adds dev/alpha-only "Share all data" action (community menu + joining-progress screen) that zips the local Quiet data directory and on-device logs and opens the native share sheet, with a strong privacy warning in the archive's README header
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
 
 ### Fixes
