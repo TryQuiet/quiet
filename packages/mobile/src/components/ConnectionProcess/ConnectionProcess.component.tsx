@@ -1,11 +1,14 @@
 import React, { FC, useRef, useEffect } from 'react'
 import { View, TouchableWithoutFeedback, Animated, Easing, Platform } from 'react-native'
+import Config from 'react-native-config'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { Typography } from '../Typography/Typography.component'
 import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
 import { icons } from '../../assets'
 import { Site } from '@quiet/common'
 import { ConnectionProcessInfo } from '@quiet/types'
+import { NodeEnv } from '../../utils/const/NodeEnv.enum'
+import { sendLogs } from '../../utils/sendLogs'
 
 const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ connectionProcess, openUrl }) => {
   const animationValue = useRef(new Animated.Value(0)).current
@@ -131,6 +134,14 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
             Learn more about Tor and Quiet
           </Typography>
         </TouchableWithoutFeedback>
+
+        {Config.NODE_ENV !== NodeEnv.Production && (
+          <TouchableWithoutFeedback onPress={() => void sendLogs()} testID={'share-logs-link'}>
+            <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 16, color: '#2373EA' }}>
+              Share logs
+            </Typography>
+          </TouchableWithoutFeedback>
+        )}
       </View>
     </View>
   )
