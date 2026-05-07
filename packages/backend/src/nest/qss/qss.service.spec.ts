@@ -1782,4 +1782,33 @@ describe('QSSService', () => {
       ingestSpy.mockRestore()
     })
   })
+
+  // Regression coverage for the architectural shape called out in
+  // poc/qss-auth-conn-lost-after-flap-upstream: a single transient ERROR
+  // from signInToCommunity left the QSS auto-flow stuck because
+  // QSS_CONNECTED does not re-fire while the websocket is still up. The
+  // fix is a one-shot, backoff-delayed retry of QSS_HANDLE_SIGN_IN
+  // scheduled from inside the sign-in handler. Without the fix
+  // signInToCommunity is called exactly once; with the fix it is called
+  // a second time after ~50 ms (QSS_RECONNECT_DELAY_MS).
+  describe('QSS_HANDLE_SIGN_IN retry on ERROR (regression)', () => {
+    it('retries signInToCommunity once after a single ERROR result', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      const signInSpy = jest
+        .spyOn(qssService, 'signInToCommunity')
+        .mockResolvedValueOnce(QSSOperationResult.ERROR)
+        .mockResolvedValueOnce(QSSOperationResult.SUCCESS)
+
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+
+      await waitForExpect(() => {
+        expect(signInSpy).toHaveBeenCalledTimes(2)
+      }, 5000)
+
+      signInSpy.mockRestore()
+    })
+  })
 })
