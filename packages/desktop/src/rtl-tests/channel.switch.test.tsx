@@ -96,6 +96,7 @@ describe('Switch channels', () => {
           public: isPublic,
           type: ChannelType.CHANNEL,
         },
+        displayedName: name,
       })
     }
   })

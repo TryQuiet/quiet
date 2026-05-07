@@ -229,6 +229,7 @@ describe('Add new channel', () => {
             public: payload.public ?? true,
             type: payload.type,
           },
+          displayedName: payload.name,
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
@@ -239,6 +240,7 @@ describe('Add new channel', () => {
             timestamp: 0,
             public: payload.public ?? true,
           },
+          displayedName: payload.name,
         })
       }
       if (action === SocketActions.SEND_MESSAGE) {

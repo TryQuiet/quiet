@@ -312,9 +312,10 @@ export const getReduxStoreFactory = async (store: Store) => {
           payload: {
             ...model.payload,
             displayedName:
-              model.payload.channel.type === ChannelType.CHANNEL
-                ? model.payload.displayedName
-                : _generateDmChannelName(model.payload.channel.memberIds ?? [], model.payload.channel.owner),
+              model.payload.displayedName ??
+              (model.payload.channel.type === ChannelType.CHANNEL
+                ? model.payload.channel.name
+                : _generateDmChannelName(model.payload.channel.memberIds ?? [], model.payload.channel.owner)),
           },
         }
       },

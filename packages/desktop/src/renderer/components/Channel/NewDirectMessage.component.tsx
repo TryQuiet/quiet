@@ -87,7 +87,7 @@ const logger = createLogger('NewDirectMessageComponent')
 const EMPTY_CHANNEL_PLACEHOLDER_TEXT = ''
 const ERROR_EMPTY_INPUT_NEW_DM = 'Enter a message to send when creating a new DM'
 const ERROR_CANT_DETERMINE_MEMBERSHIP = `Can't determine membership of this DM because your user profile was undefined`
-const SEARCH_PLACEHOLDER_TEXT = 'Search for members or chats'
+export const SEARCH_PLACEHOLDER_TEXT = 'Search for members or chats'
 
 export const NewDirectMessageComponent: React.FC<
   NewDirectMessageComponentProps & UploadFilesPreviewsProps & FileActionsProps
