@@ -1715,6 +1715,13 @@ PODS:
     - React-Core
   - RNSVG (15.12.1):
     - React-Core
+  - RNZipArchive (7.1.1):
+    - React-Core
+    - RNZipArchive/Core (= 7.1.1)
+    - SSZipArchive (~> 2.5.5)
+  - RNZipArchive/Core (7.1.1):
+    - React-Core
+    - SSZipArchive (~> 2.5.5)
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
@@ -1726,7 +1733,7 @@ PODS:
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
   - Sodium (0.9.1)
-  - SSZipArchive (2.6.0)
+  - SSZipArchive (2.5.5)
   - Tor (405.9.1)
   - Yoga (0.0.0)
 
@@ -1819,6 +1826,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Sodium
   - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -2012,6 +2020,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  RNZipArchive:
+    :path: "../node_modules/react-native-zip-archive"
   Tor:
     :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
@@ -2020,7 +2030,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   CocoaLumberjack: 5644158777912b7de7469fa881f8a3f259c2512a
-  DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
+  DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 23d8c5470c648a635893dc0956c6dbaead54b656
   FirebaseCore: 28045c1560a2600d284b9c45a904fe322dc890b6
@@ -2028,7 +2038,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 558b1da7d65afeb996fd5c814332f013234ece4e
   FirebaseMessaging: 06c414a21b122396a26847c523d5c370f8325df5
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
-  glog: eb93e2f488219332457c3c4eafd2738ddc7e80b8
+  glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   hermes-engine: b2187dbe13edb0db8fcb2a93a69c1987a30d98a4
@@ -2113,12 +2123,13 @@ SPEC CHECKSUMS:
   RNScreens: 2ba531caee939381d31548ee22e61c51a0c3321c
   RNShare: 694e19d7f74ac4c04de3a8af0649e9ccc03bd8b1
   RNSVG: 2e59e14c2723a1967cd1bba71038a59142cbc616
+  RNZipArchive: 0f7498c241e20d276d9cfa50ab35df4c572497d0
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
-  SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
 
