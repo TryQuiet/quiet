@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.1.0-alpha.29](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.0-alpha.28...@quiet/mobile@7.1.0-alpha.29) (2026-05-08)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 ## [7.1.0]
@@ -18,7 +5,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
-* Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu [#3213](https://github.com/TryQuiet/quiet/issues/3213)
+* Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
 
 ### Fixes
 
