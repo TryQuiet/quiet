@@ -1,27 +1,9 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.1.0-alpha.28](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.0-alpha.27...@quiet/mobile@7.1.0-alpha.28) (2026-05-08)
-
-
-### Features
-
-* **mobile:** dev/alpha-only "Share logs" + "Share all data" on joining screen and menu ([#3213](https://github.com/TryQuiet/quiet/issues/3213)) ([d61bc44](https://github.com/TryQuiet/quiet/commit/d61bc4425acb509686dbf7b2d38c0025d2383061)), closes [#3198](https://github.com/TryQuiet/quiet/issues/3198) [#3198](https://github.com/TryQuiet/quiet/issues/3198) [#3196](https://github.com/TryQuiet/quiet/issues/3196)
-
-
-
-
-
 # Changelog
 
 ## [7.1.0]
 
 ### Features
 
-* Adds dev/alpha-only "Share logs" link to the joining-progress screen so testers stuck in the join flow can grab logs without leaving the screen
-* Adds dev/alpha-only "Share all data" action (community menu + joining-progress screen) that zips the local Quiet data directory and on-device logs and opens the native share sheet, with a strong privacy warning in the archive's README header
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
 
 ### Fixes
