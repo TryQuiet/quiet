@@ -34,7 +34,7 @@ export class ToxiproxyClient {
     private readonly port: number = 8474
   ) {}
 
-  private request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  private rawRequest<T>(method: string, path: string, body?: unknown): Promise<T> {
     return new Promise((resolve, reject) => {
       const data = body == null ? undefined : JSON.stringify(body)
       const req = http.request(
@@ -54,7 +54,9 @@ export class ToxiproxyClient {
           res.on('end', () => {
             const text = Buffer.concat(chunks).toString('utf8')
             if (res.statusCode == null || res.statusCode >= 400) {
-              reject(new Error(`toxiproxy ${method} ${path} -> ${res.statusCode}: ${text}`))
+              const err = new Error(`toxiproxy ${method} ${path} -> ${res.statusCode}: ${text}`)
+              ;(err as Error & { status?: number }).status = res.statusCode
+              reject(err)
               return
             }
             try {
@@ -65,10 +67,41 @@ export class ToxiproxyClient {
           })
         }
       )
+      req.setTimeout(20_000, () => {
+        req.destroy(new Error(`toxiproxy ${method} ${path} -> client timeout`))
+      })
       req.on('error', reject)
       if (data != null) req.write(data)
       req.end()
     })
+  }
+
+  /**
+   * Retry on transient toxiproxy errors. The admin API is single-threaded;
+   * under concurrent load it returns 503 timeouts and connection resets that
+   * are safe to retry.
+   */
+  private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
+    const maxAttempts = 6
+    let lastErr: unknown
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        return await this.rawRequest<T>(method, path, body)
+      } catch (e) {
+        lastErr = e
+        const msg = e instanceof Error ? e.message : String(e)
+        const status = (e as Error & { status?: number }).status
+        const transient =
+          status === 503 ||
+          msg.includes('client timeout') ||
+          msg.includes('ECONNRESET') ||
+          msg.includes('socket hang up')
+        if (!transient || attempt === maxAttempts - 1) throw e
+        const backoffMs = Math.min(1000, 50 * 2 ** attempt) + Math.floor(Math.random() * 50)
+        await new Promise(r => setTimeout(r, backoffMs))
+      }
+    }
+    throw lastErr
   }
 
   /** Create the proxy if absent; otherwise update its definition. */

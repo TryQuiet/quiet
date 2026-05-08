@@ -200,13 +200,18 @@ export async function pickFreePort(): Promise<number> {
 }
 
 export async function bootQssHarness(opts: HarnessOptions = {}): Promise<QssHarness> {
-  const proxyName = opts.proxyName ?? DEFAULTS.proxyName
-  const proxyListen = opts.proxyListen ?? DEFAULTS.proxyListen
   const proxyUpstream = opts.proxyUpstream ?? DEFAULTS.proxyUpstream
   const toxiproxyAdmin = opts.toxiproxyAdmin ?? DEFAULTS.toxiproxyAdmin
-  const qssEndpoint = opts.qssEndpoint ?? DEFAULTS.qssEndpoint
   const username = opts.username ?? DEFAULTS.username
   const teamName = opts.teamName ?? DEFAULTS.teamName
+
+  // Per-test proxy: unique name + free local port. Lets multiple harness
+  // instances run in parallel without colliding on a shared 'qss' proxy.
+  const proxyName = opts.proxyName ?? proxyId('qss-owner')
+  const proxyPort =
+    opts.proxyListen != null ? Number(opts.proxyListen.split(':').pop()) : await pickFreePort()
+  const proxyListen = opts.proxyListen ?? `127.0.0.1:${proxyPort}`
+  const qssEndpoint = opts.qssEndpoint ?? `ws://127.0.0.1:${proxyPort}`
 
   const adminUrl = new URL(toxiproxyAdmin)
   const toxiproxy = new ToxiproxyClient(adminUrl.hostname, Number(adminUrl.port || 8474))
@@ -258,6 +263,9 @@ export async function bootQssHarness(opts: HarnessOptions = {}): Promise<QssHarn
 
   const shutdown = async (): Promise<void> => {
     await toxiproxy.clearToxics(proxyName).catch(() => undefined)
+    // Per-test proxy cleanup so toxiproxy admin doesn't accumulate state
+    // across long sweeps. Idempotent if the proxy is already gone.
+    await toxiproxy.deleteProxy(proxyName).catch(() => undefined)
     try {
       qssService.close()
     } catch {
@@ -431,6 +439,9 @@ export async function bootMemberHarness(opts: MemberHarnessOptions): Promise<Qss
 
   const shutdown = async (): Promise<void> => {
     await toxiproxy.clearToxics(proxyName).catch(() => undefined)
+    // Per-test proxy cleanup so toxiproxy admin doesn't accumulate state
+    // across long sweeps. Idempotent if the proxy is already gone.
+    await toxiproxy.deleteProxy(proxyName).catch(() => undefined)
     try {
       qssService.close()
     } catch {

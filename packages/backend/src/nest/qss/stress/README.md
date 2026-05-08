@@ -25,7 +25,8 @@ to a single QSS server.
 | `toxiproxy.ts` | Tiny zero-dep client for the Toxiproxy admin API. |
 | `harness.ts` | `bootQssHarness()` — Nest test module wired through the proxy. |
 | `invariants.ts` | Probes (unhandled rejections, timer leaks, polling helpers). |
-| `fuzz.ts` | `ChaosProfile`, canonical catalog, seeded RNG, `randomProfile()`. |
+| `fuzz.ts` | `ChaosProfile`, canonical catalog, seeded RNG, `randomProfile()`. Multi-peer schema (`MultiPeerChaosProfile`, `symmetric()`, `memberOnly()`, `MULTI_PEER_PROFILES`). |
+| `precise-faults.ts` | `installWireFaultHooks()` — monkey-patches `qssClient.sendMessage` for per-message faults (drop / delay / error / busy-wait pause) keyed by `WebsocketEvents`. |
 | `scenarios/*.stress.spec.ts` | One Jest spec per scenario. |
 
 ## Running
@@ -97,6 +98,8 @@ the timing windows directly and assert on backend internal state.
 | `scenarios/owner-and-member-fuzz.stress.spec.ts` | Fuzz sweep over the member-join handshake. Owner setup runs healthy; chaos applied during member's connect/sign-in/AUTH_SYNC. |
 | `scenarios/close-leaks-reconnect-timer.stress.spec.ts` | Focused repro for the orphan-reconnect-timer bug (see FINDINGS.md). |
 | `scenarios/rejoin-under-loss.stress.spec.ts` | Connectivity smoke: clean connect, forced proxy outage + reconnect, high-latency handshake. Doesn't create a community. |
+| `scenarios/flap-stalls-create.stress.spec.ts` | Rapid proxy enable/disable churn during `preCreate` and `duringAuthSync`. Surfaces stalls in the sign-in / auth-conn state machines under flap. |
+| `scenarios/wire-fault-acks.stress.spec.ts` | Per-message ack-handling sweep using `installWireFaultHooks` (drop / delay / error specific `WebsocketEvents`). Demonstrates message-type-granularity faults rather than network-level. |
 
 See [FINDINGS.md](./FINDINGS.md) for confirmed bugs and ongoing investigations.
 
