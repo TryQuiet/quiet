@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [7.1.0-alpha.29](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.1.0-alpha.28...@quiet/desktop@7.1.0-alpha.29) (2026-05-08)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 # Changelog
 
 ## [7.1.0]
