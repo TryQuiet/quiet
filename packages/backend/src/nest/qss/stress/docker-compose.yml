@@ -1,0 +1,16 @@
+# Toxiproxy sidecar for the QSS stress harness.
+#
+# Brings up Toxiproxy on the host network so it can front a QSS server
+# already running on host:3003 (started via `npm run start:qss`).
+#
+# Linux: works as-is via `network_mode: host`.
+# macOS / Windows: switch to a port-mapped service and point upstream at
+# `host.docker.internal:3003` from the test harness.
+services:
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.9.0
+    network_mode: host
+    command:
+      - "-host=0.0.0.0"
+      - "-port=8474"
+    restart: unless-stopped
