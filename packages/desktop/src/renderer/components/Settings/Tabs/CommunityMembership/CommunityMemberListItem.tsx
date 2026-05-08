@@ -135,7 +135,7 @@ export const CommunityMemberListItem: React.FC<CommunityMemberListItemProps> = (
         [classes.disabled]: false,
       })}
       disableGutters
-      data-testid={`${userData?.user.userId}-membership-list-item`}
+      data-testid={`${userData?.user.nickname}-membership-list-item`}
       tabIndex={-1}
       onClick={event => {
         event.persist()
@@ -151,7 +151,7 @@ export const CommunityMemberListItem: React.FC<CommunityMemberListItemProps> = (
             <Typography
               variant='h4'
               className={classNames(classes.nickname)}
-              data-testid={`${userData?.user.userId}-membership-list-name`}
+              data-testid={`${userData?.user.nickname}-membership-list-name`}
             >
               {userData?.user.nickname ?? 'undefined'}
             </Typography>

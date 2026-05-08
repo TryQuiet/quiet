@@ -92,7 +92,7 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
     groupDm = true
     overlap = 'rectangular'
   }
-  const id = (channel ? channel.id : userData?.user.userId) ?? randomUUID()
+  const id = (channel ? channel.id : userData?.user.nickname) ?? randomUUID()
   let componentSize: number
   switch (size) {
     case ProfilePhotoSize.SMALL:
@@ -110,7 +110,7 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
 
   return (
     <StyledBadge
-      slotProps={{ badge: { 'data-testid': `${id}-dm-link-status-badge` } as any }}
+      slotProps={{ badge: { 'data-testid': `${id}-profile-photo-status-badge` } as any }}
       overlap={overlap}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       variant={variant}

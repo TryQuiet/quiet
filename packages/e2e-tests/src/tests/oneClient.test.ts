@@ -6,6 +6,7 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  Settings,
   Sidebar,
 } from '../selectors'
 import getPort from 'get-port'
@@ -14,6 +15,7 @@ import path from 'path'
 import { createLogger } from '../logger'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
+import { UserListStatus } from '../types'
 
 const logger = createLogger('oneClient')
 
@@ -105,10 +107,12 @@ describe('One Client', () => {
     })
 
     it('Users sees just themselves in the user list', async () => {
-      const sidebar = new Sidebar(app.driver)
-      const userList = await sidebar.getUserProfileList()
-      expect(userList.length).toBe(1)
-      expect(await userList[0].getText()).toBe(ownerUserName)
+      const settings = await new Sidebar(app.driver).openSettings()
+      await settings.openCommunityMembership(1)
+      const ownStatus = await settings.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
+      expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+      expect(ownStatus.textMatches).toBe(true)
+      await settings.closeTabThenModal()
     })
 
     it('User sends a message', async () => {

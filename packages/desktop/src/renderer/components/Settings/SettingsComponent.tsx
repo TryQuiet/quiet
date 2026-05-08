@@ -69,7 +69,10 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
-          <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('communityMembership')}>
+          <ListItemButton
+            data-testid={'community-membership-settings-tab'}
+            onClick={() => handleChange('communityMembership')}
+          >
             <ListItemText>Community membership</ListItemText>
             <ListItemIcon>
               <ChevronRightIcon />

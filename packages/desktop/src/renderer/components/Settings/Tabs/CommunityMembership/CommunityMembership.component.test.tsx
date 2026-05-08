@@ -56,6 +56,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
               >
                 <div
                   class="UserSearchFuzzywrapper css-kcqj7g"
@@ -130,6 +131,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
               >
                 <div
                   class="UserSearchFuzzywrapper css-kcqj7g"
@@ -169,7 +171,7 @@ describe('CommunityMembership', () => {
                     >
                       <div
                         class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
-                        data-testid="userId_1-membership-list-item"
+                        data-testid="user_1-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
@@ -192,7 +194,7 @@ describe('CommunityMembership', () => {
                           </span>
                           <span
                             class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-                            data-testid="userId_1-dm-link-status-badge"
+                            data-testid="user_1-profile-photo-status-badge"
                           />
                         </span>
                         <div
@@ -206,7 +208,7 @@ describe('CommunityMembership', () => {
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
-                                data-testid="userId_1-membership-list-name"
+                                data-testid="user_1-membership-list-name"
                               >
                                 user_1
                               </h4>
@@ -274,6 +276,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
               >
                 <div
                   class="UserSearchFuzzywrapper css-kcqj7g"
@@ -313,7 +316,7 @@ describe('CommunityMembership', () => {
                     >
                       <div
                         class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
-                        data-testid="userId_2-membership-list-item"
+                        data-testid="user_2-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
@@ -336,7 +339,7 @@ describe('CommunityMembership', () => {
                           </span>
                           <span
                             class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
-                            data-testid="userId_2-dm-link-status-badge"
+                            data-testid="user_2-profile-photo-status-badge"
                           />
                         </span>
                         <div
@@ -350,7 +353,7 @@ describe('CommunityMembership', () => {
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
-                                data-testid="userId_2-membership-list-name"
+                                data-testid="user_2-membership-list-name"
                               >
                                 user_2
                               </h4>
@@ -414,6 +417,7 @@ describe('CommunityMembership', () => {
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-1v82g0-MuiGrid-root"
+                data-testid="community-membership-search"
               >
                 <div
                   class="UserSearchFuzzywrapper css-kcqj7g"
@@ -453,7 +457,7 @@ describe('CommunityMembership', () => {
                     >
                       <div
                         class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
-                        data-testid="userId_3-membership-list-item"
+                        data-testid="user_3-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
@@ -476,7 +480,7 @@ describe('CommunityMembership', () => {
                           </span>
                           <span
                             class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-                            data-testid="userId_3-dm-link-status-badge"
+                            data-testid="user_3-profile-photo-status-badge"
                           />
                         </span>
                         <div
@@ -490,7 +494,7 @@ describe('CommunityMembership', () => {
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
-                                data-testid="userId_3-membership-list-name"
+                                data-testid="user_3-membership-list-name"
                               >
                                 user_3
                               </h4>
@@ -522,7 +526,7 @@ describe('CommunityMembership', () => {
                     >
                       <div
                         class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
-                        data-testid="userId_4-membership-list-item"
+                        data-testid="user_4-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
@@ -545,7 +549,7 @@ describe('CommunityMembership', () => {
                           </span>
                           <span
                             class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-                            data-testid="userId_4-dm-link-status-badge"
+                            data-testid="user_4-profile-photo-status-badge"
                           />
                         </span>
                         <div
@@ -559,7 +563,7 @@ describe('CommunityMembership', () => {
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
-                                data-testid="userId_4-membership-list-name"
+                                data-testid="user_4-membership-list-name"
                               >
                                 user_4
                               </h4>
@@ -585,7 +589,7 @@ describe('CommunityMembership', () => {
                     >
                       <div
                         class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root CommunityMemberListItemroot css-18ndpo7-MuiButtonBase-root-MuiListItemButton-root"
-                        data-testid="userId_5-membership-list-item"
+                        data-testid="user_5-membership-list-item"
                         role="button"
                         tabindex="-1"
                       >
@@ -608,7 +612,7 @@ describe('CommunityMembership', () => {
                           </span>
                           <span
                             class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-                            data-testid="userId_5-dm-link-status-badge"
+                            data-testid="user_5-profile-photo-status-badge"
                           />
                         </span>
                         <div
@@ -622,7 +626,7 @@ describe('CommunityMembership', () => {
                             >
                               <h4
                                 class="MuiTypography-root MuiTypography-h4 CommunityMemberListItemnickname css-ajdqea-MuiTypography-root"
-                                data-testid="userId_5-membership-list-name"
+                                data-testid="user_5-membership-list-name"
                               >
                                 user_5
                               </h4>

@@ -104,7 +104,18 @@ export interface CommunityMembershipComponentProps {
   openUserProfilePanel: (userProfile: UserProfile | undefined) => void
 }
 
-const getUserDataForUser = (userProfile: UserProfile, connectedPeers: string[]): DmChannelUserData | undefined => {
+const getUserDataForUser = (
+  userProfile: UserProfile,
+  me: UserProfile | undefined,
+  connectedPeers: string[]
+): DmChannelUserData | undefined => {
+  if (me != null && userProfile.userId === me.userId) {
+    return {
+      connected: true,
+      user: userProfile,
+    }
+  }
+
   const connected =
     userProfile.userData != null &&
     userProfile.userData.peerId != null &&
@@ -159,7 +170,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
         </Grid>
       </Grid>
       <Grid item container className={classes.componentContainer}>
-        <Grid item display={'flex'} flex={1}>
+        <Grid item display={'flex'} flex={1} data-testid='community-membership-search'>
           <UserSearchFuzzy
             me={me}
             options={options}
@@ -171,7 +182,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
         <Grid item container display={'flex'} flexDirection={'column'}>
           <List disablePadding data-testid='community-membership-list'>
             {visibleUsers.map(user => {
-              const userData = getUserDataForUser(user, connectedPeers)
+              const userData = getUserDataForUser(user, me, connectedPeers)
               return (
                 <Grid container>
                   <Grid container item>

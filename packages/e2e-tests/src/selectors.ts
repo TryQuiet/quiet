@@ -579,6 +579,7 @@ export class UsersList {
       return {
         element: undefined,
         status,
+        textMatches: true,
       }
     }
 
@@ -618,6 +619,7 @@ export class UsersList {
     return {
       element: userItem,
       status,
+      textMatches: true,
     }
   }
 }
@@ -2628,6 +2630,164 @@ export class Settings {
     await element.click()
   }
 
+  async openCommunityMembership(expectedUserCount?: number) {
+    try {
+      await this.switchTab(SettingsModalTabName.COMMUNITY_MEMBERSHIP)
+      const title = await this.driver.wait(
+        until.elementLocated(By.xpath("//*[@data-testid='community-membership-title']")),
+        5_000,
+        `Community membership tab header title couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(title),
+        5_000,
+        `Community membership tab header title wasn't visible within timeout`,
+        500
+      )
+
+      const search = await this.driver.wait(
+        until.elementLocated(By.xpath("//*[@data-testid='community-membership-search']")),
+        5_000,
+        `Community membership tab search bar couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(search),
+        5_000,
+        `Community membership tab search bar wasn't visible within timeout`,
+        500
+      )
+
+      const list = await this.driver.wait(
+        until.elementLocated(By.xpath("//*[@data-testid='community-membership-list']")),
+        5_000,
+        `Community membership tab user list couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(list),
+        5_000,
+        `Community membership tab user list wasn't visible within timeout`,
+        500
+      )
+
+      if (expectedUserCount == null) return
+
+      const userElements = await this.getUsersInCommunityMembership()
+      if (userElements.length !== expectedUserCount) {
+        throw new Error(
+          `Expected ${expectedUserCount} users in community membership user list but found ${userElements.length}`
+        )
+      }
+      return
+    } catch (e) {
+      logger.error('Error while opening and verifying community membership settings tab', e)
+      throw e
+    }
+  }
+
+  async getUserInCommunityMembership(
+    username: string,
+    expectedState: UserListStatus,
+    includeMeTag = false
+  ): Promise<UserListItem> {
+    logger.debug('Getting community membership user list item', username)
+    let status: UserListStatus = UserListStatus.NOT_FOUND
+    let testText = new RegExp(`${username}`)
+    if (includeMeTag) {
+      testText = new RegExp(`${username}\\s+me`)
+    }
+
+    const users = await this.getUsersInCommunityMembership()
+    let userItem: WebElement | undefined = undefined
+    try {
+      userItem = await this.driver.wait(
+        until.elementLocated(By.xpath(`//*[@data-testid="${username}-membership-list-item"]`)),
+        5_000,
+        `User ${username} couldn't be found in membership list within timeout`,
+        500
+      )
+
+      await this.driver.wait(
+        until.elementIsVisible(userItem),
+        5_000,
+        `User ${username} wasn't visible in membership list within timeout`,
+        500
+      )
+    } catch (e) {
+      if (expectedState !== UserListStatus.NOT_FOUND) {
+        logger.error(`Error while finding user ${username} in membership list`, e)
+      }
+      return {
+        element: undefined,
+        status,
+        textMatches: false,
+      }
+    }
+
+    if (userItem == null) {
+      if (expectedState !== UserListStatus.NOT_FOUND) {
+        logger.error(`Failed to find user ${username} in membership list`)
+      }
+      return {
+        element: undefined,
+        status,
+        textMatches: false,
+      }
+    }
+
+    const textMatches = (await userItem.getText()).match(testText) != null
+
+    const statusBadge = await this.driver.wait(
+      until.elementLocated(By.xpath(`//span[@data-testid="${username}-profile-photo-status-badge"]`)),
+      5_000,
+      `Users item status badge for ${username} couldn't be located within timeout`,
+      500
+    )
+
+    if (expectedState === UserListStatus.ONLINE) {
+      try {
+        await this.driver.wait(
+          until.elementIsVisible(statusBadge),
+          5_000,
+          `Users item status badge for ${username} was not visibile within timeout`,
+          500
+        )
+        status = UserListStatus.ONLINE
+      } catch (e) {
+        status = UserListStatus.OFFLINE
+      }
+    } else {
+      try {
+        await this.driver.wait(
+          until.elementIsNotVisible(statusBadge),
+          5_000,
+          `Users item status badge for ${username} was not invisible within timeout`,
+          500
+        )
+        status = UserListStatus.OFFLINE
+      } catch (e) {
+        status = UserListStatus.ONLINE
+      }
+    }
+
+    return {
+      element: userItem,
+      status,
+      textMatches,
+    }
+  }
+
+  async getUsersInCommunityMembership(): Promise<WebElement[]> {
+    return await this.driver.wait(
+      until.elementsLocated(By.xpath('//*[contains(@data-testid, "-membership-list-item")]')),
+      5_000,
+      `Users within community membership list couldn't be found within timeout`,
+      500
+    )
+  }
+
   async closeTabThenModal() {
     await this.closeTab()
     await sleep(1_000)
@@ -2655,6 +2815,7 @@ export class Settings {
     await this.driver.wait(until.elementIsVisible(closeTabButton), 5_000)
     await closeTabButton.click()
   }
+
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
     let locator: string | undefined = undefined
     switch (tabName) {
@@ -2675,6 +2836,9 @@ export class Settings {
         break
       case SettingsModalTabName.DEBUG:
         locator = "//div[contains(@class, 'DebugInfotitleContainer')]"
+        break
+      case SettingsModalTabName.COMMUNITY_MEMBERSHIP:
+        locator = "//*[@data-testid='community-membership-title']"
         break
       default:
         throw new Error(`Can't wait for unknown tab ${tabName}`)

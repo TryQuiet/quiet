@@ -40,4 +40,5 @@ export enum UserListStatus {
 export interface UserListItem {
   element: WebElement | undefined
   status: UserListStatus
+  textMatches: boolean
 }

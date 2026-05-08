@@ -6,8 +6,8 @@ import { connection, network, users } from '@quiet/state-manager'
 import { CommunityMembershipComponent } from './CommunityMembership.component'
 import { createLogger } from '../../../../logger'
 import { UserProfile } from '@quiet/types'
-import { useContextMenu } from 'packages/desktop/src/hooks/useContextMenu'
-import { MenuName } from 'packages/desktop/src/const/MenuNames.enum'
+import { useContextMenu } from '../../../../../hooks/useContextMenu'
+import { MenuName } from '../../../../../const/MenuNames.enum'
 
 const LOGGER = createLogger('CommunityMembership')
 

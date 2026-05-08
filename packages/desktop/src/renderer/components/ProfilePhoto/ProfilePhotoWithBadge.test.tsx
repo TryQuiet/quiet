@@ -30,7 +30,7 @@ describe('ProfilePhotoWithBadge', () => {
 
   it('renderComponent - default icon all undefineds', () => {
     // this is just to avoid non-deterministic values in the test, if userData is undefined a random uuid will be used to generate the jdenticon
-    const fakeUserData = { user: { userId: 'foo' } } as any
+    const fakeUserData = { user: { nickname: 'foo' } } as any
     const result = renderComponent(<ProfilePhotoWithBadge channel={undefined} userData={fakeUserData} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -46,7 +46,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
-              data-testid="foo-dm-link-status-badge"
+              data-testid="foo-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -75,7 +75,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
-              data-testid="userId_1-dm-link-status-badge"
+              data-testid="user_1-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -104,7 +104,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="userId_2-dm-link-status-badge"
+              data-testid="user_2-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -141,7 +141,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="userId_3-dm-link-status-badge"
+              data-testid="user_3-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -178,7 +178,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-invisible MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge MuiBadge-invisible css-10f6i39-MuiBadge-badge"
-              data-testid="userId_4-dm-link-status-badge"
+              data-testid="user_4-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -215,7 +215,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -252,7 +252,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -289,7 +289,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -326,7 +326,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-standard MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightRectangular MuiBadge-overlapRectangular MuiBadge-badge css-h8u0cc-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             >
               3
             </span>
@@ -365,7 +365,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-standard MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightRectangular MuiBadge-overlapRectangular MuiBadge-badge css-h8u0cc-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             >
               9+
             </span>
@@ -404,7 +404,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -449,7 +449,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-dot MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular MuiBadge-badge css-mhg7zi-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             />
           </span>
         </div>
@@ -494,7 +494,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-standard MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightRectangular MuiBadge-overlapRectangular MuiBadge-badge css-h8u0cc-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             >
               3
             </span>
@@ -541,7 +541,7 @@ describe('ProfilePhotoWithBadge', () => {
             </span>
             <span
               class="MuiBadge-badge MuiBadge-standard MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightRectangular MuiBadge-overlapRectangular MuiBadge-badge css-h8u0cc-MuiBadge-badge"
-              data-testid="channel1-dm-link-status-badge"
+              data-testid="channel1-profile-photo-status-badge"
             >
               9+
             </span>
