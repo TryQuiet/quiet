@@ -342,7 +342,7 @@ export const UserSearchAutocomplete: React.FC<UserSearchProps> = ({
             className={classNames({
               [classes.title]: true,
             })}
-            data-testid={'Header title'}
+            data-testid={'user-search-autocomplete-to'}
           >
             To:
           </Typography>

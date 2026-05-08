@@ -2,7 +2,7 @@ import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementProm
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
-import { MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
+import { CreatedDM, MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
@@ -532,7 +532,7 @@ export class JoiningLoadingPanel {
   }
 }
 
-export class UsersList {
+export class DirectMessageList {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
@@ -1408,7 +1408,7 @@ export class Channel {
     return true
   }
 
-  async isOpen(isPublic: boolean = true, timeout = 15_000): Promise<boolean> {
+  async isOpen(isPublic: boolean = true, isDm: boolean = false, timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
       timeout,
@@ -1416,12 +1416,14 @@ export class Channel {
       500
     )
 
-    await this.driver.wait(
-      until.elementIsVisible(await (isPublic ? this.hash : this.lock)),
-      timeout,
-      `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
-      500
-    )
+    if (!isDm) {
+      await this.driver.wait(
+        until.elementIsVisible(await (isPublic ? this.hash : this.lock)),
+        timeout,
+        `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
+        500
+      )
+    }
     return (await titleElement.getText()) === this.name
   }
 
@@ -2092,6 +2094,197 @@ export class Channel {
   }
 }
 
+export class NewMessage {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get newMessageButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="sidebar-button-createNewMessage"]`)),
+      60_000,
+      `New message button couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get title() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='new-message-header-title']`)),
+      10_000,
+      `New message title element couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get searchInput() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//input[@aria-autocomplete="list"]`)),
+      15_000,
+      `User search input for new message view couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get messagesList() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//ul[@id="messages-scroll"]')),
+      10_000,
+      `New message message list element couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get messageInput() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//*[@data-testid="messageInput"]')),
+      15_000,
+      `Message input for new message view couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get uploadFileInput() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//*[@data-testid="uploadFileInput"]')),
+      15_000,
+      `File attachment button for new message view couldn't be found within timeout`,
+      500
+    )
+  }
+
+  async isNewMessageButtonReady(timeoutMs = 15_000): Promise<boolean> {
+    await this.driver.wait(
+      until.elementIsVisible(this.newMessageButton),
+      timeoutMs,
+      `New message button wasn't ready within timeout`,
+      500
+    )
+    return true
+  }
+
+  async isOpen(timeout = 15_000): Promise<boolean> {
+    await this.driver.wait(
+      until.elementIsVisible(await this.title),
+      timeout,
+      `New message header title element couldn't be seen within timeout`,
+      500
+    )
+
+    return true
+  }
+
+  async isMessageInputReady(): Promise<boolean> {
+    await this.driver.wait(
+      until.elementIsVisible(this.messageInput),
+      15_000,
+      `Message input element for new message view couldn't be seen within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsEnabled(this.messageInput),
+      15_000,
+      `Message input element for new message view wasn't enabled within timeout`,
+      500
+    )
+    return true
+  }
+
+  async isUserSearchInputReady(): Promise<boolean> {
+    await this.driver.wait(
+      until.elementIsVisible(this.searchInput),
+      15_000,
+      `User search input element for new message view couldn't be seen within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsEnabled(this.searchInput),
+      15_000,
+      `User search input element for new message view wasn't enabled within timeout`,
+      500
+    )
+    return true
+  }
+
+  async open(): Promise<void> {
+    await this.isNewMessageButtonReady()
+    const button = await this.newMessageButton
+    await button.click()
+    await this.isOpen()
+  }
+
+  async getUserSearchChip(username: string): Promise<WebElement> {
+    const chipElement = await this.driver.wait(
+      until.elementLocated(By.xpath(`//span[text()="${username}" and contains(@class, 'MuiChip-label')]`)),
+      5_000,
+      `User search chip for ${username} couldn't be found within timeout`,
+      500
+    )
+
+    await this.driver.wait(
+      until.elementIsVisible(chipElement),
+      5_000,
+      `User search chip for ${username} wasn't visible within timeout`,
+      500
+    )
+
+    return chipElement
+  }
+
+  async createNewDm(usernames: string[], firstMessage: string): Promise<CreatedDM> {
+    const successfulUsers: string[] = []
+    const failedUsers: string[] = []
+    const searchInput = await this.searchInput
+    await this.isUserSearchInputReady()
+    for (const username of usernames) {
+      logger.warn(`Searching for ${username} in new message search input`)
+      try {
+        logger.warn('sending keys', username)
+        await searchInput.sendKeys(username)
+        logger.warn('hitting enter')
+        await searchInput.sendKeys(Key.ENTER)
+        await this.getUserSearchChip(username)
+        successfulUsers.push(username)
+      } catch (e) {
+        logger.error(`Failed to find user chip for ${username}`, e)
+        failedUsers.push(username)
+      }
+    }
+
+    if (successfulUsers.length === 0) {
+      logger.error('No successful attempts at adding users to DM')
+      return {
+        successfulUsers,
+        failedUsers,
+        success: false,
+      }
+    }
+
+    let messageInput: WebElement
+    try {
+      messageInput = await this.messageInput
+      await this.isMessageInputReady()
+    } catch (e) {
+      logger.error(`Failed to find message input on new message view`, e)
+      return {
+        successfulUsers: [],
+        failedUsers: usernames,
+        success: false,
+      }
+    }
+
+    await messageInput.sendKeys(firstMessage)
+    await messageInput.sendKeys(Key.ENTER)
+
+    return {
+      successfulUsers,
+      failedUsers,
+      success: true,
+    }
+  }
+}
+
 export class Sidebar {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -2163,32 +2356,6 @@ export class Sidebar {
     )
     logger.info(`Filtered channels: ${filteredTestIds}`)
     return channelFilter
-  }
-
-  /**
-   * Get user profile link elements in the sidebar
-   */
-  async getUserProfileList(): Promise<WebElement[]> {
-    const userProfileList = await this.driver.wait(
-      this.driver.findElements(By.xpath('//*[contains(@data-testid, "user-link-text")]')),
-      15_000,
-      `Sidebar user profile list couldn't be found within timeout`,
-      500
-    )
-    return userProfileList
-  }
-
-  /**
-   * Get names of all users in the sidebar
-   */
-  async getUserNames(): Promise<string[]> {
-    const elements = await this.getUserProfileList()
-    return Promise.all(
-      elements.map(async element => {
-        const fullName = await element.getText()
-        return fullName.split(' ')[1]
-      })
-    )
   }
 
   /**
@@ -2306,31 +2473,6 @@ export class Sidebar {
       `User profile for ${nickname} couldn't be found within timeout`,
       500
     )
-  }
-
-  /**
-   * Wait for a specific number of user profiles in the sidebar
-   */
-  async waitForUserProfilesNum(num: number) {
-    logger.info(`Waiting for ${num} user profiles`)
-    return this.driver.wait(
-      async () => {
-        const users = await this.getUserProfileList()
-        return users.length === num
-      },
-      15_000,
-      `Sidebar user profile list length couldn't be determined within timeout`,
-      500
-    )
-  }
-
-  /**
-   * Wait for a specific set of user profile names in the sidebar
-   */
-  async waitForUserProfiles(userNames: Array<string>) {
-    await this.waitForUserProfilesNum(userNames.length)
-    const names = await this.getUserNames()
-    expect(names).toEqual(expect.arrayContaining(userNames))
   }
 
   /**

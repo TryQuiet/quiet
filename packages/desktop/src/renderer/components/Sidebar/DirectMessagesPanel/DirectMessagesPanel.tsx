@@ -82,7 +82,7 @@ const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
         action={openNewMessageWindow}
         actionTitle={'createNewMessage'}
       />
-      <List disablePadding data-testid='usersList'>
+      <List disablePadding data-testid='dm-list'>
         {dmChannels.map(channel => {
           const userData = getUserDataForDmChannel(channel, myUserProfile, userProfiles, connectedPeers)
           const unread = unreadDms.some(unreadDmId => unreadDmId === channel.id)

@@ -311,7 +311,7 @@ export const NewMessageGroupHeader: React.FC<NewMessageGroupHeaderProps> = ({ us
                       [classes.title]: true,
                       [classes.bold]: true,
                     })}
-                    data-testid={'Header title'}
+                    data-testid={'new-message-header-title'}
                   >
                     New message
                   </Typography>

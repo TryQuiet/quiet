@@ -42,3 +42,9 @@ export interface UserListItem {
   status: UserListStatus
   textMatches: boolean
 }
+
+export interface CreatedDM {
+  successfulUsers: string[]
+  failedUsers: string[]
+  success: boolean
+}
