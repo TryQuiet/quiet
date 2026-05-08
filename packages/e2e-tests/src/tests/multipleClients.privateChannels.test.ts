@@ -10,8 +10,8 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  Settings,
   Sidebar,
-  UsersList,
 } from '../selectors'
 import { createArbitraryFile, promiseWithRetries } from '../utils'
 import { MessageIds, UserListStatus, UserTestData } from '../types'
@@ -45,6 +45,10 @@ describe('Multiple Clients (Private Channels)', () => {
   let sidebarOwner: Sidebar
   let sidebarUser1: Sidebar
   let sidebarUser2: Sidebar
+
+  let settingsOwner: Settings
+  let settingsUser1: Settings
+  let settingsUser2: Settings
 
   let users: Record<string, UserTestData>
 
@@ -245,16 +249,52 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('User sees owner in user list', async () => {
-          const userList = new UsersList(users.user1.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+        it('First user opens community membership tab', async () => {
+          settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
+          await settingsUser1.openCommunityMembership(2)
+        })
+
+        it('First user sees self in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            true
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it('First user sees owner in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.owner.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it('First user closes community membership tab', async () => {
+          await settingsUser1.closeTabThenModal()
+        })
+
+        it('Owner opens community membership tab', async () => {
+          settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+          await settingsOwner.openCommunityMembership(2)
         })
 
         it('Owner sees user in user list', async () => {
-          const userList = new UsersList(users.owner.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+          const status = await settingsOwner.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it('Owner closes community membership tab', async () => {
+          await settingsOwner.closeTabThenModal()
         })
 
         it("Owner's message is visible in general channel", async () => {
@@ -503,28 +543,81 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('User sees second user in user list', async () => {
-          const userList = new UsersList(users.user1.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        it('First user opens community membership tab', async () => {
+          settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
+          await settingsUser1.openCommunityMembership(3)
         })
 
-        it('Owner sees second user in user list', async () => {
-          const userList = new UsersList(users.owner.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user2.username, UserListStatus.ONLINE))
+        it('First user sees second user in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it('First user closes community membership tab', async () => {
+          await settingsUser1.closeTabThenModal()
+        })
+
+        it('Owner opens community membership tab', async () => {
+          settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+          await settingsOwner.openCommunityMembership(3)
+        })
+
+        it('Owner user sees second user in user list', async () => {
+          const status = await settingsOwner.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it('Owner closes community membership tab', async () => {
+          await settingsOwner.closeTabThenModal()
+        })
+
+        it('Second user opens community membership tab', async () => {
+          settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
+          await settingsUser2.openCommunityMembership(3)
+        })
+
+        it('Second user sees self in user list', async () => {
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            true
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
         })
 
         it('Second user sees first user in user list', async () => {
-          const userList = new UsersList(users.user2.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
         })
 
         it('Second user sees owner in user list', async () => {
-          const userList = new UsersList(users.user2.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.owner.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it('Second user closes community membership tab', async () => {
+          await settingsUser2.closeTabThenModal()
         })
 
         it('Second user can see messages from before they joined', async () => {
