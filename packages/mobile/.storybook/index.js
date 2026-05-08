@@ -42,6 +42,7 @@ configure(() => {
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
   require('../src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.stories')
   require('../src/utils/sendLogs.stories')
+  require('../src/utils/shareAllData.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({

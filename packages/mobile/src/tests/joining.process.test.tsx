@@ -14,6 +14,11 @@ import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/User
 import { ConnectionProcessInfo } from '@quiet/types'
 import { createLogger } from '../utils/logger'
 
+// Mocked because ConnectionProcessScreen now indirectly imports react-native-share
+// via the dev/alpha-only "Share logs" link helper (sendLogs).
+jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
+jest.mock('../utils/sendLogs', () => ({ sendLogs: jest.fn() }))
+
 const logger = createLogger('joiningProcess:test')
 
 describe('Joining process', () => {
