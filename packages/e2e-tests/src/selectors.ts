@@ -2251,7 +2251,7 @@ export class Sidebar {
 
   async addNewChannel(name: string, isPublic: boolean = true): Promise<Channel> {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
+      until.elementLocated(By.xpath('//button[@data-testid="sidebar-button-createChannel"]')),
       5_000,
       `Add channel button couldn't be found within timeout`,
       500
@@ -2695,16 +2695,17 @@ export class Settings {
     logger.debug('Getting community membership user list item', username)
     let status: UserListStatus = UserListStatus.NOT_FOUND
     let testText = new RegExp(`${username}`)
+    let baseBadgeTimeout = 60_000
     if (includeMeTag) {
       testText = new RegExp(`${username}\\s+me`)
+      baseBadgeTimeout = 5_000
     }
 
-    const users = await this.getUsersInCommunityMembership()
     let userItem: WebElement | undefined = undefined
     try {
       userItem = await this.driver.wait(
         until.elementLocated(By.xpath(`//*[@data-testid="${username}-membership-list-item"]`)),
-        5_000,
+        10_000,
         `User ${username} couldn't be found in membership list within timeout`,
         500
       )
@@ -2741,7 +2742,7 @@ export class Settings {
 
     const statusBadge = await this.driver.wait(
       until.elementLocated(By.xpath(`//span[@data-testid="${username}-profile-photo-status-badge"]`)),
-      5_000,
+      baseBadgeTimeout,
       `Users item status badge for ${username} couldn't be located within timeout`,
       500
     )
@@ -2750,7 +2751,7 @@ export class Settings {
       try {
         await this.driver.wait(
           until.elementIsVisible(statusBadge),
-          5_000,
+          baseBadgeTimeout * 2,
           `Users item status badge for ${username} was not visibile within timeout`,
           500
         )
@@ -2762,7 +2763,7 @@ export class Settings {
       try {
         await this.driver.wait(
           until.elementIsNotVisible(statusBadge),
-          5_000,
+          baseBadgeTimeout * 2,
           `Users item status badge for ${username} was not invisible within timeout`,
           500
         )

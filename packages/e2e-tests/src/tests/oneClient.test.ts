@@ -26,6 +26,7 @@ describe('One Client', () => {
   let dataDirPath: string
   let resourcesPath: string
   let generalChannel: Channel
+  let settings: Settings
 
   const generalChannelName = 'general'
   const ownerUserName = 'testuser'
@@ -106,12 +107,18 @@ describe('One Client', () => {
       expect(await channelList[0].getText()).toBe(generalChannelName)
     })
 
-    it('Users sees just themselves in the user list', async () => {
-      const settings = await new Sidebar(app.driver).openSettings()
+    it('User opens community membership tab', async () => {
+      settings = await new Sidebar(app.driver).openSettings()
       await settings.openCommunityMembership(1)
+    })
+
+    it('Users sees just themselves in the user list', async () => {
       const ownStatus = await settings.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
       expect(ownStatus.status).toBe(UserListStatus.ONLINE)
       expect(ownStatus.textMatches).toBe(true)
+    })
+
+    it('Users closes community membership tab', async () => {
       await settings.closeTabThenModal()
     })
 
