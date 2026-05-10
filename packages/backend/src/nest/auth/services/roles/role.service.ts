@@ -6,7 +6,7 @@ import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'
 import { Permissions } from './permissions'
 import { QuietRole, RoleName, SELF_ASSIGN_ROLES } from './roles'
-import { Member, PermissionsMap, Role } from '@localfirst/auth'
+import { AddRoleInput, Member, PermissionsMap, Role } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 
 const logger = createLogger('auth:roleService')
@@ -23,7 +23,7 @@ class RoleService extends ChainServiceBase {
       permissions[Permissions.MODIFIABLE_MEMBERSHIP] = true
     }
 
-    const role: Role = {
+    const role: AddRoleInput = {
       roleName,
       permissions,
     }

@@ -18,6 +18,7 @@ import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
 import { QSSService } from '../qss/qss.service'
+import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
@@ -38,6 +39,7 @@ describe('ConnectionsManagerService', () => {
   let communityRootCa: string
   let sigChainService: SigChainService
   let qssService: QSSService
+  let qssSyncManager: QSSSyncManager
   let qpsService: QPSService
   let captchaService: CaptchaService
 
@@ -64,9 +66,10 @@ describe('ConnectionsManagerService', () => {
     localDbService = await module.resolve(LocalDbService)
     sigChainService = await module.resolve(SigChainService)
     qssService = await module.resolve(QSSService)
+    qssSyncManager = await module.resolve(QSSSyncManager)
     qpsService = await module.resolve(QPSService)
     captchaService = await module.resolve(CaptchaService)
-    jest.spyOn(qssService as any, 'processDLQDecrypt').mockResolvedValue(undefined)
+    jest.spyOn(qssSyncManager, 'processDLQDecrypt').mockResolvedValue(undefined)
     await localDbService.open()
 
     // initialize sigchain on local db

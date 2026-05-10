@@ -4,7 +4,7 @@
 import { Mutex } from 'async-mutex'
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { MemberContext } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
-import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common'
 import { SigChain } from '../auth/sigchain'
 import { createLogger } from '../common/logger'
 import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
@@ -16,8 +16,6 @@ import {
   CreateCommunity,
   CreateCommunityResponse,
   CreateCommunityStatus,
-  LogEntrySyncMessage,
-  LogEntrySyncResponseMessage,
   GeneratePublicKeysMessage,
   WebsocketEvents,
   QSSOperationResult,
@@ -32,38 +30,18 @@ import EventEmitter from 'node:events'
 
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
-import { LogEntry } from '@orbitdb/core'
 import { SigChainService } from '../auth/sigchain.service'
-import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
 import { RoleName } from '../auth/services/roles/roles'
-import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { LocalDbService } from '../local-db/local-db.service'
-import { DLQDecryptEntry } from '../local-db/local-db.types'
 import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
-import { logEntryToLogUpdate } from '../storage/orbitDb/util'
-import {
-  QSS_RECONNECT_BACKOFF_FACTOR,
-  QSS_RECONNECT_DELAY_MS,
-  QSS_RECONNECT_MAX_DELAY_MS,
-  QSSAuthConnStatus,
-} from './qss.const'
-import {
-  CompoundError,
-  InvitationDataV3,
-  NseQssUrlUpdatedEvent,
-  NseSyncSeqUpdatedEvent,
-  SocketActions,
-  SocketEvents,
-} from '@quiet/types'
+import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
+import { CompoundError, InvitationDataV3, NseQssUrlUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
-import { Serializer } from '../common/serializer.service'
-
-const LOG_PULL_INTERVAL_MS = 1_000
-const LOG_PULL_SUCCESS_TIMEOUT_MS = 10_000
+import { QSSSyncManager } from './qss-sync-manager.service'
 
 @Injectable()
-export class QSSService extends EventEmitter implements OnModuleDestroy, OnModuleInit {
+export class QSSService extends EventEmitter implements OnModuleDestroy {
   private _paused = false
   private _captchaVerificationQueued = false
 
@@ -75,48 +53,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private _enabledOverride = false
 
   /**
-   * Map of team IDs to intervals pulling log entries
-   */
-  private readonly _logPullIntervals: Map<string, NodeJS.Timeout> = new Map()
-
-  /**
-   * Map of team IDs to timeouts that stop log pull retries if none succeeds.
-   */
-  private readonly _logPullSuccessTimeouts: Map<string, NodeJS.Timeout> = new Map()
-
-  /**
-   * Team IDs whose local storage is ready to ingest QSS log history.
-   */
-  private readonly _storageReadyTeams: Set<string> = new Set()
-
-  /**
-   * Track log pull operations currently executing by team ID
-   */
-  private readonly _logPullInFlight: Set<string> = new Set()
-
-  /**
-   * True while processing DLQ decrypt entries
-   */
-  private _dlqDecryptInFlight = false
-
-  /**
-   * True if sigchain updated while DLQ processing was in flight
-   */
-  private _dlqDecryptRetryRequested = false
-
-  private _deadLetterQueueInFlight = false
-  private readonly _deadLetterQueueRetryTeamIds: Set<string> = new Set()
-
-  /**
    * Mutexes for createCommunity per teamId
    */
   private _signInMutex: Mutex = new Mutex()
   private _connectMutex: Mutex = new Mutex()
-  private readonly _logSyncWaiters: Map<
-    string,
-    { resolve: () => void; reject: (error: Error) => void; timeout: NodeJS.Timeout }[]
-  > = new Map()
-  private readonly _recentLogSyncResults: Map<string, { success: boolean; error?: Error }> = new Map()
   private _eventHandlersConfigured = false
 
   private readonly logger = createLogger(`qss:service`)
@@ -126,11 +66,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     @Inject(QSS_ENDPOINT) public _qssEndpoint: string,
     private readonly qssClient: QSSClient,
     private readonly qssAuthConnManager: QSSAuthConnectionManager,
+    private readonly qssSyncManager: QSSSyncManager,
     private readonly sigChainService: SigChainService,
     private readonly localDbService: LocalDbService,
-    private readonly orbitDbService: OrbitDbService,
-    private readonly socketService: SocketService,
-    private readonly serializer: Serializer
+    private readonly socketService: SocketService
   ) {
     super({ captureRejections: true })
     this._configureEventHandlers()
@@ -138,13 +77,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   public onModuleDestroy() {
     this.close()
-  }
-
-  public async onModuleInit() {
-    OrbitDbService.events.on('put', (logUpdate: LogUpdate) => {
-      this.logger.debug('New log update detected, sending to QSS', logUpdate.hash)
-      void this.sendLogEntrySyncMessage(logUpdate)
-    })
   }
 
   private _requestCaptchaVerificationAfterConnect = (): void => {
@@ -161,8 +93,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
 
   private _handleQssAuthJoined = (teamId: string): void => {
     this.logger.debug('Auth connection joined via QSS')
-    this.emit(QSSEvents.QSS_AUTH_JOINED)
-    void this.processDeadLetterQueue(teamId)
+    this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
   private _handleStartAuthConnection = (teamId: string, teamName?: string): void => {
@@ -202,19 +133,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private _handleQssConnected = async (): Promise<void> => {
     this.logger.debug('QSS connected, handling appropriate authentication operation')
     this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
-  }
-
-  private _handleLogEntrySync = async (message: LogEntrySyncMessage): Promise<void> => {
-    this.logger.debug('Forwarding fanout log entry sync message to OrbitDB service')
-    const ingested = await this.orbitDbService.handleFanoutMessage(message)
-    if (message.payload.syncSeq != null) {
-      await this.handleObservedSyncSeq(
-        message.payload.teamId,
-        message.payload.syncSeq,
-        ingested,
-        `fanout hash=${message.payload.hash}`
-      )
-    }
   }
 
   private _handleQssHandleSignIn = async (): Promise<void> => {
@@ -269,94 +187,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
       sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
     )
     this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
-    void this.processDeadLetterQueue(teamId)
-  }
-
-  private _handleSigChainUpdated = (teamName: string): void => {
-    void this.processDLQDecrypt(teamName)
-  }
-
-  /**
-   * Check for pending data sync messages and, if connected, attempt to send to QSS
-   */
-  private async processDeadLetterQueue(teamId: string): Promise<void> {
-    this._deadLetterQueueRetryTeamIds.add(teamId)
-    if (this._deadLetterQueueInFlight) {
-      this.logger.debug('QSS data sync dead letter queue already processing, requesting retry', teamId)
-      return
-    }
-
-    this._deadLetterQueueInFlight = true
-    try {
-      while (this._deadLetterQueueRetryTeamIds.size > 0) {
-        const nextTeamId = this._deadLetterQueueRetryTeamIds.values().next().value
-        if (nextTeamId == null) {
-          break
-        }
-        this._deadLetterQueueRetryTeamIds.delete(nextTeamId)
-        await this._processDeadLetterQueueOnce(nextTeamId)
-      }
-    } finally {
-      this._deadLetterQueueInFlight = false
-    }
-  }
-
-  private async _processDeadLetterQueueOnce(teamId: string): Promise<void> {
-    if (!this.connected) {
-      return
-    }
-
-    if (!this._storageReadyTeams.has(teamId)) {
-      this.logger.warn(`Storage not ready to process dlq of log sync messages for team ${teamId}, skipping until ready`)
-      return
-    }
-
-    this.logger.info('Processing QSS data sync dead letter queue')
-
-    const unsentHashesByAddr = await this.localDbService.getPendingQssLogSyncMessages()
-    const entries = Object.entries(unsentHashesByAddr)
-    this.logger.info(`Found ${Object.entries(unsentHashesByAddr).length} unsent hashes to send to QSS`)
-    const successes: Record<string, string[]> = {}
-    const hashesToRemoveByAddr: Record<string, string[]> = {}
-    for (const [address, unsentHashes] of entries) {
-      const successByAddr: string[] = []
-      const hashesToRemove: string[] = []
-      const unsentEntries: LogEntry[] = []
-      try {
-        unsentEntries.push(...(await this.orbitDbService.getLogEntriesByHashes(address, unsentHashes)))
-      } catch (e) {
-        this.logger.error(`Failed to retrieve unsent log entries for address ${address}`, e)
-        continue
-      }
-      const foundHashes = new Set(unsentEntries.map(entry => entry.hash))
-      for (const hash of unsentHashes) {
-        if (!foundHashes.has(hash)) {
-          hashesToRemove.push(hash)
-        }
-      }
-      for (const entry of unsentEntries) {
-        const success = await this.sendLogEntrySyncMessage(logEntryToLogUpdate(entry, address))
-        if (success) {
-          successByAddr.push(entry.hash)
-        } else {
-          this.logger.warn(`Failed to send ${entry.hash} to QSS`)
-        }
-      }
-      if (successByAddr.length > 0) {
-        successes[address] = successByAddr
-      }
-      if (hashesToRemove.length > 0 || successByAddr.length > 0) {
-        hashesToRemoveByAddr[address] = [...hashesToRemove, ...successByAddr]
-      }
-    }
-    const removeCount = Object.keys(hashesToRemoveByAddr).length
-    const successCount = Object.keys(successes).length
-    if (removeCount > 0) {
-      await this.localDbService.removePendingQssLogSyncMessages(hashesToRemoveByAddr)
-    }
-    if (successCount < entries.length) {
-      this.logger.warn(`Failed to send ${entries.length - successCount} entries to QSS, will retry later...`)
-    }
+    this.qssAuthConnManager.markMemberRoleReady(teamId)
+    this.qssSyncManager.markMemberRoleReady(teamId)
   }
 
   private _configureEventHandlers(): void {
@@ -371,10 +203,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.localDbService.on(LocalDbEvents.COMMUNITY_ADDED, this._handleCommunityAdded)
     this.qssClient.on(QSSEvents.QSS_CONNECTED, this._handleQssConnected)
     this.qssClient.on(QSSEvents.QSS_DISCONNECTED, this._handleQssDisconnected)
-    this.qssClient.on(WebsocketEvents.LOG_ENTRY_SYNC, this._handleLogEntrySync)
     this.on(QSSEvents.QSS_HANDLE_SIGN_IN, this._handleQssHandleSignIn)
     this.qssAuthConnManager.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this._handleSelfAssignMember)
-    this.sigChainService.on('updated', this._handleSigChainUpdated)
     this._eventHandlersConfigured = true
   }
 
@@ -390,10 +220,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.localDbService.off(LocalDbEvents.COMMUNITY_ADDED, this._handleCommunityAdded)
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._handleQssConnected)
     this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._handleQssDisconnected)
-    this.qssClient.off(WebsocketEvents.LOG_ENTRY_SYNC, this._handleLogEntrySync)
     this.off(QSSEvents.QSS_HANDLE_SIGN_IN, this._handleQssHandleSignIn)
     this.qssAuthConnManager.off(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this._handleSelfAssignMember)
-    this.sigChainService.off('updated', this._handleSigChainUpdated)
     this._eventHandlersConfigured = false
   }
 
@@ -545,15 +373,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.info('Pausing QSS service')
     this._paused = true
     this._teardownEventHandlers()
+    this.qssSyncManager.pause()
     this._clearReconnectTimer(true)
-    for (const interval of this._logPullIntervals.values()) {
-      clearInterval(interval)
-    }
-    this._logPullIntervals.clear()
-    for (const timeout of this._logPullSuccessTimeouts.values()) {
-      clearTimeout(timeout)
-    }
-    this._logPullSuccessTimeouts.clear()
     this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
     this.qssClient.close()
@@ -568,6 +389,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.info(`Resuming QSS service`)
     this._paused = false
     this._configureEventHandlers()
+    this.qssSyncManager.resume()
     await this.connect(this.qssEndpoint, this._enabledOverride)
   }
 
@@ -581,6 +403,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     const requestedEndpoint = qssEndpoint ?? this._qssEndpoint
     const endpointChanged = qssEndpoint != null && qssEndpoint !== this._qssEndpoint
     this._qssEndpoint = requestedEndpoint
+    this.qssSyncManager.setQssAllowed(this.qssAllowed)
+    this.qssSyncManager.setQssEndpoint(this._qssEndpoint)
     this._enabledOverride = enabledOverride
 
     // if we are already connected return true and move on
@@ -800,112 +624,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     await this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
 
     this.emit(QSSEvents.QSS_START_AUTH_CONN, sigChain.team.id)
+    this.qssSyncManager.startLogSyncForSignedInTeam(sigChain.team.id, sigChain)
     return true
   }
 
-  private async _pullLatestLogEntriesForTeam(teamId: string): Promise<void> {
-    if (this._logPullInFlight.has(teamId)) {
-      this.logger.debug('Skipping log entry pull because one is already in flight', teamId)
-      return
-    }
-
-    this.logger.debug('Pulling latest log entries from QSS', teamId)
-
-    this._logPullInFlight.add(teamId)
-    try {
-      const response = await this.pullLatestLogEntries(teamId)
-      if (response.status === CommunityOperationStatus.SUCCESS) {
-        this._stopLogPullInterval(teamId)
-      }
-    } catch (e) {
-      this.logger.error('Failed to pull latest log entries for team', e)
-    } finally {
-      this._logPullInFlight.delete(teamId)
-    }
-  }
-
-  private _stopLogPullInterval(teamId: string): void {
-    this.logger.debug('Stopping log pull interval', teamId)
-    const existingInterval = this._logPullIntervals.get(teamId)
-    if (existingInterval != null) {
-      clearInterval(existingInterval)
-      this._logPullIntervals.delete(teamId)
-    }
-
-    const existingTimeout = this._logPullSuccessTimeouts.get(teamId)
-    if (existingTimeout != null) {
-      clearTimeout(existingTimeout)
-      this._logPullSuccessTimeouts.delete(teamId)
-    }
-  }
-
   public startLogPullInterval(teamId: string): void {
-    if (this._logPullIntervals.has(teamId)) {
-      this.logger.debug('Existing log pull interval, skipping', teamId)
-      return
-    }
-    this.logger.debug('Starting log pull interval', teamId)
-
-    const interval = setInterval(() => {
-      void this._pullLatestLogEntriesForTeam(teamId)
-    }, LOG_PULL_INTERVAL_MS)
-    const successTimeout = setTimeout(() => {
-      this.logger.warn('Stopping log pull interval after timeout waiting for success', teamId)
-      this._stopLogPullInterval(teamId)
-    }, LOG_PULL_SUCCESS_TIMEOUT_MS)
-
-    this._logPullIntervals.set(teamId, interval)
-    this._logPullSuccessTimeouts.set(teamId, successTimeout)
-    void this._pullLatestLogEntriesForTeam(teamId)
+    this.qssSyncManager.startLogPullInterval(teamId)
   }
 
   public markTeamStorageReady(teamId: string): void {
-    this.logger.debug('Marking team storage ready for QSS log pulls', teamId)
-    this._storageReadyTeams.add(teamId)
-    this.startLogPullIntervalIfReady(teamId)
-    void this.processDeadLetterQueue(teamId)
-  }
-
-  private startLogPullIntervalIfReady(teamId: string, sigChain?: SigChain): void {
-    if (!this._storageReadyTeams.has(teamId)) {
-      this.logger.info('QSS auth is connected, waiting for storage before pulling historical log entries', teamId)
-      return
-    }
-
-    const authConnection = this.qssAuthConnManager.getConnection(teamId)
-    if (!authConnection?.active) {
-      this.logger.info(
-        'Storage is ready, waiting for QSS auth connection before pulling historical log entries',
-        teamId
-      )
-      return
-    }
-
-    let chain = sigChain
-    if (chain?.team == null) {
-      try {
-        chain = this.sigChainService.getChain({ teamId })
-      } catch (e) {
-        this.logger.warn('Storage is ready but no sigchain team is available for QSS log pulls', teamId, e)
-        return
-      }
-    }
-
-    if (chain.team == null) {
-      this.logger.warn('Storage is ready but sigchain team is not available for QSS log pulls', teamId)
-      return
-    }
-
-    if (!chain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      this.logger.warn(
-        'Storage is ready but user is not a member, will pull historical log entries on full join',
-        teamId
-      )
-      return
-    }
-
-    this.logger.info('Storage and QSS auth are ready, starting log entry pull interval', teamId)
-    this.startLogPullInterval(teamId)
+    this.qssSyncManager.markTeamStorageReady(teamId)
   }
 
   /**
@@ -927,25 +655,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     if (result === QSSOperationResult.SUCCESS) {
       this.logger.info('Successfully signed in to QSS, starting periodic log pulls once storage is ready', teamId)
       await this.emitNseQssUrl(this._qssEndpoint)
-      const authConnection = this.qssAuthConnManager.getConnection(teamId)
-
-      authConnection?.removeAllListeners?.(QSSEvents.QSS_AUTH_CONNECTED)
-      authConnection?.removeAllListeners?.(QSSEvents.QSS_DISCONNECTED)
-      authConnection?.on?.(QSSEvents.QSS_AUTH_CONNECTED, () => {
-        this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
-        this.startLogPullIntervalIfReady(teamId, sigChain)
-        void this.processDeadLetterQueue(teamId)
-      })
-      authConnection?.on?.(QSSEvents.QSS_DISCONNECTED, () => {
-        this.logger.info('Disconnected event received, stopping log entry pull interval', teamId)
-        this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_DISCONNECTED)
-        this._stopLogPullInterval(teamId)
-      })
-
-      if (authConnection?.active) {
-        this.socketService.serverIoProvider.io.emit(SocketEvents.QSS_CONNECTED)
-        this.startLogPullIntervalIfReady(teamId, sigChain)
-      }
+      this.qssSyncManager.startLogSyncForSignedInTeam(teamId, sigChain)
     }
 
     return result
@@ -1017,137 +727,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @return True if sent successfully, false if send failed, and undefined if the send was skipped
    */
   public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
-    if (!this.canConnect) {
-      this.logger.info(`Can't send log sync message to QSS because QSS is not enabled for this community`)
-      this.recordLogSyncFailure(update.hash, `QSS is not enabled; cannot sync log entry ${update.hash}`)
-      return
-    }
-
-    const initStatus = await this.getQssInitStatus()
-
-    if (!initStatus.qssEnabled) {
-      this.logger.trace(`Can't sync to QSS because QSS is disabled on this community`)
-      this.recordLogSyncFailure(update.hash, `QSS is disabled for this community; cannot sync log entry ${update.hash}`)
-      return
-    }
-
-    let sigChain: SigChain
-    try {
-      sigChain = this.sigChainService.getChain({ teamId: update.teamId })
-    } catch (e) {
-      // TODO: when we have multiple teams, we want to check disk for the appropriate sigchain
-      // for now these log entries are from stale communities so we can just skip them
-      // await this.localDbService.removePendingQssLogSyncMessages({ [update.addr]: [update.hash] })
-      this.logger.warn(
-        `No sigchain present for team ${update.teamId}, cannot send ${update.hash} log sync message to QSS`
-      )
-      this.recordLogSyncFailure(
-        update.hash,
-        `No sigchain present for team ${update.teamId}; cannot sync ${update.hash}`
-      )
-      return
-    }
-
-    this.logger.info('Syncing OrbitDB entry to QSS', update.hash)
-
-    this.logger.trace('Encrypting log entry', update.hash)
-    const encEntry: EncryptedAndSignedPayload = sigChain.crypto.encryptAndSign(update.entry, {
-      type: EncryptionScopeType.ROLE,
-      name: RoleName.MEMBER,
-    })
-
-    const dataSyncMessage: LogEntrySyncMessage = {
-      ts: DateTime.utc().toMillis(),
-      status: CommunityOperationStatus.SENDING,
-      payload: {
-        teamId: update.teamId,
-        hash: update.hash,
-        hashedDbId: update.id,
-        encEntry,
-      },
-    }
-
-    return await this._sendLogEntrySyncMessage(dataSyncMessage, update.addr)
-  }
-
-  /**
-   * Send a data sync message to QSS if connected, otherwise write the message to level DB for later processing
-   *
-   * @param dataSyncMessage Pending message we want to send to QSS
-   * @returns True if sent successfully, false if send failed, and undefined if the send was skipped
-   */
-  private async _sendLogEntrySyncMessage(
-    dataSyncMessage: LogEntrySyncMessage,
-    address: string
-  ): Promise<boolean | undefined> {
-    const hash = dataSyncMessage.payload!.hash
-    const teamId = dataSyncMessage.payload?.teamId
-    if (!this.connected) {
-      this.logger.warn('QSS not connected, writing entry to dead letter queue', hash, teamId)
-      this.recordLogSyncFailure(hash, `QSS not connected; cannot sync log entry ${hash}`)
-      try {
-        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
-      } catch (e) {
-        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
-      }
-      return undefined
-    }
-
-    this.logger.debug('Sending log sync message to QSS', hash, teamId)
-    const dataSyncAck = await this.qssClient.sendMessage<LogEntrySyncResponseMessage>(
-      WebsocketEvents.LOG_ENTRY_SYNC,
-      dataSyncMessage,
-      true
-    )
-
-    let success = false
-    if (dataSyncAck == null) {
-      this.logger.error('Error while sending a log sync to QSS', hash, teamId)
-      this.recordLogSyncFailure(hash, `No QSS ack received for log entry ${hash}`)
-    } else if (dataSyncAck.status !== CommunityOperationStatus.SUCCESS) {
-      this.logger.error(`Error while sending a log sync to QSS - ${dataSyncAck.reason}`, hash, teamId)
-      this.recordLogSyncFailure(hash, `QSS rejected log entry ${hash}: ${dataSyncAck.reason ?? 'unknown error'}`)
-    } else {
-      this.logger.debug('Successful log sync to QSS')
-      if (dataSyncAck.payload.syncSeq != null) {
-        await this.handleObservedSyncSeq(teamId, dataSyncAck.payload.syncSeq, true, `sync-ack hash=${hash}`)
-      }
-      success = true
-      this.recordLogSyncSuccess(hash)
-      this.qssClient.emit(QSSEvents.QSS_LOG_SYNCED, dataSyncMessage.payload!.teamId)
-    }
-
-    if (!success) {
-      try {
-        this.logger.warn('Adding QSS sync record to dead letter queue', address, hash)
-        await this.localDbService.addPendingQssLogSyncMessage(address, hash)
-      } catch (e) {
-        this.logger.error('Failed to write pending QSS log sync message to local DB', e)
-      }
-    }
-
-    return success
+    return await this.qssSyncManager.sendLogEntrySyncMessage(update)
   }
 
   public async waitForLogEntrySyncAck(hash: string, timeoutMs = 15_000): Promise<void> {
-    const knownResult = this._recentLogSyncResults.get(hash)
-    if (knownResult?.success) {
-      return
-    }
-    if (knownResult?.error) {
-      throw knownResult.error
-    }
-
-    await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        this.removeLogSyncWaiter(hash, timeout)
-        reject(new Error(`Timed out waiting for QSS to ack log entry ${hash}`))
-      }, timeoutMs)
-
-      const waiters = this._logSyncWaiters.get(hash) ?? []
-      waiters.push({ resolve, reject, timeout })
-      this._logSyncWaiters.set(hash, waiters)
-    })
+    await this.qssSyncManager.waitForLogEntrySyncAck(hash, timeoutMs)
   }
 
   /**
@@ -1157,282 +741,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
    * @returns A promise that resolves to a LogEntryPullResponseMessage containing the pulled log entries.
    */
   public async pullLogEntries(payload: LogEntryPullPayload): Promise<LogEntryPullResponseMessage> {
-    this.logger.info(`Pulling log entries from QSS for team ${payload.teamId}`)
-
-    const logEntryPullMessage = {
-      ts: DateTime.utc().toMillis(),
-      status: CommunityOperationStatus.SENDING,
-      payload,
-    }
-
-    const pullResponse = await this.qssClient.sendMessage<LogEntryPullResponseMessage>(
-      WebsocketEvents.LOG_ENTRY_PULL,
-      logEntryPullMessage,
-      true
-    )
-
-    if (pullResponse == null) {
-      this.logger.error('Error while pulling log entries from QSS - Nullish response', payload.teamId)
-      throw new Error('Nullish response from QSS')
-    }
-
-    if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
-      this.logger.error(`Error while pulling log entries from QSS - ${pullResponse.status}: ${pullResponse.reason}`)
-      return pullResponse
-    }
-
-    this.logger.info(`Successfully pulled ${pullResponse.payload.entries.length} entries from QSS`, payload.teamId)
-    return pullResponse
+    return await this.qssSyncManager.pullLogEntries(payload)
   }
 
   public async pullLatestLogEntries(teamId: string): Promise<LogEntryPullResponseMessage> {
-    this.logger.info(`Pulling all log entries from QSS for team ${teamId}`)
-    let nextStartSeq = await this.localDbService.getLastSyncSeq(teamId)
-    const sigchain = this.sigChainService.getChain({ teamId })
-    const userId = sigchain.context.user.userId
-    if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      this.logger.warn(`User is not a member of team ${teamId}, skipping log entry pull until full join`)
-      return {
-        ts: DateTime.utc().toMillis(),
-        status: CommunityOperationStatus.UNAUTHORIZED,
-        payload: {
-          hasNextPage: false,
-          entries: [],
-        },
-      }
-    }
-
-    let hasNextPage = true
-    let page = 0
-    let highestSyncSeq: number | undefined = nextStartSeq ?? undefined
-    while (hasNextPage) {
-      const pullPayload: LogEntryPullPayload = {
-        teamId,
-        userId,
-        ...(nextStartSeq != null ? { startSeq: nextStartSeq } : { startSeq: 0 }),
-      }
-      this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
-      const pullResponse = await this.pullLogEntries(pullPayload)
-      if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
-        return pullResponse
-      }
-      if (pullResponse.payload.highestSyncSeq != null) {
-        highestSyncSeq =
-          highestSyncSeq == null
-            ? pullResponse.payload.highestSyncSeq
-            : Math.max(highestSyncSeq, pullResponse.payload.highestSyncSeq)
-      }
-      const deserializedEntries = pullResponse.payload.entries
-        .map(entry => {
-          try {
-            return this.serializer.deserialize(entry)
-          } catch (e) {
-            this.logger.error('Failed to deserialize pulled log entry', e)
-            return null
-          }
-        })
-        .filter((entry): entry is EncryptedAndSignedPayload => entry !== null) as EncryptedAndSignedPayload[]
-
-      const decryptedEntries: LogEntry[] = []
-      const failedEntries: EncryptedAndSignedPayload[] = []
-
-      for (const entry of deserializedEntries) {
-        try {
-          const decrypted = this.sigChainService
-            .getChain({ teamId })
-            .crypto.decryptAndVerify<LogEntry>(entry.encrypted, entry.signature, false)
-          if (decrypted.isValid) {
-            decryptedEntries.push(decrypted.contents)
-          } else {
-            failedEntries.push(entry)
-          }
-        } catch (e) {
-          this.logger.error('Failed to decrypt and verify log entry', e)
-          failedEntries.push(entry)
-        }
-      }
-
-      // Store failed entries in DLQ for retry when keys become available
-      for (const failedEntry of failedEntries) {
-        try {
-          await this.localDbService.addDLQDecryptEntry(teamId, failedEntry, this.serializer)
-        } catch (e) {
-          this.logger.error('Failed to add entry to DLQ', e)
-        }
-      }
-      if (failedEntries.length > 0) {
-        this.logger.info(`Added ${failedEntries.length} entries to decrypt DLQ for team ${teamId}`)
-      }
-
-      try {
-        await this.orbitDbService.ingestEntries(decryptedEntries)
-        if (pullResponse.payload.highestSyncSeq != null) {
-          nextStartSeq = pullResponse.payload.highestSyncSeq
-          await this.updateLastSyncSeq(teamId, pullResponse.payload.highestSyncSeq)
-        }
-      } catch (e) {
-        this.logger.error('Failed to ingest pulled log entries from QSS into OrbitDB', e)
-        throw e
-      }
-      hasNextPage = pullResponse.payload.hasNextPage
-      page += 1
-    }
-    const finalPullResponse: LogEntryPullResponseMessage = {
-      ts: DateTime.utc().toMillis(),
-      status: CommunityOperationStatus.SUCCESS,
-      payload: {
-        entries: [],
-        hasNextPage: false,
-        highestSyncSeq,
-        resolvedStartSeq: nextStartSeq ?? undefined,
-      },
-    }
-    this.logger.info(`Completed pulling all log entries from QSS for team ${teamId}`)
-    return finalPullResponse
-  }
-
-  private async handleObservedSyncSeq(
-    teamId: string,
-    syncSeq: number,
-    ingested: boolean,
-    source: string
-  ): Promise<void> {
-    if (!Number.isFinite(syncSeq) || syncSeq <= 0) {
-      this.logger.warn(`Refusing to handle invalid sync seq for team ${teamId}: ${syncSeq} (${source})`)
-      return
-    }
-
-    const existingSeq = await this.localDbService.getLastSyncSeq(teamId)
-
-    if (!ingested) {
-      this.logger.warn(
-        `Observed sync seq ${syncSeq} for ${teamId} from ${source} but local ingest failed; reconciling by pull`
-      )
-      void this._pullLatestLogEntriesForTeam(teamId)
-      return
-    }
-
-    if (existingSeq == null) {
-      this.logger.debug(`No persisted sync seq for ${teamId}; establishing baseline via pull before advancing seq`)
-      void this._pullLatestLogEntriesForTeam(teamId)
-      return
-    }
-
-    if (syncSeq <= existingSeq) {
-      return
-    }
-
-    if (syncSeq !== existingSeq + 1) {
-      this.logger.warn(
-        `Detected sync seq gap for ${teamId}: existing=${existingSeq} observed=${syncSeq} source=${source}; pulling reconciliation`
-      )
-      void this._pullLatestLogEntriesForTeam(teamId)
-      return
-    }
-
-    await this.updateLastSyncSeq(teamId, syncSeq)
-  }
-
-  private async updateLastSyncSeq(teamId: string, syncSeq: number): Promise<void> {
-    if (!Number.isFinite(syncSeq) || syncSeq <= 0) {
-      this.logger.warn(`Refusing to persist invalid sync seq for team ${teamId}: ${syncSeq}`)
-      return
-    }
-
-    const existingSeq = await this.localDbService.getLastSyncSeq(teamId)
-    const nextSyncSeq = existingSeq == null ? syncSeq : Math.max(existingSeq, syncSeq)
-
-    if (existingSeq === nextSyncSeq) {
-      return
-    }
-
-    await this.localDbService.setLastSyncSeq(teamId, nextSyncSeq)
-    const payload: NseSyncSeqUpdatedEvent = {
-      teamId,
-      lastSyncSeq: nextSyncSeq,
-    }
-    this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_SYNC_SEQ_UPDATED, payload)
-  }
-
-  /**
-   * Process the decryption dead letter queue when sigchain updates (new keys arrive)
-   */
-  private async processDLQDecrypt(teamName: string): Promise<void> {
-    if (this._dlqDecryptInFlight) {
-      this.logger.debug('DLQ decrypt already in progress, requesting retry')
-      this._dlqDecryptRetryRequested = true
-      return
-    }
-
-    const activeChain = this.sigChainService.getChain({ teamName })
-    if (!activeChain?.team) {
-      return
-    }
-    const teamId = activeChain.team.id
-    const BATCH_SIZE = 50
-
-    this._dlqDecryptInFlight = true
-    this._dlqDecryptRetryRequested = false
-    this.logger.info(`Processing decrypt DLQ for team ${teamId}`)
-
-    try {
-      let processed = 0
-      let recovered = 0
-      let hasMore = true
-
-      while (hasMore) {
-        const entries = await this.localDbService.getDLQDecryptEntries(teamId, this.serializer, { limit: BATCH_SIZE })
-        if (entries.length === 0) {
-          hasMore = false
-          continue
-        }
-
-        const successfulEntries: { key: string; entry: DLQDecryptEntry }[] = []
-        const decryptedLogEntries: LogEntry[] = []
-
-        for (const { key, entry } of entries) {
-          try {
-            const decrypted = this.sigChainService
-              .getChain({ teamId })
-              .crypto.decryptAndVerify<LogEntry>(entry.payload.encrypted, entry.payload.signature, false)
-            if (decrypted.isValid) {
-              decryptedLogEntries.push(decrypted.contents)
-              successfulEntries.push({ key, entry })
-            }
-          } catch (e) {
-            // Still can't decrypt, leave in DLQ
-          }
-        }
-
-        if (decryptedLogEntries.length > 0) {
-          try {
-            await this.orbitDbService.ingestEntries(decryptedLogEntries)
-            await this.localDbService.removeDLQDecryptEntries(teamId, successfulEntries)
-            recovered += decryptedLogEntries.length
-          } catch (e) {
-            this.logger.error('Failed to ingest recovered DLQ entries', e)
-          }
-        }
-
-        processed += entries.length
-
-        // If no successes in this batch and we've processed some, stop
-        if (successfulEntries.length === 0) {
-          hasMore = false
-        }
-      }
-
-      const remaining = await this.localDbService.getDLQDecryptCount(teamId)
-      this.logger.info(`DLQ processing complete: recovered=${recovered}, remaining=${remaining}`)
-    } finally {
-      this._dlqDecryptInFlight = false
-    }
-
-    // If a sigchain update occurred while processing, retry with new keys
-    if (this._dlqDecryptRetryRequested) {
-      this.logger.debug('Retrying DLQ decrypt after sigchain update during processing')
-      await this.processDLQDecrypt(teamName)
-    }
+    return await this.qssSyncManager.pullLatestLogEntries(teamId)
   }
 
   /**
@@ -1442,89 +755,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.info(`Closing QSS service`)
     this._paused = true
     this._clearReconnectTimer(true)
-    for (const interval of this._logPullIntervals.values()) {
-      clearInterval(interval)
-    }
-    this._logPullIntervals.clear()
-    for (const timeout of this._logPullSuccessTimeouts.values()) {
-      clearTimeout(timeout)
-    }
-    this._logPullSuccessTimeouts.clear()
-    this._logPullInFlight.clear()
-    this._storageReadyTeams.clear()
-    this._deadLetterQueueRetryTeamIds.clear()
+    this.qssSyncManager.close()
     this._teardownEventHandlers()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false
-    for (const [hash, waiters] of this._logSyncWaiters.entries()) {
-      for (const waiter of waiters) {
-        clearTimeout(waiter.timeout)
-        waiter.reject(new Error(`QSS service closed before log entry ${hash} was acknowledged`))
-      }
-    }
-    this._logSyncWaiters.clear()
-    this._recentLogSyncResults.clear()
     this.qssAuthConnManager.close()
     this.qssClient.close()
-  }
-
-  private recordLogSyncSuccess(hash: string): void {
-    this.setRecentLogSyncResult(hash, { success: true })
-    const waiters = this._logSyncWaiters.get(hash)
-    if (waiters == null) {
-      return
-    }
-
-    this._logSyncWaiters.delete(hash)
-    for (const waiter of waiters) {
-      clearTimeout(waiter.timeout)
-      waiter.resolve()
-    }
-  }
-
-  private recordLogSyncFailure(hash: string, message: string): void {
-    const error = new Error(message)
-    this.setRecentLogSyncResult(hash, { success: false, error })
-    const waiters = this._logSyncWaiters.get(hash)
-    if (waiters == null) {
-      return
-    }
-
-    this._logSyncWaiters.delete(hash)
-    for (const waiter of waiters) {
-      clearTimeout(waiter.timeout)
-      waiter.reject(error)
-    }
-  }
-
-  private setRecentLogSyncResult(hash: string, result: { success: boolean; error?: Error }): void {
-    if (this._recentLogSyncResults.has(hash)) {
-      this._recentLogSyncResults.delete(hash)
-    }
-    this._recentLogSyncResults.set(hash, result)
-
-    const maxTrackedResults = 200
-    while (this._recentLogSyncResults.size > maxTrackedResults) {
-      const oldestHash = this._recentLogSyncResults.keys().next().value
-      if (oldestHash == null) {
-        break
-      }
-      this._recentLogSyncResults.delete(oldestHash)
-    }
-  }
-
-  private removeLogSyncWaiter(hash: string, timeout: NodeJS.Timeout): void {
-    const waiters = this._logSyncWaiters.get(hash)
-    if (waiters == null) {
-      return
-    }
-
-    const remainingWaiters = waiters.filter(waiter => waiter.timeout !== timeout)
-    if (remainingWaiters.length === 0) {
-      this._logSyncWaiters.delete(hash)
-      return
-    }
-
-    this._logSyncWaiters.set(hash, remainingWaiters)
   }
 }

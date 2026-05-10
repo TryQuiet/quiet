@@ -6,6 +6,7 @@ import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSClient } from './qss.client'
 import { QSSService } from './qss.service'
+import { QSSSyncManager } from './qss-sync-manager.service'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { CaptchaModule } from '../captcha/captcha.module'
 import { SocketModule } from '../socket/socket.module'
@@ -13,7 +14,7 @@ import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [SigChainModule, LocalDbModule, forwardRef(() => OrbitDbModule), CaptchaModule, SocketModule, CommonModule],
-  providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection],
+  providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection, QSSSyncManager],
   exports: [QSSService, QSSClient],
 })
 export class QSSModule {}
