@@ -48,3 +48,9 @@ export interface CreatedDM {
   failedUsers: string[]
   success: boolean
 }
+
+export enum TestChannelType {
+  PUBLIC_CHANNEL = 'publicChannel',
+  PRIVATE_CHANNEL = 'privateChannel',
+  DM = 'dm',
+}

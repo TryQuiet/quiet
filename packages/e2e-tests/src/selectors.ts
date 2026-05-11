@@ -2,7 +2,7 @@ import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementProm
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
-import { CreatedDM, MessageIds, RetryConfig, UserListItem, UserListStatus } from './types'
+import { CreatedDM, MessageIds, RetryConfig, TestChannelType, UserListItem, UserListStatus } from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
@@ -1408,7 +1408,7 @@ export class Channel {
     return true
   }
 
-  async isOpen(isPublic: boolean = true, isDm: boolean = false, timeout = 15_000): Promise<boolean> {
+  async isOpen(channelType: TestChannelType = TestChannelType.PUBLIC_CHANNEL, timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
       timeout,
@@ -1416,9 +1416,9 @@ export class Channel {
       500
     )
 
-    if (!isDm) {
+    if (channelType !== TestChannelType.DM) {
       await this.driver.wait(
-        until.elementIsVisible(await (isPublic ? this.hash : this.lock)),
+        until.elementIsVisible(await (channelType === TestChannelType.PUBLIC_CHANNEL ? this.hash : this.lock)),
         timeout,
         `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
         500
@@ -2389,6 +2389,51 @@ export class Sidebar {
     expect(names).toEqual(expect.arrayContaining(channelsNames))
   }
 
+  /**
+   * Get DM link elements in the sidebar
+   */
+  async getDmList(): Promise<WebElement[]> {
+    // We use a more generic XPath and then filter out user links to handle backwards compatibility
+    const dmChannels = await this.driver.wait(
+      this.driver.findElements(By.xpath('//*[contains(@data-testid, "-dm-link-text")]')),
+      15_000,
+      `Sidebar DM list couldn't be found within timeout`,
+      500
+    )
+    logger.warn('dm channels', JSON.stringify(await Promise.all(dmChannels.map(foo => foo.getText())), null, 2))
+    return dmChannels
+  }
+
+  /**
+   * Get names of all DM channels in the sidebar
+   */
+  async getDmChannelsNames(): Promise<string[]> {
+    const elements = await this.getDmList()
+    return Promise.all(
+      elements.map(async element => {
+        return await element.getText()
+      })
+    )
+  }
+
+  async waitForDmChannelsNum(num: number, timeoutMs: number = 15_000): Promise<boolean> {
+    logger.info(`Waiting for ${num} DM channels`)
+    return this.driver.wait(
+      async () => {
+        const channels = await this.getDmList()
+        return channels.length === num
+      },
+      timeoutMs,
+      `Sidebar DM channel list length couldn't be determined within timeout`,
+      500
+    )
+  }
+
+  async waitForDmChannels(dmNames: Array<string>): Promise<void> {
+    const names = await this.getDmChannelsNames()
+    expect(names).toEqual(expect.arrayContaining(dmNames))
+  }
+
   async openSettings(): Promise<Settings> {
     await this.driver.wait(
       until.elementLocated(By.xpath('//span[@data-testid="settings-panel-button"]')),
@@ -2412,7 +2457,20 @@ export class Sidebar {
     )
     await channelLink.click()
     const channel = new Channel(this.driver, name)
-    await channel.isOpen(isPublic)
+    await channel.isOpen(isPublic ? TestChannelType.PUBLIC_CHANNEL : TestChannelType.PRIVATE_CHANNEL)
+    return channel
+  }
+
+  async switchDm(name: string): Promise<Channel> {
+    const dmLink = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[contains(@data-testid, "-dm-link-text") and text()="${name}"]`)),
+      20_000,
+      `Channel link button for ${name} couldn't be found within timeout`,
+      500
+    )
+    await dmLink.click()
+    const channel = new Channel(this.driver, name)
+    await channel.isOpen(TestChannelType.DM)
     return channel
   }
 

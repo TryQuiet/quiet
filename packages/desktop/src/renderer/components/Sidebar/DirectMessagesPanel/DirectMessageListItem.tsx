@@ -122,7 +122,7 @@ export const DirectMessageListItem: React.FC<DirectMessageListItemProps> = ({
                 variant='body2'
                 align='left'
                 className={classNames(classes.nickname, classes.me)}
-                data-testid={`${channel.id}-dm-link-text`}
+                data-testid={`dm-link-text-me`}
               >
                 me
               </Typography>

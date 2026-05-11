@@ -328,7 +328,7 @@ describe('Channels panel', () => {
               </div>
               <ul
                 class="MuiList-root css-1mk9mw3-MuiList-root"
-                data-testid="usersList"
+                data-testid="dm-list"
               />
             </div>
           </div>
@@ -525,7 +525,7 @@ describe('Channels panel', () => {
             </div>
             <ul
               class="MuiList-root css-1mk9mw3-MuiList-root"
-              data-testid="usersList"
+              data-testid="dm-list"
             />
           </div>
         </div>,

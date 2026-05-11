@@ -13,7 +13,7 @@ import {
   StartingLoadingPanel,
 } from '../selectors'
 import { promiseWithRetries, createArbitraryFile } from '../utils'
-import { MessageIds, UserTestData } from '../types'
+import { MessageIds, TestChannelType, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import * as path from 'path'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
@@ -405,7 +405,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Second user sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser3.isOpen(true, false, 30_000)).toBeTruthy()
+        expect(await generalChannelUser3.isOpen(TestChannelType.PUBLIC_CHANNEL, 30_000)).toBeTruthy()
         await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
