@@ -221,6 +221,7 @@ async function readMessages(peer: QSSIntegrationPeer, store: EventsType<Encrypte
       entry.value.encrypted,
       entry.value.signature
     )
+    expect(decrypted.isValid).toBe(true)
     messages.push(decrypted.contents)
   }
   return messages
@@ -248,6 +249,19 @@ async function waitForPendingSyncToDrain(peer: QSSIntegrationPeer, address: stri
     const pending = await peer.localDbService.getPendingQssLogSyncMessages()
     expect(pending[address] ?? []).not.toContain(hash)
   }, 60_000)
+}
+
+async function waitForLastSyncSeqAtLeast(
+  peer: QSSIntegrationPeer,
+  teamId: string,
+  minimumSeq: number
+): Promise<number> {
+  let observedSeq = 0
+  await waitForExpect(async () => {
+    observedSeq = (await peer.localDbService.getLastSyncSeq(teamId)) ?? 0
+    expect(observedSeq).toBeGreaterThanOrEqual(minimumSeq)
+  }, 60_000)
+  return observedSeq
 }
 
 async function cleanupPeer(peer: QSSIntegrationPeer): Promise<void> {
@@ -312,6 +326,54 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     await owner.qssService.waitForLogEntrySyncAck(hash, 60_000)
     await waitForPendingSyncToDrain(owner, store.address, hash)
   })
+
+  it('keeps pending sync DLQ entries until storage readiness opens the replay gate', async () => {
+    await assertQssIsReachable(QSS_INTEGRATION_ENDPOINT)
+
+    const owner = await createPeer('qss-storage-ready-owner')
+    peers.push(owner)
+
+    const teamName = `qss-storage-ready-owner-${randomUUID()}`
+    const ownerSigChain = await owner.sigChainService.createChain(teamName, 'qss-storage-ready-owner', true)
+    const teamId = ownerSigChain.team!.id
+
+    await setCurrentCommunity(owner, {
+      id: randomUUID(),
+      name: teamName,
+      ownership: CommunityOwnership.Owner,
+      peerList: [],
+      psk: randomBytes(32).toString('base64'),
+      teamId,
+      qssEnabled: true,
+      qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+      qssSetup: false,
+    })
+    await startPeerStorage(owner)
+
+    owner.captchaService.hcaptchaToken = HCAPTCHA_TEST_TOKEN
+    expect(await owner.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)).toBe(QSSOperationResult.SUCCESS)
+    await waitForQssSetup(owner)
+    await waitForAuthReady(owner, teamId)
+    await waitForMemberRole(owner, teamId)
+
+    const store = await openQssBackedEventsStore(owner, `channels.qss-storage-ready-${randomUUID()}`, teamId)
+
+    await disconnectWithoutAutoReconnect(owner, teamId)
+
+    const hash = await addEncryptedEntry(owner, store, 'qss integration: storage-ready gated dlq replay')
+    await expectPendingSyncContains(owner, store.address, hash)
+
+    expect(await owner.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)).toBe(QSSOperationResult.SUCCESS)
+    await waitForAuthReady(owner, teamId)
+    await waitForMemberRole(owner, teamId)
+
+    await owner.qssSyncManager.processDeadLetterQueue(teamId)
+    await expectPendingSyncContains(owner, store.address, hash)
+
+    owner.qssService.markTeamStorageReady(teamId)
+    await waitForPendingSyncToDrain(owner, store.address, hash)
+    await owner.qssService.waitForLogEntrySyncAck(hash, 60_000)
+  })
 })
 
 maybeDescribe('QSSModule integration against dockerized QSS', () => {
@@ -325,20 +387,26 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
 
   let owner!: QSSIntegrationPeer
   let invitee!: QSSIntegrationPeer
+  let invite!: { seed: string; salt: string }
   let teamId!: string
   let ownerStore!: EventsType<EncryptedAndSignedPayload>
   let inviteeStore!: EventsType<EncryptedAndSignedPayload>
 
-  beforeAll(async () => {
+  afterAll(async () => {
+    for (const peer of peers.reverse()) {
+      await cleanupPeer(peer)
+    }
+  })
+
+  it('creates an owner QSS community and starts owner auth sync', async () => {
     await assertQssIsReachable(QSS_INTEGRATION_ENDPOINT)
 
     owner = await createPeer(ownerName)
-    invitee = await createPeer(inviteeName)
-    peers.push(owner, invitee)
+    peers.push(owner)
 
     const ownerSigChain = await owner.sigChainService.createChain(teamName, ownerName, true)
     teamId = ownerSigChain.team!.id
-    const invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
+    invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
     ownerSigChain.lockbox.createInviteLockboxes(invite.seed, invite.salt)
     await owner.sigChainService.saveChain(teamName)
 
@@ -361,6 +429,15 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     await waitForAuthReady(owner, teamId)
 
     expect(await owner.qssService.signInToCommunity(teamId, ownerSigChain, teamName)).toBe(QSSOperationResult.SUCCESS)
+  })
+
+  it('joins an invitee to the QSS community and opens matching QSS-backed stores', async () => {
+    expect(owner).toBeDefined()
+    expect(invite).toBeDefined()
+    expect(teamId).toBeDefined()
+
+    invitee = await createPeer(inviteeName)
+    peers.push(invitee)
 
     await invitee.sigChainService.createChainFromInvite(inviteeName, teamName, invite.seed, teamId, true)
     await setCurrentCommunity(invitee, {
@@ -400,12 +477,6 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     invitee.qssService.markTeamStorageReady(teamId)
   })
 
-  afterAll(async () => {
-    for (const peer of peers.reverse()) {
-      await cleanupPeer(peer)
-    }
-  })
-
   it('signs in, syncs logs, survives disconnects, and signs back in', async () => {
     const firstMessage = 'qss integration: online fanout'
     const firstHash = await addEncryptedEntry(owner, ownerStore, firstMessage)
@@ -427,13 +498,80 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     const missedMessage = 'qss integration: historical pull after reconnect'
     const missedHash = await addEncryptedEntry(owner, ownerStore, missedMessage)
     await owner.qssService.waitForLogEntrySyncAck(missedHash, 60_000)
+    const expectedMissedSeq = await waitForLastSyncSeqAtLeast(owner, teamId, 1)
 
-    await reconnectAndSignIn(invitee, teamId, teamName)
-    await waitForStoreMessage(invitee, inviteeStore, missedMessage)
+    const pullSpy = jest.spyOn(invitee.qssSyncManager, 'pullLatestLogEntries')
+    try {
+      await reconnectAndSignIn(invitee, teamId, teamName)
+      await waitForExpect(() => {
+        expect(pullSpy).toHaveBeenCalledWith(teamId)
+      }, 60_000)
+      await waitForStoreMessage(invitee, inviteeStore, missedMessage)
+      await waitForLastSyncSeqAtLeast(invitee, teamId, expectedMissedSeq)
+    } finally {
+      pullSpy.mockRestore()
+    }
 
     const afterReconnectMessage = 'qss integration: fanout after reconnect'
     const afterReconnectHash = await addEncryptedEntry(owner, ownerStore, afterReconnectMessage)
     await owner.qssService.waitForLogEntrySyncAck(afterReconnectHash, 60_000)
     await waitForStoreMessage(invitee, inviteeStore, afterReconnectMessage)
+  })
+
+  it('syncs invitee-authored log entries back to the owner', async () => {
+    const inviteeMessage = 'qss integration: invitee outbound fanout'
+    const inviteeHash = await addEncryptedEntry(invitee, inviteeStore, inviteeMessage)
+    await invitee.qssService.waitForLogEntrySyncAck(inviteeHash, 60_000)
+    await waitForPendingSyncToDrain(invitee, inviteeStore.address, inviteeHash)
+    await waitForStoreMessage(owner, ownerStore, inviteeMessage)
+  })
+
+  it('historically pulls log entries that existed before a new invitee connects', async () => {
+    const lateMessage = 'qss integration: late invitee historical catch-up'
+    const lateHash = await addEncryptedEntry(owner, ownerStore, lateMessage)
+    await owner.qssService.waitForLogEntrySyncAck(lateHash, 60_000)
+    const expectedLateSeq = await waitForLastSyncSeqAtLeast(owner, teamId, 1)
+
+    const lateInviteeName = `qss-late-invitee-${randomUUID()}`
+    const lateInvitee = await createPeer(lateInviteeName)
+    peers.push(lateInvitee)
+
+    await lateInvitee.sigChainService.createChainFromInvite(lateInviteeName, teamName, invite.seed, teamId, true)
+    await setCurrentCommunity(lateInvitee, {
+      id: randomUUID(),
+      name: teamName,
+      ownership: CommunityOwnership.User,
+      peerList: [],
+      psk: randomBytes(32).toString('base64'),
+      teamId,
+      qssEnabled: true,
+      qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+      qssSetup: true,
+      inviteData: {
+        version: InvitationDataVersion.v3,
+        pairs: [],
+        psk: randomBytes(32).toString('base64'),
+        authData: {
+          communityName: teamName,
+          seed: invite.seed,
+          salt: invite.salt,
+          teamId,
+        },
+        qssEnabled: true,
+        qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+      },
+    })
+
+    expect(await lateInvitee.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)).toBe(QSSOperationResult.SUCCESS)
+    await waitForAuthReady(lateInvitee, teamId)
+    await waitForMemberRole(lateInvitee, teamId)
+    await startPeerStorage(lateInvitee)
+
+    const lateInviteeStore = await openQssBackedEventsStore(lateInvitee, storeName, teamId)
+    expect(lateInviteeStore.address).toBe(ownerStore.address)
+
+    lateInvitee.qssService.markTeamStorageReady(teamId)
+    await waitForStoreMessage(lateInvitee, lateInviteeStore, lateMessage)
+    await waitForLastSyncSeqAtLeast(lateInvitee, teamId, expectedLateSeq)
   })
 })
