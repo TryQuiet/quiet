@@ -4,6 +4,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 import { ChannelType } from '@quiet/types'
+import { generateDmChannelName } from '@quiet/common'
 
 const logger = createLogger('syncChannelDisplayNamesSaga')
 
@@ -14,23 +15,10 @@ export function* syncChannelDisplayNamesSaga(): Generator {
   const userProfiles = yield* select(userProfileSelectors.userProfiles)
   const me = yield* select(userProfileSelectors.myUserProfile)
 
-  logger.info(JSON.stringify(locallyStoredChannels))
-
-  const _generateDmChannelName = (memberIds: string[] | undefined): string => {
-    if (memberIds == null) return 'Empty DM Channel Name'
-    if (memberIds.length === 1) {
-      return me?.nickname ?? 'Me'
-    }
-    return memberIds
-      .filter(id => id !== me?.userId)
-      .map(id => userProfiles[id]?.nickname ?? id)
-      .join(', ')
-  }
-
   // Upserting channels to local storage
   for (const channel of locallyStoredChannels) {
     const displayedName =
-      channel.type === ChannelType.CHANNEL ? channel.name : _generateDmChannelName(channel.memberIds)
+      channel.type === ChannelType.CHANNEL ? channel.name : generateDmChannelName(channel.memberIds, userProfiles, me)
     if (channel && channel.displayedName !== displayedName) {
       logger.warn('Setting display name', channel.id, displayedName)
       yield* putResolve(publicChannelsActions.setDisplayedName({ channelId: channel.id, displayedName }))

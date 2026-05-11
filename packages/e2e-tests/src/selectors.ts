@@ -2,7 +2,15 @@ import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementProm
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
-import { CreatedDM, MessageIds, RetryConfig, TestChannelType, UserListItem, UserListStatus } from './types'
+import {
+  CreatedDM,
+  MessageIds,
+  NewMessageDM,
+  RetryConfig,
+  TestChannelType,
+  UserListItem,
+  UserListStatus,
+} from './types'
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
@@ -2145,6 +2153,15 @@ export class NewMessage {
     )
   }
 
+  get closeButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//*[@data-testid="new-message-close-button"]')),
+      15_000,
+      `Message input for new message view couldn't be found within timeout`,
+      500
+    )
+  }
+
   get uploadFileInput() {
     return this.driver.wait(
       until.elementLocated(By.xpath('//*[@data-testid="uploadFileInput"]')),
@@ -2232,7 +2249,7 @@ export class NewMessage {
     return chipElement
   }
 
-  async createNewDm(usernames: string[], firstMessage: string): Promise<CreatedDM> {
+  async changeDmUsers(usernames: string[]): Promise<NewMessageDM> {
     const successfulUsers: string[] = []
     const failedUsers: string[] = []
     const searchInput = await this.searchInput
@@ -2240,9 +2257,7 @@ export class NewMessage {
     for (const username of usernames) {
       logger.warn(`Searching for ${username} in new message search input`)
       try {
-        logger.warn('sending keys', username)
         await searchInput.sendKeys(username)
-        logger.warn('hitting enter')
         await searchInput.sendKeys(Key.ENTER)
         await this.getUserSearchChip(username)
         successfulUsers.push(username)
@@ -2254,13 +2269,15 @@ export class NewMessage {
 
     if (successfulUsers.length === 0) {
       logger.error('No successful attempts at adding users to DM')
-      return {
-        successfulUsers,
-        failedUsers,
-        success: false,
-      }
     }
+    return {
+      successfulUsers,
+      failedUsers,
+    }
+  }
 
+  async createNewDm(usernames: string[], firstMessage: string): Promise<CreatedDM> {
+    const { successfulUsers, failedUsers } = await this.changeDmUsers(usernames)
     let messageInput: WebElement
     try {
       messageInput = await this.messageInput
@@ -2282,6 +2299,17 @@ export class NewMessage {
       failedUsers,
       success: true,
     }
+  }
+
+  async close(): Promise<void> {
+    const button = await this.closeButton
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      5_000,
+      `Couldn't see the new message close button within the timeout`,
+      500
+    )
+    await button.click()
   }
 }
 

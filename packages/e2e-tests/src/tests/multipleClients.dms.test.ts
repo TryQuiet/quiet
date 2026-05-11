@@ -461,8 +461,8 @@ describe('Multiple Clients (DMs)', () => {
 
       it("Second user's message is visible in a channel to the owner", async () => {
         generalChannelOwner = await sidebarOwner.switchChannel(generalChannelName)
-        await generalChannelOwner.getUserMessages(users.user1.username)
-        await generalChannelOwner.getMessageIdsByText(users.user1.messages.general[0], users.user1.username)
+        await generalChannelOwner.getUserMessages(users.user2.username)
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages.general[0], users.user2.username)
       })
 
       it("Second user's message is visible in a channel to the first user", async () => {
@@ -470,6 +470,149 @@ describe('Multiple Clients (DMs)', () => {
         generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
         await generalChannelUser1.getUserMessages(users.user2.username)
         await generalChannelUser1.getMessageIdsByText(users.user2.messages.general[0], users.user2.username)
+      })
+    })
+
+    describe('Second user creates group DM', () => {
+      it('Second user opens new message view', async () => {
+        newMessageUser2 = new NewMessage(users.user2.app.driver)
+        await newMessageUser2.open()
+      })
+
+      it('Second user creates new group DM', async () => {
+        const dmCreationStatus = await newMessageUser2.createNewDm(
+          [users.owner.username, users.user1.username],
+          users.user2.messages.groupDm[0]
+        )
+        expect(dmCreationStatus.failedUsers).toHaveLength(0)
+        expect(dmCreationStatus.successfulUsers).toHaveLength(2)
+        expect(dmCreationStatus.success).toBeTruthy()
+      })
+
+      it('Second user sees newly created group DM channel', async () => {
+        groupDmChannelUser2 = new Channel(users.user2.app.driver, channelNameMap.user2.groupDm)
+        await groupDmChannelUser2.isOpen(TestChannelType.DM)
+        await groupDmChannelUser2.isMessageInputReady()
+        await sleep(10_000)
+      })
+
+      it('Owner sees group DM in sidebar', async () => {
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.waitForDmChannelsNum(3, 45_000)
+        await sidebarOwner.waitForDmChannels([channelNameMap.owner.groupDm])
+      })
+
+      it('Owner opens group DM channel', async () => {
+        groupDmChannelOwner = await sidebarOwner.switchDm(channelNameMap.owner.groupDm)
+        await groupDmChannelOwner.isOpen(TestChannelType.DM)
+        await groupDmChannelOwner.isMessageInputReady()
+      })
+
+      it(`Owner sees second user's message in the group DM channel`, async () => {
+        await groupDmChannelOwner.getUserMessages(users.user2.username)
+        await groupDmChannelOwner.getMessageIdsByText(users.user2.messages.groupDm[0], users.user2.username)
+      })
+
+      it('Owner sends message in group DM channel', async () => {
+        await groupDmChannelOwner.sendMessage(users.owner.messages.groupDm[0], users.owner.username)
+      })
+
+      it('Owner sees their message in the group DM channel', async () => {
+        await groupDmChannelOwner.getUserMessages(users.owner.username)
+        await groupDmChannelOwner.getMessageIdsByText(users.owner.messages.groupDm[0], users.owner.username)
+      })
+
+      it(`Second user sees owner's message in the group DM channel`, async () => {
+        await groupDmChannelUser2.getUserMessages(users.owner.username)
+        await groupDmChannelUser2.getMessageIdsByText(users.owner.messages.groupDm[0], users.owner.username)
+      })
+
+      it('First user sees group DM in sidebar', async () => {
+        sidebarUser1 = new Sidebar(users.user1.app.driver)
+        await sidebarUser1.waitForDmChannelsNum(2, 45_000)
+        await sidebarUser1.waitForDmChannels([channelNameMap.user1.groupDm])
+      })
+
+      it('First user opens group DM channel', async () => {
+        groupDmChannelUser1 = await sidebarUser1.switchDm(channelNameMap.user1.groupDm)
+        await groupDmChannelUser1.isOpen(TestChannelType.DM)
+        await groupDmChannelUser1.isMessageInputReady()
+      })
+
+      it(`First user sees second user's message in the group DM channel`, async () => {
+        await groupDmChannelUser1.getUserMessages(users.user2.username)
+        await groupDmChannelUser1.getMessageIdsByText(users.user2.messages.groupDm[0], users.user2.username)
+      })
+
+      it(`First user sees owner's message in the group DM channel`, async () => {
+        await groupDmChannelUser1.getUserMessages(users.owner.username)
+        await groupDmChannelUser1.getMessageIdsByText(users.owner.messages.groupDm[0], users.owner.username)
+      })
+
+      it('First user sends message in group DM channel', async () => {
+        await groupDmChannelUser1.sendMessage(users.user1.messages.groupDm[0], users.user1.username)
+      })
+
+      it('First user sees their message in the group DM channel', async () => {
+        await groupDmChannelUser1.getUserMessages(users.user1.username)
+        await groupDmChannelUser1.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
+      })
+
+      it(`Second user sees first user's message in the group DM channel`, async () => {
+        await groupDmChannelUser2.getUserMessages(users.user1.username)
+        await groupDmChannelUser2.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
+      })
+
+      it(`Owner sees first user's message in the group DM channel`, async () => {
+        await groupDmChannelOwner.getUserMessages(users.user1.username)
+        await groupDmChannelOwner.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
+      })
+
+      it('Second user sees their message in the newly created DM channel', async () => {
+        await groupDmChannelUser2.getUserMessages(users.user2.username)
+        await groupDmChannelUser2.getMessageIdsByText(users.user2.messages.groupDm[0], users.user2.username)
+      })
+    })
+
+    describe('Open existing DM in New Message view', () => {
+      it(`Owner opens general`, async () => {
+        generalChannelOwner = await sidebarOwner.switchChannel(generalChannelName)
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isReady()).toBeTruthy()
+        expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+      })
+
+      it('Owner opens new message view', async () => {
+        newMessageOwner = new NewMessage(users.owner.app.driver)
+        await newMessageOwner.open()
+      })
+
+      it('Owner switches new message view to group DM', async () => {
+        const dmCreationStatus = await newMessageOwner.changeDmUsers([users.user1.username, users.user2.username])
+        expect(dmCreationStatus.failedUsers).toHaveLength(0)
+        expect(dmCreationStatus.successfulUsers).toHaveLength(2)
+      })
+
+      it(`Owner sees first user's message from group DM in new message view`, async () => {
+        await groupDmChannelOwner.getUserMessages(users.user1.username)
+        await groupDmChannelOwner.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
+      })
+    })
+
+    describe('Close new message view and reopen previous channel', () => {
+      it(`Owner closes the new message view`, async () => {
+        await newMessageOwner.close()
+      })
+
+      it(`Owner sees general (the previous channel)`, async () => {
+        expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        expect(await generalChannelOwner.isReady()).toBeTruthy()
+        expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+      })
+
+      it("First user's message is visible in a channel to the owner", async () => {
+        await generalChannelOwner.getUserMessages(users.user1.username)
+        await generalChannelOwner.getMessageIdsByText(users.user1.messages.general[0], users.user1.username)
       })
     })
   })

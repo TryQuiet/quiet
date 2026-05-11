@@ -15,7 +15,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateChannelId, generateDmChannelId, generateDmChannelName } from '@quiet/common'
+import { generateChannelId, generateDmChannelId } from '@quiet/common'
 import {
   type ChannelMessage,
   type Community,

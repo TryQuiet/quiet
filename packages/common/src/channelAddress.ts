@@ -28,8 +28,10 @@ export const generateDmChannelName = (
   if (memberIds.length === 1) {
     return me?.nickname ?? 'Me'
   }
+
   return memberIds
     .filter(id => id !== me?.userId)
     .map(id => userProfiles[id]?.nickname)
+    .sort()
     .join(', ')
 }

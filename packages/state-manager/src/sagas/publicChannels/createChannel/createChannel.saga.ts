@@ -7,6 +7,7 @@ import { type Socket, applyEmitParams } from '../../../types'
 import { ChannelType, MessageType, SocketActions, type CreateChannelResponse } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
+import { generateDmChannelName } from '@quiet/common'
 
 const logger = createLogger('createChannelSaga')
 
@@ -17,17 +18,6 @@ export function* createChannelSaga(
   logger.info(`Creating ${action.payload.public === false ? 'private' : 'public'} channel ${action.payload.name}`)
   const userProfiles = yield* select(userProfileSelectors.userProfiles)
   const me = yield* select(userProfileSelectors.myUserProfile)
-
-  const _generateDmChannelName = (memberIds: string[] | undefined): string => {
-    if (memberIds == null) return 'Empty DM Channel Name'
-    if (memberIds.length === 1) {
-      return me?.nickname ?? 'Me'
-    }
-    return memberIds
-      .filter(id => id !== me?.userId)
-      .map(id => userProfiles[id]?.nickname)
-      .join(', ')
-  }
 
   const response: CreateChannelResponse = yield* apply(
     socket,
@@ -44,7 +34,7 @@ export function* createChannelSaga(
     const displayedName =
       response.channel.type === ChannelType.CHANNEL
         ? response.channel.name
-        : _generateDmChannelName(response.channel.memberIds)
+        : generateDmChannelName(response.channel.memberIds, userProfiles, me)
     yield* put(
       publicChannelsActions.addChannel({
         ...response,

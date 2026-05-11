@@ -43,9 +43,12 @@ export interface UserListItem {
   textMatches: boolean
 }
 
-export interface CreatedDM {
+export interface NewMessageDM {
   successfulUsers: string[]
   failedUsers: string[]
+}
+
+export interface CreatedDM extends NewMessageDM {
   success: boolean
 }
 
