@@ -225,7 +225,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.info('Loading sigchain for community', community.name)
         await this.sigChainService.loadChain(community.name, true)
       } catch (e) {
-        this.logger.warn('Failed to load sigchain', e)
+        this.logger.error('Failed to load sigchain', e)
+        await this.localDbService.deleteCommunity(community.id)
+        await this.sigChainService.deleteChain(community.name, true)
+        return
       }
     } else {
       this.logger.warn('No community name found in storage')
