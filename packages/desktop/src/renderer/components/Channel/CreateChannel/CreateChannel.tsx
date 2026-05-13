@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActions } from '@quiet/types'
-import { DateTime } from 'luxon'
+import { CreateChannelPayload, ErrorCodes, ErrorMessages, SocketActions } from '@quiet/types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { flushSync } from 'react-dom'
 import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../logger'
-import { is } from 'ramda'
 
 const logger = createLogger('createChannel')
 

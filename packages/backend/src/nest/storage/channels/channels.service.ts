@@ -37,12 +37,9 @@ import { SigChainService } from '../../auth/sigchain.service'
 import { EncryptedAndSignedPayload, EncryptionScope, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
-import { EncryptedMessage } from './messages/messages.types'
 import { isChannel } from '../../validation/validators'
 import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
-import { MessagesAccessController } from './messages/orbitdb/MessagesAccessController'
-import { PrivateMessagesAccessController } from './messages/orbitdb/PrivateMessagesAccessController'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -66,9 +63,7 @@ export class ChannelsService extends EventEmitter {
     private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDbService,
     private readonly moduleRef: ModuleRef,
-    private readonly sigchainService: SigChainService,
-    private readonly messagesAccessController: MessagesAccessController,
-    private readonly privateMessagesAccessController: PrivateMessagesAccessController
+    private readonly sigchainService: SigChainService
   ) {
     super()
   }
