@@ -27,7 +27,7 @@ export class MessagesAccessController extends BaseMessagesAccessController {
 
       const { id } = writerIdentity
       if (config.write.includes(id) || config.write.includes('*')) {
-        if (!identities.verifyIdentity(writerIdentity)) {
+        if (!(await identities.verifyIdentity(writerIdentity))) {
           return false
         }
       } else {
