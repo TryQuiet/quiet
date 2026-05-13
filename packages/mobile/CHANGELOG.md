@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [7.1.0-alpha.32](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.0-alpha.31...@quiet/mobile@7.1.0-alpha.32) (2026-05-13)
+
+
+### Bug Fixes
+
+* **mobile:** shareAllData — stage sources before zip so iOS recurses ([1370f67](https://github.com/TryQuiet/quiet/commit/1370f67c789fc291636aa760409756f930e18e43)), closes [#3213](https://github.com/TryQuiet/quiet/issues/3213) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
+
+
+
+
+
 # Changelog
 
 ## [7.1.0]
