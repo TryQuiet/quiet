@@ -5,7 +5,7 @@
 ### Features
 
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
-* Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu [#3213](https://github.com/TryQuiet/quiet/issues/3213)
+* Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
 
 ### Fixes
 

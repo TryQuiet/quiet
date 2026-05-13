@@ -4,7 +4,7 @@ import path from 'path'
 import getPort from 'get-port'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
-import { TorControl } from './nest/tor/tor-control.service'
+import { Tor } from './nest/tor/tor.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge, { RnBridge } from './rn-bridge'
 import { INestApplicationContext } from '@nestjs/common'
@@ -252,12 +252,17 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
   })
   rn_bridge.channel.on('open', (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    const torControl = app.get<TorControl>(TorControl)
+    const tor = app.get<Tor>(Tor)
     proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
-    torControl.torControlParams.port = msg.torControlPort
-    torControl.torControlParams.auth.value = msg.authCookie
-    proxyAgent.connectOpts.port = msg.httpTunnelPort
-    proxyAgent.proxy.port = msg.httpTunnelPort
+    const torControlPort = Number(msg.torControlPort)
+    const httpTunnelPort = Number(msg.httpTunnelPort)
+    tor.rewireNativeTor({
+      controlPort: torControlPort,
+      httpTunnelPort,
+      authCookie: msg.authCookie,
+    })
+    proxyAgent.connectOpts.port = httpTunnelPort
+    proxyAgent.proxy.port = httpTunnelPort.toString()
     connectionsManager.resume()
   })
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
