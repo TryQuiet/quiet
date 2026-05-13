@@ -164,6 +164,7 @@ describe('channelDeletionResponseSaga', () => {
         timestamp: 0,
         id: newGeneralId,
         public: true,
+        teamId: community.teamId!,
       }
 
       const reducer = combineReducers(testReducers)

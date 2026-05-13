@@ -73,7 +73,6 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { randomBytes } from '@localfirst/crypto'
 import { QSSEvents } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 
@@ -86,7 +85,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public communityState: ServiceState
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
-  private peerInfo: Libp2pPeerInfo | undefined = undefined
 
   private readonly logger = createLogger(ConnectionsManagerService.name)
   constructor(

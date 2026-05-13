@@ -1,10 +1,9 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
 import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '@localfirst/auth'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { SocketService } from '../socket/socket.service'
-import { PublicChannel, SocketEvents, User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
@@ -17,7 +16,6 @@ import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { GetChainFilter, SigchainEvents } from './types'
 import { ModuleRef } from '@nestjs/core'
-import { StorageService } from '../storage/storage.service'
 
 @Injectable()
 export class SigChainService extends EventEmitter {

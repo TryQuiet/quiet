@@ -1,12 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { StoreKeys } from '../../store.keys'
 import { type Socket } from '../../../types'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { identityReducer, IdentityState, type identityActions } from '../../identity/identity.slice'
-import { CommunitiesState, communitiesReducer, type communitiesActions } from '../../communities/communities.slice'
-import { communitiesAdapter } from '../../communities/communities.adapter'
-import { identityAdapter } from '../../identity/identity.adapter'
 import { type Store } from '../../store.types'
 import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
@@ -16,19 +11,14 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   Community,
-  CreateChannelPayload,
-  CreateChannelResponse,
   Identity,
   type PublicChannel,
   SocketActions,
 } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
-import { messagesActions } from '../../messages/messages.slice'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
 import { addMembersChannelSaga } from './addMembersChannel.saga'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { DateTime } from 'luxon'
-import { call } from 'redux-saga-test-plan/matchers'
 import { select } from 'typed-redux-saga'
 
 describe('addMembersChannelSaga', () => {

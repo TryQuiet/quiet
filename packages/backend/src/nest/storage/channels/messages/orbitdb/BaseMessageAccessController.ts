@@ -54,7 +54,7 @@ export interface AccessControllerConfig {
   sigchainService: SigChainService
 }
 
-export class BaseMessagesAccessController {
+export class BaseMessagesAccessController<T extends AccessControllerConfig> {
   protected readonly logger: QuietLogger
   constructor(
     protected readonly type: string,
@@ -63,13 +63,13 @@ export class BaseMessagesAccessController {
     this.logger = createLogger(`storage:channels:messages:orbitdb:access-control:${this.type}`)
   }
 
-  public createAccessControllerFunc(config: AccessControllerConfig): typeof AccessController {
+  public createAccessControllerFunc(config: T): typeof AccessController {
     const accessController = this._createAccessControllerFuncImpl(config)
     ;(accessController as any).type = this.type
     return accessController
   }
 
-  private _createAccessControllerFuncImpl(config: AccessControllerConfig): typeof AccessController {
+  private _createAccessControllerFuncImpl(config: T): typeof AccessController {
     return async ({
       orbitdb,
       identities,
@@ -97,8 +97,6 @@ export class BaseMessagesAccessController {
         address = posixJoin('/', this.type, address)
       }
 
-      const crypto = getCrypto()
-
       return {
         type: this.type,
         address,
@@ -108,7 +106,7 @@ export class BaseMessagesAccessController {
     }
   }
 
-  protected canAppend(config: AccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+  protected canAppend(config: T, identities: IdentitiesType): CanAppendFunc {
     throw new NotImplementedError('canAppend')
   }
 }

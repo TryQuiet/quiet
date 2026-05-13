@@ -46,6 +46,7 @@ const args: IdentityPanelProps &
     name: 'rockets',
     id: 'rocketsCommunityId',
     ownership: CommunityOwnership.Owner,
+    teamId: 'foobar',
   },
   accountSettingsModal: {
     open: false,
@@ -60,6 +61,7 @@ const args: IdentityPanelProps &
       owner: 'aliceUserId',
       timestamp: Date.now(),
       public: true,
+      teamId: 'foobar',
     },
     {
       id: 'spooky',
@@ -68,6 +70,7 @@ const args: IdentityPanelProps &
       owner: 'bobUserId',
       timestamp: Date.now(),
       public: true,
+      teamId: 'foobar',
     },
     {
       id: 'kalkan',
@@ -76,6 +79,7 @@ const args: IdentityPanelProps &
       owner: 'charlieUserId',
       timestamp: Date.now(),
       public: true,
+      teamId: 'foobar',
     },
   ],
   myUserProfile: {

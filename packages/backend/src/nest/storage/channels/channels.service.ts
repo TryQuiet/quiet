@@ -447,6 +447,7 @@ export class ChannelsService extends EventEmitter {
       owner: this.sigchainService.getActiveChain().user.userId,
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
+      teamId: payload.teamId,
     }
     let roleName: string | undefined = undefined
     if (!channelData.public) {

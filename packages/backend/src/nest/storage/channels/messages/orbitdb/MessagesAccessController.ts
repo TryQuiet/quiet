@@ -12,7 +12,7 @@ import { Injectable } from '@nestjs/common'
 const TYPE = 'messagesaccess'
 
 @Injectable()
-export class MessagesAccessController extends BaseMessagesAccessController {
+export class MessagesAccessController extends BaseMessagesAccessController<AccessControllerConfig> {
   constructor(protected sigchainService: SigChainService) {
     super(TYPE, sigchainService)
   }

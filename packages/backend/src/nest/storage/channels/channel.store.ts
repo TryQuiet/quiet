@@ -72,7 +72,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
 
     const accessController = channelData.public
       ? this.messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService: this.auth })
-      : this.privateMessagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService: this.auth })
+      : this.privateMessagesAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService: this.auth,
+          channelId: channelData.id,
+          teamId: channelData.teamId,
+        })
     this.store = await this.orbitDbService.open<EventsType<EncryptedMessage>>(`channels.${this.channelData.id}`, {
       type: 'events',
       Database: EventsWithStorage(),

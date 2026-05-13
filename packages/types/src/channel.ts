@@ -14,6 +14,7 @@ export interface PublicChannel {
   timestamp: number
   disabled?: boolean
   public: boolean
+  teamId: string
   roleName?: string
 }
 
@@ -89,6 +90,7 @@ export interface CreateChannelPayload {
   id: string
   name: string
   public?: boolean
+  teamId: string
   description?: string
 }
 

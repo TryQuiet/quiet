@@ -99,6 +99,7 @@ const channelSchema = joi.object({
   public: joi.boolean().required(),
   roleName: joi.string().optional(),
   disabled: joi.boolean().optional(),
+  teamId: joi.string().required(),
 })
 
 // TODO: make this validator more strict

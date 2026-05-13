@@ -11,12 +11,18 @@ import { Injectable } from '@nestjs/common'
 
 const TYPE = 'privatemessagesaccess'
 
+export interface PrivateAccessControllerConfig extends AccessControllerConfig {
+  channelId: string
+  teamId: string
+}
+
 @Injectable()
-export class PrivateMessagesAccessController extends BaseMessagesAccessController {
+export class PrivateMessagesAccessController extends BaseMessagesAccessController<PrivateAccessControllerConfig> {
   constructor(protected sigchainService: SigChainService) {
     super(TYPE, sigchainService)
   }
-  protected canAppend(config: AccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+
+  protected canAppend(config: PrivateAccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
     return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
@@ -34,13 +40,28 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      const sigchain = config.sigchainService.getChain({ teamId: entry.payload.value!.teamId })
-      if (!sigchain.channels.memberInChannel(id, entry.payload.value!.channelId)) {
+      if (entry.payload.value == null) {
+        this.logger.error(`Can't verify OrbitDB entry ${entry.payload.key}, payload value is nullish`)
+        return false
+      }
+
+      if (entry.payload.value.teamId !== config.teamId) {
+        this.logger.error(`Entry ${entry.payload.value.id} is from a different team`)
+        return false
+      }
+
+      if (entry.payload.value.channelId !== config.channelId) {
+        this.logger.error(`Entry ${entry.payload.value.id} is from a different channel`)
+        return false
+      }
+
+      const sigchain = config.sigchainService.getChain({ teamId: config.teamId })
+      if (!sigchain.channels.memberInChannel(id, config.channelId)) {
         this.logger.warn(
           `User is not a member of the channel, skipping log append`,
           id,
-          entry.payload.value!.teamId,
-          entry.payload.value!.channelId
+          config.teamId,
+          config.channelId
         )
         return false
       }

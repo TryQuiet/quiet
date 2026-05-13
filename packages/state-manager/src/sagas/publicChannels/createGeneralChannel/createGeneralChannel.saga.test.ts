@@ -42,6 +42,7 @@ describe('createGeneralChannelSaga', () => {
       name: 'general',
       description: 'Welcome to #general',
       id: generalId,
+      teamId: community.teamId!,
     }
     await expectSaga(createGeneralChannelSaga)
       .withReducer(combineReducers(testReducers))

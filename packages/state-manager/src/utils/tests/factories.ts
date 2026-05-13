@@ -112,6 +112,7 @@ export const getBaseTypesFactory = async () => {
     name: factory.sequence('Community.name', (n: number) => `community_${n}`),
     peerList: [],
     ownership: CommunityOwnership.Owner,
+    teamId: factory.sequence('Community.teamId', (n: number) => `team_id_${n}`),
   })
 
   factory.define<PublicChannel>('PublicChannel', Object, {
@@ -121,6 +122,7 @@ export const getBaseTypesFactory = async () => {
     public: true,
     owner: factory.assoc('User', 'userId'),
     timestamp: DateTime.utc().toSeconds(),
+    teamId: factory.assoc('Community', 'teamId'),
   })
 
   factory.define<UserProfileDisplayData>('UserProfileDisplayData', Object, {
@@ -187,6 +189,7 @@ export const getReduxStoreFactory = async (store: Store) => {
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
       peerList: [],
       ownership: CommunityOwnership.Owner,
+      teamId: factory.sequence('Community.teamId', (n: number) => `team_id_${n.toString()}`),
     },
     {
       afterCreate: async (payload: ReturnType<typeof communitiesActions.addNewCommunity>['payload']) => {
@@ -205,6 +208,7 @@ export const getReduxStoreFactory = async (store: Store) => {
             owner: 'alice',
             id: generateChannelId('general'),
             public: true,
+            teamId: payload.teamId,
           },
         })
         return payload
@@ -285,6 +289,7 @@ export const getReduxStoreFactory = async (store: Store) => {
           owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
           id: generateChannelId(name),
           public: true,
+          teamId: factory.assoc('Community', 'teamId'),
         }
       }),
     },
@@ -538,6 +543,7 @@ export const getSocketFactory = async () => {
     id: 'new-channel-id',
     name: 'Test Channel',
     description: 'A channel used for tests',
+    teamId: 'foobar',
   })
 
   factory.define<CreateChannelResponse>(`${SocketActions.CREATE_CHANNEL}_response`, Object, {
@@ -548,6 +554,7 @@ export const getSocketFactory = async () => {
       owner: 'test-owner',
       timestamp: Date.now(),
       public: true,
+      teamId: 'foobar',
     },
   })
 

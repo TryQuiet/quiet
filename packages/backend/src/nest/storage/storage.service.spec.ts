@@ -68,6 +68,7 @@ describe('StorageService', () => {
       timestamp: channel.timestamp,
       id: channel.id,
       public: true,
+      teamId: community.teamId!,
     }
 
     alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
