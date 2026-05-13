@@ -145,7 +145,9 @@ export class StorageService extends EventEmitter {
             i.startsWith('Local Storage') ||
             i.startsWith('libp2pDatastore') ||
             i.startsWith('databases') ||
-            i.startsWith('TorDataDirectory')
+            i.startsWith('TorDataDirectory') ||
+            i.startsWith('uploads') ||
+            i.startsWith('downloads')
         )
       : []
     const dirsToRemovePaths = new Set([this.ipfsRepoPath, this.orbitDbDir])
