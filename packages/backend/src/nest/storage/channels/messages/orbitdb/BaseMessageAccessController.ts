@@ -101,7 +101,7 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
         type: this.type,
         address,
         write,
-        canAppend: this.canAppend(config, identities) as any,
+        canAppend: this.canAppend({ ...config, ...write }, identities) as any,
       }
     }
   }
