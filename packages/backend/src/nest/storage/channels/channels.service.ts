@@ -142,7 +142,7 @@ export class ChannelsService extends EventEmitter {
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating channels database')
     this.channels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      'channels',
+      'public-channels',
       {
         sync: false,
         Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
@@ -191,7 +191,7 @@ export class ChannelsService extends EventEmitter {
         type: EncryptionScopeType.ROLE,
         name: RoleName.MEMBER,
       }
-      if (!payload.public) {
+      if (!(payload.public ?? true)) {
         scope = {
           type: EncryptionScopeType.ROLE,
           name: chain.channels.generateChannelRoleName(payload.id),
@@ -373,7 +373,7 @@ export class ChannelsService extends EventEmitter {
     const channels = await this.getChannels()
     const channelMapping: { [channelRoleName: string]: PublicChannel } = {}
     channels.forEach((channel: PublicChannel) => {
-      if (!channel.public && channel.roleName != null) {
+      if (!(channel.public ?? true) && channel.roleName != null) {
         channelMapping[channel.roleName] = channel
       }
     })
@@ -450,7 +450,7 @@ export class ChannelsService extends EventEmitter {
       teamId: payload.teamId,
     }
     let roleName: string | undefined = undefined
-    if (!channelData.public) {
+    if (!(channelData.public ?? true)) {
       roleName = this.sigchainService.getActiveChain().channels.create(channelData.id)
       channelData.roleName = roleName
     }

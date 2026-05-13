@@ -98,6 +98,7 @@ export const CreateChannelScreen: FC = () => {
           description: `Welcome to #${name}`,
           id: id,
           teamId: community.teamId,
+          public: true,
         })
       )
     },

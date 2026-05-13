@@ -22,6 +22,7 @@ export function* createGeneralChannelSaga(): Generator {
       name: 'general',
       description: 'Welcome to #general',
       teamId: community.teamId,
+      public: true,
     } as CreateChannelPayload)
   )
 

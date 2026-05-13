@@ -86,7 +86,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.logger = createLogger(`storage:channels:channelStore:${this.channelData.name}`)
     this.logger.info(`Initializing channel store for channel ${this.channelData.name}`, channelData)
 
-    if (channelData.public) {
+    if (channelData.public ?? true) {
       this._accessController = this._publicMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
@@ -97,7 +97,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         write: ['*'],
         sigchainService: this.auth,
         channelId: this.channelData.id,
-        teamId: this.channelData.teamId,
+        teamId: this.channelData.teamId ?? this.auth.team.id,
       })
       this._messagesService = this._privateMessagesService
     }

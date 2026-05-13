@@ -13,8 +13,8 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   disabled?: boolean
-  public: boolean
-  teamId: string
+  public?: boolean
+  teamId?: string
   roleName?: string
 }
 
@@ -89,7 +89,7 @@ export interface ChannelsReplicatedPayload {
 export interface CreateChannelPayload {
   id: string
   name: string
-  public?: boolean
+  public: boolean
   teamId: string
   description?: string
 }
