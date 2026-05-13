@@ -13,6 +13,24 @@ const LOGS_DIR = RNFS.DocumentDirectoryPath + '/logs'
 const SHARE_DIR = RNFS.CachesDirectoryPath + '/quiet-data-share'
 const SUPPORT_EMAIL = 'logs@tryquiet.org'
 
+// react-native-zip-archive on iOS dispatches to two different SSZipArchive APIs
+// depending on whether `source` is a string (recurses into the directory) or an
+// array (treats every entry as a single file — directories become 0-byte
+// entries). We stage everything into one directory and zip it as a string so
+// iOS and Android produce the same archive.
+const copyDir = async (src: string, dst: string): Promise<void> => {
+  await RNFS.mkdir(dst)
+  const entries = await RNFS.readDir(src)
+  for (const entry of entries) {
+    const target = `${dst}/${entry.name}`
+    if (entry.isDirectory()) {
+      await copyDir(entry.path, target)
+    } else {
+      await RNFS.copyFile(entry.path, target)
+    }
+  }
+}
+
 const WARNING_LINES = [
   'PRIVACY/SECURITY WARNING: Do **NOT** use this feature with a live community you care about. This feature is for internal use on Alpha builds only. It will share ALL QUIET APPLICATION DATA, including:',
   '',
@@ -37,7 +55,8 @@ export const shareAllData = async (): Promise<void> => {
   await RNFS.mkdir(SHARE_DIR)
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const readmePath = `${SHARE_DIR}/README.txt`
+  const stagingDir = `${SHARE_DIR}/staging-${stamp}`
+  await RNFS.mkdir(stagingDir)
 
   const headerLines = [
     ...WARNING_LINES,
@@ -53,12 +72,7 @@ export const shareAllData = async (): Promise<void> => {
     '',
   ]
   const header = headerLines.join('\n')
-  await RNFS.writeFile(readmePath, header, 'utf8')
-
-  const sources: string[] = [readmePath, DATA_DIR]
-  if (await RNFS.exists(LOGS_DIR)) {
-    sources.push(LOGS_DIR)
-  }
+  await RNFS.writeFile(`${stagingDir}/README.txt`, header, 'utf8')
 
   Alert.alert(
     'Preparing archive',
@@ -67,14 +81,23 @@ export const shareAllData = async (): Promise<void> => {
 
   const zipPath = `${SHARE_DIR}/quiet-data-${stamp}.zip`
   try {
-    logger.info(`Zipping ${sources.length} source(s) into ${zipPath}`)
     const start = Date.now()
-    await zip(sources, zipPath)
-    logger.info(`Zip complete in ${Date.now() - start}ms`)
+    await copyDir(DATA_DIR, `${stagingDir}/data`)
+    if (await RNFS.exists(LOGS_DIR)) {
+      await copyDir(LOGS_DIR, `${stagingDir}/logs`)
+    }
+    logger.info(`Staged sources in ${Date.now() - start}ms; zipping ${stagingDir} into ${zipPath}`)
+    const zipStart = Date.now()
+    await zip(stagingDir, zipPath)
+    logger.info(`Zip complete in ${Date.now() - zipStart}ms`)
   } catch (err) {
     logger.error('Failed to zip data directory', err)
     Alert.alert('Could not zip data', String(err))
     return
+  } finally {
+    if (await RNFS.exists(stagingDir)) {
+      await RNFS.unlink(stagingDir).catch(() => undefined)
+    }
   }
 
   try {
