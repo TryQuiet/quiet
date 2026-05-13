@@ -241,6 +241,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
             sigChain.team != null
               ? sigChain.team.id
               : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
+          if (this.qssAuthConnManager.getConnection(teamId)?.active) {
+            this.logger.trace('Already signing-in or signed in, skipping...')
+            return
+          }
           const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
           this.logger.trace('QSS Sign in', teamId, teamName)
           await this.signInToCommunity(teamId, sigChain, teamName)

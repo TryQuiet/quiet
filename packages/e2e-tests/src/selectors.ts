@@ -2291,6 +2291,8 @@ export class NewMessage {
       }
     }
 
+    await sleep(2_000)
+
     await messageInput.sendKeys(firstMessage)
     await messageInput.sendKeys(Key.ENTER)
 

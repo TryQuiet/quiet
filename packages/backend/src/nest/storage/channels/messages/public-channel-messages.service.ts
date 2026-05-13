@@ -79,10 +79,11 @@ export class PublicChannelMessagesService extends BaseMessagesService {
   private _decryptPublicChannelMessage(encryptedMessage: EncryptedMessage): ConsumedChannelMessage {
     try {
       const chain = this.sigChainService.getActiveChain()
+      this.logger.warn('Encrypted message', encryptedMessage)
       const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
         encryptedMessage.contents,
         encryptedMessage.encSignature,
-        false
+        true
       )
       return {
         ...decryptedMessage.contents,

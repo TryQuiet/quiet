@@ -22,6 +22,7 @@ export interface BuildSetupInit {
   defaultDataDir?: boolean
   dataDir?: string
   fileName?: string
+  username?: string
 }
 
 export class BuildSetup {
@@ -35,7 +36,7 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
 
-  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName }: BuildSetupInit) {
+  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName, username }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.defaultDataDir = defaultDataDir
@@ -44,7 +45,7 @@ export class BuildSetup {
     this.id = (Math.random() * 10 ** 18).toString(36)
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (!this.dataDir) {
-      this.dataDir = `e2e_${this.id}`
+      this.dataDir = `e2e_${username ?? Date.now()}_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
     logger.info('Running app from directory', this.dataDirPath)

@@ -204,6 +204,7 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.USER_PROFILES_STORED}`, payload.profiles.length)
       emit(usersActions.updateUserProfiles(payload.profiles))
       emit(messagesActions.retryVerification({ currentChannel: true }))
+      emit(publicChannelsActions.syncChannelDisplayNames())
     })
 
     socket.on(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST, (payload: HCaptchaChallengeRequest) => {

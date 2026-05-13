@@ -47,6 +47,13 @@ export class OrbitDbService {
     private readonly messagesAccessController: MessagesAccessController
   ) {
     OrbitDbService.events.on('update', (entry: LogEntry) => {
+      this.logger.trace(
+        'OrbitDB update',
+        entry.hash,
+        entry.identity,
+        this.orbitDbInstance?.identity.hash,
+        JSON.stringify(entry.payload, null, 2)
+      )
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
         const store = this.stores[entry.id]
         OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))

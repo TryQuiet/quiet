@@ -91,7 +91,7 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
       const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
         encryptedMessage.contents,
         encryptedMessage.encSignature,
-        false
+        true
       )
       return {
         ...decryptedMessage.contents,

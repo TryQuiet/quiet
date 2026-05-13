@@ -13,4 +13,4 @@
 [submodule "3rd-party/qss"]
 	path = 3rd-party/qss
 	url = https://github.com/TryQuiet/quiet-storage-service.git
-	branch = feat/3155-private-channels
+	branch = feat/2571-private-dms

@@ -177,7 +177,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       this.nicknameMaps.set(userProfile.userId, userProfile.nickname)
       return encEntry
     } catch (err) {
-      logger.error('Failed to add user profile', userProfile.userId, err)
+      logger.error('Failed to add user profile - deferring', userProfile.userId, err)
       this.deferredProfiles.push(userProfile)
       throw err
     }

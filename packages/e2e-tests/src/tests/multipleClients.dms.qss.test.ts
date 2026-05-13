@@ -11,8 +11,10 @@ import {
   JoiningLoadingPanel,
   NewMessage,
   RegisterUsernameModal,
+  ServerOfferModal,
   Settings,
   Sidebar,
+  TermsOfServiceModal,
 } from '../selectors'
 import { createArbitraryFile, promiseWithRetries, sleep } from '../utils'
 import { MessageIds, TestChannelType, UserListStatus, UserTestData, UserTestData2, UserTestDataMap } from '../types'
@@ -69,7 +71,7 @@ describe('Multiple Clients (DMs)', () => {
     users = {
       owner: {
         username: 'owner',
-        app: new App(),
+        app: new App({ username: 'owner' }),
         messages: {
           general: ['Hi'],
           selfDm: ['Only I can see this', `I'm still the only one who can see this`],
@@ -79,7 +81,7 @@ describe('Multiple Clients (DMs)', () => {
       },
       user1: {
         username: 'user-1',
-        app: new App(),
+        app: new App({ username: 'user-1' }),
         messages: {
           general: ['Hello'],
           selfDm: [],
@@ -89,7 +91,7 @@ describe('Multiple Clients (DMs)', () => {
       },
       user2: {
         username: 'user-2',
-        app: new App(),
+        app: new App({ username: 'user-2' }),
         messages: {
           general: [`I'm here too`],
           selfDm: [],
@@ -126,7 +128,7 @@ describe('Multiple Clients (DMs)', () => {
       try {
         if (!user.app.isOpened) continue
         await user.app.close()
-        await user.app.cleanup()
+        // await user.app.cleanup()
       } catch (e) {
         logger.error('Failed to close and cleanup app data', e)
       }
@@ -134,13 +136,13 @@ describe('Multiple Clients (DMs)', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   describe('Stages:', () => {
-    describe('Owner Creates Community', () => {
+    describe('Owner Creates Community With QSS', () => {
       it('Owner opens the app', async () => {
-        await users.owner.app.openWithRetries()
+        await users.owner.app.open(true)
       })
 
       it('Owner sees "join community" modal and switches to "create community" modal', async () => {
@@ -156,11 +158,27 @@ describe('Multiple Clients (DMs)', () => {
         await createModal.submit()
       })
 
+      it('Owner sees "server offer" modal', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        expect(await serverOfferModal.isReady()).toBeTruthy()
+      })
+
+      it('Owner accepts server offer', async () => {
+        const serverOfferModal = new ServerOfferModal(users.owner.app.driver)
+        await serverOfferModal.chooseUseServer()
+      })
+
       it('Owner sees "register username" modal and submits valid username', async () => {
         const registerModal = new RegisterUsernameModal(users.owner.app.driver)
         expect(await registerModal.isReady()).toBeTruthy()
         await registerModal.typeUsername(users.owner.username)
         await registerModal.submit()
+      })
+
+      it('Owner agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.owner.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
       })
 
       it('Owner waits to join', async () => {
@@ -256,7 +274,7 @@ describe('Multiple Clients (DMs)', () => {
     describe('First User Joins Community', () => {
       it('First user opens the app', async () => {
         logger.info('Second client')
-        await users.user1.app.openWithRetries()
+        await users.user1.app.open(true)
       })
 
       it('First user submits invitation code received from owner', async () => {
@@ -277,6 +295,12 @@ describe('Multiple Clients (DMs)', () => {
         await registerModal.typeUsername(users.user1.username)
         await registerModal.submit()
         logger.time(`[${app.name}] '${users.user1.username}' joining community time`)
+      })
+
+      it('First user agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.user1.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
       })
 
       it('First user waits to join', async () => {
@@ -302,7 +326,6 @@ describe('Multiple Clients (DMs)', () => {
           await app.open()
         }
         await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
-        await sleep(2_000)
         await generalChannelUser1.sendMessage(users.user1.messages.general[0], users.user1.username)
       })
 
@@ -382,7 +405,7 @@ describe('Multiple Clients (DMs)', () => {
       })
     })
 
-    describe('Owner invites second user', () => {
+    describe('Owner invites second user while everyone offline', () => {
       it('Owner opens the settings tab and gets an updated invitation link', async () => {
         const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
         expect(await settingsModal.isReady()).toBeTruthy()
@@ -394,12 +417,20 @@ describe('Multiple Clients (DMs)', () => {
         logger.warn('closing invite tab')
         await settingsModal.closeTabThenModal()
       })
+
+      it('First user goes offline', async () => {
+        await users.user1.app.close({ forceSaveState: true })
+      })
+
+      it('Owner goes offline', async () => {
+        await users.owner.app.close({ forceSaveState: true })
+      })
     })
 
-    describe('Second User Joins Community', () => {
+    describe('Second User Joins Community With Other Users Offline', () => {
       it('Second user opens the app', async () => {
         logger.info('Third client')
-        await users.user2.app.openWithRetries()
+        await users.user2.app.open(true)
       })
 
       it('Second user submits invitation code received from owner', async () => {
@@ -418,6 +449,12 @@ describe('Multiple Clients (DMs)', () => {
         await registerModal.typeUsername(users.user2.username)
         await registerModal.submit()
         logger.time(`[${app.name}] '${users.user2.username}' joining community time`)
+      })
+
+      it('Second user agrees to Terms of Service', async () => {
+        const tosModal = new TermsOfServiceModal(users.user2.app.driver)
+        expect(await tosModal.isReady()).toBeTruthy()
+        await tosModal.chooseAgreeAndJoin()
       })
 
       it('Second user waits to join', async () => {
@@ -459,19 +496,6 @@ describe('Multiple Clients (DMs)', () => {
         await generalChannelUser2.getUserMessages(users.user1.username)
         await generalChannelUser2.getMessageIdsByText(users.user1.messages.general[0], users.user1.username)
       })
-
-      it("Second user's message is visible in a channel to the owner", async () => {
-        generalChannelOwner = await sidebarOwner.switchChannel(generalChannelName)
-        await generalChannelOwner.getUserMessages(users.user2.username)
-        await generalChannelOwner.getMessageIdsByText(users.user2.messages.general[0], users.user2.username)
-      })
-
-      it("Second user's message is visible in a channel to the first user", async () => {
-        sidebarUser1 = new Sidebar(users.user1.app.driver)
-        generalChannelUser1 = await sidebarUser1.switchChannel(generalChannelName)
-        await generalChannelUser1.getUserMessages(users.user2.username)
-        await generalChannelUser1.getMessageIdsByText(users.user2.messages.general[0], users.user2.username)
-      })
     })
 
     describe('Second user creates group DM', () => {
@@ -490,12 +514,94 @@ describe('Multiple Clients (DMs)', () => {
         expect(dmCreationStatus.success).toBeTruthy()
       })
 
+      it('Second user sees group DM channel in sidebar', async () => {
+        sidebarUser2 = new Sidebar(users.user2.app.driver)
+        expect(await sidebarUser2.waitForDmChannelsNum(1)).toBeTruthy()
+        await sidebarUser2.waitForDmChannels([channelNameMap.user2.groupDm])
+      })
+
       it('Second user sees newly created group DM channel', async () => {
         groupDmChannelUser2 = new Channel(users.user2.app.driver, channelNameMap.user2.groupDm)
         await groupDmChannelUser2.isOpen(TestChannelType.DM)
         await groupDmChannelUser2.isMessageInputReady()
       })
 
+      it('Second user sees their message in the newly created DM channel', async () => {
+        await groupDmChannelUser2.getUserMessages(users.user2.username)
+        await groupDmChannelUser2.getMessageIdsByText(users.user2.messages.groupDm[0], users.user2.username)
+      })
+    })
+
+    describe('Second User Goes Offline and Other Users Come Back', () => {
+      it('Second user goes offline', async () => {
+        await sleep(15_000)
+        await users.user2.app.close({ forceSaveState: true })
+      })
+
+      it('Owner goes back online', async () => {
+        await users.owner.app.open(true)
+        const debugModal = new DebugModeModal(users.owner.app.driver)
+        await debugModal.close()
+      })
+
+      it('Owner sees general channel', async () => {
+        const app = users.owner.app
+        const loadOwner = async () => {
+          generalChannelOwner = new Channel(app.driver, generalChannelName)
+          expect(await generalChannelOwner.isReady()).toBeTruthy()
+          sidebarOwner = new Sidebar(app.driver)
+          await sidebarOwner.switchChannel(generalChannelName)
+          expect(await generalChannelOwner.isOpen()).toBeTruthy()
+          expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+        }
+
+        const retryConfig = app.retryConfig
+        const failureReason = `Failed to load app for ${users.owner.username} within ${retryConfig.timeoutMs}ms`
+        const onTimeout = async () => {
+          await app.close()
+          await app.open()
+        }
+        await promiseWithRetries(loadOwner(), failureReason, retryConfig, onTimeout)
+      })
+
+      it("Second user's message is visible in general channel for owner", async () => {
+        generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
+        await generalChannelOwner.getUserMessages(users.user2.username)
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages.general[0], users.user2.username)
+      })
+
+      it('First user goes back online', async () => {
+        await users.user1.app.open(true)
+        const debugModal = new DebugModeModal(users.user1.app.driver)
+        await debugModal.close()
+      })
+
+      it('First user sees general channel', async () => {
+        const app = users.user1.app
+        const loadUser = async () => {
+          generalChannelUser1 = new Channel(app.driver, generalChannelName)
+          expect(await generalChannelUser1.isReady()).toBeTruthy()
+          expect(await generalChannelUser1.isOpen()).toBeTruthy()
+          expect(await generalChannelUser1.isMessageInputReady()).toBeTruthy()
+        }
+
+        const retryConfig = app.retryConfig
+        const failureReason = `Failed to load app for ${users.user1.username} within ${retryConfig.timeoutMs}ms`
+        const onTimeout = async () => {
+          await app.close()
+          await app.open()
+        }
+        await promiseWithRetries(loadUser(), failureReason, retryConfig, onTimeout)
+      })
+
+      it("Second user's message is visible in general channel for first user", async () => {
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
+        await generalChannelUser1.getUserMessages(users.user2.username)
+        await generalChannelUser1.getMessageIdsByText(users.user2.messages.general[0], users.user2.username)
+      })
+    })
+
+    describe('Owner And First User See Group DM', () => {
       it('Owner sees group DM in sidebar', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
         await sidebarOwner.waitForDmChannelsNum(3, 45_000)
@@ -520,11 +626,6 @@ describe('Multiple Clients (DMs)', () => {
       it('Owner sees their message in the group DM channel', async () => {
         await groupDmChannelOwner.getUserMessages(users.owner.username)
         await groupDmChannelOwner.getMessageIdsByText(users.owner.messages.groupDm[0], users.owner.username)
-      })
-
-      it(`Second user sees owner's message in the group DM channel`, async () => {
-        await groupDmChannelUser2.getUserMessages(users.owner.username)
-        await groupDmChannelUser2.getMessageIdsByText(users.owner.messages.groupDm[0], users.owner.username)
       })
 
       it('First user sees group DM in sidebar', async () => {
@@ -558,19 +659,59 @@ describe('Multiple Clients (DMs)', () => {
         await groupDmChannelUser1.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
       })
 
-      it(`Second user sees first user's message in the group DM channel`, async () => {
-        await groupDmChannelUser2.getUserMessages(users.user1.username)
-        await groupDmChannelUser2.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
-      })
-
       it(`Owner sees first user's message in the group DM channel`, async () => {
         await groupDmChannelOwner.getUserMessages(users.user1.username)
         await groupDmChannelOwner.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
       })
+    })
 
-      it('Second user sees their message in the newly created DM channel', async () => {
-        await groupDmChannelUser2.getUserMessages(users.user2.username)
-        await groupDmChannelUser2.getMessageIdsByText(users.user2.messages.groupDm[0], users.user2.username)
+    describe('Second User Comes Back Online', () => {
+      it('Second user goes back online', async () => {
+        await users.user2.app.openWithRetries(undefined, true)
+        const debugModal = new DebugModeModal(users.user2.app.driver)
+        await debugModal.close()
+      })
+
+      it('Second user sees general channel', async () => {
+        const app = users.user2.app
+        const loadUser = async () => {
+          generalChannelUser2 = new Channel(app.driver, generalChannelName)
+          expect(await generalChannelUser2.isReady()).toBeTruthy()
+          expect(await generalChannelUser2.isOpen()).toBeTruthy()
+          expect(await generalChannelUser2.isMessageInputReady()).toBeTruthy()
+        }
+
+        const retryConfig = app.retryConfig
+        const failureReason = `Failed to load app for ${users.user2.username} within ${retryConfig.timeoutMs}ms`
+        const onTimeout = async () => {
+          await app.close()
+          await app.open()
+        }
+        await promiseWithRetries(loadUser(), failureReason, retryConfig, onTimeout)
+      })
+
+      describe('Second User Sees New Messages In Group DM', () => {
+        it('Second user sees group DM in sidebar', async () => {
+          sidebarUser2 = new Sidebar(users.user2.app.driver)
+          await sidebarUser2.waitForDmChannelsNum(1, 45_000)
+          await sidebarUser2.waitForDmChannels([channelNameMap.user2.groupDm])
+        })
+
+        it('Second user opens group DM channel', async () => {
+          groupDmChannelUser2 = await sidebarUser2.switchDm(channelNameMap.user2.groupDm)
+          await groupDmChannelUser2.isOpen(TestChannelType.DM)
+          await groupDmChannelUser2.isMessageInputReady()
+        })
+
+        it(`Second user sees owner's message in the group DM channel`, async () => {
+          await groupDmChannelUser2.getUserMessages(users.owner.username)
+          await groupDmChannelUser2.getMessageIdsByText(users.owner.messages.groupDm[0], users.owner.username)
+        })
+
+        it(`Second user sees first user's message in the group DM channel`, async () => {
+          await groupDmChannelUser2.getUserMessages(users.user1.username)
+          await groupDmChannelUser2.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
+        })
       })
     })
 
@@ -613,6 +754,48 @@ describe('Multiple Clients (DMs)', () => {
       it("First user's message is visible in a channel to the owner", async () => {
         await generalChannelOwner.getUserMessages(users.user1.username)
         await generalChannelOwner.getMessageIdsByText(users.user1.messages.general[0], users.user1.username)
+      })
+    })
+
+    describe('Open existing DM in New Message view and send message', () => {
+      it('Owner opens new message view', async () => {
+        newMessageOwner = new NewMessage(users.owner.app.driver)
+        await newMessageOwner.open()
+      })
+
+      it('Owner switches new message view to group DM', async () => {
+        const dmCreationStatus = await newMessageOwner.changeDmUsers([users.user1.username, users.user2.username])
+        expect(dmCreationStatus.failedUsers).toHaveLength(0)
+        expect(dmCreationStatus.successfulUsers).toHaveLength(2)
+      })
+
+      it(`Owner sees first user's message from group DM in new message view`, async () => {
+        await groupDmChannelOwner.getUserMessages(users.user1.username)
+        await groupDmChannelOwner.getMessageIdsByText(users.user1.messages.groupDm[0], users.user1.username)
+      })
+
+      it('Owner sends message in group DM channel via new message', async () => {
+        await groupDmChannelOwner.sendMessage(users.owner.messages.groupDm[1], users.owner.username)
+      })
+
+      it('Owner is now on the channel screen for the group DM', async () => {
+        expect(await groupDmChannelOwner.isOpen(TestChannelType.DM)).toBeTruthy()
+        expect(await groupDmChannelOwner.isMessageInputReady()).toBeTruthy()
+      })
+
+      it('Owner sees their message in the group DM channel', async () => {
+        await groupDmChannelOwner.getUserMessages(users.owner.username)
+        await groupDmChannelOwner.getMessageIdsByText(users.owner.messages.groupDm[1], users.owner.username)
+      })
+
+      it(`Second user sees owner's second message in the group DM channel`, async () => {
+        await groupDmChannelUser2.getUserMessages(users.owner.username)
+        await groupDmChannelUser2.getMessageIdsByText(users.owner.messages.groupDm[1], users.owner.username)
+      })
+
+      it(`First user sees owner's second message in the group DM channel`, async () => {
+        await groupDmChannelUser1.getUserMessages(users.owner.username)
+        await groupDmChannelUser1.getMessageIdsByText(users.owner.messages.groupDm[1], users.owner.username)
       })
     })
   })
