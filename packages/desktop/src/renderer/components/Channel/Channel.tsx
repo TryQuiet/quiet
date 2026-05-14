@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 
-import { shell, ipcRenderer } from 'electron'
+import { shell, ipcRenderer, webUtils } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
@@ -95,7 +95,7 @@ const Channel = () => {
       updateAttachingFiles(
         getFilesData(
           item.files.map(droppedFile => {
-            return { path: droppedFile.path }
+            return { path: webUtils.getPathForFile(droppedFile) }
           })
         )
       )
@@ -139,7 +139,7 @@ const Channel = () => {
           [arg.id]: {
             ext: arg.ext,
             name: arg.name,
-            path: arg.path,
+            path: webUtils.getPathForFile(arg),
           },
         }
 
