@@ -1,15 +1,21 @@
 # Changelog
 
+## [unreleased]
+
+### Features
+
+### Fixes
+
+* The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
+
+### Chores
+
 ## [7.1.0]
 
 ### Features
 
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
 * Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
-
-### Fixes
-
-* The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
 
 ### Chores
 
