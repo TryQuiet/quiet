@@ -1879,4 +1879,36 @@ describe('QSSService', () => {
       ingestSpy.mockRestore()
     })
   })
+
+  // Regression coverage for the architectural shape called out in
+  // poc/qss-flap-stalls-create-upstream: clicking "Create community"
+  // on a slightly flaky link consumed the renderer-side captcha token
+  // and then the create flow bailed out because the in-flight ack came
+  // back as 'socket has been disconnected'. createCommunity() returns
+  // false; QSS_CONNECTED does not re-fire while the websocket is still
+  // up; nothing reschedules the create. The fix is a one-shot,
+  // backoff-delayed retry of QSS_HANDLE_SIGN_IN scheduled from inside
+  // the sign-in handler. Without the fix createCommunity is called
+  // exactly once; with the fix it is called a second time after ~50 ms
+  // (QSS_RECONNECT_DELAY_MS).
+  describe('QSS_HANDLE_SIGN_IN retry on createCommunity false (regression)', () => {
+    it('retries createCommunity once after a single false result', async () => {
+      await initCommunity({ qssEnabled: true, qssSetup: false })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      const createSpy = jest
+        .spyOn(qssService, 'createCommunity')
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true)
+
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeTruthy()
+
+      await waitForExpect(() => {
+        expect(createSpy).toHaveBeenCalledTimes(2)
+      }, 5000)
+
+      createSpy.mockRestore()
+    })
+  })
 })
