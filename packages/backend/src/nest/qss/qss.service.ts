@@ -75,6 +75,15 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   private _enabledOverride = false
 
   /**
+   * Timer for retrying QSS_HANDLE_SIGN_IN after a single sign-in / create-community attempt
+   * fails on a still-connected client. Without this, a transient ack timeout or mid-flight
+   * disconnect during create or sign-in leaves the auto-flow stuck because QSS_CONNECTED
+   * does not re-fire while the websocket is still up.
+   */
+  private _signInRetryTimer: NodeJS.Timeout | undefined
+  private _signInRetryDelayMs = QSS_RECONNECT_DELAY_MS
+
+  /**
    * Map of team IDs to intervals pulling log entries
    */
   private readonly _logPullIntervals: Map<string, NodeJS.Timeout> = new Map()
@@ -243,7 +252,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
         sigChain.team != null &&
         this.sigChainService.users.getAllUsers().length === 1
       ) {
-        await this.createCommunity(sigChain)
+        const created = await this.createCommunity(sigChain)
+        if (created) {
+          this._clearSignInRetryTimer(true)
+        } else {
+          this._scheduleSignInRetry('createCommunity returned false')
+        }
       } else {
         const teamId =
           sigChain.team != null
@@ -251,9 +265,57 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
             : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
         const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
         this.logger.trace('QSS Sign in', teamId, teamName)
-        await this.signInToCommunity(teamId, sigChain, teamName)
+        const result = await this.signInToCommunity(teamId, sigChain, teamName)
+        if (result === QSSOperationResult.SUCCESS) {
+          this._clearSignInRetryTimer(true)
+        } else if (result === QSSOperationResult.ERROR) {
+          this._scheduleSignInRetry('signInToCommunity returned ERROR')
+        }
       }
     })
+  }
+
+  /**
+   * Schedule a single QSS_HANDLE_SIGN_IN retry after the configured backoff delay.
+   *
+   * The QSS auto-flow only re-emits QSS_HANDLE_SIGN_IN on QSS_CONNECTED. If a sign-in
+   * or create-community attempt fails while the websocket is still up (ack timeout, the
+   * socket bouncing between checks, etc.) and the client does not actually disconnect,
+   * QSS_CONNECTED never fires again and the flow is stuck. This breaks the loop by
+   * scheduling a single retry from inside _handleQssHandleSignIn whose timer fires
+   * outside the sign-in mutex, so it can re-acquire and try again.
+   *
+   * Backoff matches _scheduleReconnect so a sustained failure climbs to the same cap
+   * (60 s) instead of looping every 50 ms.
+   */
+  private _scheduleSignInRetry(reason: string): void {
+    if (this._paused || this._signInRetryTimer != null) {
+      return
+    }
+    const delayMs = this._signInRetryDelayMs
+    this._signInRetryDelayMs = Math.min(delayMs * QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_MAX_DELAY_MS)
+    this.logger.warn(`Scheduling QSS sign-in retry in ${delayMs} ms (${reason})`)
+    this._signInRetryTimer = setTimeout(() => {
+      this._signInRetryTimer = undefined
+      if (this._paused) {
+        return
+      }
+      if (!this.connected) {
+        this.logger.trace('Skipping QSS sign-in retry because client is not connected')
+        return
+      }
+      this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
+    }, delayMs)
+  }
+
+  private _clearSignInRetryTimer(resetDelay = false): void {
+    if (this._signInRetryTimer != null) {
+      clearTimeout(this._signInRetryTimer)
+      this._signInRetryTimer = undefined
+    }
+    if (resetDelay) {
+      this._signInRetryDelayMs = QSS_RECONNECT_DELAY_MS
+    }
   }
 
   private _handleSelfAssignMember = async (teamId: string): Promise<void> => {
@@ -546,6 +608,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this._paused = true
     this._teardownEventHandlers()
     this._clearReconnectTimer(true)
+    this._clearSignInRetryTimer(true)
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }
@@ -1442,6 +1505,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     this.logger.info(`Closing QSS service`)
     this._paused = true
     this._clearReconnectTimer(true)
+    this._clearSignInRetryTimer(true)
     for (const interval of this._logPullIntervals.values()) {
       clearInterval(interval)
     }
