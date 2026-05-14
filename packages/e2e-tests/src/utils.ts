@@ -15,6 +15,7 @@ const logger = createLogger('utils')
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.1' // version to test against
 const appImagesPath = `${__dirname}/../Quiet`
+const defaultChromeDriverPath = require.resolve('electron-chromedriver/chromedriver.js')
 
 export interface BuildSetupInit {
   port?: number
@@ -127,26 +128,11 @@ export class BuildSetup {
 
   private getChromeDriverSpawnConfig() {
     const args = [`--port=${this.port}`, '--verbose']
-
-    if (this.chromeDriverPath) {
-      return {
-        command: process.execPath,
-        args: [this.chromeDriverPath, ...args],
-        shell: false,
-      }
-    }
-
-    if (process.platform === 'win32') {
-      return {
-        command: 'node_modules/.bin/chromedriver.cmd',
-        args,
-        shell: true,
-      }
-    }
+    const chromeDriverPath = this.chromeDriverPath ?? defaultChromeDriverPath
 
     return {
-      command: 'node_modules/.bin/chromedriver',
-      args,
+      command: process.execPath,
+      args: [chromeDriverPath, ...args],
       shell: false,
     }
   }
