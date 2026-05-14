@@ -45,8 +45,9 @@ describe('Backwards Compatibility', () => {
     // download the old version of the app
     const appFilename = downloadInstaller()
     const copiedFilename = copyInstallerFile(appFilename)
+    const chromeDriver126Path = path.resolve('node_modules', 'electron-chromedriver-126', 'chromedriver.js')
     dataDir = `e2e_back_compat_${(Math.random() * 10 ** 18).toString(36)}`
-    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename })
+    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename, chromeDriverPath: chromeDriver126Path })
   })
 
   beforeEach(async () => {

@@ -22,6 +22,7 @@ export interface BuildSetupInit {
   defaultDataDir?: boolean
   dataDir?: string
   fileName?: string
+  chromeDriverPath?: string
 }
 
 export class BuildSetup {
@@ -34,13 +35,15 @@ export class BuildSetup {
   public child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
+  private chromeDriverPath?: string
 
-  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName }: BuildSetupInit) {
+  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName, chromeDriverPath }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
+    this.chromeDriverPath = chromeDriverPath
     this.id = (Math.random() * 10 ** 18).toString(36)
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (!this.dataDir) {
@@ -122,6 +125,32 @@ export class BuildSetup {
     exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
   }
 
+  private getChromeDriverSpawnConfig() {
+    const args = [`--port=${this.port}`, '--verbose']
+
+    if (this.chromeDriverPath) {
+      return {
+        command: process.execPath,
+        args: [this.chromeDriverPath, ...args],
+        shell: false,
+      }
+    }
+
+    if (process.platform === 'win32') {
+      return {
+        command: 'node_modules/.bin/chromedriver.cmd',
+        args,
+        shell: true,
+      }
+    }
+
+    return {
+      command: 'node_modules/.bin/chromedriver',
+      args,
+      shell: false,
+    }
+  }
+
   public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
     let env: any = {
@@ -145,19 +174,15 @@ export class BuildSetup {
       }
     }
 
-    if (process.platform === 'win32') {
+    const chromeDriver = this.getChromeDriverSpawnConfig()
+    if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
-      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
-        shell: true,
-        env: Object.assign(process.env, env),
-      })
-    } else {
-      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port} --verbose`, [], {
-        shell: true,
-        detached: false,
-        env: Object.assign(process.env, env),
-      })
     }
+    this.child = spawn(chromeDriver.command, chromeDriver.args, {
+      shell: chromeDriver.shell,
+      detached: false,
+      env: Object.assign(process.env, env),
+    })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
       setTimeout(() => {
