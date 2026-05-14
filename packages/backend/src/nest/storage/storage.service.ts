@@ -61,12 +61,12 @@ export class StorageService extends EventEmitter {
   }
 
   public async init() {
-    if (this.initialized === true) {
+    if (this.initialized) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
       return
     }
 
-    if (this.initializing === true) {
+    if (this.initializing) {
       this.logger.warn(`${StorageService.name} currently initializing, skipping duplicate event`)
       return
     }

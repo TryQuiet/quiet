@@ -8,6 +8,7 @@ import { EncryptedMessage } from '../messages.types'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
 import { Injectable } from '@nestjs/common'
+import { isEncryptedMessage } from '../../../../validation/validators'
 
 const TYPE = 'privatemessagesaccess'
 
@@ -41,11 +42,16 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
       }
 
       if (entry.payload.value == null) {
-        this.logger.error(`Can't verify OrbitDB entry ${entry.payload.key}, payload value is nullish`)
+        this.logger.error(`Can't verify OrbitDB entry ${entry.id}, payload value is nullish`)
         return false
       }
 
-      if (entry.payload.value.teamId !== config.teamId) {
+      if (!isEncryptedMessage(entry.payload.value)) {
+        this.logger.warn(`Cannot validate msg ${entry.id}: encrypted message shape is not valid`)
+        return false
+      }
+
+      if (entry.payload.value.teamId != null && entry.payload.value.teamId !== config.teamId) {
         this.logger.error(`Entry ${entry.payload.value.id} is from a different team`)
         return false
       }
@@ -55,7 +61,12 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      const sigchain = config.sigchainService.getChain({ teamId: config.teamId })
+      const sigchain = config.sigchainService.getChain({ teamId: config.teamId }, false)
+      if (sigchain == null) {
+        this.logger.warn(`User is not a member of this team or team hasn't been initialized, sigchain was nullish`)
+        return false
+      }
+
       if (!sigchain.channels.memberInChannel(id, config.channelId)) {
         this.logger.warn(
           `User is not a member of the channel, skipping log append`,
