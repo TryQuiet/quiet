@@ -36,7 +36,13 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
    * @returns Processed message if decryptable, undefined if undecryptable and false if intentionally skip decryption
    */
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | false | undefined> {
-    const chain = this.sigChainService.getChain({ teamId: message.teamId })
+    const chain = this.sigChainService.getChain({ teamId: message.teamId }, false)
+    if (chain == null) {
+      this.logger.warn(
+        `Chain doesn't exist or hasn't been initialized, can't consume messages for ${message.channelId}`
+      )
+      return false
+    }
     if (!chain.channels.amIMemberOfChannel(message.channelId)) {
       this.logger.warn(`Not a member of channel ${message.channelId} on team ${message.teamId}`)
       return false

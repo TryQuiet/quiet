@@ -181,6 +181,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
       _updateAutoCompleteOptions()
     } else if (!open) {
       setAutoCompleteOptions([])
+      setSelectedMembers([])
       initialized = false
     }
   }, [open])
