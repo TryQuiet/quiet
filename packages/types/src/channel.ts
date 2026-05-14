@@ -183,6 +183,7 @@ export enum AddMembersChannelStatus {
   FAILURE = 'FAILURE',
   CHANNEL_MISSING = 'CHANNEL_MISSING',
   NOT_MEMBER = 'NOT_MEMBER',
+  INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
 }
 
 export interface AddMembersChannelResponse {

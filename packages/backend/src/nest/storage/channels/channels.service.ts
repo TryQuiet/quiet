@@ -585,6 +585,11 @@ export class ChannelsService extends EventEmitter {
       return { channelId, status: AddMembersChannelStatus.CHANNEL_MISSING }
     }
 
+    if (channel.public ?? true) {
+      this.logger.error(`Attempted to add members to public channel ${channelId}`)
+      return { channelId, status: AddMembersChannelStatus.INVALID_CHANNEL_TYPE }
+    }
+
     const isMemberOfChannel = this.sigchainService.activeChain.channels.amIMemberOfChannel(channelId)
     if (!isMemberOfChannel) {
       this.logger.error(`You are not a member of private channel ${channelId}, cannot add members!`)
