@@ -59,7 +59,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     // Grace period before backgrounding actually triggers hibernate. Absorbs quick
     // task-switch flicks where the user returns within a few seconds — we don't
     // want to tear down Tor/libp2p just to immediately spin them back up.
-    private static final long HIBERNATE_GRACE_PERIOD_MS = 15_000L;
+    private static final long HIBERNATE_GRACE_PERIOD_MS = 30_000L;
     private static final Handler hibernateHandler = new Handler(Looper.getMainLooper());
     @Nullable
     private static Runnable pendingHibernate;
