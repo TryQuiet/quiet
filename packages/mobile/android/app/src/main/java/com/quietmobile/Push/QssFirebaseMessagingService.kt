@@ -65,7 +65,7 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun handlePush(teamId: String, qssUrl: String) {
-        val afterSeq = QuietStorage.getLastSyncSeq()
+        val afterSeq = QuietStorage.getLastSyncSeq(teamId)
         Log.i(TAG, "Fetching QSS entries for teamId=$teamId qssUrl=$qssUrl afterSeq=$afterSeq")
         val authService =
             authServices.getOrPut(qssUrl) {
@@ -79,7 +79,19 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
             "Fetched ${entries.size} entries and ${unseenEntries.size} unseen entries for teamId=$teamId",
         )
 
-        unseenEntries.forEach { entry ->
+        var lastProcessedSeq = afterSeq
+        for (entry in unseenEntries) {
+            if (entry.syncSeq <= lastProcessedSeq) {
+                continue
+            }
+            if (entry.syncSeq != lastProcessedSeq + 1) {
+                Log.w(
+                    TAG,
+                    "Stopping QSS entry processing because syncSeq is not contiguous. expected=${lastProcessedSeq + 1} actual=${entry.syncSeq} cid=${entry.cid}",
+                )
+                break
+            }
+
             try {
                 Log.d(TAG, "Decrypting QSS entry cid=${entry.cid} syncSeq=${entry.syncSeq}")
                 val message = cryptoService.decryptNotificationMessage(entry, teamId)
@@ -88,7 +100,8 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                         TAG,
                         "Skipping notification for cid=${entry.cid} because decrypted message was null",
                     )
-                    return@forEach
+                    lastProcessedSeq = entry.syncSeq
+                    continue
                 }
                 val payload =
                     JSONObject()
@@ -101,19 +114,20 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                     "Posting notification for cid=${entry.cid} channelId=${message.channelId} userId=${message.userId}",
                 )
                 notificationHandler.notify(payload, nickname)
+                lastProcessedSeq = entry.syncSeq
             } catch (error: Exception) {
-                Log.e(TAG, "Failed decrypting QSS log entry ${entry.cid}", error)
+                Log.e(TAG, "Failed processing QSS log entry ${entry.cid}; leaving cursor at $lastProcessedSeq", error)
+                break
             }
         }
 
-        val maxSyncSeq = unseenEntries.maxOfOrNull { it.syncSeq }
-        if (maxSyncSeq == null) {
+        if (lastProcessedSeq <= afterSeq) {
             Log.i(TAG, "No new sync sequence to persist for teamId=$teamId")
             return
         }
 
-        QuietStorage.saveLastSyncSeq(maxSyncSeq, teamId)
-        Log.i(TAG, "Saved lastSyncSeq=$maxSyncSeq for teamId=$teamId")
+        QuietStorage.saveLastSyncSeq(lastProcessedSeq, teamId)
+        Log.i(TAG, "Saved lastSyncSeq=$lastProcessedSeq for teamId=$teamId")
     }
 
     companion object {

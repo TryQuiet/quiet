@@ -16,6 +16,7 @@ object QuietStorage {
     private const val QSS_URLS_KEY = "quiet.nse.qssUrls"
     private const val LAST_SYNC_SEQ_KEY = "quiet.nse.lastSyncSeq"
     private const val LAST_SYNC_TEAM_ID_KEY = "quiet.nse.lastSyncTeamId"
+    private const val LAST_SYNC_SEQ_BY_TEAM_PREFIX = "quiet.nse.lastSyncSeq."
     private const val APP_FOREGROUND_KEY = "quiet.app.isForeground"
     private const val TEAM_QSS_ENABLED_KEY = "quiet.qss.team.enabled"
     private const val USER_BACKGROUND_TOR_ENABLED_KEY = "quiet.qss.backgroundTor.enabled"
@@ -78,18 +79,32 @@ object QuietStorage {
 
     @JvmStatic
     fun saveLastSyncSeq(seq: Long, teamId: String) {
-        val current = getLastSyncSeq()
+        val current = getLastSyncSeq(teamId)
         if (seq <= current) {
             return
         }
         regularPrefs().edit()
-            .putLong(LAST_SYNC_SEQ_KEY, seq)
-            .putString(LAST_SYNC_TEAM_ID_KEY, teamId)
+            .putLong(lastSyncSeqKey(teamId), seq)
+            .remove(LAST_SYNC_SEQ_KEY)
+            .remove(LAST_SYNC_TEAM_ID_KEY)
             .apply()
     }
 
     @JvmStatic
-    fun getLastSyncSeq(): Long = regularPrefs().getLong(LAST_SYNC_SEQ_KEY, 0L)
+    fun getLastSyncSeq(teamId: String): Long {
+        val prefs = regularPrefs()
+        val keyedSeq = prefs.getLong(lastSyncSeqKey(teamId), 0L)
+        if (keyedSeq > 0L) {
+            return keyedSeq
+        }
+
+        val legacyTeamId = prefs.getString(LAST_SYNC_TEAM_ID_KEY, null)
+        if (legacyTeamId == teamId) {
+            return prefs.getLong(LAST_SYNC_SEQ_KEY, 0L)
+        }
+
+        return 0L
+    }
 
     @JvmStatic
     fun setAppForeground(foreground: Boolean) {
@@ -167,4 +182,6 @@ object QuietStorage {
         return applicationContext
             ?: throw IllegalStateException("QuietStorage.init(context) must be called before use")
     }
+
+    private fun lastSyncSeqKey(teamId: String): String = "$LAST_SYNC_SEQ_BY_TEAM_PREFIX$teamId"
 }
