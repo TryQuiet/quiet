@@ -91,6 +91,10 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                     Log.i("CommunicationModule", "Skipping foreground push notification because app is backgrounded");
                     break;
                 }
+                if (QuietStorage.consumeDisplayedNotificationHash(payload)) {
+                    Log.i("CommunicationModule", "Skipping foreground push notification because it was already displayed in background");
+                    break;
+                }
                 notificationHandler.notify(payload, extra);
                 break;
             case INIT_CHECK_CHANNEL:

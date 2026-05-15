@@ -5,12 +5,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.quietmobile.MainActivity
+import com.quietmobile.Push.QuietStorage
 import com.quietmobile.R
 import com.quietmobile.Utils.Const
 import org.json.JSONException
@@ -22,8 +24,6 @@ class NotificationHandler(private val context: Context) {
      * @param message - Object of type ChannelMessage
      */
     fun notify(message: String, username: String?) {
-        logNotificationState()
-
         val jsonMessage: JSONObject = try {
             JSONObject(message)
         } catch (e: JSONException) {
@@ -45,6 +45,14 @@ class NotificationHandler(private val context: Context) {
             }
             // Parse message content
             val content = String.format("%s", jsonMessage.getString("message"))
+            if (!logNotificationState()) {
+                Log.i(TAG, "Skipping notification because notifications are disabled or permission is missing")
+                return
+            }
+            if (!QuietStorage.recordDisplayedNotificationHashIfNew(jsonMessage)) {
+                Log.i(TAG, "Skipping notification because message was already displayed")
+                return
+            }
             // Keep all notifications under application's group
             val group = context.getString(R.string.app_name)
             createGroup(group)
@@ -154,18 +162,21 @@ class NotificationHandler(private val context: Context) {
         notificationManager.notify(id, builder.build())
     }
 
-    private fun logNotificationState() {
+    private fun logNotificationState(): Boolean {
         val notificationsEnabled = NotificationManagerCompat.from(context.applicationContext)
             .areNotificationsEnabled()
-        val permissionGranted = ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.POST_NOTIFICATIONS,
-        ) == PackageManager.PERMISSION_GRANTED
+        val permissionGranted =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
 
         Log.i(
             TAG,
             "notify called notificationsEnabled=$notificationsEnabled postPermissionGranted=$permissionGranted",
         )
+        return notificationsEnabled && permissionGranted
     }
 
     companion object {

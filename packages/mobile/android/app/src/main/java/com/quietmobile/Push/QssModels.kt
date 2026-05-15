@@ -37,6 +37,7 @@ data class LogEntriesResponse(
 )
 
 data class DecryptedNotificationMessage(
+    val id: String,
     val channelId: String,
     val userId: String,
     val body: String,

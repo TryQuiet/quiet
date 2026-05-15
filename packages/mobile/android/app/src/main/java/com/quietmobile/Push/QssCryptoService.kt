@@ -59,12 +59,14 @@ class QssCryptoService {
             throw IllegalStateException("Message signature verification failed")
         }
 
+        val id = stringValue(message["id"]) ?: return null
         val channelId = stringValue(message["channelId"]) ?: return null
         val userId = stringValue(message["userId"]) ?: return null
         val type = intValue(message["type"]) ?: return null
         val body = notificationBody(message, type) ?: return null
 
         return DecryptedNotificationMessage(
+            id = id,
             channelId = channelId,
             userId = userId,
             body = body,

@@ -105,6 +105,7 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                 }
                 val payload =
                     JSONObject()
+                        .put("id", message.id)
                         .put("channelId", message.channelId)
                         .put("message", message.body)
                         .toString()

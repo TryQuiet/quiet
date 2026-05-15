@@ -21,6 +21,9 @@ object QuietStorage {
     private const val TEAM_QSS_ENABLED_KEY = "quiet.qss.team.enabled"
     private const val USER_BACKGROUND_TOR_ENABLED_KEY = "quiet.qss.backgroundTor.enabled"
     private const val USER_METADATA_KEY = "quiet.user.metadata"
+    private const val DISPLAYED_NOTIFICATION_HASHES_KEY = "quiet.notification.displayedHashes"
+    private const val DISPLAYED_NOTIFICATION_HASHES_TTL_MS = 24L * 60L * 60L * 1000L
+    private const val DISPLAYED_NOTIFICATION_HASHES_MAX_SIZE = 512
 
     @Volatile
     private var applicationContext: Context? = null
@@ -145,6 +148,36 @@ object QuietStorage {
     }
 
     @JvmStatic
+    @Synchronized
+    fun consumeDisplayedNotificationHash(message: String?): Boolean {
+        val hash = notificationHash(message) ?: return false
+        val hashes = prunedDisplayedNotificationHashes()
+        if (!hashes.has(hash)) {
+            saveDisplayedNotificationHashes(hashes)
+            return false
+        }
+
+        hashes.remove(hash)
+        saveDisplayedNotificationHashes(hashes)
+        return true
+    }
+
+    @JvmStatic
+    @Synchronized
+    fun recordDisplayedNotificationHashIfNew(message: JSONObject): Boolean {
+        val hash = notificationHash(message) ?: return true
+        val hashes = prunedDisplayedNotificationHashes()
+        if (hashes.has(hash)) {
+            saveDisplayedNotificationHashes(hashes)
+            return false
+        }
+
+        hashes.put(hash, System.currentTimeMillis())
+        saveDisplayedNotificationHashes(pruneDisplayedNotificationHashes(hashes))
+        return true
+    }
+
+    @JvmStatic
     fun clearAll() {
         securePrefs().edit().clear().apply()
         regularPrefs().edit().clear().apply()
@@ -184,4 +217,64 @@ object QuietStorage {
     }
 
     private fun lastSyncSeqKey(teamId: String): String = "$LAST_SYNC_SEQ_BY_TEAM_PREFIX$teamId"
+
+    private fun notificationHash(message: String?): String? {
+        if (message.isNullOrBlank()) {
+            return null
+        }
+
+        return try {
+            notificationHash(JSONObject(message))
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun notificationHash(message: JSONObject): String? {
+        val id = message.optString("id", "")
+        val channelId = message.optString("channelId", "")
+        if (id.isBlank() || channelId.isBlank()) {
+            return null
+        }
+        return "$channelId:$id"
+    }
+
+    private fun prunedDisplayedNotificationHashes(): JSONObject {
+        val current = JSONObject(regularPrefs().getString(DISPLAYED_NOTIFICATION_HASHES_KEY, "{}") ?: "{}")
+        return pruneDisplayedNotificationHashes(current)
+    }
+
+    private fun pruneDisplayedNotificationHashes(current: JSONObject): JSONObject {
+        val cutoff = System.currentTimeMillis() - DISPLAYED_NOTIFICATION_HASHES_TTL_MS
+        val records = mutableListOf<DisplayedNotificationHash>()
+        val keys = current.keys()
+
+        while (keys.hasNext()) {
+            val hash = keys.next()
+            val timestamp = current.optLong(hash, 0L)
+            if (timestamp >= cutoff) {
+                records.add(DisplayedNotificationHash(hash, timestamp))
+            }
+        }
+
+        records.sortByDescending { it.timestamp }
+
+        val pruned = JSONObject()
+        records
+            .take(DISPLAYED_NOTIFICATION_HASHES_MAX_SIZE)
+            .forEach { record -> pruned.put(record.hash, record.timestamp) }
+        return pruned
+    }
+
+    private fun saveDisplayedNotificationHashes(hashes: JSONObject) {
+        regularPrefs()
+            .edit()
+            .putString(DISPLAYED_NOTIFICATION_HASHES_KEY, hashes.toString())
+            .apply()
+    }
+
+    private data class DisplayedNotificationHash(
+        val hash: String,
+        val timestamp: Long,
+    )
 }
