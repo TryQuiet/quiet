@@ -109,6 +109,11 @@ class QssFirebaseMessagingService : FirebaseMessagingService() {
                         .put("message", message.body)
                         .toString()
                 val nickname = QuietStorage.getNickname(message.userId) ?: message.userId
+                if (QuietStorage.isAppForeground()) {
+                    Log.i(TAG, "Skipping notification for cid=${entry.cid} because app returned to foreground")
+                    lastProcessedSeq = entry.syncSeq
+                    continue
+                }
                 Log.i(
                     TAG,
                     "Posting notification for cid=${entry.cid} channelId=${message.channelId} userId=${message.userId}",

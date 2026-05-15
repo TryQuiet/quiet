@@ -15,10 +15,10 @@ import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.MainApplication
 import com.quietmobile.Notification.NotificationHandler
+import com.quietmobile.Push.QuietStorage
 import com.quietmobile.R
 import com.quietmobile.Utils.Const
 import com.quietmobile.Utils.Utils
-import com.quietmobile.Utils.isAppOnForeground
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import java.util.concurrent.ThreadLocalRandom
@@ -395,9 +395,21 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             } catch (e: JSONException) {
                 Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
             }
-            if (context.isAppOnForeground())
+            if (QuietStorage.isAppForeground()) {
+                Log.i("ON_PUSH_NOTIFICATION", "Skipping backend worker notification because app is foregrounded")
                 return@Listener // If application is in foreground, let redux be in charge
-            // of displaying notifications
+            }
+
+            if (shouldUseFcmBackgroundNotifications()) {
+                Log.i("ON_PUSH_NOTIFICATION", "Skipping backend worker notification because FCM owns background delivery")
+                return@Listener
+            }
+
             notificationHandler.notify(message, username)
         }
+
+    private fun shouldUseFcmBackgroundNotifications(): Boolean =
+        BuildConfig.QSS_ALLOWED == "true" &&
+            QuietStorage.isTeamQssEnabled() &&
+            !QuietStorage.isUserBackgroundTorEnabled()
 }
