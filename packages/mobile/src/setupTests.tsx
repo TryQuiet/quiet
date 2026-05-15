@@ -47,9 +47,16 @@ jest.mock('react-native', () => {
     requestNotificationPermission: jest.fn(),
     checkNotificationPermission: jest.fn(),
     handleIncomingEvents: jest.fn(),
+    saveKeysInKeychain: jest.fn(),
+    saveDeviceCredentials: jest.fn(),
+    saveUserMetadata: jest.fn(),
+    saveNseQssUrl: jest.fn(),
+    saveNseLastSyncSeq: jest.fn(),
+    clearSensitiveData: jest.fn(),
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),
+    deleteToken: jest.fn(),
   }
   return rn
 })
@@ -170,6 +177,13 @@ jest.mock('react-native-file-logger', () => {
     },
   }
 })
+
+jest.mock('react-native-zip-archive', () => ({
+  zip: jest.fn(),
+  unzip: jest.fn(),
+}))
+
+jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
 
 export const ioMock = io as jest.Mock
 

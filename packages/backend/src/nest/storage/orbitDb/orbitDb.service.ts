@@ -239,7 +239,7 @@ export class OrbitDbService {
     await Promise.all(joinAll)
   }
 
-  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<void> {
+  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<boolean> {
     this.logger.debug('Ingesting fanout message, ', message.payload.hash)
     try {
       const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
@@ -247,8 +247,10 @@ export class OrbitDbService {
         message.payload.encEntry.signature
       ).contents
       await this.ingestEntries([logEntry])
+      return true
     } catch (err) {
       this.logger.error(`Failed to handle fanout log entry sync message`, err)
+      return false
     }
   }
 
@@ -260,8 +262,13 @@ export class OrbitDbService {
     const entries: LogEntry[] = []
     const store = this.stores[address]
     for (const hash of hashes) {
-      const entry = await (store.log as LogType).get(hash)
-      entries.push(entry)
+      try {
+        const entry = await (store.log as LogType).get(hash)
+        entries.push(entry)
+      } catch (err) {
+        this.logger.warn(`Failed to get log entry ${hash} from store ${address}`, err)
+        continue
+      }
     }
 
     return entries

@@ -10,6 +10,15 @@
 
 ### Chores
 
+## [7.1.0]
+
+### Features
+
+* Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
+* Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
+
+### Chores
+
 ## [7.0.1]
 
 ### Features
@@ -36,7 +45,8 @@
 * Self-assign the member role when joining with QSS [#3058](https://github.com/TryQuiet/quiet/issues/3058)
 * Use LFA-based identity in OrbitDB
 * Requests iOS notification permissions when app launches [#3079](https://github.com/TryQuiet/quiet/issues/3079)
-* Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
+* Store LFA keys in IOS keychain for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
+* Store user metadata in IOS native storage for notifications [#3091](https://github.com/TryQuiet/quiet/issues/3091)
 
 ## [6.6.2]
 

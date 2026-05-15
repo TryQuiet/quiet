@@ -70,3 +70,8 @@ target 'Quiet' do
     end
   end
 end
+
+target 'QuietNotificationServiceExtension' do
+  use_frameworks! :linkage => :static
+  pod 'Sodium'
+end

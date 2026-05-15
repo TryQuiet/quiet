@@ -2,6 +2,7 @@ import {
   SetUserProfilePayload,
   SetUserProfileResponse,
   UserProfilesStoredEvent,
+  UserProfilesUpdatedPayload,
   UsersRemovedEvent,
   UsersUpdatedEvent,
 } from './user'
@@ -39,6 +40,7 @@ import {
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
+import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent, NseQssUrlUpdatedEvent, NseSyncSeqUpdatedEvent } from './keys'
 
 // -----------------------------------------------------------------------------
 // SocketActions: These are the actions the frontend emits to the backend
@@ -78,6 +80,7 @@ export enum SocketActions {
   // ====== User ======
 
   SET_USER_PROFILE = 'updateUserProfile',
+  USER_PROFILES_UPDATED = 'userProfilesUpdated',
 
   // ====== Files ======
 
@@ -131,6 +134,9 @@ export enum SocketEvents {
   USERS_UPDATED = 'usersUpdated',
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
+  KEYS_UPDATED = 'keysUpdated',
+  DEVICE_CREDENTIALS_UPDATED = 'deviceCredentialsUpdated',
+  USER_PROFILES_UPDATED = 'userProfilesUpdatedFwd',
 
   // ====== Files ======
   FILE_ATTACHED = 'fileUploaded',
@@ -144,6 +150,10 @@ export enum SocketEvents {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   TOR_INITIALIZED = 'torInitialized',
+  QSS_CONNECTED = 'qssConnected',
+  QSS_DISCONNECTED = 'qssDisconnected',
+  NSE_QSS_URL_UPDATED = 'nseQssUrlUpdated',
+  NSE_SYNC_SEQ_UPDATED = 'nseSyncSeqUpdated',
   MIGRATION_DATA_REQUIRED = 'migrationDataRequired',
   PUSH_NOTIFICATION = 'pushNotification',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
@@ -191,6 +201,7 @@ export interface SocketActionsMap {
   // ====== User Profiles ======
   [SocketActions.SET_USER_PROFILE]: EmitEvent<SetUserProfilePayload, (response?: SetUserProfileResponse) => void>
   [SocketActions.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
+  [SocketActions.USER_PROFILES_UPDATED]: EmitEvent<UserProfilesUpdatedPayload>
 
   // ====== Local First Auth ======
   [SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE]: EmitEvent<
@@ -203,7 +214,11 @@ export interface SocketActionsMap {
   [SocketActions.HCAPTCHA_REQUEST]: EmitEvent<HCaptchaRequest>
 
   // ====== Push Notifications ======
-  [SocketActions.SEND_DEVICE_TOKEN]: EmitEvent<{ deviceToken: string }>
+  [SocketActions.SEND_DEVICE_TOKEN]: EmitEvent<{
+    deviceToken: string
+    bundleId: string
+    platform: 'ios' | 'android'
+  }>
 
   // ====== Misc ======
   [SocketActions.TOGGLE_P2P]: EmitEvent<boolean, (response: boolean) => void>
@@ -235,6 +250,9 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_UPDATED]: EmitEvent<UsersUpdatedEvent>
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
+  [SocketEvents.KEYS_UPDATED]: EmitEvent<KeysUpdatedEvent>
+  [SocketEvents.DEVICE_CREDENTIALS_UPDATED]: EmitEvent<DeviceCredentialsUpdatedEvent>
+  [SocketEvents.USER_PROFILES_UPDATED]: EmitEvent<UserProfilesUpdatedPayload>
 
   // ====== Files ======
   [SocketEvents.FILE_ATTACHED]: EmitEvent<FileMetadata>
@@ -248,6 +266,10 @@ export interface SocketEventsMap {
   [SocketEvents.PEER_CONNECTED]: EmitEvent<any>
   [SocketEvents.PEER_DISCONNECTED]: EmitEvent<any>
   [SocketEvents.TOR_INITIALIZED]: EmitEvent<void>
+  [SocketEvents.QSS_CONNECTED]: EmitEvent<void>
+  [SocketEvents.QSS_DISCONNECTED]: EmitEvent<void>
+  [SocketEvents.NSE_QSS_URL_UPDATED]: EmitEvent<NseQssUrlUpdatedEvent>
+  [SocketEvents.NSE_SYNC_SEQ_UPDATED]: EmitEvent<NseSyncSeqUpdatedEvent>
   [SocketEvents.MIGRATION_DATA_REQUIRED]: EmitEvent<string[]>
   [SocketEvents.PUSH_NOTIFICATION]: EmitEvent<PushNotificationPayload>
   [SocketEvents.CONNECTION_PROCESS_INFO]: EmitEvent<string>

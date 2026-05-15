@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client'
+import { NativeModules } from 'react-native'
 import {
   select,
   put,
@@ -16,9 +17,18 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
-import { SocketActions } from '@quiet/types'
+import {
+  DeviceCredentialsUpdatedEvent,
+  KeysUpdatedEvent,
+  NseQssUrlUpdatedEvent,
+  NseSyncSeqUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+  UserProfilesUpdatedPayload,
+} from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { initSelectors } from '../init.selectors'
+import { keysActions } from '../../keys/keys.slice'
+import { usersMetadataActions } from '../../userMetadata/usersMetadata.slice'
 
 const logger = createLogger('startConnection')
 
@@ -67,16 +77,24 @@ function* setConnectedSaga(socket: Socket): Generator {
 
 function* handleSocketLifecycleActions(socket: Socket, socketIOData: WebsocketConnectionPayload): Generator {
   const socketChannel = yield* call(subscribeSocketLifecycle, socket, socketIOData)
-  yield takeEvery(socketChannel, function* (action) {
-    yield put(action)
-  })
+  try {
+    yield takeEvery(socketChannel, function* (action) {
+      yield put(action)
+    })
+  } finally {
+    socketChannel.close()
+  }
 }
 
-function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnectionPayload) {
+export function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnectionPayload) {
   let socket_id: string | undefined
 
   return eventChannel<
-    ReturnType<typeof initActions.setWebsocketConnected> | ReturnType<typeof initActions.suspendWebsocketConnection>
+    | ReturnType<typeof initActions.setWebsocketConnected>
+    | ReturnType<typeof initActions.suspendWebsocketConnection>
+    | ReturnType<typeof keysActions.saveKeysInKeychain>
+    | ReturnType<typeof keysActions.saveDeviceCredentials>
+    | ReturnType<typeof usersMetadataActions.saveUserMetadataNatively>
   >(emit => {
     socket.on('connect', async () => {
       socket_id = socket.id
@@ -87,7 +105,43 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
       logger.warn('client: Closing socket connection', socket_id, reason)
       emit(initActions.suspendWebsocketConnection())
     })
-    return () => {}
+    socket.on(SocketEvents.KEYS_UPDATED, async (payload: KeysUpdatedEvent) => {
+      logger.info('Keys updated, writing to keychain')
+      emit(keysActions.saveKeysInKeychain(payload))
+    })
+    socket.on(SocketEvents.DEVICE_CREDENTIALS_UPDATED, async (payload: DeviceCredentialsUpdatedEvent) => {
+      logger.info('Device credentials updated, writing to keychain')
+      emit(keysActions.saveDeviceCredentials(payload))
+    })
+    socket.on(SocketEvents.USER_PROFILES_UPDATED, async (payload: UserProfilesUpdatedPayload) => {
+      logger.info('User profiles updated, saving in ios native storage')
+      emit(usersMetadataActions.saveUserMetadataNatively(payload))
+    })
+    socket.on(SocketEvents.NSE_QSS_URL_UPDATED, async (payload: NseQssUrlUpdatedEvent) => {
+      logger.info(`NSE QSS URL updated for team ${payload.teamId}, saving in shared iOS storage`)
+      try {
+        await NativeModules.CommunicationModule?.saveNseQssUrl?.(payload.teamId, payload.qssUrl)
+      } catch (error) {
+        logger.error('Failed to store NSE QSS URL in iOS native storage', error)
+      }
+    })
+    socket.on(SocketEvents.NSE_SYNC_SEQ_UPDATED, async (payload: NseSyncSeqUpdatedEvent) => {
+      logger.info(`NSE sync seq updated for team ${payload.teamId}, saving in shared iOS storage`)
+      try {
+        await NativeModules.CommunicationModule?.saveNseLastSyncSeq?.(payload.teamId, payload.lastSyncSeq)
+      } catch (error) {
+        logger.error('Failed to store NSE sync seq in iOS native storage', error)
+      }
+    })
+    return () => {
+      socket.off('connect')
+      socket.off('disconnect')
+      socket.off(SocketEvents.KEYS_UPDATED)
+      socket.off(SocketEvents.DEVICE_CREDENTIALS_UPDATED)
+      socket.off(SocketEvents.USER_PROFILES_UPDATED)
+      socket.off(SocketEvents.NSE_QSS_URL_UPDATED)
+      socket.off(SocketEvents.NSE_SYNC_SEQ_UPDATED)
+    }
   })
 }
 

@@ -20,6 +20,4 @@ RCT_EXTERN_METHOD(unsubscribeFromTopic
                   : (RCTPromiseResolveBlock)resolve rejecter
                   : (RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(setEncryptionKey : (NSString *)key)
-
 @end

@@ -7,6 +7,7 @@ import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import {
   createPeerId,
   createTmpDir,
+  generateLibp2pPSK,
   removeFilesFromDir,
   tmpQuietDirPath,
   generateRandomOnionAddress,
@@ -111,7 +112,7 @@ beforeEach(async () => {
   torControl.authString = 'AUTHENTICATE ' + torPassword + '\r\n'
   quietDir = await module.resolve(QUIET_DIR)
 
-  const pskBase64 = Libp2pService.generateLibp2pPSK().psk
+  const pskBase64 = generateLibp2pPSK().psk
   await sigchainService.createChain(community.name!, 'john', false)
   await sigchainService.saveChain(community.name!)
   await sigchainService.deleteChain(community.name!, false)

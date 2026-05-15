@@ -17,6 +17,7 @@ import { capitalizeFirstLetter } from '@quiet/common'
 import Config from 'react-native-config'
 import { NodeEnv } from '../../../utils/const/NodeEnv.enum'
 import { sendLogs } from '../../../utils/sendLogs'
+import { shareAllData } from '../../../utils/shareAllData'
 
 export const CommunityContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -56,6 +57,13 @@ export const CommunityContextMenu: FC = () => {
       action: () => {
         communityContextMenu.handleClose()
         void sendLogs()
+      },
+    })
+    items.push({
+      title: 'Share all data',
+      action: () => {
+        communityContextMenu.handleClose()
+        void shareAllData()
       },
     })
   }

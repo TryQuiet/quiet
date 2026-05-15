@@ -7,8 +7,15 @@ import { applyEmitParams } from '../../types'
 
 const logger = createLogger('sendDeviceTokenSaga')
 
-export function* sendDeviceTokenSaga(socket: Socket, action: PayloadAction<string>): Generator {
-  const deviceToken = action.payload
+export function* sendDeviceTokenSaga(
+  socket: Socket,
+  action: PayloadAction<{
+    deviceToken: string
+    bundleId: string
+    platform: 'ios' | 'android'
+  }>
+): Generator {
+  const payload = action.payload
   logger.info('Sending device token to backend')
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_DEVICE_TOKEN, { deviceToken }))
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_DEVICE_TOKEN, payload))
 }
