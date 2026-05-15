@@ -153,33 +153,39 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                     val payloadStr = envelope.optString("payload", "")
                     if (event == "message" && payloadStr.isNotEmpty()) {
                         val payloadArr = org.json.JSONArray(payloadStr)
-                        if (payloadArr.length() > 0 && payloadArr.getString(0) == "readyForSecret"
-                        ) {
-                            val nonce =
-                                if (payloadArr.length() > 1) payloadArr.getString(1) else null
-                            if (nonce != null) {
-                                val response =
-                                    JSONObject()
-                                        .put("event", "secret")
-                                        .put(
-                                            "payload",
+                        if (payloadArr.length() > 0) {
+                            when (payloadArr.getString(0)) {
+                                "readyForSecret" -> {
+                                    val nonce =
+                                        if (payloadArr.length() > 1) payloadArr.getString(1) else null
+                                    if (nonce != null) {
+                                        val response =
                                             JSONObject()
-                                                .put("type", "set-socket-secret")
-                                                .put("secret", socketIOSecret)
-                                                .put("nonce", nonce)
-                                        )
-                                        .toString()
-                                sendMessageToNodeChannel("_EVENTS_", response)
+                                                .put("event", "secret")
+                                                .put(
+                                                    "payload",
+                                                    JSONObject()
+                                                        .put("type", "set-socket-secret")
+                                                        .put("secret", socketIOSecret)
+                                                        .put("nonce", nonce)
+                                                )
+                                                .toString()
+                                        sendMessageToNodeChannel("_EVENTS_", response)
+                                    }
+                                }
+                                "backendReady" -> handleBackendReady()
+                                "backendClosed" -> handleBackendClosed()
+                                else ->
+                                    Log.d(
+                                        TAG,
+                                        "Received unhandled message payload: $payloadStr"
+                                    )
                             }
                         }
                     } else if (event == "backendReady") {
-                        markBackendReady()
-                        Log.i(TAG, "Backend reported ready: " + lifecycleSummary())
-                        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
+                        handleBackendReady()
                     } else if (event == "backendClosed") {
-                        markBackendClosed()
-                        Log.i(TAG, "Backend reported closed: " + lifecycleSummary())
-                        CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
+                        handleBackendClosed()
                     } else {
                         Log.d(
                             TAG,
@@ -193,6 +199,18 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                     )
                 }
             }
+        }
+
+        private fun handleBackendReady() {
+            markBackendReady()
+            Log.i(TAG, "Backend reported ready: " + lifecycleSummary())
+            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
+        }
+
+        private fun handleBackendClosed() {
+            markBackendClosed()
+            Log.i(TAG, "Backend reported closed: " + lifecycleSummary())
+            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
         }
     }
 
