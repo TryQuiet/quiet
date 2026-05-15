@@ -51,8 +51,13 @@ class QssCryptoService {
             return null
         }
 
+        val signature = parseSignature(payloadValue["encSignature"])
         val innerEncrypted = parseEncryptedPayload(payloadValue["contents"], "inner channel message")
         val message = decryptPayload(innerEncrypted, teamId) as? Map<*, *> ?: return null
+
+        if (!verifyMessageSignature(message, signature, teamId)) {
+            throw IllegalStateException("Message signature verification failed")
+        }
 
         val channelId = stringValue(message["channelId"]) ?: return null
         val userId = stringValue(message["userId"]) ?: return null
@@ -65,6 +70,28 @@ class QssCryptoService {
             body = body,
             type = type,
         )
+    }
+
+    private fun verifyMessageSignature(message: Map<*, *>, signature: MessageSignature, teamId: String): Boolean {
+        val publicKeyName = makeUserSignatureKeyName(teamId, signature.author)
+        val publicKey =
+            QuietStorage.getLfaKey(publicKeyName)
+                ?: throw IllegalStateException("Missing user signature public key for scope $publicKeyName")
+        val signatureBytes =
+            Base58.decode(signature.signature)
+                ?: throw IllegalStateException("Message signature was not valid base58")
+        val publicKeyBytes =
+            Base58.decode(publicKey)
+                ?: throw IllegalStateException("User signature public key was not valid base58")
+        if (signatureBytes.size != 64) {
+            throw IllegalStateException("Invalid message signature length: ${signatureBytes.size}")
+        }
+        if (publicKeyBytes.size != 32) {
+            throw IllegalStateException("Invalid user signature public key length: ${publicKeyBytes.size}")
+        }
+
+        val payloadBytes = MsgpackEncoder.encode(message)
+        return sodium.cryptoSignVerifyDetached(signatureBytes, payloadBytes, payloadBytes.size, publicKeyBytes)
     }
 
     private fun notificationBody(message: Map<*, *>, type: Int): String? {
@@ -180,8 +207,30 @@ class QssCryptoService {
         )
     }
 
+    private fun parseSignature(value: Any?): MessageSignature {
+        val dict = value as? Map<*, *> ?: throw IllegalStateException("Message signature was not an object")
+        val author = dict["author"] as? Map<*, *>
+            ?: throw IllegalStateException("Message signature author was malformed")
+        return MessageSignature(
+            signature = stringValue(dict["signature"])
+                ?: throw IllegalStateException("Message signature missing signature"),
+            author = SignatureAuthor(
+                type = stringValue(author["type"])
+                    ?: throw IllegalStateException("Message signature author.type missing"),
+                name = stringValue(author["name"])
+                    ?: throw IllegalStateException("Message signature author.name missing"),
+                generation = intValue(author["generation"])
+                    ?: throw IllegalStateException("Message signature author.generation missing"),
+            ),
+        )
+    }
+
     private fun makeKeyName(teamId: String, scope: EncryptionScope): String {
         return "quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_secret"
+    }
+
+    private fun makeUserSignatureKeyName(teamId: String, author: SignatureAuthor): String {
+        return "quiet_${teamId}_${author.type}_${author.name}_${author.generation}_userSig"
     }
 
     private fun byteArrayValue(value: Any?): ByteArray? {
@@ -208,4 +257,15 @@ class QssCryptoService {
             else -> null
         }
     }
+
+    private data class MessageSignature(
+        val signature: String,
+        val author: SignatureAuthor,
+    )
+
+    private data class SignatureAuthor(
+        val type: String,
+        val name: String,
+        val generation: Int,
+    )
 }
