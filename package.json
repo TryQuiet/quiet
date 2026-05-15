@@ -25,7 +25,9 @@
     "bootstrap": "npm run build:submodules && lerna bootstrap",
     "watch": "lerna watch -- lerna run build --since",
     "start:qss": "cd ./3rd-party/qss && pnpm run run:app docker:up:complete && MIKRO_ORM_HOST=0.0.0.0 pnpm run run:app migrate:up:docker",
-    "stop:qss": "cd ./3rd-party/qss && pnpm run run:app docker:down:complete"
+    "stop:qss": "cd ./3rd-party/qss && pnpm run run:app docker:down:complete",
+    "start:qss:toxi": "docker compose -f packages/backend/src/nest/qss/stress/docker-compose.yml up -d",
+    "stop:qss:toxi": "docker compose -f packages/backend/src/nest/qss/stress/docker-compose.yml down"
   },
   "engines": {
     "node": "20.20.1",
