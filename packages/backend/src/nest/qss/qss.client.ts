@@ -18,8 +18,12 @@ import {
   QSSNotInitializedError,
   WebsocketEvents,
 } from './qss.types'
-import { sleep } from '../common/sleep'
-import { CLIENT_TRANSPORTS } from './qss.const'
+import {
+  CLIENT_TRANSPORTS,
+  QSS_CONNECT_TIMEOUT_BACKOFF_FACTOR,
+  QSS_CONNECT_TIMEOUT_INITIAL_MS,
+  QSS_CONNECT_TIMEOUT_MAX_MS,
+} from './qss.const'
 import { CaptchaErrorMessages, CompoundError, SocketEvents } from '@quiet/types'
 import EventEmitter from 'node:events'
 import { CaptchaService } from '../captcha/captcha.service'
@@ -31,7 +35,19 @@ export class QSSClient extends EventEmitter {
    * Socket.io socket instance
    */
   private _clientSocket: ClientSocket | undefined = undefined
+  private _clientSocketEndpoint: string | undefined = undefined
+  private _connectPromise: Promise<ClientSocket> | undefined = undefined
   private _captchaVerified = false
+  private _captchaVerificationPromise: Promise<boolean> | null = null
+  private _connectTimeout: number = QSS_CONNECT_TIMEOUT_INITIAL_MS
+  private _socketEventHandlers:
+    | {
+        socket: ClientSocket
+        onConnect: () => void
+        onDisconnect: () => void
+        onAny: (eventName: string, ...args: any[]) => void
+      }
+    | undefined = undefined
 
   private readonly logger = createLogger(`qss:client`)
 
@@ -70,33 +86,58 @@ export class QSSClient extends EventEmitter {
    * @returns Connected socket.io socket instance
    */
   public async createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
+    if (this._connectPromise != null) {
+      this.logger.debug('QSS connection already in flight, returning existing connection promise')
+      return this._connectPromise
+    }
+
+    const connectPromise = this._createSocketAndConnect(qssEndpoint)
+    this._connectPromise = connectPromise
+
     try {
-      this.qssEndpoint = qssEndpoint ?? this.qssEndpoint
+      return await connectPromise
+    } finally {
+      if (this._connectPromise === connectPromise) {
+        this._connectPromise = undefined
+      }
+    }
+  }
+
+  private async _createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
+    try {
+      const requestedEndpoint = qssEndpoint ?? this.qssEndpoint
+      this.qssEndpoint = requestedEndpoint
 
       if (!this.qssAllowed || this.qssEndpoint == null) {
         throw new QSSNotInitializedError(`QSS is not enabled`)
       }
 
-      // check for an existing socket instance and, if connected, return that socket and move on
-      if (this.connected) {
+      // check for an existing socket instance on the requested endpoint and, if connected, return that socket
+      if (this.connected && this._clientSocketEndpoint === requestedEndpoint) {
         this.logger.warn('createSocket was already called and the socket is active!')
         return this._clientSocket!
       }
 
+      if (this._clientSocket != null) {
+        this._closeSocket(this._clientSocket)
+      }
+
       // create a new websocket to QSS
-      this.logger.info(`Creating and connecting client socket`)
-      this._clientSocket = connect(this.qssEndpoint, {
+      this.logger.info(`Creating and connecting client socket on ${this.qssEndpoint}`)
+      const socket = connect(this.qssEndpoint, {
         autoConnect: false,
         forceNew: false,
         transports: CLIENT_TRANSPORTS,
       })
+      this._clientSocket = socket
+      this._clientSocketEndpoint = this.qssEndpoint
       // wait for socket to connect with QSS instance
       await this._waitForConnect()
 
-      return this._clientSocket
+      return socket
     } catch (e) {
       const message = `Failed to connect to QSS, will retry later!`
-      this.logger.error(message, e)
+      this.logger.debug(message, e)
       throw new CompoundError(message, e)
     }
   }
@@ -105,7 +146,8 @@ export class QSSClient extends EventEmitter {
    * Wait for QSS socket connection to finish connecting
    */
   private async _waitForConnect(): Promise<void> {
-    if (this._clientSocket == null) {
+    const socket = this._clientSocket
+    if (socket == null) {
       throw new QSSNotInitializedError(`Must run createSocket first!`)
     }
 
@@ -114,38 +156,97 @@ export class QSSClient extends EventEmitter {
       return
     }
 
-    this._clientSocket.on('connect', (): void => {
-      this.logger.debug('QSS connected!', this._clientSocket?.id)
+    this._attachSocketEventHandlers(socket)
+
+    this.logger.debug('Waiting for QSS socket to connect...')
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        socket.off('connect', onConnect)
+        socket.off('connect_error', onError)
+        this.logger.error('QSS client failed to connect within timeout, closing socket')
+        this._closeSocket(socket)
+        this._connectTimeout = Math.min(
+          this._connectTimeout * QSS_CONNECT_TIMEOUT_BACKOFF_FACTOR,
+          QSS_CONNECT_TIMEOUT_MAX_MS
+        )
+        reject(new QSSConnectionError(`Client didn't connect in time!`))
+      }, this._connectTimeout)
+
+      const onConnect = (): void => {
+        clearTimeout(timer)
+        this._connectTimeout = QSS_CONNECT_TIMEOUT_INITIAL_MS
+        socket.off('connect_error', onError)
+        resolve()
+      }
+
+      const onError = (err: Error): void => {
+        clearTimeout(timer)
+        socket.off('connect', onConnect)
+        this._closeSocket(socket)
+        reject(new QSSConnectionError(`Client failed to connect: ${err.message}`, err as any))
+      }
+
+      socket.once('connect', onConnect)
+      socket.once('connect_error', onError)
+      socket.connect()
+    })
+  }
+
+  private _attachSocketEventHandlers(socket: ClientSocket): void {
+    this._detachSocketEventHandlers(socket)
+
+    const onConnect = (): void => {
+      this.logger.debug('QSS connected!', socket.id)
       this.emit(QSSEvents.QSS_CONNECTED)
       this.captchaVerified = false
-    })
+    }
 
-    this._clientSocket.on('disconnect', (): void => {
+    const onDisconnect = (): void => {
       this.logger.debug('QSS disconnected!')
       this.emit(QSSEvents.QSS_DISCONNECTED)
       this.captchaVerified = false
-      this._clientSocket?.close()
-    })
+      this._closeSocket(socket)
+    }
 
     // forward Quiet websocket events from the socket connection to the client's own emitter
-    this._clientSocket.onAny((eventName: string, ...args: any[]): void => {
+    const onAny = (eventName: string, ...args: any[]): void => {
       if (Object.values(WebsocketEvents).includes(eventName as any)) {
         this.emit(eventName, ...args)
       }
-    })
+    }
 
-    this._clientSocket.connect()
-    let count = 20
-    while (!this.connected) {
-      if (count < 0) {
-        this.logger.error('QSS client failed to connect within timeout, closing socket')
-        this.close()
-        throw new QSSConnectionError(`Client didn't connect in time!`)
-      }
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+    socket.onAny(onAny)
+    this._socketEventHandlers = { socket, onConnect, onDisconnect, onAny }
+  }
 
-      this.logger.debug(`Waiting for client to finish connecting...`)
-      await sleep(500)
-      count--
+  private _detachSocketEventHandlers(socket: ClientSocket): void {
+    if (this._socketEventHandlers?.socket !== socket) {
+      return
+    }
+
+    socket.off('connect', this._socketEventHandlers.onConnect)
+    socket.off('disconnect', this._socketEventHandlers.onDisconnect)
+    socket.offAny(this._socketEventHandlers.onAny)
+    this._socketEventHandlers = undefined
+  }
+
+  private _closeSocket(socket: ClientSocket): void {
+    const wasCurrentSocket = this._clientSocket === socket
+    const wasConnected = socket.connected
+
+    this._detachSocketEventHandlers(socket)
+    socket.close()
+
+    if (wasCurrentSocket) {
+      this._clientSocket = undefined
+      this._clientSocketEndpoint = undefined
+    }
+    this.captchaVerified = false
+
+    if (wasConnected) {
+      this.emit(QSSEvents.QSS_DISCONNECTED)
     }
   }
 
@@ -192,7 +293,7 @@ export class QSSClient extends EventEmitter {
           status: CommunityOperationStatus.SENDING,
         },
         true,
-        2000
+        5000
       )
       this.logger.info('Received response from QSS for hCaptcha site key request')
       if (response?.status === CommunityOperationStatus.SUCCESS && response.payload?.siteKey) {
@@ -248,6 +349,20 @@ export class QSSClient extends EventEmitter {
       return true
     }
 
+    if (this._captchaVerificationPromise != null) {
+      this.logger.debug('Captcha verification already in progress, awaiting existing verification')
+      return this._captchaVerificationPromise
+    }
+
+    this._captchaVerificationPromise = this._requestCaptchaVerificationImpl()
+    try {
+      return await this._captchaVerificationPromise
+    } finally {
+      this._captchaVerificationPromise = null
+    }
+  }
+
+  private async _requestCaptchaVerificationImpl(): Promise<boolean> {
     if (!this.connected) {
       await this.createSocketAndConnect(this.qssEndpoint)
     }
@@ -286,6 +401,6 @@ export class QSSClient extends EventEmitter {
     }
 
     this.logger.info(`Closing client socket`)
-    socket.close()
+    this._closeSocket(socket)
   }
 }

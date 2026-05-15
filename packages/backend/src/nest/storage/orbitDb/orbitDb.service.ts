@@ -311,29 +311,6 @@ export class OrbitDbService {
     }
   }
 
-  /**
-   * Returns all EncryptedMessage entries for a given teamId where createdAt >= since.
-   * Used by the NSE auth endpoint.
-   */
-  public async getTeamLogEntriesSince(teamId: string, since: number): Promise<any[]> {
-    if (this.orbitDbInstance == undefined) {
-      throw new Error('OrbitDB instance is not initialized. Call create() first.')
-    }
-
-    const results: any[] = []
-    for (const store of Object.values(this.stores)) {
-      if (store.meta?.['teamId'] !== teamId) continue
-      for await (const entry of (store.log as LogType).iterator()) {
-        const value = (entry as any).payload?.value
-        if (value && typeof value.createdAt === 'number' && value.createdAt >= since) {
-          results.push(value)
-        }
-      }
-    }
-
-    return results
-  }
-
   public static updateMetadata(db: DatabaseType, metadata: Record<string, any>): void {
     db.meta = {
       ...(db.meta ?? {}),

@@ -18,6 +18,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * Map of team IDs to QSS auth sync connections
    */
   private readonly authConnMap: Map<string, QSSAuthConnection> = new Map()
+  private readonly startConnectionPromises: Map<string, Promise<void>> = new Map()
 
   private readonly logger = createLogger('qss:auth:conn:manager')
 
@@ -34,9 +35,12 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    */
   public onModuleDestroy() {
     this.close(true)
+    this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._handleQssClientDisconnected)
   }
 
   private _configureEventHandlers(): void {
+    this.qssClient.on(QSSEvents.QSS_DISCONNECTED, this._handleQssClientDisconnected)
+
     // pass auth sync messages received on the websocket to the auth connection
     this.qssClient.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
       try {
@@ -50,12 +54,23 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
             `Auth connection for team ${message.payload.teamId} wasn't initialized, can't process auth sync message`
           )
         }
+        if (!authConnection.isForClientSocket(this.qssClient.getClientSocket())) {
+          this.stopConnection(message.payload.teamId, false)
+          throw new Error(
+            `Auth connection for team ${message.payload.teamId} belongs to a previous QSS client socket, can't process auth sync message`
+          )
+        }
 
         authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
       } catch (e) {
         this.logger.error(`Error handling auth sync message`, e)
       }
     })
+  }
+
+  private _handleQssClientDisconnected = (): void => {
+    this.logger.info('QSS client disconnected, closing all QSS auth connections')
+    this.close(false)
   }
 
   /**
@@ -75,19 +90,59 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * @param teamName Optional team name to pass in for filtering purposes
    */
   public async startNewConnection(teamId: string, teamName?: string): Promise<void> {
+    const existingStartPromise = this.startConnectionPromises.get(teamId)
+    if (existingStartPromise != null) {
+      this.logger.warn('QSS auth connection start already in progress for team ID', teamId)
+      return existingStartPromise
+    }
+
+    const startPromise = this._startNewConnection(teamId, teamName)
+    this.startConnectionPromises.set(teamId, startPromise)
+    try {
+      await startPromise
+    } finally {
+      if (this.startConnectionPromises.get(teamId) === startPromise) {
+        this.startConnectionPromises.delete(teamId)
+      }
+    }
+  }
+
+  private async _startNewConnection(teamId: string, teamName?: string): Promise<void> {
+    const currentClientSocket = this.qssClient.getClientSocket()
+    if (currentClientSocket == null || !currentClientSocket.connected || !currentClientSocket.active) {
+      throw new Error('Must have an active QSS client socket prior to starting an auth connection!')
+    }
+
     // check for an existing connection for this team
     const existingAuthConnection = this.authConnMap.get(teamId)
     // if we have an existing auth connection with QSS for this team and it is active, do nothing
     if (existingAuthConnection != null) {
       if (existingAuthConnection.active) {
-        this.logger.warn('Existing active auth connection with QSS found for this team ID', teamId)
+        if (!existingAuthConnection.isForClientSocket(currentClientSocket)) {
+          this.logger.warn(
+            'Existing active auth connection with QSS found for this team ID but it belongs to a previous client socket; closing and replacing',
+            teamId
+          )
+          this.stopConnection(teamId, false)
+        } else {
+          this.logger.warn('Existing active auth connection with QSS found for this team ID', teamId)
+          return
+        }
+      } else if (!existingAuthConnection.isForClientSocket(currentClientSocket)) {
+        this.logger.warn(
+          'Existing inactive auth connection with QSS found for this team ID but it belongs to a previous client socket; closing and replacing',
+          teamId
+        )
+        this.stopConnection(teamId, false)
+      } else {
+        // if we have an existing auth connection with QSS for this team but it is inactive, restart the connection
+        this.logger.warn(
+          'Existing inactive auth connection with QSS found for this team ID, attempting to start',
+          teamId
+        )
+        await existingAuthConnection.start()
         return
       }
-
-      // if we have an existing auth connection with QSS for this team but it is inactive, restart the connection
-      this.logger.warn('Existing inactive auth connection with QSS found for this team ID, attempting to start', teamId)
-      await existingAuthConnection.start()
-      return
     }
 
     // create a new auth sync connection with QSS and start it
@@ -125,7 +180,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    */
   public close(sendDisconnectToQSS = false): void {
     this.logger.trace('Closing all QSS auth connections')
-    for (const teamId of this.authConnMap.keys()) {
+    for (const teamId of Array.from(this.authConnMap.keys())) {
       this.logger.info('Closing QSS auth connection for team ID', teamId)
       this.stopConnection(teamId, sendDisconnectToQSS)
     }

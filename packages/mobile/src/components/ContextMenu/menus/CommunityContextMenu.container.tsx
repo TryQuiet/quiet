@@ -19,6 +19,9 @@ import { capitalizeFirstLetter } from '@quiet/common'
 import { pushNotificationsActions } from '../../../store/pushNotifications/pushNotifications.slice'
 import { pushNotificationsSelectors } from '../../../store/pushNotifications/pushNotifications.selectors'
 import { createLogger } from '../../../utils/logger'
+import { NodeEnv } from '../../../utils/const/NodeEnv.enum'
+import { sendLogs } from '../../../utils/sendLogs'
+import { shareAllData } from '../../../utils/shareAllData'
 
 const logger = createLogger('CommunityContextMenu')
 
@@ -75,6 +78,23 @@ export const CommunityContextMenu: FC = () => {
       : []),
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
   ]
+
+  if (Config.NODE_ENV !== NodeEnv.Production) {
+    items.push({
+      title: 'Share logs',
+      action: () => {
+        communityContextMenu.handleClose()
+        void sendLogs()
+      },
+    })
+    items.push({
+      title: 'Share all data',
+      action: () => {
+        communityContextMenu.handleClose()
+        void shareAllData()
+      },
+    })
+  }
 
   useEffect(() => {
     communityContextMenu.handleClose()

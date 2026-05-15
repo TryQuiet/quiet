@@ -10,9 +10,10 @@ import {
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
 import { NotificationPermissionStatus } from './pushNotifications.types'
-import { pushNotifications } from '@quiet/state-manager'
+import { communities, pushNotifications } from '@quiet/state-manager'
 import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
+import Config from 'react-native-config'
 
 const logger = createLogger('pushNotificationsMasterSaga')
 
@@ -42,6 +43,10 @@ function* checkPermissionSaga(): Generator {
 }
 
 function* triggerPermissionRequestSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping automatic permission request trigger')
+    return
+  }
   const alreadyRequested = yield* select(pushNotificationsSelectors.permissionRequested)
   logger.info(`App opened. alreadyRequested=${alreadyRequested}`)
 
@@ -114,6 +119,11 @@ function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
 }
 
 function* syncCurrentDeviceTokenSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping device token sync')
+    return
+  }
+
   const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
   if (!hasGrantedPermission) {
     logger.info('Skipping current FCM token sync because notification permission is not granted')
@@ -136,7 +146,7 @@ function* syncCurrentDeviceTokenSaga(): Generator {
     logger.info('Fetched current FCM token from native module')
     yield* call(sendDeviceTokenToBackendSaga, token)
   } catch (error) {
-    logger.error('Failed to fetch current FCM token', error)
+    logger.info('Failed to fetch current FCM token')
   }
 }
 
@@ -203,15 +213,21 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
+  if ((Platform.OS !== 'ios' && Platform.OS !== 'android') || Config.QPS_ALLOWED !== 'true') {
+    logger.info(`Skipping push notifications saga (platform=${Platform.OS}, QPS_ALLOWED=${Config.QPS_ALLOWED})`)
+    return
+  }
+
   logger.info('pushNotificationsMasterSaga starting')
   try {
-    yield* fork(watchDeviceToken)
     yield* fork(watchPermissionResults)
+    yield* fork(watchDeviceToken)
     yield* fork(watchAppState)
 
     yield* all([
       takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
       takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
+      takeEvery(communities.actions.setCurrentCommunity.type, syncCurrentDeviceTokenSaga),
       fork(triggerPermissionRequestSaga),
     ])
   } finally {

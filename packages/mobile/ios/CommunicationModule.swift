@@ -148,6 +148,13 @@ class CommunicationModule: RCTEventEmitter {
   }
 
   @objc
+  func saveNseFallbackQssUrl(_ url: NSString) {
+    let urlStr = url as String
+    SharedDefaults.saveFallbackQssUrl(urlStr)
+    CommunicationModule.logger.info("saveNseFallbackQssUrl: stored fallback URL \(urlStr, privacy: .public)")
+  }
+
+  @objc
   func saveNseLastSyncSeq(
     _ teamId: NSString,
     syncSeq: NSNumber

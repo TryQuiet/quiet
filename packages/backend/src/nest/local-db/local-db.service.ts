@@ -22,6 +22,7 @@ import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
+import { removeFilesFromDir } from '../common/utils'
 
 @Injectable()
 export class LocalDbService extends EventEmitter {
@@ -48,6 +49,16 @@ export class LocalDbService extends EventEmitter {
   public async purge() {
     this.logger.info(`Purging db`)
     await this.db.clear()
+  }
+
+  public async purgeArtifacts() {
+    this.logger.info(`Purging local db artifacts`)
+    if (this.db.status !== 'open') {
+      await this.open()
+    }
+    await this.purge()
+    await this.close()
+    removeFilesFromDir(this.db.location, { throwOnError: false, maxRetries: 2, retryDelay: 100 })
   }
 
   public async get(key: string) {
@@ -230,6 +241,21 @@ export class LocalDbService extends EventEmitter {
 
   public async communityExists(communityId: string): Promise<boolean> {
     return communityId in ((await this.getCommunities()) ?? {})
+  }
+
+  public async deleteCommunity(id: string) {
+    this.logger.info('Deleting community', id)
+    let communities = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    delete communities[id]
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+
+    const currentCommunityId = await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID)
+    if (currentCommunityId === id) {
+      await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, '')
+    }
   }
 
   // temporarily shoving identity creation here
@@ -422,6 +448,7 @@ export class LocalDbService extends EventEmitter {
   public async removePendingQssLogSyncMessages(sentMessageHashes: Record<string, string[]>): Promise<void> {
     const pendingHashes = await this.getPendingQssLogSyncMessages()
     for (const [address, sentHashes] of Object.entries(sentMessageHashes)) {
+      this.logger.debug(`Removing pending QSS log sync messages for address ${address}:`, sentHashes)
       let arr = pendingHashes[address]
       for (const sentHash of sentHashes) {
         arr = arr.filter(pendingHash => pendingHash !== sentHash)

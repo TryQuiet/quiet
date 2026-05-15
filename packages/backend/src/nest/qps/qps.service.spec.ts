@@ -23,6 +23,12 @@ class MockSigChainService extends EventEmitter {
   get team() {
     return this.activeChain?.team
   }
+  getActiveChain() {
+    if (this.activeChain == null) {
+      throw new Error('No active chain')
+    }
+    return this.activeChain
+  }
 }
 
 class MockQSSService extends EventEmitter {
@@ -74,6 +80,7 @@ describe('QPSService', () => {
     qssClient.connected = true
     sigChainService.activeChain = {
       team: { id: TEAM_ID },
+      context: { user: sigChainService.user },
       roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER },
     }
   }

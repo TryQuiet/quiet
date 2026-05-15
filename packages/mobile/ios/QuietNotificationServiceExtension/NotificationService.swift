@@ -9,12 +9,20 @@ class NotificationService: UNNotificationServiceExtension {
         let message: NSEDecryptedNotificationMessage
     }
 
+    private static let retryDelaysNanoseconds: [UInt64] = [
+        250_000_000,
+        750_000_000
+    ]
+
+    private static let maxRetryWindow: TimeInterval = 5
+
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
     var fetchTask: Task<Void, Never>?
+    private var pendingSyncSeq: Int64?
 
     private let crypto = NSECryptoService()
-    private var authCache: [URL: NSEAuthService] = [:]
+    private let tokenCache = NSEAuthTokenCache()
 
     private static func channelName(from channelId: String) -> String {
         guard let separatorIndex = channelId.firstIndex(of: "_") else {
@@ -64,8 +72,16 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
 
-        guard let qssUrl = SharedDefaults.getQssUrl(teamId: teamId) else {
-            os_log("fetchAndUpdate: missing stored QSS URL for teamId=%{public}@",
+        let storedQssUrl = SharedDefaults.getQssUrl(teamId: teamId)
+        let qssUrl: URL
+        if let url = storedQssUrl {
+            qssUrl = url
+        } else if let fallback = SharedDefaults.getFallbackQssUrl() {
+            os_log("fetchAndUpdate: no team-specific QSS URL for teamId=%{public}@, using env fallback",
+                   log: nseLog, type: .info, teamId)
+            qssUrl = fallback
+        } else {
+            os_log("fetchAndUpdate: missing QSS URL for teamId=%{public}@ and no fallback configured",
                    log: nseLog, type: .error, teamId)
             return
         }
@@ -76,23 +92,11 @@ class NotificationService: UNNotificationServiceExtension {
                log: nseLog, type: .info, teamId, qssUrlString)
 
         do {
-            let auth: NSEAuthService
-            if let cached = authCache[qssUrl] {
-                os_log("fetchAndUpdate: using cached NSEAuthService for %{public}@", log: nseLog, type: .debug, qssUrlString)
-                auth = cached
-            } else {
-                os_log("fetchAndUpdate: creating new NSEAuthService for %{public}@", log: nseLog, type: .debug, qssUrlString)
-                let client = NSENetworkClient(baseURL: qssUrl)
-                let newAuth = NSEAuthService(client: client, crypto: crypto)
-                authCache[qssUrl] = newAuth
-                auth = newAuth
-            }
-
             let afterSeq = SharedDefaults.getLastSyncSeq()
             os_log("fetchAndUpdate: fetching entries afterSeq=%{public}lld",
                    log: nseLog, type: .info, afterSeq)
 
-            let response = try await auth.fetchNewEntries(teamId: teamId, afterSeq: afterSeq)
+            let response = try await fetchEntriesWithRetry(qssUrl: qssUrl, teamId: teamId, afterSeq: afterSeq)
             let entries = response.entries
             let baselineSeq = afterSeq
             os_log("fetchAndUpdate: fetched %{public}d entries",
@@ -120,12 +124,12 @@ class NotificationService: UNNotificationServiceExtension {
                 let notificationEntries = sortedEntries
                 let maxSyncSeq = notificationEntries.map(\.syncSeq).max() ?? baselineSeq
                 os_log(
-                    "fetchAndUpdate: saving sync seq=%{public}lld",
+                    "fetchAndUpdate: staging sync seq=%{public}lld (saved on delivery)",
                     log: nseLog,
                     type: .info,
                     maxSyncSeq
                 )
-                SharedDefaults.saveLastSyncSeq(maxSyncSeq)
+                pendingSyncSeq = maxSyncSeq
 
                 guard let content = bestAttemptContent else {
                     os_log("fetchAndUpdate: bestAttemptContent is nil, cannot update badge", log: nseLog, type: .error)
@@ -189,6 +193,69 @@ class NotificationService: UNNotificationServiceExtension {
         }
     }
 
+    private func fetchEntriesWithRetry(qssUrl: URL, teamId: String, afterSeq: Int64) async throws -> LogEntriesResponse {
+        let startedAt = Date()
+        var retryIndex = 0
+
+        while true {
+            guard !Task.isCancelled else {
+                throw CancellationError()
+            }
+
+            do {
+                let auth = makeAuthService(qssUrl: qssUrl)
+                return try await auth.fetchNewEntries(teamId: teamId, afterSeq: afterSeq)
+            } catch {
+                guard shouldRetryFetch(error: error, startedAt: startedAt, retryIndex: retryIndex) else {
+                    throw error
+                }
+
+                let delay = Self.retryDelaysNanoseconds[retryIndex]
+                retryIndex += 1
+                os_log(
+                    "fetchAndUpdate: retrying full auth fetch after transient network error (%{public}d/%{public}d): %{public}@",
+                    log: nseLog,
+                    type: .info,
+                    retryIndex,
+                    Self.retryDelaysNanoseconds.count,
+                    String(describing: error)
+                )
+                try await Task.sleep(nanoseconds: delay)
+            }
+        }
+    }
+
+    private func makeAuthService(qssUrl: URL) -> NSEAuthService {
+        os_log("fetchAndUpdate: creating fresh NSEAuthService for %{public}@",
+               log: nseLog, type: .debug, qssUrl.absoluteString)
+        let client = NSENetworkClient(baseURL: qssUrl)
+        return NSEAuthService(client: client, crypto: crypto, tokenCache: tokenCache)
+    }
+
+    private func shouldRetryFetch(error: Error, startedAt: Date, retryIndex: Int) -> Bool {
+        guard retryIndex < Self.retryDelaysNanoseconds.count else {
+            return false
+        }
+
+        guard Date().timeIntervalSince(startedAt) < Self.maxRetryWindow else {
+            return false
+        }
+
+        guard let authError = error as? NSEAuthError else {
+            return false
+        }
+
+        switch authError {
+        case .networkError:
+            return authError.isRetryableNetworkFailure
+        case .logFetchFailed(let statusCode) where statusCode == 502 || statusCode == 503:
+            // Proxy (iCloud Private Relay) or gateway transiently unavailable.
+            return true
+        default:
+            return false
+        }
+    }
+
     private func applyNotificationMessage(_ message: NSEDecryptedNotificationMessage, to content: UNMutableNotificationContent) {
         content.title = "#\(Self.channelName(from: message.channelId))"
         content.body = message.body
@@ -229,6 +296,12 @@ class NotificationService: UNNotificationServiceExtension {
         // Nil contentHandler first to prevent double-delivery if serviceExtensionTimeWillExpire
         // races with task completion — both paths call deliver(), only the first wins.
         contentHandler = nil
+        // Persist the seq cursor only at the moment of delivery so a mid-run NSE kill
+        // (XPC_ERROR_CONNECTION_INTERRUPTED) cannot advance the cursor past undelivered entries.
+        if let seq = pendingSyncSeq {
+            SharedDefaults.saveLastSyncSeq(seq)
+            pendingSyncSeq = nil
+        }
         handler(content)
     }
 }

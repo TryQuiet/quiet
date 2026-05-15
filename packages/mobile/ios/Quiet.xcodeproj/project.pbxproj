@@ -680,6 +680,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AA0000012F70000000000001 /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -5067,6 +5069,7 @@
 			);
 			inputPaths = (
 				"${PROJECT_DIR}/../.env.development",
+				"${PROJECT_DIR}/../.env.staging",
 				"${PROJECT_DIR}/../.env.production",
 			);
 			name = "Inject Feature Flags";
@@ -5077,7 +5080,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\nset -euo pipefail\n\n# Choose source env by configuration\nSRC=\"${PROJECT_DIR}/../.env.development\"\nif [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  SRC=\"${PROJECT_DIR}/../.env.production\"\nfi\n\n# Destination inside the built app bundle\nDEST_DIR=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST_PLIST=\"${DEST_DIR}/Env.plist\"\n\nmkdir -p \"${DEST_DIR}\"\n\n# Create/clear plist root dict\n/usr/libexec/PlistBuddy -c \"Clear :\" \"${DEST_PLIST}\" 2>/dev/null || true\n/usr/libexec/PlistBuddy -c \"Add : dict\" \"${DEST_PLIST}\" 2>/dev/null || true\n\n# Convert KEY=VALUE lines to plist entries\nwhile IFS= read -r line; do\n  # skip blanks and comments\n  if [ -z \"${line}\" ] || [[ ${line} =~ ^[[:space:]]*# ]]; then\n    continue\n  fi\n  key=${line%%=*}\n  val=${line#*=}\n  # strip optional surrounding quotes\n  if [[ ${val} == \"*\" ]]; then\n    val=${val:1:${#val}-2}\n  fi\n  /usr/libexec/PlistBuddy -c \"Delete :${key}\" \"${DEST_PLIST}\" 2>/dev/null || true\n  /usr/libexec/PlistBuddy -c \"Add :${key} string ${val}\" \"${DEST_PLIST}\"\ndone < \"${SRC}\"\n";
+			shellScript = "\nset -euo pipefail\n\n# Allow schemes and CI to override the env file while keeping local config-based defaults.\nif [ -f /tmp/envfile ]; then\n  SRC=\"${PROJECT_DIR}/../$(cat /tmp/envfile)\"\nelif [ -n \"${ENVFILE:-}\" ]; then\n  SRC=\"${PROJECT_DIR}/../${ENVFILE}\"\nelse\n  SRC=\"${PROJECT_DIR}/../.env.development\"\n  if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n    SRC=\"${PROJECT_DIR}/../.env.production\"\n  fi\nfi\n\n# Destination inside the built app bundle\nDEST_DIR=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST_PLIST=\"${DEST_DIR}/Env.plist\"\n\nmkdir -p \"${DEST_DIR}\"\n\n# Create/clear plist root dict\n/usr/libexec/PlistBuddy -c \"Clear :\" \"${DEST_PLIST}\" 2>/dev/null || true\n/usr/libexec/PlistBuddy -c \"Add : dict\" \"${DEST_PLIST}\" 2>/dev/null || true\n\n# Convert KEY=VALUE lines to plist entries\nwhile IFS= read -r line || [ -n \"${line}\" ]; do\n  # skip blanks and comments\n  if [ -z \"${line}\" ] || [[ ${line} =~ ^[[:space:]]*# ]]; then\n    continue\n  fi\n  key=${line%%=*}\n  val=${line#*=}\n  # strip optional surrounding quotes\n  if [[ ${val} == \"*\" ]]; then\n    val=${val:1:${#val}-2}\n  fi\n  /usr/libexec/PlistBuddy -c \"Delete :${key}\" \"${DEST_PLIST}\" 2>/dev/null || true\n  /usr/libexec/PlistBuddy -c \"Add :${key} string ${val}\" \"${DEST_PLIST}\"\ndone < \"${SRC}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		1827A9DE297828AB00245FD3 /* [CUSTOM NODEJS MOBILE] Mock .node files */ = {
@@ -5221,13 +5224,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5264,13 +5263,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5387,7 +5382,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = QuietTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5419,7 +5414,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = QuietTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -5667,6 +5662,7 @@
 				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5758,6 +5754,7 @@
 				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;

@@ -60,9 +60,7 @@ jest.mock('react-native', () => {
   }
   rn.NativeModules.FirebaseMessagingModule = {
     getToken: jest.fn(),
-  }
-  rn.NativeModules.FirebaseMessagingModule = {
-    getToken: jest.fn(),
+    deleteToken: jest.fn(),
   }
   return rn
 })
@@ -186,6 +184,13 @@ jest.mock('react-native-file-logger', () => {
     },
   }
 })
+
+jest.mock('react-native-zip-archive', () => ({
+  zip: jest.fn(),
+  unzip: jest.fn(),
+}))
+
+jest.mock('react-native-share', () => ({ default: { open: jest.fn() } }))
 
 export const ioMock = io as jest.Mock
 

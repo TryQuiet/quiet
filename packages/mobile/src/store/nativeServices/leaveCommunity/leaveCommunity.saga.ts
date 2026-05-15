@@ -1,4 +1,4 @@
-import { select, call, putResolve } from 'typed-redux-saga'
+import { select, call, putResolve, delay } from 'typed-redux-saga'
 import { app } from '@quiet/state-manager'
 import { NativeModules } from 'react-native'
 import { persistor } from '../../store'
@@ -8,13 +8,28 @@ import { nativeServicesSelectors } from '../nativeServices.selectors'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
 import { createLogger } from '../../../utils/logger'
+import { initSelectors } from '../../init/init.selectors'
 
 const logger = createLogger('leaveCommunity')
 
 export function* leaveCommunitySaga(): Generator {
   logger.info('Leaving community')
+  while (true) {
+    const connected = yield* select(initSelectors.isWebsocketConnected)
+    if (connected) break
+    yield* delay(500)
+  }
   // Restart backend
   yield* putResolve(app.actions.closeServices())
+
+  const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
+  if (deleteFirebaseToken) {
+    try {
+      yield* call(deleteFirebaseToken)
+    } catch (error) {
+      logger.error('Failed to delete Firebase token while leaving community', error)
+    }
+  }
 
   const clearSensitiveData = NativeModules.CommunicationModule?.clearSensitiveData
   if (clearSensitiveData) {
