@@ -38,3 +38,7 @@ export interface CsrReplicatedPromiseValues {
 export interface DBOptions {
   sync: boolean
 }
+
+export type PurgeDataOptions = {
+  removeTorDataDirectory?: boolean
+}

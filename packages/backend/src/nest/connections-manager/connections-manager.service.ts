@@ -390,7 +390,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     if (this.storageService) {
       this.logger.info('Purging storage data')
-      this.storageService.purgeData()
+      this.storageService.purgeData({ removeTorDataDirectory: false })
     }
 
     this.logger.info('Resetting Tor hidden services')
