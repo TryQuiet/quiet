@@ -10,6 +10,8 @@
 
 ### Chores
 
+* Refactored syncing data with QSS for modularity [#3235](https://github.com/TryQuiet/quiet/issues/3235)
+
 ## [7.1.0]
 
 ### Features
