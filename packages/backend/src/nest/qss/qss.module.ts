@@ -15,6 +15,6 @@ import { CommonModule } from '../common/common.module'
 @Module({
   imports: [SigChainModule, LocalDbModule, forwardRef(() => OrbitDbModule), CaptchaModule, SocketModule, CommonModule],
   providers: [QSSService, QSSClient, QSSAuthConnectionManager, QSSAuthConnection, QSSSyncManager],
-  exports: [QSSService, QSSClient],
+  exports: [QSSService, QSSClient, QSSSyncManager],
 })
 export class QSSModule {}

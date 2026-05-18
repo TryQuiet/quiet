@@ -323,7 +323,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     owner.qssService.markTeamStorageReady(teamId)
 
     const hash = await addEncryptedEntry(owner, store, 'qss integration: owner create-community session sync')
-    await owner.qssService.waitForLogEntrySyncAck(hash, 60_000)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(hash, 60_000)
     await waitForPendingSyncToDrain(owner, store.address, hash)
   })
 
@@ -372,7 +372,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
 
     owner.qssService.markTeamStorageReady(teamId)
     await waitForPendingSyncToDrain(owner, store.address, hash)
-    await owner.qssService.waitForLogEntrySyncAck(hash, 60_000)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(hash, 60_000)
   })
 })
 
@@ -480,7 +480,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
   it('signs in, syncs logs, survives disconnects, and signs back in', async () => {
     const firstMessage = 'qss integration: online fanout'
     const firstHash = await addEncryptedEntry(owner, ownerStore, firstMessage)
-    await owner.qssService.waitForLogEntrySyncAck(firstHash, 60_000)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(firstHash, 60_000)
     await waitForStoreMessage(invitee, inviteeStore, firstMessage)
 
     await disconnectWithoutAutoReconnect(owner, teamId)
@@ -497,7 +497,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
 
     const missedMessage = 'qss integration: historical pull after reconnect'
     const missedHash = await addEncryptedEntry(owner, ownerStore, missedMessage)
-    await owner.qssService.waitForLogEntrySyncAck(missedHash, 60_000)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(missedHash, 60_000)
     const expectedMissedSeq = await waitForLastSyncSeqAtLeast(owner, teamId, 1)
 
     const pullSpy = jest.spyOn(invitee.qssSyncManager, 'pullLatestLogEntries')
@@ -514,14 +514,14 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
 
     const afterReconnectMessage = 'qss integration: fanout after reconnect'
     const afterReconnectHash = await addEncryptedEntry(owner, ownerStore, afterReconnectMessage)
-    await owner.qssService.waitForLogEntrySyncAck(afterReconnectHash, 60_000)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(afterReconnectHash, 60_000)
     await waitForStoreMessage(invitee, inviteeStore, afterReconnectMessage)
   })
 
   it('syncs invitee-authored log entries back to the owner', async () => {
     const inviteeMessage = 'qss integration: invitee outbound fanout'
     const inviteeHash = await addEncryptedEntry(invitee, inviteeStore, inviteeMessage)
-    await invitee.qssService.waitForLogEntrySyncAck(inviteeHash, 60_000)
+    await invitee.qssSyncManager.waitForLogEntrySyncAck(inviteeHash, 60_000)
     await waitForPendingSyncToDrain(invitee, inviteeStore.address, inviteeHash)
     await waitForStoreMessage(owner, ownerStore, inviteeMessage)
   })
@@ -529,7 +529,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
   it('historically pulls log entries that existed before a new invitee connects', async () => {
     const lateMessage = 'qss integration: late invitee historical catch-up'
     const lateHash = await addEncryptedEntry(owner, ownerStore, lateMessage)
-    await owner.qssService.waitForLogEntrySyncAck(lateHash, 60_000)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(lateHash, 60_000)
     const expectedLateSeq = await waitForLastSyncSeqAtLeast(owner, teamId, 1)
 
     const lateInviteeName = `qss-late-invitee-${randomUUID()}`

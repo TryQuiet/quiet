@@ -21,8 +21,6 @@ import {
   QSSOperationResult,
   QSSEvents,
   QSSInitStatus,
-  LogEntryPullResponseMessage,
-  LogEntryPullPayload,
 } from './qss.types'
 import { DateTime } from 'luxon'
 import * as url from 'node:url'
@@ -33,7 +31,6 @@ import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
-import { LogUpdate } from '../storage/orbitDb/orbitdb.types'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
 import { CompoundError, InvitationDataV3, NseQssUrlUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
@@ -718,34 +715,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     const community = await this.localDbService.getCurrentCommunity()
     await this.localDbService.updateCommunity(community!.id, { qssSetup: true } as any)
     return QSSOperationResult.SUCCESS
-  }
-
-  /**
-   * Sync an OrbitDB log entry to QSS
-   *
-   * @param update OrbitDB oplog entry update event
-   * @return True if sent successfully, false if send failed, and undefined if the send was skipped
-   */
-  public async sendLogEntrySyncMessage(update: LogUpdate): Promise<boolean | undefined> {
-    return await this.qssSyncManager.sendLogEntrySyncMessage(update)
-  }
-
-  public async waitForLogEntrySyncAck(hash: string, timeoutMs = 15_000): Promise<void> {
-    await this.qssSyncManager.waitForLogEntrySyncAck(hash, timeoutMs)
-  }
-
-  /**
-   * Pull log entries from QSS for a given team.
-   *
-   * @param payload LogEntryPullPayload containing the teamId and options for pulling log entries.
-   * @returns A promise that resolves to a LogEntryPullResponseMessage containing the pulled log entries.
-   */
-  public async pullLogEntries(payload: LogEntryPullPayload): Promise<LogEntryPullResponseMessage> {
-    return await this.qssSyncManager.pullLogEntries(payload)
-  }
-
-  public async pullLatestLogEntries(teamId: string): Promise<LogEntryPullResponseMessage> {
-    return await this.qssSyncManager.pullLatestLogEntries(teamId)
   }
 
   /**

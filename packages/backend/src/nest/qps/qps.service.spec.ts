@@ -33,11 +33,14 @@ class MockSigChainService extends EventEmitter {
 
 class MockQSSService extends EventEmitter {
   on = this.addListener
-  waitForLogEntrySyncAck = jest.fn<any>().mockResolvedValue(undefined)
   joinStatus = jest.fn<any>().mockReturnValue(JoinStatus.JOINED)
   emitEvent(event: QSSEvents, payload?: any) {
     this.emit(event, payload)
   }
+}
+
+class MockQSSSyncManager {
+  waitForLogEntrySyncAck = jest.fn<any>().mockResolvedValue(undefined)
 }
 
 class MockSocketService extends EventEmitter {}
@@ -52,6 +55,7 @@ describe('QPSService', () => {
   let qpsService: QPSService
   let qssClient: MockQSSClient
   let qssService: MockQSSService
+  let qssSyncManager: MockQSSSyncManager
   let sigChainService: MockSigChainService
   let socketService: MockSocketService
   let notificationTokensStore: MockNotificationTokensStore
@@ -91,6 +95,7 @@ describe('QPSService', () => {
     originalPlatform = process.platform
     qssClient = new MockQSSClient()
     qssService = new MockQSSService()
+    qssSyncManager = new MockQSSSyncManager()
     sigChainService = new MockSigChainService()
     socketService = new MockSocketService()
     notificationTokensStore = new MockNotificationTokensStore()
@@ -100,6 +105,7 @@ describe('QPSService', () => {
       socketService as any,
       qssClient as any,
       qssService as any,
+      qssSyncManager as any,
       sigChainService as any,
       notificationTokensStore as any
     )
@@ -156,6 +162,7 @@ describe('QPSService', () => {
         socketService as any,
         qssClient as any,
         qssService as any,
+        qssSyncManager as any,
         sigChainService as any,
         notificationTokensStore as any
       )
@@ -315,7 +322,7 @@ describe('QPSService', () => {
       await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(true)
 
       expect(notificationTokensStore.tombstoneUser).toHaveBeenCalledWith('test-user-id')
-      expect(qssService.waitForLogEntrySyncAck).toHaveBeenCalledWith('tombstone-hash', 5000)
+      expect(qssSyncManager.waitForLogEntrySyncAck).toHaveBeenCalledWith('tombstone-hash', 5000)
     })
 
     it('allows leave to continue if QSS is not connected', async () => {
@@ -333,12 +340,12 @@ describe('QPSService', () => {
     })
 
     it('allows leave to continue if the QSS ack does not arrive before the timeout', async () => {
-      qssService.waitForLogEntrySyncAck.mockRejectedValueOnce(new Error('Timed out waiting for QSS ack'))
+      qssSyncManager.waitForLogEntrySyncAck.mockRejectedValueOnce(new Error('Timed out waiting for QSS ack'))
 
       await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(false)
 
       expect(notificationTokensStore.tombstoneUser).toHaveBeenCalledWith('test-user-id')
-      expect(qssService.waitForLogEntrySyncAck).toHaveBeenCalledWith('tombstone-hash', 5000)
+      expect(qssSyncManager.waitForLogEntrySyncAck).toHaveBeenCalledWith('tombstone-hash', 5000)
     })
 
     it('allows leave to continue if writing the tombstone fails', async () => {
@@ -346,7 +353,7 @@ describe('QPSService', () => {
 
       await expect(qpsService.tombstoneCurrentUserNotificationTokens()).resolves.toBe(false)
 
-      expect(qssService.waitForLogEntrySyncAck).not.toHaveBeenCalled()
+      expect(qssSyncManager.waitForLogEntrySyncAck).not.toHaveBeenCalled()
     })
   })
 
@@ -384,6 +391,7 @@ describe('QPSService', () => {
         socketService as any,
         qssClient as any,
         qssService as any,
+        qssSyncManager as any,
         sigChainService as any,
         notificationTokensStore as any
       )

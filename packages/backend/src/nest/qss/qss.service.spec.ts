@@ -1037,7 +1037,7 @@ describe('QSSService', () => {
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       expect(update.teamId).toBe(sigchainService.team.id)
-      const result = await qssService.sendLogEntrySyncMessage(update)
+      const result = await qssSyncManager.sendLogEntrySyncMessage(update)
       await waitForExpect(() => {
         expect(mockedSendMessage).toHaveBeenNthCalledWith(
           1,
@@ -1283,7 +1283,7 @@ describe('QSSService', () => {
       )
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
-      const result = await qssService.sendLogEntrySyncMessage(update)
+      const result = await qssSyncManager.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
       await waitForExpect(async () => {
         expect(addPendingMessageSpy).toHaveBeenCalledTimes(1)
@@ -1555,7 +1555,7 @@ describe('QSSService', () => {
 
       const teamId = sigchainService.activeChain.team!.id
       await expect(
-        qssService.pullLogEntries({
+        qssSyncManager.pullLogEntries({
           teamId,
           userId: sigchainService.user.userId,
           startSeq: 0,
@@ -1575,7 +1575,7 @@ describe('QSSService', () => {
       }
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage').mockResolvedValue(mockResponse)
 
-      const result = await qssService.pullLogEntries({
+      const result = await qssSyncManager.pullLogEntries({
         teamId,
         userId: sigchainService.user.userId,
         startSeq: 0,
@@ -1811,7 +1811,7 @@ describe('QSSService', () => {
       )
       const entry = await db.log.get(hash)
       const update = logEntryToLogUpdate(entry, db.address, teamId)
-      const result = await qssService.sendLogEntrySyncMessage(update)
+      const result = await qssSyncManager.sendLogEntrySyncMessage(update)
 
       expect(result).toBe(undefined)
       expect(mockedSendMessage).not.toHaveBeenCalled()
@@ -1843,7 +1843,7 @@ describe('QSSService', () => {
       )
       const update = logEntryToLogUpdate(await db.log.get(hash), db.address, teamId)
 
-      await qssService.sendLogEntrySyncMessage(update)
+      await qssSyncManager.sendLogEntrySyncMessage(update)
 
       expect(mockedSendMessage).not.toHaveBeenCalled()
       expect(addPendingMessageSpy).toHaveBeenCalledWith(db.address, hash)
@@ -1874,7 +1874,7 @@ describe('QSSService', () => {
       )
       const update = logEntryToLogUpdate(await db.log.get(hash), db.address, teamId)
 
-      await qssService.sendLogEntrySyncMessage(update)
+      await qssSyncManager.sendLogEntrySyncMessage(update)
 
       expect(mockedSendMessage).not.toHaveBeenCalled()
       expect(addPendingMessageSpy).toHaveBeenCalledWith(db.address, hash)
