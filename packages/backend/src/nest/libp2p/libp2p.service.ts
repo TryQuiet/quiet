@@ -67,6 +67,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   private authService: Libp2pAuth | undefined
   public state: Libp2pState = Libp2pState.Stopped
   private torBootstrap?: TorBootstrapProvider
+  private waitingForTorBootstrapToResumeDialQueue = false
 
   private logger = createLogger(Libp2pService.name)
 
@@ -237,8 +238,16 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       await this.redialQueue.enqueue({
         key: addr,
         delayMs,
-        task: async () => this.dialPeer(addr, { throwOnError: true, redialOnError: true }),
+        task: async () => this.dialPeer(addr, { throwOnError: true, redialOnError: false }),
       })
+    }
+  }
+
+  private replenishDialQueue = async () => {
+    try {
+      await this.addPeersToDialQueue()
+    } catch (err) {
+      this.logger.warn('Error replenishing dial queue', err)
     }
   }
 
@@ -252,9 +261,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       clearInterval(this._dialQueueInterval)
     }
     this._dialQueueInterval = setInterval(() => {
-      this.addPeersToDialQueue().catch(err => {
-        this.logger.warn('Error replenishing dial queue', err)
-      })
+      void this.replenishDialQueue()
     }, 30_000) // every 30 seconds
   }
 
@@ -276,6 +283,48 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   public resumeDialQueue = () => {
     this.redialQueue.start()
     this.ensureDialQueueInterval()
+    void this.replenishDialQueue()
+  }
+
+  private async resumeDialQueueWhenTorReady(onReady?: () => Promise<void>): Promise<boolean> {
+    const resumeDialing = async () => {
+      if (onReady) {
+        await onReady()
+      }
+      this.resumeDialQueue()
+    }
+
+    if (this.torBootstrap == null || this.torBootstrap.bootstrapped) {
+      await resumeDialing()
+      return true
+    }
+
+    if (this.waitingForTorBootstrapToResumeDialQueue) {
+      this.logger.debug('Already waiting for Tor to bootstrap before resuming dial queue')
+      return false
+    }
+
+    this.waitingForTorBootstrapToResumeDialQueue = true
+    this.logger.debug('Waiting for Tor to bootstrap before resuming dial queue')
+    this.torBootstrap.once('bootstrapped', () => {
+      this.waitingForTorBootstrapToResumeDialQueue = false
+      if ([Libp2pState.Paused, Libp2pState.Stopping, Libp2pState.Stopped].includes(this.state)) {
+        this.logger.debug('Tor bootstrapped but libp2p is not active, leaving dial queue paused')
+        return
+      }
+
+      void resumeDialing()
+        .then(() => {
+          if (this.state === Libp2pState.Starting) {
+            this.setState(Libp2pState.Started)
+          }
+        })
+        .catch(err => {
+          this.logger.warn('Failed to resume dial queue after Tor bootstrapped', err)
+        })
+    })
+
+    return false
   }
 
   public pause = async (): Promise<boolean> => {
@@ -302,12 +351,15 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     }
     this.setState(Libp2pState.Starting)
     // await this.libp2pInstance?.start()
-    if (peersToDial && peersToDial.length > 0) {
-      this.logger.debug(`Redialing ${peersToDial.length} peers`)
-      await this.redialPeers(peersToDial)
+    const resumed = await this.resumeDialQueueWhenTorReady(async () => {
+      if (peersToDial && peersToDial.length > 0) {
+        this.logger.debug(`Redialing ${peersToDial.length} peers`)
+        await this.redialPeers(peersToDial)
+      }
+    })
+    if (resumed) {
+      this.setState(Libp2pState.Started)
     }
-    this.resumeDialQueue()
-    this.setState(Libp2pState.Started)
     return true
   }
 
@@ -674,17 +726,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     await this.libp2pInstance.start()
     this.setState(Libp2pState.Started)
     this.logger.debug('Queueing peers for initial dialing')
-    if (this.torBootstrap == null || this.torBootstrap.bootstrapped) {
-      this.resumeDialQueue()
-    } else {
-      this.logger.debug('Waiting for Tor to bootstrap before starting dial queue')
-      this.torBootstrap.once('bootstrapped', () => {
-        if (this.state !== Libp2pState.Stopping && this.state !== Libp2pState.Stopped) {
-          this.logger.debug('Tor bootstrapped, starting dial queue')
-          this.resumeDialQueue()
-        }
-      })
-    }
+    await this.resumeDialQueueWhenTorReady()
 
     this._connectedPeersInterval = setInterval(async () => {
       const connections: Libp2pConnectedPeer[] = []
