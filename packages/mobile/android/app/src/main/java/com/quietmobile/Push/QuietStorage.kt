@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.apicatalog.base.Base58 as CopperBase58
 import org.json.JSONObject
 
 object QuietStorage {
@@ -56,7 +57,7 @@ object QuietStorage {
     @JvmStatic
     fun getDevicePrivateKey(deviceId: String): ByteArray? {
         val encoded = securePrefs().getString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", null) ?: return null
-        return Base58.decode(encoded)
+        return runCatching { CopperBase58.decode(encoded) }.getOrNull()
     }
 
     @JvmStatic

@@ -1,75 +1,82 @@
 package com.quietmobile.Push
 
 import java.io.ByteArrayOutputStream
+import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
+import org.msgpack.core.MessageFormat
+import org.msgpack.core.MessagePack
+import org.msgpack.core.MessageUnpacker
 
 object MsgpackUndefined
 
 object MsgpackDecoder {
-    fun decode(data: ByteArray): Any? = Decoder(data).decode()
+    fun decode(data: ByteArray): Any? {
+        return MessagePack.newDefaultUnpacker(data).use { unpacker ->
+            Decoder(unpacker).decode()
+        }
+    }
 
-    private class Decoder(private val bytes: ByteArray) {
-        private var index = 0
+    private class Decoder(private val unpacker: MessageUnpacker) {
         private val records = mutableMapOf<Int, List<String>>()
 
         fun decode(): Any? {
             val value = readValue()
-            if (index != bytes.size) {
+            if (unpacker.hasNext()) {
                 throw IllegalStateException("Unexpected trailing bytes in msgpack payload")
             }
             return value
         }
 
         private fun readValue(): Any? {
-            val token = readByte().toInt() and 0xff
-            return when (token) {
-                in 0x00..0x3f -> token
-                in 0x40..0x7f -> {
-                    val record = records[token]
-                    if (record != null) readRecord(record) else token
+            return when (unpacker.getNextFormat()) {
+                MessageFormat.POSFIXINT -> readPositiveIntOrRecord()
+                MessageFormat.NEGFIXINT,
+                MessageFormat.INT8,
+                MessageFormat.INT16,
+                MessageFormat.INT32 -> unpacker.unpackInt()
+                MessageFormat.INT64 -> unpacker.unpackLong()
+                MessageFormat.UINT8,
+                MessageFormat.UINT16 -> unpacker.unpackInt()
+                MessageFormat.UINT32 -> unpacker.unpackLong()
+                MessageFormat.UINT64 -> readUInt64()
+                MessageFormat.FIXMAP,
+                MessageFormat.MAP16,
+                MessageFormat.MAP32 -> readMap(unpacker.unpackMapHeader())
+                MessageFormat.FIXARRAY,
+                MessageFormat.ARRAY16,
+                MessageFormat.ARRAY32 -> readArray(unpacker.unpackArrayHeader())
+                MessageFormat.FIXSTR,
+                MessageFormat.STR8,
+                MessageFormat.STR16,
+                MessageFormat.STR32 -> unpacker.unpackString()
+                MessageFormat.BIN8,
+                MessageFormat.BIN16,
+                MessageFormat.BIN32 -> unpacker.readPayload(unpacker.unpackBinaryHeader())
+                MessageFormat.NIL -> {
+                    unpacker.unpackNil()
+                    null
                 }
-                in 0x80..0x8f -> readMap(token and 0x0f)
-                in 0x90..0x9f -> readArray(token and 0x0f)
-                in 0xa0..0xbf -> readString(token and 0x1f)
-                0xc0 -> null
-                0xc2 -> false
-                0xc3 -> true
-                0xc4 -> readBinary(readByte().toInt() and 0xff)
-                0xc5 -> readBinary(readUInt16().toInt())
-                0xc6 -> readBinary(readUInt32().toInt())
-                0xc7 -> readExtension(readByte().toInt() and 0xff)
-                0xc8 -> readExtension(readUInt16().toInt())
-                0xc9 -> readExtension(readUInt32().toInt())
-                0xca -> readFloat32()
-                0xcb -> readFloat64()
-                0xcc -> readByte().toInt() and 0xff
-                0xcd -> readUInt16().toInt()
-                0xce -> readUInt32().toInt()
-                0xcf -> {
-                    val value = readUInt64()
-                    if (value <= Long.MAX_VALUE.toULong()) value.toLong() else value.toDouble()
-                }
-                0xd0 -> readInt8().toInt()
-                0xd1 -> readInt16().toInt()
-                0xd2 -> readInt32().toInt()
-                0xd3 -> readInt64()
-                0xd4 -> readFixext(1)
-                0xd5 -> readFixext(2)
-                0xd6 -> readFixext(4)
-                0xd7 -> readFixext(8)
-                0xd8 -> readFixext(16)
-                0xd9 -> readString(readByte().toInt() and 0xff)
-                0xda -> readString(readUInt16().toInt())
-                0xdb -> readString(readUInt32().toInt())
-                0xdc -> readArray(readUInt16().toInt())
-                0xdd -> readArray(readUInt32().toInt())
-                0xde -> readMap(readUInt16().toInt())
-                0xdf -> readMap(readUInt32().toInt())
-                in 0xe0..0xff -> token.toByte().toInt()
-                else -> throw IllegalStateException("Unsupported msgpack type 0x${token.toString(16)}")
+                MessageFormat.BOOLEAN -> unpacker.unpackBoolean()
+                MessageFormat.FLOAT32 -> unpacker.unpackFloat()
+                MessageFormat.FLOAT64 -> unpacker.unpackDouble()
+                MessageFormat.FIXEXT1,
+                MessageFormat.FIXEXT2,
+                MessageFormat.FIXEXT4,
+                MessageFormat.FIXEXT8,
+                MessageFormat.FIXEXT16,
+                MessageFormat.EXT8,
+                MessageFormat.EXT16,
+                MessageFormat.EXT32 -> readExtension()
+                MessageFormat.NEVER_USED -> throw IllegalStateException("Unsupported msgpack never-used token")
             }
+        }
+
+        private fun readPositiveIntOrRecord(): Any? {
+            val value = unpacker.unpackInt()
+            val record = records[value]
+            return if (record != null) readRecord(record) else value
         }
 
         private fun readRecord(keys: List<String>): Map<String, Any?> {
@@ -94,12 +101,6 @@ object MsgpackDecoder {
             return MutableList(count) { readValue() }
         }
 
-        private fun readString(length: Int): String {
-            return readData(length).toString(StandardCharsets.UTF_8)
-        }
-
-        private fun readBinary(length: Int): ByteArray = readData(length)
-
         private fun readRecordDefinition(recordId: Int): Any? {
             val keysValue = readValue() as? List<*>
                 ?: throw IllegalStateException("Invalid msgpackr record definition")
@@ -110,82 +111,28 @@ object MsgpackDecoder {
             return readRecord(keys)
         }
 
-        private fun readExtension(length: Int): Any? {
-            val type = readByte().toInt() and 0xff
-            val payload = readData(length)
-            if (type == 0x72 && length == 1) {
+        private fun readExtension(): Any? {
+            val header = unpacker.unpackExtensionTypeHeader()
+            val payload = unpacker.readPayload(header.length)
+            val type = header.type.toInt() and 0xff
+            if (type == MSGPACKR_RECORD_EXTENSION && header.length == 1) {
                 return readRecordDefinition(payload[0].toInt() and 0xff)
             }
-            if (type == 0x00 && length == 1 && payload[0].toInt() == 0x00) {
+            if (type == MSGPACKR_UNDEFINED_EXTENSION && header.length == 1 && payload[0].toInt() == 0x00) {
                 return MsgpackUndefined
             }
             return payload
         }
 
-        private fun readFixext(length: Int): Any? {
-            val type = readByte().toInt() and 0xff
-            val payload = readData(length)
-            if (type == 0x72 && length == 1) {
-                return readRecordDefinition(payload[0].toInt() and 0xff)
-            }
-            if (type == 0x00 && length == 1 && payload[0].toInt() == 0x00) {
-                return MsgpackUndefined
-            }
-            return payload
+        private fun readUInt64(): Number {
+            val value = unpacker.unpackBigInteger()
+            return if (value <= BIGGEST_LONG) value.toLong() else value.toDouble()
         }
 
-        private fun readData(length: Int): ByteArray {
-            if (index + length > bytes.size) {
-                throw IllegalStateException("Truncated msgpack payload")
-            }
-            val data = bytes.copyOfRange(index, index + length)
-            index += length
-            return data
-        }
-
-        private fun readByte(): Byte {
-            if (index >= bytes.size) {
-                throw IllegalStateException("Truncated msgpack payload")
-            }
-            return bytes[index++]
-        }
-
-        private fun readUInt16(): Int {
-            return ((readByte().toInt() and 0xff) shl 8) or (readByte().toInt() and 0xff)
-        }
-
-        private fun readUInt32(): Long {
-            return ((readByte().toLong() and 0xff) shl 24) or
-                ((readByte().toLong() and 0xff) shl 16) or
-                ((readByte().toLong() and 0xff) shl 8) or
-                (readByte().toLong() and 0xff)
-        }
-
-        private fun readUInt64(): ULong {
-            return ((readByte().toULong() and 0xffuL) shl 56) or
-                ((readByte().toULong() and 0xffuL) shl 48) or
-                ((readByte().toULong() and 0xffuL) shl 40) or
-                ((readByte().toULong() and 0xffuL) shl 32) or
-                ((readByte().toULong() and 0xffuL) shl 24) or
-                ((readByte().toULong() and 0xffuL) shl 16) or
-                ((readByte().toULong() and 0xffuL) shl 8) or
-                (readByte().toULong() and 0xffuL)
-        }
-
-        private fun readInt8(): Byte = readByte()
-
-        private fun readInt16(): Short = readUInt16().toShort()
-
-        private fun readInt32(): Int = readUInt32().toInt()
-
-        private fun readInt64(): Long = readUInt64().toLong()
-
-        private fun readFloat32(): Float {
-            return ByteBuffer.wrap(readData(4)).order(ByteOrder.BIG_ENDIAN).float
-        }
-
-        private fun readFloat64(): Double {
-            return ByteBuffer.wrap(readData(8)).order(ByteOrder.BIG_ENDIAN).double
+        companion object {
+            private const val MSGPACKR_RECORD_EXTENSION = 0x72
+            private const val MSGPACKR_UNDEFINED_EXTENSION = 0x00
+            private val BIGGEST_LONG = BigInteger.valueOf(Long.MAX_VALUE)
         }
     }
 }

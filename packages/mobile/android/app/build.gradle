@@ -311,6 +311,8 @@ dependencies {
     implementation("com.facebook.fresco:animated-gif:3.6.0")
     implementation("com.goterl:lazysodium-android:5.2.0@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
+    implementation("com.apicatalog:copper-multibase:4.1.0")
+    implementation("org.msgpack:msgpack-core:0.9.12")
 
     implementation("com.google.guava:guava:33.5.0-android")
 }

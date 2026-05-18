@@ -1,5 +1,6 @@
 package com.quietmobile.Push
 
+import com.apicatalog.base.Base58 as CopperBase58
 import com.goterl.lazysodium.LazySodiumAndroid
 import com.goterl.lazysodium.SodiumAndroid
 import com.goterl.lazysodium.interfaces.PwHash
@@ -8,7 +9,7 @@ class QssCryptoService {
     private val sodium = LazySodiumAndroid(SodiumAndroid())
 
     private val stretchSalt: ByteArray =
-        Base58.decode("H5B4DLSXw5xwNYFdz1Wr6e")
+        decodeBase58("H5B4DLSXw5xwNYFdz1Wr6e")
             ?: throw IllegalStateException("Failed to decode Quiet stretch salt")
 
     fun signChallengePayload(challenge: ChallengePayload, privateKeyBytes: ByteArray): ProofPayload {
@@ -30,8 +31,8 @@ class QssCryptoService {
         }
 
         return ProofPayload(
-            signature = Base58.encode(signature),
-            publicKey = Base58.encode(publicKey),
+            signature = CopperBase58.encode(signature),
+            publicKey = CopperBase58.encode(publicKey),
         )
     }
 
@@ -80,10 +81,10 @@ class QssCryptoService {
             QuietStorage.getLfaKey(publicKeyName)
                 ?: throw IllegalStateException("Missing user signature public key for scope $publicKeyName")
         val signatureBytes =
-            Base58.decode(signature.signature)
+            decodeBase58(signature.signature)
                 ?: throw IllegalStateException("Message signature was not valid base58")
         val publicKeyBytes =
-            Base58.decode(publicKey)
+            decodeBase58(publicKey)
                 ?: throw IllegalStateException("User signature public key was not valid base58")
         if (signatureBytes.size != 64) {
             throw IllegalStateException("Invalid message signature length: ${signatureBytes.size}")
@@ -258,6 +259,10 @@ class QssCryptoService {
             is String -> value.toIntOrNull()
             else -> null
         }
+    }
+
+    private fun decodeBase58(value: String): ByteArray? {
+        return runCatching { CopperBase58.decode(value) }.getOrNull()
     }
 
     private data class MessageSignature(
