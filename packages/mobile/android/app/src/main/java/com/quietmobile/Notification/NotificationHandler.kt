@@ -95,6 +95,8 @@ class NotificationHandler(private val context: Context) {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setGroupSummary(true)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+            .setSilent(true)
             .setGroup(group)
 
         val notificationManager =
