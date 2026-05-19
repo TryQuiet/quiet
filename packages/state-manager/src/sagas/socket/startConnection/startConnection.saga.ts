@@ -51,6 +51,11 @@ import { pushNotificationsMasterSaga } from '../../pushNotifications/pushNotific
 
 const logger = createLogger('startConnectionSaga')
 
+/*
+TODO: currently these handlers get duplicated after rejoining due to the way we instantiate the state manager.
+This function gets run when initially booting up the app and again when joining a community after leave.  Its
+not a huge deal but it may be causing intermittent bugs and at the very least is wasted resources.
+*/
 export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof messagesActions.addMessages>

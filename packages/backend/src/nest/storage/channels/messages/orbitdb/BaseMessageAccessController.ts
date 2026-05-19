@@ -106,6 +106,15 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
     }
   }
 
+  /*
+  TODO: we should decide on how we want to handle records that arrive before we have all of the necessary
+  chain information.  In all cases we'll fail validation if we don't have the user in our chain and in the
+  case of private channels/DMs we will fail if we don't have the updates that add a user to the channel role.
+
+  Possible solutions:
+    * pause syncing while chain is out of date
+    * buffer records that can't be validated and retry later
+  */
   protected canAppend(config: T, identities: IdentitiesType): CanAppendFunc {
     throw new NotImplementedError('canAppend')
   }
