@@ -4,6 +4,8 @@
 
 ### Features
 
+* Added background push notifications and background hibernation for android [#3156](https://github.com/TryQuiet/quiet/issues/3156)
+
 ### Fixes
 
 * The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)

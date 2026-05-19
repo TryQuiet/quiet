@@ -81,6 +81,9 @@ import { CaptchaService } from '../captcha/captcha.service'
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
   public communityState: ServiceState
+  private hibernating = false
+  private hibernateInFlight: Promise<void> | null = null
+  private wakeInFlight: Promise<void> | null = null
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
   private peerInfo: Libp2pPeerInfo | undefined = undefined
@@ -264,6 +267,116 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.qssService.resume()
   }
 
+  /**
+   * Hibernate: flush state to disk and pause all networking. Keeps the node
+   * process and Nest context alive so wake() can bring the app back without a
+   * cold start. Survives Android low-memory kill because sigchain is persisted.
+   */
+  public async hibernate() {
+    if (this.hibernating) {
+      this.logger.info('hibernate: already hibernated, skipping')
+      return
+    }
+    if (this.hibernateInFlight) return this.hibernateInFlight
+    if (this.wakeInFlight) {
+      this.logger.info('hibernate: waiting for in-flight wake to finish before hibernating')
+      try {
+        await this.wakeInFlight
+      } catch (e) {
+        this.logger.error('hibernate: in-flight wake failed', e)
+      }
+    }
+
+    this.hibernateInFlight = (async () => {
+      this.logger.info('Hibernating!')
+      try {
+        await this.saveActiveChain()
+      } catch (e) {
+        this.logger.error('hibernate: saveActiveChain failed', e)
+      }
+      try {
+        await this.pause()
+      } catch (e) {
+        this.logger.error('hibernate: pause failed', e)
+      }
+      if (this.storageService) {
+        try {
+          this.logger.info('hibernate: stopping OrbitDB sync')
+          await this.storageService.stopSync()
+        } catch (e) {
+          this.logger.error('hibernate: storage.stopSync failed', e)
+        }
+      }
+      if (this.tor) {
+        try {
+          this.logger.info('hibernate: killing tor')
+          await this.tor.kill()
+        } catch (e) {
+          this.logger.error('hibernate: tor.kill failed', e)
+        }
+      }
+      this.hibernating = true
+      this.logger.info('Hibernated')
+    })()
+    try {
+      await this.hibernateInFlight
+    } finally {
+      this.hibernateInFlight = null
+    }
+  }
+
+  /**
+   * Wake from hibernate. Re-spawns Tor (if killed), re-opens onions, resumes
+   * libp2p + QSS + socket. Safe to call when not hibernated (no-op if tor still
+   * alive and services already resumed).
+   */
+  public async wake() {
+    if (!this.hibernating && !this.hibernateInFlight) {
+      this.logger.info('wake: not hibernated, skipping')
+      return
+    }
+    if (this.wakeInFlight) return this.wakeInFlight
+    if (this.hibernateInFlight) {
+      this.logger.info('wake: waiting for in-flight hibernate to finish before waking')
+      try {
+        await this.hibernateInFlight
+      } catch (e) {
+        this.logger.error('wake: in-flight hibernate failed', e)
+      }
+    }
+
+    this.wakeInFlight = (async () => {
+      this.logger.info('Waking!')
+      if (this.tor) {
+        try {
+          await this.tor.init()
+        } catch (e) {
+          this.logger.error('wake: tor.init failed', e)
+        }
+      }
+      try {
+        await this.resume()
+      } catch (e) {
+        this.logger.error('wake: resume failed', e)
+      }
+      if (this.storageService) {
+        try {
+          this.logger.info('wake: restarting OrbitDB sync')
+          await this.storageService.startSync()
+        } catch (e) {
+          this.logger.error('wake: storage.startSync failed', e)
+        }
+      }
+      this.hibernating = false
+      this.logger.info('Woke')
+    })()
+    try {
+      await this.wakeInFlight
+    } finally {
+      this.wakeInFlight = null
+    }
+  }
+
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
   public async openSocket() {
     await this.socketService.init()
@@ -276,6 +389,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       deleteChainFromDisk: false,
     }
   ) {
+    this.logger.info('Closing services', options)
+
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
       try {
@@ -284,8 +399,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error('Error while saving active sigchain', e)
       }
     }
-
-    this.logger.info('Closing services', options)
 
     await this.closeSocket()
 

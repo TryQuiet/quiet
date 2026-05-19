@@ -11,6 +11,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from '../utils/logger'
 import { keysMasterSaga } from './keys/keys.master.saga'
 import { usersMetadataMasterSaga } from './userMetadata/usersMetadata.master.saga'
+import { watchAndSyncQssEnabledToNative } from './init/startConnection/startConnection.saga'
 
 const logger = createLogger('root')
 
@@ -56,6 +57,7 @@ function* storeReadySaga(): Generator {
       fork(navigationMasterSaga),
       fork(nativeServicesMasterSaga),
       fork(pushNotificationsMasterSaga),
+      fork(watchAndSyncQssEnabledToNative),
       fork(keysMasterSaga),
       fork(usersMetadataMasterSaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
