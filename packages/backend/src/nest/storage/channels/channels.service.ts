@@ -21,6 +21,8 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   AddMembersChannelStatus,
+  DownloadStatus,
+  RemoveDownloadStatus,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -66,6 +68,10 @@ export class ChannelsService extends EventEmitter {
     private readonly sigchainService: SigChainService
   ) {
     super()
+    this._handleEventDownloadProgress = this._handleEventDownloadProgress.bind(this)
+    this._handleEventRemoveDownloadStatus = this._handleEventRemoveDownloadStatus.bind(this)
+    this._handleEventFileAttached = this._handleEventFileAttached.bind(this)
+    this._handleEventMessageMediaUpdated = this._handleEventMessageMediaUpdated.bind(this)
   }
 
   // Initialization
@@ -75,6 +81,11 @@ export class ChannelsService extends EventEmitter {
    *
    */
   public async init(): Promise<void> {
+    if (this.initialized) {
+      this.logger.debug(`Skipping duplicate channel init`)
+      return
+    }
+
     this.logger.info(`Initializing ${ChannelsService.name}`)
 
     this.logger.info(`Starting file manager`)
@@ -85,6 +96,7 @@ export class ChannelsService extends EventEmitter {
     await this.initChannels()
 
     this.logger.info(`Initialized ${ChannelsService.name}`)
+    this.initialized = true
   }
 
   public updateMetadata(metadata: Record<string, any>): void {
@@ -100,7 +112,7 @@ export class ChannelsService extends EventEmitter {
   /**
    * Initialize the channels management database and individual channel stores in OrbitDB
    */
-  public async initChannels(): Promise<void> {
+  private async initChannels(): Promise<void> {
     this.logger.time(`Initializing channel databases`)
 
     await this.createChannelsDb()
@@ -108,7 +120,6 @@ export class ChannelsService extends EventEmitter {
 
     this.logger.timeEnd('Initializing channel databases')
     this.logger.info('Initialized databases')
-    this.initialized = true
   }
 
   /**
@@ -675,34 +686,53 @@ export class ChannelsService extends EventEmitter {
     await this.filesManager.deleteBlocks(fileMetadata)
   }
 
+  // File manager event emitter handler functions
+
+  private _handleEventDownloadProgress = (payload: DownloadStatus): void => {
+    this.emit(StorageEvents.DOWNLOAD_PROGRESS, payload)
+  }
+
+  private _handleEventMessageMediaUpdated = (payload: FileMetadata): void => {
+    this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, payload)
+  }
+
+  private _handleEventRemoveDownloadStatus = (payload: RemoveDownloadStatus): void => {
+    this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
+  }
+
+  private _handleEventFileAttached = (payload: FileMetadata): void => {
+    this.emit(StorageEvents.FILE_ATTACHED, payload)
+  }
+
   /**
    * Consume file manager events and emit storage events on the channels service
    *
-   * @emits StorageEvents.DOWNLOAD_PROGRESS
    * @emits StorageEvents.MESSAGE_MEDIA_UPDATED
    * @emits StorageEvents.REMOVE_DOWNLOAD_STATUS
    * @emits StorageEvents.FILE_ATTACHED
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    */
   private attachFileManagerEvents(): void {
-    this.filesManager.on(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, status => {
-      this.emit(StorageEvents.DOWNLOAD_PROGRESS, status)
-    })
-    this.filesManager.on(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, messageMedia => {
-      this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, messageMedia)
-    })
-    this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload => {
-      this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
-    })
-    this.filesManager.on(StorageEvents.FILE_ATTACHED, payload => {
-      this.emit(StorageEvents.FILE_ATTACHED, payload)
-    })
-    this.filesManager.on(StorageEvents.DOWNLOAD_PROGRESS, payload => {
-      this.emit(StorageEvents.DOWNLOAD_PROGRESS, payload)
-    })
-    this.filesManager.on(StorageEvents.MESSAGE_MEDIA_UPDATED, payload => {
-      this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, payload)
-    })
+    this.logger.info(`Attaching file manager event listeners on channels service`)
+    this.filesManager.on(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, this._handleEventDownloadProgress)
+    this.filesManager.on(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, this._handleEventMessageMediaUpdated)
+    this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, this._handleEventRemoveDownloadStatus)
+    this.filesManager.on(StorageEvents.FILE_ATTACHED, this._handleEventFileAttached)
+    this.filesManager.on(StorageEvents.DOWNLOAD_PROGRESS, this._handleEventDownloadProgress)
+    this.filesManager.on(StorageEvents.MESSAGE_MEDIA_UPDATED, this._handleEventMessageMediaUpdated)
+  }
+
+  /**
+   * Removes file manager event listeners
+   */
+  public detachFileManagerEvents(): void {
+    this.logger.info(`Detaching file manager event listeners on channels service`)
+    this.filesManager.off(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, this._handleEventDownloadProgress)
+    this.filesManager.off(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, this._handleEventMessageMediaUpdated)
+    this.filesManager.off(StorageEvents.REMOVE_DOWNLOAD_STATUS, this._handleEventRemoveDownloadStatus)
+    this.filesManager.off(StorageEvents.FILE_ATTACHED, this._handleEventFileAttached)
+    this.filesManager.off(StorageEvents.DOWNLOAD_PROGRESS, this._handleEventDownloadProgress)
+    this.filesManager.off(StorageEvents.MESSAGE_MEDIA_UPDATED, this._handleEventMessageMediaUpdated)
   }
 
   /**
@@ -816,6 +846,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async close(): Promise<void> {
     this.initialized = false
+    this.detachFileManagerEvents()
     await this.closeFileManager()
     await this.closeChannels()
   }
@@ -827,6 +858,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async clean(): Promise<void> {
     this.initialized = false
+    this.detachFileManagerEvents()
     this.logger.info('Cleaning channels DB')
     try {
       await this.channels?.sync?.stop?.()
