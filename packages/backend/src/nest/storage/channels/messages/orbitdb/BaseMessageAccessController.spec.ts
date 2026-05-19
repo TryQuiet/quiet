@@ -125,4 +125,40 @@ describe('BaseMessagesAccessController', () => {
     expect(reopened.access.address).toEqual(created.access.address)
     expect(reopened.access.write).toEqual(write)
   })
+
+  it('reopens a real message database by name when the access controller is passed again', async () => {
+    const write = ['*']
+    const dbName = 'channels.message-access-controller-reopen-by-name-with-controller'
+    const createAccessController = () =>
+      new MessagesAccessController(sigchainService).createAccessControllerFunc({
+        write,
+        sigchainService,
+      })
+
+    const created = await orbitDbService.open<EventsType<EncryptedMessage>>(dbName, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: createAccessController(),
+      sync: false,
+    })
+    const dbAddress = created.address
+    const accessControllerAddress = created.access.address
+
+    expect(dbAddress).toMatch(/^\/orbitdb\//)
+    expect(accessControllerAddress).toMatch(/^\/messagesaccess\//)
+    expect(created.access.write).toEqual(write)
+
+    await created.close()
+
+    const reopened = await orbitDbService.open<EventsType<EncryptedMessage>>(dbName, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: createAccessController(),
+      sync: false,
+    })
+
+    expect(reopened.address).toEqual(dbAddress)
+    expect(reopened.access.address).toEqual(accessControllerAddress)
+    expect(reopened.access.write).toEqual(write)
+  })
 })
