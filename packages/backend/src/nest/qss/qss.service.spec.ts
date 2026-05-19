@@ -20,8 +20,8 @@ import {
   QSSOperationResult,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity } from '@quiet/types'
-import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
+import { ChannelMessage, Community, Identity } from '@quiet/types'
+import { getBaseTypesFactory, getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 import { createKeyset, redactKeys } from '../../../../../3rd-party/auth/packages/crdx/dist'
@@ -50,10 +50,13 @@ import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
 import { QSSAuthConnStatus } from './qss.const'
 import { SigchainEvents } from '../auth/types'
+import { PublicChannelMessagesService } from '../storage/channels/messages/public-channel-messages.service'
+import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 
 describe('QSSService', () => {
   let store: Store
   let factory: FactoryGirl
+  let baseFactory: FactoryGirl
   let module: TestingModule
   let qssClient: QSSClient
   let qssService: QSSService
@@ -75,6 +78,7 @@ describe('QSSService', () => {
   let community: Community
   let userIdentity: Identity
   let mockedCaptchaVerified: jest.SpiedGetter<any> | undefined
+  let publicMessagesService: PublicChannelMessagesService
 
   const teamName = 'foobar'
   const username = 'testuser'
@@ -88,6 +92,7 @@ describe('QSSService', () => {
     jest.clearAllMocks()
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
+    baseFactory = await getBaseTypesFactory()
 
     module = await Test.createTestingModule({
       imports: [TestModule, SigChainModule, IpfsFileManagerModule, IpfsModule, OrbitDbModule, QSSModule],
@@ -97,6 +102,7 @@ describe('QSSService', () => {
     qssAuthConnManager = module.get<QSSAuthConnectionManager>(QSSAuthConnectionManager)
     libp2pService = await module.resolve(Libp2pService)
     libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
+    publicMessagesService = module.get<PublicChannelMessagesService>(PublicChannelMessagesService)
 
     ipfsService = await module.resolve(IpfsService)
     await ipfsService.createInstance()
@@ -672,19 +678,17 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeTruthy()
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('random message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
       const entry = await db.log.get(hash)
+      expect(hash).toBeDefined()
+      expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       expect(update.teamId).toBe(sigchainService.team.id)
       const result = await qssService.sendLogEntrySyncMessage(update)
@@ -748,19 +752,17 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('random message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      expect(hash).toBeDefined()
       const entry = await db.log.get(hash)
+      expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       const result = await qssService.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
