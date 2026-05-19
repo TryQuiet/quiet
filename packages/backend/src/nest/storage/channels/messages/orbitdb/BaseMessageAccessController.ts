@@ -49,6 +49,14 @@ const AccessControlList = async ({
   return hash
 }
 
+const getAccessControllerManifestHash = (address: string): string => {
+  const hash = address.split('/').filter(Boolean).pop()
+  if (hash == null) {
+    throw new Error(`Invalid access controller address: ${address}`)
+  }
+  return hash
+}
+
 export interface AccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
@@ -64,9 +72,14 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
   }
 
   public createAccessControllerFunc(config: T): typeof AccessController {
-    const accessController = this._createAccessControllerFuncImpl(config)
+    const accessController = (options?: any) => {
+      if (options?.orbitdb != null) {
+        return this._createAccessControllerFuncImpl(config)(options)
+      }
+      return this._createAccessControllerFuncImpl({ ...config, ...options })
+    }
     ;(accessController as any).type = this.type
-    return accessController
+    return accessController as typeof AccessController
   }
 
   private _createAccessControllerFuncImpl(config: T): typeof AccessController {
@@ -87,7 +100,7 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
       let write = config.write || [orbitdb.identity.id]
 
       if (address) {
-        const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
+        const manifestBytes = await storage.get(getAccessControllerManifestHash(address))
         const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
         // FIXME: Figure out typings
         // @ts-ignore
@@ -101,7 +114,7 @@ export class BaseMessagesAccessController<T extends AccessControllerConfig> {
         type: this.type,
         address,
         write,
-        canAppend: this.canAppend({ ...config, ...write }, identities) as any,
+        canAppend: this.canAppend({ ...config, write }, identities) as any,
       }
     }
   }
