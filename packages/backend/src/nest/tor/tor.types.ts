@@ -47,6 +47,7 @@ export interface TorParamsProvider {
     }
     detached: boolean
   }
+  extraTorProcessParams?: TorParams
 }
 
 export interface TorPasswordProvider {
@@ -59,4 +60,20 @@ export interface HiddenServiceData {
   privKey: string
   virtPort: number
   onionAddress: string
+}
+
+export type BootstrapStatus = {
+  rawMessage: string
+  done: boolean
+  progress?: number
+  tag?: string
+  warning?: string
+  reason?: string
+}
+
+export type BootstrapStallState = {
+  progress?: number
+  tag?: string
+  firstObservedAt: number
+  timeoutWarningCount: number
 }

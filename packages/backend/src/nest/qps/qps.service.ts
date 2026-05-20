@@ -18,6 +18,7 @@ import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 import { QSSService } from '../qss/qss.service'
 import { SigchainEvents } from '../auth/types'
+import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 
@@ -40,6 +41,7 @@ export class QPSService implements OnModuleInit {
     private readonly socketService: SocketService,
     private readonly qssClient: QSSClient,
     private readonly qssService: QSSService,
+    private readonly qssSyncManager: QSSSyncManager,
     private readonly sigChainService: SigChainService,
     private readonly notificationTokensStore: NotificationTokensStore
   ) {}
@@ -131,7 +133,7 @@ export class QPSService implements OnModuleInit {
       const tombstoneHash = await this.notificationTokensStore.tombstoneUser(userId)
 
       try {
-        await this.qssService.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
+        await this.qssSyncManager.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
         this.logger.info(`Notification token tombstone acknowledged by QSS for user ${userId} on team ${teamId}`)
         return true
       } catch (err) {

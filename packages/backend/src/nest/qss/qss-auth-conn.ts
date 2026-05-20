@@ -102,6 +102,15 @@ export class QSSAuthConnection extends EventEmitter {
     return this._joinStatus
   }
 
+  public markMemberRoleReady(): void {
+    if (this._joinStatus !== JoinStatus.PENDING_MEMBER) {
+      return
+    }
+
+    this.logger.debug(`QSS member role is ready, marking auth join complete`, this.teamId)
+    this._joinStatus = JoinStatus.JOINED
+  }
+
   public get connStatus(): QSSAuthConnStatus {
     return this._connStatus
   }

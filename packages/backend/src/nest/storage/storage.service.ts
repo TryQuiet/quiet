@@ -15,7 +15,7 @@ import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { removeFiles, removeDirs, createPaths, removeFilesFromDir } from '../common/utils'
-import { StorageEvents } from './storage.types'
+import { type PurgeDataOptions, StorageEvents } from './storage.types'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
@@ -131,12 +131,12 @@ export class StorageService extends EventEmitter {
     await this.stop()
   }
 
-  public purgeData() {
+  public purgeData({ removeTorDataDirectory = true }: PurgeDataOptions = {}) {
     this.logger.info('Purging data directories and files')
-    this._purgeDataDirectories()
+    this._purgeDataDirectories({ removeTorDataDirectory })
     this._purgeFiles()
   }
-  private _purgeDataDirectories() {
+  private _purgeDataDirectories({ removeTorDataDirectory }: Required<PurgeDataOptions>) {
     const dirsToRemove = existsSync(this.quietDir)
       ? readdirSync(this.quietDir).filter(
           i =>
@@ -146,7 +146,7 @@ export class StorageService extends EventEmitter {
             i.startsWith('Local Storage') ||
             i.startsWith('libp2pDatastore') ||
             i.startsWith('databases') ||
-            i.startsWith('TorDataDirectory')
+            (removeTorDataDirectory && i.startsWith('TorDataDirectory'))
         )
       : []
     const dirsToRemovePaths = new Set([this.ipfsRepoPath, this.orbitDbDir])

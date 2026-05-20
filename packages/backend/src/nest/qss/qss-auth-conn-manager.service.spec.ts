@@ -176,6 +176,29 @@ describe('QSSAuthConnectionManager', () => {
     expect(conn?.active).toBeFalsy()
   })
 
+  it('marks a pending-member auth connection joined after member role self-assignment', () => {
+    const conn = module.get<QSSAuthConnection>(QSSAuthConnection)
+    conn.teamId = 'pending-member-team'
+    // @ts-ignore - simulate the invitee path before QSSService self-assigns the member role.
+    conn['_joinStatus'] = JoinStatus.PENDING_MEMBER
+
+    conn.markMemberRoleReady()
+
+    expect(conn.joinStatus).toBe(JoinStatus.JOINED)
+  })
+
+  it('delegates member role readiness to the stored auth connection', () => {
+    const authConnection = {
+      markMemberRoleReady: jest.fn(),
+      stop: jest.fn(),
+    }
+    ;(qssAuthConnManager as any).authConnMap.set('team-id', authConnection)
+
+    qssAuthConnManager.markMemberRoleReady('team-id')
+
+    expect(authConnection.markMemberRoleReady).toHaveBeenCalledTimes(1)
+  })
+
   it('replaces an active auth connection tied to a previous QSS client socket', async () => {
     await qssAuthConnManager.startNewConnection(sigchainService.activeChain.team!.id)
     const conn = qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)
