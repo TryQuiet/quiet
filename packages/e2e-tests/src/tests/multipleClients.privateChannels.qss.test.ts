@@ -381,7 +381,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
           await sidebarUser1.switchChannel(privateChannelName, false)
           privateChannelUser1 = new Channel(users.user1.app.driver, privateChannelName)
-          expect(await privateChannelUser1.isOpen(true))
+          expect(await privateChannelUser1.isOpen(false))
           expect(await privateChannelUser1.isMessageInputReady()).toBeTruthy()
         })
 

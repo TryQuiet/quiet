@@ -752,6 +752,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
         teamId,
         userId,
         ...(nextStartSeq != null ? { startSeq: nextStartSeq } : { startSeq: 0 }),
+        startTs: 0,
       }
       this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
       const pullResponse = await this.pullLogEntries(pullPayload)
