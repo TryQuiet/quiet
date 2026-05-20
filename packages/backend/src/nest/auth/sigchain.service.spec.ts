@@ -9,6 +9,7 @@ import { SigChainModule } from './sigchain.service.module'
 import { SigChain } from './sigchain'
 import { SocketEvents } from '@quiet/types'
 import waitForExpect from 'wait-for-expect'
+import { SigchainEvents } from './types'
 
 const logger = createLogger('auth:sigchainManager.spec')
 
@@ -127,18 +128,18 @@ describe('SigChainService - listener lifecycle', () => {
   it('does not accumulate listeners on chains when switching active chain', async () => {
     const chainA: SigChain = await sigChainService.createChain('leakA', 'alice', true)
     // chainA is active: one listener attached
-    expect(chainA.listenerCount('updated')).toBe(1)
+    expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(1)
 
     const chainB: SigChain = await sigChainService.createChain('leakB', 'bob', true)
     // Active switched A → B. detachSocketListeners(A) must have removed A's listener.
-    expect(chainA.listenerCount('updated')).toBe(0)
-    expect(chainB.listenerCount('updated')).toBe(1)
+    expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(0)
+    expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(1)
 
     sigChainService.setActiveChain('leakA')
     // Active switched B → A. detachSocketListeners(B) must have removed B's listener,
     // and attachSocketListeners(A) adds exactly one to A.
-    expect(chainA.listenerCount('updated')).toBe(1)
-    expect(chainB.listenerCount('updated')).toBe(0)
+    expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(1)
+    expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(0)
   })
 
   it('does not emit iOS-native key or device events on non-ios platforms', async () => {

@@ -112,6 +112,7 @@ describe('QSSService', () => {
     libp2pService = await module.resolve(Libp2pService)
     libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
     publicMessagesService = module.get<PublicChannelMessagesService>(PublicChannelMessagesService)
+    messagesAccessController = module.get<MessagesAccessController>(MessagesAccessController)
 
     ipfsService = await module.resolve(IpfsService)
     await ipfsService.createInstance()
@@ -367,7 +368,9 @@ describe('QSSService', () => {
         expect(
           countHandler(qssAuthConnManager, QSSEvents.QSS_SELF_ASSIGN_MEMBER, qssService['_handleSelfAssignMember'])
         ).toBe(expected)
-        expect(countHandler(sigchainService, 'updated', qssService['_handleSigChainUpdated'])).toBe(expected)
+        expect(countHandler(sigchainService, SigchainEvents.UPDATED, qssService['_handleSigChainUpdated'])).toBe(
+          expected
+        )
       }
 
       expectLifecycleHandlers(1)
@@ -1789,19 +1792,17 @@ describe('QSSService', () => {
 
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.joinstatus`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.joinstatus`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('test message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
       const entry = await db.log.get(hash)
+      expect(hash).toBeDefined()
+      expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, teamId)
       const result = await qssService.sendLogEntrySyncMessage(update)
 
@@ -1826,7 +1827,7 @@ describe('QSSService', () => {
       const serializer = (qssService as any).serializer
 
       // Create a valid encrypted message that CAN be decrypted
-      await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
+      await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
@@ -1848,7 +1849,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
 
       // Trigger sigchain update which should process DLQ
-      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChainTeamName)
+      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChain.team!.id)
 
       // Wait for async processing
       await waitForExpect(async () => {
@@ -1884,10 +1885,10 @@ describe('QSSService', () => {
       const processSpy = jest.spyOn(qssService, 'processDLQDecrypt')
 
       // Trigger first update
-      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChainTeamName)
+      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChain.team!.id)
 
       // Immediately trigger second update while first is processing
-      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChainTeamName)
+      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChain.team!.id)
 
       await waitForExpect(async () => {
         const remainingCount = await localDbService.getDLQDecryptCount(teamId)
@@ -1909,8 +1910,8 @@ describe('QSSService', () => {
 
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries')
 
-      // Trigger sigchain update
-      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChainTeamName)
+      // Trigger sigchain update with bogus team ID
+      sigchainService.emit(SigchainEvents.UPDATED, 'foobar')
 
       // Give it time to process
       await new Promise(resolve => setTimeout(resolve, 100))

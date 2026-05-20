@@ -273,8 +273,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     void this.processDeadLetterQueue(teamId)
   }
 
-  private _handleSigChainUpdated = (teamName: string): void => {
-    void this.processDLQDecrypt(teamName)
+  private _handleSigChainUpdated = (teamId: string): void => {
+    void this.processDLQDecrypt(teamId)
   }
 
   /**
@@ -1362,18 +1362,28 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
   /**
    * Process the decryption dead letter queue when sigchain updates (new keys arrive)
    */
-  private async processDLQDecrypt(teamName: string): Promise<void> {
+  private async processDLQDecrypt(teamId: string): Promise<void> {
     if (this._dlqDecryptInFlight) {
       this.logger.debug('DLQ decrypt already in progress, requesting retry')
       this._dlqDecryptRetryRequested = true
       return
     }
 
-    const activeChain = this.sigChainService.getChain({ teamName })
+    if (!this.canConnect) {
+      this.logger.trace('Skipping QSS DLQ decrypt as QSS is disabled')
+      return
+    }
+
+    if (!this.connected) {
+      this.logger.debug('QSS is not connected, will try again after connection is established')
+      return
+    }
+
+    const activeChain = this.sigChainService.getChain({ teamId })
     if (!activeChain?.team) {
       return
     }
-    const teamId = activeChain.team.id
+    const teamName = activeChain.team.teamName
     const BATCH_SIZE = 50
 
     this._dlqDecryptInFlight = true
@@ -1436,7 +1446,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy, OnModul
     // If a sigchain update occurred while processing, retry with new keys
     if (this._dlqDecryptRetryRequested) {
       this.logger.debug('Retrying DLQ decrypt after sigchain update during processing')
-      await this.processDLQDecrypt(teamName)
+      await this.processDLQDecrypt(teamId)
     }
   }
 

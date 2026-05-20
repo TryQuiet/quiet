@@ -144,7 +144,6 @@ export class SigChainService extends EventEmitter {
   }
 
   private handleChainUpdate = async (teamId: string, teamName: string) => {
-    this.emit(SigchainEvents.UPDATED, teamId)
     this.saveChain(teamName)
     this.logger.info('Chain updated, emitted updated event')
     void this._updateKeysOnChainUpdate(teamName).catch(err => {
@@ -155,6 +154,7 @@ export class SigChainService extends EventEmitter {
     void this.saveChain(teamName).catch(err => {
       this.logger.error('Failed to save chain after update', err)
     })
+    this.emit(SigchainEvents.UPDATED, teamId)
     this.logger.info('Chain updated, emitted updated event')
   }
 
