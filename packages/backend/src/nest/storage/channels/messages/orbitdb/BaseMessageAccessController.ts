@@ -9,22 +9,18 @@ import { base58btc } from 'multiformats/bases/base58'
 import {
   type Storage,
   type OrbitDBType,
-  type LogEntry,
   type IdentitiesType,
   ComposedStorage,
   LRUStorage,
   IPFSBlockStorage,
-  AccessControllerType,
   AccessController,
   CanAppendFunc,
 } from '@orbitdb/core'
-import { getCrypto } from 'pkijs'
-import { NoCryptoEngineError, NotImplementedError } from '@quiet/types'
+import { NotImplementedError } from '@quiet/types'
 import { posixJoin } from '../../../orbitDb/util'
-import { EncryptedMessage } from '../messages.types'
 import { createLogger } from '../../../../common/logger'
 import { QuietLogger } from '@quiet/logger'
-import { SigChainService } from 'packages/backend/src/nest/auth/sigchain.service'
+import { SigChainService } from '../../../../auth/sigchain.service'
 
 const codec = dagCbor
 const hasher = sha256
