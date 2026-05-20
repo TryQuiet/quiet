@@ -1,6 +1,5 @@
 import Tor
 
-@objc(TorHandler)
 class TorHandler: NSObject {
   
   @objc(getTorConfiguration:controlPort:httpTunnelPort:)

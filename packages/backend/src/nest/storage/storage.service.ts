@@ -26,13 +26,14 @@ import { Member } from '@localfirst/auth'
 import { SigChainService } from '../auth/sigchain.service'
 import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
-import { readdirSync, rmSync } from 'fs'
+import { existsSync, readdirSync, rmSync } from 'fs'
 import path from 'path'
 
 @Injectable()
 export class StorageService extends EventEmitter {
   public initialized: boolean = false
-  private initializing: boolean = false
+  private initPromise: Promise<void> | undefined
+  private storeListenersAttached = false
 
   private readonly logger = createLogger(StorageService.name)
 
@@ -60,19 +61,28 @@ export class StorageService extends EventEmitter {
     }
   }
 
-  public async init() {
+  public async init(teamId?: string) {
     if (this.initialized) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
+      if (teamId != null) {
+        this.addTeamIdToDbMetas(teamId)
+      }
       return
     }
 
-    if (this.initializing) {
-      this.logger.warn(`${StorageService.name} currently initializing, skipping duplicate event`)
-      return
+    if (this.initPromise != null) {
+      this.logger.warn(`${StorageService.name} currently initializing, waiting for existing initialization`)
+      return this.initPromise
     }
 
-    this.initializing = true
+    this.initPromise = this.initInternal(teamId).finally(() => {
+      this.initPromise = undefined
+    })
 
+    return this.initPromise
+  }
+
+  private async initInternal(teamId?: string) {
     this.logger.info('Initializing storage')
     this.prepare()
 
@@ -92,6 +102,10 @@ export class StorageService extends EventEmitter {
     this.logger.info(`Initializing Databases`)
     await this.initDatabases()
 
+    if (teamId != null) {
+      this.addTeamIdToDbMetas(teamId)
+    }
+
     this.logger.info(`Starting database sync`)
     await this.startSync()
 
@@ -100,7 +114,6 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('Initialized storage')
     this.initialized = true
-    this.initializing = false
     this.emit(StorageEvents.INITIALIZED)
   }
 
@@ -124,20 +137,25 @@ export class StorageService extends EventEmitter {
     this._purgeFiles()
   }
   private _purgeDataDirectories() {
-    const dirsToRemove = readdirSync(this.quietDir).filter(
-      i =>
-        i.startsWith('Ipfs') ||
-        i.startsWith('OrbitDB') ||
-        i.startsWith('backendDB') ||
-        i.startsWith('Local Storage') ||
-        i.startsWith('libp2pDatastore') ||
-        i.startsWith('databases') ||
-        i.startsWith('TorDataDirectory')
-    )
+    const dirsToRemove = existsSync(this.quietDir)
+      ? readdirSync(this.quietDir).filter(
+          i =>
+            i.startsWith('Ipfs') ||
+            i.startsWith('OrbitDB') ||
+            i.startsWith('backendDB') ||
+            i.startsWith('Local Storage') ||
+            i.startsWith('libp2pDatastore') ||
+            i.startsWith('databases') ||
+            i.startsWith('TorDataDirectory')
+        )
+      : []
+    const dirsToRemovePaths = new Set([this.ipfsRepoPath, this.orbitDbDir])
     for (const dir of dirsToRemove) {
-      const dirPath = path.join(this.quietDir, dir)
+      dirsToRemovePaths.add(path.join(this.quietDir, dir))
+    }
+    for (const dirPath of dirsToRemovePaths) {
       this.logger.info(`Removing dir: ${dirPath}`)
-      removeFilesFromDir(dirPath)
+      removeFilesFromDir(dirPath, { throwOnError: false, maxRetries: 1, retryDelay: 100 })
     }
   }
 
@@ -241,12 +259,17 @@ export class StorageService extends EventEmitter {
   }
 
   public attachStoreListeners() {
+    if (this.storeListenersAttached) {
+      return
+    }
+
     this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.emit(StorageEvents.USER_PROFILES_STORED, payload)
     })
     this.notificationTokensStore.on(StorageEvents.NOTIFICATION_TOKENS_STORED, payload => {
       this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, payload)
     })
+    this.storeListenersAttached = true
   }
 
   public async addUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {
@@ -260,6 +283,15 @@ export class StorageService extends EventEmitter {
       // additions may be deferred if the user is not a member of the team
       this.logger.warn('User profile deferred:', profile.userId, err)
     }
+    return { success: true }
+  }
+
+  public async deferUserProfile(profile: UserProfile): Promise<SetUserProfileResponse> {
+    const validationResponse = await UserProfileStore.validateUserProfile(profile)
+    if (!validationResponse.success) {
+      return validationResponse
+    }
+    this.userProfileStore.deferEntry(profile)
     return { success: true }
   }
 

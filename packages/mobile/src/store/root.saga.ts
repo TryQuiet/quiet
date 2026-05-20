@@ -3,12 +3,15 @@ import { nativeServicesMasterSaga } from './nativeServices/nativeServices.master
 import { navigationMasterSaga } from './navigation/navigation.master.saga'
 import { initMasterSaga } from './init/init.master.saga'
 import { initActions } from './init/init.slice'
-import { publicChannels } from '@quiet/state-manager'
+import { publicChannels, Socket } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.saga'
 import { pushNotificationsMasterSaga } from './pushNotifications/pushNotifications.master.saga'
 import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from '../utils/logger'
+import { keysMasterSaga } from './keys/keys.master.saga'
+import { usersMetadataMasterSaga } from './userMetadata/usersMetadata.master.saga'
+import { watchAndSyncQssEnabledToNative } from './init/startConnection/startConnection.saga'
 
 const logger = createLogger('root')
 
@@ -54,6 +57,9 @@ function* storeReadySaga(): Generator {
       fork(navigationMasterSaga),
       fork(nativeServicesMasterSaga),
       fork(pushNotificationsMasterSaga),
+      fork(watchAndSyncQssEnabledToNative),
+      fork(keysMasterSaga),
+      fork(usersMetadataMasterSaga),
       // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
       takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),

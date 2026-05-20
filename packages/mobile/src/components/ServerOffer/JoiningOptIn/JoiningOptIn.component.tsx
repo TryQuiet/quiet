@@ -19,7 +19,7 @@ const GAP_TEXT = SPACING_UNIT * 2 // 16px;
 const GAP_ACTIONS = SPACING_UNIT * 2 // 16px;
 
 const serverHost = '' // You can pass the server host as a prop if needed
-const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use'
+const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy'
 
 export interface JoiningOptInProps {
   visible: boolean
@@ -134,7 +134,7 @@ export const JoiningOptIn: FC<JoiningOptInProps> = ({ visible, onClose, qssEndPo
               style={{ textDecorationLine: 'underline' }}
               onPress={() => {
                 // Open the link using Linking API
-                Linking.openURL('https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use')
+                Linking.openURL(privacyPolicyUrl)
               }}
             >
               Privacy Policy and Terms of Service

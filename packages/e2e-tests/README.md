@@ -8,9 +8,9 @@
    - Linux: `sudo apt install chromium-browser`
    - Mac: `brew install chromium`
 
-3. Install electron-chromedriver globally:
+3. Install electron-chromedriver globally, ie for electron 23:
 
-`npm install -g electron-chromedriver@23.3.13`
+`npm install -g electron-chromedriver@23`
 
 4. Set Electron version:
 

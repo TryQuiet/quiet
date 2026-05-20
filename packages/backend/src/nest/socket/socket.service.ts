@@ -26,6 +26,7 @@ import {
   InviteResultWithSalt,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
+  UserProfilesUpdatedPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -208,6 +209,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
+      socket.on(SocketActions.USER_PROFILES_UPDATED, (payload: UserProfilesUpdatedPayload) => {
+        this.logger.info(`Emitting ${SocketActions.USER_PROFILES_UPDATED}`)
+        this.emit(SocketActions.USER_PROFILES_UPDATED, payload)
+      })
+
       // ====== Local First Auth ======
 
       socket.on(
@@ -242,9 +248,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Push Notifications ======
-      socket.on(SocketActions.SEND_DEVICE_TOKEN, async (payload: { deviceToken: string }) => {
-        this.emit(SocketActions.SEND_DEVICE_TOKEN, payload)
-      })
+      socket.on(
+        SocketActions.SEND_DEVICE_TOKEN,
+        async (payload: { deviceToken: string; bundleId: string; platform: 'ios' | 'android' }) => {
+          this.emit(SocketActions.SEND_DEVICE_TOKEN, payload)
+        }
+      )
     })
 
     // Ensure the underlying connections get closed. See:

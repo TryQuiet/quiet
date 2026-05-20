@@ -16,6 +16,7 @@ configure(() => {
   require('../src/components/ConfirmationBox/ConfirmationBox.stories')
   require('../src/components/CreateCommunity/CreateCommunity.stories')
   require('../src/components/ServerOffer/ServerOffer.stories')
+  require('../src/components/ServerOffer/JoiningOptIn/JoiningOptIn.stories')
   require('../src/components/TermsOfService/TermsOfService.stories')
   require('../src/components/Appbar/Appbar.stories')
   require('../src/components/Registration/UsernameRegistration.stories')
@@ -41,6 +42,8 @@ configure(() => {
   require('../src/components/FileAttachmentPreview/FileAttachmentPreview.stories')
   require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
   require('../src/components/ModalBottomDrawer/drawers/ServerOffer.drawer.stories')
+  require('../src/utils/sendLogs.stories')
+  require('../src/utils/shareAllData.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({

@@ -170,6 +170,29 @@ describe('StorageService', () => {
       expect(startSyncSpy).toHaveBeenCalled()
     })
 
+    it('init should apply team metadata before starting sync', async () => {
+      const teamId = 'team-id'
+      const addTeamIdToDbMetasSpy = jest.spyOn(storageService, 'addTeamIdToDbMetas').mockImplementation(() => {})
+      const startSyncSpy = jest.spyOn(storageService as any, 'startSync').mockResolvedValue(undefined)
+
+      await storageService.init(teamId)
+
+      expect(addTeamIdToDbMetasSpy).toHaveBeenCalledWith(teamId)
+      expect(startSyncSpy).toHaveBeenCalledTimes(1)
+      expect(addTeamIdToDbMetasSpy.mock.invocationCallOrder[0]).toBeLessThan(startSyncSpy.mock.invocationCallOrder[0])
+    })
+
+    it('init should wait for an in-flight initialization', async () => {
+      const initDatabasesSpy = jest.spyOn(storageService, 'initDatabases')
+      const startSyncSpy = jest.spyOn(storageService as any, 'startSync')
+
+      await Promise.all([storageService.init(), storageService.init()])
+
+      expect(ipfsService.isStarted()).toBe(true)
+      expect(initDatabasesSpy).toHaveBeenCalledTimes(1)
+      expect(startSyncSpy).toHaveBeenCalledTimes(1)
+    })
+
     it('addUserProfile should delegate to userProfileStore.setEntry', async () => {
       await storageService.init()
       const profile = { userId: sigchainService.user.userId, userData: null } as unknown as UserProfile
@@ -235,6 +258,22 @@ describe('StorageService', () => {
       expect(arg['peer1']).toBeDefined()
       expect(arg['peer1'].peerId).toEqual('peer1')
       expect(arg['peer1'].address).toEqual(expectedMultiaddr)
+    })
+
+    it('purgeData continues when a data directory is locked', async () => {
+      const lockedDir = path.join(storageService.quietDir, 'Ipfs-locked')
+      fs.mkdirSync(lockedDir, { recursive: true })
+      const rmSync = jest.spyOn(fs, 'rmSync').mockImplementation((target, options) => {
+        if (target === lockedDir) {
+          throw Object.assign(new Error('locked'), { code: 'EBUSY' })
+        }
+        return jest.requireActual<typeof fs>('fs').rmSync(target, options as any)
+      })
+
+      expect(() => storageService.purgeData()).not.toThrow()
+
+      rmSync.mockRestore()
+      fs.rmSync(lockedDir, { recursive: true, force: true })
     })
   })
 })

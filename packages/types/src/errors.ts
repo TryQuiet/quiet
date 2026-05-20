@@ -42,6 +42,7 @@ export enum ErrorMessages {
   COMMUNITY_LAUNCH_FAILED = 'Could not launch community',
   INVITE_DATA_REQUIRED = 'Invite data is required',
   COMMUNITY_NOT_INITIALIZED = 'Community not initialized',
+  SIGCHAIN_LOAD_FAILED = 'Loading sigchain failed',
 
   // Network
   NETWORK_SETUP_FAILED = 'Creating network failed',

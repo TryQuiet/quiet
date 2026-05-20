@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "react-native run-android --mode=storybookDebug --appIdSuffix=storybook.debug",
@@ -75,6 +75,7 @@
     "react-native-url-polyfill": "git+https://github.com/charpeni/react-native-url-polyfill.git#f432de38c370b45e99404eb46f081f390876726d",
     "react-native-webview": "^13.12.5",
     "react-native-webview-crypto": "0.0.27",
+    "react-native-zip-archive": "^7.0.0",
     "react-redux": "^7.2.9",
     "readable-stream": "^3.6.0",
     "redux-persist": "^6.0.0",
@@ -160,6 +161,7 @@
       "__snapshots__"
     ],
     "setupFiles": [
+      "./src/setupNodeEnv.ts",
       "./src/setupTests.tsx",
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],

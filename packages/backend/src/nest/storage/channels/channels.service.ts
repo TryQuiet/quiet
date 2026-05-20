@@ -53,6 +53,24 @@ export class ChannelsService extends EventEmitter {
 
   // Channel metadata store
   public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  private fileManagerEventsAttached = false
+  private sigchainListenerAttached = false
+  private readonly handleSigchainUpdated = async (): Promise<void> => {
+    if (!this.channels) {
+      return
+    }
+
+    try {
+      const currentChannelsCount = (await this.getChannels()).length
+      await this.channels.retryIndexingUnindexedEntries()
+      const newChannelsCount = (await this.getChannels()).length
+      if (currentChannelsCount !== newChannelsCount) {
+        await this.broadcastCurrentChannels()
+      }
+    } catch (e) {
+      this.logger.warn('Error when attempting to reindex on sigchain update', e)
+    }
+  }
 
   // Is the service initialized
   public initialized: boolean = false
@@ -165,19 +183,10 @@ export class ChannelsService extends EventEmitter {
       this.broadcastCurrentChannels()
     })
 
-    this.sigchainService.on(SigchainEvents.UPDATED, async payload => {
-      try {
-        const currentChannelsCount = (await this.getChannels()).length
-        await this.channels!.retryIndexingUnindexedEntries()
-        const newChannelsCount = (await this.getChannels()).length
-        if (currentChannelsCount !== newChannelsCount) {
-          await this.broadcastCurrentChannels()
-        }
-      } catch (e) {
-        this.logger.warn('Error when attempting to reindex channels on sigchain update', e)
-        return
-      }
-    })
+    if (!this.sigchainListenerAttached) {
+      this.sigchainService.on(SigchainEvents.UPDATED, this.handleSigchainUpdated)
+      this.sigchainListenerAttached = true
+    }
 
     const channels = await this.getChannels()
     this.logger.info('Channels count:', channels.length)
@@ -713,6 +722,9 @@ export class ChannelsService extends EventEmitter {
    * @emits StorageEvents.DOWNLOAD_PROGRESS
    */
   private attachFileManagerEvents(): void {
+    if (this.fileManagerEventsAttached) {
+      return
+    }
     this.logger.info(`Attaching file manager event listeners on channels service`)
     this.filesManager.on(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, this._handleEventDownloadProgress)
     this.filesManager.on(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, this._handleEventMessageMediaUpdated)

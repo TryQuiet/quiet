@@ -38,12 +38,15 @@ export enum LocalDBKeys {
   // exists in the Community object.
   OWNER_ORBIT_DB_IDENTITY = 'ownerOrbitDbIdentity',
 
+  // Keys from sigchain that have been stored in keychain
+  KEYS_STORED_KEYCHAIN = 'keysStoredInKeychain',
+
   SIGCHAINS = 'sigchains:',
   USER_CONTEXTS = 'userContexts',
   KEYRINGS = 'keyrings',
   PENDING_HEADS = 'pendingHeads',
   PENDING_QSS_LOG_SYNCS = 'pendingQssLogSyncs',
-  LAST_QSS_LOG_SYNC_TIME = 'lastQssLogSyncTime',
+  LAST_QSS_LOG_SYNC_SEQ = 'lastQssLogSyncSeq',
   DLQ_DECRYPT = 'dlq:decrypt',
   DLQ_DECRYPT_IDX = 'dlq:idx',
 }

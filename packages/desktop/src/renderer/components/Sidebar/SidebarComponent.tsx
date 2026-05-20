@@ -59,7 +59,11 @@ const SidebarComponent: React.FC<
         <Grid item xs container direction='column'>
           <AutoSizer>
             {({ width, height }) => (
-              <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
+              <Scrollbars
+                autoHideTimeout={500}
+                style={{ width: width, height: height }}
+                renderView={viewProps => <div {...viewProps} style={{ ...viewProps.style, overflowX: 'hidden' }} />}
+              >
                 <ChannelsPanel {...props} />
                 <DirectMessagesPanel {...props} />
               </Scrollbars>

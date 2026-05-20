@@ -29,6 +29,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     private readonly auth: SigChainService
   ) {
     super()
+    this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
   }
 
   public async init() {
@@ -50,20 +51,24 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       })
     })
 
-    this.auth.on(SigchainEvents.UPDATED, async () => {
-      try {
-        await this.flushDeferredEntries()
-        await this.store!.retryIndexingUnindexedEntries()
-      } catch (err) {
-        logger.error('Failed to update notification tokens:', err)
-      }
-    })
-
     await this.store!.retryIndexingUnindexedEntries()
 
     this.emit(StorageEvents.NOTIFICATION_TOKENS_STORED, {
       entries: await this.getAllEntries(),
     })
+  }
+
+  private readonly handleAuthUpdated = async (): Promise<void> => {
+    if (!this.store) {
+      return
+    }
+
+    try {
+      await this.flushDeferredEntries()
+      await this.store.retryIndexingUnindexedEntries()
+    } catch (err) {
+      logger.error('Failed to update notification tokens:', err)
+    }
   }
 
   public async startSync() {
@@ -138,6 +143,20 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     } catch (err) {
       logger.error('Failed to set notification token entry:', key, err)
       this.deferredEntries.push(value)
+      throw err
+    }
+  }
+
+  public async tombstoneUser(userId: string): Promise<string> {
+    const tombstoneEntry: PushNotificationTokens = { userId, tokens: [] }
+
+    try {
+      const encEntry = await this.encryptEntry(tombstoneEntry)
+      const hash = await this.getStore().put(userId, encEntry)
+      return hash
+    } catch (err) {
+      logger.error('Failed to tombstone notification token entry:', userId, err)
+      this.deferredEntries.push(tombstoneEntry)
       throw err
     }
   }

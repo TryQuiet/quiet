@@ -37,6 +37,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   private _subscribing: boolean = false
   private _messagesService: PublicChannelMessagesService | PrivateChannelMessagesService | undefined = undefined
   private _accessController: typeof AccessController
+  private authListenerAttached = false
+  private readonly handleAuthUpdated = (): void => {
+    void this.refreshMessageIds()
+  }
 
   private logger: QuietLogger
 
@@ -138,7 +142,19 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this._subscribing = true
 
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
-      this.logger.info(`${this.channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
+      const entryChannelId = entry.payload.value?.channelId
+      // TODO: seperate event bus for each channel so we don't have to check this on every update
+      if (entryChannelId != null && entryChannelId !== this.channelData.id) {
+        this.logger.debug(
+          `Ignoring database update for different channel`,
+          entry.hash,
+          entryChannelId,
+          this.channelData.id
+        )
+        return
+      }
+
+      this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
       let message: ChannelMessage | undefined | false = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
@@ -155,9 +171,10 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       await this.refreshMessageIds()
     })
 
-    this.auth.on(SigchainEvents.UPDATED, payload => {
-      this.refreshMessageIds()
-    })
+    if (!this.authListenerAttached) {
+      this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
+      this.authListenerAttached = true
+    }
 
     try {
       await this.startSync()
@@ -384,11 +401,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     try {
       if (!this.store) {
         this.logger.warn(`Store is already undefined, nothing to drop`)
-        return
+      } else {
+        await this.getStore().drop()
       }
-      await this.getStore().drop()
     } catch (e) {
       this.logger.error(`Failed to drop store`, e)
+    }
+    if (this.authListenerAttached) {
+      this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)
+      this.authListenerAttached = false
     }
     this.store = undefined
     this._subscribing = false

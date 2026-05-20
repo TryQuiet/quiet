@@ -21,6 +21,8 @@ export const torBootstrapProcess = createSelector(connectionSlice, reducerState 
 
 export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
 
+export const isQssConnected = createSelector(connectionSlice, reducerState => reducerState.isQssConnected)
+
 export const connectionProcess = createSelector(connectionSlice, reducerState => reducerState.connectionProcess)
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
@@ -141,6 +143,7 @@ export const connectionSelectors = {
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,
+  isQssConnected,
   socketIOSecret,
   isJoiningCompleted,
   peerStats,

@@ -1,4 +1,5 @@
 import { Platform, AppState, NativeModules } from 'react-native'
+import Config from 'react-native-config'
 import { users, publicChannels, PUSH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { call, select } from 'typed-redux-saga'
@@ -14,6 +15,10 @@ export function* showNotificationSaga(
 ): Generator {
   const payload: MarkUnreadChannelPayload = action.payload
   if (Platform.OS === 'ios') return
+  if (Config.FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED === 'false') {
+    logger.info('Foreground push notifications disabled by env flag')
+    return
+  }
   if (AppState.currentState === 'background') return
 
   const screen = yield* select(navigationSelectors.currentScreen)

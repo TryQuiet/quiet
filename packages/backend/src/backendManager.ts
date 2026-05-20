@@ -4,7 +4,7 @@ import path from 'path'
 import getPort from 'get-port'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
-import { TorControl } from './nest/tor/tor-control.service'
+import { Tor } from './nest/tor/tor.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge, { RnBridge } from './rn-bridge'
 import { INestApplicationContext } from '@nestjs/common'
@@ -78,6 +78,7 @@ function isCaptchaTokenMessage(msg: any): msg is CaptchaTokenMessage {
 function isCaptchaErrorMessage(msg: any): msg is CaptchaErrorMessage {
   return msg && typeof msg === 'object' && msg.type === 'hcaptcha-error' && typeof msg.message === 'string'
 }
+
 function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManager: () => ConnectionsManagerService) {
   let shuttingDown = false
   let termSignalCount = 0
@@ -155,6 +156,11 @@ function setupGracefulShutdown(app: INestApplicationContext, getConnectionsManag
   })
 
   process.on('unhandledRejection', async (reason: any, promise) => {
+    // AbortErrors from stream reads are expected when a libp2p connection closes mid-handshake
+    if (reason instanceof Error && reason.name === 'AbortError') {
+      logger.debug('Ignoring AbortError unhandled rejection (stream read aborted on connection close)')
+      return
+    }
     let reasonMsg = ''
     if (reason instanceof Error) {
       reasonMsg = reason.stack || reason.message
@@ -241,21 +247,56 @@ export const runBackendMobile = async (rn_bridge: any, secret: string) => {
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
   let proxyAgent: HttpsProxyAgent<string> | undefined
+  let shutdownRequestedFromBridge = false
   rn_bridge.channel.on('close', () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     connectionsManager.pause()
   })
+  rn_bridge.channel.on('hibernate', async () => {
+    logger.info('Received hibernate message from RN bridge')
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    try {
+      await connectionsManager.hibernate()
+      rn_bridge.channel.send('hibernated')
+    } catch (e) {
+      logger.error('Error occurred while hibernating backend', e)
+    }
+  })
+  rn_bridge.channel.on('wake', async () => {
+    logger.info('Received wake message from RN bridge')
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    try {
+      await connectionsManager.wake()
+      rn_bridge.channel.send('woke')
+    } catch (e) {
+      logger.error('Error occurred while waking backend', e)
+    }
+  })
   rn_bridge.channel.on('open', (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    const torControl = app.get<TorControl>(TorControl)
+    const tor = app.get<Tor>(Tor)
     proxyAgent = app.get<HttpsProxyAgent<string>>(SOCKS_PROXY_AGENT)
-    torControl.torControlParams.port = msg.torControlPort
-    torControl.torControlParams.auth.value = msg.authCookie
-    proxyAgent.connectOpts.port = msg.httpTunnelPort
-    proxyAgent.proxy.port = msg.httpTunnelPort
+    const torControlPort = Number(msg.torControlPort)
+    const httpTunnelPort = Number(msg.httpTunnelPort)
+    tor.rewireNativeTor({
+      controlPort: torControlPort,
+      httpTunnelPort,
+      authCookie: msg.authCookie,
+    })
+    proxyAgent.connectOpts.port = httpTunnelPort
+    proxyAgent.proxy.port = httpTunnelPort.toString()
     connectionsManager.resume()
   })
   const shutdown = setupGracefulShutdown(app, () => app.get<ConnectionsManagerService>(ConnectionsManagerService))
+  rn_bridge.channel.on('shutdown', async () => {
+    logger.info('Received shutdown message from RN bridge')
+    if (shutdownRequestedFromBridge) {
+      return
+    }
+    shutdownRequestedFromBridge = true
+    await shutdown.gracefulCloseServices()
+    rn_bridge.channel.send('backendClosed')
+  })
   rn_bridge.channel.send('backendReady')
 }
 

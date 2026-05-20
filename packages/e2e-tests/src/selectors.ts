@@ -58,7 +58,7 @@ export class App {
       ...(overrideConfig ? overrideConfig : {}),
     }
     const failureReason = `Failed to open app within ${config.timeoutMs}ms`
-    await promiseWithRetries(this.open(qssEnabled), failureReason, config, this.close)
+    await promiseWithRetries(this.open(qssEnabled), failureReason, config, () => this.close())
   }
 
   /**
