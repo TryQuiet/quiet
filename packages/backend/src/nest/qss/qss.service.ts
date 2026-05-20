@@ -461,7 +461,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   }
 
   private async emitNseQssUrl(wsUrl: string | undefined): Promise<void> {
-    if ((process.platform as string) !== 'ios') {
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') {
+      this.logger.debug('Skipping NSE QSS URL emit because platform is not iOS or Android', platform)
       return
     }
     try {

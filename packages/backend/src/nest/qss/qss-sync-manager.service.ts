@@ -715,7 +715,10 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     }
 
     if (pullResponse.status !== CommunityOperationStatus.SUCCESS) {
-      this.logger.error(`Error while pulling log entries from QSS - ${pullResponse.status}: ${pullResponse.reason}`)
+      this.logger.error(
+        `Error while pulling log entries from QSS - ${pullResponse.status}: ${pullResponse.reason}`,
+        payload.teamId
+      )
       return pullResponse
     }
 

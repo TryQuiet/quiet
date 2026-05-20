@@ -17,20 +17,29 @@ import Config from 'react-native-config'
 
 const logger = createLogger('pushNotificationsMasterSaga')
 
-// Event keys matching CommunicationModule.swift
+// Event keys matching CommunicationModule on iOS and Android.
 const NOTIFICATION_PERMISSION_RESULT = 'notificationPermissionResult'
 const DEVICE_TOKEN_RECEIVED = 'deviceTokenReceived'
 
+const communicationModule = NativeModules.CommunicationModule
 const firebaseMessagingModule = NativeModules.FirebaseMessagingModule
 
 function* requestPermissionSaga(): Generator {
-  logger.info('Requesting iOS notification permission')
-  yield* call(NativeModules.CommunicationModule.requestNotificationPermission)
+  if (!communicationModule?.requestNotificationPermission) {
+    logger.warn('CommunicationModule.requestNotificationPermission is unavailable')
+    return
+  }
+  logger.info(`Requesting ${Platform.OS} notification permission`)
+  yield* call([communicationModule, communicationModule.requestNotificationPermission])
 }
 
 function* checkPermissionSaga(): Generator {
-  logger.info('Checking notification permission')
-  yield* call(NativeModules.CommunicationModule.checkNotificationPermission)
+  if (!communicationModule?.checkNotificationPermission) {
+    logger.warn('CommunicationModule.checkNotificationPermission is unavailable')
+    return
+  }
+  logger.info(`Checking ${Platform.OS} notification permission`)
+  yield* call([communicationModule, communicationModule.checkNotificationPermission])
 }
 
 function* triggerPermissionRequestSaga(): Generator {
@@ -71,9 +80,20 @@ function hasGrantedPermission(payload: PermissionResultPayload): boolean {
 }
 
 function* waitForWebsocketConnectionSaga(): Generator {
+  let waitingForConnection = false
+
   while (true) {
     const connected = yield* select(initSelectors.isWebsocketConnected)
-    if (connected) break
+    if (connected) {
+      if (waitingForConnection) {
+        logger.info('Websocket connected, resuming device token send')
+      }
+      break
+    }
+    if (!waitingForConnection) {
+      waitingForConnection = true
+      logger.info('Websocket not connected yet, delaying device token send')
+    }
     yield* delay(500)
   }
 }
@@ -93,9 +113,20 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
   )
 }
 
+function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
+  const permissionStatus = yield* select(pushNotificationsSelectors.permissionStatus)
+  return permissionStatus === NotificationPermissionStatus.Granted
+}
+
 function* syncCurrentDeviceTokenSaga(): Generator {
   if (Config.QPS_ALLOWED !== 'true') {
     logger.info('QPS not allowed, skipping device token sync')
+    return
+  }
+
+  const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
+  if (!hasGrantedPermission) {
+    logger.info('Skipping current FCM token sync because notification permission is not granted')
     return
   }
 
@@ -165,6 +196,13 @@ function* watchDeviceToken(): Generator {
   try {
     while (true) {
       const { token } = yield* take(channel)
+      const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
+      if (!hasGrantedPermission) {
+        logger.info('Skipping live FCM token forward because notification permission is not granted')
+        continue
+      }
+
+      logger.info('Forwarding live FCM token update from native event channel')
       yield* call(sendDeviceTokenToBackendSaga, token)
     }
   } finally {
@@ -175,14 +213,13 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
-  if (Platform.OS !== 'ios' || Config.QPS_ALLOWED !== 'true') {
+  if ((Platform.OS !== 'ios' && Platform.OS !== 'android') || Config.QPS_ALLOWED !== 'true') {
     logger.info(`Skipping push notifications saga (platform=${Platform.OS}, QPS_ALLOWED=${Config.QPS_ALLOWED})`)
     return
   }
 
   logger.info('pushNotificationsMasterSaga starting')
   try {
-    // Set up native event listeners before triggering any permission requests
     yield* fork(watchPermissionResults)
     yield* fork(watchDeviceToken)
     yield* fork(watchAppState)

@@ -27,6 +27,8 @@ setIdentityEngine(
 
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
+  QSS_ALLOWED: 'true',
+  FOREGROUND_PUSH_NOTIFICATIONS_ALLOWED: 'true',
 }))
 
 jest.mock('redux-persist-filesystem-storage', () => {})
@@ -52,6 +54,8 @@ jest.mock('react-native', () => {
     saveUserMetadata: jest.fn(),
     saveNseQssUrl: jest.fn(),
     saveNseLastSyncSeq: jest.fn(),
+    setTeamQssEnabled: jest.fn(),
+    setUserBackgroundTorEnabled: jest.fn(),
     clearSensitiveData: jest.fn(),
   }
   rn.NativeModules.FirebaseMessagingModule = {
@@ -112,6 +116,9 @@ jest.mock('react-native-device-info', () => {
   return {
     getVersion: () => {
       return '1.0.0'
+    },
+    getBundleId: () => {
+      return 'com.quietmobile'
     },
   }
 })

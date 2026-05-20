@@ -92,12 +92,6 @@ export class QPSService implements OnModuleInit {
       return true
     }
 
-    if ((process.platform as string) !== 'ios') {
-      this.logger.info('Notification token tombstone is only necessary on iOS, skipping')
-      this._pendingDeviceToken = undefined
-      return true
-    }
-
     let teamId: Base58 | undefined
     let userId: string | undefined
     try {
@@ -109,7 +103,6 @@ export class QPSService implements OnModuleInit {
       this._pendingDeviceToken = undefined
       return false
     }
-
     if (teamId == null) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team id')
       this._pendingDeviceToken = undefined

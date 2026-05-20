@@ -6,7 +6,7 @@ module.exports = {
       extensions: [".ts", ".jsx", ".tsx", ".js"],
       alias: {
         // Force Webpack to ignore the electron module completely\
-        // needed in electron 32+, since you can no longer access the path of a File, and 
+        // needed in electron 32+, since you can no longer access the path of a File, and
         // instead need to use the nodejs backed webUtils.getPathForFile (from electron) in the renderer
         electron: false
       },
