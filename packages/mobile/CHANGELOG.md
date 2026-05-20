@@ -1,26 +1,19 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.2.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.0...@quiet/mobile@7.2.0-alpha.0) (2026-05-20)
-
-
-### Bug Fixes
-
-* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
-* include flavor prefix in envConfigFiles keys so dotenv picks the right .env ([#3197](https://github.com/TryQuiet/quiet/issues/3197)) ([e3f77d1](https://github.com/TryQuiet/quiet/commit/e3f77d1ec25b673485c74c638cb952ac063b06e4))
-
+## [7.2.0]
 
 ### Features
 
-* **mobile:** dev/alpha-only "Share logs" menu item ([#3198](https://github.com/TryQuiet/quiet/issues/3198)) ([9d3457d](https://github.com/TryQuiet/quiet/commit/9d3457d033d06de55e42a615cc15dd682e0fd87f)), closes [#3196](https://github.com/TryQuiet/quiet/issues/3196)
+* Added background push notifications and background hibernation for android [#3156](https://github.com/TryQuiet/quiet/issues/3156)
 
+### Fixes
 
+* The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
+* Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
 
+### Chores
 
-
-# Changelog
+* Refactored syncing data with QSS for modularity [#3235](https://github.com/TryQuiet/quiet/issues/3235)
 
 ## [7.1.0]
 
@@ -28,8 +21,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
 * Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
-
-### Fixes
 
 ### Chores
 
