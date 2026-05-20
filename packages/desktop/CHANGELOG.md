@@ -1,3 +1,20 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [7.2.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.1.0...@quiet/desktop@7.2.0-alpha.0) (2026-05-20)
+
+
+### Bug Fixes
+
+* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
+* sidebar layout tweaks ([#3184](https://github.com/TryQuiet/quiet/issues/3184)) ([accc53f](https://github.com/TryQuiet/quiet/commit/accc53ff515e302fe07d404827a4dc3a70178b08))
+
+
+
+
+
 # Changelog
 
 ## [7.1.0]
