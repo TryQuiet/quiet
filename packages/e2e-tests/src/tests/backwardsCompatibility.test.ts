@@ -113,7 +113,7 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
-        expect(generalChannelText).toEqual('general')
+        expect(generalChannelText).toEqual('# general')
       })
 
       itif(process.platform == 'linux')(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
@@ -143,7 +143,7 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName)
+        await sidebar.addNewChannel(newChannelName, true, false)
         await sidebar.switchChannel(newChannelName)
         const channels = await sidebar.getChannelList()
         expect(channels.length).toEqual(2)

@@ -2247,7 +2247,7 @@ export class Sidebar {
     return channel
   }
 
-  async addNewChannel(name: string, isPublic: boolean = true): Promise<Channel> {
+  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,
@@ -2267,20 +2267,27 @@ export class Sidebar {
     await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
     await channelNameInput.sendKeys(name)
 
-    const channelPrivateToggle = await this.driver.wait(
-      until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
-      5_000,
-      `Channel private toggle couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
-    if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-      throw new Error('Channel privacy toggle was enabled before clicking')
+    if (!isPublic && !expectToggle) {
+      logger.warn(`Can't create a private channel without the privacy toggle - overriding expectToggle`)
+      expectToggle = true
     }
-    if (!isPublic) {
-      await channelPrivateToggle.click()
-      if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-        throw new Error('Channel privacy toggle was disabled after clicking')
+
+    if (expectToggle) {
+      const channelPrivateToggle = await this.driver.wait(
+        until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
+        5_000,
+        `Channel private toggle couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
+      if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+        throw new Error('Channel privacy toggle was enabled before clicking')
+      }
+      if (!isPublic) {
+        await channelPrivateToggle.click()
+        if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+          throw new Error('Channel privacy toggle was disabled after clicking')
+        }
       }
     }
     const channelNameButton = await this.driver.wait(
