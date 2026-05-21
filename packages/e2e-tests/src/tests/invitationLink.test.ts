@@ -29,8 +29,8 @@ describe('New user joins using invitation link while having app opened', () => {
   let guestApp: App
 
   beforeAll(async () => {
-    ownerApp = new App()
-    guestApp = new App({ defaultDataDir: true })
+    ownerApp = new App({ username: ownerUsername })
+    guestApp = new App({ defaultDataDir: true, username: joiningUserUsername })
     await guestApp.cleanup(true)
   })
 

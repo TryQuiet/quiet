@@ -24,7 +24,7 @@ export class App {
   }
 
   constructor(buildSetupConfig?: BuildSetupInit) {
-    this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+    this.buildSetup = new BuildSetup({ ...(buildSetupConfig ?? {}) })
     this.isOpened = false
   }
 

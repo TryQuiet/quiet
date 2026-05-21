@@ -65,17 +65,17 @@ describe('Multiple Clients (Private Channels)', () => {
           `New private channel only I can see`,
           `The second user can now see this`,
         ],
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-1',
         messages: ['Nice to meet you all', 'I can see the private channel now'],
-        app: new App(),
+        app: new App({ username: 'user-1' }),
       },
       user2: {
         username: 'user-2',
         messages: [],
-        app: new App(),
+        app: new App({ username: 'user-2' }),
       },
     }
   })

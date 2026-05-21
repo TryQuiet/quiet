@@ -24,6 +24,7 @@ export interface BuildSetupInit {
   dataDir?: string
   fileName?: string
   chromeDriverPath?: string
+  username?: string
 }
 
 export class BuildSetup {
@@ -38,16 +39,24 @@ export class BuildSetup {
   private fileName?: string
   private chromeDriverPath?: string
 
-  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName, chromeDriverPath }: BuildSetupInit) {
+  constructor({
+    port,
+    debugPort,
+    defaultDataDir = false,
+    dataDir,
+    fileName,
+    chromeDriverPath,
+    username,
+  }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
-    this.id = (Math.random() * 10 ** 18).toString(36)
+    this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
-    if (!this.dataDir) {
+    if (this.dataDir == null) {
       this.dataDir = `e2e_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })

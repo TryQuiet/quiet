@@ -1,5 +1,4 @@
 import { WebElement } from 'selenium-webdriver'
-import { promises as fs } from 'fs'
 
 import {
   App,

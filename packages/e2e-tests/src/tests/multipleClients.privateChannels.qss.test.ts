@@ -58,7 +58,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
     users = {
       owner: {
         username: 'owner',
-        app: new App(),
+        app: new App({ username: 'owner' }),
         messages: {
           general: ['Hi'],
           private: ['Only I can see this', `I'm still the only one who can see this`],
@@ -67,7 +67,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
       },
       user1: {
         username: 'user-1',
-        app: new App(),
+        app: new App({ username: 'user-1' }),
         messages: {
           general: ['Nice to meet you all'],
           private: ['I can see the private channel now'],
@@ -76,7 +76,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
       },
       user2: {
         username: 'user-2',
-        app: new App(),
+        app: new App({ username: 'user-2' }),
         messages: {
           general: [`I'm here too`],
           private: [],

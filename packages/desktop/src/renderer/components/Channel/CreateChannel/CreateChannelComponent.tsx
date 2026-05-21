@@ -1,19 +1,15 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
-
-import { createSvgIcon, FormControlLabel, Grid, Switch, SwitchProps, Typography } from '@mui/material'
-import inlineSvg from 'react-inlinesvg'
-
+import { FormControlLabel, Grid, Typography } from '@mui/material'
 import WarningIcon from '@mui/icons-material/Warning'
+
+import { parseName } from '@quiet/common'
 
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
-
 import { TextField } from '../../ui/TextField/TextField'
 import { channelNameField, channelPrivateField } from '../../../forms/fields/createChannelFields'
-
-import { parseName } from '@quiet/common'
 import { createLogger } from '../../../logger'
 import IOSSwitch from '../../ui/Switch/IOSSwitch'
 import LockIcon from '../../../static/images/components/lock'

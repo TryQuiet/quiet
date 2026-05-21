@@ -78,6 +78,7 @@ import { QSSEvents } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
+import { SigChain } from '../auth/sigchain'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -626,16 +627,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.erasePreviousCommunityArtifacts()
 
     let communityName: string | undefined
+    let teamId: string | undefined
     if (
       inviteData &&
       (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
     ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
+      teamId = (payload.inviteData as InvitationDataV2).authData.teamId
       await this.sigChainService.createChainFromInvite(
         payload.username,
         communityName,
         inviteData.authData.seed,
-        inviteData.authData.teamId,
+        teamId,
         true
       )
     }
@@ -682,7 +685,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])], // TODO: we should deprecate this field and use db
       inviteData,
       psk: inviteData.psk,
-      teamId: inviteData.version === InvitationDataVersion.v3 ? inviteData.authData.teamId : undefined,
+      teamId,
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
