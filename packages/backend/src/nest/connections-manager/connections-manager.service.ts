@@ -904,6 +904,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.warn(`Can't update team ID on stored community ${community.id} because sigchain has nullish team`)
       return
     }
+    this.logger.debug(`Updating team ID for stored community ${community.id}`)
     const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
     await this.localDbService.setCommunity({ ...community, teamId })
     const payload: UpdateCommunityPayload = {
