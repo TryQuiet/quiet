@@ -5,6 +5,7 @@
 ### Features
 
 * Added background push notifications and background hibernation for android [#3156](https://github.com/TryQuiet/quiet/issues/3156)
+* Extends the dev/alpha-only "Share logs" and "Share all data" actions to the "Starting backend" screen (mobile) [#3241](https://github.com/TryQuiet/quiet/pull/3241)
 
 ### Fixes
 
