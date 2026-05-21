@@ -86,6 +86,11 @@ jobs:
       - name: "Decode keystore"
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
+      - name: "Decrypt Firebase config (google-services.json)"
+        run: ./.github/secrets/decrypt_android_secrets.sh
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
+
       - name: "Build .apk"
         env:
           ENVFILE: ../.env.production
@@ -251,6 +256,11 @@ jobs:
       - name: "Prepare ndk configuration"
         run: |
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
+
+      - name: "Decrypt Firebase config (google-services.json)"
+        run: ./.github/secrets/decrypt_android_secrets.sh
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
