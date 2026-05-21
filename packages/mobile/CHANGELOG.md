@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [7.2.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.2.0-alpha.1...@quiet/mobile@7.2.0-alpha.2) (2026-05-21)
+
+
+### Bug Fixes
+
+* **android:** stop leave-community crash from missing Firebase config ([#3236](https://github.com/TryQuiet/quiet/issues/3236)) ([#3238](https://github.com/TryQuiet/quiet/issues/3238)) ([f4d1907](https://github.com/TryQuiet/quiet/commit/f4d1907b84a5e4b8525db952bffd023240a95641)), closes [#3188](https://github.com/TryQuiet/quiet/issues/3188)
+
+
+
+
+
 # Changelog
 
 ## [7.2.0]
