@@ -42,6 +42,7 @@ import {
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
   UserProfilesUpdatedPayload,
+  UpdateCommunityPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -109,6 +110,10 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.COMMUNITY_LAUNCHED}`, payload)
       emit(communitiesActions.setCurrentCommunity(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
+    })
+    socket.on(SocketEvents.COMMUNITY_UPDATED, (payload: UpdateCommunityPayload) => {
+      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload)
+      emit(communitiesActions.updateCommunityData(payload))
     })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)

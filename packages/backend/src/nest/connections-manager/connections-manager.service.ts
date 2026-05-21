@@ -54,6 +54,7 @@ import {
   PublicChannel,
   User,
   UserProfilesUpdatedPayload,
+  UpdateCommunityPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -846,6 +847,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await setupStorageWithTeamMeta(activeChain.team!.id)
       this.qssService.connect(community.qssEndpoint)
+      await this._updateTeamIdOnStoredCommunity(community, activeChain)
     } else {
       this.logger.debug(
         'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
@@ -854,6 +856,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         const handleStorageReady = async (teamId: string) => {
           try {
             await setupStorageWithTeamMeta(teamId)
+            await this._updateTeamIdOnStoredCommunity(community, teamId)
             resolve()
           } catch (e) {
             reject(e)
@@ -891,6 +894,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.logger.info('Storage initialized')
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+  }
+
+  private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {
+    if (community.teamId != null) return
+    if (chainOrTeamId instanceof SigChain && chainOrTeamId.team == null) {
+      this.logger.warn(`Can't update team ID on stored community ${community.id} because sigchain has nullish team`)
+      return
+    }
+    const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
+    await this.localDbService.setCommunity({ ...community, teamId })
+    const payload: UpdateCommunityPayload = {
+      id: community.id,
+      updates: {
+        teamId,
+      },
+    }
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_UPDATED, payload)
   }
 
   /**

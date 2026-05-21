@@ -79,6 +79,11 @@ export interface InitCommunityPayload {
   tosAccepted?: boolean
 }
 
+export interface UpdateCommunityPayload {
+  id: string
+  updates: Partial<Omit<Community, 'id'>>
+}
+
 export interface ResponseLaunchCommunityPayload {
   id: string
 }
