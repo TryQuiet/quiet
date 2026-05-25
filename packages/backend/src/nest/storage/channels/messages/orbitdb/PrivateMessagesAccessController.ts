@@ -1,4 +1,4 @@
-/*
+/**
  * OrbitDB access controller for private channels
  */
 

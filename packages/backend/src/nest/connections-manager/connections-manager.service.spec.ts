@@ -79,10 +79,6 @@ describe('ConnectionsManagerService', () => {
       logger.debug('MOCK: handling chain update')
     })
 
-    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
-      logger.debug('MOCK: handling chain update')
-    })
-
     // initialize sigchain on local db
     await sigChainService.createChain(community.name!, 'john', false)
     await sigChainService.saveChain(community.name!)

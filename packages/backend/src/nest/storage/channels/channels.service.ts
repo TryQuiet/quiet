@@ -22,6 +22,7 @@ import {
   AddMembersChannelStatus,
   DownloadStatus,
   RemoveDownloadStatus,
+  CHANNEL_METADATA_STORE_NAME,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -137,7 +138,6 @@ export class ChannelsService extends EventEmitter {
 
     this.logger.timeEnd('Initializing channel databases')
     this.logger.info('Initialized databases')
-    this.initialized = true
   }
 
   /**
@@ -166,7 +166,7 @@ export class ChannelsService extends EventEmitter {
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating channels database')
     this.channels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      'channels',
+      CHANNEL_METADATA_STORE_NAME,
       {
         sync: false,
         Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),

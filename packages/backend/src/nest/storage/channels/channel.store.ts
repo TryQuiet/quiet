@@ -154,17 +154,12 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
         return
       }
 
-      if (this._messagesService == null) {
-        this.logger.error(`Can't process message because messages service wasn't initialized`)
-        return
-      }
-
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
       let message: ChannelMessage | undefined | false = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
       } else {
-        message = await this._messagesService.onConsume(entry.payload.value!)
+        message = await this.messagesService.onConsume(entry.payload.value!)
         if (message == null) {
           this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
         } else if (message == false) {
