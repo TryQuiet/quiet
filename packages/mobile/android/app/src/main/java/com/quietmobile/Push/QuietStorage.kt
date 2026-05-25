@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.apicatalog.base.Base58 as CopperBase58
 import org.json.JSONObject
+import androidx.core.content.edit
 
 object QuietStorage {
     private const val ENCRYPTED_PREFS_NAME = "quiet.secure.storage"
@@ -44,11 +45,11 @@ object QuietStorage {
 
     @JvmStatic
     fun saveDeviceCredentials(deviceId: String, teamId: String, signingPrivateKey: String) {
-        securePrefs().edit()
-            .putString(DEVICE_ID_KEY, deviceId)
-            .putString(TEAM_ID_KEY, teamId)
-            .putString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", signingPrivateKey)
-            .apply()
+        securePrefs().edit {
+            putString(DEVICE_ID_KEY, deviceId)
+                .putString(TEAM_ID_KEY, teamId)
+                .putString("$DEVICE_PRIVATE_KEY_PREFIX$deviceId", signingPrivateKey)
+        }
     }
 
     @JvmStatic
@@ -62,7 +63,7 @@ object QuietStorage {
 
     @JvmStatic
     fun addLfaKey(keyName: String, key: String) {
-        securePrefs().edit().putString(keyName, key).apply()
+        securePrefs().edit { putString(keyName, key) }
     }
 
     @JvmStatic
@@ -72,7 +73,7 @@ object QuietStorage {
     fun saveQssUrl(teamId: String, url: String) {
         val current = JSONObject(regularPrefs().getString(QSS_URLS_KEY, "{}") ?: "{}")
         current.put(teamId, url)
-        regularPrefs().edit().putString(QSS_URLS_KEY, current.toString()).apply()
+        regularPrefs().edit { putString(QSS_URLS_KEY, current.toString()) }
     }
 
     @JvmStatic
@@ -87,11 +88,11 @@ object QuietStorage {
         if (seq <= current) {
             return
         }
-        regularPrefs().edit()
-            .putLong(lastSyncSeqKey(teamId), seq)
-            .remove(LAST_SYNC_SEQ_KEY)
-            .remove(LAST_SYNC_TEAM_ID_KEY)
-            .apply()
+        regularPrefs().edit {
+            putLong(lastSyncSeqKey(teamId), seq)
+                .remove(LAST_SYNC_SEQ_KEY)
+                .remove(LAST_SYNC_TEAM_ID_KEY)
+        }
     }
 
     @JvmStatic
@@ -112,7 +113,7 @@ object QuietStorage {
 
     @JvmStatic
     fun setAppForeground(foreground: Boolean) {
-        regularPrefs().edit().putBoolean(APP_FOREGROUND_KEY, foreground).apply()
+        regularPrefs().edit { putBoolean(APP_FOREGROUND_KEY, foreground) }
     }
 
     @JvmStatic
@@ -120,7 +121,7 @@ object QuietStorage {
 
     @JvmStatic
     fun setTeamQssEnabled(enabled: Boolean) {
-        regularPrefs().edit().putBoolean(TEAM_QSS_ENABLED_KEY, enabled).apply()
+        regularPrefs().edit { putBoolean(TEAM_QSS_ENABLED_KEY, enabled) }
     }
 
     @JvmStatic
@@ -128,7 +129,7 @@ object QuietStorage {
 
     @JvmStatic
     fun setUserBackgroundTorEnabled(enabled: Boolean) {
-        regularPrefs().edit().putBoolean(USER_BACKGROUND_TOR_ENABLED_KEY, enabled).apply()
+        regularPrefs().edit { putBoolean(USER_BACKGROUND_TOR_ENABLED_KEY, enabled) }
     }
 
     @JvmStatic
@@ -139,7 +140,7 @@ object QuietStorage {
     fun saveUserMetadata(userId: String, nickname: String) {
         val current = JSONObject(regularPrefs().getString(USER_METADATA_KEY, "{}") ?: "{}")
         current.put(userId, nickname)
-        regularPrefs().edit().putString(USER_METADATA_KEY, current.toString()).apply()
+        regularPrefs().edit { putString(USER_METADATA_KEY, current.toString()) }
     }
 
     @JvmStatic
@@ -180,8 +181,8 @@ object QuietStorage {
 
     @JvmStatic
     fun clearAll() {
-        securePrefs().edit().clear().apply()
-        regularPrefs().edit().clear().apply()
+        securePrefs().edit { clear() }
+        regularPrefs().edit { clear() }
     }
 
     @Synchronized
@@ -269,9 +270,9 @@ object QuietStorage {
 
     private fun saveDisplayedNotificationHashes(hashes: JSONObject) {
         regularPrefs()
-            .edit()
-            .putString(DISPLAYED_NOTIFICATION_HASHES_KEY, hashes.toString())
-            .apply()
+            .edit {
+                putString(DISPLAYED_NOTIFICATION_HASHES_KEY, hashes.toString())
+            }
     }
 
     private data class DisplayedNotificationHash(
