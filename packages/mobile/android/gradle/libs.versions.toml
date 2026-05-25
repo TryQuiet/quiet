@@ -53,7 +53,4 @@ react-native-gradle-plugin = { module = "com.facebook.react:react-native-gradle-
 socket-io-client = { module = "io.socket:socket.io-client", version.ref = "socketIoClient" }
 jsc-android-intl = { module = "io.github.react-native-community:jsc-android-intl", version.ref = "jsc-android-intl" }
 
-
-
 [plugins]
-

@@ -1,3 +1,5 @@
+import groovy.lang.Closure
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -26,7 +28,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "QuietMobile"
 apply(from = "../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
-val applyNativeModulesSettingsGradle: groovy.lang.Closure<Any> by extra
+val applyNativeModulesSettingsGradle: Closure<Any> by extra
 applyNativeModulesSettingsGradle(settings)
 include(":app", ":react-native-fs")
 includeBuild("../node_modules/@react-native/gradle-plugin")
