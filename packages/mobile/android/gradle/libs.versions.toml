@@ -1,0 +1,59 @@
+[versions]
+
+# these can't be updated unitl we target android 36 which requires a serious react native upgrdae
+gradle = "8.13.2"
+kotlin = "2.0.21"
+coreKtx = "1.16.0"
+
+commonsIo = "2.22.0"
+jsc-android-intl = "2026004.0.1"
+appcompat = "1.7.1"
+core = "1.7.0"
+guava = "33.6.0-android"
+junit = "1.3.0"
+gradleDownloadTask = "5.7.0"
+copperMultibase = "4.1.0"
+firebaseBom = "34.13.0"
+googleServices = "4.4.4"
+lazysodiumAndroid = "5.2.0"
+jna = "5.18.1"
+msgpackCore = "0.9.12"
+securityCrypto = "1.1.0"
+gson = "2.14.0"
+socketIoClient = "2.1.2"
+swiperefreshlayout = "1.2.0"
+workRuntime = "2.11.2"
+workRuntimeKtx = "2.11.2"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-core = { module = "androidx.test:core", version.ref = "core" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+copper-multibase = { module = "com.apicatalog:copper-multibase", version.ref = "copperMultibase" }
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+gradle-download-task = { module = "de.undercouch:gradle-download-task", version.ref = "gradleDownloadTask" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
+lazysodium-android = { module = "com.goterl:lazysodium-android@aar", version.ref = "lazysodiumAndroid" }
+jna = { module = "net.java.dev.jna:jna@aar", version.ref = "jna" }
+msgpack-core = { module = "org.msgpack:msgpack-core", version.ref = "msgpackCore" }
+react-android = { module = "com.facebook.react:react-android" }
+react-native-gradle-plugin = { module = "com.facebook.react:react-native-gradle-plugin" }
+socket-io-client = { module = "io.socket:socket.io-client", version.ref = "socketIoClient" }
+jsc-android-intl = { module = "io.github.react-native-community:jsc-android-intl@aar", version.ref = "jsc-android-intl" }
+
+
+
+[plugins]
+
