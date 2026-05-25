@@ -393,10 +393,12 @@ tasks.register("GenerateNodeProjectAssetsLists") {
 }
 
 project.android.sourceSets.main.assets.srcDirs += "${rootProject.layout.buildDirectory.get()}/nodejs-assets/"
-
-tasks.getByPath(":${project.name}:preBuild").dependsOn GenerateNodeProjectAssetsLists
-
 def abi_name = "arm64"
+
+tasks.named("preBuild") {
+    dependsOn(tasks.named("GenerateNodeProjectAssetsLists"))
+    dependsOn("GenerateNodeNativeAssetsLists${abi_name}")
+}
 
 tasks.register("GenerateNodeNativeAssetsLists${abi_name}") {
     description = "Generates a list for runtime copying"
@@ -432,7 +434,5 @@ tasks.register("GenerateNodeNativeAssetsLists${abi_name}") {
         dir_list_path.write(dir_list)
     }
 }
-
-tasks.getByPath(":${project.name}:preBuild").dependsOn("GenerateNodeNativeAssetsLists${abi_name}")
 
 project.android.sourceSets.main.assets.srcDirs += "${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/"
