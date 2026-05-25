@@ -18,7 +18,6 @@ import {
   type DeleteChannelFromStorePayload,
   type DeleteChannelPayload,
   type DisableChannelPayload,
-  type Identity,
   INITIAL_CURRENT_CHANNEL_ID,
   type MarkUnreadChannelPayload,
   type PublicChannelStatus,
@@ -28,8 +27,7 @@ import {
   type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
-  User,
-  AddMembersChannelPayload,
+  type AddMembersChannelPayload,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 

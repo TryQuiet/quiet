@@ -26,7 +26,7 @@ export interface PublicChannelStatus {
   id: string
   unread: boolean
   newestMessage: ChannelMessage | null
-  public: boolean
+  public?: boolean
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {

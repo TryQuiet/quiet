@@ -959,47 +959,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   /**
-   * Update user records in the state manager based on sigchain user data and private channel metadata (to get channel membership)
-   *
-   * @param sourceEvent The emitted event whose handler triggered the update
-   * @param teamId ID of the LFA team/Quiet community that was updated
-   */
-  private async _updateUsersInStateManager(sourceEvent: string, teamId: string): Promise<void> {
-    this.logger.debug('Updating users after source event', sourceEvent, teamId)
-    if (!this.sigChainService) {
-      this.logger.warn(`Skipping users update, sigchainservice hasn't been initialized`)
-      return
-    }
-
-    // handle chain updates
-    let channelMapping: Record<string, PublicChannel> = {}
-    if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
-      this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
-    } else {
-      channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
-    }
-    /**
-     * TODO: clean this up so we are only updating users that are actually updated
-     *
-     * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
-     */
-    const users = this.sigChainService
-      .getChain({ teamId })
-      .team?.members()
-      .map(user => ({
-        userId: user.userId,
-        roles: user.roles,
-        channelIds:
-          channelMapping != null
-            ? user.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
-            : [],
-        isRegistered: true,
-        isDuplicated: false,
-      })) as User[]
-    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
-  }
-
-  /**
    * Attaches listeners for events received from the Tor service
    */
   private attachTorEventsListeners() {

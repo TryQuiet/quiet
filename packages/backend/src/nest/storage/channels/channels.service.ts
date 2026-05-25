@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { type KeyValueType, IPFSAccessController, type LogEntry } from '@orbitdb/core'
+import { IPFSAccessController, type LogEntry } from '@orbitdb/core'
 import { EventEmitter } from 'events'
-import { type PeerId } from '@libp2p/interface'
 import {
   ChannelMessage,
   ConnectionProcessInfo,
@@ -26,7 +25,7 @@ import {
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
-import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../../const'
+import { IPFS_REPO_PATCH, ORBIT_DB_DIR } from '../../const'
 import { IpfsFilesManagerEvents } from '../../ipfs-file-manager/ipfs-file-manager.types'
 import { createLogger } from '../../common/logger'
 import { ChannelRepo } from '../../common/types'
@@ -75,9 +74,6 @@ export class ChannelsService extends EventEmitter {
   // Is the service initialized
   public initialized: boolean = false
 
-  // Is the service initialized
-  public initialized: boolean = false
-
   private readonly logger = createLogger(`storage:channels`)
 
   constructor(
@@ -86,9 +82,7 @@ export class ChannelsService extends EventEmitter {
     private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDbService,
     private readonly moduleRef: ModuleRef,
-    private readonly sigchainService: SigChainService,
-    private readonly messagesAccessController: MessagesAccessController,
-    private readonly privateMessagesAccessController: PrivateMessagesAccessController
+    private readonly sigchainService: SigChainService
   ) {
     super()
     this._handleEventDownloadProgress = this._handleEventDownloadProgress.bind(this)

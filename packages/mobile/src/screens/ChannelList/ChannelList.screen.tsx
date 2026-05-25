@@ -78,7 +78,7 @@ export const ChannelListScreen: FC = () => {
 
     const tile: ChannelTileProps = {
       name: getChannelNameFromChannelId(status.id),
-      isPublic: status.public,
+      isPublic: status.public ?? true,
       id: status.id,
       message,
       date,

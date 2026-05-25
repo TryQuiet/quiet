@@ -26,6 +26,7 @@ export class PublicChannelMessagesService extends BaseMessagesService {
    * @returns Processed message
    */
   public async onSend(message: ChannelMessage): Promise<EncryptedMessage> {
+    this.logger.debug('Sending public channel message', message.channelId, message.message)
     return this._encryptPublicChannelMessage(message)
   }
 
@@ -36,6 +37,7 @@ export class PublicChannelMessagesService extends BaseMessagesService {
    * @returns Processed message if decryptable, undefined if undecryptable and false if intentionally skip decryption
    */
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | undefined | false> {
+    this.logger.debug('Received public channel message', message.channelId)
     const chain = this.sigChainService.getChain({ teamId: message.teamId }, false)
     if (chain == null) {
       this.logger.warn(
