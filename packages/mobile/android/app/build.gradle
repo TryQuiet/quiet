@@ -1,7 +1,5 @@
 apply plugin: "com.android.application"
-apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "kotlin-android"
-
 apply plugin: "com.facebook.react"
 
 react {
@@ -9,7 +7,6 @@ react {
 }
 
 def googleServicesJsonPath = file("google-services.json")
-
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -128,45 +125,44 @@ def getNDK() {
     return rootProject.ext.has("NDK_PATH") ? rootProject.ext.get("NDK_PATH") : null
 }
 
-android {
-    ndkPath = getNDK()
-    ndkVersion = rootProject.ext.ndkVersion
+    android {
+        ndkPath = getNDK()
+        ndkVersion = "28.2.13676358"
 
-    compileSdkVersion(rootProject.ext.compileSdkVersion)
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = true
-            pickFirsts += ["lib/arm64-v8a/libc++_shared.so", "lib/arm64-v8a/libc++_shared.so"]
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
-    }
 
-    namespace "com.quietmobile"
-
-    defaultConfig {
-        applicationId = "com.quietmobile"
-        minSdkVersion(rootProject.ext.minSdkVersion)
-        targetSdkVersion(rootProject.ext.targetSdkVersion)
-        versionCode 615
-        versionName "7.1.0"
-        resValue("string", "build_config_package", "com.quietmobile")
-        testBuildType = System.getProperty("testBuildType", "debug")
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        ndk {
-            //noinspection ChromeOsAbiSupport
-            abiFilters "arm64-v8a"
-        }
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
+        packagingOptions {
+            jniLibs {
+                useLegacyPackaging = true
+                pickFirsts += ["lib/arm64-v8a/libc++_shared.so", "lib/arm64-v8a/libc++_shared.so"]
             }
         }
-    }
+
+        namespace "com.quietmobile"
+        compileSdkVersion = rootProject.ext.compileSdkVersion
+        defaultConfig {
+            applicationId = "com.quietmobile"
+            targetSdk = rootProject.ext.targetSdkVersion
+            minSdk = rootProject.ext.minSdkVersion
+            versionCode = 615
+            versionName = "7.1.0"
+            resValue("string", "build_config_package", "com.quietmobile")
+            testBuildType = System.getProperty("testBuildType", "debug")
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            ndk {
+                //noinspection ChromeOsAbiSupport
+                abiFilters "arm64-v8a"
+            }
+            externalNativeBuild {
+                cmake {
+                    cppFlags ""
+                }
+            }
+        }
     splits {
         abi {
             reset()
@@ -319,19 +315,6 @@ if (googleServicesJsonPath.exists()) {
     logger.warn("google-services.json not found in packages/mobile/android/app; Firebase runtime setup will remain incomplete until it is added.")
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        name = "Central Portal Snapshots"
-        url = uri("https://central.sonatype.com/repository/maven/")
-
-        // Only search this repository for the specific dependency
-        content {
-            includeModule("com.goterl", "lazysodium-java")
-        }
-    }
-}
-
 tasks.register("CopyNodeProjectAssetsFolder", Copy) {
     description = "Copies the Node Project to a build folder for manipulation."
 
@@ -436,3 +419,5 @@ tasks.register("GenerateNodeNativeAssetsLists${abi_name}") {
 }
 
 project.android.sourceSets.main.assets.srcDirs += "${rootProject.layout.buildDirectory.get()}/nodejs-native-assets/"
+apply from: "../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"
+applyNativeModulesAppBuildGradle(project)
