@@ -45,13 +45,13 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
-lazysodium-android = { module = "com.goterl:lazysodium-android@aar", version.ref = "lazysodiumAndroid" }
-jna = { module = "net.java.dev.jna:jna@aar", version.ref = "jna" }
+lazysodium-android = { module = "com.goterl:lazysodium-android", version.ref = "lazysodiumAndroid" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 msgpack-core = { module = "org.msgpack:msgpack-core", version.ref = "msgpackCore" }
 react-android = { module = "com.facebook.react:react-android" }
 react-native-gradle-plugin = { module = "com.facebook.react:react-native-gradle-plugin" }
 socket-io-client = { module = "io.socket:socket.io-client", version.ref = "socketIoClient" }
-jsc-android-intl = { module = "io.github.react-native-community:jsc-android-intl@aar", version.ref = "jsc-android-intl" }
+jsc-android-intl = { module = "io.github.react-native-community:jsc-android-intl", version.ref = "jsc-android-intl" }
 
 
 
