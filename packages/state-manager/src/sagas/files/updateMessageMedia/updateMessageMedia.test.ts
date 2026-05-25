@@ -12,10 +12,21 @@ import { updateMessageMediaSaga } from './updateMessageMedia'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { usersActions } from '../../users/users.slice'
 import { DateTime } from 'luxon'
-import { type Community, type Identity, MessageType, type PublicChannel, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
+import {
+  type Community,
+  type Identity,
+  MessageType,
+  type PublicChannel,
+  PROFILE_PHOTO_CHANNEL_ID,
+  UserProfile,
+  FileMetadata,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('updateMessageMedia:test')
 
 describe('downloadedFileSaga', () => {
   let store: Store
@@ -170,7 +181,7 @@ describe('downloadedFileSaga', () => {
     const id = 'profile-photo-id'
     const cid = 'profile-photo-cid'
 
-    const metadata = {
+    const metadata: FileMetadata = {
       cid,
       path: 'dir/profile.png',
       name: 'profile',
@@ -181,18 +192,19 @@ describe('downloadedFileSaga', () => {
       },
     }
 
-    const userProfileWithPhoto = {
+    const userProfileWithPhoto: UserProfile = {
       ...alice,
       nickname: 'alice',
       profilePhoto: {
         cid,
         path: null,
-      },
+      } as any,
     }
 
     const updatedUserProfile = {
       ...userProfileWithPhoto,
       profilePhoto: metadata,
+      channels: [],
     }
 
     const reducer = combineReducers(testReducers)

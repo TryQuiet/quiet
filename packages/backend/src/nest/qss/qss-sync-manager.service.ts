@@ -30,6 +30,7 @@ import {
   QSSEvents,
   WebsocketEvents,
 } from './qss.types'
+import { SigchainEvents } from '../auth/types'
 
 const LOG_PULL_INTERVAL_MS = 1_000
 const LOG_PULL_SUCCESS_TIMEOUT_MS = 10_000
@@ -172,8 +173,8 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     }
   }
 
-  private _handleSigChainUpdated = (teamName: string): void => {
-    void this.processDLQDecrypt(teamName)
+  private _handleSigChainUpdated = (teamId: string): void => {
+    void this.processDLQDecrypt(teamId)
   }
 
   private _configureEventHandlers(): void {
@@ -186,7 +187,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_CONNECTED, this._handleAuthConnected)
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, this._handleAuthJoined)
     this.qssAuthConnManager.on(QSSEvents.QSS_DISCONNECTED, this._handleAuthDisconnected)
-    this.sigChainService.on('updated', this._handleSigChainUpdated)
+    this.sigChainService.on(SigchainEvents.UPDATED, this._handleSigChainUpdated)
     this._eventHandlersConfigured = true
   }
 
@@ -200,7 +201,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_CONNECTED, this._handleAuthConnected)
     this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_JOINED, this._handleAuthJoined)
     this.qssAuthConnManager.off(QSSEvents.QSS_DISCONNECTED, this._handleAuthDisconnected)
-    this.sigChainService.off('updated', this._handleSigChainUpdated)
+    this.sigChainService.off(SigchainEvents.UPDATED, this._handleSigChainUpdated)
     this._eventHandlersConfigured = false
   }
 
@@ -751,6 +752,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
         teamId,
         userId,
         ...(nextStartSeq != null ? { startSeq: nextStartSeq } : { startSeq: 0 }),
+        startTs: 0,
       }
       this.logger.info(`Pulling log entries page ${page} from QSS for team ${teamId}`)
       const pullResponse = await this.pullLogEntries(pullPayload)
@@ -894,7 +896,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     this.socketService.serverIoProvider.io.emit(SocketEvents.NSE_SYNC_SEQ_UPDATED, payload)
   }
 
-  public async processDLQDecrypt(teamName: string): Promise<void> {
+  public async processDLQDecrypt(teamId: string): Promise<void> {
     if (this._paused) {
       return
     }
@@ -907,15 +909,15 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     let activeChain: SigChain
     try {
-      activeChain = this.sigChainService.getChain({ teamName })
+      activeChain = this.sigChainService.getChain({ teamId })
     } catch (e) {
-      this.logger.debug('No sigchain present for decrypt DLQ processing', teamName)
+      this.logger.debug('No sigchain present for decrypt DLQ processing', teamId)
       return
     }
     if (!activeChain?.team) {
       return
     }
-    const teamId = activeChain.team.id
+    const teamName = activeChain.team.teamName
     const BATCH_SIZE = 50
 
     this._dlqDecryptInFlight = true
@@ -975,7 +977,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     if (!this._paused && this._dlqDecryptRetryRequested) {
       this.logger.debug('Retrying DLQ decrypt after sigchain update during processing')
-      await this.processDLQDecrypt(teamName)
+      await this.processDLQDecrypt(teamId)
     }
   }
 

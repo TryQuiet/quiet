@@ -40,6 +40,7 @@ describe('ConnectionsManagerService', () => {
   let userIdentity: Identity
   let communityRootCa: string
   let sigChainService: SigChainService
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
   let qssService: QSSService
   let qssSyncManager: QSSSyncManager
   let qpsService: QPSService
@@ -74,6 +75,10 @@ describe('ConnectionsManagerService', () => {
     jest.spyOn(qssSyncManager, 'processDLQDecrypt').mockResolvedValue(undefined)
     await localDbService.open()
 
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
+
     // initialize sigchain on local db
     await sigChainService.createChain(community.name!, 'john', false)
     await sigChainService.saveChain(community.name!)
@@ -85,6 +90,7 @@ describe('ConnectionsManagerService', () => {
     if (connectionsManagerService) {
       await connectionsManagerService.closeAllServices()
     }
+    handleChainUpdateSpy.mockReset()
     removeFilesFromDir(quietDir)
   })
 

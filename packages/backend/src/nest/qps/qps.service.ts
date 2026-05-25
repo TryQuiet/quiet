@@ -17,6 +17,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 import { QSSService } from '../qss/qss.service'
+import { SigchainEvents } from '../auth/types'
 import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
@@ -62,7 +63,7 @@ export class QPSService implements OnModuleInit {
     this.qssService.on(QSSEvents.QSS_FULLY_JOINED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
-    this.sigChainService.on('updated', () => this._flushPendingToken())
+    this.sigChainService.on(SigchainEvents.UPDATED, () => this._flushPendingToken())
   }
 
   /**

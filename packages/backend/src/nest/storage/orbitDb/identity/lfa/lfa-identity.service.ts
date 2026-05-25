@@ -6,7 +6,7 @@
  * ad hoc using the sigchain.
  */
 
-import { CreateIdentityOptions, IdentitiesType, Identity, KeyStoreType } from '@orbitdb/core'
+import { CreateIdentityOptions, KeyStoreType } from '@orbitdb/core'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import EventEmitter from 'events'
 import { Injectable } from '@nestjs/common'

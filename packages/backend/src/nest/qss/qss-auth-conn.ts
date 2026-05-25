@@ -23,6 +23,7 @@ import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 import { SigChain } from '../auth/sigchain'
 import { QSSAuthConnStatus } from './qss.const'
+import { LFAEvents } from '../auth/types'
 
 @Injectable()
 export class QSSAuthConnection extends EventEmitter {
@@ -231,7 +232,7 @@ export class QSSAuthConnection extends EventEmitter {
     }
 
     // Handle connected events and update the sigchain/join status
-    authConnection.on('connected', () => {
+    authConnection.on(LFAEvents.CONNECTED, () => {
       this._connStatus = QSSAuthConnStatus.CONNECTED
       if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
@@ -247,13 +248,13 @@ export class QSSAuthConnection extends EventEmitter {
     })
 
     // set the connection to inactive when disconnecting
-    authConnection.on('disconnected', event => {
+    authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
       this._markDisconnected()
     })
 
     // handle joined events
-    authConnection.on('joined', payload => {
+    authConnection.on(LFAEvents.JOINED, payload => {
       const { team, user } = payload
 
       const sigChain = this.sigChainService.getActiveChain()
@@ -280,19 +281,19 @@ export class QSSAuthConnection extends EventEmitter {
       this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
     })
 
-    authConnection.on('change', payload => {
+    authConnection.on(LFAEvents.CHANGE, payload => {
       this.logger.trace(`Auth state change`, payload)
     })
 
-    authConnection.on('updated', head => {
+    authConnection.on(LFAEvents.UPDATED, head => {
       this.logger.trace('Received sync message, team graph updated', head)
     })
 
     // Handle errors from local or remote sources.
-    authConnection.on('localError', error => {
+    authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.logger.error(`Local LFA error`, error)
     })
-    authConnection.on('remoteError', error => {
+    authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.logger.error(`Remote LFA error`, error)
     })
 

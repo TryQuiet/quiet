@@ -53,6 +53,7 @@ describe('ChannelsService', () => {
   let channel: PublicChannel
   let message: ChannelMessage
   let filePath: string
+  let community: Community
 
   let aliceUserId: string
 
@@ -86,7 +87,7 @@ describe('ChannelsService', () => {
     await localDbService.open()
     expect(localDbService.getStatus()).toEqual('open')
 
-    const community = await factory.create<Community>('Community')
+    community = await factory.create<Community>('Community')
 
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
@@ -136,9 +137,11 @@ describe('ChannelsService', () => {
       logger.info('Creating several channels and deleting one')
       const channel1 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
+        teamId: community.teamId!,
       })
       const channel2 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
+        teamId: community.teamId!,
       })
 
       await channelsService.subscribeToChannel(channel1)
@@ -169,11 +172,11 @@ describe('ChannelsService', () => {
       expect(messages2?.messages[0].id).toBe(message2.id)
 
       const channel1DBHead = // eslint-disable-next-line no-unsafe-optional-chaining
-        (await channelsService.publicChannelsRepos.get(channel1.id)?.store.getStore().log.heads())[0]
+        (await channelsService.channelsRepos.get(channel1.id)?.store.getStore().log.heads())[0]
       logger.info('Channel 1 DB Head:', channel1DBHead)
       expect(channel1DBHead).toBeDefined()
       const channel2DBHead = // eslint-disable-next-line no-unsafe-optional-chaining
-        (await channelsService.publicChannelsRepos.get(channel2.id)?.store.getStore().log.heads())[0]
+        (await channelsService.channelsRepos.get(channel2.id)?.store.getStore().log.heads())[0]
       expect(channel2DBHead).toBeDefined()
       expect(channel1DBHead).not.toEqual(channel2DBHead)
 
@@ -195,7 +198,7 @@ describe('ChannelsService', () => {
 
       let channelDBDropped = false
       // Listen for channel DB drop event
-      channelsService.publicChannelsRepos
+      channelsService.channelsRepos
         .get(channel1.id)
         ?.store.getStore()
         .events.on('drop', () => {
@@ -268,7 +271,7 @@ describe('ChannelsService', () => {
     it('is saved to db if passed signature verification', async () => {
       await channelsService.subscribeToChannel(channel)
 
-      const publicChannelRepo = channelsService.publicChannelsRepos.get(message.channelId)
+      const publicChannelRepo = channelsService.channelsRepos.get(message.channelId)
       expect(publicChannelRepo).not.toBeUndefined()
       const store = publicChannelRepo!.store
       const eventSpy = jest.spyOn(store, 'addEntry')

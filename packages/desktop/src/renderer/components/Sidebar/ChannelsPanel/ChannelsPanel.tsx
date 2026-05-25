@@ -8,7 +8,6 @@ import ChannelsListItem from './ChannelsListItem'
 
 export interface ChannelsPanelProps {
   channels: PublicChannel[]
-  myUserProfile?: UserProfile
   userProfiles: Record<string, UserProfile>
   connectedPeers: string[]
   unreadChannels: string[]

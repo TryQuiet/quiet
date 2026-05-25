@@ -49,7 +49,12 @@ import {
   SetUserProfilePayload,
   InvitationData,
   SetUserProfileResponse,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
+  PublicChannel,
+  User,
   UserProfilesUpdatedPayload,
+  UpdateCommunityPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -71,8 +76,10 @@ import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSEvents } from '../qss/qss.types'
+import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
+import { SigChain } from '../auth/sigchain'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -86,7 +93,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private wakeInFlight: Promise<void> | null = null
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
-  private peerInfo: Libp2pPeerInfo | undefined = undefined
 
   private readonly logger = createLogger(ConnectionsManagerService.name)
   constructor(
@@ -155,6 +161,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.attachSocketServiceListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
+    this.attachSigchainListeners()
 
     if (this.localDbService.getStatus() === 'closed') {
       await this.localDbService.open()
@@ -621,16 +628,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.erasePreviousCommunityArtifacts()
 
     let communityName: string | undefined
+    let teamId: string | undefined
     if (
       inviteData &&
       (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
     ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
+      teamId = (payload.inviteData as InvitationDataV2).authData.teamId
       await this.sigChainService.createChainFromInvite(
         payload.username,
         communityName,
         inviteData.authData.seed,
-        inviteData.authData.teamId,
+        teamId,
         true
       )
     }
@@ -677,7 +686,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])], // TODO: we should deprecate this field and use db
       inviteData,
       psk: inviteData.psk,
-      teamId: inviteData.version === InvitationDataVersion.v3 ? inviteData.authData.teamId : undefined,
+      teamId,
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
@@ -838,6 +847,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
       await setupStorageWithTeamMeta(activeChain.team!.id)
       this.qssService.connect(community.qssEndpoint)
+      await this._updateTeamIdOnStoredCommunity(community, activeChain)
     } else {
       this.logger.debug(
         'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
@@ -846,6 +856,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         const handleStorageReady = async (teamId: string) => {
           try {
             await setupStorageWithTeamMeta(teamId)
+            await this._updateTeamIdOnStoredCommunity(community, teamId)
             resolve()
           } catch (e) {
             reject(e)
@@ -883,6 +894,67 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.logger.info('Storage initialized')
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+  }
+
+  private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {
+    if (community.teamId != null) return
+    if (chainOrTeamId instanceof SigChain && chainOrTeamId.team == null) {
+      this.logger.warn(`Can't update team ID on stored community ${community.id} because sigchain has nullish team`)
+      return
+    }
+    this.logger.debug(`Updating team ID for stored community ${community.id}`)
+    const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
+    await this.localDbService.setCommunity({ ...community, teamId })
+    const payload: UpdateCommunityPayload = {
+      id: community.id,
+      updates: {
+        teamId,
+      },
+    }
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_UPDATED, payload)
+  }
+
+  /**
+   * Update user records in the state manager based on sigchain user data and private channel metadata (to get channel membership)
+   *
+   * @param sourceEvent The emitted event whose handler triggered the update
+   * @param teamId ID of the LFA team/Quiet community that was updated
+   */
+  private async _updateUsersInStateManager(sourceEvent: string, teamId: string): Promise<void> {
+    this.logger.debug('Updating users after source event', sourceEvent, teamId)
+    if (!this.sigChainService) {
+      this.logger.warn(`Skipping users update, sigchainservice hasn't been initialized`)
+      return
+    }
+
+    // handle chain updates
+    let channelMapping: Record<string, PublicChannel> = {}
+    if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
+      this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
+    } else {
+      channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
+    }
+    /**
+     * TODO: clean this up so we are only updating users that are actually updated
+     *
+     * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
+     */
+    const users = this.sigChainService
+      .getChain({ teamId })
+      .team?.members()
+      .map(user => ({
+        userId: user.userId,
+        roles: user.roles,
+        channelIds:
+          channelMapping != null
+            ? user.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
+            : [],
+        isRegistered: true,
+        isDuplicated: false,
+      })) as User[]
+    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
   /**
@@ -1015,6 +1087,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     )
 
+    // Private Channels
+
+    this.socketService.on(
+      SocketActions.ADD_MEMBERS_TO_CHANNEL,
+      async (payload: AddMembersChannelPayload, callback: (response?: AddMembersChannelResponse) => void) => {
+        callback(await this.storageService?.channels.addMembersToPrivateChannel(payload))
+      }
+    )
+
     // Files
     this.socketService.on(SocketActions.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
       await this.storageService?.channels.downloadFile(payload.metadata)
@@ -1069,16 +1150,50 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   /**
+   * Handle events from the sigchain service and update data in the state manager
+   */
+  private attachSigchainListeners() {
+    if (!this.sigChainService) return
+
+    this.sigChainService.on(SigchainEvents.UPDATED, async (teamId: string) => {
+      await this._updateUsersInStateManager(SigchainEvents.UPDATED, teamId)
+    })
+  }
+
+  /**
    * Forwards events from the storage service to the the state manager
    * (also applies some side effects)
    */
   private attachStorageListeners() {
     if (!this.storageService) return
+
+    this.storageService.on(StorageEvents.INITIALIZED, async () => {
+      this.logger.info(`Storage - ${StorageEvents.INITIALIZED}`)
+      try {
+        const activeChain = this.sigChainService.activeChain
+        await this._updateUsersInStateManager(StorageEvents.INITIALIZED, activeChain.team!.id)
+      } catch (e) {
+        this.logger.warn(
+          `Couldn't update state manager users based on sigchain after storage init, active sigchain likely not found`,
+          e
+        )
+      }
+    })
+
     // Channel and Message Events
-    this.storageService.channels.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+    this.storageService.channels.on(StorageEvents.CHANNELS_STORED, async (payload: ChannelsReplicatedPayload) => {
       this.logger.info(`Storage - ${StorageEvents.CHANNELS_STORED}`)
       this.serverIoProvider.io.emit(SocketEvents.CHANNELS_STORED, payload)
       this.logger.info(`Storage (emitted) - ${SocketEvents.CHANNELS_STORED}`)
+      try {
+        const activeChain = this.sigChainService.activeChain
+        await this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
+      } catch (e) {
+        this.logger.warn(
+          `Couldn't update state manager users based on sigchain after channels stored, active sigchain likely not found`,
+          e
+        )
+      }
     })
     this.storageService.channels.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketEvents.MESSAGES_STORED, payload)

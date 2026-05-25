@@ -22,8 +22,8 @@ import {
   QSSEvents,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity, SocketActions, SocketEvents } from '@quiet/types'
-import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
+import { Community, Identity, ChannelMessage, SocketActions, SocketEvents } from '@quiet/types'
+import { getReduxStoreFactory, getBaseTypesFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 import { createKeyset, redactKeys } from '../../../../../3rd-party/auth/packages/crdx/dist'
@@ -52,6 +52,9 @@ import { logEntryToLogUpdate } from '../storage/orbitDb/util'
 import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
 import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { QSSAuthConnection } from './qss-auth-conn'
+import { SigchainEvents } from '../auth/types'
+import { PublicChannelMessagesService } from '../storage/channels/messages/public-channel-messages.service'
+import { EncryptedMessage } from '../storage/channels/messages/messages.types'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSSAuthConnStatus } from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
 import { Serializer } from '../common/serializer.service'
@@ -59,6 +62,7 @@ import { Serializer } from '../common/serializer.service'
 describe('QSSService', () => {
   let store: Store
   let factory: FactoryGirl
+  let baseFactory: FactoryGirl
   let module: TestingModule
   let qssClient: QSSClient
   let qssService: QSSService
@@ -70,6 +74,7 @@ describe('QSSService', () => {
   let ipfsService: IpfsService
   let orbitDbService: OrbitDbService
   let localDbService: LocalDbService
+  let messagesAccessController: MessagesAccessController
   let serializer: Serializer
   let libp2pParams: Libp2pNodeParams
   let mockedCreateSocket: any
@@ -82,6 +87,7 @@ describe('QSSService', () => {
   let community: Community
   let userIdentity: Identity
   let mockedCaptchaVerified: jest.SpiedGetter<any> | undefined
+  let publicMessagesService: PublicChannelMessagesService
   let mockedCanConnect: jest.SpiedGetter<any> | undefined
   let mockedClientClose: jest.SpiedFunction<any> | undefined
   let socket: Socket | undefined
@@ -98,6 +104,7 @@ describe('QSSService', () => {
     jest.clearAllMocks()
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
+    baseFactory = await getBaseTypesFactory()
 
     module = await Test.createTestingModule({
       imports: [TestModule, SigChainModule, IpfsFileManagerModule, IpfsModule, OrbitDbModule, QSSModule],
@@ -109,6 +116,8 @@ describe('QSSService', () => {
     socketService = module.get<SocketService>(SocketService)
     libp2pService = await module.resolve(Libp2pService)
     libp2pParams = (await spawnLibp2pInstancesInMemory([module]))[0]
+    publicMessagesService = module.get<PublicChannelMessagesService>(PublicChannelMessagesService)
+    messagesAccessController = module.get<MessagesAccessController>(MessagesAccessController)
 
     ipfsService = await module.resolve(IpfsService)
     await ipfsService.createInstance()
@@ -128,6 +137,16 @@ describe('QSSService', () => {
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
 
+    messagesAccessController = await module.resolve(MessagesAccessController)
+
+    socket = {
+      ...new MockedSocket(),
+      close: () => {},
+      on: (event: string, callback: (...args: any[]) => void) => {},
+      emit: (event: string, payload: any) => {},
+      connected: false,
+      active: false,
+    } as any as ClientSocket
     mockedCreateSocket = jest
       .spyOn(qssClient, 'createSocketAndConnect')
       .mockImplementation(async (_qssEndpoint: string | undefined): Promise<ClientSocket> => {
@@ -395,7 +414,9 @@ describe('QSSService', () => {
         expect(
           countHandler(qssAuthConnManager, QSSEvents.QSS_DISCONNECTED, qssSyncManager['_handleAuthDisconnected'])
         ).toBe(expected)
-        expect(countHandler(sigchainService, 'updated', qssSyncManager['_handleSigChainUpdated'])).toBe(expected)
+        expect(countHandler(sigchainService, SigchainEvents.UPDATED, qssSyncManager['_handleSigChainUpdated'])).toBe(
+          expected
+        )
       }
 
       expectLifecycleHandlers(1)
@@ -1051,19 +1072,17 @@ describe('QSSService', () => {
       expect(qssService.connected).toBeTruthy()
       markOutboundSyncReady(sigchainService.activeChain.team!.id)
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('random message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
       const entry = await db.log.get(hash)
+      expect(hash).toBeDefined()
+      expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       expect(update.teamId).toBe(sigchainService.team.id)
       const result = await qssSyncManager.sendLogEntrySyncMessage(update)
@@ -1298,19 +1317,17 @@ describe('QSSService', () => {
       await qssService.connect('ws://localhost:3000')
       expect(qssService.connected).toBeFalsy()
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.foobar`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.foobar`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('random message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      expect(hash).toBeDefined()
       const entry = await db.log.get(hash)
+      expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, sigchainService.activeChain.team!.id)
       const result = await qssSyncManager.sendLogEntrySyncMessage(update)
       expect(result).toBe(undefined)
@@ -1826,19 +1843,17 @@ describe('QSSService', () => {
 
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.joinstatus`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.joinstatus`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('test message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
       const entry = await db.log.get(hash)
+      expect(hash).toBeDefined()
+      expect(entry).toBeDefined()
       const update = logEntryToLogUpdate(entry, db.address, teamId)
       const result = await qssSyncManager.sendLogEntrySyncMessage(update)
 
@@ -1858,19 +1873,18 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.starting`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.starting`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('test message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
-      const update = logEntryToLogUpdate(await db.log.get(hash), db.address, teamId)
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const entry = await db.log.get(hash)
+      expect(hash).toBeDefined()
+      expect(entry).toBeDefined()
+      const update = logEntryToLogUpdate(entry, db.address, teamId)
 
       await qssSyncManager.sendLogEntrySyncMessage(update)
 
@@ -1889,19 +1903,18 @@ describe('QSSService', () => {
       mockedSendMessage = jest.spyOn(qssClient, 'sendMessage')
       addPendingMessageSpy = jest.spyOn(localDbService, 'addPendingQssLogSyncMessage')
 
-      const db = await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.pending-member`, {
+      const db = await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.pending-member`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
-      const hash = await db.add(
-        sigchainService.activeChain.crypto.encryptAndSign('test message', {
-          type: EncryptionScopeType.ROLE,
-          name: RoleName.MEMBER,
-        })
-      )
-      const update = logEntryToLogUpdate(await db.log.get(hash), db.address, teamId)
+      const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const entry = await db.log.get(hash)
+      expect(hash).toBeDefined()
+      expect(entry).toBeDefined()
+      const update = logEntryToLogUpdate(entry, db.address, teamId)
 
       await qssSyncManager.sendLogEntrySyncMessage(update)
 
@@ -1919,10 +1932,10 @@ describe('QSSService', () => {
       const teamId = sigchainService.activeChain.team!.id
 
       // Create a valid encrypted message that CAN be decrypted
-      await orbitDbService.open<EventsType<EncryptedAndSignedPayload>>(`channels.test`, {
+      await orbitDbService.open<EventsType<EncryptedMessage>>(`channels.test`, {
         type: 'events',
         Database: EventsWithStorage(),
-        AccessController: MessagesAccessController({ write: ['*'] }),
+        AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
 
@@ -1941,7 +1954,7 @@ describe('QSSService', () => {
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries').mockResolvedValue()
 
       // Trigger sigchain update which should process DLQ
-      sigchainService.emit('updated', sigchainService.activeChainTeamName)
+      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChain.team!.id)
 
       // Wait for async processing
       await waitForExpect(async () => {
@@ -1975,10 +1988,10 @@ describe('QSSService', () => {
       const processSpy = jest.spyOn(qssSyncManager, 'processDLQDecrypt')
 
       // Trigger first update
-      sigchainService.emit('updated', sigchainService.activeChainTeamName)
+      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChain.team!.id)
 
       // Immediately trigger second update while first is processing
-      sigchainService.emit('updated', sigchainService.activeChainTeamName)
+      sigchainService.emit(SigchainEvents.UPDATED, sigchainService.activeChain.team!.id)
 
       await waitForExpect(async () => {
         const remainingCount = await localDbService.getDLQDecryptCount(teamId)
@@ -2001,8 +2014,8 @@ describe('QSSService', () => {
 
       const ingestSpy = jest.spyOn(orbitDbService, 'ingestEntries')
 
-      // Trigger sigchain update
-      sigchainService.emit('updated', sigchainService.activeChainTeamName)
+      // Trigger sigchain update with bogus team ID
+      sigchainService.emit(SigchainEvents.UPDATED, 'foobar')
 
       // Give it time to process
       await new Promise(resolve => setTimeout(resolve, 100))

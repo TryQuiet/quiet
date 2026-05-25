@@ -85,6 +85,7 @@ describe('Switch channels', () => {
     const channelNames = ['memes', 'pets', 'travels']
     // Automatically create channels
     for (const name of channelNames) {
+      const isPublic = name !== 'pets'
       await factory.create('PublicChannel', {
         channel: {
           name: name,
@@ -92,6 +93,7 @@ describe('Switch channels', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
           id: name,
+          public: isPublic,
         },
       })
     }
@@ -116,7 +118,7 @@ describe('Switch channels', () => {
 
     // Check if defaultly selected channel is #general
     const channelTitle = screen.getByTestId('channelTitle')
-    expect(channelTitle).toHaveTextContent('#general')
+    expect(channelTitle).toHaveTextContent('general')
 
     // Check if message is visible within the channel page
     let message = screen.getByText(generalChannelMessage.message.message)
@@ -124,17 +126,28 @@ describe('Switch channels', () => {
 
     // Select another channel
     const memesChannelLink = screen.getByTestId('memes-link')
+    expect(screen.getByTestId('memes-channel-link-icon-public')).toBeVisible()
     await userEvent.click(memesChannelLink)
     // Confirm selected channel has changed
-    expect(screen.getByTestId('channelTitle')).toHaveTextContent('#memes')
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent('memes')
+    // Confirm the message from #general channel is no longer visible
+    expect(message).not.toBeVisible()
+
+    // Select a private channel
+    const petsChannelLink = screen.getByTestId('pets-link')
+    expect(screen.getByTestId('pets-channel-link-icon-private')).toBeVisible()
+    await userEvent.click(petsChannelLink)
+    // Confirm selected channel has changed
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent('pets')
     // Confirm the message from #general channel is no longer visible
     expect(message).not.toBeVisible()
 
     // Go back to #general channel
     const generalChannelLink = screen.getByTestId('general-link')
+    expect(screen.getByTestId('general-channel-link-icon-public')).toBeVisible()
     await userEvent.click(generalChannelLink)
     // Confirm selected channel has changed
-    expect(screen.getByTestId('channelTitle')).toHaveTextContent('#general')
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent('general')
     // Confirm the message from #general channel is visible back again
     message = screen.getByText(generalChannelMessage.message.message)
     expect(message).toBeVisible()

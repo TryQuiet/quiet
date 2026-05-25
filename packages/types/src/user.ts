@@ -9,6 +9,7 @@ export interface User {
   isRegistered: boolean
   isDuplicated: boolean
   roles?: string[]
+  channelIds?: string[]
   userId: string
 }
 
@@ -27,6 +28,7 @@ export interface UserProfile {
   bio?: string
   userData?: UserData
   profilePhoto?: FileMetadata
+  channels?: string[]
 }
 
 // ----

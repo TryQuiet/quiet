@@ -42,6 +42,7 @@ import {
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
   UserProfilesUpdatedPayload,
+  UpdateCommunityPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -52,6 +53,11 @@ import { pushNotificationsMasterSaga } from '../../pushNotifications/pushNotific
 
 const logger = createLogger('startConnectionSaga')
 
+/*
+TODO: currently these handlers get duplicated after rejoining due to the way we instantiate the state manager.
+This function gets run when initially booting up the app and again when joining a community after leave.  Its
+not a huge deal but it may be causing intermittent bugs and at the very least is wasted resources.
+*/
 export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof messagesActions.addMessages>
@@ -104,6 +110,10 @@ export function subscribe(socket: Socket) {
       logger.info(`${SocketEvents.COMMUNITY_LAUNCHED}`, payload)
       emit(communitiesActions.setCurrentCommunity(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
+    })
+    socket.on(SocketEvents.COMMUNITY_UPDATED, (payload: UpdateCommunityPayload) => {
+      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload)
+      emit(communitiesActions.updateCommunityData(payload))
     })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)
@@ -189,7 +199,10 @@ export function subscribe(socket: Socket) {
     // Users
 
     socket.on(SocketEvents.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
-      logger.info(`${SocketEvents.USERS_UPDATED}`, payload)
+      logger.info(
+        `${SocketEvents.USERS_UPDATED}`,
+        payload.users.map(user => user.userId)
+      )
       emit(usersActions.setUsers(payload.users))
       emit(messagesActions.retryVerification({ currentChannel: true }))
     })

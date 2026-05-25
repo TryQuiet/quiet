@@ -1,4 +1,5 @@
 export enum StorageEvents {
+  INITIALIZED = 'storageInitialized',
   // Public Channels
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',

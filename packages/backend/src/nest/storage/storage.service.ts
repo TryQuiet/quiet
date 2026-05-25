@@ -31,7 +31,7 @@ import path from 'path'
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  private initialized: boolean = false
+  public initialized: boolean = false
   private initPromise: Promise<void> | undefined
   private storeListenersAttached = false
 
@@ -62,7 +62,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async init(teamId?: string) {
-    if (this.initialized === true) {
+    if (this.initialized) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
       if (teamId != null) {
         this.addTeamIdToDbMetas(teamId)
@@ -114,6 +114,7 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('Initialized storage')
     this.initialized = true
+    this.emit(StorageEvents.INITIALIZED)
   }
 
   public async clean() {

@@ -106,24 +106,24 @@ describe('messagesSelectors', () => {
     expect(publicChannelsMessagesBase[generalChannelId]?.messages).toBeDefined()
   })
 
-  it('should select currentPublicChannelMessagesBase', () => {
+  it('should select currentChannelMessagesBase', () => {
     const result = messagesSelectors.currentPublicChannelMessagesBase(store.getState())
     expect(result?.channelId).toEqual(generalChannelId)
   })
 
-  it('should select currentPublicChannelMessagesEntities', () => {
+  it('should select currentChannelMessagesEntities', () => {
     const result = messagesSelectors.currentPublicChannelMessagesEntities(store.getState())
     const messageIds = messages.map(m => m.id)
     expect(Object.keys(result)).toEqual(expect.arrayContaining(messageIds))
   })
 
-  it('should select currentPublicChannelMessagesEntries', () => {
+  it('should select currentChannelMessagesEntries', () => {
     const result = messagesSelectors.currentPublicChannelMessagesEntries(store.getState())
     const sortedMessages = [...messages].sort((a, b) => b.createdAt - a.createdAt).reverse()
     expect(result.map(m => m.id)).toEqual(sortedMessages.map(m => m.id))
   })
 
-  it('should select validCurrentPublicChannelMessagesEntries', () => {
+  it('should select validCurrentChannelMessagesEntries', () => {
     const result = messagesSelectors.validCurrentPublicChannelMessagesEntries(store.getState())
     const expected = messages.filter(m => messageVerificationStatuses[m.id]?.isVerified)
     expect(result.length).toEqual(expected.length)

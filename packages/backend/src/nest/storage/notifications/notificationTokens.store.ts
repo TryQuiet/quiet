@@ -10,6 +10,7 @@ import { EncryptedKeyValueIndexedValidatedStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
+import { SigchainEvents } from '../../auth/types'
 
 const logger = createLogger('NotificationTokensStore')
 
@@ -28,7 +29,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
     private readonly auth: SigChainService
   ) {
     super()
-    this.auth.on('updated', this.handleAuthUpdated)
+    this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
   }
 
   public async init() {

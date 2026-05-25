@@ -66,6 +66,7 @@ let communityRootCa: string
 let peerId: CreatedLibp2pPeerId
 let torControl: TorControl
 let sigchainService: SigChainService
+let handleChainUpdateSpy: jest.SpiedFunction<any>
 
 beforeEach(async () => {
   jest.clearAllMocks()
@@ -99,9 +100,13 @@ beforeEach(async () => {
       torHashedPassword: '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63',
     })
     .compile()
+
+  sigchainService = await module.resolve(SigChainService)
+  handleChainUpdateSpy = jest.spyOn(sigchainService as any, 'handleChainUpdate').mockImplementation(() => {
+    logger.debug('MOCK: handling chain update')
+  })
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
   localDbService = await module.resolve(LocalDbService)
-  sigchainService = await module.resolve(SigChainService)
   libp2pService = connectionsManagerService.libp2pService
   peerId = await createPeerId()
   tor = await module.resolve(Tor)
@@ -123,6 +128,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  handleChainUpdateSpy.mockReset()
   if (connectionsManagerService) {
     await connectionsManagerService.closeAllServices()
   }

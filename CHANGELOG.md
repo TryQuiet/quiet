@@ -30,6 +30,7 @@
 
 * Registers APNS token with push notifications service [#3080](https://github.com/TryQuiet/quiet/issues/3080)
 * Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
+* Adds private channels [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 
 ### Fixes
 

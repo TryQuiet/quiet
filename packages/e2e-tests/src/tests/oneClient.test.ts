@@ -32,7 +32,7 @@ describe('One Client', () => {
   const secondCommunityName = 'testcommunity-redux'
 
   beforeAll(async () => {
-    app = new App()
+    app = new App({ username: 'owner' })
   })
 
   afterAll(async () => {
@@ -94,14 +94,14 @@ describe('One Client', () => {
       expect(await generalChannel.isReady()).toBeTruthy()
 
       const generalChannelText = await generalChannel.element.getText()
-      expect(generalChannelText).toEqual(`# ${generalChannelName}`)
+      expect(generalChannelText).toEqual(generalChannelName)
     })
 
     it('User sees just the general channel in the sidebar', async () => {
       const sidebar = new Sidebar(app.driver)
       const channelList = await sidebar.getChannelList()
       expect(channelList.length).toBe(1)
-      expect(await channelList[0].getText()).toBe(`# ${generalChannelName}`)
+      expect(await channelList[0].getText()).toBe(generalChannelName)
     })
 
     it('Users sees just themselves in the user list', async () => {
@@ -164,7 +164,7 @@ describe('One Client', () => {
       expect(await generalChannel.isReady())
 
       const generalChannelText = await generalChannel.element.getText()
-      expect(generalChannelText).toEqual(`# ${generalChannelName}`)
+      expect(generalChannelText).toEqual(generalChannelName)
     })
 
     it('User sends a message', async () => {

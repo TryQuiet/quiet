@@ -4,7 +4,6 @@ import {
   App,
   Channel,
   CreateCommunityModal,
-  DebugModeModal,
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
@@ -14,7 +13,6 @@ import {
 } from '../selectors'
 import { SettingsModalTabName } from '../enums'
 import { createLogger } from '../logger'
-import { sleep } from '../utils'
 // no direct selenium imports needed – use selectors
 
 const logger = createLogger('oneClient:qss')
@@ -36,7 +34,7 @@ describe('One Client (QSS)', () => {
   let invitationLink: string
 
   beforeAll(async () => {
-    app = new App()
+    app = new App({ username: 'owner' })
   })
 
   afterAll(async () => {
@@ -301,7 +299,7 @@ describe('One Client (QSS)', () => {
         generalChannel = new Channel(app.driver, generalChannelName)
         expect(await generalChannel.isReady()).toBeTruthy()
         const text = await generalChannel.element.getText()
-        expect(text).toEqual(`# ${generalChannelName}`)
+        expect(text).toEqual(generalChannelName)
       })
     })
   })
