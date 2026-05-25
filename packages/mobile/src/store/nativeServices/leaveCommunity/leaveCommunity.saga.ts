@@ -22,15 +22,6 @@ export function* leaveCommunitySaga(): Generator {
   // Restart backend
   yield* putResolve(app.actions.closeServices())
 
-  const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
-  if (deleteFirebaseToken) {
-    try {
-      yield* call(deleteFirebaseToken)
-    } catch (error) {
-      logger.error('Failed to delete Firebase token while leaving community', error)
-    }
-  }
-
   const clearSensitiveData = NativeModules.CommunicationModule?.clearSensitiveData
   if (clearSensitiveData) {
     try {

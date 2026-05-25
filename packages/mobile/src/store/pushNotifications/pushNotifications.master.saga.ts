@@ -14,6 +14,8 @@ import { communities, pushNotifications } from '@quiet/state-manager'
 import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
 import Config from 'react-native-config'
+import { CompoundError } from '@quiet/types'
+import { nativeServicesActions } from '../nativeServices/nativeServices.slice'
 
 const logger = createLogger('pushNotificationsMasterSaga')
 
@@ -150,6 +152,28 @@ function* syncCurrentDeviceTokenSaga(): Generator {
   }
 }
 
+function* deleteNotificationTokenSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping device token deletion')
+    return
+  }
+
+  const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
+  if (!hasGrantedPermission) {
+    logger.info('Skipping current FCM token deletion because notification permission is not granted')
+    return
+  }
+
+  const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
+  if (deleteFirebaseToken) {
+    try {
+      yield* call(deleteFirebaseToken)
+    } catch (error) {
+      logger.error('Failed to delete Firebase token while leaving community', error)
+    }
+  }
+}
+
 function* watchPermissionResults(): Generator {
   const channel = yield* call(createPermissionResultChannel)
   try {
@@ -228,6 +252,7 @@ export function* pushNotificationsMasterSaga(): Generator {
       takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
       takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
       takeEvery(communities.actions.setCurrentCommunity.type, syncCurrentDeviceTokenSaga),
+      takeEvery(nativeServicesActions.leaveCommunity.type, deleteNotificationTokenSaga),
       fork(triggerPermissionRequestSaga),
     ])
   } finally {

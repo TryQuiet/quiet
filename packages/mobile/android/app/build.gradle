@@ -1,5 +1,9 @@
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
+}
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
@@ -272,6 +276,7 @@ dependencies {
     // version set by the React Native Gradle Plugin in npm
     implementation("com.facebook.react:react-android")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
     androidTestImplementation("com.wix:detox:+")
     androidTestImplementation("androidx.test:core:1.7.0")
