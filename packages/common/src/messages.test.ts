@@ -14,6 +14,7 @@ describe('messages helper', () => {
     id: generateChannelId('general'),
     messages: { ids: [], entities: {} },
     public: true,
+    teamId: 'foobar',
   }
 
   const sportChannel: PublicChannelStorage = {
@@ -24,6 +25,7 @@ describe('messages helper', () => {
     id: generateChannelId('sport'),
     messages: { ids: [], entities: {} },
     public: true,
+    teamId: 'foobar',
   }
 
   it('createdChannelMessage', () => {

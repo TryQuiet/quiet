@@ -128,6 +128,15 @@ describe('NotificationTokensStore', () => {
     expect(result.tokens).toHaveLength(MAX_TOKENS_PER_USER)
     expect(result.tokens[0]).toBe('ucan-new') // ucan-0 evicted
   })
+
+  test('tombstoneUser writes an empty token list for the user', async () => {
+    await notificationTokensStore.addToken(userId, 'ucan-1')
+
+    const hash = await notificationTokensStore.tombstoneUser(userId)
+
+    expect(hash).toEqual(expect.any(String))
+    await expect(notificationTokensStore.getEntry(userId)).resolves.toEqual({ userId, tokens: [] })
+  })
 })
 
 describe('NotificationTokensStore/validateEntry', () => {
@@ -140,7 +149,10 @@ describe('NotificationTokensStore/validateEntry', () => {
       encrypted: 'fake-encrypted',
     }
     const decEntry: PushNotificationTokens = { userId: aliceUserId, tokens: ['ucan-1'] }
-    const store = new NotificationTokensStore({} as any, { crypto: {}, user: { userId: aliceUserId } } as any)
+    const store = new NotificationTokensStore(
+      {} as any,
+      { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any
+    )
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     const entry = {
       hash: 'fakehash',
@@ -159,7 +171,10 @@ describe('NotificationTokensStore/validateEntry', () => {
       encrypted: 'fake-encrypted',
     }
     const decEntry: any = { userId: aliceUserId, tokens: 'not-an-array' }
-    const store = new NotificationTokensStore({} as any, { crypto: {}, user: { userId: aliceUserId } } as any)
+    const store = new NotificationTokensStore(
+      {} as any,
+      { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any
+    )
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     const entry = {
       hash: 'fakehash',
@@ -181,7 +196,10 @@ describe('NotificationTokensStore/validateEntry', () => {
       userId: aliceUserId,
       tokens: Array.from({ length: 11 }, (_, i) => `ucan-${i}`),
     }
-    const store = new NotificationTokensStore({} as any, { crypto: {}, user: { userId: aliceUserId } } as any)
+    const store = new NotificationTokensStore(
+      {} as any,
+      { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any
+    )
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     const entry = {
       hash: 'fakehash',
@@ -199,7 +217,10 @@ describe('NotificationTokensStore/validateEntry', () => {
       signature: { author: { name: aliceUserId } },
       encrypted: 'fake-encrypted',
     }
-    const store = new NotificationTokensStore({} as any, { crypto: {}, user: { userId: aliceUserId } } as any)
+    const store = new NotificationTokensStore(
+      {} as any,
+      { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any
+    )
     jest.spyOn(store, 'decryptEntry').mockRejectedValue(new Error('decryption failed'))
     const entry = {
       hash: 'fakehash',

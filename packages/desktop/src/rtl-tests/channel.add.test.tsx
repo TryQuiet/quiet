@@ -184,7 +184,122 @@ describe('Add new channel', () => {
     expect(createChannelModal).toBeNull()
 
     // Check if newly created channel is present and selected
-    expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent(`${channelName.output}`)
+    // Check if sidebar item displays as selected
+    const link = screen.getByTestId(`${channelName.output}-link`)
+    expect(link).toHaveClass('ChannelsListItemselected')
+    const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-public`)
+    expect(linkIcon).toBeVisible()
+  })
+
+  it('Adds new private channel and opens it. Sends initial message', async () => {
+    const { store, runSaga } = await prepareStore(
+      {
+        [StoreKeys.Modals]: {
+          ...new ModalsInitialState(),
+          [ModalName.createChannel]: { open: true },
+        },
+      },
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+    const community: Community = await factory.create('Community')
+    const userProfile: UserProfile = await factory.create('UserProfile', {
+      nickname: 'alice',
+    })
+    const alice: Identity = await factory.create('Identity', {
+      userId: userProfile.userId,
+      communityId: community.id,
+    })
+    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
+
+    const mockImpl = async (...input: [string, ...any]) => {
+      const action = input[0]
+      if (action === SocketActions.CREATE_CHANNEL) {
+        const payload = input[1] as CreateChannelPayload
+        factory.create('PublicChannel', {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: userProfile.nickname,
+            timestamp: 0,
+            public: payload.public ?? true,
+          },
+        })
+        return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
+          channel: {
+            id: payload.id,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: userProfile.nickname,
+            timestamp: 0,
+            public: payload.public ?? true,
+          },
+        })
+      }
+      if (action === SocketActions.SEND_MESSAGE) {
+        const data = input[1] as SendMessagePayload
+        const { message } = data
+        factory.create('TestMessage', {
+          message: {
+            ...message,
+          },
+        })
+      }
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+        <Channel />
+      </>,
+      store
+    )
+    const user = userEvent.setup()
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    await user.type(input, channelName.input)
+
+    const privateToggle = screen.getByTestId('createChannel-private-form-control-toggle')
+    expect(privateToggle).toBeVisible()
+    expect(privateToggle.className.includes('checked')).toBeFalsy()
+
+    await userEvent.click(privateToggle)
+    expect(privateToggle.className.includes('checked')).toBeTruthy()
+
+    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    await act(
+      async () =>
+        await waitFor(() => {
+          user.click(screen.getByText('Create Channel')).catch(e => {
+            logger.error(e)
+          })
+        })
+    )
+
+    function* testCreateChannelSaga(): Generator {
+      const createChannelAction = yield* take(publicChannels.actions.createChannel)
+      const addChannelAction = yield* take(publicChannels.actions.addChannel)
+    }
+
+    await act(async () => {
+      await runSaga(testCreateChannelSaga).toPromise()
+    })
+
+    const createChannelModal = screen.queryByTestId('createChannelModal')
+    expect(createChannelModal).toBeNull()
+
+    // Check if newly created channel is present and selected
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output)
+    expect(screen.getByTestId('channelTitle-icon-private')).toBeVisible()
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveClass('ChannelsListItemselected')
@@ -327,12 +442,15 @@ describe('Add new channel', () => {
       <>
         <Sidebar />
         <CreateChannel />
+        <Channel />
       </>,
       store
     )
 
-    const isGeneralAtStart = await screen.findByText('# general')
-    expect(isGeneralAtStart).toBeVisible()
+    const titleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAtStart = titleElement.textContent === 'general'
+    expect(isGeneralAtStart).toBeTruthy()
+    expect(titleElement).toBeVisible()
 
     const addChannel = screen.getByTestId('addChannelButton')
     await userEvent.click(addChannel)
@@ -354,9 +472,10 @@ describe('Add new channel', () => {
     // @ts-expect-error
     await userEvent.click(closeChannel)
 
-    const isGeneral = await screen.findByText('# general')
-
-    expect(isGeneral).toBeVisible()
+    const newTitleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAgain = newTitleElement.textContent === 'general'
+    expect(isGeneralAgain).toBeTruthy()
+    expect(newTitleElement).toBeVisible()
 
     await userEvent.click(addChannel)
     const input2 = screen.getByPlaceholderText('Enter a channel name')
@@ -385,12 +504,15 @@ describe('Add new channel', () => {
       <>
         <Sidebar />
         <CreateChannel />
+        <Channel />
       </>,
       store
     )
 
-    const isGeneralAtStart = await screen.findByText('# general')
-    expect(isGeneralAtStart).toBeVisible()
+    const titleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAtStart = titleElement.textContent === 'general'
+    expect(isGeneralAtStart).toBeTruthy()
+    expect(titleElement).toBeVisible()
 
     const addChannel = screen.getByTestId('addChannelButton')
     await userEvent.click(addChannel)
@@ -417,8 +539,10 @@ describe('Add new channel', () => {
     // @ts-expect-error
     await userEvent.click(closeChannel)
 
-    const isGeneral = await screen.findByText('# general')
-    expect(isGeneral).toBeVisible()
+    const newTitleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAgain = newTitleElement.textContent === 'general'
+    expect(isGeneralAgain).toBeTruthy()
+    expect(newTitleElement).toBeVisible()
 
     await userEvent.click(addChannel)
     const title2 = await screen.findByText('Create a new channel')
@@ -459,6 +583,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: true,
+            teamId: payload.teamId,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
@@ -469,6 +594,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: payload.public,
+            teamId: payload.teamId,
           },
         })
       }
@@ -491,12 +617,15 @@ describe('Add new channel', () => {
       <>
         <Sidebar />
         <CreateChannel />
+        <Channel />
       </>,
       store
     )
 
-    const isGeneralAtStart = await screen.findByText('# general')
-    expect(isGeneralAtStart).toBeVisible()
+    const titleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAtStart = titleElement.textContent === 'general'
+    expect(isGeneralAtStart).toBeTruthy()
+    expect(titleElement).toBeVisible()
 
     const addChannel = screen.getByTestId('addChannelButton')
     await userEvent.click(addChannel)
@@ -531,8 +660,10 @@ describe('Add new channel', () => {
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
     }
 
-    const isNewChannel = await screen.findByText(`# ${channelName}`)
-    expect(isNewChannel).toBeVisible()
+    const newTitleElement = await screen.findByTestId('channelTitle')
+    const isNewChannel = newTitleElement.textContent === channelName
+    expect(isNewChannel).toBeTruthy()
+    expect(newTitleElement).toBeVisible()
 
     await userEvent.click(addChannel)
     const title2 = await screen.findByText('Create a new channel')
@@ -576,6 +707,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: payload.public,
+            teamId: community.teamId,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
@@ -586,6 +718,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: payload.public,
+            teamId: community.teamId,
           },
         })
       }
@@ -614,8 +747,10 @@ describe('Add new channel', () => {
       store
     )
 
-    const isGeneralAtStart = await screen.findByText('# general')
-    expect(isGeneralAtStart).toBeVisible()
+    const titleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAtStart = titleElement.textContent === 'general'
+    expect(isGeneralAtStart).toBeTruthy()
+    expect(titleElement).toBeVisible()
 
     for await (const channel of channels) {
       const addChannel = screen.getByTestId('addChannelButton')
@@ -656,9 +791,6 @@ describe('Add new channel', () => {
     const list = await screen.findByTestId('channelsList')
     const textContent = list.textContent
     expect(textContent).not.toBeNull()
-    // @ts-expect-error
-    const textArray = textContent.replace(/#/g, '').split(' ')
-    const filteredArray = textArray.filter(item => item.length > 0)
-    expect(filteredArray).toEqual(['general', '12a', 'abc', 'zzz'])
+    expect(textContent).toEqual(['general', '12a', 'abc', 'zzz'].join(''))
   })
 })

@@ -655,7 +655,7 @@ describe('Channels panel', () => {
                 data-testid="usersList"
               >
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="user_2-user-link"
                   role="button"
                   tabindex="-1"
@@ -692,7 +692,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="user_4-user-link"
                   role="button"
                   tabindex="-1"
@@ -729,7 +729,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="user_6-user-link"
                   role="button"
                   tabindex="-1"
@@ -1292,7 +1292,7 @@ describe('Channels panel', () => {
               data-testid="usersList"
             >
               <div
-                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
                 data-testid="user_2-user-link"
                 role="button"
                 tabindex="-1"
@@ -1329,7 +1329,7 @@ describe('Channels panel', () => {
                 />
               </div>
               <div
-                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
                 data-testid="user_4-user-link"
                 role="button"
                 tabindex="-1"
@@ -1366,7 +1366,7 @@ describe('Channels panel', () => {
                 />
               </div>
               <div
-                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-ch808r-MuiButtonBase-root-MuiListItemButton-root"
+                class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root UserProfileListItemroot css-xl9xmm-MuiButtonBase-root-MuiListItemButton-root"
                 data-testid="user_6-user-link"
                 role="button"
                 tabindex="-1"

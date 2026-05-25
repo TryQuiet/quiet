@@ -9,7 +9,7 @@ import Button from '@mui/material/Button'
 import { useModal } from '../../../containers/hooks'
 import Modal from '../../ui/Modal/Modal'
 import { User, UserProfile } from '@quiet/types'
-import { Badge, Chip, createTheme, TextField, Theme, ThemeProvider, useTheme } from '@mui/material'
+import { createTheme, TextField, Theme, ThemeProvider, useTheme } from '@mui/material'
 import Autocomplete, {
   AutocompleteChangeDetails,
   AutocompleteChangeReason,
@@ -181,6 +181,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
       _updateAutoCompleteOptions()
     } else if (!open) {
       setAutoCompleteOptions([])
+      setSelectedMembers([])
       initialized = false
     }
   }, [open])

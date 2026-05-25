@@ -562,6 +562,10 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
                 required: true,
                 validator: validateInvitationSeed,
               },
+              [TEAM_ID_KEY]: {
+                required: false,
+                validator: validateTeamId,
+              },
             })
           ),
         },

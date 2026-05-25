@@ -60,7 +60,6 @@ describe('Multiple Clients (QSS)', () => {
   const generalChannelName = 'general'
 
   beforeAll(async () => {
-    const commonApp = new App()
     qssLogTailProcess = tailQssLogs()
     users = {
       owner: {
@@ -70,7 +69,7 @@ describe('Multiple Clients (QSS)', () => {
           fanoutMessage: 'This message should fanout via QSS logs',
           catchUpMessage: 'First user should catch up via QSS',
         },
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-joining-1',
@@ -78,7 +77,7 @@ describe('Multiple Clients (QSS)', () => {
           initialChannelMessage: 'Nice to meet you all',
           ownerOfflineMessage: 'This is a message',
         },
-        app: commonApp,
+        app: new App({ username: 'user-joining-1' }),
       },
       user2: {
         username: 'user-joining-2',
@@ -87,7 +86,7 @@ describe('Multiple Clients (QSS)', () => {
           followUpMessage: 'The owner should see this even without user1 online',
           catchUpMessage: 'First user is offline but should catch up via QSS',
         },
-        app: new App(),
+        app: new App({ username: 'user-joining-2' }),
       },
     }
   })

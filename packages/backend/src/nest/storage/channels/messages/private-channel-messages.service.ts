@@ -7,7 +7,7 @@ import { createLogger } from '../../../common/logger'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
-import { isConsumedChannelMessage, isEncryptedMessage } from '../../../validation/validators'
+import { isConsumedChannelMessage } from '../../../validation/validators'
 import { BaseMessagesService } from './base-messages.service'
 import { SigChain } from '../../../auth/sigchain'
 
@@ -36,7 +36,13 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
    * @returns Processed message if decryptable, undefined if undecryptable and false if intentionally skip decryption
    */
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | false | undefined> {
-    const chain = this.sigChainService.getChain({ teamId: message.teamId })
+    const chain = this.sigChainService.getChain({ teamId: message.teamId }, false)
+    if (chain == null) {
+      this.logger.warn(
+        `Chain doesn't exist or hasn't been initialized, can't consume messages for ${message.channelId}`
+      )
+      return false
+    }
     if (!chain.channels.amIMemberOfChannel(message.channelId)) {
       this.logger.warn(`Not a member of channel ${message.channelId} on team ${message.teamId}`)
       return false
@@ -120,10 +126,6 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
     }
     if (!isConsumedChannelMessage(message)) {
       this.logger.warn(`Cannot validate msg ${message.id}: message shape is not valid`)
-      return false
-    }
-    if (!isEncryptedMessage(encryptedMessage)) {
-      this.logger.warn(`Cannot validate msg ${message.id}: encrypted message shape is not valid`)
       return false
     }
     return true

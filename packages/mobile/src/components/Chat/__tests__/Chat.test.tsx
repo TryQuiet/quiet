@@ -35,6 +35,7 @@ describe('Chat component', () => {
       timestamp: 0,
       id: '',
       public: true,
+      teamId: 'foobar',
     },
     pendingMessages: {},
     messages: {

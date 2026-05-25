@@ -176,6 +176,7 @@ describe('Chat component list data', () => {
       timestamp: 0,
       id: '',
       public: true,
+      teamId: 'foobar',
     },
     pendingMessages: {},
     messages: mockMessages,

@@ -5,7 +5,7 @@ import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
-import { InvitationDataVersion, InvitationPair, UserProfile, type Community } from '@quiet/types'
+import { InvitationAuthData, InvitationDataVersion, InvitationPair, UserProfile, type Community } from '@quiet/types'
 import { composeInvitationShareUrl, createLibp2pAddress, p2pAddressesToPairs } from '@quiet/common'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { communitiesSelectors } from '../communities/communities.selectors'
@@ -156,10 +156,12 @@ describe('communitiesSelectors', () => {
     const longLivedInvite = connectionSelectors.longLivedInvite(store.getState())
     expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
-    const authData = {
+    const community = communitiesSelectors.currentCommunity(store.getState())
+    const authData: InvitationAuthData = {
       seed: '5ah8uYodiwuwVybT',
       salt: '5ah8uYodiwuwVybT',
-      communityName: communitiesSelectors.currentCommunity(store.getState())!.name!,
+      communityName: community!.name!,
+      teamId: community!.teamId,
     }
 
     const pairs: InvitationPair[] = [

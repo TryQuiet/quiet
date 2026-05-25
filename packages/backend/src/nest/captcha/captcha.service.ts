@@ -10,8 +10,6 @@ import { ServerIoProviderTypes } from '../types'
 const logger = createLogger('CaptchaService')
 @Injectable()
 export class CaptchaService extends EventEmitter implements OnModuleInit {
-  private readonly hcaptchaRequestTimeoutMs = 30 * 1000 // 30 seconds
-
   private _hcaptchaToken: { token: string; timestamp: number } | null = null
   private _hcaptchaWaiters: Array<(token: string | null) => void> = []
   private _hcaptchaRequestPending = false
@@ -102,15 +100,8 @@ export class CaptchaService extends EventEmitter implements OnModuleInit {
 
     return await new Promise(resolve => {
       const onToken = (token: string | null) => {
-        clearTimeout(timeoutId)
         resolve(token)
       }
-
-      const timeoutId = setTimeout(() => {
-        this._hcaptchaWaiters = this._hcaptchaWaiters.filter(waiter => waiter !== onToken)
-        this._hcaptchaRequestPending = false
-        resolve(null)
-      }, this.hcaptchaRequestTimeoutMs)
 
       this._hcaptchaWaiters.push(onToken)
 

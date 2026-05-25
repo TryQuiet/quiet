@@ -49,21 +49,6 @@ extension AppDelegate: MessagingDelegate {
         }
     }
 
-    // MARK: - Encryption Key Management
-
-    @objc func storeEncryptionKey(_ key: String) {
-        guard let keyData = key.data(using: .utf8) else {
-            print("Error: Invalid encryption key format")
-            return
-        }
-        KeychainHelper.shared.save(
-            service: "com.quiet.notifications",
-            account: "encryptionKey",
-            data: keyData
-        )
-        print("Encryption key stored successfully")
-    }
-
     // MARK: - UNUserNotificationCenterDelegate
 
     // Handle notification when app is in foreground

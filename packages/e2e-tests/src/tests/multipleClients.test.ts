@@ -57,12 +57,12 @@ describe('Multiple Clients', () => {
   const thirdChannelName = 'delete-this'
 
   beforeAll(async () => {
-    const commonApp = new App()
+    const commonApp = new App({ username: 'user-joining-1' })
     users = {
       owner: {
         username: 'owner',
         messages: ['Hi', 'Hello', 'After guest left the app'],
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-joining-1',
@@ -77,7 +77,7 @@ describe('Multiple Clients', () => {
       user3: {
         username: 'user-joining-2',
         messages: ['Hi everyone'],
-        app: new App(),
+        app: new App({ username: 'user-joining-2' }),
       },
     }
   })
@@ -405,7 +405,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Second user sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser3.isOpen(true, 30_000)).toBeTruthy()
+        expect(await generalChannelUser3.isOpen(true, true, 30_000)).toBeTruthy()
         await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 

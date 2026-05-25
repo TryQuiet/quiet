@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActions } from '@quiet/types'
-import { DateTime } from 'luxon'
+import { CreateChannelPayload, ErrorCodes, ErrorMessages, SocketActions } from '@quiet/types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { flushSync } from 'react-dom'
 import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../logger'
 import { is } from 'ramda'
@@ -19,7 +17,8 @@ export const CreateChannel = () => {
   const [newChannel, setNewChannel] = useState<CreateChannelPayload | null>(null)
 
   const user = useSelector(identity.selectors.currentIdentity)
-  const community = useSelector(communities.selectors.currentCommunityId)
+  const communityId = useSelector(communities.selectors.currentCommunityId)
+  const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
@@ -57,7 +56,7 @@ export const CreateChannel = () => {
           type: SocketActions.CREATE_CHANNEL,
           code: ErrorCodes.NOT_FOUND,
           message: ErrorMessages.GENERAL,
-          community: community,
+          community: communityId,
         })
       )
       return
@@ -70,7 +69,20 @@ export const CreateChannel = () => {
           type: SocketActions.CREATE_CHANNEL,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.CHANNEL_NAME_TAKEN,
-          community: community,
+          community: communityId,
+        })
+      )
+      return
+    }
+    logger.warn('Creating channel 3...')
+    if (community == null || community.teamId == null) {
+      logger.error('Community or team ID was nullish')
+      dispatch(
+        errors.actions.addError({
+          type: SocketActions.CREATE_CHANNEL,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.COMMUNITY_NOT_INITIALIZED,
+          community: communityId,
         })
       )
       return
@@ -81,6 +93,7 @@ export const CreateChannel = () => {
       name: name,
       description: `Welcome to #${name}`,
       public: isPublic,
+      teamId: community.teamId,
     } as CreateChannelPayload
     dispatch(publicChannels.actions.createChannel(payload))
     setNewChannel(payload)
@@ -88,7 +101,7 @@ export const CreateChannel = () => {
   }
   return (
     <>
-      {community && (
+      {communityId && (
         <CreateChannelComponent
           {...createChannelModal}
           channelCreationError={error?.message}

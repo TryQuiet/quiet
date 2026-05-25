@@ -20,6 +20,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
     {
       name: 'mobile',
@@ -29,6 +30,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
     {
       name: 'new-york-plans',
@@ -38,6 +40,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
   ],
   publicChannelsSelector: [
@@ -49,6 +52,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
     {
       name: 'mobile',
@@ -58,6 +62,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
     {
       name: 'new-york-plans',
@@ -67,6 +72,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
     {
       name: 'general',
@@ -76,6 +82,7 @@ const args: SearchModalComponentProps = {
       owner: '',
       timestamp: 123123,
       public: true,
+      teamId: 'foobar',
     },
   ],
   unreadChannelsSelector: [],

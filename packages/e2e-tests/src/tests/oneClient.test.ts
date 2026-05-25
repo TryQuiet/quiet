@@ -32,7 +32,7 @@ describe('One Client', () => {
   const secondCommunityName = 'testcommunity-redux'
 
   beforeAll(async () => {
-    app = new App()
+    app = new App({ username: 'owner' })
   })
 
   afterAll(async () => {

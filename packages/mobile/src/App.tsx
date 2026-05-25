@@ -55,9 +55,9 @@ import { UnregisteredUsernameContextMenu } from './components/ContextMenu/menus/
 import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUsernameRequested.screen'
 import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
-import { CaptchaDrawer } from './components/ModalBottomDrawer/drawers/Captcha.drawer'
 import { ChannelMembershipScreen } from './screens/ChannelMembership/ChannelMembership.screen'
 import { UpdateChannelMembershipScreen } from './screens/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.screen'
+import { CaptchaModal } from './components/Captcha/CaptchaModal.component'
 
 const logger = createLogger('app')
 
@@ -134,7 +134,7 @@ function App(): JSX.Element {
               <ChannelContextMenu />
               <InvitationContextMenu />
               <UnregisteredUsernameContextMenu />
-              <CaptchaDrawer />
+              <CaptchaModal />
               <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>

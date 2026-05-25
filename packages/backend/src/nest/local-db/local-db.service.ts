@@ -22,6 +22,7 @@ import { SerializedSigChain, SigChainSaveData } from '../auth/types'
 import { SigChain } from '../auth/sigchain'
 import { Keyring } from '@localfirst/crdx'
 import EventEmitter from 'events'
+import { removeFilesFromDir } from '../common/utils'
 
 @Injectable()
 export class LocalDbService extends EventEmitter {
@@ -48,6 +49,16 @@ export class LocalDbService extends EventEmitter {
   public async purge() {
     this.logger.info(`Purging db`)
     await this.db.clear()
+  }
+
+  public async purgeArtifacts() {
+    this.logger.info(`Purging local db artifacts`)
+    if (this.db.status !== 'open') {
+      await this.open()
+    }
+    await this.purge()
+    await this.close()
+    removeFilesFromDir(this.db.location, { throwOnError: false, maxRetries: 2, retryDelay: 100 })
   }
 
   public async get(key: string) {
@@ -230,6 +241,21 @@ export class LocalDbService extends EventEmitter {
 
   public async communityExists(communityId: string): Promise<boolean> {
     return communityId in ((await this.getCommunities()) ?? {})
+  }
+
+  public async deleteCommunity(id: string) {
+    this.logger.info('Deleting community', id)
+    let communities = await this.get(LocalDBKeys.COMMUNITIES)
+    if (!communities) {
+      communities = {}
+    }
+    delete communities[id]
+    await this.put(LocalDBKeys.COMMUNITIES, communities)
+
+    const currentCommunityId = await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID)
+    if (currentCommunityId === id) {
+      await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, '')
+    }
   }
 
   // temporarily shoving identity creation here
@@ -422,6 +448,7 @@ export class LocalDbService extends EventEmitter {
   public async removePendingQssLogSyncMessages(sentMessageHashes: Record<string, string[]>): Promise<void> {
     const pendingHashes = await this.getPendingQssLogSyncMessages()
     for (const [address, sentHashes] of Object.entries(sentMessageHashes)) {
+      this.logger.debug(`Removing pending QSS log sync messages for address ${address}:`, sentHashes)
       let arr = pendingHashes[address]
       for (const sentHash of sentHashes) {
         arr = arr.filter(pendingHash => pendingHash !== sentHash)
@@ -436,25 +463,25 @@ export class LocalDbService extends EventEmitter {
   }
 
   /**
-   * Set the last QSS log sync time for a given team
+   * Set the last QSS log sync seq for a given team
    * @param teamId string team id
-   * @param timestamp number timestamp in milliseconds
+   * @param syncSeq number sequence number
    */
-  public async setLastSyncTime(teamId: string, timestamp: number): Promise<void> {
-    await this.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${teamId}`, timestamp.toString())
+  public async setLastSyncSeq(teamId: string, syncSeq: number): Promise<void> {
+    await this.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${teamId}`, syncSeq.toString())
   }
 
   /**
-   * Get the last QSS log sync time for a given team
+   * Get the last QSS log sync seq for a given team
    * @param teamId string team id
-   * @returns number | null timestamp in milliseconds or null if not found
+   * @returns number | null sequence number or null if not found
    */
-  public async getLastSyncTime(teamId: string): Promise<number | null> {
-    const ts = await this.get(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${teamId}`)
-    if (ts === null) {
+  public async getLastSyncSeq(teamId: string): Promise<number | null> {
+    const seq = await this.get(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${teamId}`)
+    if (seq === null) {
       return null
     }
-    const num = Number(ts)
+    const num = Number(seq)
     return isNaN(num) ? null : num
   }
 
@@ -604,5 +631,30 @@ export class LocalDbService extends EventEmitter {
       count++
     }
     return count
+  }
+
+  /**
+   * Update list of kys for a given team ID that were stored in the IOS keychain
+   *
+   * @param teamId LFA team ID
+   * @param keyNames Names of keys that were added to IOS keychain
+   */
+  public async updateKeysStoredInKeychain(teamId: string, keyNames: string[]): Promise<void> {
+    const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
+    const arr: string[] = (await this.get(key)) || []
+    arr.push(...keyNames)
+    await this.put(key, arr)
+  }
+
+  /**
+   * Get the list of key names for a given team ID that have been stored in the IOS keychain
+   *
+   * @param teamId LFA team ID
+   * @returns List of key names
+   */
+  public async getKeysStoredInKeychain(teamId: string): Promise<string[]> {
+    const key = `${LocalDBKeys.KEYS_STORED_KEYCHAIN}:${teamId}`
+    const arr: string[] = (await this.get(key)) || []
+    return arr
   }
 }

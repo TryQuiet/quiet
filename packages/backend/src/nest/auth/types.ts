@@ -37,3 +37,9 @@ export enum LFAEvents {
 export enum SigchainEvents {
   UPDATED = 'sigchainUpdated',
 }
+
+export enum StoredKeyType {
+  SECRET = 'secret',
+  USER_PUBLIC = 'userPublic',
+  USER_SIG = 'userSig',
+}

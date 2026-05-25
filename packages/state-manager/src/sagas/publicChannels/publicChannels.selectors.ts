@@ -23,6 +23,7 @@ import {
   type UserProfile,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { currentCommunity } from '../communities/communities.selectors'
 
 const logger = createLogger('publicChannelsSelector')
 
@@ -52,7 +53,11 @@ export const subscribedChannels = createSelector(selectChannelsSubscriptions, su
 })
 
 // Serves for testing purposes only
-export const selectGeneralChannel = createSelector(selectChannels, channels => {
+export const selectGeneralChannel = createSelector(selectChannels, currentCommunity, (channels, currentCommunity) => {
+  if (currentCommunity == null || currentCommunity.teamId == null) {
+    logger.error('Community not initialized, skipping general channel')
+    return
+  }
   const draft = channels.find(item => item.name === 'general')
   if (!draft) {
     logger.error('No general channel')
@@ -65,6 +70,7 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
     timestamp: draft.timestamp,
     id: draft.id,
     public: draft.public,
+    teamId: currentCommunity.teamId,
   }
   return channel
 })

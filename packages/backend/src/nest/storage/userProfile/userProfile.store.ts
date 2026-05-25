@@ -7,7 +7,7 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndexedValidated, type KeyValueIndexedValidatedType } from '../orbitDb/keyValueIndexedValidated'
 import { validatePhoto } from './userProfile.utils'
-import { EncryptedKeyValueIndexedValidatedStoreBase, EncryptedKeyValueStoreBase } from '../base.store'
+import { EncryptedKeyValueIndexedValidatedStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
@@ -28,6 +28,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     private readonly auth: SigChainService
   ) {
     super()
+    this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
   }
 
   public async init() {
@@ -50,20 +51,24 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       })
     })
 
-    this.auth.on(SigchainEvents.UPDATED, async payload => {
-      try {
-        await this.flushDeferredEntries()
-        await this.store!.retryIndexingUnindexedEntries()
-      } catch (err) {
-        logger.error('Failed to update user profiles:', err)
-      }
-    })
-
     await this.store!.retryIndexingUnindexedEntries()
 
     this.emit(StorageEvents.USER_PROFILES_STORED, {
       profiles: await this.getUserProfiles(),
     })
+  }
+
+  private readonly handleAuthUpdated = async (): Promise<void> => {
+    if (!this.store) {
+      return
+    }
+
+    try {
+      await this.flushDeferredEntries()
+      await this.store.retryIndexingUnindexedEntries()
+    } catch (err) {
+      logger.error('Failed to update user profiles:', err)
+    }
   }
 
   /**
@@ -101,6 +106,11 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         logger.error('Failed to flush deferred user profile:', profile.userId, err)
       }
     }
+  }
+
+  public deferEntry(userProfile: UserProfile): void {
+    logger.info('Deferring user profile until storage permissions are ready:', userProfile.userId)
+    this.deferredProfiles.push(userProfile)
   }
 
   /**

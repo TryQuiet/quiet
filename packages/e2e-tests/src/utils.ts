@@ -6,15 +6,16 @@ import path from 'path'
 import fs from 'fs'
 import crypto from 'crypto'
 import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
-import { RetryConfig, TimeoutMetadata } from './types'
+import { RetryConfig } from './types'
 import { config } from 'dotenv'
 
 import { createLogger } from './logger'
 
 const logger = createLogger('utils')
 
-export const BACKWARD_COMPATIBILITY_BASE_VERSION = '5.0.0' // version to test against
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '7.0.1' // version to test against
 const appImagesPath = `${__dirname}/../Quiet`
+const defaultChromeDriverPath = require.resolve('electron-chromedriver/chromedriver.js')
 
 export interface BuildSetupInit {
   port?: number
@@ -22,6 +23,8 @@ export interface BuildSetupInit {
   defaultDataDir?: boolean
   dataDir?: string
   fileName?: string
+  chromeDriverPath?: string
+  username?: string
 }
 
 export class BuildSetup {
@@ -34,16 +37,26 @@ export class BuildSetup {
   public child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
+  private chromeDriverPath?: string
 
-  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName }: BuildSetupInit) {
+  constructor({
+    port,
+    debugPort,
+    defaultDataDir = false,
+    dataDir,
+    fileName,
+    chromeDriverPath,
+    username,
+  }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
-    this.id = (Math.random() * 10 ** 18).toString(36)
+    this.chromeDriverPath = chromeDriverPath
+    this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
-    if (!this.dataDir) {
+    if (this.dataDir == null) {
       this.dataDir = `e2e_${this.id}`
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
@@ -122,6 +135,17 @@ export class BuildSetup {
     exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
   }
 
+  private getChromeDriverSpawnConfig() {
+    const args = [`--port=${this.port}`, '--verbose']
+    const chromeDriverPath = this.chromeDriverPath ?? defaultChromeDriverPath
+
+    return {
+      command: process.execPath,
+      args: [chromeDriverPath, ...args],
+      shell: false,
+    }
+  }
+
   public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
     let env: any = {
@@ -145,19 +169,15 @@ export class BuildSetup {
       }
     }
 
-    if (process.platform === 'win32') {
+    const chromeDriver = this.getChromeDriverSpawnConfig()
+    if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
-      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
-        shell: true,
-        env: Object.assign(process.env, env),
-      })
-    } else {
-      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port} --verbose`, [], {
-        shell: true,
-        detached: false,
-        env: Object.assign(process.env, env),
-      })
     }
+    this.child = spawn(chromeDriver.command, chromeDriver.args, {
+      shell: chromeDriver.shell,
+      detached: false,
+      env: Object.assign(process.env, env),
+    })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>
       setTimeout(() => {
