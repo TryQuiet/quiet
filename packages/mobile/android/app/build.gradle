@@ -290,10 +290,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
     implementation("androidx.core:core-ktx:1.16.0")
 
-    implementation("com.google.code.gson:gson:2.13.2")
-    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
-    implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("com.google.code.gson:gson:2.14.0")
+    implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("androidx.security:security-crypto:1.1.0")
     implementation(project(":react-native-fs")) // comes from npm module
     implementation(group: "commons-io", name: "commons-io", version: "2.20.0")
 
@@ -303,14 +303,15 @@ dependencies {
     }
 
     // Work manager
-    implementation("androidx.work:work-runtime:2.11.1")
-    implementation("androidx.work:work-runtime-ktx:2.11.1")
+    implementation("androidx.work:work-runtime:2.11.2")
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
+    // ListenableFuture class used with WorkManager:
+    implementation("com.google.guava:guava:33.6.0-android")
 
     implementation("com.goterl:lazysodium-android:5.2.0@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
     implementation("com.apicatalog:copper-multibase:4.1.0")
     implementation("org.msgpack:msgpack-core:0.9.12")
-    implementation("com.google.guava:guava:33.5.0-android")
 
 }
 
