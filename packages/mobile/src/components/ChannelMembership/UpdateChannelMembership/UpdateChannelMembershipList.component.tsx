@@ -37,7 +37,6 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
 
   useEffect(
     useCallback(() => {
-      logger.info('checking for options')
       setHasOptions(
         visibleOptionsIndices == null || Object.values(userProfiles ?? {}).length === 0
           ? undefined
