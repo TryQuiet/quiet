@@ -470,6 +470,8 @@ describe('ChannelMembership component', () => {
         userId,
         nickname: 'foo',
         channels: [channelId],
+        profilePhoto: undefined,
+        photo: 'foobar',
       }),
     }
     const rendered = renderComponent(
@@ -874,7 +876,8 @@ describe('ChannelMembership component', () => {
                         "abc123",
                       ],
                       "nickname": "foo",
-                      "photo": "dGVzdAo=",
+                      "photo": "foobar",
+                      "profilePhoto": undefined,
                       "userId": "foobar",
                     },
                   ]
@@ -925,7 +928,7 @@ describe('ChannelMembership component', () => {
                         alt="foo's profile image"
                         source={
                           {
-                            "uri": "dGVzdAo=",
+                            "uri": "foobar",
                           }
                         }
                         style={

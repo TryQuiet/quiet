@@ -115,7 +115,7 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
   )
 }
 
-function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
+export function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
   const permissionStatus = yield* select(pushNotificationsSelectors.permissionStatus)
   return permissionStatus === NotificationPermissionStatus.Granted
 }
@@ -152,7 +152,7 @@ function* syncCurrentDeviceTokenSaga(): Generator {
   }
 }
 
-function* deleteNotificationTokenSaga(): Generator {
+export function* deleteNotificationTokenSaga(): Generator {
   if (Config.QPS_ALLOWED !== 'true') {
     logger.info('QPS not allowed, skipping device token deletion')
     return
@@ -252,7 +252,6 @@ export function* pushNotificationsMasterSaga(): Generator {
       takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
       takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
       takeEvery(communities.actions.setCurrentCommunity.type, syncCurrentDeviceTokenSaga),
-      takeEvery(nativeServicesActions.leaveCommunity.type, deleteNotificationTokenSaga),
       fork(triggerPermissionRequestSaga),
     ])
   } finally {

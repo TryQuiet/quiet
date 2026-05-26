@@ -663,11 +663,15 @@ describe('UpdateChannelMembership component', () => {
         userId,
         nickname: 'foo',
         channels: [channelId],
+        profilePhoto: undefined,
+        photo: 'foobar',
       }),
       [nonMemberUserId]: await baseTypesFactory.create('UserProfile', {
         userId: nonMemberUserId,
         nickname: 'baz',
         channels: [],
+        profilePhoto: undefined,
+        photo: 'foobar',
       }),
     }
     const rendered = renderComponent(
@@ -1291,7 +1295,8 @@ describe('UpdateChannelMembership component', () => {
                           "bio": "bio_2",
                           "channels": [],
                           "nickname": "baz",
-                          "photo": "dGVzdAo=",
+                          "photo": "foobar",
+                          "profilePhoto": undefined,
                           "userId": "barbaz",
                         },
                         "foobar": {
@@ -1300,7 +1305,8 @@ describe('UpdateChannelMembership component', () => {
                             "abc123",
                           ],
                           "nickname": "foo",
-                          "photo": "dGVzdAo=",
+                          "photo": "foobar",
+                          "profilePhoto": undefined,
                           "userId": "foobar",
                         },
                       },
@@ -1479,7 +1485,7 @@ describe('UpdateChannelMembership component', () => {
                             alt="baz's profile image"
                             source={
                               {
-                                "uri": "dGVzdAo=",
+                                "uri": "foobar",
                               }
                             }
                             style={
