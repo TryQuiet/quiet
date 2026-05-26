@@ -481,5 +481,96 @@ exports[`Spinner component renders loading screen if not ready 1`] = `
       v 1.0.0
     </Text>
   </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "gap": 16,
+      }
+    }
+  >
+    <Text
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessible={true}
+      color="main"
+      focusable={true}
+      fontSize={14}
+      horizontalTextAlign="left"
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        [
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 14,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          },
+          {
+            "color": "#2373EA",
+          },
+        ]
+      }
+      testID="share-logs-link"
+      verticalTextAlign="center"
+    >
+      Share logs
+    </Text>
+    <Text
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessible={true}
+      color="main"
+      focusable={true}
+      fontSize={14}
+      horizontalTextAlign="left"
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        [
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 14,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          },
+          {
+            "color": "#2373EA",
+          },
+        ]
+      }
+      testID="share-all-data-link"
+      verticalTextAlign="center"
+    >
+      Share all data
+    </Text>
+  </View>
 </View>
 `;
