@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.2.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.2.0-alpha.2...@quiet/mobile@7.2.0) (2026-05-26)
-
-
-### Features
-
-* **mobile:** dev/alpha-only "Share logs" + "Share all data" on Starting backend screen ([#3241](https://github.com/TryQuiet/quiet/issues/3241)) ([78665f7](https://github.com/TryQuiet/quiet/commit/78665f78dbbc18b5d1b3c7e02beec1254312986a)), closes [#3213](https://github.com/TryQuiet/quiet/issues/3213)
-
-
-
-
-
 # Changelog
 
 ## [7.2.0]
