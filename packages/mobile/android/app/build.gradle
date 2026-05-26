@@ -348,7 +348,15 @@ apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.grad
 if (googleServicesJsonPath.exists()) {
     apply plugin: "com.google.gms.google-services"
 } else {
-    logger.warn("google-services.json not found in packages/mobile/android/app; Firebase runtime setup will remain incomplete until it is added.")
+    def buildingRelease = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+    if (buildingRelease) {
+        throw new GradleException(
+            "google-services.json not found in packages/mobile/android/app. Release builds " +
+            "require it for Firebase push notifications. Run ./.github/secrets/decrypt_android_secrets.sh " +
+            "(needs the ANDROID_FIREBASE_KEY passphrase) or add the file manually before building."
+        )
+    }
+    logger.warn("google-services.json not found in packages/mobile/android/app; Firebase push notifications will be unavailable in this build.")
 }
 
 repositories {
