@@ -26,8 +26,6 @@ import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
-import fs from 'fs'
-import path from 'path'
 
 const logger = createLogger('connections-manager.service.spec')
 
