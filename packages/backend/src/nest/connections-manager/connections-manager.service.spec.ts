@@ -1,5 +1,7 @@
 import { jest } from '@jest/globals'
 
+import fs from 'fs'
+import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
 import { CommunityOwnership, SocketActions, SocketEvents, type Community, type Identity } from '@quiet/types'
@@ -24,8 +26,6 @@ import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
-import fs from 'fs'
-import path from 'path'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -421,6 +421,141 @@ describe('ConnectionsManagerService', () => {
     expect(resetStateSpy).toHaveBeenCalledTimes(1)
     expect(localDbOpenSpy).toHaveBeenCalledTimes(1)
     expect(closeSocketSpy).not.toHaveBeenCalled()
+  })
+
+  describe('startup purge marker (#3225 crash-safe defense in depth)', () => {
+    const markerPath = () => path.join(quietDir, '.leave-in-progress')
+
+    beforeEach(() => {
+      // Make sure no stale marker leaks across tests in the same module's quietDir.
+      if (fs.existsSync(markerPath())) {
+        fs.rmSync(markerPath(), { force: true })
+      }
+    })
+
+    afterEach(() => {
+      if (fs.existsSync(markerPath())) {
+        fs.rmSync(markerPath(), { force: true })
+      }
+    })
+
+    it('purges orphaned artifacts at startup when no community is in storage AND marker is present', async () => {
+      jest.spyOn(localDbService, 'getCurrentCommunity').mockResolvedValue(undefined)
+      fs.mkdirSync(quietDir, { recursive: true })
+      fs.writeFileSync(markerPath(), new Date().toISOString())
+      const purgeArtifactsSpy = jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
+      const purgeDataSpy = jest
+        .spyOn(connectionsManagerService['storageService'], 'purgeData')
+        .mockImplementation(() => {})
+
+      await connectionsManagerService.launchCommunityFromStorage()
+
+      expect(purgeArtifactsSpy).toHaveBeenCalledTimes(1)
+      expect(purgeDataSpy).toHaveBeenCalledTimes(1)
+      expect(fs.existsSync(markerPath())).toBe(false)
+    })
+
+    it('does NOT purge at startup when no community is in storage AND no marker is present', async () => {
+      // The back-compat / pending-migration / fresh-install case. We must not nuke
+      // data that hasn't been registered with LocalDB yet.
+      jest.spyOn(localDbService, 'getCurrentCommunity').mockResolvedValue(undefined)
+      expect(fs.existsSync(markerPath())).toBe(false)
+      const purgeArtifactsSpy = jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
+      const purgeDataSpy = jest
+        .spyOn(connectionsManagerService['storageService'], 'purgeData')
+        .mockImplementation(() => {})
+
+      await connectionsManagerService.launchCommunityFromStorage()
+
+      expect(purgeArtifactsSpy).not.toHaveBeenCalled()
+      expect(purgeDataSpy).not.toHaveBeenCalled()
+    })
+
+    it('purges at startup when the marker is present even if a community is also found', async () => {
+      // The marker means the user intended to leave. Whether CURRENT_COMMUNITY_ID happens
+      // to still be set depends on exactly when the crash interrupted the leave (resetState
+      // clears it near the end). The marker is the authoritative signal — finish the purge
+      // regardless of what LocalDB currently reports.
+      fs.mkdirSync(quietDir, { recursive: true })
+      fs.writeFileSync(markerPath(), new Date().toISOString())
+      const getCurrentCommunitySpy = jest.spyOn(localDbService, 'getCurrentCommunity').mockResolvedValue(community)
+      const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
+      const purgeArtifactsSpy = jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
+      const purgeDataSpy = jest
+        .spyOn(connectionsManagerService['storageService'], 'purgeData')
+        .mockImplementation(() => {})
+
+      await connectionsManagerService.launchCommunityFromStorage()
+
+      expect(purgeArtifactsSpy).toHaveBeenCalledTimes(1)
+      expect(purgeDataSpy).toHaveBeenCalledTimes(1)
+      expect(launchCommunitySpy).not.toHaveBeenCalled()
+      // Marker check runs before getCurrentCommunity, so we never even read the stale
+      // community record.
+      expect(getCurrentCommunitySpy).not.toHaveBeenCalled()
+      expect(fs.existsSync(markerPath())).toBe(false)
+    })
+
+    it('leaveCommunity writes the marker before purging and clears it at the end', async () => {
+      // The marker's job is to gate the recovery purge — so it must exist at the moment
+      // purgeData runs, and be gone after leaveCommunity returns successfully.
+      let markerDuringPurge = false
+      jest.spyOn(qpsService, 'tombstoneCurrentUserNotificationTokens').mockResolvedValue(true)
+      jest.spyOn(connectionsManagerService, 'closeAllServices').mockResolvedValue()
+      jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
+      jest.spyOn(connectionsManagerService.libp2pService, 'cleanDatastore').mockResolvedValue()
+      jest.spyOn(connectionsManagerService.libp2pService, 'closeDatastore').mockResolvedValue()
+      jest.spyOn(connectionsManagerService['storageService'], 'purgeData').mockImplementation(() => {
+        markerDuringPurge = fs.existsSync(markerPath())
+      })
+      jest.spyOn(connectionsManagerService['tor'], 'resetHiddenServices').mockImplementation(() => {})
+      jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
+      jest.spyOn(localDbService, 'open').mockResolvedValue()
+      jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
+      jest.spyOn(qssService, 'resume').mockResolvedValue()
+
+      await connectionsManagerService.leaveCommunity()
+
+      expect(markerDuringPurge).toBe(true)
+      expect(fs.existsSync(markerPath())).toBe(false)
+    })
+
+    it('leaveCommunity leaves the marker in place when an intermediate step throws', async () => {
+      jest.spyOn(qpsService, 'tombstoneCurrentUserNotificationTokens').mockRejectedValueOnce(new Error('boom'))
+
+      await expect(connectionsManagerService.leaveCommunity()).rejects.toThrow('boom')
+
+      expect(fs.existsSync(markerPath())).toBe(true)
+    })
+
+    it('recovery at startup leaves the marker in place when purgeArtifacts rejects', async () => {
+      // Symmetric to the leaveCommunity-throws test: if recovery itself is interrupted,
+      // the marker must survive so a subsequent launch can finish the job.
+      fs.mkdirSync(quietDir, { recursive: true })
+      fs.writeFileSync(markerPath(), new Date().toISOString())
+      jest.spyOn(localDbService, 'purgeArtifacts').mockRejectedValueOnce(new Error('artifacts boom'))
+      const purgeDataSpy = jest
+        .spyOn(connectionsManagerService['storageService'], 'purgeData')
+        .mockImplementation(() => {})
+
+      await expect(connectionsManagerService.launchCommunityFromStorage()).rejects.toThrow('artifacts boom')
+
+      expect(purgeDataSpy).not.toHaveBeenCalled()
+      expect(fs.existsSync(markerPath())).toBe(true)
+    })
+
+    it('recovery at startup leaves the marker in place when purgeData throws', async () => {
+      fs.mkdirSync(quietDir, { recursive: true })
+      fs.writeFileSync(markerPath(), new Date().toISOString())
+      jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
+      jest.spyOn(connectionsManagerService['storageService'], 'purgeData').mockImplementationOnce(() => {
+        throw new Error('data boom')
+      })
+
+      await expect(connectionsManagerService.launchCommunityFromStorage()).rejects.toThrow('data boom')
+
+      expect(fs.existsSync(markerPath())).toBe(true)
+    })
   })
 
   it('pre-community artifact erasure preserves TorDataDirectory while purging community storage', async () => {

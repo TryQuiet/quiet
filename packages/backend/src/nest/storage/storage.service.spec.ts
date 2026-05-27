@@ -276,6 +276,119 @@ describe('StorageService', () => {
       fs.rmSync(lockedDir, { recursive: true, force: true })
     })
 
+    it('purgeData removes arbitrary contents of uploads/downloads and every other dir under quietDir', () => {
+      // Regression test for issue #3225: leaving a community must clean uploads/ and downloads/
+      // along with every other data dir under quietDir. Whatever files exist there — any names,
+      // any sizes, any nesting — must be purged.
+
+      // Sorted, recursive, symlink-skipping snapshot of quietDir. Returns paths relative to root.
+      const snapshotDir = (root: string): string[] => {
+        if (!fs.existsSync(root)) return []
+        const out: string[] = []
+        const walk = (dir: string) => {
+          let entries: fs.Dirent[]
+          try {
+            entries = fs.readdirSync(dir, { withFileTypes: true })
+          } catch {
+            return
+          }
+          for (const entry of entries) {
+            if (entry.isSymbolicLink()) continue
+            const abs = path.join(dir, entry.name)
+            out.push(path.relative(root, abs))
+            if (entry.isDirectory()) walk(abs)
+          }
+        }
+        walk(root)
+        return out.sort()
+      }
+
+      const quietDir = storageService.quietDir
+      fs.mkdirSync(quietDir, { recursive: true })
+
+      // Baseline: whatever the test harness has put under quietDir is the reference. We only
+      // care about what we add beyond this.
+      const baseline = snapshotDir(quietDir)
+
+      // Seed a varied set of sentinel files. The goal is to show that *whatever* lands in
+      // these dirs gets purged — not just one fixed name. We vary filename shapes, extensions,
+      // sizes, and nesting depth.
+      const sentinelsByDir: Record<string, string[]> = {
+        // The two buggy dirs (issue #3225): seed aggressively.
+        uploads: [
+          'sentinel-upload.bin',
+          'f47ac10b-58cc-4372-a567-0e02b2c3d479.png', // uuid-like (mirrors real upload naming)
+          'testimage.gif',
+          'document.pdf',
+          'file with spaces.txt',
+          'émoji-名前.jpg', // unicode in filename
+          '.hidden',
+          'noextension',
+          'subdir/nested.bin',
+          'subdir/deeper/deep.bin',
+          'empty.txt', // 0-byte file
+        ],
+        downloads: [
+          'sentinel-download.bin',
+          'cafe1234-5678-9abc-def0-123456789abc.gif',
+          'received-image.png',
+          'received with spaces.pdf',
+          '中文文件.txt',
+          'subdir/nested-download.bin',
+          'subdir/a/b/c/very-nested.bin',
+          'empty-download',
+        ],
+        // Regression anchors: already-purged dirs. If a future refactor accidentally
+        // narrows the purge set, these tell us.
+        Ipfs: ['sentinel-ipfs.bin', 'blocks/CIQ.../subblock.data'],
+        OrbitDB: ['sentinel-orbit.bin'],
+        libp2pDatastore: ['sentinel-libp2p.bin'],
+        backendDB: ['sentinel-backend.bin'],
+      }
+
+      const expectedSeeded: string[] = []
+      for (const [subdir, files] of Object.entries(sentinelsByDir)) {
+        for (const rel of files) {
+          const abs = path.join(quietDir, subdir, rel)
+          fs.mkdirSync(path.dirname(abs), { recursive: true })
+          // Vary content: empty files (~16% of set) test that 0-byte entries still get
+          // walked and removed; everything else gets a tiny payload derived from the path.
+          const content = rel.startsWith('empty') ? Buffer.alloc(0) : Buffer.from(`payload:${rel}`)
+          fs.writeFileSync(abs, content)
+          expectedSeeded.push(path.join(subdir, rel))
+        }
+      }
+
+      // Sanity — if seeding failed, the test would pass trivially. Confirm every file exists.
+      for (const rel of expectedSeeded) {
+        expect(fs.existsSync(path.join(quietDir, rel))).toBe(true)
+      }
+
+      // Call purgeData (sync; see storage.service.ts:133)
+      storageService.purgeData()
+
+      // Layer 1 — targeted assertions for issue #3225.
+      const uploadsPath = path.join(quietDir, 'uploads')
+      const downloadsPath = path.join(quietDir, 'downloads')
+      // uploads/ tree must be empty or absent after purgeData (issue #3225).
+      expect(fs.existsSync(uploadsPath) ? snapshotDir(uploadsPath) : []).toEqual([])
+      // downloads/ tree must be empty or absent after purgeData (issue #3225).
+      expect(fs.existsSync(downloadsPath) ? snapshotDir(downloadsPath) : []).toEqual([])
+
+      // Layer 2 — broad assertion. Anything we added beyond baseline must be gone.
+      // This allowlist intentionally starts empty. If a future code change legitimately
+      // needs a path to persist across "leave community", add it here with a justification.
+      const persistAllowlist: string[] = []
+      const after = snapshotDir(quietDir)
+      const leftover = after.filter(p => !baseline.includes(p) && !persistAllowlist.includes(p))
+      expect(leftover).toEqual([])
+
+      // Defensive cleanup in case purgeData did not remove these (current bug).
+      for (const subdir of Object.keys(sentinelsByDir)) {
+        fs.rmSync(path.join(quietDir, subdir), { recursive: true, force: true })
+      }
+    })
+
     it('purgeData can preserve the Tor data directory', () => {
       const torDataDirectory = path.join(storageService.quietDir, 'TorDataDirectory')
       const ipfsDirectory = path.join(storageService.quietDir, 'Ipfs-test')
