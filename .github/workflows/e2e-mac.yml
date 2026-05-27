@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-26
             binary_suffix: "-arm64"
           - os: macos-26-intel
             binary_suffix: ""
