@@ -29,6 +29,7 @@ import {
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
   User,
+  AddMembersChannelPayload,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -53,6 +54,7 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
+    addMembersChannel: (state, action: PayloadAction<AddMembersChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
     sendIntroductionMessage: state => state,
     channelDeletionResponse: (state, _action: PayloadAction<DeleteChannelResponse>) => state,

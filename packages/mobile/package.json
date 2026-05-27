@@ -161,6 +161,7 @@
       "__snapshots__"
     ],
     "setupFiles": [
+      "./src/setupNodeEnv.ts",
       "./src/setupTests.tsx",
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],

@@ -29,8 +29,8 @@ describe('New user joins using invitation link while having app opened', () => {
   let guestApp: App
 
   beforeAll(async () => {
-    ownerApp = new App()
-    guestApp = new App({ defaultDataDir: true })
+    ownerApp = new App({ username: ownerUsername })
+    guestApp = new App({ defaultDataDir: true, username: joiningUserUsername })
     await guestApp.cleanup(true)
   })
 
@@ -80,7 +80,7 @@ describe('New user joins using invitation link while having app opened', () => {
       expect(await generalChannel.isReady())
 
       const generalChannelText = await generalChannel.element.getText()
-      expect(generalChannelText).toEqual('# general')
+      expect(generalChannelText).toEqual('general')
     })
 
     it('Owner opens the settings tab and gets an invitation code', async () => {

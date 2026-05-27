@@ -83,6 +83,16 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     return this.authConnMap.get(teamId)
   }
 
+  public markMemberRoleReady(teamId: string): void {
+    const authConnection = this.authConnMap.get(teamId)
+    if (authConnection == null) {
+      this.logger.warn('No QSS auth connection found when marking member role ready', teamId)
+      return
+    }
+
+    authConnection.markMemberRoleReady()
+  }
+
   /**
    * Start an auth sync connection with QSS for a given team
    *
@@ -150,6 +160,15 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       id: randomInt(1_000_000),
     })
     authConnection.teamId = teamId
+    authConnection.on(QSSEvents.QSS_AUTH_CONNECTED, (eventTeamId: string) => {
+      this.emit(QSSEvents.QSS_AUTH_CONNECTED, eventTeamId ?? teamId)
+    })
+    authConnection.on(QSSEvents.QSS_AUTH_JOINED, (eventTeamId: string) => {
+      this.emit(QSSEvents.QSS_AUTH_JOINED, eventTeamId ?? teamId)
+    })
+    authConnection.on(QSSEvents.QSS_DISCONNECTED, (eventTeamId: string) => {
+      this.emit(QSSEvents.QSS_DISCONNECTED, eventTeamId ?? teamId)
+    })
     authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (teamId: string) => {
       this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, teamId)
     })

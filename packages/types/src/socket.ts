@@ -15,6 +15,8 @@ import {
   ChannelSubscribedPayload,
   ChannelsReplicatedPayload,
   ChannelMessage,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
 } from './channel'
 import {
   DownloadStatus,
@@ -37,6 +39,8 @@ import {
   RequestInvitePayload,
   ResponseInvitePayload,
   InviteResultWithSalt,
+  JoinCommunityPayload,
+  UpdateCommunityPayload,
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
@@ -71,6 +75,7 @@ export enum SocketActions {
   CREATE_CHANNEL = 'createChannel',
   DELETE_CHANNEL = 'deleteChannel',
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
+  ADD_MEMBERS_TO_CHANNEL = 'addMembersToChannel',
 
   // ====== Messages ======
 
@@ -120,6 +125,7 @@ export enum SocketEvents {
 
   // ====== Community ======
   COMMUNITY_LAUNCHED = 'communityLaunched',
+  COMMUNITY_UPDATED = 'communityUpdated',
 
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
@@ -190,6 +196,10 @@ export interface SocketActionsMap {
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
   [SocketActions.DELETE_CHANNEL]: EmitEvent<DeleteChannelPayload, (response?: DeleteChannelResponse) => void>
   [SocketActions.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
+  [SocketActions.ADD_MEMBERS_TO_CHANNEL]: EmitEvent<
+    AddMembersChannelPayload,
+    (response?: AddMembersChannelResponse) => void
+  >
 
   // ====== Messages ======
   [SocketActions.DOWNLOAD_FILE]: EmitEvent<DownloadFilePayload>
@@ -236,6 +246,7 @@ export interface SocketEventsMap {
 
   // ====== Community ======
   [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
+  [SocketEvents.COMMUNITY_UPDATED]: EmitEvent<UpdateCommunityPayload>
 
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>

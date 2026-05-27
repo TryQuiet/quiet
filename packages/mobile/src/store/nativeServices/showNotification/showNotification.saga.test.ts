@@ -87,6 +87,7 @@ describe('showNotificationSaga', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
           id: generateChannelId('photo'),
+          public: true,
         },
       })
     ).channel

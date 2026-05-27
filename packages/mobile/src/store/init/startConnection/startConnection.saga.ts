@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client'
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 import {
   select,
   put,
@@ -14,7 +14,7 @@ import {
   apply,
 } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as stateManager, Socket } from '@quiet/state-manager'
+import { communities, socket as stateManager, Socket } from '@quiet/state-manager'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
 import {
@@ -149,4 +149,31 @@ function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
   logger.warn('Canceling root task', task.error())
   yield* cancel(task)
   yield* putResolve(initActions.canceledRootTask())
+}
+
+function* syncCurrentQssEnabledToNative(): Generator {
+  if (Platform.OS !== 'android') {
+    return
+  }
+
+  const setTeamQssEnabled = NativeModules.CommunicationModule?.setTeamQssEnabled
+  if (!setTeamQssEnabled) {
+    return
+  }
+
+  const currentCommunity = yield* select(communities.selectors.currentCommunity)
+  const enabled = currentCommunity?.qssEnabled === true
+
+  try {
+    yield* call(setTeamQssEnabled, enabled)
+  } catch (error) {
+    logger.error('Failed to sync current community qssEnabled to Android native storage', error)
+  }
+}
+
+export function* watchAndSyncQssEnabledToNative(): Generator {
+  yield* call(syncCurrentQssEnabledToNative)
+  yield* takeEvery(communities.actions.setCurrentCommunity.type, syncCurrentQssEnabledToNative)
+  yield* takeEvery(communities.actions.updateCommunityData.type, syncCurrentQssEnabledToNative)
+  yield* takeEvery(communities.actions.deleteCommunity.type, syncCurrentQssEnabledToNative)
 }

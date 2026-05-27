@@ -93,7 +93,7 @@ describe('Restart app works correctly', () => {
     const createCommunityTitle = screen.queryByText(createCommunityDictionary.header)
     expect(createCommunityTitle).toBeNull()
 
-    const channelName = await screen.findByText('#general')
+    const channelName = await screen.findByText('general')
     expect(channelName).toBeVisible()
   })
 })

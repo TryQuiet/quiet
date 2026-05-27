@@ -9,6 +9,7 @@ import { SigChainModule } from './sigchain.service.module'
 import { SigChain } from './sigchain'
 import { SocketEvents } from '@quiet/types'
 import waitForExpect from 'wait-for-expect'
+import { SigchainEvents } from './types'
 
 const logger = createLogger('auth:sigchainManager.spec')
 
@@ -16,6 +17,7 @@ describe('SigChainService', () => {
   let module: TestingModule
   let sigChainService: SigChainService
   let localDbService: LocalDbService
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -23,6 +25,9 @@ describe('SigChainService', () => {
     }).compile()
     sigChainService = await module.resolve(SigChainService)
     localDbService = await module.resolve(LocalDbService)
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
   })
 
   beforeEach(async () => {
@@ -32,6 +37,7 @@ describe('SigChainService', () => {
   })
 
   afterAll(async () => {
+    handleChainUpdateSpy.mockReset()
     await localDbService.close()
     await module.close()
   })
@@ -45,12 +51,14 @@ describe('SigChainService', () => {
   it('should add a new chain and it not be active if not set to be', async () => {
     const sigChain = await sigChainService.createChain('test', 'user', false)
     expect(() => sigChainService.getActiveChain()).toThrowError()
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
     sigChainService.setActiveChain('test')
     expect(sigChainService.getActiveChain()).toBe(sigChain)
   })
   it('should add a new chain and it be active if set to be', async () => {
     const sigChain = await sigChainService.createChain('test2', 'user2', true)
     expect(sigChainService.getActiveChain()).toBe(sigChain)
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
     const prevSigChain = sigChainService.getChain({ teamName: 'test' })
     expect(prevSigChain).toBeDefined()
     expect(prevSigChain).not.toBe(sigChain)
@@ -68,6 +76,7 @@ describe('SigChainService', () => {
   it('should save and load sigchain using nestjs service', async () => {
     const TEAM_NAME = 'test3'
     const sigChain = await sigChainService.createChain(TEAM_NAME, 'user', true)
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
     await sigChainService.saveChain(TEAM_NAME)
     await sigChainService.deleteChain(TEAM_NAME, false)
     const loadedSigChain = await sigChainService.loadChain(TEAM_NAME, true)
@@ -82,6 +91,7 @@ describe('SigChainService', () => {
   it('should not allow duplicate chains to be added', async () => {
     await sigChainService.createChain('test4', 'user4', false)
     await expect(sigChainService.createChain('test4', 'user4', false)).rejects.toThrowError()
+    expect(handleChainUpdateSpy).toBeCalledTimes(1)
   })
   it('should handle concurrent chain operations correctly', async () => {
     const TEAM_NAME1 = 'test6'
@@ -92,6 +102,7 @@ describe('SigChainService', () => {
     ])
     expect(sigChainService.getChain({ teamName: TEAM_NAME1 })).toBeDefined()
     expect(sigChainService.getChain({ teamName: TEAM_NAME2 })).toBeDefined()
+    expect(handleChainUpdateSpy).toBeCalledTimes(2)
   })
 })
 
@@ -117,18 +128,18 @@ describe('SigChainService - listener lifecycle', () => {
   it('does not accumulate listeners on chains when switching active chain', async () => {
     const chainA: SigChain = await sigChainService.createChain('leakA', 'alice', true)
     // chainA is active: one listener attached
-    expect(chainA.listenerCount('updated')).toBe(1)
+    expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(1)
 
     const chainB: SigChain = await sigChainService.createChain('leakB', 'bob', true)
     // Active switched A → B. detachSocketListeners(A) must have removed A's listener.
-    expect(chainA.listenerCount('updated')).toBe(0)
-    expect(chainB.listenerCount('updated')).toBe(1)
+    expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(0)
+    expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(1)
 
     sigChainService.setActiveChain('leakA')
     // Active switched B → A. detachSocketListeners(B) must have removed B's listener,
     // and attachSocketListeners(A) adds exactly one to A.
-    expect(chainA.listenerCount('updated')).toBe(1)
-    expect(chainB.listenerCount('updated')).toBe(0)
+    expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(1)
+    expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(0)
   })
 
   it('does not emit iOS-native key or device events on non-ios platforms', async () => {
@@ -177,6 +188,43 @@ describe('SigChainService - listener lifecycle', () => {
     }
   })
 
+  it('emits new keys to Android once and does not resend already-stored keys', async () => {
+    const originalPlatform = process.platform
+    const originalQpsAllowed = process.env.QPS_ALLOWED
+    Object.defineProperty(process, 'platform', { value: 'android' })
+    process.env.QPS_ALLOWED = 'true'
+
+    try {
+      const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
+      const chain = await sigChainService.createChain('androidKeys', 'alice', true)
+      const teamId = chain.team!.id
+
+      await waitForExpect(async () => {
+        const keyCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)
+        expect(keyCalls).toHaveLength(1)
+        expect((keyCalls[0][1] as { keys: unknown[] }).keys.length).toBeGreaterThan(0)
+        const storedKeys = await localDbService.getKeysStoredInKeychain(teamId)
+        expect(storedKeys).toHaveLength((keyCalls[0][1] as { keys: unknown[] }).keys.length)
+      })
+
+      const storedKeysAfterFirstUpdate = await localDbService.getKeysStoredInKeychain(teamId)
+
+      chain.emit('updated')
+
+      await new Promise(resolve => setTimeout(resolve, 25))
+
+      expect(emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)).toHaveLength(1)
+      expect(await localDbService.getKeysStoredInKeychain(teamId)).toEqual(storedKeysAfterFirstUpdate)
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform })
+      if (originalQpsAllowed == null) {
+        delete process.env.QPS_ALLOWED
+      } else {
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    }
+  })
+
   it('emits device credentials for the NSE on ios', async () => {
     const originalPlatform = process.platform
     const originalQpsAllowed = process.env.QPS_ALLOWED
@@ -186,6 +234,35 @@ describe('SigChainService - listener lifecycle', () => {
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
       const chain = await sigChainService.createChain('iosDeviceCredentials', 'alice', true)
+
+      await waitForExpect(() => {
+        const deviceCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)
+        expect(deviceCalls).toHaveLength(1)
+        expect(deviceCalls[0][1]).toEqual({
+          deviceId: chain.device.deviceId,
+          teamId: chain.team!.id,
+          signingPrivateKey: chain.device.keys.signature.secretKey,
+        })
+      })
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform })
+      if (originalQpsAllowed == null) {
+        delete process.env.QPS_ALLOWED
+      } else {
+        process.env.QPS_ALLOWED = originalQpsAllowed
+      }
+    }
+  })
+
+  it('emits device credentials for the NSE on android', async () => {
+    const originalPlatform = process.platform
+    const originalQpsAllowed = process.env.QPS_ALLOWED
+    Object.defineProperty(process, 'platform', { value: 'android' })
+    process.env.QPS_ALLOWED = 'true'
+
+    try {
+      const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
+      const chain = await sigChainService.createChain('androidDeviceCredentials', 'alice', true)
 
       await waitForExpect(() => {
         const deviceCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)

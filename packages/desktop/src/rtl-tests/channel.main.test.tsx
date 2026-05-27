@@ -49,7 +49,7 @@ import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
-describe('Channel', () => {
+describe('PublicChannel', () => {
   let socket: MockedSocket
   let notification: any
 
@@ -138,7 +138,7 @@ describe('Channel', () => {
       store
     )
 
-    const channelName = screen.getByText('#general')
+    const channelName = screen.getByText('general')
     expect(channelName).toBeVisible()
 
     const messageInput = screen.getByPlaceholderText(`Message #general as @${nickname}`)
@@ -739,7 +739,9 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        ownership: CommunityOwnership.Owner,
+        updates: {
+          ownership: CommunityOwnership.Owner,
+        },
       })
     )
     initialState.dispatch(network.actions.addInitializedCommunity(community.id))
@@ -1047,7 +1049,9 @@ describe('Channel', () => {
       initialState.dispatch(
         communities.actions.updateCommunityData({
           id: community.id,
-          ownership: CommunityOwnership.Owner,
+          updates: {
+            ownership: CommunityOwnership.Owner,
+          },
         })
       )
     })
@@ -1386,7 +1390,9 @@ describe('Channel', () => {
       initialState.dispatch(
         communities.actions.updateCommunityData({
           id: community.id,
-          ownership: CommunityOwnership.Owner,
+          updates: {
+            ownership: CommunityOwnership.Owner,
+          },
         })
       )
     })

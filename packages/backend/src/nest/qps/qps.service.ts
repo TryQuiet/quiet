@@ -17,6 +17,8 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { NotificationTokensStore } from '../storage/notifications/notificationTokens.store'
 import { QSSService } from '../qss/qss.service'
+import { SigchainEvents } from '../auth/types'
+import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 
@@ -39,6 +41,7 @@ export class QPSService implements OnModuleInit {
     private readonly socketService: SocketService,
     private readonly qssClient: QSSClient,
     private readonly qssService: QSSService,
+    private readonly qssSyncManager: QSSSyncManager,
     private readonly sigChainService: SigChainService,
     private readonly notificationTokensStore: NotificationTokensStore
   ) {}
@@ -60,7 +63,7 @@ export class QPSService implements OnModuleInit {
     this.qssService.on(QSSEvents.QSS_FULLY_JOINED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
-    this.sigChainService.on('updated', () => this._flushPendingToken())
+    this.sigChainService.on(SigchainEvents.UPDATED, () => this._flushPendingToken())
   }
 
   /**
@@ -90,12 +93,6 @@ export class QPSService implements OnModuleInit {
       return true
     }
 
-    if ((process.platform as string) !== 'ios') {
-      this.logger.info('Notification token tombstone is only necessary on iOS, skipping')
-      this._pendingDeviceToken = undefined
-      return true
-    }
-
     let teamId: Base58 | undefined
     let userId: string | undefined
     try {
@@ -107,7 +104,6 @@ export class QPSService implements OnModuleInit {
       this._pendingDeviceToken = undefined
       return false
     }
-
     if (teamId == null) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team id')
       this._pendingDeviceToken = undefined
@@ -137,7 +133,7 @@ export class QPSService implements OnModuleInit {
       const tombstoneHash = await this.notificationTokensStore.tombstoneUser(userId)
 
       try {
-        await this.qssService.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
+        await this.qssSyncManager.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
         this.logger.info(`Notification token tombstone acknowledged by QSS for user ${userId} on team ${teamId}`)
         return true
       } catch (err) {

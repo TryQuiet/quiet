@@ -11,6 +11,7 @@ import { EncryptedKeyValueIndexedValidatedStoreBase, EncryptedKeyValueStoreBase 
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
+import { SigchainEvents } from '../../auth/types'
 
 const logger = createLogger('UserProfileStore')
 
@@ -27,7 +28,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
     private readonly auth: SigChainService
   ) {
     super()
-    this.auth.on('updated', this.handleAuthUpdated)
+    this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
   }
 
   public async init() {

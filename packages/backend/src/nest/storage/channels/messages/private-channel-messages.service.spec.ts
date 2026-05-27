@@ -11,19 +11,21 @@ import { SigChainService } from '../../../auth/sigchain.service'
 import { createLogger } from '../../../common/logger'
 import { TestModule } from '../../../common/test.module'
 import { StorageModule } from '../../storage.module'
-import { MessagesService } from './messages.service'
 import { EncryptedMessage } from './messages.types'
 import { isEncryptedMessage } from '../../../validation/validators'
+import { PrivateChannelMessagesService } from './private-channel-messages.service'
 
-const logger = createLogger('messagesService:test')
+const logger = createLogger('privateChannelMessagesService:test')
 
-describe('MessagesService', () => {
+describe('PrivateChannelMessagesService', () => {
   let module: TestingModule
-  let messagesService: MessagesService
+  let messagesService: PrivateChannelMessagesService
   let sigChainService: SigChainService
 
   let factory: FactoryGirl
   let message: ChannelMessage
+
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
 
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
@@ -39,7 +41,16 @@ describe('MessagesService', () => {
     sigChainService = await module.resolve(SigChainService)
     await sigChainService.createChain('test-community', 'alice', true)
     message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
-    messagesService = await module.resolve(MessagesService)
+    sigChainService.activeChain.channels.create(message.channelId)
+    messagesService = await module.resolve(PrivateChannelMessagesService)
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
+  })
+
+  afterEach(async () => {
+    handleChainUpdateSpy.mockReset()
+    await module.close()
   })
 
   describe('onSend', () => {
@@ -57,7 +68,7 @@ describe('MessagesService', () => {
             scope: {
               generation: 0,
               type: EncryptionScopeType.ROLE,
-              name: RoleName.MEMBER,
+              name: sigChainService.activeChain.channels.generateChannelRoleName(message.channelId),
             },
           }),
           encSignature: expect.objectContaining({

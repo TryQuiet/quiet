@@ -20,7 +20,6 @@ const Sidebar = () => {
   const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
 
   const userProfileSelector = useSelector(users.selectors.userProfiles)
-  const myUserProfile = useSelector(users.selectors.myUserProfile)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
@@ -53,7 +52,6 @@ const Sidebar = () => {
 
   const channelsPanelProps: ChannelsPanelProps = {
     channels: publicChannelsSelector,
-    myUserProfile: myUserProfile,
     userProfiles: userProfileSelector,
     connectedPeers: connectedPeers,
     unreadChannels: unreadChannels,
@@ -71,7 +69,7 @@ const Sidebar = () => {
   }
 
   const directMessagesPanelProps: DirectMessagesPanelProps = {
-    myUserProfile: myUserProfile,
+    myUserProfile: userProfile,
     userProfiles: userProfileSelector,
     userProfileContextMenu: userProfileContextMenu,
     connectedPeers: connectedPeers,

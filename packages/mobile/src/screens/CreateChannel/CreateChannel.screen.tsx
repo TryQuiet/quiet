@@ -2,12 +2,14 @@ import React, { FC, useState, useCallback, useEffect } from 'react'
 import { CreateChannel } from '../../components/CreateChannel/CreateChannel.component'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities, identity, publicChannels, errors } from '@quiet/state-manager'
-import { ErrorCodes, ErrorMessages, PublicChannel, SocketActions, ChannelStructure } from '@quiet/types'
-import { DateTime } from 'luxon'
+import { ErrorCodes, ErrorMessages, SocketActions, ChannelStructure } from '@quiet/types'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { generateChannelId } from '@quiet/common'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('CreateChannelScreen')
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -86,11 +88,17 @@ export const CreateChannelScreen: FC = () => {
 
       setChannel({ channelId: id, channelName: name })
 
+      if (community == null || community.teamId == null) {
+        throw new Error(`Can't create channel when community isn't initialized`)
+      }
+
       dispatch(
         publicChannels.actions.createChannel({
           name: name,
           description: `Welcome to #${name}`,
           id: id,
+          teamId: community.teamId,
+          public: true,
         })
       )
     },

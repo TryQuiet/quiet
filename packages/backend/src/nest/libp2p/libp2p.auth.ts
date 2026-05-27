@@ -26,6 +26,7 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { ConnectionContext, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { SigChain } from '../auth/sigchain'
+import { LFAEvents } from '../auth/types'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -353,7 +354,7 @@ export class Libp2pAuth {
     } as ConnectionParams)
 
     // Set up auth connection event handlers.
-    authConnection.on('connected', () => {
+    authConnection.on(LFAEvents.CONNECTED, () => {
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
@@ -374,7 +375,7 @@ export class Libp2pAuth {
       }
     })
 
-    authConnection.on('disconnected', event => {
+    authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
       this.libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
         event,
@@ -382,7 +383,7 @@ export class Libp2pAuth {
       })
     })
 
-    authConnection.on('joined', payload => {
+    authConnection.on(LFAEvents.JOINED, payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
       this.logger.info(`Joined team ${team.teamName} (userid: ${user.userId})!`)
@@ -405,20 +406,20 @@ export class Libp2pAuth {
       this.unblockConnections(this.bufferedConnections)
     })
 
-    authConnection.on('change', payload => {
+    authConnection.on(LFAEvents.CHANGE, payload => {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
     })
 
-    authConnection.on('updated', payload => {
+    authConnection.on(LFAEvents.UPDATED, payload => {
       this.emit(Libp2pEvents.AUTH_UPDATED, payload)
       this.handleJoinViaQSS()
     })
 
     // Handle errors from local or remote sources.
-    authConnection.on('localError', error => {
+    authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
     })
-    authConnection.on('remoteError', error => {
+    authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.emit(Libp2pEvents.AUTH_REMOTE_ERROR, { error, connection })
     })
 

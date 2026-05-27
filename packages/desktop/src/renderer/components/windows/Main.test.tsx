@@ -87,7 +87,7 @@ describe('Main', () => {
                           >
                             <div
                               class="rc-scrollbars-view"
-                              style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
+                              style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px; overflow-x: hidden;"
                             >
                               <div
                                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
@@ -153,7 +153,7 @@ describe('Main', () => {
                                     data-testid="channelsList"
                                   >
                                     <div
-                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-vvt03z-MuiButtonBase-root-MuiListItemButton-root"
+                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-4vt7bz-MuiButtonBase-root-MuiListItemButton-root"
                                       data-testid="general-link"
                                       role="button"
                                       tabindex="0"
@@ -168,13 +168,54 @@ describe('Main', () => {
                                             class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
                                           >
                                             <div
-                                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                              class="MuiGrid-root MuiGrid-container css-rwxjqg-MuiGrid-root"
                                             >
+                                              <svg
+                                                aria-hidden="true"
+                                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium ChannelsListItemlock css-i4bv87-MuiSvgIcon-root"
+                                                data-testid="general-channel-link-icon-public"
+                                                fill="currentColor"
+                                                focusable="false"
+                                                style="font-size: 16px; line-height: 26px; font-family: 'Rubik', sans-serif,Menlo Regular; font-weight: 400;"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <svg
+                                                  fill="none"
+                                                  height="24"
+                                                  viewBox="0 0 24 24"
+                                                  width="24"
+                                                >
+                                                  <path
+                                                    d="M15.7318 4.875L12.8818 19.125"
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-width="2"
+                                                  />
+                                                  <path
+                                                    d="M10.5355 4.875L7.68555 19.125"
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-width="2"
+                                                  />
+                                                  <path
+                                                    d="M6.8252 8.58594H17.7502"
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-width="2"
+                                                  />
+                                                  <path
+                                                    d="M5.875 15.4141H16.8"
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-width="2"
+                                                  />
+                                                </svg>
+                                              </svg>
                                               <p
                                                 class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
                                                 data-testid="general-channel-link-text"
                                               >
-                                                # general
+                                                general
                                               </p>
                                             </div>
                                           </div>
@@ -245,31 +286,10 @@ describe('Main', () => {
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1xjxipu-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container TorStatuswrapper css-1ki2u8z-MuiGrid-root"
-                        >
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                          >
-                            TOR
-                          </p>
-                          <div
-                            class="MuiGrid-root MuiGrid-container TorStatuscircleWrapper css-1hbmzt3-MuiGrid-root"
-                          >
-                            <div
-                              class="MuiGrid-root MuiGrid-item TorStatuscircle css-13i4rnv-MuiGrid-root"
-                              style="background: rgb(209, 49, 53);"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <div
-                          class="css-b98vji"
+                          class="css-e5hanu"
                         >
                           <div
                             class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"

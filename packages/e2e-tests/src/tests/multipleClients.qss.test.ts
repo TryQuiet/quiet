@@ -60,7 +60,6 @@ describe('Multiple Clients (QSS)', () => {
   const generalChannelName = 'general'
 
   beforeAll(async () => {
-    const commonApp = new App()
     qssLogTailProcess = tailQssLogs()
     users = {
       owner: {
@@ -70,7 +69,7 @@ describe('Multiple Clients (QSS)', () => {
           fanoutMessage: 'This message should fanout via QSS logs',
           catchUpMessage: 'First user should catch up via QSS',
         },
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-joining-1',
@@ -78,7 +77,7 @@ describe('Multiple Clients (QSS)', () => {
           initialChannelMessage: 'Nice to meet you all',
           ownerOfflineMessage: 'This is a message',
         },
-        app: commonApp,
+        app: new App({ username: 'user-joining-1' }),
       },
       user2: {
         username: 'user-joining-2',
@@ -87,7 +86,7 @@ describe('Multiple Clients (QSS)', () => {
           followUpMessage: 'The owner should see this even without user1 online',
           catchUpMessage: 'First user is offline but should catch up via QSS',
         },
-        app: new App(),
+        app: new App({ username: 'user-joining-2' }),
       },
     }
   })
@@ -165,9 +164,11 @@ describe('Multiple Clients (QSS)', () => {
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
+        const sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.getChannelIcon(generalChannelName, true)
 
         const generalChannelText = await generalChannelOwner.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
       it('Owner sends a message', async () => {

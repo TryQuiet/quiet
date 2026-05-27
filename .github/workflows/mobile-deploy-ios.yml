@@ -74,6 +74,7 @@ jobs:
           IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
           IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
           IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
           IOS_NSE_PROFILE_KEY: ${{ secrets.IOS_NSE_PROFILE_KEY }}
 
       - name: Build

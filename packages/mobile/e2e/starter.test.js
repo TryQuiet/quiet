@@ -91,7 +91,7 @@ describe('User', () => {
   })
 
   test('enters #general channel', async () => {
-    await press(element(by.text('#general')))
+    await press(element(by.text('general')))
 
     await waitFor(element(by.id('chat_general')))
       .toBeVisible()
@@ -166,7 +166,7 @@ describe('User', () => {
   })
 
   test('sees channel deletion information in #general channel', async () => {
-    await press(element(by.text('#general')))
+    await press(element(by.text('general')))
 
     await waitFor(element(by.text(deleteChannelMessage('roll'))))
       .toBeVisible()
@@ -190,7 +190,7 @@ describe('User', () => {
   })
 
   test('sees channel recreation information in #general channel', async () => {
-    await press(element(by.text('#general')))
+    await press(element(by.text('general')))
 
     await waitFor(element(by.text('@rick deleted all messages in #general')))
       .toBeVisible()
@@ -288,7 +288,7 @@ describe('User', () => {
   })
 
   test('enters #general channel', async () => {
-    await press(element(by.text('#general')))
+    await press(element(by.text('general')))
 
     await waitFor(element(by.id('chat_general')))
       .toBeVisible()

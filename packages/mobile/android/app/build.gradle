@@ -8,6 +8,8 @@ react {
     autolinkLibrariesWithApp()
 }
 
+def googleServicesJsonPath = file("google-services.json")
+
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -289,6 +291,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
 
     implementation("com.google.code.gson:gson:2.13.2")
+    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation(project(":react-native-fs")) // comes from npm module
     implementation(group: "commons-io", name: "commons-io", version: "2.20.0")
 
@@ -306,6 +311,8 @@ dependencies {
     implementation("com.facebook.fresco:animated-gif:3.6.0")
     implementation("com.goterl:lazysodium-android:5.2.0@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
+    implementation("com.apicatalog:copper-multibase:4.1.0")
+    implementation("org.msgpack:msgpack-core:0.9.12")
 
     implementation("com.google.guava:guava:33.5.0-android")
 }
@@ -318,14 +325,34 @@ tasks.register("copyDownloadableDepsToLibs", Copy) {
 }
 
 // Additional configuration
+// Keys are matched by dotenv.gradle's getCurrentFlavor(), which captures the
+// trailing CamelCase segment of the gradle task name and lowercases it (e.g.
+// installStandardDebug -> "standarddebug"). With product flavors in play the
+// bare buildType keys ("debug", "release") never match, so keys must include
+// the flavor prefix.
 project.ext.envConfigFiles = [
-        debug    : ".env.development",
-        storybook: ".env.storybook",
-        release  : ".env.staging",
-        prod     : ".env.production",
+        standarddebug   : ".env.development",
+        standardrelease : ".env.staging",
+        standardprod    : ".env.production",
+        storybookdebug  : ".env.storybook",
+        storybookrelease: ".env.storybook",
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
+
+if (googleServicesJsonPath.exists()) {
+    apply plugin: "com.google.gms.google-services"
+} else {
+    def buildingRelease = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+    if (buildingRelease) {
+        throw new GradleException(
+            "google-services.json not found in packages/mobile/android/app. Release builds " +
+            "require it for Firebase push notifications. Run ./.github/secrets/decrypt_android_secrets.sh " +
+            "(needs the ANDROID_FIREBASE_KEY passphrase) or add the file manually before building."
+        )
+    }
+    logger.warn("google-services.json not found in packages/mobile/android/app; Firebase push notifications will be unavailable in this build.")
+}
 
 repositories {
     mavenCentral()

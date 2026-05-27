@@ -15,7 +15,7 @@ import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
 import { removeFiles, removeDirs, createPaths, removeFilesFromDir } from '../common/utils'
-import { StorageEvents } from './storage.types'
+import { type PurgeDataOptions, StorageEvents } from './storage.types'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
@@ -31,7 +31,7 @@ import path from 'path'
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  private initialized: boolean = false
+  public initialized: boolean = false
   private initPromise: Promise<void> | undefined
   private storeListenersAttached = false
 
@@ -62,7 +62,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async init(teamId?: string) {
-    if (this.initialized === true) {
+    if (this.initialized) {
       this.logger.warn(`${StorageService.name} already initialized, skipping duplicate event`)
       if (teamId != null) {
         this.addTeamIdToDbMetas(teamId)
@@ -114,6 +114,7 @@ export class StorageService extends EventEmitter {
 
     this.logger.info('Initialized storage')
     this.initialized = true
+    this.emit(StorageEvents.INITIALIZED)
   }
 
   public async clean() {
@@ -130,12 +131,12 @@ export class StorageService extends EventEmitter {
     await this.stop()
   }
 
-  public purgeData() {
+  public purgeData({ removeTorDataDirectory = true }: PurgeDataOptions = {}) {
     this.logger.info('Purging data directories and files')
-    this._purgeDataDirectories()
+    this._purgeDataDirectories({ removeTorDataDirectory })
     this._purgeFiles()
   }
-  private _purgeDataDirectories() {
+  private _purgeDataDirectories({ removeTorDataDirectory }: Required<PurgeDataOptions>) {
     const dirsToRemove = existsSync(this.quietDir)
       ? readdirSync(this.quietDir).filter(
           i =>
@@ -145,7 +146,7 @@ export class StorageService extends EventEmitter {
             i.startsWith('Local Storage') ||
             i.startsWith('libp2pDatastore') ||
             i.startsWith('databases') ||
-            i.startsWith('TorDataDirectory') ||
+            (removeTorDataDirectory && i.startsWith('TorDataDirectory')) ||
             i.startsWith('uploads') ||
             i.startsWith('downloads')
         )

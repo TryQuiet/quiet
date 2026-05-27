@@ -20,11 +20,14 @@ import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
 import { StorageModule } from '../storage/storage.module'
 import { QSSService } from '../qss/qss.service'
+import { QSSSyncManager } from '../qss/qss-sync-manager.service'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
+import fs from 'fs'
+import path from 'path'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -39,7 +42,9 @@ describe('ConnectionsManagerService', () => {
   let userIdentity: Identity
   let communityRootCa: string
   let sigChainService: SigChainService
+  let handleChainUpdateSpy: jest.SpiedFunction<any>
   let qssService: QSSService
+  let qssSyncManager: QSSSyncManager
   let qpsService: QPSService
   let captchaService: CaptchaService
 
@@ -66,10 +71,15 @@ describe('ConnectionsManagerService', () => {
     localDbService = await module.resolve(LocalDbService)
     sigChainService = await module.resolve(SigChainService)
     qssService = await module.resolve(QSSService)
+    qssSyncManager = await module.resolve(QSSSyncManager)
     qpsService = await module.resolve(QPSService)
     captchaService = await module.resolve(CaptchaService)
-    jest.spyOn(qssService as any, 'processDLQDecrypt').mockResolvedValue(undefined)
+    jest.spyOn(qssSyncManager, 'processDLQDecrypt').mockResolvedValue(undefined)
     await localDbService.open()
+
+    handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
+      logger.debug('MOCK: handling chain update')
+    })
 
     // initialize sigchain on local db
     await sigChainService.createChain(community.name!, 'john', false)
@@ -82,6 +92,7 @@ describe('ConnectionsManagerService', () => {
     if (connectionsManagerService) {
       await connectionsManagerService.closeAllServices()
     }
+    handleChainUpdateSpy.mockReset()
     removeFilesFromDir(quietDir)
   })
 
@@ -407,6 +418,7 @@ describe('ConnectionsManagerService', () => {
     expect(deleteChainSpy).toHaveBeenCalled()
     expect(purgeLocalDbArtifactsSpy).toHaveBeenCalledTimes(1)
     expect(purgeDataSpy).toHaveBeenCalledTimes(1)
+    expect(purgeDataSpy).toHaveBeenCalledWith({ removeTorDataDirectory: false })
     expect(resetHiddenServicesSpy).toHaveBeenCalledTimes(1)
     expect(resetStateSpy).toHaveBeenCalledTimes(1)
     expect(localDbOpenSpy).toHaveBeenCalledTimes(1)
@@ -546,6 +558,32 @@ describe('ConnectionsManagerService', () => {
 
       expect(fs.existsSync(markerPath())).toBe(true)
     })
+  })
+
+  it('pre-community artifact erasure preserves TorDataDirectory while purging community storage', async () => {
+    const torDataDirectory = path.join(quietDir, 'TorDataDirectory')
+    const torCacheFile = path.join(torDataDirectory, 'cached-certs')
+    const communityStorageDirectory = path.join(quietDir, 'Ipfs-regression')
+
+    fs.mkdirSync(torDataDirectory, { recursive: true })
+    fs.writeFileSync(torCacheFile, 'tor cache')
+    fs.mkdirSync(communityStorageDirectory, { recursive: true })
+
+    jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
+    jest.spyOn(connectionsManagerService.libp2pService, 'close').mockResolvedValue()
+    jest.spyOn(connectionsManagerService.libp2pService, 'cleanDatastore').mockResolvedValue()
+    jest.spyOn(connectionsManagerService.libp2pService, 'closeDatastore').mockResolvedValue()
+    jest.spyOn(sigChainService, 'deleteChain').mockResolvedValue()
+    jest.spyOn(localDbService, 'purgeArtifacts').mockResolvedValue()
+    jest.spyOn(connectionsManagerService['tor'], 'resetHiddenServices').mockImplementation(() => {})
+    jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
+    jest.spyOn(localDbService, 'open').mockResolvedValue()
+    sigChainService.activeChainTeamName = community.name
+
+    await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
+
+    expect(fs.existsSync(torCacheFile)).toBe(true)
+    expect(fs.existsSync(communityStorageDirectory)).toBe(false)
   })
 
   it('returns false instead of rejecting when leaveCommunity fails through the socket listener', async () => {

@@ -8,6 +8,7 @@ import dropFiles from '../../../static/images/dropFiles.svg'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
 import { createLogger } from '../../../logger'
+import { webUtils } from 'electron'
 
 const logger = createLogger('dropZone:component')
 
@@ -53,9 +54,10 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({ children, 
       drop(item: { files: any[] }) {
         if (handleFileDrop) {
           if (!item.files.length) return
-          if (item.files[0].path === '') return
+          const path = webUtils.getPathForFile(item.files[0])
+          if (path === '') return
           try {
-            if (fs.statSync(item.files[0].path).isDirectory()) return
+            if (fs.statSync(path).isDirectory()) return
           } catch (e) {
             // See: https://github.com/react-dnd/react-dnd/issues/3458
             logger.error('drop error: ', e)

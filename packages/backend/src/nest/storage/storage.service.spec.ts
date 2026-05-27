@@ -67,6 +67,8 @@ describe('StorageService', () => {
       owner: channel.owner,
       timestamp: channel.timestamp,
       id: channel.id,
+      public: true,
+      teamId: community.teamId!,
     }
 
     alice = await factory.create<Identity>('Identity', { communityId: community.id, nickname: 'alice' })
@@ -385,6 +387,20 @@ describe('StorageService', () => {
       for (const subdir of Object.keys(sentinelsByDir)) {
         fs.rmSync(path.join(quietDir, subdir), { recursive: true, force: true })
       }
+    })
+
+    it('purgeData can preserve the Tor data directory', () => {
+      const torDataDirectory = path.join(storageService.quietDir, 'TorDataDirectory')
+      const ipfsDirectory = path.join(storageService.quietDir, 'Ipfs-test')
+      fs.mkdirSync(torDataDirectory, { recursive: true })
+      fs.mkdirSync(ipfsDirectory, { recursive: true })
+
+      storageService.purgeData({ removeTorDataDirectory: false })
+
+      expect(fs.existsSync(torDataDirectory)).toBe(true)
+      expect(fs.existsSync(ipfsDirectory)).toBe(false)
+
+      fs.rmSync(torDataDirectory, { recursive: true, force: true })
     })
   })
 })

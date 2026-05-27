@@ -13,16 +13,12 @@ export function* createChannelSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
 ): Generator {
-  logger.info(`Creating channel ${action.payload.name}`)
+  logger.info(`Creating ${action.payload.public === false ? 'private' : 'public'} channel ${action.payload.name}`)
 
   const response: CreateChannelResponse = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActions.CREATE_CHANNEL, {
-      id: action.payload.id,
-      name: action.payload.name,
-      description: action.payload.description,
-    })
+    applyEmitParams(SocketActions.CREATE_CHANNEL, action.payload)
   )
 
   if (response) {

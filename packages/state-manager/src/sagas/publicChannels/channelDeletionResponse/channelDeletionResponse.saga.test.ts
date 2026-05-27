@@ -127,7 +127,9 @@ describe('channelDeletionResponseSaga', () => {
 
   describe('handle saga logic as standard user', () => {
     beforeAll(async () => {
-      store.dispatch(communitiesActions.updateCommunityData({ ...community, ownership: CommunityOwnership.User }))
+      store.dispatch(
+        communitiesActions.updateCommunityData({ id: community.id, updates: { ownership: CommunityOwnership.User } })
+      )
     })
     test('delete standard channel', async () => {
       const channelId = photoChannel.id
@@ -163,6 +165,8 @@ describe('channelDeletionResponseSaga', () => {
         owner: 'general_owner',
         timestamp: 0,
         id: newGeneralId,
+        public: true,
+        teamId: community.teamId!,
       }
 
       const reducer = combineReducers(testReducers)

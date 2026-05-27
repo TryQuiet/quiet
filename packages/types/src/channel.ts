@@ -13,6 +13,9 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   disabled?: boolean
+  public?: boolean
+  teamId?: string
+  roleName?: string
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -86,6 +89,8 @@ export interface ChannelsReplicatedPayload {
 export interface CreateChannelPayload {
   id: string
   name: string
+  public: boolean
+  teamId: string
   description?: string
 }
 
@@ -165,6 +170,25 @@ export interface DisableChannelPayload {
 export interface ChannelStructure {
   channelName: string | null
   channelId: string | null
+}
+
+export interface AddMembersChannelPayload {
+  channelId: string
+  channelName: string
+  memberIds: string[]
+}
+
+export enum AddMembersChannelStatus {
+  SUCCESS = 'SUCCESS',
+  FAILURE = 'FAILURE',
+  CHANNEL_MISSING = 'CHANNEL_MISSING',
+  NOT_MEMBER = 'NOT_MEMBER',
+  INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
+}
+
+export interface AddMembersChannelResponse {
+  channelId: string
+  status: AddMembersChannelStatus
 }
 
 export function instanceOfChannelMessage(object: ChannelMessage): boolean {

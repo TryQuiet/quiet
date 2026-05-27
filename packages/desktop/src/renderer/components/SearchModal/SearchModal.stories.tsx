@@ -12,7 +12,16 @@ export const Component = Template.bind({})
 const args: SearchModalComponentProps = {
   open: true,
   dynamicSearchedChannelsSelector: [
-    { name: 'fun', id: 'fun', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
+    {
+      name: 'fun',
+      id: 'fun',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
+    },
     {
       name: 'mobile',
       id: 'mobile',
@@ -20,6 +29,8 @@ const args: SearchModalComponentProps = {
       description: '',
       owner: '',
       timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
     },
     {
       name: 'new-york-plans',
@@ -28,10 +39,21 @@ const args: SearchModalComponentProps = {
       description: '',
       owner: '',
       timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
     },
   ],
   publicChannelsSelector: [
-    { name: 'fun', id: 'fun', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
+    {
+      name: 'fun',
+      id: 'fun',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
+    },
     {
       name: 'mobile',
       id: 'mobile',
@@ -39,6 +61,8 @@ const args: SearchModalComponentProps = {
       description: '',
       owner: '',
       timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
     },
     {
       name: 'new-york-plans',
@@ -47,6 +71,8 @@ const args: SearchModalComponentProps = {
       description: '',
       owner: '',
       timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
     },
     {
       name: 'general',
@@ -55,6 +81,8 @@ const args: SearchModalComponentProps = {
       description: '',
       owner: '',
       timestamp: 123123,
+      public: true,
+      teamId: 'foobar',
     },
   ],
   unreadChannelsSelector: [],

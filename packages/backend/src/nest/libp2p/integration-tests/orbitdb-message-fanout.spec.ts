@@ -97,7 +97,7 @@ async function channelEntriesSynced(services: ChannelsService[], channelId?: str
     for (const ch of await svc.getChannels()) {
       if (channelId && ch.id !== channelId) continue
       chanIds.add(ch.id)
-      const repo = svc.publicChannelsRepos.get(ch.id)
+      const repo = svc.channelsRepos.get(ch.id)
       if (!repo) return false
       const ids = new Set((await repo.store.getEntries()).map(e => e.id))
       const bag = union.get(ch.id) ?? new Set<string>()
@@ -108,7 +108,7 @@ async function channelEntriesSynced(services: ChannelsService[], channelId?: str
 
   for (const id of chanIds) {
     for (const svc of services) {
-      const repo = svc.publicChannelsRepos.get(id)
+      const repo = svc.channelsRepos.get(id)
       if (!repo) return false
       const ids = new Set((await repo.store.getEntries()).map(e => e.id))
       const bag = union.get(id)!
@@ -143,10 +143,10 @@ async function waitForSync(
       svc.channels?.events.on('update', finishIf)
       svc.on(StorageEvents.CHANNEL_SUBSCRIBED, p => {
         if (!channelId || p.channelId === channelId) {
-          svc.publicChannelsRepos.get(p.channelId)?.store.getStore().events.on('update', finishIf)
+          svc.channelsRepos.get(p.channelId)?.store.getStore().events.on('update', finishIf)
         }
       })
-      for (const [id, repo] of svc.publicChannelsRepos) {
+      for (const [id, repo] of svc.channelsRepos) {
         if (!channelId || id === channelId) {
           repo.store.getStore().events.on('update', finishIf)
         }
@@ -196,10 +196,10 @@ async function waitForSyncAndRun(
       svc.channels?.events.on('update', maybeAdvance)
       svc.on(StorageEvents.CHANNEL_SUBSCRIBED, p => {
         if (!channelId || p.channelId === channelId) {
-          svc.publicChannelsRepos.get(p.channelId)?.store.getStore().events.on('update', maybeAdvance)
+          svc.channelsRepos.get(p.channelId)?.store.getStore().events.on('update', maybeAdvance)
         }
       })
-      for (const [id, repo] of svc.publicChannelsRepos) {
+      for (const [id, repo] of svc.channelsRepos) {
         if (!channelId || id === channelId) {
           repo.store.getStore().events.on('update', maybeAdvance)
         }
@@ -380,7 +380,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
         })
         messages.push(message.content)
         const channelsService = modules[i].get(ChannelsService)
-        const channelStore = channelsService.publicChannelsRepos.get(publicChannels[0].id)
+        const channelStore = channelsService.channelsRepos.get(publicChannels[0].id)
         if (!channelStore) {
           throw new Error(`Channel store for channel ${publicChannels[0].id} not found on peer ${i}`)
         }
@@ -411,7 +411,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       async () => {
         for (let i = 0; i < modules.length; i++) {
           const channelsService = modules[i].get(ChannelsService)
-          const channelStore = channelsService.publicChannelsRepos.get(publicChannels[0].id)
+          const channelStore = channelsService.channelsRepos.get(publicChannels[0].id)
           const entries = await channelStore?.store.getEntries()
           expect(entries?.length).toBe(N_PEERS)
         }
@@ -464,7 +464,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const message = await factory.build('ChannelMessage', {
       channelId: newChannel.id,
     })
-    const channelStore = channelsService.publicChannelsRepos.get(newChannel.id)
+    const channelStore = channelsService.channelsRepos.get(newChannel.id)
     await channelStore!.store.sendMessage(message)
 
     await waitForExpect(

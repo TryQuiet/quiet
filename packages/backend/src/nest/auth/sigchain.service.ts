@@ -14,7 +14,7 @@ import {
 import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
-import { SocketEvents, StorableKey, User } from '@quiet/types'
+import { SocketEvents, StorableKey } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
@@ -23,7 +23,8 @@ import { type CryptoService } from './services/crypto/crypto.service'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { GetChainFilter, StoredKeyType } from './types'
+import { GetChainFilter, SigchainEvents, StoredKeyType } from './types'
+import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 
 @Injectable()
@@ -36,7 +37,8 @@ export class SigChainService extends EventEmitter {
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    private readonly localDbService: LocalDbService
+    private readonly localDbService: LocalDbService,
+    private readonly moduleRef: ModuleRef
   ) {
     super()
   }
@@ -141,8 +143,9 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(this.getChain({ teamName }))
   }
 
-  private handleChainUpdate = (teamName: string) => {
-    this._updateUsersOnChainUpdate(teamName)
+  private handleChainUpdate = async (teamId: string, teamName: string) => {
+    this.saveChain(teamName)
+    this.logger.info('Chain updated, emitted updated event')
     void this._updateKeysOnChainUpdate(teamName).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
@@ -151,30 +154,17 @@ export class SigChainService extends EventEmitter {
     void this.saveChain(teamName).catch(err => {
       this.logger.error('Failed to save chain after update', err)
     })
+    this.emit(SigchainEvents.UPDATED, teamId)
     this.logger.info('Chain updated, emitted updated event')
   }
 
   /**
-   * Send updated list of users to the state manager on chain update
-   */
-  private _updateUsersOnChainUpdate(teamName: string) {
-    const users = this.getChain({ teamName })
-      .team?.members()
-      .map(user => ({
-        userId: user.userId,
-        roles: user.roles,
-        isRegistered: true,
-        isDuplicated: false,
-      })) as User[]
-    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
-  }
-
-  /**
-   * Update the IOS keychain with any new keys on chain update
+   * Update mobile native storage with any new keys on chain update.
    */
   private async _updateKeysOnChainUpdate(teamName: string): Promise<void> {
-    if ((process.platform as string) !== 'ios') {
-      this.logger.trace('Skipping key update because we are not on ios, current platform =', process.platform)
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') {
+      this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
       return
     }
 
@@ -241,7 +231,7 @@ export class SigChainService extends EventEmitter {
     }
 
     if (keysToSend.length === 0) {
-      this.logger.trace('Skipping IOS keychain update, no new keys')
+      this.logger.trace('Skipping native key update, no new keys')
       return
     }
 
@@ -254,13 +244,14 @@ export class SigChainService extends EventEmitter {
   }
 
   /**
-   * Emit device credentials to iOS so the NSE can authenticate with QSS.
-   * Only runs on iOS; no-ops on other platforms.
+   * Emit device credentials to mobile clients so native background handlers can
+   * authenticate with QSS.
    */
   private _updateDeviceCredentials(teamName: string): void {
-    if ((process.platform as string) !== 'ios') return
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') return
     if (process.env.QPS_ALLOWED !== 'true') {
-      this.logger.trace('Not emitting device credentials for NSE because QPS is not allowed in this environment')
+      this.logger.trace('Not emitting device credentials because QPS is not allowed in this environment')
       return
     }
     try {
@@ -284,20 +275,24 @@ export class SigChainService extends EventEmitter {
     }
   }
 
+  private _handleEventSigchainUpdated = (chain: SigChain): (() => void) => {
+    return () => this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
+  }
+
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {
-      this.handleChainUpdate(chain.team!.teamName)
+      this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
     }
     this._chainListeners.set(chain, listener)
-    chain.on('updated', listener)
+    chain.on(SigchainEvents.UPDATED, listener)
   }
 
   private detachSocketListeners(chain: SigChain): void {
     this.logger.info('Detaching socket listeners')
     const listener = this._chainListeners.get(chain)
     if (listener) {
-      chain.removeListener('updated', listener)
+      chain.removeListener(SigchainEvents.UPDATED, listener)
       this._chainListeners.delete(chain)
     }
   }
@@ -357,7 +352,7 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.create(teamName, username)
     this.addChain(sigChain, setActive, teamName)
     await this.saveChain(teamName)
-    this.handleChainUpdate(teamName)
+    this.handleChainUpdate(sigChain.team!.id, teamName)
     return sigChain
   }
 
