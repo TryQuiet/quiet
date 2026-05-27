@@ -103,6 +103,7 @@ class NotificationHandler(private val context: Context) {
             NotificationManagerCompat.from(context.applicationContext)
 
         Log.i(TAG, "Posting group notification group=$group notificationId=$id")
+        // TODO app crashes if user does not grant permission
         notificationManager.notify(id, groupBuilder.build())
     }
 
@@ -161,6 +162,7 @@ class NotificationHandler(private val context: Context) {
             TAG,
             "Posting message notification channelId=$channelId notificationId=$id channelName=$channelName",
         )
+        // TODO app crashes if user does not grant permission
         notificationManager.notify(id, builder.build())
     }
 

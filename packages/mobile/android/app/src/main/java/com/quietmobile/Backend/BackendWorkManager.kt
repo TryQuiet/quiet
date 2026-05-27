@@ -37,17 +37,19 @@ class BackendWorkManager(private val context: Context) {
         }
 
         if (BackendWorker.isShutdownInProgress()) {
-            Log.i(TAG, "Skipping enqueueRequests because shutdown is in progress: " + BackendWorker.lifecycleSummary())
+            Log.i(TAG, "Skipping enqueueRequests because shutdown is in progress: ${BackendWorker.lifecycleSummary()}")
             return
         }
 
         if (BackendWorker.isNodeRuntimeActive() || BackendWorker.isStartupInProgress()) {
-            Log.i(TAG, "Skipping enqueueRequests because backend lifecycle is active: " + BackendWorker.lifecycleSummary())
+            Log.i(TAG, "Skipping enqueueRequests because backend lifecycle is active: ${BackendWorker.lifecycleSummary()}")
             return
         }
 
         if (running || enqueued) {
-            Log.i(TAG, "Skipping enqueueRequests because matching work already exists running=" + running + " enqueued=" + enqueued)
+            Log.i(TAG,
+                "Skipping enqueueRequests because matching work already exists running=$running enqueued=$enqueued"
+            )
             return
         }
 

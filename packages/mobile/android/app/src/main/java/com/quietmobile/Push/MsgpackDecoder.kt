@@ -73,7 +73,7 @@ object MsgpackDecoder {
             }
         }
 
-        private fun readPositiveIntOrRecord(): Any? {
+        private fun readPositiveIntOrRecord(): Any {
             val value = unpacker.unpackInt()
             val record = records[value]
             return if (record != null) readRecord(record) else value
@@ -101,7 +101,7 @@ object MsgpackDecoder {
             return MutableList(count) { readValue() }
         }
 
-        private fun readRecordDefinition(recordId: Int): Any? {
+        private fun readRecordDefinition(recordId: Int): Any {
             val keysValue = readValue() as? List<*>
                 ?: throw IllegalStateException("Invalid msgpackr record definition")
             val keys = keysValue.map {

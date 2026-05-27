@@ -65,6 +65,9 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
     ```
     You should see your phone under "List of Devices Attached". If you do not, try `adb kill-server` or restarting your phone and your dev machine. You device should not appear as "Unauthorized". If it does, make sure you have accepted any "USB Debugging" prompts on your device.
 
+
+**NOTE:** In order to build Quiet, you can't run a plan `./gradlew assembleDebug`, you *must* run `./gradlew assembleStandardDebug`.
+
 1. Run Quiet
 
     From the `packages/mobile` directory
