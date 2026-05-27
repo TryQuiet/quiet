@@ -62,6 +62,7 @@ jobs:
         run: hdiutil mount $FILE_NAME
 
       - name: Add App file to applications
+        id: finish-test-prep
         run: cd ~ && cp -R "/Volumes/Quiet $VERSION${{matrix.binary_suffix}}/Quiet.app" /Applications
 
       - name: Run one client test
@@ -73,6 +74,7 @@ jobs:
 
       - name: Run user profile test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: steps.finish-test-prep.outcome == 'success'
         with:
           timeout_minutes: 25
           max_attempts: 3
@@ -80,6 +82,7 @@ jobs:
 
       - name: Run multiple clients test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: steps.finish-test-prep.outcome == 'success'
         with:
           timeout_minutes: 25
           max_attempts: 3
@@ -87,6 +90,7 @@ jobs:
       
       - name: Run multiple clients test (private channels)
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: steps.finish-test-prep.outcome == 'success'
         with:
           timeout_minutes: 25
           max_attempts: 3
@@ -94,6 +98,7 @@ jobs:
 
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: steps.finish-test-prep.outcome == 'success'
         with:
           timeout_minutes: 25
           max_attempts: 3
