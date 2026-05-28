@@ -16,6 +16,7 @@ export enum StoreKeys {
   Settings = 'Settings',
   Files = 'Files',
   PushNotifications = 'PushNotifications',
+  Reactions = 'Reactions',
   // For testing purposes
   LastAction = 'LastAction',
   CollectData = 'CollectData',

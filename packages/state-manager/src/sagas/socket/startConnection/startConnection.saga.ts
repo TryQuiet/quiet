@@ -12,6 +12,7 @@ import { errorsActions } from '../../errors/errors.slice'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
+import { reactionsMasterSaga } from '../../reactions/reactions.master.saga'
 import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
@@ -293,6 +294,7 @@ export function* useIO(socket: Socket): Generator {
       fork(errorsMasterSaga),
       fork(captchaMasterSaga, socket),
       fork(pushNotificationsMasterSaga, socket),
+      fork(reactionsMasterSaga, socket),
     ])
   } finally {
     logger.info('useIO stopping')
