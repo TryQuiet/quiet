@@ -1,26 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.1.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.1.0...@quiet/desktop@7.1.1-alpha.0) (2026-05-28)
-
-
-### Bug Fixes
-
-* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
-* sidebar layout tweaks ([#3184](https://github.com/TryQuiet/quiet/issues/3184)) ([accc53f](https://github.com/TryQuiet/quiet/commit/accc53ff515e302fe07d404827a4dc3a70178b08))
-
-
-### Features
-
-* **3155:** Add private channels with modifiable membership (no removals) to desktop ([#3177](https://github.com/TryQuiet/quiet/issues/3177)) ([9eef40c](https://github.com/TryQuiet/quiet/commit/9eef40c7974f22e9a5bfa51449cfc35b9c2f66f4))
-* **3155:** Private channels for mobile ([#3194](https://github.com/TryQuiet/quiet/issues/3194)) ([c3c89bf](https://github.com/TryQuiet/quiet/commit/c3c89bfdc9758e57b47f6e9630e3a8e3f6f6d7ef))
-
-
-
-
-
 # Changelog
 
 ## [7.1.0]
