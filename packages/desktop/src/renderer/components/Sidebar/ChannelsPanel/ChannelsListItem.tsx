@@ -1,12 +1,16 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/types'
 import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
+import { useDrag, useDrop } from 'react-dnd'
+import type { XYCoord } from 'dnd-core'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 
 const PREFIX = 'ChannelsListItem'
+const CHANNEL_LIST_ITEM_TYPE = 'CHANNEL_LIST_ITEM'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -21,6 +25,14 @@ const classes = {
   disabled: `${PREFIX}disabled`,
   lock: `${PREFIX}lock`,
   lockNewMessages: `${PREFIX}lockNewMessages`,
+}
+
+interface DraggedChannel {
+  id: string
+  index: number
+  name: string
+  isPublic: boolean
+  unread: boolean
 }
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
@@ -106,22 +118,71 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
 export interface ChannelsListItemProps {
   channel: PublicChannel
+  index: number
   unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void
+  startChannelDrag: (index: number, channelId: string) => void
+  moveChannel: (dragIndex: number, dropIndex: number, clientOffset: XYCoord | null) => number
+  endChannelDrag: () => void
   disabled: boolean
 }
 
 export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
+  index,
   unread,
   selected,
   setCurrentChannel,
+  startChannelDrag,
+  moveChannel,
+  endChannelDrag,
   disabled = false,
 }) => {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const isPublic = channel.public ?? true
+  const [{ isDragging }, drag, preview] = useDrag(
+    () => ({
+      type: CHANNEL_LIST_ITEM_TYPE,
+      item: () => {
+        startChannelDrag(index, channel.id)
+        return { id: channel.id, index, name: channel.name, isPublic, unread }
+      },
+      canDrag: !disabled,
+      end: () => {
+        endChannelDrag()
+      },
+      collect: monitor => ({
+        isDragging: monitor.isDragging(),
+      }),
+    }),
+    [channel.id, channel.name, disabled, endChannelDrag, index, isPublic, startChannelDrag, unread]
+  )
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true })
+  }, [preview])
+
+  const [, drop] = useDrop(
+    () => ({
+      accept: CHANNEL_LIST_ITEM_TYPE,
+      hover: (item: DraggedChannel, monitor) => {
+        const clientOffset = monitor.getClientOffset()
+        if (!ref.current || item.id === channel.id || !clientOffset) return
+
+        const hoverBoundingRect = ref.current.getBoundingClientRect()
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top
+        const dropIndex = hoverClientY > hoverMiddleY ? index + 1 : index
+
+        item.index = moveChannel(item.index, dropIndex, clientOffset)
+      },
+    }),
+    [channel.id, index, moveChannel]
+  )
+
+  drag(drop(ref))
 
   return (
     <StyledListItemButton
@@ -134,6 +195,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         [classes.selected]: selected,
         [classes.disabled]: disabled,
       })}
+      style={isDragging ? { opacity: 0.4 } : undefined}
       data-testid={`${channel.name}-link`}
     >
       <ListItemText

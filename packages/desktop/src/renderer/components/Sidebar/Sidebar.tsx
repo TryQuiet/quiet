@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { useContextMenu } from '../../../hooks/useContextMenu'
@@ -10,9 +10,34 @@ import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
+import { PublicChannel } from '@quiet/types'
+
+const CHANNEL_ORDER_STORAGE_KEY = 'quiet.sidebar.channelOrder'
+
+const readStoredOrder = (storageKey: string): string[] => {
+  try {
+    const storedOrder = localStorage.getItem(storageKey)
+    return storedOrder ? JSON.parse(storedOrder) : []
+  } catch {
+    return []
+  }
+}
+
+const orderChannels = <T extends PublicChannel>(channels: T[], channelOrder: string[]): T[] => {
+  if (channelOrder.length === 0) return channels
+
+  const orderIndex = new Map(channelOrder.map((channelId, index) => [channelId, index]))
+  const orderedChannels = channels
+    .filter(channel => orderIndex.has(channel.id))
+    .sort((a, b) => orderIndex.get(a.id)! - orderIndex.get(b.id)!)
+  const unorderedChannels = channels.filter(channel => !orderIndex.has(channel.id))
+
+  return [...orderedChannels, ...unorderedChannels]
+}
 
 const Sidebar = () => {
   const dispatch = useDispatch()
+  const [channelOrder, setChannelOrder] = useState<string[]>(() => readStoredOrder(CHANNEL_ORDER_STORAGE_KEY))
 
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
@@ -31,7 +56,15 @@ const Sidebar = () => {
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+  const orderedChannels = useMemo(
+    () => orderChannels(publicChannelsSelector, channelOrder),
+    [publicChannelsSelector, channelOrder]
+  )
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+
+  useEffect(() => {
+    localStorage.setItem(CHANNEL_ORDER_STORAGE_KEY, JSON.stringify(channelOrder))
+  }, [channelOrder])
 
   const setCurrentChannel = (id: string) => {
     dispatch(
@@ -39,6 +72,10 @@ const Sidebar = () => {
         channelId: id,
       })
     )
+  }
+
+  const reorderChannels = (channelIds: string[]) => {
+    setChannelOrder(channelIds)
   }
 
   if (!currentCommunity || !currentChannelId) {
@@ -51,11 +88,12 @@ const Sidebar = () => {
   }
 
   const channelsPanelProps: ChannelsPanelProps = {
-    channels: publicChannelsSelector,
+    channels: orderedChannels,
     userProfiles: userProfileSelector,
     connectedPeers: connectedPeers,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
+    reorderChannels: reorderChannels,
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
     isTorInitialized: isTorInitialized,

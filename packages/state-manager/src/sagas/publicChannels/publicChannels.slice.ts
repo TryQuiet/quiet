@@ -42,6 +42,8 @@ export class PublicChannelsState {
 
   public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
 
+  public channelOrder: string[] = []
+
   public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
@@ -64,6 +66,8 @@ export const publicChannelsSlice = createSlice({
       publicChannelsSubscriptionsAdapter.removeOne(state.channelsSubscriptions, channelId)
       publicChannelsStatusAdapter.removeOne(state.channelsStatus, channelId)
       publicChannelsAdapter.removeOne(state.channels, channelId)
+      state.channelOrder = state.channelOrder || []
+      state.channelOrder = state.channelOrder.filter(id => id !== channelId)
     },
     disableChannel: (state, action: PayloadAction<DisableChannelPayload>) => {
       const { channelId } = action.payload
@@ -95,6 +99,10 @@ export const publicChannelsSlice = createSlice({
         ...channel,
         messages: channelMessagesAdapter.getInitialState(),
       })
+      state.channelOrder = state.channelOrder || []
+      if (state.channelOrder.length > 0 && !state.channelOrder.includes(channel.id)) {
+        state.channelOrder.push(channel.id)
+      }
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
         id: channel.id,
         unread: false,
@@ -113,6 +121,10 @@ export const publicChannelsSlice = createSlice({
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
       const { channelId } = action.payload
       state.currentChannelId = channelId
+    },
+    reorderChannels: (state, action: PayloadAction<{ channelIds: string[] }>) => {
+      const existingChannelIds = new Set(state.channels.ids)
+      state.channelOrder = action.payload.channelIds.filter(channelId => existingChannelIds.has(channelId))
     },
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelId } = action.payload
