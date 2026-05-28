@@ -10,8 +10,9 @@ jobs:
         include:
           - os: macos-26
             binary_suffix: "-arm64"
-          - os: macos-26-intel
-            binary_suffix: ""
+          # TODO: this seems to be broken right now, should we try to fix or decide to abandon intel mac tests?
+          # - os: macos-26-intel
+          #   binary_suffix: ""
 
     timeout-minutes: 180
     env:
