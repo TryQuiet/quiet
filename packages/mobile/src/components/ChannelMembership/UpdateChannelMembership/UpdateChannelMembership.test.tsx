@@ -1289,27 +1289,6 @@ describe('UpdateChannelMembership component', () => {
                           "selected": false,
                         },
                       ],
-                      "updatedAt": undefined,
-                      "userProfiles": {
-                        "barbaz": {
-                          "bio": "bio_2",
-                          "channels": [],
-                          "nickname": "baz",
-                          "photo": "foobar",
-                          "profilePhoto": undefined,
-                          "userId": "barbaz",
-                        },
-                        "foobar": {
-                          "bio": "bio_1",
-                          "channels": [
-                            "abc123",
-                          ],
-                          "nickname": "foo",
-                          "photo": "foobar",
-                          "profilePhoto": undefined,
-                          "userId": "foobar",
-                        },
-                      },
                       "visibleOptionsIndices": Set {
                         1,
                       },
