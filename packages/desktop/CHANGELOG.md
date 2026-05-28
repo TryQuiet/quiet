@@ -1,13 +1,31 @@
 # Changelog
 
+## [7.2.0]
+
+### Features
+
+* Added background push notifications and background hibernation for android [#3156](https://github.com/TryQuiet/quiet/issues/3156)
+* Extends the dev/alpha-only "Share logs" and "Share all data" actions to the "Starting backend" screen (mobile) [#3241](https://github.com/TryQuiet/quiet/pull/3241)
+
+### Fixes
+
+* The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
+* Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
+* Fixed Android crash on leaving a community when `google-services.json` was missing from the build [#3238](https://github.com/TryQuiet/quiet/pull/3238)
+* Fixed broken privacy policy link on the Terms of Service / Privacy Policy acceptance screen (desktop + mobile) [#3186](https://github.com/TryQuiet/quiet/pull/3186)
+* Fixed Android build failure under product flavors where react-native-config didn't load the matching `.env` file [#3197](https://github.com/TryQuiet/quiet/pull/3197)
+
+### Chores
+
+* Refactored syncing data with QSS for modularity [#3235](https://github.com/TryQuiet/quiet/issues/3235)
+* Upgraded Electron to v32 (desktop) [#3119](https://github.com/TryQuiet/quiet/pull/3119)
+
 ## [7.1.0]
 
 ### Features
 
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
 * Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
-
-### Fixes
 
 ### Chores
 
