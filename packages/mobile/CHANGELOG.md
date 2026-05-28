@@ -1,31 +1,15 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.3.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.1-alpha.0...@quiet/mobile@7.3.0-alpha.0) (2026-05-28)
-
-
-### Bug Fixes
-
-* **android:** stop leave-community crash from missing Firebase config ([#3236](https://github.com/TryQuiet/quiet/issues/3236)) ([#3238](https://github.com/TryQuiet/quiet/issues/3238)) ([f4d1907](https://github.com/TryQuiet/quiet/commit/f4d1907b84a5e4b8525db952bffd023240a95641)), closes [#3188](https://github.com/TryQuiet/quiet/issues/3188)
-
+## [7.2.0]
 
 ### Features
 
-* **mobile:** dev/alpha-only "Share logs" + "Share all data" on Starting backend screen ([#3241](https://github.com/TryQuiet/quiet/issues/3241)) ([78665f7](https://github.com/TryQuiet/quiet/commit/78665f78dbbc18b5d1b3c7e02beec1254312986a)), closes [#3213](https://github.com/TryQuiet/quiet/issues/3213)
+* Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 
+### Fixes
 
-### Reverts
-
-* Revert "Publish" ([a3186ae](https://github.com/TryQuiet/quiet/commit/a3186ae3d8f8157264a7d79f51551cdfa5ce6820))
-* Revert "Update packages CHANGELOG.md" ([4d8d486](https://github.com/TryQuiet/quiet/commit/4d8d48687834a05608e05e45eeac7c319a028340))
-
-
-
-
-
-# Changelog
+* Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
 
 ## [7.2.0]
 

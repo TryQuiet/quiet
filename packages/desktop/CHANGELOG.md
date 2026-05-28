@@ -1,21 +1,15 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.3.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.1.1-alpha.0...@quiet/desktop@7.3.0-alpha.0) (2026-05-28)
-
-
-### Reverts
-
-* Revert "Publish" ([a3186ae](https://github.com/TryQuiet/quiet/commit/a3186ae3d8f8157264a7d79f51551cdfa5ce6820))
-* Revert "Update packages CHANGELOG.md" ([4d8d486](https://github.com/TryQuiet/quiet/commit/4d8d48687834a05608e05e45eeac7c319a028340))
-
-
-
-
-
 # Changelog
+
+## [7.2.0]
+
+### Features
+
+* Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+
+### Fixes
+
+* Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
 
 ## [7.2.0]
 
