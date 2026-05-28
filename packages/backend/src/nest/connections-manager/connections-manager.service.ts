@@ -1,4 +1,6 @@
 import * as uint8arrays from 'uint8arrays'
+import fs from 'fs'
+import path from 'path'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
@@ -223,8 +225,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunityFromStorage() {
     this.logger.info('Launching community from storage')
+
+    // Defense in depth for #3225: if a leaveCommunity crashed mid-way, finish the purge
+    // before doing anything else — including reading CURRENT_COMMUNITY_ID. The marker is
+    // written at the start of leaveCommunity and cleared at full success, so its presence
+    // is unambiguous: the user intended to leave. Whether CURRENT_COMMUNITY_ID happens to
+    // still be set depends on exactly when the crash hit (it's cleared by resetState() near
+    // the end of leaveCommunity), so we cannot use its absence as the signal.
+    if (this.leaveInProgressMarkerExists()) {
+      this.logger.info('Interrupted leaveCommunity detected at startup; finishing purge')
+      await this.localDbService.purgeArtifacts()
+      this.storageService.purgeData()
+      this.clearLeaveInProgressMarker()
+      return
+    }
+
     const community: Community | undefined = await this.localDbService.getCurrentCommunity()
     if (!community) {
+      // Absent marker + no community = fresh install or a pending LevelDB migration where
+      // CURRENT_COMMUNITY_ID hasn't been populated from the renderer's persistor yet. Don't
+      // purge speculatively — that was the backwards-compatibility regression.
       this.logger.info('No community found in storage')
       return
     }
@@ -438,6 +458,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
+    // #3225: write a marker before any state change so a startup after a crashed leave can
+    // detect and finish the purge. Cleared at the end of this function on full success;
+    // anything that throws between leaves the marker in place.
+    this.writeLeaveInProgressMarker()
     this.logger.info('Tombstoning notification tokens before leave')
     const tombstoneAcked = await this.qpsService.tombstoneCurrentUserNotificationTokens()
     if (!tombstoneAcked) {
@@ -476,7 +500,40 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Resuming QSS service')
     await this.qssService.resume()
 
+    this.clearLeaveInProgressMarker()
     return true
+  }
+
+  private static readonly LEAVE_IN_PROGRESS_MARKER = '.leave-in-progress'
+
+  private leaveInProgressMarkerPath(): string {
+    return path.join(this.storageService.quietDir, ConnectionsManagerService.LEAVE_IN_PROGRESS_MARKER)
+  }
+
+  private writeLeaveInProgressMarker(): void {
+    try {
+      fs.mkdirSync(this.storageService.quietDir, { recursive: true })
+      fs.writeFileSync(this.leaveInProgressMarkerPath(), new Date().toISOString())
+    } catch (e) {
+      this.logger.warn('Failed to write leave-in-progress marker; continuing', e)
+    }
+  }
+
+  private clearLeaveInProgressMarker(): void {
+    try {
+      fs.unlinkSync(this.leaveInProgressMarkerPath())
+    } catch (e) {
+      // Marker may legitimately not exist (e.g. cleared by a previous successful leave or
+      // by the startup recovery path). Anything else is best-effort; swallow.
+    }
+  }
+
+  private leaveInProgressMarkerExists(): boolean {
+    try {
+      return fs.existsSync(this.leaveInProgressMarkerPath())
+    } catch {
+      return false
+    }
   }
 
   private async erasePreviousCommunityArtifacts(): Promise<void> {
