@@ -49,7 +49,7 @@ describe('User Profile Feature', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   it('Owner opens the app', async () => {

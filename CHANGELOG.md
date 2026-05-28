@@ -5,6 +5,7 @@
 ### Features
 
 * Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 
 ### Fixes
 

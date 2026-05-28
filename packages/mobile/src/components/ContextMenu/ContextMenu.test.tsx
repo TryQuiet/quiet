@@ -193,7 +193,10 @@ describe('ContextMenu component', () => {
             <View
               style={
                 {
+                  "alignItems": "center",
+                  "display": "flex",
                   "flex": 5,
+                  "flexDirection": "row",
                   "justifyContent": "center",
                 }
               }
@@ -338,9 +341,10 @@ describe('ContextMenu component', () => {
                             "alignItems": "center",
                             "display": "flex",
                             "flexDirection": "row",
-                            "height": 48,
+                            "minHeight": 48,
                             "paddingLeft": 20,
                             "paddingRight": 20,
+                            "paddingVertical": 11,
                             "width": "100%",
                           }
                         }
@@ -355,36 +359,48 @@ describe('ContextMenu component', () => {
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="normal"
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "lineHeight": 26,
-                                },
-                              ]
+                              {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Create channel
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="normal"
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "lineHeight": 26,
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Create channel
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             {
+                              "alignItems": "center",
                               "display": "flex",
                               "flex": 1,
                               "flexDirection": "row",
+                              "gap": 8,
                               "justifyContent": "flex-end",
                             }
                           }
@@ -468,9 +484,10 @@ describe('ContextMenu component', () => {
                             "alignItems": "center",
                             "display": "flex",
                             "flexDirection": "row",
-                            "height": 48,
+                            "minHeight": 48,
                             "paddingLeft": 20,
                             "paddingRight": 20,
+                            "paddingVertical": 11,
                             "width": "100%",
                           }
                         }
@@ -485,36 +502,48 @@ describe('ContextMenu component', () => {
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="normal"
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "lineHeight": 26,
-                                },
-                              ]
+                              {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Add members
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="normal"
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "lineHeight": 26,
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Add members
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             {
+                              "alignItems": "center",
                               "display": "flex",
                               "flex": 1,
                               "flexDirection": "row",
+                              "gap": 8,
                               "justifyContent": "flex-end",
                             }
                           }
@@ -598,9 +627,10 @@ describe('ContextMenu component', () => {
                             "alignItems": "center",
                             "display": "flex",
                             "flexDirection": "row",
-                            "height": 48,
+                            "minHeight": 48,
                             "paddingLeft": 20,
                             "paddingRight": 20,
+                            "paddingVertical": 11,
                             "width": "100%",
                           }
                         }
@@ -615,36 +645,48 @@ describe('ContextMenu component', () => {
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="normal"
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "lineHeight": 26,
-                                },
-                              ]
+                              {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Settings
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="normal"
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "lineHeight": 26,
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Settings
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             {
+                              "alignItems": "center",
                               "display": "flex",
                               "flex": 1,
                               "flexDirection": "row",
+                              "gap": 8,
                               "justifyContent": "flex-end",
                             }
                           }
@@ -863,7 +905,10 @@ describe('ContextMenu component', () => {
             <View
               style={
                 {
+                  "alignItems": "center",
+                  "display": "flex",
                   "flex": 5,
+                  "flexDirection": "row",
                   "justifyContent": "center",
                 }
               }
@@ -1008,9 +1053,10 @@ describe('ContextMenu component', () => {
                             "alignItems": "center",
                             "display": "flex",
                             "flexDirection": "row",
-                            "height": 48,
+                            "minHeight": 48,
                             "paddingLeft": 20,
                             "paddingRight": 20,
+                            "paddingVertical": 11,
                             "width": "100%",
                           }
                         }
@@ -1025,36 +1071,48 @@ describe('ContextMenu component', () => {
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="normal"
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "lineHeight": 26,
-                                },
-                              ]
+                              {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Create channel
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="normal"
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "lineHeight": 26,
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Create channel
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             {
+                              "alignItems": "center",
                               "display": "flex",
                               "flex": 1,
                               "flexDirection": "row",
+                              "gap": 8,
                               "justifyContent": "flex-end",
                             }
                           }
@@ -1138,9 +1196,10 @@ describe('ContextMenu component', () => {
                             "alignItems": "center",
                             "display": "flex",
                             "flexDirection": "row",
-                            "height": 48,
+                            "minHeight": 48,
                             "paddingLeft": 20,
                             "paddingRight": 20,
+                            "paddingVertical": 11,
                             "width": "100%",
                           }
                         }
@@ -1155,36 +1214,48 @@ describe('ContextMenu component', () => {
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="normal"
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "lineHeight": 26,
-                                },
-                              ]
+                              {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Add members
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="normal"
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "lineHeight": 26,
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Add members
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             {
+                              "alignItems": "center",
                               "display": "flex",
                               "flex": 1,
                               "flexDirection": "row",
+                              "gap": 8,
                               "justifyContent": "flex-end",
                             }
                           }
@@ -1268,9 +1339,10 @@ describe('ContextMenu component', () => {
                             "alignItems": "center",
                             "display": "flex",
                             "flexDirection": "row",
-                            "height": 48,
+                            "minHeight": 48,
                             "paddingLeft": 20,
                             "paddingRight": 20,
+                            "paddingVertical": 11,
                             "width": "100%",
                           }
                         }
@@ -1285,36 +1357,48 @@ describe('ContextMenu component', () => {
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="normal"
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              [
-                                {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                                {
-                                  "lineHeight": 26,
-                                },
-                              ]
+                              {
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "justifyContent": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Settings
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="normal"
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "lineHeight": 26,
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Settings
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             {
+                              "alignItems": "center",
                               "display": "flex",
                               "flex": 1,
                               "flexDirection": "row",
+                              "gap": 8,
                               "justifyContent": "flex-end",
                             }
                           }

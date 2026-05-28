@@ -150,7 +150,6 @@ export class SigChainService extends EventEmitter {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
     this._updateDeviceCredentials(teamName)
-    this.emit('updated', teamName)
     void this.saveChain(teamName).catch(err => {
       this.logger.error('Failed to save chain after update', err)
     })

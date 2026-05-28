@@ -58,7 +58,7 @@ export const CreateChannelScreen: FC = () => {
   }
 
   const createChannelAction = useCallback(
-    (name: string) => {
+    (name: string, isPublic: boolean) => {
       clearErrors()
 
       // Validate channel name
@@ -97,8 +97,8 @@ export const CreateChannelScreen: FC = () => {
           name: name,
           description: `Welcome to #${name}`,
           id: id,
+          public: isPublic,
           teamId: community.teamId,
-          public: true,
         })
       )
     },

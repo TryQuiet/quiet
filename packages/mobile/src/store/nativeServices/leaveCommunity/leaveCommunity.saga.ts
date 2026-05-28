@@ -9,6 +9,7 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
 import { createLogger } from '../../../utils/logger'
 import { initSelectors } from '../../init/init.selectors'
+import { deleteNotificationTokenSaga } from '../../pushNotifications'
 
 const logger = createLogger('leaveCommunity')
 
@@ -22,13 +23,12 @@ export function* leaveCommunitySaga(): Generator {
   // Restart backend
   yield* putResolve(app.actions.closeServices())
 
-  const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
-  if (deleteFirebaseToken) {
-    try {
-      yield* call(deleteFirebaseToken)
-    } catch (error) {
-      logger.error('Failed to delete Firebase token while leaving community', error)
-    }
+  // delete the firebase token
+  try {
+    yield* call(deleteNotificationTokenSaga)
+  } catch (e) {
+    // errors should be caught but just in case we'll catch here
+    logger.error('Error leaked from delete notification token saga', e)
   }
 
   const clearSensitiveData = NativeModules.CommunicationModule?.clearSensitiveData

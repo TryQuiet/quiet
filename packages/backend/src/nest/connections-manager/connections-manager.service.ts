@@ -49,7 +49,6 @@ import {
   DownloadFilePayload,
   DeleteChannelPayload,
   SetUserProfilePayload,
-  InvitationData,
   SetUserProfileResponse,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
@@ -60,7 +59,7 @@ import {
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
-import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
+import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { emitError } from '../socket/socket.errors'

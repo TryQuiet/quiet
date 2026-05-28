@@ -6,6 +6,8 @@ export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
+export const CHANNEL_METADATA_STORE_NAME = 'public-channels'
+
 export interface PublicChannel {
   id: string
   name: string
@@ -26,6 +28,7 @@ export interface PublicChannelStatus {
   id: string
   unread: boolean
   newestMessage: ChannelMessage | null
+  public?: boolean
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {

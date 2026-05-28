@@ -55,6 +55,8 @@ import { UnregisteredUsernameContextMenu } from './components/ContextMenu/menus/
 import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUsernameRequested.screen'
 import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
+import { ChannelMembershipScreen } from './screens/ChannelMembership/ChannelMembership.screen'
+import { UpdateChannelMembershipScreen } from './screens/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.screen'
 import { CaptchaModal } from './components/Captcha/CaptchaModal.component'
 
 const logger = createLogger('app')
@@ -109,6 +111,8 @@ function App(): JSX.Element {
                 <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
                 <Screen component={ConnectionProcessScreen} name={ScreenNames.ConnectionProcessScreen} />
                 <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
+                <Screen component={ChannelMembershipScreen} name={ScreenNames.ChannelMembershipScreen} />
+                <Screen component={UpdateChannelMembershipScreen} name={ScreenNames.UpdateChannelMembershipScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
                 <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
                 <Screen component={UsernameTakenScreen} name={ScreenNames.UsernameTakenScreen} />
