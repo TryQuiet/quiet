@@ -1,35 +1,27 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [7.1.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.1.0...@quiet/desktop@7.1.1-alpha.0) (2026-05-28)
+
+
+### Bug Fixes
+
+* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
+* sidebar layout tweaks ([#3184](https://github.com/TryQuiet/quiet/issues/3184)) ([accc53f](https://github.com/TryQuiet/quiet/commit/accc53ff515e302fe07d404827a4dc3a70178b08))
+
+
+### Features
+
+* **3155:** Add private channels with modifiable membership (no removals) to desktop ([#3177](https://github.com/TryQuiet/quiet/issues/3177)) ([9eef40c](https://github.com/TryQuiet/quiet/commit/9eef40c7974f22e9a5bfa51449cfc35b9c2f66f4))
+* **3155:** Private channels for mobile ([#3194](https://github.com/TryQuiet/quiet/issues/3194)) ([c3c89bf](https://github.com/TryQuiet/quiet/commit/c3c89bfdc9758e57b47f6e9630e3a8e3f6f6d7ef))
+
+
+
+
+
 # Changelog
-
-## [unreleased]
-
-### Features
-
-* Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
-* Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
-
-### Fixes
-
-* Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
-
-## [7.2.0]
-
-### Features
-
-* Added background push notifications and background hibernation for android [#3156](https://github.com/TryQuiet/quiet/issues/3156)
-* Extends the dev/alpha-only "Share logs" and "Share all data" actions to the "Starting backend" screen (mobile) [#3241](https://github.com/TryQuiet/quiet/pull/3241)
-
-### Fixes
-
-* The user profile tab at the bottom of the sidebar now has the correct opacity and layout, and the faint horizontal stripe that appeared on some platforms and window sizes is gone now. [#3184](https://github.com/TryQuiet/quiet/pull/3184)
-* Improved tor lifecycle handling [#3233](https://github.com/TryQuiet/quiet/issues/3233)
-* Fixed Android crash on leaving a community when `google-services.json` was missing from the build [#3238](https://github.com/TryQuiet/quiet/pull/3238)
-* Fixed broken privacy policy link on the Terms of Service / Privacy Policy acceptance screen (desktop + mobile) [#3186](https://github.com/TryQuiet/quiet/pull/3186)
-* Fixed Android build failure under product flavors where react-native-config didn't load the matching `.env` file [#3197](https://github.com/TryQuiet/quiet/pull/3197)
-
-### Chores
-
-* Refactored syncing data with QSS for modularity [#3235](https://github.com/TryQuiet/quiet/issues/3235)
-* Upgraded Electron to v32 (desktop) [#3119](https://github.com/TryQuiet/quiet/pull/3119)
 
 ## [7.1.0]
 
@@ -37,6 +29,8 @@
 
 * Adds ios push notification support [#3087](https://github.com/TryQuiet/quiet/issues/3087)
 * Adds dev/alpha-only "Share logs" and "Share all data" actions on joining screen and menu (mobile) [#3213](https://github.com/TryQuiet/quiet/issues/3213)
+
+### Fixes
 
 ### Chores
 
