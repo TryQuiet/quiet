@@ -17,11 +17,7 @@ describe('pushNotificationMasterSaga', () => {
       Config.QPS_ALLOWED = 'true'
 
       await expectSaga(deleteNotificationTokenSaga)
-        .provide([
-          [call.fn(hasGrantedNotificationPermissionSaga), true],
-          [call.fn(NativeModules.FirebaseMessagingModule.deleteToken), null],
-        ])
-        .call.fn(hasGrantedNotificationPermissionSaga)
+        .provide([[call.fn(NativeModules.FirebaseMessagingModule.deleteToken), null]])
         .call.fn(NativeModules.FirebaseMessagingModule.deleteToken)
         .run()
     })
@@ -31,16 +27,13 @@ describe('pushNotificationMasterSaga', () => {
       Config.QPS_ALLOWED = 'false'
 
       await expectSaga(deleteNotificationTokenSaga)
-        .provide([
-          [call.fn(hasGrantedNotificationPermissionSaga), true],
-          [call.fn(NativeModules.FirebaseMessagingModule.deleteToken), null],
-        ])
+        .provide([[call.fn(NativeModules.FirebaseMessagingModule.deleteToken), null]])
         .not.call.fn(hasGrantedNotificationPermissionSaga)
         .not.call.fn(NativeModules.FirebaseMessagingModule.deleteToken)
         .run()
     })
 
-    it('skips deleting token when qps enabled but notification permission was denied', async () => {
+    it('still deletes token when permission not granted', async () => {
       Platform.OS = 'android'
       Config.QPS_ALLOWED = 'true'
 
@@ -49,8 +42,7 @@ describe('pushNotificationMasterSaga', () => {
           [call.fn(hasGrantedNotificationPermissionSaga), false],
           [call.fn(NativeModules.FirebaseMessagingModule.deleteToken), null],
         ])
-        .call.fn(hasGrantedNotificationPermissionSaga)
-        .not.call.fn(NativeModules.FirebaseMessagingModule.deleteToken)
+        .call.fn(NativeModules.FirebaseMessagingModule.deleteToken)
         .run()
     })
 
@@ -63,8 +55,6 @@ describe('pushNotificationMasterSaga', () => {
       })
 
       await expectSaga(deleteNotificationTokenSaga)
-        .provide([[call.fn(hasGrantedNotificationPermissionSaga), true]])
-        .call.fn(hasGrantedNotificationPermissionSaga)
         .call.fn(NativeModules.FirebaseMessagingModule.deleteToken)
         .not.throws(Error)
         .run()

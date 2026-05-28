@@ -158,12 +158,6 @@ export function* deleteNotificationTokenSaga(): Generator {
     return
   }
 
-  const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
-  if (!hasGrantedPermission) {
-    logger.info('Skipping current FCM token deletion because notification permission is not granted')
-    return
-  }
-
   const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
   if (deleteFirebaseToken) {
     try {
