@@ -144,6 +144,7 @@ interface CreateChannelFormValues {
 export interface CreateChannelProps {
   open: boolean
   channelCreationError?: string
+  isAdmin: boolean
   createChannel: (name: string, isPublic: boolean) => void
   handleClose: () => void
   clearErrorsDispatch: () => void
@@ -152,6 +153,7 @@ export interface CreateChannelProps {
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
   channelCreationError,
+  isAdmin,
   createChannel,
   handleClose,
   clearErrorsDispatch,
@@ -268,68 +270,72 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 </Grid>
               )}
             </div>
-            <Controller
-              control={control}
-              name={'private'}
-              rules={createChannelFields.private.validation}
-              render={({ field }) => (
-                <Grid item container direction='row' className={classes.publicPrivateGrid}>
-                  <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
-                  <Grid item className={classes.publicPrivate} alignItems='center'>
-                    <FormControlLabel
-                      defaultChecked={false}
-                      data-testid={'createChannel-private-form-control'}
-                      control={
-                        <IOSSwitch
-                          checked={field.value}
-                          data-testid={'createChannel-private-form-control-toggle'}
-                          onChange={event => {
-                            event.persist()
-                            onIsPrivateChange(event.target.checked)
-                            field.onChange(event.target.checked)
-                          }}
+            {isAdmin && (
+              <>
+                <Controller
+                  control={control}
+                  name={'private'}
+                  rules={createChannelFields.private.validation}
+                  render={({ field }) => (
+                    <Grid item container direction='row' className={classes.publicPrivateGrid}>
+                      <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
+                      <Grid item className={classes.publicPrivate} alignItems='center'>
+                        <FormControlLabel
+                          defaultChecked={false}
+                          data-testid={'createChannel-private-form-control'}
+                          control={
+                            <IOSSwitch
+                              checked={field.value}
+                              data-testid={'createChannel-private-form-control-toggle'}
+                              onChange={event => {
+                                event.persist()
+                                onIsPrivateChange(event.target.checked)
+                                field.onChange(event.target.checked)
+                              }}
+                            />
+                          }
+                          label={
+                            <Grid
+                              container
+                              direction='column'
+                              justifyContent='left'
+                              alignContent='center'
+                              paddingRight='18px'
+                              data-testid={'createChannel-private-form-control-label'}
+                            >
+                              <Grid item>
+                                <Typography variant='body1'>Private Channel</Typography>
+                              </Grid>
+                              <Grid item>
+                                <Typography variant='caption' className={classes.subtitle}>
+                                  Only assigned members and roles have access
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          }
+                          labelPlacement='start'
                         />
-                      }
-                      label={
-                        <Grid
-                          container
-                          direction='column'
-                          justifyContent='left'
-                          alignContent='center'
-                          paddingRight='18px'
-                          data-testid={'createChannel-private-form-control-label'}
+                      </Grid>
+                    </Grid>
+                  )}
+                />
+                <div className={classes.gutter}>
+                  {formState.errors.private && (
+                    <Grid container alignItems='center' direction='row'>
+                      <Grid item xs>
+                        <Typography
+                          variant='body2'
+                          className={classes.errorMessage}
+                          data-testid={'createChannelPrivacyWarning'}
                         >
-                          <Grid item>
-                            <Typography variant='body1'>Private Channel</Typography>
-                          </Grid>
-                          <Grid item>
-                            <Typography variant='caption' className={classes.subtitle}>
-                              Only assigned members and roles have access
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      }
-                      labelPlacement='start'
-                    />
-                  </Grid>
-                </Grid>
-              )}
-            />
-            <div className={classes.gutter}>
-              {formState.errors.private && (
-                <Grid container alignItems='center' direction='row'>
-                  <Grid item xs>
-                    <Typography
-                      variant='body2'
-                      className={classes.errorMessage}
-                      data-testid={'createChannelPrivacyWarning'}
-                    >
-                      {formState.errors.private.message}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
+                          {formState.errors.private.message}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                </div>
+              </>
+            )}
             <LoadingButton
               variant='contained'
               color='primary'
