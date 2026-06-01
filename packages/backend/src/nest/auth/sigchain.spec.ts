@@ -18,7 +18,7 @@ describe('SigChain', () => {
     expect(sigChain.context).toBeDefined()
     expect(sigChain.team!.teamName).toBe('test')
     expect(sigChain.user.userName).toBe('user')
-    expect(sigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(sigChain.roles.amIAdmin()).toBe(true)
     expect(sigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('admin should not have a role that does not exist', () => {
@@ -30,7 +30,7 @@ describe('SigChain', () => {
     const sigChain2 = SigChain.load(serializedChain, localUserContext, sigChain.team!.teamKeyring())
     expect(sigChain2).toBeDefined()
     expect(sigChain2.team!.teamName).toBe('test')
-    expect(sigChain2.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(sigChain2.roles.amIAdmin()).toBe(true)
     expect(sigChain2.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
 })

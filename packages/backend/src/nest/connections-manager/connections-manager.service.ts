@@ -56,6 +56,7 @@ import {
   User,
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -1115,7 +1116,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActions.CREATE_CHANNEL,
       async (payload: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
-        callback(await this.storageService?.channels.handleCreateChannel(payload))
+        const _createChannel = async (payload: CreateChannelPayload): Promise<CreateChannelResponse> => {
+          try {
+            return await this.storageService?.channels.handleCreateChannel(payload)
+          } catch (e) {
+            this.logger.error('Error while creating channel', e)
+            return {
+              status: ChannelOperationStatus.FAILED,
+            }
+          }
+        }
+        callback(await _createChannel(payload))
       }
     )
     this.socketService.on(

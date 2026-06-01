@@ -169,7 +169,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   })
 
   const onSubmit = (values: CreateChannelFormValues) => {
-    logger.error('submitting!', values)
     submitForm(createChannel, values)
   }
 
