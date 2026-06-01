@@ -27,6 +27,7 @@ import { PushNotificationsState, pushNotificationsActions } from './pushNotifica
 const NOTIFICATION_PERMISSION_RESULT = 'notificationPermissionResult'
 const DEVICE_TOKEN_RECEIVED = 'deviceTokenReceived'
 const nativeEventHandlers = new Map<string, (payload: unknown) => void>()
+type DispatchedAction = { type: string; payload?: unknown }
 
 describe('pushNotificationMasterSaga', () => {
   beforeEach(() => {
@@ -52,7 +53,7 @@ describe('pushNotificationMasterSaga', () => {
     NativeModules.FirebaseMessagingModule.getToken.mockResolvedValue('current-token')
 
     const channel = stdChannel()
-    const dispatched: Array<{ type: string; payload?: unknown }> = []
+    const dispatched: DispatchedAction[] = []
     const state = {
       [StoreKeys.Init]: {
         ...new InitState(),
@@ -68,8 +69,11 @@ describe('pushNotificationMasterSaga', () => {
       {
         channel,
         dispatch: action => {
-          dispatched.push(action)
-          channel.put(action)
+          if (action && typeof action === 'object' && 'type' in action) {
+            const dispatchedAction = action as DispatchedAction
+            dispatched.push(dispatchedAction)
+            channel.put(dispatchedAction)
+          }
         },
         getState: () => state,
       },
