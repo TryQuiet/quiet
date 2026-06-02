@@ -144,7 +144,8 @@ describe('Backwards Compatibility', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
         await sidebar.addNewChannel(newChannelName, {
-          ...DEFAULT_ADD_NEW_CHANNEL_OPTIONS,
+          isPublic: true,
+          expectToggle: false,
           buttonId: TestAddNewChannelButtonId.PRE_DMS,
         })
         await sidebar.switchChannel(newChannelName, true, false)
