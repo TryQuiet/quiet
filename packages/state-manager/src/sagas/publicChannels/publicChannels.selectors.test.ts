@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../store.types'
 import { type FactoryGirl } from 'factory-girl'
-import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
+import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
   currentChannelMessagesMergedBySender,
@@ -15,7 +15,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateChannelId, generateDmChannelId } from '@quiet/common'
+import { generateChannelId, generateDmChannelId, generateDmChannelName } from '@quiet/common'
 import {
   type ChannelMessage,
   type Community,
@@ -26,7 +26,7 @@ import {
   UserProfile,
   ChannelType,
 } from '@quiet/types'
-import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
+import { getReduxStoreFactory } from '../../utils/tests/factories'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
 
@@ -113,6 +113,7 @@ describe('publicChannelsSelectors', () => {
       [alice.userId, john.userId, userA.userId],
     ]
 
+    const userProfiles = store.getState().Users.userProfiles
     for (const dmGroup of dmGroups) {
       const dmChannelId = generateDmChannelId(dmGroup)
       const channel = await factory.create('PublicChannel', {
@@ -125,6 +126,7 @@ describe('publicChannelsSelectors', () => {
           type: ChannelType.DM,
           memberIds: dmGroup,
         },
+        displayedName: generateDmChannelName(dmGroup, userProfiles, alice),
       })
       CHANNEL_NAMES.push(channel.displayedName)
       channelIds.push(channel.channel.id)
@@ -144,10 +146,10 @@ describe('publicChannelsSelectors', () => {
     })
 
     DM_CHANNEL_NAMES.sort((nameA: string, nameB: string) => {
-      if (nameA === alice.userId) {
+      if (nameA === alice.nickname) {
         return -1
       }
-      if (nameB === alice.userId) {
+      if (nameB === alice.nickname) {
         return 1
       }
       return nameA.localeCompare(nameB)

@@ -111,6 +111,7 @@ describe('createChannelSaga', () => {
         publicChannelsActions.sendInitialChannelMessage({
           channelName: createChannelPayload.name,
           channelId: createChannelPayload.id,
+          type: ChannelType.CHANNEL,
         })
       )
       .run()

@@ -1429,18 +1429,15 @@ export class Channel {
       500
     )
 
-    let titleText = this.name
-    if ((channelType !== TestChannelType.DM, expectChannelTypeIcon)) {
+    if (channelType !== TestChannelType.DM && expectChannelTypeIcon) {
       await this.driver.wait(
         until.elementIsVisible(await (channelType === TestChannelType.PUBLIC_CHANNEL ? this.hash : this.lock)),
         timeout,
         `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
         500
       )
-    } else {
-      titleText = `# ${this.name}`
     }
-    return (await titleElement.getText()) === titleText
+    return (await titleElement.getText()) === this.name
   }
 
   async isMessageInputReady(): Promise<boolean> {

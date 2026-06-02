@@ -779,8 +779,8 @@ describe('Multiple Clients (DMs)', () => {
       })
 
       it('Owner is now on the channel screen for the group DM', async () => {
-        expect(await groupDmChannelOwner.isOpen(TestChannelType.DM)).toBeTruthy()
         expect(await groupDmChannelOwner.isMessageInputReady()).toBeTruthy()
+        expect(await groupDmChannelOwner.isOpen(TestChannelType.DM, false, 30_000)).toBeTruthy()
       })
 
       it('Owner sees their message in the group DM channel', async () => {

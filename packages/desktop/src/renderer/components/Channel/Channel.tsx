@@ -279,6 +279,9 @@ const Channel = () => {
           })
         )
       } else {
+        if (community == null || community.teamId == null) {
+          return
+        }
         const payload: CreateChannelPayload = {
           id: channelId,
           name: channelId,
@@ -286,6 +289,7 @@ const Channel = () => {
           description: 'foo',
           public: false,
           memberIds: uniqueMemberIds,
+          teamId: community.teamId,
         }
         dispatch(publicChannels.actions.createChannel(payload))
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))

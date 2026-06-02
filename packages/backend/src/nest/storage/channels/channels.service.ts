@@ -78,9 +78,6 @@ export class ChannelsService extends EventEmitter {
   // Is the service initialized
   public initialized: boolean = false
 
-  // Is the service initialized
-  public initialized: boolean = false
-
   private readonly logger = createLogger(`storage:channels`)
 
   constructor(

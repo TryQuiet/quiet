@@ -72,7 +72,7 @@ describe('PrivateChannelMessagesService', () => {
             scope: {
               generation: 0,
               type: EncryptionScopeType.ROLE,
-              name: sigChainService.activeChain.channels.generateChannelRoleName(message.channelId),
+              name: roleName,
             },
           }),
           encSignature: expect.objectContaining({
@@ -107,7 +107,7 @@ describe('PrivateChannelMessagesService', () => {
           ...encryptedMessage.encSignature,
           author: {
             generation: 1,
-            name: 'foobar',
+            name: 'notarole',
             type: '',
           },
         },
