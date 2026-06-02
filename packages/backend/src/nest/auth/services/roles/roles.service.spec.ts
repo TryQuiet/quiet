@@ -25,7 +25,7 @@ describe('roles', () => {
     expect(adminSigChain.context).toBeDefined()
     expect(adminSigChain.team!.teamName).toBe(teamName)
     expect(adminSigChain.user.userName).toBe(adminUsername)
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('should create an invite', () => {

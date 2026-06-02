@@ -97,8 +97,14 @@ export interface CreateChannelPayload {
   description?: string
 }
 
+export enum ChannelOperationStatus {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
 export interface CreateChannelResponse {
-  channel: PublicChannel
+  status: ChannelOperationStatus
+  channel?: PublicChannel
 }
 
 export interface DeleteChannelPayload {
@@ -187,6 +193,7 @@ export enum AddMembersChannelStatus {
   CHANNEL_MISSING = 'CHANNEL_MISSING',
   NOT_MEMBER = 'NOT_MEMBER',
   INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
+  NOT_ADMIN = 'NOT_ADMIN',
 }
 
 export interface AddMembersChannelResponse {

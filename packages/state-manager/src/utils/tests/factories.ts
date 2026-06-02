@@ -52,6 +52,7 @@ import {
   FileMessage,
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
@@ -313,14 +314,15 @@ export const getReduxStoreFactory = async (store: Store) => {
           teamId: factory.assoc('Community', 'teamId'),
         }
       }),
+      status: ChannelOperationStatus.SUCCESS,
     },
     {
       afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         await factory.create('PublicChannelSubscription', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         return payload
       },

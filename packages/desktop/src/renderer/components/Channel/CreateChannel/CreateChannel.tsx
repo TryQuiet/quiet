@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
-import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
+import { communities, errors, identity, publicChannels, users } from '@quiet/state-manager'
 import { CreateChannelPayload, ErrorCodes, ErrorMessages, SocketActions } from '@quiet/types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -19,6 +19,7 @@ export const CreateChannel = () => {
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
+  const isOwner = useSelector(communities.selectors.isOwner)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -102,6 +103,8 @@ export const CreateChannel = () => {
           channelCreationError={error?.message}
           createChannel={createChannel}
           clearErrorsDispatch={clearErrors}
+          // TODO: Pass roles to state manager and check for admin role
+          isAdmin={isOwner}
         />
       )}
     </>

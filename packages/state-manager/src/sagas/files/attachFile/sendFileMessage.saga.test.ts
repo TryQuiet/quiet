@@ -59,7 +59,7 @@ describe('sendFileMessageSaga', () => {
           id: generateChannelId('sailing'),
         },
       })
-    ).channel
+    ).channel!
 
     message = Math.random().toString(36).substr(2.9)
   })

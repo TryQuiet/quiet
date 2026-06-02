@@ -32,7 +32,8 @@ export const ChannelContextMenu: FC = () => {
 
   const items: ContextMenuItemProps[] = []
 
-  if (!(channel?.public ?? true)) {
+  // TODO: update this to actually use the LFA admin role
+  if (!(channel?.public ?? true) && isOwner) {
     items.push({
       title: 'Add members',
       action: () => {

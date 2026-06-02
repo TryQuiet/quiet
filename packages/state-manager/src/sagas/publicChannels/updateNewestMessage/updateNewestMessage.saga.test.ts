@@ -59,7 +59,7 @@ describe('markUnreadChannelsSaga', () => {
           },
         }
       )
-      channelIds = [...channelIds, channel.channel.id]
+      channelIds = [...channelIds, channel.channel!.id]
     }
   })
 
