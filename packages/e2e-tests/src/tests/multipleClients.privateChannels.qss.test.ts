@@ -15,7 +15,7 @@ import {
   TermsOfServiceModal,
 } from '../selectors'
 import { promiseWithRetries, sleep, tailQssLogs } from '../utils'
-import { UserListStatus, UserTestData2, UserTestDataMap } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS, UserListStatus, UserTestData2, UserTestDataMap } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 import { ChildProcess } from 'child_process'
@@ -200,7 +200,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(privateChannelName, false)
+          await sidebarOwner.addNewChannel(privateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
           await sidebarOwner.switchChannel(privateChannelName, false)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannelName)
@@ -472,7 +472,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
       describe('Owner Creates Another Private Channel', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
-          await sidebarOwner.addNewChannel(privateChannel2Name, false)
+          await sidebarOwner.addNewChannel(privateChannel2Name, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
           await sidebarOwner.switchChannel(privateChannel2Name, false)
           await sidebarOwner.waitForChannelsNum(3)
           const channels = await sidebarOwner.getChannelsNames()

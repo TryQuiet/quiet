@@ -14,7 +14,7 @@ import {
   Sidebar,
 } from '../selectors'
 import { createArbitraryFile, promiseWithRetries } from '../utils'
-import { MessageIds, UserListStatus, UserTestData } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS, MessageIds, UserListStatus, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import { FileAttachmentType, SettingsModalTabName } from '../enums'
 import {
@@ -158,7 +158,7 @@ describe('Multiple Clients (Private Channels)', () => {
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(privateChannelName, false)
+          await sidebarOwner.addNewChannel(privateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
           await sidebarOwner.switchChannel(privateChannelName, false)
         })
 
@@ -396,7 +396,7 @@ describe('Multiple Clients (Private Channels)', () => {
       describe('Owner Creates Another Private Channel', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
-          await sidebarOwner.addNewChannel(privateChannel2Name, false)
+          await sidebarOwner.addNewChannel(privateChannel2Name, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
           await sidebarOwner.switchChannel(privateChannel2Name, false)
           const channels = await sidebarOwner.getChannelList()
           expect(channels.length).toEqual(3)

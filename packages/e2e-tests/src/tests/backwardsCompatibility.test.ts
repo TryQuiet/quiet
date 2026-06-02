@@ -10,7 +10,7 @@ import {
   RegisterUsernameModal,
   Sidebar,
 } from '../selectors'
-import { MessageIds } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestAddNewChannelButtonId } from '../types'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller, sleep } from '../utils'
 import { createLogger } from '../logger'
 
@@ -113,7 +113,7 @@ describe('Backwards Compatibility', () => {
         expect(await generalChannel.isReady()).toBeTruthy()
 
         const generalChannelText = await generalChannel.element.getText()
-        expect(generalChannelText).toEqual('general')
+        expect(generalChannelText).toEqual('# general')
       })
 
       itif(process.platform == 'linux')(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
@@ -143,7 +143,10 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName, true, false)
+        await sidebar.addNewChannel(newChannelName, {
+          ...DEFAULT_ADD_NEW_CHANNEL_OPTIONS,
+          buttonId: TestAddNewChannelButtonId.PRE_DMS,
+        })
         await sidebar.switchChannel(newChannelName, true, false)
         const channels = await sidebar.getChannelList()
         expect(channels.length).toEqual(2)

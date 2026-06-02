@@ -57,3 +57,26 @@ export enum TestChannelType {
   PRIVATE_CHANNEL = 'privateChannel',
   DM = 'dm',
 }
+
+export enum TestAddNewChannelButtonId {
+  PRE_DMS = 'addChannelButton',
+  DMS = 'sidebar-button-createChannel',
+}
+
+export interface TestAddNewChannelOptions {
+  isPublic: boolean
+  expectToggle: boolean
+  buttonId: TestAddNewChannelButtonId
+}
+
+export const DEFAULT_ADD_NEW_CHANNEL_OPTIONS: TestAddNewChannelOptions = {
+  isPublic: true,
+  expectToggle: true,
+  buttonId: TestAddNewChannelButtonId.DMS,
+}
+
+export const DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS: TestAddNewChannelOptions = {
+  isPublic: false,
+  expectToggle: true,
+  buttonId: TestAddNewChannelButtonId.DMS,
+}

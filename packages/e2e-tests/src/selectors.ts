@@ -1,20 +1,22 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
-import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
+import { execSync } from 'child_process'
+import { DateTime } from 'luxon'
 import path from 'path'
+import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
+
+import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
 import {
   CreatedDM,
+  DEFAULT_ADD_NEW_CHANNEL_OPTIONS,
   MessageIds,
   NewMessageDM,
   RetryConfig,
+  TestAddNewChannelOptions,
   TestChannelType,
   UserListItem,
   UserListStatus,
 } from './types'
 import { createLogger } from './logger'
-import { DateTime } from 'luxon'
-import { execSync } from 'child_process'
-import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('selectors')
 
@@ -2512,9 +2514,12 @@ export class Sidebar {
     return channel
   }
 
-  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
+  async addNewChannel(
+    name: string,
+    options: TestAddNewChannelOptions = DEFAULT_ADD_NEW_CHANNEL_OPTIONS
+  ): Promise<Channel> {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="sidebar-button-createChannel"]')),
+      until.elementLocated(By.xpath(`//button[@data-testid="${options.buttonId}"]`)),
       5_000,
       `Add channel button couldn't be found within timeout`,
       500
@@ -2532,7 +2537,8 @@ export class Sidebar {
     await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
     await channelNameInput.sendKeys(name)
 
-    if (!isPublic && !expectToggle) {
+    let expectToggle = options.expectToggle
+    if (!options.isPublic && !options.expectToggle) {
       logger.warn(`Can't create a private channel without the privacy toggle - overriding expectToggle`)
       expectToggle = true
     }
@@ -2548,7 +2554,7 @@ export class Sidebar {
       if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
         throw new Error('Channel privacy toggle was enabled before clicking')
       }
-      if (!isPublic) {
+      if (!options.isPublic) {
         await channelPrivateToggle.click()
         if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
           throw new Error('Channel privacy toggle was disabled after clicking')
