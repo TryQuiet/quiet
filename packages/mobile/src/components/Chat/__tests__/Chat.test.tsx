@@ -37,6 +37,7 @@ describe('Chat component', () => {
       id: '',
       public: true,
       type: ChannelType.CHANNEL,
+      teamId: 'foobar',
     },
     pendingMessages: {},
     messages: {

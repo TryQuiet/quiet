@@ -22,7 +22,7 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
 
   useEffect(() => {
     if (screen === ScreenNames.UpdateChannelMembershipScreen && !channels.find(c => c.name === channelName)) {
-      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelScreen }))
+      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
     }
   }, [dispatch, screen, channels])
 

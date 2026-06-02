@@ -18,6 +18,22 @@ import { SerializerEncodingType } from '@quiet/types'
 
 @Injectable()
 class LFAIdentities extends EventEmitter {
+  private readonly lfaKeyStore: KeyStoreType = {
+    clear: async () => {},
+    close: async () => {},
+    hasKey: async () => false,
+    addKey: async () => {
+      throw new Error('OrbitDB keystore operations are unsupported for LFA identities')
+    },
+    createKey: async () => {
+      throw new Error('OrbitDB keystore operations are unsupported for LFA identities')
+    },
+    getKey: async () => undefined,
+    getPublic: () => {
+      throw new Error('OrbitDB keystore operations are unsupported for LFA identities')
+    },
+  }
+
   constructor(
     private readonly sigchainService: SigChainService,
     private readonly provider: LFAIdentityProvider,
@@ -27,13 +43,12 @@ class LFAIdentities extends EventEmitter {
   }
 
   /**
-   * NOTE: this is intentionally returning an empty document as its just to support the original
-   * identity service type from OrbitDB and the returned value isn't used anywhere
+   * OrbitDB expects custom identity services to expose a keystore-like object and
+   * closes it during shutdown. LFA identities do not persist OrbitDB signing keys,
+   * so this is a minimal compatibility shim rather than a real key store.
    */
   get keystore(): KeyStoreType {
-    return {
-      close: () => {},
-    } as any
+    return this.lfaKeyStore
   }
 
   /**

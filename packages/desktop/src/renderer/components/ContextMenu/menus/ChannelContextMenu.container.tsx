@@ -37,7 +37,7 @@ export const ChannelContextMenu: FC = () => {
 
   const items: ContextMenuItemProps[] = []
 
-  if (channel && !channel.public && channel.type !== ChannelType.DM) {
+  if (channel && !(channel?.public ?? true) && channel.type !== ChannelType.DM) {
     items.push({
       title: 'Add members',
       action: () => {

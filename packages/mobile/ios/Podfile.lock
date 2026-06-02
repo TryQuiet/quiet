@@ -1716,6 +1716,13 @@ PODS:
     - React-Core
   - RNSVG (15.12.1):
     - React-Core
+  - RNZipArchive (7.1.1):
+    - React-Core
+    - RNZipArchive/Core (= 7.1.1)
+    - SSZipArchive (~> 2.5.5)
+  - RNZipArchive/Core (7.1.1):
+    - React-Core
+    - SSZipArchive (~> 2.5.5)
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
@@ -1726,8 +1733,13 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
-  - SSZipArchive (2.6.0)
-  - Tor (405.9.1)
+  - Sodium (0.9.1)
+  - SSZipArchive (2.5.5)
+  - Tor (409.5.1):
+    - Tor/CTor (= 409.5.1)
+  - Tor/Core (409.5.1)
+  - Tor/CTor (409.5.1):
+    - Tor/Core
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1820,7 +1832,9 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
+  - RNZipArchive (from `../node_modules/react-native-zip-archive`)
+  - Sodium
+  - Tor (~> 409)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1841,7 +1855,9 @@ SPEC REPOS:
     - SDWebImageAVIFCoder
     - SDWebImageWebPCoder
     - SocketRocket
+    - Sodium
     - SSZipArchive
+    - Tor
 
 EXTERNAL SOURCES:
   boost:
@@ -2013,8 +2029,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  Tor:
-    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
+  RNZipArchive:
+    :path: "../node_modules/react-native-zip-archive"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2115,14 +2131,16 @@ SPEC CHECKSUMS:
   RNScreens: 2ba531caee939381d31548ee22e61c51a0c3321c
   RNShare: 694e19d7f74ac4c04de3a8af0649e9ccc03bd8b1
   RNSVG: 2e59e14c2723a1967cd1bba71038a59142cbc616
+  RNZipArchive: 0f7498c241e20d276d9cfa50ab35df4c572497d0
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
-  Tor: 39dc71bf048312e202608eb499ca5c74e841b503
+  Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
+  Tor: fb12b6bcfa1309d3e40e98908eabd28e5ff4bb61
   Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
 
-PODFILE CHECKSUM: 1f3635b9a52a9f3267675c779818f1eab5bb5304
+PODFILE CHECKSUM: ddc7d8f987087558efecc21d1a456e47a3846175
 
 COCOAPODS: 1.16.2

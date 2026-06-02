@@ -1,6 +1,7 @@
 import { all, fork, takeEvery, call, put, select, take, cancelled, delay } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
 import { NativeModules, AppState, AppStateStatus, Platform } from 'react-native'
+import DeviceInfo from 'react-native-device-info'
 import nativeEventEmitter from '../nativeServices/events/nativeEventEmitter'
 import { pushNotificationsActions } from './pushNotifications.slice'
 import { pushNotificationsSelectors } from './pushNotifications.selectors'
@@ -9,29 +10,45 @@ import {
   PermissionResultPayload,
 } from './handlePermissionResult/handlePermissionResult.saga'
 import { NotificationPermissionStatus } from './pushNotifications.types'
-import { pushNotifications } from '@quiet/state-manager'
+import { communities, pushNotifications } from '@quiet/state-manager'
 import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
+import Config from 'react-native-config'
+import { CompoundError } from '@quiet/types'
+import { nativeServicesActions } from '../nativeServices/nativeServices.slice'
 
 const logger = createLogger('pushNotificationsMasterSaga')
 
-// Event keys matching CommunicationModule.swift
+// Event keys matching CommunicationModule on iOS and Android.
 const NOTIFICATION_PERMISSION_RESULT = 'notificationPermissionResult'
 const DEVICE_TOKEN_RECEIVED = 'deviceTokenReceived'
 
+const communicationModule = NativeModules.CommunicationModule
 const firebaseMessagingModule = NativeModules.FirebaseMessagingModule
 
 function* requestPermissionSaga(): Generator {
-  logger.info('Requesting iOS notification permission')
-  yield* call(NativeModules.CommunicationModule.requestNotificationPermission)
+  if (!communicationModule?.requestNotificationPermission) {
+    logger.warn('CommunicationModule.requestNotificationPermission is unavailable')
+    return
+  }
+  logger.info(`Requesting ${Platform.OS} notification permission`)
+  yield* call([communicationModule, communicationModule.requestNotificationPermission])
 }
 
 function* checkPermissionSaga(): Generator {
-  logger.info('Checking notification permission')
-  yield* call(NativeModules.CommunicationModule.checkNotificationPermission)
+  if (!communicationModule?.checkNotificationPermission) {
+    logger.warn('CommunicationModule.checkNotificationPermission is unavailable')
+    return
+  }
+  logger.info(`Checking ${Platform.OS} notification permission`)
+  yield* call([communicationModule, communicationModule.checkNotificationPermission])
 }
 
 function* triggerPermissionRequestSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping automatic permission request trigger')
+    return
+  }
   const alreadyRequested = yield* select(pushNotificationsSelectors.permissionRequested)
   logger.info(`App opened. alreadyRequested=${alreadyRequested}`)
 
@@ -65,9 +82,20 @@ function hasGrantedPermission(payload: PermissionResultPayload): boolean {
 }
 
 function* waitForWebsocketConnectionSaga(): Generator {
+  let waitingForConnection = false
+
   while (true) {
     const connected = yield* select(initSelectors.isWebsocketConnected)
-    if (connected) break
+    if (connected) {
+      if (waitingForConnection) {
+        logger.info('Websocket connected, resuming device token send')
+      }
+      break
+    }
+    if (!waitingForConnection) {
+      waitingForConnection = true
+      logger.info('Websocket not connected yet, delaying device token send')
+    }
     yield* delay(500)
   }
 }
@@ -76,10 +104,34 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
   logger.info('Waiting for websocket connection before sending FCM token')
   yield* call(waitForWebsocketConnectionSaga)
   logger.info('Sending FCM token to backend')
-  yield* put(pushNotifications.actions.sendDeviceTokenToBackend(token))
+  const platform = Platform.OS === 'android' ? 'android' : 'ios'
+  const bundleId = DeviceInfo.getBundleId()
+  yield* put(
+    pushNotifications.actions.sendDeviceTokenToBackend({
+      deviceToken: token,
+      bundleId,
+      platform,
+    })
+  )
+}
+
+export function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
+  const permissionStatus = yield* select(pushNotificationsSelectors.permissionStatus)
+  return permissionStatus === NotificationPermissionStatus.Granted
 }
 
 function* syncCurrentDeviceTokenSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping device token sync')
+    return
+  }
+
+  const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
+  if (!hasGrantedPermission) {
+    logger.info('Skipping current FCM token sync because notification permission is not granted')
+    return
+  }
+
   if (!firebaseMessagingModule?.getToken) {
     logger.warn('FirebaseMessagingModule.getToken is unavailable, skipping initial token sync')
     return
@@ -96,7 +148,23 @@ function* syncCurrentDeviceTokenSaga(): Generator {
     logger.info('Fetched current FCM token from native module')
     yield* call(sendDeviceTokenToBackendSaga, token)
   } catch (error) {
-    logger.error('Failed to fetch current FCM token', error)
+    logger.info('Failed to fetch current FCM token')
+  }
+}
+
+export function* deleteNotificationTokenSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping device token deletion')
+    return
+  }
+
+  const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
+  if (deleteFirebaseToken) {
+    try {
+      yield* call(deleteFirebaseToken)
+    } catch (error) {
+      logger.error('Failed to delete Firebase token while leaving community', error)
+    }
   }
 }
 
@@ -146,6 +214,13 @@ function* watchDeviceToken(): Generator {
   try {
     while (true) {
       const { token } = yield* take(channel)
+      const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
+      if (!hasGrantedPermission) {
+        logger.info('Skipping live FCM token forward because notification permission is not granted')
+        continue
+      }
+
+      logger.info('Forwarding live FCM token update from native event channel')
       yield* call(sendDeviceTokenToBackendSaga, token)
     }
   } finally {
@@ -156,14 +231,13 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
-  if (Platform.OS !== 'ios') {
-    logger.info('Skipping push notifications saga on non-iOS')
+  if ((Platform.OS !== 'ios' && Platform.OS !== 'android') || Config.QPS_ALLOWED !== 'true') {
+    logger.info(`Skipping push notifications saga (platform=${Platform.OS}, QPS_ALLOWED=${Config.QPS_ALLOWED})`)
     return
   }
 
   logger.info('pushNotificationsMasterSaga starting')
   try {
-    // Set up native event listeners before triggering any permission requests
     yield* fork(watchPermissionResults)
     yield* fork(watchDeviceToken)
     yield* fork(watchAppState)
@@ -171,6 +245,7 @@ export function* pushNotificationsMasterSaga(): Generator {
     yield* all([
       takeEvery(pushNotificationsActions.requestPermission.type, requestPermissionSaga),
       takeEvery(pushNotificationsActions.checkPermissionOnLaunch.type, checkPermissionSaga),
+      takeEvery(communities.actions.setCurrentCommunity.type, syncCurrentDeviceTokenSaga),
       fork(triggerPermissionRequestSaga),
     ])
   } finally {

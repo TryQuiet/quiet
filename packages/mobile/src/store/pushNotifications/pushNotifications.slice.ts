@@ -5,6 +5,7 @@ import { NotificationPermissionStatus } from './pushNotifications.types'
 export class PushNotificationsState {
   permissionStatus: NotificationPermissionStatus = NotificationPermissionStatus.NotDetermined
   permissionRequested: boolean = false
+  backgroundTorEnabled = false
 }
 
 export const pushNotificationsSlice = createSlice({
@@ -17,6 +18,9 @@ export const pushNotificationsSlice = createSlice({
       state.permissionRequested = true
     },
     checkPermissionOnLaunch: state => state,
+    setBackgroundTorEnabled: (state, action: PayloadAction<boolean>) => {
+      state.backgroundTorEnabled = action.payload
+    },
   },
 })
 

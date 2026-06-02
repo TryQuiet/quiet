@@ -33,6 +33,7 @@ storiesOf('Chat', module)
         id: '',
         public: true,
         type: ChannelType.CHANNEL,
+        teamId: 'foobar',
       }}
       messages={{
         count: 16,
@@ -280,6 +281,7 @@ storiesOf('Chat', module)
         id: '',
         public: true,
         type: ChannelType.CHANNEL,
+        teamId: 'foobar',
       }}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
@@ -325,6 +327,7 @@ storiesOf('Chat', module)
         id: 'sticky-date-test',
         public: true,
         type: ChannelType.CHANNEL,
+        teamId: 'foobar',
       }}
       messages={{
         count: 40,

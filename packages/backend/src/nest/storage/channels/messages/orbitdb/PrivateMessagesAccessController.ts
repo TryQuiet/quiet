@@ -8,15 +8,22 @@ import { EncryptedMessage } from '../messages.types'
 import { SigChainService } from '../../../../auth/sigchain.service'
 import { AccessControllerConfig, BaseMessagesAccessController } from './BaseMessageAccessController'
 import { Injectable } from '@nestjs/common'
+import { isEncryptedMessage } from '../../../../validation/validators'
 
 const TYPE = 'privatemessagesaccess'
 
+export interface PrivateAccessControllerConfig extends AccessControllerConfig {
+  channelId: string
+  teamId: string
+}
+
 @Injectable()
-export class PrivateMessagesAccessController extends BaseMessagesAccessController {
+export class PrivateMessagesAccessController extends BaseMessagesAccessController<PrivateAccessControllerConfig> {
   constructor(protected sigchainService: SigChainService) {
     super(TYPE, sigchainService)
   }
-  protected canAppend(config: AccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+
+  protected canAppend(config: PrivateAccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
     return async (entry: LogEntry<EncryptedMessage>): Promise<boolean> => {
       if (!crypto) throw new NoCryptoEngineError()
 
@@ -27,10 +34,30 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
 
       const { id } = writerIdentity
       if (config.write.includes(id) || config.write.includes('*')) {
-        if (!identities.verifyIdentity(writerIdentity)) {
+        if (!(await identities.verifyIdentity(writerIdentity))) {
           return false
         }
       } else {
+        return false
+      }
+
+      if (entry.payload.value == null) {
+        this.logger.error(`Can't verify OrbitDB entry ${entry.id}, payload value is nullish`)
+        return false
+      }
+
+      if (!isEncryptedMessage(entry.payload.value)) {
+        this.logger.warn(`Cannot validate msg ${entry.id}: encrypted message shape is not valid`)
+        return false
+      }
+
+      if (entry.payload.value.teamId != null && entry.payload.value.teamId !== config.teamId) {
+        this.logger.error(`Entry ${entry.payload.value.id} is from a different team`)
+        return false
+      }
+
+      if (entry.payload.value.channelId !== config.channelId) {
+        this.logger.error(`Entry ${entry.payload.value.id} is from a different channel`)
         return false
       }
 

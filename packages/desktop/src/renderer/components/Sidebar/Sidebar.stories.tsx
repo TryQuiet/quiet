@@ -46,6 +46,7 @@ const args: IdentityPanelProps &
     name: 'rockets',
     id: 'rocketsCommunityId',
     ownership: CommunityOwnership.Owner,
+    teamId: 'foobar',
   },
   accountSettingsModal: {
     open: false,
@@ -61,6 +62,7 @@ const args: IdentityPanelProps &
       timestamp: Date.now(),
       public: true,
       type: ChannelType.CHANNEL,
+      teamId: 'foobar',
     },
     {
       id: 'spooky',
@@ -70,6 +72,7 @@ const args: IdentityPanelProps &
       timestamp: Date.now(),
       public: true,
       type: ChannelType.CHANNEL,
+      teamId: 'foobar',
     },
     {
       id: 'kalkan',
@@ -79,6 +82,7 @@ const args: IdentityPanelProps &
       timestamp: Date.now(),
       public: true,
       type: ChannelType.CHANNEL,
+      teamId: 'foobar',
     },
   ],
   myUserProfile: {

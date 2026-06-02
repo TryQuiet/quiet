@@ -401,7 +401,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     <View style={styles.container} testID={`chat_${channel?.name}`}>
       <Appbar
         title={channel?.name}
-        titleComponent={<ChatAppbarHeaderTitle title={channel?.name} isPublic={channel?.public} />}
+        titleComponent={<ChatAppbarHeaderTitle title={channel?.name} isPublic={channel?.public ?? true} />}
         back={handleBackButton}
         contextMenu={contextMenu}
       />

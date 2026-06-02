@@ -43,7 +43,7 @@ describe('Libp2pAuth', () => {
     expect(sigchainServiceA.activeChainTeamName).toBe(teamName)
 
     // Create invitation from A -> B
-    const inviteResult = await sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
+    const inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
     await sigchainServiceB.createChainFromInvite(userB, teamName, inviteResult.seed, sigchainServiceA.team.id, true)
   })
 

@@ -53,6 +53,7 @@ describe('ChannelsService', () => {
   let channel: PublicChannel
   let message: ChannelMessage
   let filePath: string
+  let community: Community
 
   let aliceUserId: string
 
@@ -86,7 +87,7 @@ describe('ChannelsService', () => {
     await localDbService.open()
     expect(localDbService.getStatus()).toEqual('open')
 
-    const community = await factory.create<Community>('Community')
+    community = await factory.create<Community>('Community')
 
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
@@ -136,9 +137,11 @@ describe('ChannelsService', () => {
       logger.info('Creating several channels and deleting one')
       const channel1 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
+        teamId: community.teamId!,
       })
       const channel2 = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
+        teamId: community.teamId!,
       })
 
       await channelsService.subscribeToChannel(channel1)

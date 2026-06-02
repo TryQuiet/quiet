@@ -96,7 +96,7 @@ const channelSchema = joi.object({
   timestamp: joi.number().required(),
   id: joi.string(),
   address: joi.string(),
-  public: joi.boolean().required(),
+  public: joi.boolean().optional(),
   roleName: joi.string().optional(),
   disabled: joi.boolean().optional(),
   type: joi
@@ -106,6 +106,7 @@ const channelSchema = joi.object({
       return value === ChannelType.CHANNEL || value === ChannelType.DM
     }),
   memberIds: joi.array().items(joi.string()).optional(),
+  teamId: joi.string().optional(),
 })
 
 // TODO: make this validator more strict

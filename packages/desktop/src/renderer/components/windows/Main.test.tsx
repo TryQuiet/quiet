@@ -87,7 +87,7 @@ describe('Main', () => {
                           >
                             <div
                               class="rc-scrollbars-view"
-                              style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
+                              style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px; overflow-x: hidden;"
                             >
                               <div
                                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
@@ -317,27 +317,6 @@ describe('Main', () => {
                           <div
                             class="contract-trigger"
                           />
-                        </div>
-                      </div>
-                      <div
-                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1xjxipu-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiGrid-root MuiGrid-container TorStatuswrapper css-1ki2u8z-MuiGrid-root"
-                        >
-                          <p
-                            class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                          >
-                            TOR
-                          </p>
-                          <div
-                            class="MuiGrid-root MuiGrid-container TorStatuscircleWrapper css-1hbmzt3-MuiGrid-root"
-                          >
-                            <div
-                              class="MuiGrid-root MuiGrid-item TorStatuscircle css-13i4rnv-MuiGrid-root"
-                              style="background: rgb(209, 49, 53);"
-                            />
-                          </div>
                         </div>
                       </div>
                       <div

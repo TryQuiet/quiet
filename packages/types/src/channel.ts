@@ -12,6 +12,8 @@ export enum ChannelType {
   DM = 'dm',
 }
 
+export const CHANNEL_METADATA_STORE_NAME = 'public-channels'
+
 export interface PublicChannel {
   id: string
   name: string
@@ -19,9 +21,10 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   disabled?: boolean
-  public: boolean
+  public?: boolean
   roleName?: string
   type: ChannelType
+  teamId?: string
   memberIds?: string[]
 }
 
@@ -34,7 +37,7 @@ export interface PublicChannelStatus {
   id: string
   unread: boolean
   newestMessage: ChannelMessage | null
-  public: boolean
+  public?: boolean
   type: ChannelType
 }
 
@@ -99,7 +102,8 @@ export interface ChannelsReplicatedPayload {
 export interface CreateChannelPayload {
   id: string
   name: string
-  public?: boolean
+  public: boolean
+  teamId: string
   description?: string
   type: ChannelType
   memberIds?: string[]
@@ -196,6 +200,7 @@ export enum AddMembersChannelStatus {
   FAILURE = 'FAILURE',
   CHANNEL_MISSING = 'CHANNEL_MISSING',
   NOT_MEMBER = 'NOT_MEMBER',
+  INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
 }
 
 export interface AddMembersChannelResponse {

@@ -160,6 +160,8 @@ export interface LogEntrySyncPayload {
   hash: string
   hashedDbId: string
   encEntry: EncryptedAndSignedPayload
+  receivedAt?: number
+  syncSeq?: number
 }
 
 export interface LogEntrySyncMessage extends BaseWebsocketMessage<LogEntrySyncPayload> {
@@ -173,6 +175,8 @@ export interface LogEntrySyncResponsePayload {
   teamId: string
   hash: string
   hashedDbId: string
+  receivedAt?: number
+  syncSeq?: number
 }
 
 export interface LogEntrySyncResponseMessage extends BaseWebsocketMessage<LogEntrySyncResponsePayload> {
@@ -186,12 +190,14 @@ export interface LogEntryPullPayload {
   teamId: string
   userId: string
   direction?: 'forward' | 'backward'
+  cursor?: string
+  startSeq?: number
+  endSeq?: number
   startTs?: number
   endTs?: number
   limit?: number
   hash?: string
   hashedDbId?: string
-  cursor?: string
 }
 
 export interface LogEntryPullMessage extends BaseWebsocketMessage<LogEntryPullPayload> {
@@ -205,6 +211,8 @@ export interface LogEntryPullResponsePayload {
   cursor?: string
   hasNextPage: boolean
   entries: Buffer[]
+  highestSyncSeq?: number
+  resolvedStartSeq?: number
 }
 
 export interface LogEntryPullResponseMessage extends BaseWebsocketMessage<LogEntryPullResponsePayload> {

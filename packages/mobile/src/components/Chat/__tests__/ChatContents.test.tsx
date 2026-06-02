@@ -177,6 +177,7 @@ describe('Chat component list data', () => {
       id: '',
       public: true,
       type: ChannelType.CHANNEL,
+      teamId: 'foobar',
     },
     pendingMessages: {},
     messages: mockMessages,

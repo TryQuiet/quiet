@@ -14,6 +14,7 @@ import {
 import { createLogger } from './logger'
 import { DateTime } from 'luxon'
 import { execSync } from 'child_process'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('selectors')
 
@@ -32,7 +33,7 @@ export class App {
   }
 
   constructor(buildSetupConfig?: BuildSetupInit) {
-    this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+    this.buildSetup = new BuildSetup({ ...(buildSetupConfig ?? {}) })
     this.isOpened = false
   }
 
@@ -66,7 +67,7 @@ export class App {
       ...(overrideConfig ? overrideConfig : {}),
     }
     const failureReason = `Failed to open app within ${config.timeoutMs}ms`
-    await promiseWithRetries(this.open(qssEnabled), failureReason, config, this.close)
+    await promiseWithRetries(this.open(qssEnabled), failureReason, config, () => this.close())
   }
 
   /**
@@ -446,7 +447,7 @@ export class StartingLoadingPanel {
       if (e.message?.includes('stale element reference')) {
         logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
-        logger.warn('Either socket didnt get setup or you are running on an old version.')
+        logger.warn('Either socket didnt get setup or you are running on an old version.', e)
       }
     }
   }
@@ -1416,7 +1417,11 @@ export class Channel {
     return true
   }
 
-  async isOpen(channelType: TestChannelType = TestChannelType.PUBLIC_CHANNEL, timeout = 15_000): Promise<boolean> {
+  async isOpen(
+    channelType: TestChannelType = TestChannelType.PUBLIC_CHANNEL,
+    expectChannelTypeIcon: boolean = true,
+    timeout = 15_000
+  ): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
       timeout,
@@ -1424,15 +1429,18 @@ export class Channel {
       500
     )
 
-    if (channelType !== TestChannelType.DM) {
+    let titleText = this.name
+    if ((channelType !== TestChannelType.DM, expectChannelTypeIcon)) {
       await this.driver.wait(
         until.elementIsVisible(await (channelType === TestChannelType.PUBLIC_CHANNEL ? this.hash : this.lock)),
         timeout,
         `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
         500
       )
+    } else {
+      titleText = `# ${this.name}`
     }
-    return (await titleElement.getText()) === this.name
+    return (await titleElement.getText()) === titleText
   }
 
   async isMessageInputReady(): Promise<boolean> {
@@ -2478,7 +2486,7 @@ export class Sidebar {
     return new Settings(this.driver)
   }
 
-  async switchChannel(name: string, isPublic: boolean = true): Promise<Channel> {
+  async switchChannel(name: string, isPublic: boolean = true, expectChannelTypeIcon: boolean = true): Promise<Channel> {
     const channelLink = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`)),
       20_000,
@@ -2487,7 +2495,10 @@ export class Sidebar {
     )
     await channelLink.click()
     const channel = new Channel(this.driver, name)
-    await channel.isOpen(isPublic ? TestChannelType.PUBLIC_CHANNEL : TestChannelType.PRIVATE_CHANNEL)
+    await channel.isOpen(
+      isPublic ? TestChannelType.PUBLIC_CHANNEL : TestChannelType.PRIVATE_CHANNEL,
+      expectChannelTypeIcon
+    )
     return channel
   }
 
@@ -2504,7 +2515,7 @@ export class Sidebar {
     return channel
   }
 
-  async addNewChannel(name: string, isPublic: boolean = true): Promise<Channel> {
+  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="sidebar-button-createChannel"]')),
       5_000,
@@ -2524,20 +2535,27 @@ export class Sidebar {
     await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
     await channelNameInput.sendKeys(name)
 
-    const channelPrivateToggle = await this.driver.wait(
-      until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
-      5_000,
-      `Channel private toggle couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
-    if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-      throw new Error('Channel privacy toggle was enabled before clicking')
+    if (!isPublic && !expectToggle) {
+      logger.warn(`Can't create a private channel without the privacy toggle - overriding expectToggle`)
+      expectToggle = true
     }
-    if (!isPublic) {
-      await channelPrivateToggle.click()
-      if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-        throw new Error('Channel privacy toggle was disabled after clicking')
+
+    if (expectToggle) {
+      const channelPrivateToggle = await this.driver.wait(
+        until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
+        5_000,
+        `Channel private toggle couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
+      if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+        throw new Error('Channel privacy toggle was enabled before clicking')
+      }
+      if (!isPublic) {
+        await channelPrivateToggle.click()
+        if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+          throw new Error('Channel privacy toggle was disabled after clicking')
+        }
       }
     }
     const channelNameButton = await this.driver.wait(

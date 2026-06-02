@@ -7,6 +7,9 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { generateChannelId } from '@quiet/common'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('CreateChannelScreen')
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -85,6 +88,10 @@ export const CreateChannelScreen: FC = () => {
 
       setChannel({ channelId: id, channelName: name })
 
+      if (community == null || community.teamId == null) {
+        throw new Error(`Can't create channel when community isn't initialized`)
+      }
+
       dispatch(
         publicChannels.actions.createChannel({
           name: name,
@@ -92,6 +99,7 @@ export const CreateChannelScreen: FC = () => {
           id: id,
           public: isPublic,
           type: ChannelType.CHANNEL,
+          teamId: community.teamId,
         })
       )
     },

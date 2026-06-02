@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "react-native run-android --mode=storybookDebug --appIdSuffix=storybook.debug",
@@ -79,6 +79,7 @@
     "react-native-url-polyfill": "git+https://github.com/charpeni/react-native-url-polyfill.git#f432de38c370b45e99404eb46f081f390876726d",
     "react-native-webview": "^13.12.5",
     "react-native-webview-crypto": "0.0.27",
+    "react-native-zip-archive": "^7.0.0",
     "react-redux": "^7.2.9",
     "readable-stream": "^3.6.0",
     "redux-persist": "^6.0.0",
@@ -93,7 +94,8 @@
   "overrides": {
     "react": "18.3.1",
     "node-forge": "1.3.2",
-    "js-yaml": "4.1.1"
+    "js-yaml": "4.1.1",
+    "@xmldom/xmldom": "0.8.13"
   },
   "peerDependencies": {
     "react-native-randombytes": "git+https://github.com/siepra/react-native-randombytes.git#5a6dff9e340f70cabe3e1561cc2ff19671b0af49"
@@ -164,6 +166,7 @@
       "__snapshots__"
     ],
     "setupFiles": [
+      "./src/setupNodeEnv.ts",
       "./src/setupTests.tsx",
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],

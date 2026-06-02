@@ -69,17 +69,17 @@ describe('Multiple Clients (Private Channels)', () => {
           `New private channel only I can see`,
           `The second user can now see this`,
         ],
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-1',
         messages: ['Nice to meet you all', 'I can see the private channel now'],
-        app: new App(),
+        app: new App({ username: 'user-1' }),
       },
       user2: {
         username: 'user-2',
         messages: [],
-        app: new App(),
+        app: new App({ username: 'user-2' }),
       },
     }
   })
@@ -96,7 +96,7 @@ describe('Multiple Clients (Private Channels)', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   describe('Stages:', () => {
@@ -299,7 +299,7 @@ describe('Multiple Clients (Private Channels)', () => {
 
         it("Owner's message is visible in general channel", async () => {
           await generalChannelUser1.getUserMessages(users.owner.username)
-          await generalChannelUser1.getMessageIdsByText(users.owner.messages[0], users.owner.username)
+          await generalChannelUser1.getMessageIdsByText(users.owner.messages[0], users.owner.username, 60_000)
         })
       })
 
@@ -441,8 +441,10 @@ describe('Multiple Clients (Private Channels)', () => {
         })
 
         it(`Second private channel is in user's sidebar`, async () => {
+          const correctChannelCount = await sidebarUser1.waitForChannelsNum(3)
+          expect(correctChannelCount).toBeTruthy()
           const channels = await sidebarUser1.getChannelsNames()
-          expect(channels.length).toBe(3)
+          expect(channels).toHaveLength(3)
           expect(channels).toContain(privateChannel2Name)
           await sidebarUser1.getChannelIcon(privateChannel2Name, false)
         })

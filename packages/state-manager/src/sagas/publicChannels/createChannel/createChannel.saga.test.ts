@@ -86,4 +86,33 @@ describe('createChannelSaga', () => {
       )
       .run()
   })
+
+  it('creates new private channel', async () => {
+    const community = await factory.create('Community')
+
+    const createChannelPayload = await socketPayloadFactory.build<CreateChannelPayload>(SocketActions.CREATE_CHANNEL, {
+      public: false,
+    })
+    const createChannelResponse: CreateChannelResponse = await socket.buildResponse(SocketActions.CREATE_CHANNEL, {
+      ...createChannelPayload,
+    })
+    socket.registerExpectedResponse(SocketActions.CREATE_CHANNEL, createChannelResponse)
+    await expectSaga(
+      createChannelSaga,
+      socket as unknown as Socket,
+      publicChannelsActions.createChannel(createChannelPayload)
+    )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .apply(socket, socket.emitWithAck, [SocketActions.CREATE_CHANNEL, createChannelPayload])
+      .put(messagesActions.addPublicChannelsMessagesBase({ channelId: createChannelPayload.id }))
+      .put(publicChannelsActions.addChannel(createChannelResponse))
+      .put(
+        publicChannelsActions.sendInitialChannelMessage({
+          channelName: createChannelPayload.name,
+          channelId: createChannelPayload.id,
+        })
+      )
+      .run()
+  })
 })

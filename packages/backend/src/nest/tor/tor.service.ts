@@ -9,11 +9,24 @@ import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorControl } from './tor-control.service'
-import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
+import {
+  type BootstrapStallState,
+  type BootstrapStatus,
+  GetInfoTorSignal,
+  HiddenServiceData,
+  TorControlAuthType,
+  TorParams,
+  TorParamsProvider,
+  TorPasswordProvider,
+} from './tor.types'
 
 import { createLogger } from '../common/logger'
 import { toString as uint8ArrayToString } from 'uint8arrays'
 import { isUint8Array } from 'util/types'
+
+const BOOTSTRAP_DONE_MESSAGE = '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
+const BOOTSTRAP_STALL_MIN_DURATION_MS = 30_000
+const BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT = 3
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -27,6 +40,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private readonly logger = createLogger(Tor.name)
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
+  private markBootstrappedPromise: Promise<void> | undefined
+  private bootstrapRestartPromise: Promise<void> | undefined
+  private bootstrapStallState: BootstrapStallState | undefined
+  private bootstrapGeneration = 0
+  public bootstrapped = false
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -37,12 +55,16 @@ export class Tor extends EventEmitter implements OnModuleInit {
   ) {
     super()
     this.controlPort = configOptions.torControlPort
+    this.extraTorProcessParams = this.mergeDefaultTorParams(torParamsProvider.extraTorProcessParams)
 
     this.logger.info('QUIET DIR', this.quietDir)
   }
 
   async onModuleInit() {
-    if (!this.torParamsProvider.torPath) return
+    if (!this.torParamsProvider.torPath) {
+      this.startBootstrapWatcher()
+      return
+    }
     await this.init()
   }
 
@@ -59,6 +81,148 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.controlPort = port
   }
 
+  public rewireNativeTor({
+    controlPort,
+    httpTunnelPort,
+    authCookie,
+  }: {
+    controlPort: number
+    httpTunnelPort: number
+    authCookie: string
+  }) {
+    this.logger.info('Rewiring native Tor control params', { controlPort, httpTunnelPort })
+    this.configOptions.torControlPort = controlPort
+    this.configOptions.httpTunnelPort = httpTunnelPort
+    this.controlPort = controlPort
+    this.torControl.torControlParams.port = controlPort
+    this.torControl.torControlParams.auth.value = authCookie
+    this.torControl.torControlParams.auth.type = TorControlAuthType.COOKIE
+    this.resetBootstrapState()
+    this.startBootstrapWatcher()
+  }
+
+  public resetBootstrapState() {
+    this.bootstrapGeneration += 1
+    this.bootstrapped = false
+    this.bootstrapStallState = undefined
+    this.initializedHiddenServices = new Map()
+    this.markBootstrappedPromise = undefined
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout)
+      this.initTimeout = undefined
+    }
+    this.stopBootstrapWatcher()
+  }
+
+  private async markBootstrapped() {
+    if (this.bootstrapped) return
+    if (this.markBootstrappedPromise) {
+      await this.markBootstrappedPromise
+      return
+    }
+
+    const bootstrapGeneration = this.bootstrapGeneration
+    const markBootstrappedPromise = (async () => {
+      await this.spawnHiddenServices()
+      if (bootstrapGeneration !== this.bootstrapGeneration) {
+        this.logger.warn('Bootstrap generation changed while marking Tor bootstrapped, skipping stale event')
+        return
+      }
+
+      this.logger.info('Bootstrapping finished!')
+      this.bootstrapped = true
+      if (this.initTimeout) {
+        clearTimeout(this.initTimeout)
+        this.initTimeout = undefined
+      }
+      this.emit('bootstrapped')
+      this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+      this.stopBootstrapWatcher()
+    })()
+
+    this.markBootstrappedPromise = markBootstrappedPromise
+    try {
+      await markBootstrappedPromise
+    } finally {
+      if (this.markBootstrappedPromise === markBootstrappedPromise) {
+        this.markBootstrappedPromise = undefined
+      }
+    }
+  }
+
+  public startBootstrapWatcher(intervalMs = 2500) {
+    if (this.bootstrapped) return
+    if (!this.torControl.torControlParams.port) {
+      this.logger.warn('Cannot start bootstrap watcher without a Tor control port')
+      return
+    }
+    if (this.interval) {
+      this.logger.warn('Bootstrap interval already set; clearing before starting a new one')
+      this.stopBootstrapWatcher()
+    }
+
+    let tickInProgress = false
+    let tickCount = 0
+    let lastTickStartedAt = 0
+    this.logger.info('Starting bootstrap check interval', {
+      intervalMs,
+      controlPort: this.controlPort,
+      socksPort: this.socksPort,
+      torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
+    })
+
+    this.interval = setInterval(() => {
+      if (tickInProgress) {
+        this.logger.debug('Bootstrap interval tick skipped (previous still running)', {
+          tickCount,
+          lastTickStartedAt,
+        })
+        return
+      }
+
+      tickInProgress = true
+      tickCount += 1
+      lastTickStartedAt = Date.now()
+
+      void (async () => {
+        this.logger.info('Checking bootstrap interval', { tickCount })
+        const restartedMissingTorProcess = await this.checkManagedTorProcessHealth()
+        if (restartedMissingTorProcess) {
+          return
+        }
+
+        const bootstrapStatus = await this.getBootstrapStatus()
+        if (bootstrapStatus.done) {
+          await this.markBootstrapped()
+          this.stopBootstrapWatcher()
+          return
+        }
+        await this.checkBootstrapStall(bootstrapStatus)
+      })()
+        .catch(e => {
+          this.logger.error(
+            `Bootstrap interval tick failed (tickCount=${tickCount}, startedAt=${lastTickStartedAt})`,
+            e
+          )
+          this.logger.error('Bootstrap interval context', {
+            torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
+            controlPort: this.controlPort,
+            socksPort: this.socksPort,
+          })
+        })
+        .finally(() => {
+          tickInProgress = false
+        })
+    }, intervalMs)
+  }
+
+  private stopBootstrapWatcher() {
+    if (this.interval) {
+      clearInterval(this.interval)
+      this.interval = undefined
+    }
+  }
+
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
     const defaultParams = {
       '--NumEntryGuards': '3', // See task #1295
@@ -71,18 +235,156 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async isBootstrappingFinished(): Promise<boolean> {
-    this.logger.debug('Checking bootstrap status')
-    const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-    if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
-      this.logger.info('Bootstrapping finished!')
+    if (this.bootstrapped) return true
+    const bootstrapStatus = await this.getBootstrapStatus()
+    if (bootstrapStatus.done) {
+      await this.markBootstrapped()
       return true
     }
     return false
   }
 
+  private async getBootstrapStatus(): Promise<BootstrapStatus> {
+    this.logger.debug('Checking bootstrap status')
+    const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+    return this.parseBootstrapStatus(output.messages[0] ?? '')
+  }
+
+  private parseBootstrapStatus(rawMessage: string): BootstrapStatus {
+    const progressMatch = rawMessage.match(/BOOTSTRAP PROGRESS=(\d+)/)
+    const tagMatch = rawMessage.match(/TAG=([^\s]+)/)
+    const warningMatch = rawMessage.match(/WARNING="([^"]+)"/)
+    const reasonMatch = rawMessage.match(/REASON=([^\s]+)/)
+
+    return {
+      rawMessage,
+      done: rawMessage === BOOTSTRAP_DONE_MESSAGE,
+      progress: progressMatch ? Number(progressMatch[1]) : undefined,
+      tag: tagMatch ? tagMatch[1] : undefined,
+      warning: warningMatch?.[1],
+      reason: reasonMatch?.[1],
+    }
+  }
+
+  private async checkBootstrapStall(status: BootstrapStatus): Promise<void> {
+    if (status.done || status.progress == null) {
+      this.bootstrapStallState = undefined
+      return
+    }
+
+    const checkedAt = Date.now()
+    const hasTimeoutWarning =
+      status.reason === 'TIMEOUT' || status.warning?.toLowerCase().includes('timed out') === true
+
+    if (
+      this.bootstrapStallState == null ||
+      this.bootstrapStallState.progress !== status.progress ||
+      this.bootstrapStallState.tag !== status.tag
+    ) {
+      this.bootstrapStallState = {
+        progress: status.progress,
+        tag: status.tag,
+        firstObservedAt: checkedAt,
+        timeoutWarningCount: hasTimeoutWarning ? 1 : 0,
+      }
+      return
+    }
+
+    if (hasTimeoutWarning) {
+      this.bootstrapStallState.timeoutWarningCount += 1
+    }
+
+    const stalledMs = checkedAt - this.bootstrapStallState.firstObservedAt
+    if (
+      stalledMs < BOOTSTRAP_STALL_MIN_DURATION_MS ||
+      this.bootstrapStallState.timeoutWarningCount < BOOTSTRAP_STALL_TIMEOUT_WARNING_COUNT
+    ) {
+      return
+    }
+
+    await this.restartAfterBootstrapStall(status, stalledMs, this.bootstrapStallState.timeoutWarningCount)
+  }
+
+  private async checkManagedTorProcessHealth(): Promise<boolean> {
+    if (!this.torParamsProvider.torPath || !this.torDataDirectory || this.bootstrapped) {
+      return false
+    }
+
+    let torPids: string[]
+    try {
+      torPids = this.getTorProcessIds()
+    } catch (e) {
+      this.logger.warn('Unable to check managed Tor process health during bootstrap', e)
+      return false
+    }
+
+    if (torPids.length > 0) {
+      return false
+    }
+
+    await this.restartManagedTor('Managed Tor process disappeared during bootstrap; restarting Tor', {
+      controlPort: this.controlPort,
+      socksPort: this.socksPort,
+      torPids,
+    })
+    return true
+  }
+
+  private async restartAfterBootstrapStall(
+    status: BootstrapStatus,
+    stalledMs: number,
+    timeoutWarningCount: number
+  ): Promise<void> {
+    if (!this.torParamsProvider.torPath) {
+      this.logger.warn('Tor bootstrap appears stalled, but Tor is externally managed; waiting for native Tor', {
+        progress: status.progress,
+        tag: status.tag,
+        stalledMs,
+        timeoutWarningCount,
+        status: status.rawMessage,
+      })
+      this.bootstrapStallState = undefined
+      return
+    }
+
+    await this.restartManagedTor('Tor bootstrap appears stalled; restarting Tor', {
+      progress: status.progress,
+      tag: status.tag,
+      stalledMs,
+      timeoutWarningCount,
+      controlPort: this.controlPort,
+      socksPort: this.socksPort,
+      torPids: this.torDataDirectory ? this.getTorProcessIds() : undefined,
+      status: status.rawMessage,
+    })
+  }
+
+  private async restartManagedTor(reason: string, context: Record<string, unknown>): Promise<void> {
+    if (this.bootstrapRestartPromise) {
+      await this.bootstrapRestartPromise
+      return
+    }
+
+    this.logger.warn(reason, context)
+
+    this.bootstrapRestartPromise = (async () => {
+      this.initializedHiddenServices = new Map()
+      this.bootstrapStallState = undefined
+      this.stopBootstrapWatcher()
+      await this.init()
+    })()
+
+    try {
+      await this.bootstrapRestartPromise
+    } finally {
+      this.bootstrapRestartPromise = undefined
+    }
+  }
+
   public async init(timeout = 120_000): Promise<void> {
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger.info('Initializing tor...')
+    this.resetBootstrapState()
 
     return await new Promise((resolve, reject) => {
       if (!fs.existsSync(this.quietDir)) {
@@ -124,61 +426,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
 
-          const bootstrapIntervalMs = 2500
-          if (this.interval) {
-            this.logger.warn('Bootstrap interval already set; clearing before starting a new one')
-            clearInterval(this.interval)
-            this.interval = undefined
-          }
-
-          let tickInProgress = false
-          let tickCount = 0
-          let lastTickStartedAt = 0
-          this.logger.info('Starting bootstrap check interval', {
-            intervalMs: bootstrapIntervalMs,
-            torPids: this.getTorProcessIds(),
-            controlPort: this.controlPort,
-            socksPort: this.socksPort,
-          })
-
-          this.interval = setInterval(() => {
-            if (tickInProgress) {
-              this.logger.debug('Bootstrap interval tick skipped (previous still running)', {
-                tickCount,
-                lastTickStartedAt,
-              })
-              return
-            }
-
-            tickInProgress = true
-            tickCount += 1
-            lastTickStartedAt = Date.now()
-
-            void (async () => {
-              this.logger.info('Checking bootstrap interval', { tickCount })
-              const bootstrapDone = await this.isBootstrappingFinished()
-              if (!bootstrapDone) return
-
-              this.logger.info(`Sending ${SocketEvents.TOR_INITIALIZED}`)
-              this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
-              clearInterval(this.interval)
-              this.interval = undefined
-            })()
-              .catch(e => {
-                this.logger.error(
-                  `Bootstrap interval tick failed (tickCount=${tickCount}, startedAt=${lastTickStartedAt})`,
-                  e
-                )
-                this.logger.error('Bootstrap interval context', {
-                  torPids: this.getTorProcessIds(),
-                  controlPort: this.controlPort,
-                  socksPort: this.socksPort,
-                })
-              })
-              .finally(() => {
-                tickInProgress = false
-              })
-          }, bootstrapIntervalMs)
+          this.startBootstrapWatcher()
 
           this.logger.info(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
 
@@ -311,7 +559,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           `"${this.torDataDirectory}"`,
           '--HashedControlPassword',
           this.torPasswordProvider.torHashedPassword,
-          // ...this.torProcessParams
+          ...this.torProcessParams,
         ],
         options
       )
@@ -344,7 +592,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async spawnHiddenServices() {
     this.logger.info(`Spawning hidden service(s) (count: ${this.hiddenServices.size})`)
-    for (const el of this.hiddenServices.values()) {
+    for (const el of Array.from(this.hiddenServices.values())) {
       await this.spawnHiddenService(el)
     }
   }
@@ -429,6 +677,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async kill(): Promise<void> {
+    this.resetBootstrapState()
     return await new Promise((resolve, reject) => {
       this.logger.info('Killing tor... with pid', this.process?.pid)
       if (this.process === null) {

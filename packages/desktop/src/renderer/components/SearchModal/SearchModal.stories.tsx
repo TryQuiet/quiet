@@ -23,6 +23,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'fun',
+      teamId: 'foobar',
     },
     {
       name: 'mobile',
@@ -34,6 +35,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'mobile',
+      teamId: 'foobar',
     },
     {
       name: 'new-york-plans',
@@ -45,6 +47,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'new-york-plans',
+      teamId: 'foobar',
     },
   ],
   publicChannelsSelector: [
@@ -58,6 +61,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'fun',
+      teamId: 'foobar',
     },
     {
       name: 'mobile',
@@ -69,6 +73,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'mobile',
+      teamId: 'foobar',
     },
     {
       name: 'new-york-plans',
@@ -80,6 +85,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'new-york-plans',
+      teamId: 'foobar',
     },
     {
       name: 'general',
@@ -91,6 +97,7 @@ const args: SearchModalComponentProps = {
       public: true,
       type: ChannelType.CHANNEL,
       displayedName: 'general',
+      teamId: 'foobar',
     },
   ],
   unreadChannelsSelector: [],

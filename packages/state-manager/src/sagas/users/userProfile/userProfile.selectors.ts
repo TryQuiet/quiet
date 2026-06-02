@@ -28,10 +28,8 @@ export const myUserProfile = createSelector(
   usersSelectors.allUsers,
   identitySelectors.currentIdentity,
   (userProfiles, users, currentIdentity) => {
-    logger.warn('Fetching myUserProfile', currentIdentity?.userId)
     if (currentIdentity?.userId) {
       let myProfile = userProfiles[currentIdentity.userId] as UserProfile
-      logger.warn('Found profile', myProfile)
       const myUser = users[currentIdentity.userId]
       if (myUser != null) {
         myProfile = {

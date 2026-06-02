@@ -16,6 +16,7 @@ describe('messages helper', () => {
     public: true,
     type: ChannelType.CHANNEL,
     displayedName: 'general',
+    teamId: 'foobar',
   }
 
   const sportChannel: PublicChannelStorage = {
@@ -28,6 +29,7 @@ describe('messages helper', () => {
     public: true,
     type: ChannelType.CHANNEL,
     displayedName: 'sport',
+    teamId: 'foobar',
   }
 
   it('createdChannelMessage', () => {

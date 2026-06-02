@@ -19,7 +19,7 @@ import { UserProfile } from '@quiet/types'
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
 
-  const [memberCountSuffix, setMemberCountSuffx] = useState<string>('')
+  const [memberCountSuffix, setMemberCountSuffix] = useState<string>('')
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
@@ -32,7 +32,7 @@ export const ChannelContextMenu: FC = () => {
     const membersInChannel: UserProfile[] = Object.values(userProfiles).filter(profile =>
       profile.channels?.includes(channel.id)
     )
-    setMemberCountSuffx(`${membersInChannel.length}`)
+    setMemberCountSuffix(`${membersInChannel.length}`)
   }
 
   let title = ''
@@ -56,7 +56,7 @@ export const ChannelContextMenu: FC = () => {
 
   useEffect(() => {
     _initializeData()
-  }, [userProfiles, screen])
+  }, [userProfiles])
 
   let items: ContextMenuItemProps[] = []
 

@@ -527,54 +527,54 @@ describe('LocalDbService', () => {
     })
   })
 
-  describe('last sync time', () => {
+  describe('last sync seq', () => {
     const TEAM_ID = 'team-abc'
 
     afterEach(async () => {
       await service.purge()
     })
 
-    it('set / get last sync time', async () => {
-      const timestamp = Date.now()
-      await service.setLastSyncTime(TEAM_ID, timestamp)
-      const retrieved = await service.getLastSyncTime(TEAM_ID)
-      expect(retrieved).toBe(timestamp)
+    it('set / get last sync seq', async () => {
+      const syncSeq = 42
+      await service.setLastSyncSeq(TEAM_ID, syncSeq)
+      const retrieved = await service.getLastSyncSeq(TEAM_ID)
+      expect(retrieved).toBe(syncSeq)
     })
 
-    it('returns null when no timestamp exists', async () => {
-      const result = await service.getLastSyncTime('nonexistent-team')
+    it('returns null when no sync seq exists', async () => {
+      const result = await service.getLastSyncSeq('nonexistent-team')
       expect(result).toBeNull()
     })
 
     it('returns null for invalid (NaN) stored value', async () => {
       // Manually store invalid value
-      await service.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_TIME}:${TEAM_ID}`, 'not-a-number')
-      const result = await service.getLastSyncTime(TEAM_ID)
+      await service.put(`${LocalDBKeys.LAST_QSS_LOG_SYNC_SEQ}:${TEAM_ID}`, 'not-a-number')
+      const result = await service.getLastSyncSeq(TEAM_ID)
       expect(result).toBeNull()
     })
 
     it('handles multiple teams independently', async () => {
       const team1 = 'team-1'
       const team2 = 'team-2'
-      const ts1 = 1000
-      const ts2 = 2000
+      const seq1 = 1000
+      const seq2 = 2000
 
-      await service.setLastSyncTime(team1, ts1)
-      await service.setLastSyncTime(team2, ts2)
+      await service.setLastSyncSeq(team1, seq1)
+      await service.setLastSyncSeq(team2, seq2)
 
-      expect(await service.getLastSyncTime(team1)).toBe(ts1)
-      expect(await service.getLastSyncTime(team2)).toBe(ts2)
+      expect(await service.getLastSyncSeq(team1)).toBe(seq1)
+      expect(await service.getLastSyncSeq(team2)).toBe(seq2)
     })
 
-    it('overwrites existing timestamp', async () => {
-      const ts1 = 1000
-      const ts2 = 2000
+    it('overwrites existing sync seq', async () => {
+      const seq1 = 1000
+      const seq2 = 2000
 
-      await service.setLastSyncTime(TEAM_ID, ts1)
-      expect(await service.getLastSyncTime(TEAM_ID)).toBe(ts1)
+      await service.setLastSyncSeq(TEAM_ID, seq1)
+      expect(await service.getLastSyncSeq(TEAM_ID)).toBe(seq1)
 
-      await service.setLastSyncTime(TEAM_ID, ts2)
-      expect(await service.getLastSyncTime(TEAM_ID)).toBe(ts2)
+      await service.setLastSyncSeq(TEAM_ID, seq2)
+      expect(await service.getLastSyncSeq(TEAM_ID)).toBe(seq2)
     })
   })
 

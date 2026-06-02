@@ -9,22 +9,18 @@ import { base58btc } from 'multiformats/bases/base58'
 import {
   type Storage,
   type OrbitDBType,
-  type LogEntry,
   type IdentitiesType,
   ComposedStorage,
   LRUStorage,
   IPFSBlockStorage,
-  AccessControllerType,
   AccessController,
   CanAppendFunc,
 } from '@orbitdb/core'
-import { getCrypto } from 'pkijs'
-import { NoCryptoEngineError, NotImplementedError } from '@quiet/types'
+import { NotImplementedError } from '@quiet/types'
 import { posixJoin } from '../../../orbitDb/util'
-import { EncryptedMessage } from '../messages.types'
 import { createLogger } from '../../../../common/logger'
 import { QuietLogger } from '@quiet/logger'
-import { SigChainService } from 'packages/backend/src/nest/auth/sigchain.service'
+import { SigChainService } from '../../../../auth/sigchain.service'
 
 const codec = dagCbor
 const hasher = sha256
@@ -49,13 +45,21 @@ const AccessControlList = async ({
   return hash
 }
 
+const getAccessControllerManifestHash = (address: string): string => {
+  const hash = address.split('/').filter(Boolean).pop()
+  if (hash == null) {
+    throw new Error(`Invalid access controller address: ${address}`)
+  }
+  return hash
+}
+
 export interface AccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
   roleName?: string
 }
 
-export class BaseMessagesAccessController {
+export class BaseMessagesAccessController<T extends AccessControllerConfig> {
   protected readonly logger: QuietLogger
   constructor(
     protected readonly type: string,
@@ -64,13 +68,18 @@ export class BaseMessagesAccessController {
     this.logger = createLogger(`storage:channels:messages:orbitdb:access-control:${this.type}`)
   }
 
-  public createAccessControllerFunc(config: AccessControllerConfig): typeof AccessController {
-    const accessController = this._createAccessControllerFuncImpl(config)
+  public createAccessControllerFunc(config: T): typeof AccessController {
+    const accessController = (options?: any) => {
+      if (options?.orbitdb != null) {
+        return this._createAccessControllerFuncImpl(config)(options)
+      }
+      return this._createAccessControllerFuncImpl({ ...config, ...options })
+    }
     ;(accessController as any).type = this.type
-    return accessController
+    return accessController as typeof AccessController
   }
 
-  private _createAccessControllerFuncImpl(config: AccessControllerConfig): typeof AccessController {
+  private _createAccessControllerFuncImpl(config: T): typeof AccessController {
     return async ({
       orbitdb,
       identities,
@@ -88,7 +97,7 @@ export class BaseMessagesAccessController {
       let write = config.write || [orbitdb.identity.id]
 
       if (address) {
-        const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
+        const manifestBytes = await storage.get(getAccessControllerManifestHash(address))
         const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
         // FIXME: Figure out typings
         // @ts-ignore
@@ -98,18 +107,25 @@ export class BaseMessagesAccessController {
         address = posixJoin('/', this.type, address)
       }
 
-      const crypto = getCrypto()
-
       return {
         type: this.type,
         address,
         write,
-        canAppend: this.canAppend(config, identities) as any,
+        canAppend: this.canAppend({ ...config, write }, identities) as any,
       }
     }
   }
 
-  protected canAppend(config: AccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+  /*
+  TODO: we should decide on how we want to handle records that arrive before we have all of the necessary
+  chain information.  In all cases we'll fail validation if we don't have the user in our chain and in the
+  case of private channels/DMs we will fail if we don't have the updates that add a user to the channel role.
+
+  Possible solutions:
+    * pause syncing while chain is out of date
+    * buffer records that can't be validated and retry later
+  */
+  protected canAppend(config: T, identities: IdentitiesType): CanAppendFunc {
     throw new NotImplementedError('canAppend')
   }
 }

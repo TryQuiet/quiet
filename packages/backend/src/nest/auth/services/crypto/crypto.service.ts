@@ -14,9 +14,10 @@ import {
 import { ChainServiceBase } from '../chainServiceBase'
 import { SigChain } from '../../sigchain'
 import { asymmetric, Keyset, Member, SignedEnvelope, EncryptStreamTeamPayload } from '@localfirst/auth'
+import { KeyMap } from '@localfirst/auth/team/selectors'
 import { DEFAULT_SEARCH_OPTIONS, MemberSearchOptions } from '../members/types'
 import { createLogger } from '../../../common/logger'
-import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
+import { KeyMetadata } from '@localfirst/crdx'
 
 const logger = createLogger('auth:cryptoService')
 
@@ -34,6 +35,22 @@ class CryptoService extends ChainServiceBase {
     return members.map((member: Member) => {
       return member.keys
     })
+  }
+
+  public getPublicKeysForAllMembers(includeSelf: boolean = false): Keyset[] {
+    const members = this.sigChain.users.getAllUsers()
+    const keysByMember = []
+    for (const member of members) {
+      if (member.userId === this.sigChain.context.user.userId && !includeSelf) {
+        continue
+      }
+      keysByMember.push(member.keys)
+    }
+    return keysByMember
+  }
+
+  public getAllKeys(): KeyMap {
+    return this.sigChain.team!.allKeys()
   }
 
   public sign(message: any): SignedEnvelope {
@@ -118,12 +135,10 @@ class CryptoService extends ChainServiceBase {
   ): DecryptedPayload<T> {
     let contents: T
     if (typeof encrypted.contents === 'string') {
-      logger.debug('Converting Base64 string to Buffer')
       encrypted.contents = Buffer.from(encrypted.contents, 'base64')
     }
     // Handle numeric array case (JSON-encoded Uint8Array)
     else if (Array.isArray(encrypted.contents)) {
-      logger.debug('Converting numeric array to Buffer')
       encrypted.contents = Buffer.from(encrypted.contents)
     }
     // Handle Node.js Buffer JSON representation ({"type":"Buffer","data":[...]})
@@ -133,12 +148,10 @@ class CryptoService extends ChainServiceBase {
       (encrypted.contents as any).type === 'Buffer' &&
       Array.isArray((encrypted.contents as any).data)
     ) {
-      logger.debug('Converting JSON Buffer representation to Buffer')
       encrypted.contents = Buffer.from((encrypted.contents as any).data)
     }
     // Handle object with numeric keys (parsed JSON representation)
     else if (encrypted.contents && typeof encrypted.contents === 'object' && !Buffer.isBuffer(encrypted.contents)) {
-      logger.debug('Converting object with numeric keys to Buffer')
       const nums = Object.keys(encrypted.contents)
         .filter(key => /^\d+$/.test(key))
         .map(key => (encrypted.contents as any)[key] as number)

@@ -42,6 +42,8 @@ import {
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
   ClearConnectedPeersPayload,
+  UserProfilesUpdatedPayload,
+  UpdateCommunityPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -52,6 +54,11 @@ import { pushNotificationsMasterSaga } from '../../pushNotifications/pushNotific
 
 const logger = createLogger('startConnectionSaga')
 
+/*
+TODO: currently these handlers get duplicated after rejoining due to the way we instantiate the state manager.
+This function gets run when initially booting up the app and again when joining a community after leave.  Its
+not a huge deal but it may be causing intermittent bugs and at the very least is wasted resources.
+*/
 export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof messagesActions.addMessages>
@@ -90,6 +97,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setLongLivedInvite>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof connectionActions.setTorInitialized>
+    | ReturnType<typeof connectionActions.setQssConnected>
+    | ReturnType<typeof connectionActions.setQssDisconnected>
     | ReturnType<typeof usersActions.setUsers>
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
@@ -105,9 +114,21 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.setCurrentCommunity(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
     })
+    socket.on(SocketEvents.COMMUNITY_UPDATED, (payload: UpdateCommunityPayload) => {
+      logger.info(`${SocketEvents.COMMUNITY_UPDATED}`, payload)
+      emit(communitiesActions.updateCommunityData(payload))
+    })
     socket.on(SocketEvents.TOR_INITIALIZED, () => {
       logger.info(`${SocketEvents.TOR_INITIALIZED}`)
       emit(connectionActions.setTorInitialized())
+    })
+    socket.on(SocketEvents.QSS_CONNECTED, () => {
+      logger.info(`${SocketEvents.QSS_CONNECTED}`)
+      emit(connectionActions.setQssConnected())
+    })
+    socket.on(SocketEvents.QSS_DISCONNECTED, () => {
+      logger.info(`${SocketEvents.QSS_DISCONNECTED}`)
+      emit(connectionActions.setQssDisconnected())
     })
     socket.on(SocketEvents.CONNECTION_PROCESS_INFO, (payload: string) => {
       logger.info(`${SocketEvents.CONNECTION_PROCESS_INFO}`, payload)
@@ -220,20 +241,46 @@ export function subscribe(socket: Socket) {
       emit(captchaActions.setCaptchaVerified(payload))
     })
 
-    return () => undefined
+    return () => {
+      socket.off(SocketEvents.COMMUNITY_LAUNCHED)
+      socket.off(SocketEvents.TOR_INITIALIZED)
+      socket.off(SocketEvents.QSS_CONNECTED)
+      socket.off(SocketEvents.QSS_DISCONNECTED)
+      socket.off(SocketEvents.CONNECTION_PROCESS_INFO)
+      socket.off(SocketEvents.PEER_CONNECTED)
+      socket.off(SocketEvents.PEER_DISCONNECTED)
+      socket.off(SocketEvents.MIGRATION_DATA_REQUIRED)
+      socket.off(SocketEvents.MESSAGE_MEDIA_UPDATED)
+      socket.off(SocketEvents.FILE_ATTACHED)
+      socket.off(SocketEvents.DOWNLOAD_PROGRESS)
+      socket.off(SocketEvents.REMOVE_DOWNLOAD_STATUS)
+      socket.off(SocketEvents.CHANNELS_STORED)
+      socket.off(SocketEvents.CHANNEL_SUBSCRIBED)
+      socket.off(SocketEvents.MESSAGE_IDS_STORED)
+      socket.off(SocketEvents.MESSAGES_STORED)
+      socket.off(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE)
+      socket.off(SocketEvents.ERROR)
+      socket.off(SocketEvents.USERS_UPDATED)
+      socket.off(SocketEvents.USERS_REMOVED)
+      socket.off(SocketEvents.USER_PROFILES_STORED)
+      socket.off(SocketEvents.HCAPTCHA_CHALLENGE_REQUEST)
+      socket.off(SocketEvents.HCAPTCHA_SITE_KEY)
+      socket.off(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE)
+    }
   })
 }
 
 export function* handleActions(socket: Socket): Generator {
   logger.info('handleActions starting')
+  const socketChannel = yield* call(subscribe, socket)
   try {
-    const socketChannel = yield* call(subscribe, socket)
     yield takeEvery(socketChannel, function* (action) {
       logger.info('Dispatching action', action.type)
       yield put(action)
     })
   } finally {
     logger.info('handleActions stopping')
+    socketChannel.close()
     if (yield cancelled()) {
       logger.info('handleActions cancelled')
     }

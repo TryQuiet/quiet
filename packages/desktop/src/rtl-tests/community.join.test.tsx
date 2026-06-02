@@ -62,6 +62,7 @@ const makeMockEmitImpl = (socket: MockedSocket, opts?: { qss?: boolean }) => {
               id: 'general',
               public: true,
               type: ChannelType.CHANNEL,
+              teamId: 'foobar',
             },
           ],
         })

@@ -22,7 +22,6 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
   userProfiles,
 }) => {
   const [hasOptions, setHasOptions] = useState<boolean | undefined>(undefined)
-  const [updatedAt, setUpdatedAt] = useState<number | undefined>(undefined)
   const updateOptionsOnCheck = (option: SelectableListOption) => {
     if (options == null) return
     if (!option.mutable) return
@@ -31,20 +30,16 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
       selected: !options[option.index].selected,
     }
 
-    setOptions(options)
-    setUpdatedAt(Date.now())
+    setOptions(options.map(option => option))
   }
 
-  useEffect(
-    useCallback(() => {
-      logger.info('checking for options')
-      setHasOptions(
-        visibleOptionsIndices == null || Object.values(userProfiles ?? {}).length === 0
-          ? undefined
-          : visibleOptionsIndices.size > 0
-      )
-    }, [visibleOptionsIndices, userProfiles])
-  )
+  useEffect(() => {
+    setHasOptions(
+      visibleOptionsIndices == null || Object.values(userProfiles ?? {}).length === 0
+        ? undefined
+        : visibleOptionsIndices.size > 0
+    )
+  }, [visibleOptionsIndices, userProfiles])
 
   const renderItem = (listItem: ListRenderItemInfo<number>) => {
     // @ts-expect-error
@@ -115,7 +110,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
           {hasOptions ? (
             <FlatList
               data={[...visibleOptionsIndices]}
-              extraData={{ visibleOptionsIndices, userProfiles, options, updatedAt }}
+              extraData={{ visibleOptionsIndices, options }}
               keyExtractor={index => (options && options[index].id) ?? `default-id-${uniqueId()}`}
               renderItem={index => renderItem(index)}
               ItemSeparatorComponent={() => {

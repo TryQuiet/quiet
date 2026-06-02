@@ -739,7 +739,9 @@ describe('PublicChannel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        ownership: CommunityOwnership.Owner,
+        updates: {
+          ownership: CommunityOwnership.Owner,
+        },
       })
     )
     initialState.dispatch(network.actions.addInitializedCommunity(community.id))
@@ -1047,7 +1049,9 @@ describe('PublicChannel', () => {
       initialState.dispatch(
         communities.actions.updateCommunityData({
           id: community.id,
-          ownership: CommunityOwnership.Owner,
+          updates: {
+            ownership: CommunityOwnership.Owner,
+          },
         })
       )
     })
@@ -1386,7 +1390,9 @@ describe('PublicChannel', () => {
       initialState.dispatch(
         communities.actions.updateCommunityData({
           id: community.id,
-          ownership: CommunityOwnership.Owner,
+          updates: {
+            ownership: CommunityOwnership.Owner,
+          },
         })
       )
     })

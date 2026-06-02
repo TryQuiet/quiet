@@ -11,7 +11,6 @@ import {
   UserProfileContextMenu,
 } from '../selectors'
 import { createLogger } from '../logger'
-import { EXPECTED_IMG_SRC_GIF, EXPECTED_IMG_SRC_JPEG, EXPECTED_IMG_SRC_PNG } from '../profilePhoto.const'
 import { PhotoExt, SettingsModalTabName, X_DATA_TESTID } from '../enums'
 import { UserTestData } from '../types'
 
@@ -32,12 +31,12 @@ describe('User Profile Feature', () => {
       owner: {
         username: 'owner',
         messages: ['Hi', 'Hello', 'After guest left the app'],
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-joining-1',
         messages: [],
-        app: new App(),
+        app: new App({ username: 'user-joining-1' }),
       },
     }
   })
@@ -50,7 +49,7 @@ describe('User Profile Feature', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   it('Owner opens the app', async () => {

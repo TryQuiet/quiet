@@ -31,11 +31,11 @@ export const AddMembersChannel: FC = () => {
   )
 
   if (!channel) return null
-  if (channel.public) return null
+  if (channel.public ?? true) return null
 
   return (
     <AddMembersChannelComponent
-      channelName={channel.displayedName}
+      channelName={channel.name}
       channelId={channel.id}
       possibleMembers={userProfiles}
       allUsers={allUsers}
