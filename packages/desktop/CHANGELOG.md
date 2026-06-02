@@ -1,27 +1,12 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.3.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.3.0-alpha.0...@quiet/desktop@7.3.0-alpha.1) (2026-06-02)
-
-
-### Features
-
-* **3256:** Make private channel creation and modification admin-only ([#3257](https://github.com/TryQuiet/quiet/issues/3257)) ([4e71eff](https://github.com/TryQuiet/quiet/commit/4e71eff21da09d03b62c0af355887cc9eb153135))
-
-
-
-
-
 # Changelog
 
-## [7.2.0]
+## [7.3.0]
 
 ### Features
 
 * Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 * Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Private channel creation and modification is limited to admins [#3256](https://github.com/TryQuiet/quiet/issues/3256)
 
 ### Fixes
 
