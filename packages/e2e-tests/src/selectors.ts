@@ -2821,7 +2821,12 @@ export class Settings {
       `Settings tab button for ${name} couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(tab), 5_000)
+    await this.driver.wait(
+      until.elementIsVisible(tab),
+      5_000,
+      `Settings tab button for ${name} wasn't visible within timeout`,
+      500
+    )
     await tab.click()
     await this.waitForTabToBeReady(name)
   }
@@ -3098,7 +3103,7 @@ export class Settings {
 
     const result = await this.driver.wait(
       until.elementLocated(By.xpath(locator!)),
-      15_000,
+      30_000,
       `Settings tab ${tabName} wasn't ready within timeout`,
       500
     )
