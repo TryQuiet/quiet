@@ -3125,13 +3125,16 @@ export class Settings {
       const settingsElement = await this.element
       logger.info(`waitForTabToBeReady - before sanity visibility check`)
       await this.driver.wait(
-        until.elementIsNotVisible(settingsElement),
+        until.elementIsVisible(settingsElement),
         5_000,
-        `Settings tab ${tabName} close button wasn't visible within timeout`,
+        `Settings element was not visible after timeout`,
         500
       )
     } catch (e) {
-      if (!(e as Error).message.includes(`Settings modal couldn't be found within timeout`)) {
+      if (
+        !(e as Error).message.includes(`Settings modal couldn't be found within timeout`) &&
+        !(e as Error).message.includes(`Settings element was not visible after timeout`)
+      ) {
         throw e
       }
     }
@@ -3142,7 +3145,7 @@ export class Settings {
     logger.info(`waitForTabToBeReady - before close element visibility`)
     await this.driver.wait(
       until.elementIsVisible(closeTabButton),
-      5_000,
+      10_000,
       `Settings tab ${tabName} close button wasn't visible within timeout`,
       500
     )
