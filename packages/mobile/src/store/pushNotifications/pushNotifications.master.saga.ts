@@ -14,8 +14,6 @@ import { communities, pushNotifications } from '@quiet/state-manager'
 import { initSelectors } from '../init/init.selectors'
 import { createLogger } from '../../utils/logger'
 import Config from 'react-native-config'
-import { CompoundError } from '@quiet/types'
-import { nativeServicesActions } from '../nativeServices/nativeServices.slice'
 
 const logger = createLogger('pushNotificationsMasterSaga')
 
@@ -45,7 +43,7 @@ function* checkPermissionSaga(): Generator {
 }
 
 function* triggerPermissionRequestSaga(): Generator {
-  if (Config.QPS_ALLOWED !== 'true') {
+  if (Config.QPS_ALLOWED !== 'true' && Platform.OS !== 'android') {
     logger.info('QPS not allowed, skipping automatic permission request trigger')
     return
   }
@@ -214,6 +212,11 @@ function* watchDeviceToken(): Generator {
   try {
     while (true) {
       const { token } = yield* take(channel)
+      if (Config.QPS_ALLOWED !== 'true') {
+        logger.info('QPS not allowed, skipping live FCM token forward')
+        continue
+      }
+
       const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
       if (!hasGrantedPermission) {
         logger.info('Skipping live FCM token forward because notification permission is not granted')
@@ -231,11 +234,6 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
-  if ((Platform.OS !== 'ios' && Platform.OS !== 'android') || Config.QPS_ALLOWED !== 'true') {
-    logger.info(`Skipping push notifications saga (platform=${Platform.OS}, QPS_ALLOWED=${Config.QPS_ALLOWED})`)
-    return
-  }
-
   logger.info('pushNotificationsMasterSaga starting')
   try {
     yield* fork(watchPermissionResults)
