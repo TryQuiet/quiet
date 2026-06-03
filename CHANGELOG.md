@@ -12,6 +12,7 @@
 
 * Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
 * Fixes race condition with android push notifications [#3255](https://github.com/TryQuiet/quiet/issues/3255)
+* Mark IOS UI as needing compatibility updates to fix contrast problems on IOS 26 [#3266](https://github.com/TryQuiet/quiet/issues/3266)
 
 ## [7.2.0]
 
