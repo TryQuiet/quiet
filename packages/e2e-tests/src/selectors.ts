@@ -58,7 +58,7 @@ export class App {
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
     const startingPanel = new StartingLoadingPanel(this.driver)
-    const startingPanelLoaded = startingPanel.waitForLoadingToComplete()
+    const startingPanelLoaded = startingPanel.waitForLoadingToComplete(15_000, 45_000)
     await startingPanelLoaded
     this.watchForLaunchModals()
   }
@@ -2727,6 +2727,15 @@ export class Settings {
     )
   }
 
+  get tabCloseElement() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="close-tab-button-box"]//button')),
+      10_000,
+      `Settings tab close button couldn't be found within timeout`,
+      500
+    )
+  }
+
   async isReady(): Promise<boolean> {
     await this.driver.wait(
       until.elementIsVisible(this.element),
@@ -2815,19 +2824,24 @@ export class Settings {
   }
 
   async switchTab(name: SettingsModalTabName) {
+    logger.info(`Switching to settings tab ${name}`)
+    logger.info(`switchTab - before locate`)
     const tab = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid='${name}-settings-tab']`)),
       15_000,
       `Settings tab button for ${name} couldn't be found within timeout`,
       500
     )
+    logger.info(`switchTab - before visibility check`)
     await this.driver.wait(
       until.elementIsVisible(tab),
       5_000,
       `Settings tab button for ${name} wasn't visible within timeout`,
       500
     )
+    logger.info(`switchTab - before click`)
     await tab.click()
+    logger.info(`switchTab - before tab modal readiness`)
     await this.waitForTabToBeReady(name)
   }
 
@@ -3058,18 +3072,23 @@ export class Settings {
       `Settings close button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(closeButton), 5_000)
+    await this.driver.wait(
+      until.elementIsVisible(closeButton),
+      5_000,
+      `Settings close button wasn't visible within timeout`,
+      500
+    )
     await closeButton.click()
   }
 
   async closeTab() {
-    const closeTabButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="close-tab-button-box"]//button')),
-      10_000,
-      `Settings tab close button couldn't be found within timeout`,
+    const closeTabButton = await this.tabCloseElement
+    await this.driver.wait(
+      until.elementIsVisible(closeTabButton),
+      5_000,
+      `Settings tab close button wasn't visible within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(closeTabButton), 5_000)
     await closeTabButton.click()
   }
 
@@ -3101,12 +3120,41 @@ export class Settings {
         throw new Error(`Can't wait for unknown tab ${tabName}`)
     }
 
+    try {
+      logger.info(`waitForTabToBeReady - before sanity check`)
+      const settingsElement = await this.element
+      logger.info(`waitForTabToBeReady - before sanity visibility check`)
+      await this.driver.wait(
+        until.elementIsNotVisible(settingsElement),
+        5_000,
+        `Settings tab ${tabName} close button wasn't visible within timeout`,
+        500
+      )
+    } catch (e) {
+      if (!(e as Error).message.includes(`Settings modal couldn't be found within timeout`)) {
+        throw e
+      }
+    }
+
+    logger.info(`waitForTabToBeReady - before close element`)
+    const closeTabButton = await this.tabCloseElement
+
+    logger.info(`waitForTabToBeReady - before close element visibility`)
+    await this.driver.wait(
+      until.elementIsVisible(closeTabButton),
+      5_000,
+      `Settings tab ${tabName} close button wasn't visible within timeout`,
+      500
+    )
+
+    logger.info(`waitForTabToBeReady - before tab element`)
     const result = await this.driver.wait(
       until.elementLocated(By.xpath(locator!)),
       30_000,
       `Settings tab ${tabName} wasn't ready within timeout`,
       500
     )
+    logger.info(`waitForTabToBeReady - before tab element visibility`)
     await this.driver.wait(
       until.elementIsVisible(result),
       10_000,

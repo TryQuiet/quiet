@@ -58,6 +58,15 @@ describe('One Client', () => {
       resourcesPath = processData.resourcesPath
     })
 
+    it('Owner closes update modal if opened', async () => {
+      try {
+        await app.closeUpdateModalIfPresent()
+        logger.info('Closed update modal')
+      } catch (e) {
+        // do nothing
+      }
+    })
+
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       const debugModal = new DebugModeModal(app.driver)
       await debugModal.close()
