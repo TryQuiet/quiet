@@ -3139,17 +3139,6 @@ export class Settings {
       }
     }
 
-    logger.info(`waitForTabToBeReady - before close element`)
-    const closeTabButton = await this.tabCloseElement
-
-    logger.info(`waitForTabToBeReady - before close element visibility`)
-    await this.driver.wait(
-      until.elementIsVisible(closeTabButton),
-      10_000,
-      `Settings tab ${tabName} close button wasn't visible within timeout`,
-      500
-    )
-
     logger.info(`waitForTabToBeReady - before tab element`)
     const result = await this.driver.wait(
       until.elementLocated(By.xpath(locator!)),
