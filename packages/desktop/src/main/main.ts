@@ -767,15 +767,28 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.on('clear-community', () => {
+  ipcMain.handle('clear-community', async () => {
     logger.info('ipcMain: clear-community')
     resetting = true
-    backendProcess?.once('message', msg => {
-      if (msg === 'leftCommunity') {
+
+    return await new Promise<boolean>(resolve => {
+      if (!backendProcess) {
         resetting = false
+        resolve(false)
+        return
       }
+
+      const leftCommunityHandler = (msg: unknown) => {
+        if (msg !== 'leftCommunity') return
+
+        backendProcess?.removeListener('message', leftCommunityHandler)
+        resetting = false
+        resolve(true)
+      }
+
+      backendProcess.on('message', leftCommunityHandler)
+      backendProcess.send('leaveCommunity')
     })
-    backendProcess?.send('leaveCommunity')
   })
 
   ipcMain.on('restart-app', () => {
