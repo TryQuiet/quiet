@@ -131,6 +131,12 @@ export class QPSService implements OnModuleInit {
     try {
       this.logger.info(`Tombstoning notification tokens before leave for user ${userId} on team ${teamId}`)
       const tombstoneHash = await this.notificationTokensStore.tombstoneUser(userId)
+      if (tombstoneHash === '') {
+        this.logger.info(
+          `No existing notification token entry found for user ${userId} on team ${teamId}, skipping tombstone`
+        )
+        return true
+      }
 
       try {
         await this.qssSyncManager.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
