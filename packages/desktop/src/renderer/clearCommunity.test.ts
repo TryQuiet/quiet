@@ -12,7 +12,7 @@ const createDeferred = <T = void>() => {
 
 describe('clearCommunityWithDependencies', () => {
   it('waits for backend leave before clearing renderer state so late old-community events cannot leak into the next community', async () => {
-    const backendLeave = createDeferred()
+    const backendLeave = createDeferred<boolean>()
     const events: string[] = []
     const resetAppAction = { type: 'Communities/resetApp' }
     const staleOldChannels = ['general_old-community', 'test_old-community']
@@ -52,9 +52,14 @@ describe('clearCommunityWithDependencies', () => {
       remountRoot,
     })
 
-    await Promise.resolve()
-    await Promise.resolve()
-    backendLeave.resolve()
+    expect(requestBackendLeave).toHaveBeenCalledTimes(1)
+    expect(persistor.pause).not.toHaveBeenCalled()
+    expect(persistor.flush).not.toHaveBeenCalled()
+    expect(persistor.purge).not.toHaveBeenCalled()
+    expect(dispatch).not.toHaveBeenCalled()
+    expect(remountRoot).not.toHaveBeenCalled()
+
+    backendLeave.resolve(true)
     await clearCommunity
 
     const newCommunityDatabaseChannels = ['general_new-community']
@@ -67,5 +72,33 @@ describe('clearCommunityWithDependencies', () => {
     expect(events.indexOf('requestBackendLeave')).toBeLessThan(events.indexOf(resetAppAction.type))
     expect(state.channels).toEqual([])
     expect(state.deletionMessages).toEqual([])
+  })
+
+  it('does not clear renderer state when backend leave fails', async () => {
+    const persistor = {
+      pause: jest.fn(),
+      flush: jest.fn(),
+      purge: jest.fn(),
+      persist: jest.fn(),
+    }
+    const dispatch = jest.fn()
+    const remountRoot = jest.fn()
+
+    await expect(
+      clearCommunityWithDependencies({
+        persistor,
+        dispatch,
+        resetAppAction: { type: 'Communities/resetApp' },
+        requestBackendLeave: jest.fn(async () => false),
+        remountRoot,
+      })
+    ).rejects.toThrow('Backend failed to leave community')
+
+    expect(persistor.pause).not.toHaveBeenCalled()
+    expect(persistor.flush).not.toHaveBeenCalled()
+    expect(persistor.purge).not.toHaveBeenCalled()
+    expect(dispatch).not.toHaveBeenCalled()
+    expect(remountRoot).not.toHaveBeenCalled()
+    expect(persistor.persist).not.toHaveBeenCalled()
   })
 })
