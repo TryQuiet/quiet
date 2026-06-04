@@ -334,16 +334,15 @@ export const getReduxStoreFactory = async (store: Store) => {
     },
     {
       afterBuild: async (model: ReturnType<typeof publicChannelsActions.addChannel>) => {
-        logger.warn(JSON.stringify(model.payload))
         return {
           ...model,
           payload: {
             ...model.payload,
             displayedName:
               model.payload.displayedName ??
-              (model.payload.channel.type === ChannelType.CHANNEL
-                ? model.payload.channel.name
-                : _generateDmChannelName(model.payload.channel.memberIds ?? [], model.payload.channel.owner)),
+              (model.payload.channel!.type === ChannelType.CHANNEL
+                ? model.payload.channel!.name
+                : _generateDmChannelName(model.payload.channel!.memberIds ?? [], model.payload.channel!.owner)),
           },
         }
       },
