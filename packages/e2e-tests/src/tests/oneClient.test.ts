@@ -111,6 +111,8 @@ describe('One Client', () => {
     it('User sees general channel', async () => {
       generalChannel = new Channel(app.driver, generalChannelName)
       expect(await generalChannel.isReady()).toBeTruthy()
+      expect(await generalChannel.isMessageInputReady()).toBeTruthy()
+      expect(await generalChannel.isOpen()).toBeTruthy()
 
       const generalChannelText = await generalChannel.element.getText()
       expect(generalChannelText).toEqual(generalChannelName)
@@ -123,8 +125,16 @@ describe('One Client', () => {
       expect(await channelList[0].getText()).toBe(generalChannelName)
     })
 
-    it('User opens community membership tab', async () => {
+    it('User sends a message', async () => {
+      expect(await generalChannel.isMessageInputReady()).toBeTruthy()
+      await generalChannel.sendMessage('this shows up as sent', ownerUserName)
+    })
+
+    it('User opens community settings', async () => {
       settings = await new Sidebar(app.driver).openSettings()
+    })
+
+    it('User opens community membership tab', async () => {
       await settings.openCommunityMembership(1)
     })
 
@@ -136,11 +146,6 @@ describe('One Client', () => {
 
     it('Users closes community membership tab', async () => {
       await settings.closeTabThenModal()
-    })
-
-    it('User sends a message', async () => {
-      expect(await generalChannel.isMessageInputReady()).toBeTruthy()
-      await generalChannel.sendMessage('this shows up as sent', ownerUserName)
     })
   })
 
