@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [7.3.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.3.0-alpha.2...@quiet/mobile@7.3.0-alpha.3) (2026-06-04)
+
+
+### Bug Fixes
+
+* **3266:** Mark IOS UI as needing compatibility updates to fix contrast problems on IOS 26 ([#3267](https://github.com/TryQuiet/quiet/issues/3267)) ([7ccc5a8](https://github.com/TryQuiet/quiet/commit/7ccc5a867a2f01702a075131bb00bd4ec72835a6))
+
+
+
+
+
 # Changelog
 
 ## [7.3.0]
