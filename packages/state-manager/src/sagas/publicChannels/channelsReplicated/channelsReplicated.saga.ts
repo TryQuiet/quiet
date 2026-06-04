@@ -7,8 +7,8 @@ import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
-import { ChannelType } from '@quiet/types'
 import { generateDmChannelName } from '@quiet/common'
+import { ChannelType, ChannelOperationStatus } from '@quiet/types'
 
 const logger = createLogger('channelsReplicatedSaga')
 
@@ -37,6 +37,7 @@ export function* channelsReplicatedSaga(
         publicChannelsActions.addChannel({
           channel,
           displayedName,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       logger.info(`Adding #${channel.name} messages to store`)

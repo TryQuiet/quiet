@@ -29,6 +29,7 @@ import {
   type UpdateNewestMessagePayload,
   type AddMembersChannelPayload,
   EMPTY_CHANNEL_ID,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 import { prevChannelId } from './publicChannels.selectors'
@@ -94,7 +95,15 @@ export const publicChannelsSlice = createSlice({
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       logger.info('addChannel', action.payload)
-      const { channel, displayedName } = action.payload
+      const { channel, displayedName, status } = action.payload
+      if (status === ChannelOperationStatus.FAILED) {
+        logger.error('addChannel got a failed status!')
+        return
+      }
+      if (channel == null) {
+        logger.error('addChannel got a success status but null channel')
+        return
+      }
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
         displayedName: displayedName ?? channel.name,

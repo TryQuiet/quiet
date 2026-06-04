@@ -54,7 +54,7 @@ describe('channelDeletionResponseSaga', () => {
           id: generateChannelId('photo'),
         },
       })
-    ).channel
+    ).channel!
   })
 
   describe('handle saga logic as owner of community', () => {

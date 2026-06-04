@@ -31,3 +31,9 @@ export type BaseChannel = {
 export type Channel = QuietRole & BaseChannel
 
 export type TruncatedChannel = TruncatedQuietRole & BaseChannel
+
+export class NotAdminError extends Error {
+  constructor() {
+    super('User is not an admin on this community')
+  }
+}

@@ -8,6 +8,7 @@ import { Member } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { hash } from '@localfirst/crypto'
 import { defaultChannelPermissions } from './permissions'
+import { NotAdminError, RoleName } from './roles'
 
 const logger = createLogger('auth:channelService')
 
@@ -17,6 +18,9 @@ class ChannelService extends ChainServiceBase {
   }
 
   public create(channelId: string): string {
+    if (!this.sigChain.roles.amIAdmin()) {
+      throw new NotAdminError()
+    }
     const roleName = this.generateChannelRoleName(channelId)
     logger.info(`Adding new channel role with name ${roleName}`)
     this.sigChain.roles.create(roleName, defaultChannelPermissions())
@@ -24,6 +28,9 @@ class ChannelService extends ChainServiceBase {
   }
 
   public createWithMembers(channelId: string, memberIdsForChannel: string[]): string {
+    if (!this.sigChain.roles.amIAdmin()) {
+      throw new NotAdminError()
+    }
     const roleName = this.create(channelId)
     for (const memberId of memberIdsForChannel) {
       this.addMember(memberId, channelId)
@@ -32,6 +39,9 @@ class ChannelService extends ChainServiceBase {
   }
 
   public addMember(memberId: string, channelId: string) {
+    if (!this.sigChain.roles.amIAdmin()) {
+      throw new NotAdminError()
+    }
     logger.info(`Adding member with ID ${memberId} to channel ${channelId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles!.addMember(memberId, roleName)
@@ -53,12 +63,18 @@ class ChannelService extends ChainServiceBase {
   }
 
   public revokeMembership(memberId: string, channelId: string) {
+    if (!this.sigChain.roles.amIAdmin()) {
+      throw new NotAdminError()
+    }
     logger.info(`Revoking membership of channel ${channelId} for member with ID ${memberId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles.revokeMembership(memberId, roleName)
   }
 
   public delete(channelId: string) {
+    if (!this.sigChain.roles.amIAdmin()) {
+      throw new NotAdminError()
+    }
     logger.info(`Removing role for channel ${channelId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles.delete(roleName)

@@ -60,7 +60,7 @@ describe('broadcastHostedFileSaga', () => {
           id: generateChannelId('sailing'),
         },
       })
-    ).channel
+    ).channel!
   })
 
   test('broadcast message for hosted file', async () => {

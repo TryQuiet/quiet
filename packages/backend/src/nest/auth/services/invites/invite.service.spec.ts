@@ -16,7 +16,7 @@ describe('invites', () => {
     expect(adminSigChain.user).toBeDefined()
     expect(adminSigChain.team!.teamName).toBe('test')
     expect(adminSigChain.user.userName).toBe('user')
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('admin should generate an invite and it be added to team graph', () => {
@@ -47,7 +47,7 @@ describe('invites', () => {
     expect(newMemberSigChain.user.userName).toBe('user2')
     expect(newMemberSigChain.user.userId).not.toBe(adminSigChain.user.userId)
     expect(newMemberSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(false)
-    expect(newMemberSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(false)
+    expect(newMemberSigChain.roles.amIAdmin()).toBe(false)
     expect(
       adminSigChain.invites.admitMemberFromInvite(
         inviteProof,

@@ -4,7 +4,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put, select } from 'typed-redux-saga'
 
 import { type Socket, applyEmitParams } from '../../../types'
-import { ChannelType, MessageType, SocketActions, type CreateChannelResponse } from '@quiet/types'
+import { ChannelOperationStatus, ChannelType, SocketActions, type CreateChannelResponse } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 import { generateDmChannelName } from '@quiet/common'
@@ -25,28 +25,44 @@ export function* createChannelSaga(
     applyEmitParams(SocketActions.CREATE_CHANNEL, action.payload)
   )
 
-  if (response) {
-    yield* put(
-      messagesActions.addPublicChannelsMessagesBase({
-        channelId: response.channel.id,
-      })
-    )
-    const displayedName =
-      response.channel.type === ChannelType.CHANNEL
-        ? response.channel.name
-        : generateDmChannelName(response.channel.memberIds, userProfiles, me)
-    yield* put(
-      publicChannelsActions.addChannel({
-        ...response,
-        displayedName,
-      })
-    )
-    yield* put(
-      publicChannelsActions.sendInitialChannelMessage({
-        channelName: response.channel.name,
-        channelId: response.channel.id,
-        type: action.payload.type,
-      })
-    )
+  if (response == null) {
+    logger.error('Create channel returned a null response')
+    return
   }
+
+  if (response.status === ChannelOperationStatus.FAILED) {
+    logger.error('Failed to create channel')
+    return
+  }
+
+  if (response.channel == null) {
+    logger.error(
+      `Create channel response wasn't marked as ${ChannelOperationStatus.FAILED} but had a new channel object`
+    )
+    return
+  }
+
+  // we got a valid, successful response
+  yield* put(
+    messagesActions.addPublicChannelsMessagesBase({
+      channelId: response.channel.id,
+    })
+  )
+  const displayedName =
+    response.channel.type === ChannelType.CHANNEL
+      ? response.channel.name
+      : generateDmChannelName(response.channel.memberIds, userProfiles, me)
+  yield* put(
+    publicChannelsActions.addChannel({
+      ...response,
+      displayedName,
+    })
+  )
+  yield* put(
+    publicChannelsActions.sendInitialChannelMessage({
+      channelName: response.channel.name,
+      channelId: response.channel.id,
+      type: action.payload.type,
+    })
+  )
 }

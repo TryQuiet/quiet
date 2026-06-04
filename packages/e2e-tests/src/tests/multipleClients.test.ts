@@ -420,7 +420,7 @@ describe('Multiple Clients', () => {
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
-        await sidebarUser1.addNewChannel(newChannelName)
+        await sidebarUser1.addNewChannel(newChannelName, true, false)
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
@@ -457,6 +457,7 @@ describe('Multiple Clients', () => {
           expect(await generalChannelOwner.isReady()).toBeTruthy()
           expect(await generalChannelOwner.isOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
+          channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
           const { menuOpened, menuButton, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openDeletionChannelModal()
           await channelContextMenuOwner.deleteChannel()

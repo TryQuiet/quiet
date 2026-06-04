@@ -1,5 +1,5 @@
 import React, { FC, useState, useRef, useEffect } from 'react'
-import { Keyboard, KeyboardAvoidingView, TextInput, View, Image, Switch, Dimensions, Platform } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, TextInput, View, Image, Switch, Platform } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 
@@ -11,10 +11,10 @@ import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
 import { icons } from '../../assets'
-import { useTheme } from '@react-navigation/native'
 import LockIcon from '../../assets/icons/svg/lock'
 
 export interface CreateChannelProps {
+  isAdmin: boolean
   createChannelAction: (name: string, isPublic: boolean) => void
   channelCreationError?: string
   clearComponent?: boolean
@@ -22,6 +22,7 @@ export interface CreateChannelProps {
 }
 
 export const CreateChannel: FC<CreateChannelProps> = ({
+  isAdmin,
   createChannelAction,
   channelCreationError,
   clearComponent,
@@ -139,50 +140,52 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 12,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: 24,
-            height: 'auto',
-            width: 'auto',
-          }}
-          testID={'create_channel_private'}
-        >
-          <View testID={'create_channel_private_lock'} style={{ flex: 1 }}>
-            <LockIcon fill={false} />
+        {isAdmin && (
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 24,
+              height: 'auto',
+              width: 'auto',
+            }}
+            testID={'create_channel_private'}
+          >
+            <View testID={'create_channel_private_lock'} style={{ flex: 1 }}>
+              <LockIcon fill={false} />
+            </View>
+            <View testID={'create_channel_private_label'} style={{ flex: 8 }}>
+              <Typography fontSize={16}>{'Private channel'}</Typography>
+              <Typography
+                fontSize={12}
+                color={'gray50'}
+                style={{
+                  flexWrap: 'wrap',
+                }}
+              >
+                {'Only assigned members and roles have access'}
+              </Typography>
+            </View>
+            <View testID={'create_channel_private_toggle'} style={{ flex: 2 }}>
+              <Switch
+                trackColor={{
+                  false: defaultTheme.palette.typography.gray50,
+                  true: defaultTheme.palette.background.grassGreen,
+                }}
+                thumbColor={defaultTheme.palette.background.white}
+                onValueChange={toggleSwitch}
+                value={channelIsPrivate}
+                style={{
+                  height: 32,
+                  width: 52,
+                }}
+              />
+            </View>
           </View>
-          <View testID={'create_channel_private_label'} style={{ flex: 8 }}>
-            <Typography fontSize={16}>{'Private channel'}</Typography>
-            <Typography
-              fontSize={12}
-              color={'gray50'}
-              style={{
-                flexWrap: 'wrap',
-              }}
-            >
-              {'Only assigned members and roles have access'}
-            </Typography>
-          </View>
-          <View testID={'create_channel_private_toggle'} style={{ flex: 2 }}>
-            <Switch
-              trackColor={{
-                false: defaultTheme.palette.typography.gray50,
-                true: defaultTheme.palette.background.grassGreen,
-              }}
-              thumbColor={defaultTheme.palette.background.white}
-              onValueChange={toggleSwitch}
-              value={channelIsPrivate}
-              style={{
-                height: 32,
-                width: 52,
-              }}
-            />
-          </View>
-        </View>
+        )}
         <View style={{ marginTop: 12 + 12 }}>
           <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
         </View>

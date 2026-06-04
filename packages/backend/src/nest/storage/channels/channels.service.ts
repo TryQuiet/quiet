@@ -24,6 +24,7 @@ import {
   DownloadStatus,
   RemoveDownloadStatus,
   CHANNEL_METADATA_STORE_NAME,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -487,7 +488,7 @@ export class ChannelsService extends EventEmitter {
     if (!store) {
       throw new Error('Failed to create channel')
     }
-    return { channel: channelData }
+    return { channel: channelData, status: ChannelOperationStatus.SUCCESS }
   }
 
   /**
@@ -537,7 +538,7 @@ export class ChannelsService extends EventEmitter {
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
     } as ChannelSubscribedPayload)
-    return { channel: channelData }
+    return { channel: channelData, status: ChannelOperationStatus.SUCCESS }
   }
 
   /**
@@ -628,6 +629,12 @@ export class ChannelsService extends EventEmitter {
     if (!isMemberOfChannel) {
       this.logger.error(`You are not a member of private channel ${channelId}, cannot add members!`)
       return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
+    }
+
+    const isAdmin = this.sigchainService.activeChain.roles.amIAdmin()
+    if (!isAdmin) {
+      this.logger.error(`You are not an admin, cannot add members to private channel!`)
+      return { channelId, status: AddMembersChannelStatus.NOT_ADMIN }
     }
 
     const repo = this.channelsRepos.get(channelId)

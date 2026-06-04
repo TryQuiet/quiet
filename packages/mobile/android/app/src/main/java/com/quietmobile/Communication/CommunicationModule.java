@@ -151,6 +151,17 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public static void saveNseLastSyncSeq(String teamId, double syncSeq) {
+        if (!QuietStorage.isAppForeground()) {
+            Log.i(
+                    TAG,
+                    "Skipping NSE sync seq update from backend because app is backgrounded. Firebase service will update. teamId="
+                            + teamId
+                            + " syncSeq="
+                            + (long) syncSeq
+            );
+            return;
+        }
+
         QuietStorage.saveLastSyncSeq((long) syncSeq, teamId);
     }
 
