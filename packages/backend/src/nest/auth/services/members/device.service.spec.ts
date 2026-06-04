@@ -16,7 +16,7 @@ describe('devices', () => {
     expect(adminSigChain.context).toBeDefined()
     expect(adminSigChain.team!.teamName).toBe('test')
     expect(adminSigChain.user.userName).toBe('user')
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('sigchain should contain admin device', () => {
