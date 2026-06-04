@@ -474,7 +474,7 @@ export class ChannelsService extends EventEmitter {
       teamId: payload.teamId,
     }
     let roleName: string | undefined = undefined
-    if (!channelData.public && channelData.type === ChannelType.CHANNEL) {
+    if (!channelData.public && (channelData.type == null || channelData.type === ChannelType.CHANNEL)) {
       roleName = this.sigchainService.getActiveChain().channels.create(channelData.id)
       channelData.roleName = roleName
     } else if (channelData.type === ChannelType.DM) {

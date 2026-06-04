@@ -198,7 +198,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   })
 
   let channelNameTruncated: string
-  if (channelType === ChannelType.CHANNEL) {
+  if (channelType == null || channelType === ChannelType.CHANNEL) {
     channelNameTruncated = channelName.substring(0, 20)
   } else {
     const dmNames = channelName.split(', ')
@@ -219,11 +219,11 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
               container
               item
               className={classNames(classes.headerTitle, {
-                [classes.headerTitleChannel]: channelType === ChannelType.CHANNEL,
+                [classes.headerTitleChannel]: channelType == null || channelType === ChannelType.CHANNEL,
                 [classes.headerTitleDm]: channelType === ChannelType.DM,
               })}
             >
-              {channelType === ChannelType.CHANNEL ? (
+              {channelType == null || channelType === ChannelType.CHANNEL ? (
                 <ChannelTypeIcon
                   isPublic={isPublic}
                   fill={'currentColor'}

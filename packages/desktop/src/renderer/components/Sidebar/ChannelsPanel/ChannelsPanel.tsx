@@ -37,7 +37,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
       <Grid item>
         <List disablePadding data-testid='channelsList'>
           {channels
-            .filter(channel => channel.type === ChannelType.CHANNEL)
+            .filter(channel => channel.type == null || channel.type === ChannelType.CHANNEL)
             .map((channel, _index) => {
               const unread = unreadChannels.some(id => id === channel.id)
               const selected = currentChannelId === channel.id

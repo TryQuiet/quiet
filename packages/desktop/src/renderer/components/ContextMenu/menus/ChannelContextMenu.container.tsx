@@ -77,7 +77,7 @@ export const ChannelContextMenu: FC = () => {
     if (channel == null) {
       return <></>
     }
-    if (channel.type === ChannelType.CHANNEL) {
+    if (channel.type == null || channel.type === ChannelType.CHANNEL) {
       return (
         <ChannelTypeIcon
           isPublic={channel?.public ?? true}

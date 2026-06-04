@@ -30,7 +30,9 @@ export function* channelsReplicatedSaga(
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     const displayedName =
-      channel.type === ChannelType.CHANNEL ? channel.name : generateDmChannelName(channel.memberIds, userProfiles, me)
+      channel.type === ChannelType.CHANNEL || channel.type == null
+        ? channel.name
+        : generateDmChannelName(channel.memberIds, userProfiles, me)
     if (!locallyStoredChannels.includes(channel.id)) {
       logger.info(`Adding #${channel.name} to store`)
       yield* putResolve(

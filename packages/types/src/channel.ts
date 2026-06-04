@@ -23,7 +23,7 @@ export interface PublicChannel {
   disabled?: boolean
   public?: boolean
   roleName?: string
-  type: ChannelType
+  type?: ChannelType
   teamId?: string
   memberIds?: string[]
 }
@@ -38,7 +38,7 @@ export interface PublicChannelStatus {
   unread: boolean
   newestMessage: ChannelMessage | null
   public?: boolean
-  type: ChannelType
+  type?: ChannelType
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {

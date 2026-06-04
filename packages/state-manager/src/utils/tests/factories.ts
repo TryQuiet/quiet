@@ -4,7 +4,7 @@ import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
 import { createPeerIdTestHelper } from './helpers'
 import { DateTime } from 'luxon'
-import { generateChannelId, generateDmChannelName } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 import {
   ChannelMessage,
   CommunityOwnership,

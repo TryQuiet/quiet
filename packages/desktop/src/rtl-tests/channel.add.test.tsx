@@ -14,7 +14,15 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import { getReduxStoreFactory, getSocketFactory, publicChannels } from '@quiet/state-manager'
-import { Community, CreateChannelPayload, Identity, SendMessagePayload, SocketActions, UserProfile } from '@quiet/types'
+import {
+  ChannelType,
+  Community,
+  CreateChannelPayload,
+  Identity,
+  SendMessagePayload,
+  SocketActions,
+  UserProfile,
+} from '@quiet/types'
 
 import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
@@ -227,7 +235,9 @@ describe('Add new channel', () => {
             owner: userProfile.nickname,
             timestamp: 0,
             public: payload.public ?? true,
+            type: ChannelType.CHANNEL,
           },
+          displayedName: payload.name,
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
@@ -237,7 +247,9 @@ describe('Add new channel', () => {
             owner: userProfile.nickname,
             timestamp: 0,
             public: payload.public ?? true,
+            type: ChannelType.CHANNEL,
           },
+          displayedName: payload.name,
         })
       }
       if (action === SocketActions.SEND_MESSAGE) {

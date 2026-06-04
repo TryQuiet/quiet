@@ -101,7 +101,7 @@ const channelSchema = joi.object({
   disabled: joi.boolean().optional(),
   type: joi
     .string()
-    .required()
+    .optional()
     .custom((value, _helpers) => {
       return value === ChannelType.CHANNEL || value === ChannelType.DM
     }),

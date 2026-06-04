@@ -49,7 +49,7 @@ export function* createChannelSaga(
     })
   )
   const displayedName =
-    response.channel.type === ChannelType.CHANNEL
+    response.channel.type == null || response.channel.type === ChannelType.CHANNEL
       ? response.channel.name
       : generateDmChannelName(response.channel.memberIds, userProfiles, me)
   yield* put(

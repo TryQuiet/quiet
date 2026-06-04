@@ -18,7 +18,9 @@ export function* syncChannelDisplayNamesSaga(): Generator {
   // Upserting channels to local storage
   for (const channel of locallyStoredChannels) {
     const displayedName =
-      channel.type === ChannelType.CHANNEL ? channel.name : generateDmChannelName(channel.memberIds, userProfiles, me)
+      channel.type == null || channel.type === ChannelType.CHANNEL
+        ? channel.name
+        : generateDmChannelName(channel.memberIds, userProfiles, me)
     if (channel && channel.displayedName !== displayedName) {
       logger.warn('Setting display name', channel.id, displayedName)
       yield* putResolve(publicChannelsActions.setDisplayedName({ channelId: channel.id, displayedName }))

@@ -9,7 +9,7 @@ import {
   WarningModal,
   JoiningLoadingPanel,
 } from '../selectors'
-import { composeInvitationDeepUrl, parseInvitationLink, userJoinedMessage } from '@quiet/common'
+import { composeInvitationDeepUrl, parseInvitationLink } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import { createLogger } from '../logger'
