@@ -2482,7 +2482,9 @@ export class Sidebar {
     await this.driver.wait(until.elementIsVisible(button), 10_000)
     await this.driver.wait(until.elementIsEnabled(button), 10_000)
     await button.click()
-    return new Settings(this.driver)
+    const settings = new Settings(this.driver)
+    await settings.isReady()
+    return settings
   }
 
   async switchChannel(name: string, isPublic: boolean = true, expectChannelTypeIcon: boolean = true): Promise<Channel> {
@@ -2738,7 +2740,7 @@ export class Settings {
 
   async isReady(): Promise<boolean> {
     await this.driver.wait(
-      until.elementIsVisible(this.element),
+      until.elementIsVisible(await this.element),
       10_000,
       `Settings modal wasn't ready within timeout`,
       500
