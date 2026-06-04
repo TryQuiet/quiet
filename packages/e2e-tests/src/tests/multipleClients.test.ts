@@ -13,7 +13,7 @@ import {
   StartingLoadingPanel,
 } from '../selectors'
 import { promiseWithRetries, createArbitraryFile } from '../utils'
-import { MessageIds, TestChannelType, UserTestData } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestChannelType, UserTestData } from '../types'
 import { createLogger } from '../logger'
 import * as path from 'path'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
@@ -420,7 +420,7 @@ describe('Multiple Clients', () => {
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
-        await sidebarUser1.addNewChannel(newChannelName, true, false)
+        await sidebarUser1.addNewChannel(newChannelName, DEFAULT_ADD_NEW_CHANNEL_OPTIONS)
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
