@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.3.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.3.0-alpha.2...@quiet/desktop@7.3.0-alpha.3) (2026-06-04)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [7.3.0]
@@ -24,7 +11,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Fixes
 
 * Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
+* Fixed android not requesting permission for foreground push notifications [#3254](https://github.com/TryQuiet/quiet/issues/3254)
 * Fixes race condition with android push notifications [#3255](https://github.com/TryQuiet/quiet/issues/3255)
+* Mark IOS UI as needing compatibility updates to fix contrast problems on IOS 26 [#3266](https://github.com/TryQuiet/quiet/issues/3266)
 
 ## [7.2.0]
 
