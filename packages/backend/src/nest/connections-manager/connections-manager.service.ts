@@ -81,6 +81,7 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
+import { sleep } from '../common/sleep'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -113,6 +114,45 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly captchaService: CaptchaService
   ) {
     super()
+  }
+
+  private isIssue3253ReproEnabled(): boolean {
+    return process.env.IS_E2E === 'true' && process.env.E2E_ISSUE_3253_REPRO === 'true'
+  }
+
+  private getIssue3253ReemitDelayMs(): number {
+    const delayMs = Number(process.env.E2E_ISSUE_3253_LEAVE_REEMIT_DELAY_MS ?? 750)
+    return Number.isFinite(delayMs) && delayMs > 0 ? delayMs : 0
+  }
+
+  private async maybeEmitIssue3253LeaveReproEvents(): Promise<void> {
+    if (!this.isIssue3253ReproEnabled()) {
+      return
+    }
+
+    const delayMs = this.getIssue3253ReemitDelayMs()
+    this.logger.warn(
+      `E2E issue 3253 repro enabled: re-emitting old community channels/profiles in ${delayMs}ms before socket close`
+    )
+    if (delayMs > 0) {
+      await sleep(delayMs)
+    }
+
+    try {
+      const channels = await this.storageService.channels.getChannels()
+      this.logger.warn(`E2E issue 3253 repro: emitting ${channels.length} old channels`)
+      this.serverIoProvider.io.emit(SocketEvents.CHANNELS_STORED, { channels })
+    } catch (e) {
+      this.logger.error('E2E issue 3253 repro: failed to emit old channels', e)
+    }
+
+    try {
+      const profiles = await this.storageService.userProfileStore.getUserProfiles()
+      this.logger.warn(`E2E issue 3253 repro: emitting ${profiles.length} old user profiles`)
+      this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_STORED, { profiles })
+    } catch (e) {
+      this.logger.error('E2E issue 3253 repro: failed to emit old user profiles', e)
+    }
   }
 
   public getQssService(): QSSService {
@@ -467,6 +507,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!tombstoneAcked) {
       this.logger.warn('Proceeding with leave without confirmed notification token tombstone ack')
     }
+
+    await this.maybeEmitIssue3253LeaveReproEvents()
 
     this.logger.info('Resetting captcha tokens before leave')
     this.captchaService.reset()

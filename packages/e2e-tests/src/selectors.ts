@@ -2188,8 +2188,7 @@ export class Sidebar {
     const elements = await this.getUserProfileList()
     return Promise.all(
       elements.map(async element => {
-        const fullName = await element.getText()
-        return fullName.split(' ')[1]
+        return (await element.getText()).trim()
       })
     )
   }
