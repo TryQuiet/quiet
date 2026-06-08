@@ -3122,24 +3122,25 @@ export class Settings {
         throw new Error(`Can't wait for unknown tab ${tabName}`)
     }
 
-    try {
-      logger.info(`waitForTabToBeReady - before sanity check`)
-      const settingsElement = await this.element
-      logger.info(`waitForTabToBeReady - before sanity visibility check`)
-      await this.driver.wait(
-        until.elementIsVisible(settingsElement),
-        5_000,
-        `Settings element was not visible after timeout`,
-        500
-      )
-    } catch (e) {
-      if (
-        !(e as Error).message.includes(`Settings modal couldn't be found within timeout`) &&
-        !(e as Error).message.includes(`Settings element was not visible after timeout`)
-      ) {
-        throw e
-      }
-    }
+    // try {
+    //   logger.info(`waitForTabToBeReady - before sanity check`)
+    //   const settingsElement = await this.element
+    //   logger.info(`waitForTabToBeReady - before sanity visibility check`)
+    //   await this.driver.wait(
+    //     until.elment(settingsElement),
+    //     5_000,
+    //     `Settings element was not visible after timeout`,
+    //     500
+    //   )
+    //   throw new Error(`Settings was still visible after switching to tab ${tabName}`)
+    // } catch (e) {
+    //   if (
+    //     !(e as Error).message.includes(`Settings modal couldn't be found within timeout`) &&
+    //     !(e as Error).message.includes(`Settings element was not visible after timeout`)
+    //   ) {
+    //     throw e
+    //   }
+    // }
 
     logger.info(`waitForTabToBeReady - before tab element`)
     const result = await this.driver.wait(
