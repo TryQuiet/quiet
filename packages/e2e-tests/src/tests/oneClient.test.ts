@@ -129,24 +129,6 @@ describe('One Client', () => {
       expect(await generalChannel.isMessageInputReady()).toBeTruthy()
       await generalChannel.sendMessage('this shows up as sent', ownerUserName)
     })
-
-    it('User opens community settings', async () => {
-      settings = await new Sidebar(app.driver).openSettings()
-    })
-
-    it('User opens community membership tab', async () => {
-      await settings.openCommunityMembership(1)
-    })
-
-    it('Users sees just themselves in the user list', async () => {
-      const ownStatus = await settings.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
-      expect(ownStatus.status).toBe(UserListStatus.ONLINE)
-      expect(ownStatus.textMatches).toBe(true)
-    })
-
-    it('Users closes community membership tab', async () => {
-      await settings.closeTabThenModal()
-    })
   })
 
   describe('User leaves community and recreates it', () => {
@@ -214,6 +196,26 @@ describe('One Client', () => {
     it('Owner uploads a non-image file', async () => {
       const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_FILE_NAME)
       await generalChannel.attachFile(TEST_FILE_NAME, uploadFilePath, FileAttachmentType.FILE, ownerUserName)
+    })
+  })
+
+  describe('Community membership tab', () => {
+    it('User opens community settings', async () => {
+      settings = await new Sidebar(app.driver).openSettings()
+    })
+
+    it('User opens community membership tab', async () => {
+      await settings.openCommunityMembership(1)
+    })
+
+    it('Users sees just themselves in the user list', async () => {
+      const ownStatus = await settings.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
+      expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+      expect(ownStatus.textMatches).toBe(true)
+    })
+
+    it('Users closes community membership tab', async () => {
+      await settings.closeTabThenModal()
     })
   })
 
