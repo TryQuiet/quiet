@@ -2,12 +2,13 @@ import React, { FC, useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { List, useTheme } from '@mui/material'
+import { List } from '@mui/material'
 import { UserProfile } from '@quiet/types'
 import UserSearchFuzzy from '../../../widgets/userSearch/UserSearchFuzzySearch'
 import { DmChannelUserData } from '../../../Sidebar/DirectMessagesPanel/DirectMessagesPanel'
 import CommunityMemberListItem from './CommunityMemberListItem'
 import { SelectableListOption } from '../../../widgets/userSearch/UserSearch.types'
+import { createLogger } from '../../../../logger'
 
 const PREFIX = 'CommunityMembership'
 
@@ -100,6 +101,8 @@ export interface CommunityMembershipComponentProps {
   openUserProfilePanel: (userProfile: UserProfile | undefined) => void
 }
 
+const LOGGER = createLogger('CommunityMembershipComponent')
+
 const getUserDataForUser = (
   userProfile: UserProfile,
   me: UserProfile | undefined,
@@ -130,11 +133,12 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
   connectedPeers,
   openUserProfilePanel,
 }) => {
-  const theme = useTheme()
+  LOGGER.debug('Creating community membership component')
   const [visibleUsers, setVisibleUsers] = useState<UserProfile[]>([])
   const [options, setOptions] = useState<SelectableListOption[]>([])
 
   const _initializeOptions = () => {
+    LOGGER.debug('Initializing membership options', Object.values(userProfiles).length)
     const initialOptions: SelectableListOption[] = []
     let index = 0
     for (const user of Object.values(userProfiles)) {
@@ -144,10 +148,12 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
       initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
       index++
     }
+    LOGGER.debug('Initialized membership options', initialOptions.length)
     setOptions(initialOptions)
   }
 
   useEffect(() => {
+    LOGGER.debug('Tab opened')
     _initializeOptions()
     setVisibleUsers(Object.values(userProfiles))
   }, [])
@@ -156,6 +162,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
     setVisibleUsers(visibleOptions.map(option => userProfiles[option.id]))
   }
 
+  LOGGER.debug('Returning component')
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>

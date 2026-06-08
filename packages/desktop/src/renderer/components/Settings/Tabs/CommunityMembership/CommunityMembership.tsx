@@ -12,6 +12,7 @@ import { MenuName } from '../../../../../const/MenuNames.enum'
 const LOGGER = createLogger('CommunityMembership')
 
 export const CommunityMembership: FC = () => {
+  LOGGER.debug('Opening community membership settings tab')
   const dispatch = useDispatch()
 
   const userProfiles = useSelector(users.selectors.userProfiles)
