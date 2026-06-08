@@ -65,7 +65,7 @@ describe('sendDeletionMessage', () => {
           id: generateChannelId('photo'),
         },
       })
-    ).channel
+    ).channel!
     message = deleteChannelMessage(photoChannel.name)
     messagePayload = {
       type: MessageType.Info,

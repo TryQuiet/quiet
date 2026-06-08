@@ -83,6 +83,7 @@ describe('Add new channel', () => {
         createChannel={() => {}}
         handleClose={() => {}}
         clearErrorsDispatch={() => {}}
+        isAdmin={true}
       />
     )
 
@@ -130,6 +131,7 @@ describe('Add new channel', () => {
         createChannel={() => {}}
         handleClose={() => {}}
         clearErrorsDispatch={() => {}}
+        isAdmin={true}
       />
     )
 
