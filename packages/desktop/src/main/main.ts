@@ -600,7 +600,6 @@ app.on('ready', async () => {
 
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
-    execArgv: [],
     env: {
       NODE_OPTIONS: '--trace-uncaught --enable-source-maps',
       DEBUG: process.env.DEBUG,
@@ -614,8 +613,6 @@ app.on('ready', async () => {
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
-      E2E_ISSUE_3253_REPRO: process.env.E2E_ISSUE_3253_REPRO,
-      E2E_ISSUE_3253_LEAVE_REEMIT_DELAY_MS: process.env.E2E_ISSUE_3253_LEAVE_REEMIT_DELAY_MS,
       NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
     },
   })

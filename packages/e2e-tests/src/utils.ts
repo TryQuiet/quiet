@@ -25,7 +25,6 @@ export interface BuildSetupInit {
   fileName?: string
   chromeDriverPath?: string
   username?: string
-  env?: Record<string, string>
 }
 
 export class BuildSetup {
@@ -39,7 +38,6 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
-  private env?: Record<string, string>
 
   constructor({
     port,
@@ -49,7 +47,6 @@ export class BuildSetup {
     fileName,
     chromeDriverPath,
     username,
-    env,
   }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
@@ -57,7 +54,6 @@ export class BuildSetup {
     this.dataDir = dataDir
     this.fileName = fileName
     this.chromeDriverPath = chromeDriverPath
-    this.env = env
     this.id = `${username ?? Date.now()}_${(Math.random() * 10 ** 18).toString(36)}`
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (this.dataDir == null) {
@@ -159,7 +155,6 @@ export class BuildSetup {
           : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
-      ...this.env,
     }
     if (qssEnabled) {
       env = {
@@ -178,16 +173,10 @@ export class BuildSetup {
     if (process.platform === 'win32' && !this.chromeDriverPath) {
       logger.info('!WINDOWS!')
     }
-    const spawnEnv = {
-      ...process.env,
-      ...env,
-    }
-    delete spawnEnv.ELECTRON_RUN_AS_NODE
-
     this.child = spawn(chromeDriver.command, chromeDriver.args, {
       shell: chromeDriver.shell,
       detached: false,
-      env: spawnEnv,
+      env: Object.assign(process.env, env),
     })
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve =>

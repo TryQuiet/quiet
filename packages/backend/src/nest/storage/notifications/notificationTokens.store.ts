@@ -154,14 +154,6 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       return ''
     }
 
-    try {
-      const hash = await this.getStore().del(userId)
-      return hash
-    } catch (err) {
-      logger.error('Failed to delete notification token entry:', userId, err)
-      // continue with tombstone process even if delete fails
-    }
-
     const tombstoneEntry: PushNotificationTokens = { userId, tokens: [] }
 
     try {
@@ -169,7 +161,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       const hash = await this.getStore().put(userId, encEntry)
       return hash
     } catch (err) {
-      logger.error('Failed to null out notification token entry:', userId, err)
+      logger.error('Failed to tombstone notification token entry:', userId, err)
       this.deferredEntries.push(tombstoneEntry)
       throw err
     }
