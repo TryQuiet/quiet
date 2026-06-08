@@ -3061,7 +3061,11 @@ export class Settings {
   }
 
   async closeTabThenModal() {
-    await this.closeTab()
+    try {
+      await this.closeTab()
+    } catch (e) {
+      logger.error('Error while closing settings tab', e)
+    }
     await sleep(1_000)
     await this.close()
   }
