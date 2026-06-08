@@ -3116,7 +3116,7 @@ export class Settings {
         locator = "//div[contains(@class, 'DebugInfotitleContainer')]"
         break
       case SettingsModalTabName.COMMUNITY_MEMBERSHIP:
-        locator = "//div[contains(@class, 'CommunityMembershipcomponentContainer')]"
+        locator = "//*[contains(@class, 'CommunityMembershipcomponentContainer')]"
         break
       default:
         throw new Error(`Can't wait for unknown tab ${tabName}`)
