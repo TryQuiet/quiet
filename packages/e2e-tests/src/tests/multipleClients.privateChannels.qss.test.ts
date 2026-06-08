@@ -167,6 +167,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
       it('Owner opens community membership tab', async () => {
         settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+        expect(await settingsOwner.isReady()).toBeTruthy()
         await settingsOwner.openCommunityMembership(1)
       })
 
@@ -292,6 +293,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('First user opens community membership tab', async () => {
           settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
+          expect(await settingsUser1.isReady()).toBeTruthy()
           await settingsUser1.openCommunityMembership(2)
         })
 
@@ -321,6 +323,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('Owner opens community membership tab', async () => {
           settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+          expect(await settingsOwner.isReady()).toBeTruthy()
           await settingsOwner.openCommunityMembership(2)
         })
 
@@ -646,6 +649,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         it('Second user opens community membership', async () => {
           settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
+          expect(await settingsUser2.isReady()).toBeTruthy()
           await settingsUser2.openCommunityMembership(3)
         })
 

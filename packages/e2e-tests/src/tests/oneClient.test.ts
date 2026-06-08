@@ -26,7 +26,6 @@ describe('One Client', () => {
   let dataDirPath: string
   let resourcesPath: string
   let generalChannel: Channel
-  let settings: Settings
 
   const generalChannelName = 'general'
   const ownerUserName = 'testuser'
@@ -200,22 +199,24 @@ describe('One Client', () => {
   })
 
   describe('Community membership tab', () => {
+    let settingsModal: Settings
     it('User opens community settings', async () => {
-      settings = await new Sidebar(app.driver).openSettings()
+      settingsModal = await new Sidebar(app.driver).openSettings()
+      expect(await settingsModal.isReady()).toBeTruthy()
     })
 
     it('User opens community membership tab', async () => {
-      await settings.openCommunityMembership(1)
+      await settingsModal.openCommunityMembership(1)
     })
 
     it('Users sees just themselves in the user list', async () => {
-      const ownStatus = await settings.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
+      const ownStatus = await settingsModal.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
       expect(ownStatus.status).toBe(UserListStatus.ONLINE)
       expect(ownStatus.textMatches).toBe(true)
     })
 
     it('Users closes community membership tab', async () => {
-      await settings.closeTabThenModal()
+      await settingsModal.closeTabThenModal()
     })
   })
 

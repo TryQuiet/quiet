@@ -2483,7 +2483,6 @@ export class Sidebar {
     await this.driver.wait(until.elementIsEnabled(button), 10_000)
     await button.click()
     const settings = new Settings(this.driver)
-    await settings.isReady()
     return settings
   }
 

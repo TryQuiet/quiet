@@ -181,6 +181,7 @@ describe('Multiple Clients (DMs)', () => {
 
       it('Owner opens community membership tab', async () => {
         settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+        expect(await settingsOwner.isReady()).toBeTruthy()
         await settingsOwner.openCommunityMembership(1)
       })
 
