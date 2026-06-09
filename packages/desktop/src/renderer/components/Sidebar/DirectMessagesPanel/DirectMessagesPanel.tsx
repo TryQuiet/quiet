@@ -66,7 +66,7 @@ const getUserDataForDmChannel = (
 const DirectMessagesPanel: React.FC<DirectMessagesPanelProps> = ({
   myUserProfile,
   userProfiles,
-  dmChannels,
+  dmChannels = [],
   unreadDms,
   currentChannelId,
   connectedPeers,
