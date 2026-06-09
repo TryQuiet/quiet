@@ -2372,7 +2372,7 @@ export class Sidebar {
   /**
    * Get channel link elements in the sidebar
    */
-  async getChannelList(): Promise<WebElement[]> {
+  private async getChannelList(): Promise<WebElement[]> {
     // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
@@ -2419,12 +2419,6 @@ export class Sidebar {
       `Sidebar channel list length couldn't be determined within timeout`,
       500
     )
-  }
-
-  async waitForChannels(channelsNames: Array<string>): Promise<void> {
-    await this.waitForChannelsNum(channelsNames.length)
-    const names = await this.getChannelsNames()
-    expect(names).toEqual(expect.arrayContaining(channelsNames))
   }
 
   /**

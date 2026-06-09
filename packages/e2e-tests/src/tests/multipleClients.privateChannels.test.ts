@@ -440,8 +440,7 @@ describe('Multiple Clients (Private Channels)', () => {
       describe(`Owner Adds User To Second Private Channel`, () => {
         it(`First user's sidebar is missing private channel`, async () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
-          const channels = await sidebarUser1.getChannelList()
-          expect(channels.length).toBe(2)
+          await sidebarUser1.waitForChannelsNum(2)
         })
 
         it('Owner adds first user to second private channel', async () => {

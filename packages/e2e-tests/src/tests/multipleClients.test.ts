@@ -399,14 +399,13 @@ describe('Multiple Clients', () => {
         expect(iconVisible).toBe(true)
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
-        const channels = await sidebarOwner.getChannelList()
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
-        expect(channels.length).toEqual(1)
       })
 
       it('Owner sees that the channel is missing in the sidebar', async () => {
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(1)
+        await sidebarOwner.waitForChannelsNum(1)
+        const channelNames = await sidebarOwner.getChannelsNames()
+        expect(channelNames).not.toContain(newChannelName)
       })
 
       it('Owner sees info about channel deletion in general channel', async () => {
@@ -425,13 +424,15 @@ describe('Multiple Clients', () => {
       })
 
       it('User sees that the channel is missing in the sidebar', async () => {
-        const channels = await sidebarUser1.getChannelList()
-        expect(channels.length).toEqual(1)
+        await sidebarUser1.waitForChannelsNum(1)
+        const channelNames = await sidebarUser1.getChannelsNames()
+        expect(channelNames).not.toContain(newChannelName)
       })
 
       it('Second user sees that the channel is missing in the sidebar', async () => {
-        const channels = await sidebarUser3.getChannelList()
-        expect(channels.length).toEqual(1)
+        await sidebarUser3.waitForChannelsNum(1)
+        const channelNames = await sidebarUser3.getChannelsNames()
+        expect(channelNames).not.toContain(newChannelName)
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
@@ -450,14 +451,16 @@ describe('Multiple Clients', () => {
 
       it('Owner sees the recreated second channel', async () => {
         expect(await secondChannelOwner.isReady(30_000)).toBeTruthy()
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarOwner.waitForChannelsNum(2)
+        const channelNames = await sidebarOwner.getChannelsNames()
+        expect(channelNames).toContain(newChannelName)
       })
 
       it('Second user sees the recreated second channel', async () => {
         expect(await secondChannelUser3.isReady(30_000)).toBeTruthy()
-        const channels = await sidebarUser3.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarUser3.waitForChannelsNum(2)
+        const channelNames = await sidebarUser3.getChannelsNames()
+        expect(channelNames).toContain(newChannelName)
       })
 
       // End of tests for Windows
@@ -492,26 +495,14 @@ describe('Multiple Clients', () => {
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
           const retryConfig = users.owner.app.retryConfig
           const failureReason = `Expected 2 channels to be present in the sidebar within ${retryConfig.timeoutMs}ms`
-          const channels = await promiseWithRetries(
-            (async () => {
-              const channelList = await sidebarOwner.getChannelList()
-              if (channelList.length !== 2) {
-                throw new Error(`Expected 2 channels, but found ${channelList.length}`)
-              }
-              return channelList
-            })(),
-            failureReason,
-            retryConfig
-          )
-          expect(channels.length).toEqual(2)
+          await sidebarOwner.waitForChannelsNum(2)
         })
 
         it('Second user sees recreated general channel', async () => {
           expect(await generalChannelUser3.isReady()).toBeTruthy()
           expect(await generalChannelUser3.isOpen()).toBeTruthy()
           expect(await generalChannelUser3.isMessageInputReady()).toBeTruthy()
-          const channels = await sidebarOwner.getChannelList()
-          expect(channels.length).toEqual(2)
+          await sidebarUser3.waitForChannelsNum(2)
         })
       }
     })

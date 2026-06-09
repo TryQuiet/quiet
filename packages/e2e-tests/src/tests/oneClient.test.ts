@@ -119,9 +119,9 @@ describe('One Client', () => {
 
     it('User sees just the general channel in the sidebar', async () => {
       const sidebar = new Sidebar(app.driver)
-      const channelList = await sidebar.getChannelList()
-      expect(channelList.length).toBe(1)
-      expect(await channelList[0].getText()).toBe(generalChannelName)
+      await sidebar.waitForChannelsNum(1)
+      const channelNames = await sidebar.getChannelsNames()
+      expect(channelNames).toContain(generalChannelName)
     })
 
     it('User sends a message', async () => {

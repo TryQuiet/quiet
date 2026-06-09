@@ -242,8 +242,7 @@ describe('Backwards Compatibility', () => {
 
       itif(process.platform == 'linux')('Verify number of channels', async () => {
         sidebar = new Sidebar(ownerAppNewVersion.driver)
-        const channels = await sidebar.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebar.waitForChannelsNum(2)
       })
 
       itif(process.platform == 'linux')('Switch to second channel', async () => {
