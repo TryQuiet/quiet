@@ -29,6 +29,7 @@ describe('CommunityMembership', () => {
         me={undefined}
         connectedPeers={[]}
         openUserProfilePanel={jest.fn()}
+        open={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -104,6 +105,7 @@ describe('CommunityMembership', () => {
         me={me}
         connectedPeers={[me.userData!.peerId]}
         openUserProfilePanel={jest.fn()}
+        open={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -249,6 +251,7 @@ describe('CommunityMembership', () => {
         me={undefined}
         connectedPeers={[]}
         openUserProfilePanel={jest.fn()}
+        open={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -390,6 +393,7 @@ describe('CommunityMembership', () => {
         me={me}
         connectedPeers={[me.userData!.peerId]}
         openUserProfilePanel={jest.fn()}
+        open={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

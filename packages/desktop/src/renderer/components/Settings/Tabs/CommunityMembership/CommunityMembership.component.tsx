@@ -99,6 +99,7 @@ export interface CommunityMembershipComponentProps {
   me: UserProfile | undefined
   connectedPeers: string[]
   openUserProfilePanel: (userProfile: UserProfile | undefined) => void
+  open: boolean
 }
 
 const LOGGER = createLogger('CommunityMembershipComponent')
@@ -132,6 +133,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
   me,
   connectedPeers,
   openUserProfilePanel,
+  open,
 }) => {
   LOGGER.debug('Creating community membership component')
   const [visibleUsers, setVisibleUsers] = useState<UserProfile[]>([])
@@ -153,10 +155,15 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
   }
 
   useEffect(() => {
-    LOGGER.debug('Tab opened')
-    _initializeOptions()
-    setVisibleUsers(Object.values(userProfiles))
-  }, [])
+    if (open) {
+      LOGGER.debug('Tab opened')
+      _initializeOptions()
+      setVisibleUsers(Object.values(userProfiles))
+    } else {
+      setOptions([])
+      setVisibleUsers([])
+    }
+  }, [open])
 
   const handleUserSearchInputChange = (visibleOptions: SelectableListOption[]) => {
     setVisibleUsers(visibleOptions.map(option => userProfiles[option.id]))

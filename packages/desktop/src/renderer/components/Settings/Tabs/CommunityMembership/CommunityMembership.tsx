@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
-import { connection, network, users } from '@quiet/state-manager'
+import { network, users } from '@quiet/state-manager'
 
 import { CommunityMembershipComponent } from './CommunityMembership.component'
 import { createLogger } from '../../../../logger'
@@ -11,14 +11,15 @@ import { MenuName } from '../../../../../const/MenuNames.enum'
 
 const LOGGER = createLogger('CommunityMembership')
 
-export const CommunityMembership: FC = () => {
+export const CommunityMembership: FC<{ handleClose: () => void; currentTab: string }> = ({ currentTab }) => {
   LOGGER.debug('Opening community membership settings tab')
-  const dispatch = useDispatch()
 
   const userProfiles = useSelector(users.selectors.userProfiles)
   const me = useSelector(users.selectors.myUserProfile)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const userProfileContextMenu = useContextMenu(MenuName.UserProfile)
+
+  const [tabOpen, setTabOpen] = useState<boolean>(false)
 
   const openUserProfilePanel = (userProfile: UserProfile | undefined) => {
     if (userProfile) {
@@ -28,12 +29,21 @@ export const CommunityMembership: FC = () => {
     }
   }
 
+  useEffect(() => {
+    if (currentTab == 'communityMembership') {
+      setTabOpen(true)
+    } else {
+      setTabOpen(false)
+    }
+  }, [currentTab])
+
   return (
     <CommunityMembershipComponent
       userProfiles={userProfiles}
       me={me}
       connectedPeers={connectedPeers}
       openUserProfilePanel={openUserProfilePanel}
+      open={tabOpen}
     />
   )
 }

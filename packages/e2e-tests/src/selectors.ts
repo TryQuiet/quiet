@@ -3130,7 +3130,7 @@ export class Settings {
     //   const settingsElement = await this.element
     //   logger.info(`waitForTabToBeReady - before sanity visibility check`)
     //   await this.driver.wait(
-    //     until.elment(settingsElement),
+    //     until.elementIsVisible(settingsElement),
     //     5_000,
     //     `Settings element was not visible after timeout`,
     //     500
