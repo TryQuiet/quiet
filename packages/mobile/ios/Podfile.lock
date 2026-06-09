@@ -1318,6 +1318,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (5.6.1):
     - React-Core
+  - react-native-vector-icons-material-design-icons (13.0.0)
   - react-native-webview (13.16.0):
     - DoubleConversion
     - glog
@@ -1715,6 +1716,13 @@ PODS:
     - React-Core
   - RNSVG (15.12.1):
     - React-Core
+  - RNZipArchive (7.1.1):
+    - React-Core
+    - RNZipArchive/Core (= 7.1.1)
+    - SSZipArchive (~> 2.5.5)
+  - RNZipArchive/Core (7.1.1):
+    - React-Core
+    - SSZipArchive (~> 2.5.5)
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
@@ -1725,12 +1733,9 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
-  - SSZipArchive (2.6.0)
-  - Tor (409.5.1):
-    - Tor/CTor (= 409.5.1)
-  - Tor/Core (409.5.1)
-  - Tor/CTor (409.5.1):
-    - Tor/Core
+  - Sodium (0.9.1)
+  - SSZipArchive (2.5.5)
+  - Tor (405.9.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1781,6 +1786,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -1822,7 +1828,9 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - Tor (~> 409)
+  - RNZipArchive (from `../node_modules/react-native-zip-archive`)
+  - Sodium
+  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1843,8 +1851,8 @@ SPEC REPOS:
     - SDWebImageAVIFCoder
     - SDWebImageWebPCoder
     - SocketRocket
+    - Sodium
     - SSZipArchive
-    - Tor
 
 EXTERNAL SOURCES:
   boost:
@@ -1932,6 +1940,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-vector-icons-material-design-icons:
+    :path: "../node_modules/@react-native-vector-icons/material-design-icons"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-nativeconfig:
@@ -2014,6 +2024,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  RNZipArchive:
+    :path: "../node_modules/react-native-zip-archive"
+  Tor:
+    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2072,6 +2086,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 82a9e4371e48c518a69882b3c54de11134196cd2
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
+  react-native-vector-icons-material-design-icons: 1955bd08457a8310e6a2d3c87c7f1ebaca159098
   react-native-webview: 0ab8d5073e09a9d0977323a83521535b91c87e31
   React-nativeconfig: 29f53f7caa03e1d3f49396320f4f055ae42ab8db
   React-NativeModulesApple: 1fe64d61396453d56ee3965c0adf2f3284c92a8b
@@ -2113,14 +2128,16 @@ SPEC CHECKSUMS:
   RNScreens: 2ba531caee939381d31548ee22e61c51a0c3321c
   RNShare: 694e19d7f74ac4c04de3a8af0649e9ccc03bd8b1
   RNSVG: 2e59e14c2723a1967cd1bba71038a59142cbc616
+  RNZipArchive: 0f7498c241e20d276d9cfa50ab35df4c572497d0
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  SSZipArchive: 8a6ee5677c8e304bebc109e39cf0da91ccef22ea
-  Tor: fb12b6bcfa1309d3e40e98908eabd28e5ff4bb61
+  Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
+  Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
 
-PODFILE CHECKSUM: f100d714c59ce5cdd631dff12815177b4005af27
+PODFILE CHECKSUM: cfc64e6e7d6e469da4bad48f367062c5e329239f
 
 COCOAPODS: 1.16.2

@@ -97,7 +97,7 @@ describe('UserProfileStore', () => {
     const entry = await userProfileStore.setEntry(userProfile.userId, userProfile)
     expect(entry).toBeDefined()
     const result = await userProfileStore.getEntry(userProfile.userId)
-    expect(result).toEqual(userProfile)
+    expect(result).toEqual(UserProfileStore.sanitizeUserProfile(userProfile))
   })
 
   test('should get all user profiles', async () => {
@@ -105,7 +105,7 @@ describe('UserProfileStore', () => {
     expect(entry).toBeDefined()
     const result = await userProfileStore.getUserProfiles()
     expect(result).toHaveLength(1)
-    expect(result[0]).toEqual(userProfile)
+    expect(result[0]).toEqual(UserProfileStore.sanitizeUserProfile(userProfile))
   })
 
   test('should cache userId to nickname mapping', async () => {
@@ -213,7 +213,7 @@ describe('UserProfileStore/validateEntry', () => {
     }
     const decEntry: any = { userId: aliceUserId }
     // Patch decryptEntry to return decEntry
-    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: aliceUserId } } as any)
+    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any)
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     jest.spyOn(UserProfileStore, 'validateUserProfile').mockResolvedValue({ success: true })
     const entry = {

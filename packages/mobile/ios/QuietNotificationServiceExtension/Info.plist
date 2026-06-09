@@ -17,11 +17,18 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>7.0.1</string>
+	<string>7.3.0</string>
 	<key>CFBundleVersion</key>
-	<string>13</string>
+	<string>57</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false />
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false />
+	</dict>
+	<key>QuietKeychainAccessGroup</key>
+	<string>$(DEVELOPMENT_TEAM).com.quietmobile</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>

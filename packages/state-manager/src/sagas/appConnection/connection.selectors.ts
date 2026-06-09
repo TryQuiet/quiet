@@ -21,6 +21,8 @@ export const torBootstrapProcess = createSelector(connectionSlice, reducerState 
 
 export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
 
+export const isQssConnected = createSelector(connectionSlice, reducerState => reducerState.isQssConnected)
+
 export const connectionProcess = createSelector(connectionSlice, reducerState => reducerState.connectionProcess)
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
@@ -85,6 +87,10 @@ export const invitationUrl = createSelector(
     if (!currentCommunity.name) {
       return ''
     }
+    if (!currentCommunity.teamId) {
+      logger.warn('Community is missing team ID')
+    }
+    const teamId = currentCommunity.teamId
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
     let inviteData: InvitationData = {
@@ -94,11 +100,11 @@ export const invitationUrl = createSelector(
         communityName: currentCommunity.name,
         seed: longLivedInvite.seed,
         salt: longLivedInvite.salt,
+        teamId,
       },
       version: InvitationDataVersion.v2,
     }
     const qssEnabled = currentCommunity.qssEnabled
-    const teamId = currentCommunity.teamId
     const qssEndpoint = currentCommunity.qssEndpoint
 
     if (qssEnabled === true) {
@@ -113,10 +119,7 @@ export const invitationUrl = createSelector(
         version: InvitationDataVersion.v3,
         qssEnabled,
         qssEndpoint,
-        authData: {
-          ...inviteData.authData,
-          teamId,
-        },
+        authData: inviteData.authData,
       }
     }
     return composeInvitationShareUrl(inviteData)
@@ -141,6 +144,7 @@ export const connectionSelectors = {
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,
+  isQssConnected,
   socketIOSecret,
   isJoiningCompleted,
   peerStats,

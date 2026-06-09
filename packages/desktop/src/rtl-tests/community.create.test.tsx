@@ -71,7 +71,11 @@ describe('User', () => {
       if (action === SocketActions.CREATE_COMMUNITY) {
         return await factory.build(`${action}_response`, {
           id: input[1].id,
-          community: await baseTypesFactory.build('Community', { id: input[1].id, name: input[1].name }),
+          community: await baseTypesFactory.build('Community', {
+            id: input[1].id,
+            name: input[1].name,
+            teamId: 'foobar',
+          }),
           identity: await baseTypesFactory.build('Identity', {
             communityId: input[1].id,
             userId: 'commonUserId',
@@ -125,8 +129,10 @@ describe('User', () => {
     expect(createCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
-    const channel = await screen.findByText('#general')
-    expect(channel).toBeVisible()
+    const titleElement = await screen.findByTestId('channelTitle')
+    const isGeneralAtStart = titleElement.textContent === 'general'
+    expect(isGeneralAtStart).toBeTruthy()
+    expect(titleElement).toBeVisible()
 
     expect(actions).toMatchInlineSnapshot(`
       Array [

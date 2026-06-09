@@ -74,6 +74,7 @@ jobs:
           IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
           IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
           IOS_FIREBASE_KEY: ${{ secrets.IOS_FIREBASE_KEY }}
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
           IOS_NSE_PROFILE_KEY: ${{ secrets.IOS_NSE_PROFILE_KEY }}
 
       - name: Build
@@ -86,6 +87,8 @@ jobs:
             -archivePath build/Quiet.xcarchive \
             CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)" \
             ENABLE_BITCODE=NO
+        env:
+          ENVFILE: .env.production
 
       - name: Export .ipa
         run: |
@@ -115,6 +118,37 @@ jobs:
         env:
           APPSTORE_USER: ${{ secrets.APPSTORE_USER }}
           APPSTORE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+
+      - name: Build experimental
+        if: github.event.release.prerelease
+        run: |
+          cd ./packages/mobile/ios
+          xcodebuild archive \
+            -workspace Quiet.xcworkspace \
+            -scheme Quiet \
+            -configuration Release \
+            -archivePath build/Quiet-experimental.xcarchive \
+            CODE_SIGN_IDENTITY="Apple Distribution: A Quiet LLC (CTYKSWN9T4)" \
+            ENABLE_BITCODE=NO
+        env:
+          ENVFILE: .env.staging
+
+      - name: Export experimental .ipa
+        if: github.event.release.prerelease
+        run: |
+          cd ./packages/mobile/ios
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/Quiet-experimental.xcarchive \
+            -exportOptionsPlist ci.plist \
+            -exportPath build/experimental
+
+      - name: Upload experimental artifacts
+        if: github.event.release.prerelease
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: Quiet-experimental.ipa
+          path: ./packages/mobile/ios/build/experimental/Quiet.ipa
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier

@@ -1,5 +1,9 @@
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
+}
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
+apply plugin: "org.jetbrains.kotlin.plugin.serialization"
 apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
@@ -7,6 +11,8 @@ apply plugin: "com.facebook.react"
 react {
     autolinkLibrariesWithApp()
 }
+
+def googleServicesJsonPath = file("google-services.json")
 
 
 /**
@@ -168,8 +174,8 @@ android {
         applicationId = "com.quietmobile"
         minSdkVersion(rootProject.ext.minSdkVersion)
         targetSdkVersion(rootProject.ext.targetSdkVersion)
-        versionCode 580
-        versionName "7.0.1"
+        versionCode 624
+        versionName "7.3.0"
         resValue("string", "build_config_package", "com.quietmobile")
         testBuildType = System.getProperty("testBuildType", "debug")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -270,6 +276,7 @@ dependencies {
     // version set by the React Native Gradle Plugin in npm
     implementation("com.facebook.react:react-android")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
     androidTestImplementation("com.wix:detox:+")
     androidTestImplementation("androidx.test:core:1.7.0")
@@ -289,6 +296,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
 
     implementation("com.google.code.gson:gson:2.13.2")
+    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation(project(":react-native-fs")) // comes from npm module
     implementation(group: "commons-io", name: "commons-io", version: "2.20.0")
 
@@ -306,6 +316,8 @@ dependencies {
     implementation("com.facebook.fresco:animated-gif:3.6.0")
     implementation("com.goterl:lazysodium-android:5.2.0@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
+    implementation("com.apicatalog:copper-multibase:4.1.0")
+    implementation("org.msgpack:msgpack-core:0.9.12")
 
     implementation("com.google.guava:guava:33.5.0-android")
 }
@@ -332,6 +344,20 @@ project.ext.envConfigFiles = [
 ]
 
 apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
+
+if (googleServicesJsonPath.exists()) {
+    apply plugin: "com.google.gms.google-services"
+} else {
+    def buildingRelease = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+    if (buildingRelease) {
+        throw new GradleException(
+            "google-services.json not found in packages/mobile/android/app. Release builds " +
+            "require it for Firebase push notifications. Run ./.github/secrets/decrypt_android_secrets.sh " +
+            "(needs the ANDROID_FIREBASE_KEY passphrase) or add the file manually before building."
+        )
+    }
+    logger.warn("google-services.json not found in packages/mobile/android/app; Firebase push notifications will be unavailable in this build.")
+}
 
 repositories {
     mavenCentral()

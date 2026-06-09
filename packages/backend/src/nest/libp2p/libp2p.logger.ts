@@ -154,6 +154,21 @@ export function defaultLogger(): ComponentLogger {
   }
 }
 
+const isNetworkLoggingDisabled = (): boolean => {
+  return process.env.NETWORK_LOGGING?.trim().toLowerCase() === 'false'
+}
+
+const makeDisabledCallable = (logger: QuietLogger): CallableQuietLogger => {
+  const noop = (..._args: any[]): void => {}
+  const callable = {
+    LOGGER: logger,
+    enabled: false,
+    error: noop,
+    trace: noop,
+    warn: noop,
+  }
+  return Object.assign(noop, callable)
+}
 /**
  * Creates a logger for the passed component name.
  *
@@ -170,6 +185,10 @@ export function defaultLogger(): ComponentLogger {
 export function logger(name: string): () => CallableQuietLogger {
   return (): CallableQuietLogger => {
     const LOGGER = createWinstonQuietLogger(name, false, formatters)()
+
+    if (isNetworkLoggingDisabled()) {
+      return makeDisabledCallable(LOGGER)
+    }
 
     const makeCallable = (logger: QuietLogger): CallableQuietLogger => {
       const callable = {

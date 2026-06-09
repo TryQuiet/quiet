@@ -12,6 +12,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { exportChats } from '../../../../utils/functions/exportMessages'
+import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 
 export const ChannelContextMenu: FC = () => {
   const [showDebug, setShowDebug] = React.useState(false)
@@ -21,29 +22,29 @@ export const ChannelContextMenu: FC = () => {
 
   let title = ''
   if (channel) {
-    title = `#${channel.name} settings`
+    title = `${channel.name}`
   }
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
 
   const deleteChannelModal = useModal(ModalName.deleteChannel)
+  const addMembersChannelModal = useModal(ModalName.addMembersChannel)
 
-  const items: ContextMenuItemProps[] = [
-    {
-      title: 'Export messages',
-      action: () => channel && exportChats(channel?.name, channelMessages),
-    },
-  ]
+  const items: ContextMenuItemProps[] = []
 
-  if (process.env.NODE_ENV === 'development') {
+  // TODO: update this to actually use the LFA admin role
+  if (!(channel?.public ?? true) && isOwner) {
     items.push({
-      title: 'Debug',
-      action: () => setShowDebug(true),
+      title: 'Add members',
+      action: () => {
+        channelContextMenu.handleClose() // Dismiss context menu before displaying modal
+        addMembersChannelModal.handleOpen()
+      },
     })
   }
 
   if (isOwner) {
-    items.unshift({
+    items.push({
       title: 'Delete',
       action: () => {
         channelContextMenu.handleClose() // Dismiss context menu before displaying modal
@@ -52,12 +53,35 @@ export const ChannelContextMenu: FC = () => {
     })
   }
 
+  items.push({
+    title: 'Export messages',
+    action: () => channel && exportChats(channel?.name, channelMessages),
+  })
+
+  if (process.env.NODE_ENV === 'development') {
+    items.push({
+      title: 'Debug',
+      action: () => setShowDebug(true),
+    })
+  }
+
   return showDebug ? (
     <ContextMenu title={title + ' Debug'} {...channelContextMenu} handleBack={() => setShowDebug(false)}>
       <DebugChannelComponent />
     </ContextMenu>
   ) : (
-    <ContextMenu title={title} {...channelContextMenu}>
+    <ContextMenu
+      title={title}
+      titleIcon={
+        <ChannelTypeIcon
+          isPublic={channel?.public ?? true}
+          fill={'currentColor'}
+          style={{ fontSize: 16, fontWeight: 'medium' }}
+          data-testid={`contextMenu-channel-settings-type-icon`}
+        />
+      }
+      {...channelContextMenu}
+    >
       <ContextMenuItemList items={items} />
     </ContextMenu>
   )

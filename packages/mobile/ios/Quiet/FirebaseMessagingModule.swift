@@ -54,8 +54,4 @@ class FirebaseMessagingModule: NSObject {
             }
         }
     }
-
-    @objc
-    func setEncryptionKey(_ key: String) {
-    }
 }

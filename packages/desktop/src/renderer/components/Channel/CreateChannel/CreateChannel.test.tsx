@@ -18,7 +18,7 @@ import { getReduxStoreFactory, publicChannels } from '@quiet/state-manager'
 
 import { createLogger } from '../../../logger'
 import { act } from '@testing-library/react'
-import { ErrorMessages, Identity, PublicChannel } from '@quiet/types'
+import { ErrorMessages, Identity } from '@quiet/types'
 
 const logger = createLogger('createChannel:test')
 
@@ -83,6 +83,7 @@ describe('Add new channel', () => {
         createChannel={() => {}}
         handleClose={() => {}}
         clearErrorsDispatch={() => {}}
+        isAdmin={true}
       />
     )
 
@@ -130,6 +131,7 @@ describe('Add new channel', () => {
         createChannel={() => {}}
         handleClose={() => {}}
         clearErrorsDispatch={() => {}}
+        isAdmin={true}
       />
     )
 

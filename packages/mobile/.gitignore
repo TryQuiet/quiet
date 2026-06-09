@@ -79,6 +79,7 @@ buck-out/
 
 # Native
 /android/app/.cxx
+/android/app/google-services.json
 .env
 
 # Detox

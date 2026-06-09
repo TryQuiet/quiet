@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, Grid, ListItemButton } from '@mui/material'
+import { Typography, Grid, ListItemButton, useTheme } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/types'
+import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -12,11 +13,14 @@ const classes = {
   selected: `${PREFIX}selected`,
   primary: `${PREFIX}primary`,
   title: `${PREFIX}title`,
+  titlePublic: `${PREFIX}titlePublic`,
   newMessages: `${PREFIX}newMessages`,
   connectedIcon: `${PREFIX}connectedIcon`,
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
   itemText: `${PREFIX}itemText`,
   disabled: `${PREFIX}disabled`,
+  lock: `${PREFIX}lock`,
+  lockNewMessages: `${PREFIX}lockNewMessages`,
 }
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
@@ -45,8 +49,6 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`& .${classes.title}`]: {
     opacity: 0.7,
     fontWeight: 300,
-    paddingLeft: 16,
-    paddingRight: 16,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 215,
@@ -54,7 +56,25 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     textTransform: 'lowercase',
   },
 
+  [`& .${classes.titlePublic}`]: {
+    paddingLeft: 16,
+    paddingRight: 2,
+  },
+
   [`& .${classes.newMessages}`]: {
+    opacity: 1,
+    fontWeight: 600,
+  },
+
+  [`& .${classes.lock}`]: {
+    opacity: 0.7,
+    marginLeft: 13.5,
+    marginRight: 0,
+    fontWeight: 300,
+    paddingRight: 2,
+  },
+
+  [`& .${classes.lockNewMessages}`]: {
     opacity: 1,
     fontWeight: 600,
   },
@@ -99,7 +119,9 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   setCurrentChannel,
   disabled = false,
 }) => {
+  const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
+  const isPublic = channel.public ?? true
 
   return (
     <StyledListItemButton
@@ -117,7 +139,16 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
       <ListItemText
         primary={
           <Grid container alignItems='center'>
-            <Grid item>
+            <Grid container alignItems='center' direction='row' gap='1px' display='flex'>
+              <ChannelTypeIcon
+                isPublic={isPublic}
+                fill={'currentColor'}
+                style={{ ...theme.typography.subtitle1 }}
+                className={classNames(classes.lock, {
+                  [classes.lockNewMessages]: unread,
+                })}
+                data-testid={`${channel.name}-channel-link-icon-${isPublic ? 'public' : 'private'}`}
+              />
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
@@ -125,7 +156,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
                 })}
                 data-testid={`${channel.name}-channel-link-text`}
               >
-                {`# ${channel.name}`}
+                {channel.name}
               </Typography>
             </Grid>
           </Grid>

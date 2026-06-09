@@ -276,7 +276,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
       10000,
       100
     )
-    userProfileStores[N_PEERS - 1].startSync()
+    await userProfileStores[N_PEERS - 1].startSync()
 
     await waitForExpect(
       async () => {
@@ -291,11 +291,17 @@ describe('UserProfileStore OrbitDB Sync', () => {
       1000
     )
 
-    // Ensure only the new peer emitted 'updated'
-    for (let i = 0; i < N_PEERS - 1; i++) {
-      expect(updatedSpies[i]).toHaveBeenCalledTimes(1)
-    }
-    logger.info('New peer updated:', updatedSpies[N_PEERS - 1].mock.calls.length, 'times')
-    expect(updatedSpies[N_PEERS - 1]).toHaveBeenCalled()
+    await waitForExpect(
+      async () => {
+        // Ensure only the new peer emitted 'updated'
+        for (let i = 0; i < N_PEERS - 1; i++) {
+          expect(updatedSpies[i]).toHaveBeenCalledTimes(1)
+        }
+        logger.info('New peer updated:', updatedSpies[N_PEERS - 1].mock.calls.length, 'times')
+        expect(updatedSpies[N_PEERS - 1]).toHaveBeenCalled()
+      },
+      5000,
+      100
+    )
   })
 })

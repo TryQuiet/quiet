@@ -1,4 +1,4 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
+import { By, Key, type ThenableWebDriver, type WebElement, until, WebElementPromise } from 'selenium-webdriver'
 import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { FileDownloadStatus, PhotoExt, SettingsModalTabName, FileAttachmentType, X_DATA_TESTID } from './enums'
@@ -24,7 +24,7 @@ export class App {
   }
 
   constructor(buildSetupConfig?: BuildSetupInit) {
-    this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+    this.buildSetup = new BuildSetup({ ...(buildSetupConfig ?? {}) })
     this.isOpened = false
   }
 
@@ -58,7 +58,7 @@ export class App {
       ...(overrideConfig ? overrideConfig : {}),
     }
     const failureReason = `Failed to open app within ${config.timeoutMs}ms`
-    await promiseWithRetries(this.open(qssEnabled), failureReason, config, this.close)
+    await promiseWithRetries(this.open(qssEnabled), failureReason, config, () => this.close())
   }
 
   /**
@@ -438,7 +438,7 @@ export class StartingLoadingPanel {
       if (e.message?.includes('stale element reference')) {
         logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
-        logger.warn('Either socket didnt get setup or you are running on an old version.')
+        logger.warn('Either socket didnt get setup or you are running on an old version.', e)
       }
     }
   }
@@ -628,20 +628,64 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
-  async openMenu() {
-    const menu = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
-      15_000,
-      `Channel context menu couldn't be located within timeout`,
-      500
-    )
-    await this.driver.wait(
-      until.elementIsVisible(menu),
-      15_000,
-      `Channel context menu was not visibile within timeout`,
-      500
-    )
-    await menu.click()
+  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+    let menu: WebElement
+    try {
+      menu = await this.driver.wait(
+        until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')),
+        15_000,
+        `Channel context menu couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(menu),
+        15_000,
+        `Channel context menu was not visibile within timeout`,
+        500
+      )
+    } catch (e) {
+      logger.error('Error while checking for channel context menu button', e)
+      return {
+        menuButton: false,
+        menuOpened: false,
+        iconVisible: false,
+      }
+    }
+    try {
+      await menu.click()
+    } catch (e) {
+      return {
+        menuButton: true,
+        menuOpened: false,
+        iconVisible: false,
+      }
+    }
+    try {
+      const channelTypeIcon = this.driver.wait(
+        until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
+        15_000,
+        `Channel context menu lock/hash icon couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(channelTypeIcon),
+        15_000,
+        `Channel context menu lock/hash icon was not visibile within timeout`,
+        500
+      )
+      return {
+        menuButton: true,
+        menuOpened: true,
+        iconVisible: true,
+      }
+    } catch (e) {
+      logger.error('Error while checking for channel icon on context menu', e)
+      return {
+        menuButton: true,
+        menuOpened: true,
+        iconVisible: false,
+      }
+    }
   }
 
   async openDeletionChannelModal() {
@@ -655,6 +699,22 @@ export class ChannelContextMenu {
       until.elementIsVisible(tab),
       15_000,
       `Channel context menu channel deletion tab was not visibile within timeout`,
+      500
+    )
+    await tab.click()
+  }
+
+  async openAddMembersModal() {
+    const tab = this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemAdd_members"]')),
+      15_000,
+      `Channel context menu channel add members tab couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(tab),
+      15_000,
+      `Channel context menu channel add members tab was not visibile within timeout`,
       500
     )
     await tab.click()
@@ -676,6 +736,115 @@ export class ChannelContextMenu {
     )
     await button.click()
     await sleep(5000)
+  }
+
+  // TODO: replace sleep
+  async addMembersToChannel(channelName: string, memberNames: string[]) {
+    const autoCompleteInput = await this.driver.wait(
+      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
+      20_000,
+      `Channel add members autocomplete input div couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(autoCompleteInput),
+      15_000,
+      `Channel context menu channel add members autocomplete div was not visibile within timeout`,
+      500
+    )
+
+    const inputField = await this.driver.wait(
+      autoCompleteInput.findElement(By.xpath(`//input[@aria-autocomplete="list"]`)),
+      5_000,
+      `Channel add members autocomplete input field couldn't be located within timeout`,
+      500
+    )
+    for (const memberName of memberNames) {
+      await inputField.sendKeys(memberName)
+      await inputField.sendKeys(Key.ENTER)
+    }
+
+    const button = this.driver.wait(
+      until.elementLocated(By.xpath(`//button[@data-testid="${channelName}-add-members-button"]`)),
+      20_000,
+      `Channel add members button couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      15_000,
+      `Channel context menu channel add members button was not visibile within timeout`,
+      500
+    )
+    await button.click()
+    await sleep(5_000)
+  }
+
+  async checkForMembersInAddMembersAutocomplete(channelName: string, memberNames: string[]): Promise<string[]> {
+    const autoCompleteInput = await this.driver.wait(
+      until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
+      20_000,
+      `Channel add members autocomplete input div couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(autoCompleteInput),
+      15_000,
+      `Channel context menu channel add members autocomplete div was not visibile within timeout`,
+      500
+    )
+
+    const inputField = await this.driver.wait(
+      autoCompleteInput.findElement(By.xpath(`//input[@aria-autocomplete="list"]`)),
+      5_000,
+      `Channel add members autocomplete input field couldn't be located within timeout`,
+      500
+    )
+
+    const waitForUserInAutocomplete = async (memberName: string) => {
+      const autoCompleteOption = await this.driver.wait(
+        until.elementLocated(
+          By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete-option-${memberName}"]`)
+        ),
+        2_000,
+        `Channel add members autocomplete option for ${memberName} couldn't be located within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(autoCompleteOption),
+        2_000,
+        `Channel add members autocomplete option for ${memberName} wasn't visible within timeout`,
+        500
+      )
+    }
+
+    const membersInAutocomplete: string[] = []
+    for (const memberName of memberNames) {
+      await inputField.sendKeys(memberName)
+      try {
+        await waitForUserInAutocomplete(memberName)
+        membersInAutocomplete.push(memberName)
+      } catch {
+        // do nothing
+      }
+      await inputField.clear()
+    }
+
+    const button = this.driver.wait(
+      until.elementLocated(By.xpath(`//button[@data-testid="${channelName}-add-members-leave-button"]`)),
+      20_000,
+      `Channel add members leave button couldn't be located within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(button),
+      15_000,
+      `Channel add members leave button wasn't visibile within timeout`,
+      500
+    )
+    await button.click()
+    await sleep(5000)
+    return membersInAutocomplete
   }
 }
 
@@ -754,8 +923,9 @@ export class UserProfileContextMenu {
   }
 
   async openEditProfileMenu() {
+    await sleep(8_000)
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]')),
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit_profile"]')),
       20_000,
       'Edit Profile button not found',
       500
@@ -1199,6 +1369,24 @@ export class Channel {
     )
   }
 
+  get lock() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='channelTitle-icon-private']`)),
+      10_000,
+      `Channel title private icon element for ${this.name} couldn't be found within timeout`,
+      500
+    )
+  }
+
+  get hash() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid='channelTitle-icon-public']`)),
+      10_000,
+      `Channel title public icon element for ${this.name} couldn't be found within timeout`,
+      500
+    )
+  }
+
   get messagesList() {
     return this.driver.wait(
       until.elementLocated(By.xpath('//ul[@id="messages-scroll"]')),
@@ -1218,14 +1406,26 @@ export class Channel {
     return true
   }
 
-  async isOpen(timeout = 15_000): Promise<boolean> {
+  async isOpen(isPublic: boolean = true, expectChannelTypeIcon: boolean = true, timeout = 15_000): Promise<boolean> {
     const titleElement = await this.driver.wait(
       until.elementIsVisible(await this.title),
       timeout,
       `Channel title element for ${this.name} couldn't be seen within timeout`,
       500
     )
-    return (await titleElement.getText()) === `#${this.name}`
+
+    let titleText = this.name
+    if (expectChannelTypeIcon) {
+      await this.driver.wait(
+        until.elementIsVisible(await (isPublic ? this.hash : this.lock)),
+        timeout,
+        `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
+        500
+      )
+    } else {
+      titleText = `# ${this.name}`
+    }
+    return (await titleElement.getText()) === titleText
   }
 
   async isMessageInputReady(): Promise<boolean> {
@@ -1901,10 +2101,50 @@ export class Sidebar {
     this.driver = driver
   }
 
+  async getChannelIcon(channelName: string, isPublic = true): Promise<WebElement> {
+    return isPublic ? this.getChannelHashIcon(channelName) : this.getChannelLockIcon(channelName)
+  }
+
+  async getChannelLockIcon(channelName: string): Promise<WebElement> {
+    const channelLockIcon = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-private"]`)),
+      10_000,
+      `Channel list private lock icon for ${channelName} wasn't located within timeout`,
+      500
+    )
+
+    await this.driver.wait(
+      until.elementIsVisible(channelLockIcon),
+      10_000,
+      `Channel list private lock icon for ${channelName} wasn't visible within timeout`,
+      500
+    )
+
+    return channelLockIcon
+  }
+
+  async getChannelHashIcon(channelName: string): Promise<WebElement> {
+    const channelHashIcon = await this.driver.wait(
+      until.elementLocated(By.xpath(`//*[@data-testid="${channelName}-channel-link-icon-public"]`)),
+      10_000,
+      `Channel list public hash icon for ${channelName} wasn't located within timeout`,
+      500
+    )
+
+    await this.driver.wait(
+      until.elementIsVisible(channelHashIcon),
+      10_000,
+      `Channel list public hash icon for ${channelName} wasn't visible within timeout`,
+      500
+    )
+
+    return channelHashIcon
+  }
+
   /**
    * Get channel link elements in the sidebar
    */
-  async getChannelList() {
+  async getChannelList(): Promise<WebElement[]> {
     // We use a more generic XPath and then filter out user links to handle backwards compatibility
     const channels = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "-link-text")]')),
@@ -1931,7 +2171,7 @@ export class Sidebar {
   /**
    * Get user profile link elements in the sidebar
    */
-  async getUserProfileList() {
+  async getUserProfileList(): Promise<WebElement[]> {
     const userProfileList = await this.driver.wait(
       this.driver.findElements(By.xpath('//*[contains(@data-testid, "user-link-text")]')),
       15_000,
@@ -1944,7 +2184,7 @@ export class Sidebar {
   /**
    * Get names of all users in the sidebar
    */
-  async getUserNames() {
+  async getUserNames(): Promise<string[]> {
     const elements = await this.getUserProfileList()
     return Promise.all(
       elements.map(async element => {
@@ -1957,30 +2197,29 @@ export class Sidebar {
   /**
    * Get names of all channels in the sidebar
    */
-  async getChannelsNames() {
+  async getChannelsNames(): Promise<string[]> {
     const elements = await this.getChannelList()
     return Promise.all(
       elements.map(async element => {
-        const fullName = await element.getText()
-        return fullName.split(' ')[1]
+        return await element.getText()
       })
     )
   }
 
-  async waitForChannelsNum(num: number) {
+  async waitForChannelsNum(num: number, timeoutMs: number = 15_000): Promise<boolean> {
     logger.info(`Waiting for ${num} channels`)
     return this.driver.wait(
       async () => {
         const channels = await this.getChannelList()
         return channels.length === num
       },
-      15_000,
+      timeoutMs,
       `Sidebar channel list length couldn't be determined within timeout`,
       500
     )
   }
 
-  async waitForChannels(channelsNames: Array<string>) {
+  async waitForChannels(channelsNames: Array<string>): Promise<void> {
     await this.waitForChannelsNum(channelsNames.length)
     const names = await this.getChannelsNames()
     expect(names).toEqual(expect.arrayContaining(channelsNames))
@@ -2000,7 +2239,7 @@ export class Sidebar {
     return new Settings(this.driver)
   }
 
-  async switchChannel(name: string): Promise<Channel> {
+  async switchChannel(name: string, isPublic: boolean = true, expectChannelTypeIcon: boolean = true): Promise<Channel> {
     const channelLink = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`)),
       20_000,
@@ -2009,11 +2248,11 @@ export class Sidebar {
     )
     await channelLink.click()
     const channel = new Channel(this.driver, name)
-    await channel.isOpen()
+    await channel.isOpen(isPublic, expectChannelTypeIcon)
     return channel
   }
 
-  async addNewChannel(name: string): Promise<Channel> {
+  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,
@@ -2032,6 +2271,30 @@ export class Sidebar {
     await this.driver.wait(until.elementIsVisible(channelNameInput), 5_000)
     await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
     await channelNameInput.sendKeys(name)
+
+    if (!isPublic && !expectToggle) {
+      logger.warn(`Can't create a private channel without the privacy toggle - overriding expectToggle`)
+      expectToggle = true
+    }
+
+    if (expectToggle) {
+      const channelPrivateToggle = await this.driver.wait(
+        until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
+        5_000,
+        `Channel private toggle couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
+      if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+        throw new Error('Channel privacy toggle was enabled before clicking')
+      }
+      if (!isPublic) {
+        await channelPrivateToggle.click()
+        if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+          throw new Error('Channel privacy toggle was disabled after clicking')
+        }
+      }
+    }
     const channelNameButton = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="channelNameSubmit"]')),
       5_000,

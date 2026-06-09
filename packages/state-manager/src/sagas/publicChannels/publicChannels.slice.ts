@@ -18,7 +18,6 @@ import {
   type DeleteChannelFromStorePayload,
   type DeleteChannelPayload,
   type DisableChannelPayload,
-  type Identity,
   INITIAL_CURRENT_CHANNEL_ID,
   type MarkUnreadChannelPayload,
   type PublicChannelStatus,
@@ -28,7 +27,8 @@ import {
   type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
-  User,
+  type AddMembersChannelPayload,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -53,6 +53,7 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
+    addMembersChannel: (state, action: PayloadAction<AddMembersChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
     sendIntroductionMessage: state => state,
     channelDeletionResponse: (state, _action: PayloadAction<DeleteChannelResponse>) => state,
@@ -88,7 +89,15 @@ export const publicChannelsSlice = createSlice({
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       logger.info('addChannel', action.payload)
-      const { channel } = action.payload
+      const { channel, status } = action.payload
+      if (status === ChannelOperationStatus.FAILED) {
+        logger.error('addChannel got a failed status!')
+        return
+      }
+      if (channel == null) {
+        logger.error('addChannel got a success status but null channel')
+        return
+      }
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
         messages: channelMessagesAdapter.getInitialState(),
@@ -97,6 +106,7 @@ export const publicChannelsSlice = createSlice({
         id: channel.id,
         unread: false,
         newestMessage: null,
+        public: channel.public,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {

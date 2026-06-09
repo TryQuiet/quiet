@@ -5,7 +5,7 @@ inputs:
     description: 'OS name (linux | darwin | win32)'
     required: true
   envfile:
-    description: 'Env file to use (.env.production | .env.development | .env.e2e | .env.e2e.qss)'
+    description: 'Env file to use (.env.production | .env.staging | .env.development | .env.e2e | .env.e2e.qss)'
     required: false
     default: '.env.production'
 

@@ -26,6 +26,7 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { ConnectionContext, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { SigChain } from '../auth/sigchain'
+import { LFAEvents } from '../auth/types'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -197,13 +198,17 @@ export class Libp2pAuth {
    */
   private async onIncomingStream({ stream, connection }: IncomingStreamData) {
     const peerId = connection.remotePeer
-    this.logger.info(`Handling incoming ephemeral stream ${connection.id.toString()} from ${peerId.toString()}`)
+    this.logger.trace(`Handling incoming ephemeral stream ${connection.id.toString()} from ${peerId.toString()}`)
     const abortController = new AbortController()
 
     // Process messages from the stream
     this.handleIncomingMessages(peerId, stream, abortController)
       .catch(err => {
-        this.logger.error(`Error processing incoming stream from ${peerId.toString()}`, err)
+        if (err instanceof Error && err.name === 'AbortError') {
+          this.logger.debug(`Incoming stream from ${peerId.toString()} aborted (connection closed)`)
+        } else {
+          this.logger.error(`Error processing incoming stream from ${peerId.toString()}`, err)
+        }
         if (!abortController.signal.aborted) {
           abortController.abort(err)
         }
@@ -224,19 +229,27 @@ export class Libp2pAuth {
       stream,
       source => decode(source),
       async source => {
-        for await (const data of abortableAsyncIterable(source, abortController.signal)) {
-          try {
-            const authConn = this.authConnections.get(peerId.toString())
-            if (!authConn) {
-              this.logger.error(`No auth connection established for ${peerId.toString()}`)
-            } else {
-              authConn.deliver(data.subarray())
+        try {
+          for await (const data of abortableAsyncIterable(source, abortController.signal)) {
+            try {
+              const authConn = this.authConnections.get(peerId.toString())
+              if (!authConn) {
+                this.logger.error(`No auth connection established for ${peerId.toString()}`)
+              } else {
+                authConn.deliver(data.subarray())
+              }
+            } catch (e) {
+              this.logger.error(`Error while delivering message to ${peerId.toString()}`, e)
+              if (!abortController.signal.aborted) {
+                abortController.abort(e)
+              }
             }
-          } catch (e) {
-            this.logger.error(`Error while delivering message to ${peerId.toString()}`, e)
-            if (!abortController.signal.aborted) {
-              abortController.abort(e)
-            }
+          }
+        } catch (e) {
+          if (e instanceof Error && e.name === 'AbortError') {
+            this.logger.debug(`Stream from ${peerId.toString()} aborted (connection closed)`)
+          } else {
+            throw e
           }
         }
       }
@@ -256,13 +269,13 @@ export class Libp2pAuth {
 
     const abortController = new AbortController()
     try {
-      this.logger.info(`Opening ephemeral outbound stream to ${peerId.toString()}`)
+      this.logger.trace(`Opening ephemeral outbound stream to ${peerId.toString()}`)
       const stream = await connection.newStream(this.protocol, {
         runOnLimitedConnection: false,
         negotiateFully: false,
         signal: abortController.signal,
       })
-      this.logger.info(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
+      this.logger.trace(`Ephemeral stream opened to ${peerId.toString()}, sending message`)
       if (stream.status !== 'open') {
         this.logger.warn(
           `Attempted to send message to ${peerId.toString()} on ephemeral stream that had already closed`
@@ -271,7 +284,7 @@ export class Libp2pAuth {
       }
       await pipe([encode.single(message)], stream)
       await stream.close()
-      this.logger.info(`Ephemeral stream closed to ${peerId.toString()}`)
+      this.logger.trace(`Ephemeral stream closed to ${peerId.toString()}`)
     } catch (e) {
       this.logger.error(`Error sending ephemeral message to ${peerId.toString()}`, e)
       if (!abortController.signal.aborted) {
@@ -341,7 +354,7 @@ export class Libp2pAuth {
     } as ConnectionParams)
 
     // Set up auth connection event handlers.
-    authConnection.on('connected', () => {
+    authConnection.on(LFAEvents.CONNECTED, () => {
       if (this.sigChainService.activeChainTeamName != null) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const team = this.sigChainService.team
@@ -362,7 +375,7 @@ export class Libp2pAuth {
       }
     })
 
-    authConnection.on('disconnected', event => {
+    authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
       this.libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
         event,
@@ -370,7 +383,7 @@ export class Libp2pAuth {
       })
     })
 
-    authConnection.on('joined', payload => {
+    authConnection.on(LFAEvents.JOINED, payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
       this.logger.info(`Joined team ${team.teamName} (userid: ${user.userId})!`)
@@ -393,20 +406,20 @@ export class Libp2pAuth {
       this.unblockConnections(this.bufferedConnections)
     })
 
-    authConnection.on('change', payload => {
+    authConnection.on(LFAEvents.CHANGE, payload => {
       this.emit(Libp2pEvents.AUTH_STATE_CHANGED, payload)
     })
 
-    authConnection.on('updated', payload => {
+    authConnection.on(LFAEvents.UPDATED, payload => {
       this.emit(Libp2pEvents.AUTH_UPDATED, payload)
       this.handleJoinViaQSS()
     })
 
     // Handle errors from local or remote sources.
-    authConnection.on('localError', error => {
+    authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
     })
-    authConnection.on('remoteError', error => {
+    authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.emit(Libp2pEvents.AUTH_REMOTE_ERROR, { error, connection })
     })
 
@@ -448,7 +461,7 @@ export class Libp2pAuth {
     } else {
       this.joinStatus = JoinStatus.PENDING
     }
-    this.logger.debug('Reset join status on disconnect', oldJoinStatus, this.joinStatus)
+    this.logger.info('Reset join status on disconnect', oldJoinStatus, this.joinStatus)
   }
 
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {

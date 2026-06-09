@@ -17,6 +17,7 @@ export class ConnectionState {
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
   public isTorInitialized = false
+  public isQssConnected = false
   public socketIOSecret: string | null = null
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public connectionProcess: { number: number; text: ConnectionProcessInfo } = {
@@ -58,6 +59,12 @@ export const connectionSlice = createSlice({
     },
     setTorInitialized: state => {
       state.isTorInitialized = true
+    },
+    setQssConnected: state => {
+      state.isQssConnected = true
+    },
+    setQssDisconnected: state => {
+      state.isQssConnected = false
     },
     setLongLivedInvite: (state, action: PayloadAction<InviteResultWithSalt | undefined>) => {
       state.longLivedInvite = action.payload

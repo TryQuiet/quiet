@@ -32,7 +32,7 @@ describe('One Client', () => {
   const secondCommunityName = 'testcommunity-redux'
 
   beforeAll(async () => {
-    app = new App()
+    app = new App({ username: 'owner' })
   })
 
   afterAll(async () => {
@@ -41,12 +41,12 @@ describe('One Client', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   describe('User opens app for the first time', () => {
     it('User opens app', async () => {
-      await app.open()
+      await app.openWithRetries()
     })
 
     it('Get opened app process data', () => {
@@ -59,18 +59,24 @@ describe('One Client', () => {
       const debugModal = new DebugModeModal(app.driver)
       await debugModal.close()
 
+      logger.info('Checking that join modal is ready')
       const joinModal = new JoinCommunityModal(app.driver)
-      expect(await joinModal.isReady()).toBeTruthy()
+      expect(await joinModal.isReady(30_000)).toBeTruthy()
 
+      logger.info('Switching to create community modal')
       await joinModal.switchToCreateCommunity()
     })
 
     it('User is on "Create community" page, enters valid community name and presses the button', async () => {
+      logger.info('Checking that create modal is ready')
       const createModal = new CreateCommunityModal(app.driver)
       expect(await createModal.isReady()).toBeTruthy()
 
+      logger.info('Community creation - before typeCommunityName')
       await createModal.typeCommunityName(firstCommunityName)
+      logger.info('Community creation - before submit')
       await createModal.submit()
+      logger.info('Community creation - after submit')
     })
 
     it('User sees "register username" page, enters the valid name and submits by clicking on the button', async () => {
@@ -85,6 +91,7 @@ describe('One Client', () => {
     })
 
     it('User waits for the modal JoiningLoadingPanel to disappear', async () => {
+      logger.info('Waiting for join to complete')
       const loadingPanelCommunity = new JoiningLoadingPanel(app.driver)
       await loadingPanelCommunity.waitForJoinToComplete()
     })
@@ -94,14 +101,14 @@ describe('One Client', () => {
       expect(await generalChannel.isReady()).toBeTruthy()
 
       const generalChannelText = await generalChannel.element.getText()
-      expect(generalChannelText).toEqual(`# ${generalChannelName}`)
+      expect(generalChannelText).toEqual(generalChannelName)
     })
 
     it('User sees just the general channel in the sidebar', async () => {
       const sidebar = new Sidebar(app.driver)
       const channelList = await sidebar.getChannelList()
       expect(channelList.length).toBe(1)
-      expect(await channelList[0].getText()).toBe(`# ${generalChannelName}`)
+      expect(await channelList[0].getText()).toBe(generalChannelName)
     })
 
     it('Users sees just themselves in the user list', async () => {
@@ -164,7 +171,7 @@ describe('One Client', () => {
       expect(await generalChannel.isReady())
 
       const generalChannelText = await generalChannel.element.getText()
-      expect(generalChannelText).toEqual(`# ${generalChannelName}`)
+      expect(generalChannelText).toEqual(generalChannelName)
     })
 
     it('User sends a message', async () => {
@@ -238,7 +245,7 @@ describe('One Client', () => {
     })
 
     it('Opens app again', async () => {
-      await app.open()
+      await app.openWithRetries()
     })
 
     it('User sees "general channel" page', async () => {
@@ -261,7 +268,7 @@ describe('One Client', () => {
     beforeEach(async () => {
       const opened = await app.isSessionOpen()
       if (!opened) {
-        await app.open()
+        await app.openWithRetries()
       }
       generalChannel = new Channel(app.driver, generalChannelName)
       await generalChannel.isReady()

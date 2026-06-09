@@ -6,7 +6,7 @@ import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'
 import { Permissions } from './permissions'
 import { QuietRole, RoleName, SELF_ASSIGN_ROLES } from './roles'
-import { Member, PermissionsMap, Role } from '@localfirst/auth'
+import { AddRoleInput, Member, PermissionsMap, Role } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 
 const logger = createLogger('auth:roleService')
@@ -23,12 +23,12 @@ class RoleService extends ChainServiceBase {
       permissions[Permissions.MODIFIABLE_MEMBERSHIP] = true
     }
 
-    const role: Role = {
+    const input: AddRoleInput = {
       roleName,
       permissions,
     }
 
-    this.sigChain.team!.addRole(role)
+    this.sigChain.team!.addRole(input)
   }
 
   // TODO: figure out permissions
@@ -92,6 +92,14 @@ class RoleService extends ChainServiceBase {
 
   public amIMemberOfRole(roleName: RoleName | string): boolean {
     return this.memberHasRole(this.sigChain.user.userId, roleName)
+  }
+
+  public memberIsAdmin(memberId: string): boolean {
+    return this.sigChain.team!.memberIsAdmin(memberId)
+  }
+
+  public amIAdmin(): boolean {
+    return this.memberIsAdmin(this.sigChain.user.userId)
   }
 
   public getMembersForRole(roleName: RoleName | string): Member[] {

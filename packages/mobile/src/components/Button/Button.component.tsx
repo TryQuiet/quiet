@@ -6,14 +6,14 @@ import * as Progress from 'react-native-progress'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negative, disabled, newDesign }) => {
+export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negative, disabled, newDesign, testID }) => {
   return (
     <TouchableWithoutFeedback
       onPress={event => {
         // event.persist()
         if (!disabled) onPress()
       }}
-      testID={'button'}
+      testID={testID ?? 'button'}
     >
       <View
         style={{

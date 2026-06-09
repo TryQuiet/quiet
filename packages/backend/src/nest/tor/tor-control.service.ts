@@ -117,12 +117,14 @@ export class TorControl {
     }
 
     this.isSending = true
-    await this.connect()
-    // FIXME: Errors are not caught here. Is this what we want?
-    const res = await this._sendCommand(command)
-    this.disconnect()
-    this.isSending = false
-    this.logger.debug(`Tor command response: ${res.code} ${res.messages}`)
-    return res
+    try {
+      await this.connect()
+      const res = await this._sendCommand(command)
+      this.logger.debug(`Tor command response: ${res.code} ${res.messages}`)
+      return res
+    } finally {
+      this.disconnect()
+      this.isSending = false
+    }
   }
 }

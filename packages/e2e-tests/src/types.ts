@@ -7,6 +7,16 @@ export interface UserTestData<Messages = string[]> {
   messages: Messages
 }
 
+export type TestMessages<T extends string, U = string[]> = Required<Record<T, U>>
+
+export interface UserTestData2<T extends string, U = string[]> {
+  username: string
+  app: App
+  messages: Required<TestMessages<T, U>>
+}
+
+export type UserTestDataMap<T extends string, U extends UserTestData2<any, any>> = Required<Record<T, U>>
+
 export interface MessageIds {
   messageId: string
   parentMessageId: string
