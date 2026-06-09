@@ -6,6 +6,8 @@ export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
+export const CHANNEL_METADATA_STORE_NAME = 'public-channels'
+
 export interface PublicChannel {
   id: string
   name: string
@@ -26,6 +28,7 @@ export interface PublicChannelStatus {
   id: string
   unread: boolean
   newestMessage: ChannelMessage | null
+  public?: boolean
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {
@@ -94,8 +97,14 @@ export interface CreateChannelPayload {
   description?: string
 }
 
+export enum ChannelOperationStatus {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
 export interface CreateChannelResponse {
-  channel: PublicChannel
+  status: ChannelOperationStatus
+  channel?: PublicChannel
 }
 
 export interface DeleteChannelPayload {
@@ -184,6 +193,7 @@ export enum AddMembersChannelStatus {
   CHANNEL_MISSING = 'CHANNEL_MISSING',
   NOT_MEMBER = 'NOT_MEMBER',
   INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
+  NOT_ADMIN = 'NOT_ADMIN',
 }
 
 export interface AddMembersChannelResponse {

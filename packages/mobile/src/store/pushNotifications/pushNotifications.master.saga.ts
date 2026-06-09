@@ -43,7 +43,7 @@ function* checkPermissionSaga(): Generator {
 }
 
 function* triggerPermissionRequestSaga(): Generator {
-  if (Config.QPS_ALLOWED !== 'true') {
+  if (Config.QPS_ALLOWED !== 'true' && Platform.OS !== 'android') {
     logger.info('QPS not allowed, skipping automatic permission request trigger')
     return
   }
@@ -113,7 +113,7 @@ function* sendDeviceTokenToBackendSaga(token: string): Generator {
   )
 }
 
-function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
+export function* hasGrantedNotificationPermissionSaga(): Generator<any, boolean, any> {
   const permissionStatus = yield* select(pushNotificationsSelectors.permissionStatus)
   return permissionStatus === NotificationPermissionStatus.Granted
 }
@@ -147,6 +147,22 @@ function* syncCurrentDeviceTokenSaga(): Generator {
     yield* call(sendDeviceTokenToBackendSaga, token)
   } catch (error) {
     logger.info('Failed to fetch current FCM token')
+  }
+}
+
+export function* deleteNotificationTokenSaga(): Generator {
+  if (Config.QPS_ALLOWED !== 'true') {
+    logger.info('QPS not allowed, skipping device token deletion')
+    return
+  }
+
+  const deleteFirebaseToken = NativeModules.FirebaseMessagingModule?.deleteToken
+  if (deleteFirebaseToken) {
+    try {
+      yield* call(deleteFirebaseToken)
+    } catch (error) {
+      logger.error('Failed to delete Firebase token while leaving community', error)
+    }
   }
 }
 
@@ -196,6 +212,11 @@ function* watchDeviceToken(): Generator {
   try {
     while (true) {
       const { token } = yield* take(channel)
+      if (Config.QPS_ALLOWED !== 'true') {
+        logger.info('QPS not allowed, skipping live FCM token forward')
+        continue
+      }
+
       const hasGrantedPermission = yield* call(hasGrantedNotificationPermissionSaga)
       if (!hasGrantedPermission) {
         logger.info('Skipping live FCM token forward because notification permission is not granted')
@@ -213,11 +234,6 @@ function* watchDeviceToken(): Generator {
 }
 
 export function* pushNotificationsMasterSaga(): Generator {
-  if ((Platform.OS !== 'ios' && Platform.OS !== 'android') || Config.QPS_ALLOWED !== 'true') {
-    logger.info(`Skipping push notifications saga (platform=${Platform.OS}, QPS_ALLOWED=${Config.QPS_ALLOWED})`)
-    return
-  }
-
   logger.info('pushNotificationsMasterSaga starting')
   try {
     yield* fork(watchPermissionResults)

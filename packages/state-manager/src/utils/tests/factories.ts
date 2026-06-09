@@ -20,7 +20,6 @@ import {
   GetMessagesPayload,
   InitCommunityPayload,
   MessagesLoadedPayload,
-  NetworkInfo,
   SendMessagePayload,
   SocketActions,
   SocketEvents,
@@ -38,10 +37,8 @@ import {
   DeleteChannelPayload,
   ErrorPayload,
   ConnectionProcessInfo,
-  SetConnectionProcessInfoPayload,
   User,
   PublicChannel,
-  TestMessage,
   Community,
   SetUserProfilePayload,
   SetUserProfileResponse,
@@ -55,23 +52,17 @@ import {
   FileMessage,
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
+  ChannelOperationStatus,
 } from '@quiet/types'
-import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
 import { communitiesSelectors } from '../../sagas/communities/communities.selectors'
 import { identityActions } from '../../sagas/identity/identity.slice'
-import { identitySelectors } from '../../sagas/identity/identity.selectors'
 import { usersActions } from '../../sagas/users/users.slice'
-import { usersSelectors } from '../../sagas/users/users.selectors'
 import { messagesActions } from '../../sagas/messages/messages.slice'
-import { messagesSelectors } from '../../sagas/messages/messages.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
-import { publicChannelsSelectors } from '../../sagas/publicChannels/publicChannels.selectors'
 import { errorsActions } from '../../sagas/errors/errors.slice'
-import { errorsSelectors } from '../../sagas/errors/errors.selectors'
 import { connectionActions } from '../../sagas/appConnection/connection.slice'
-import { connectionSelectors } from '../../sagas/appConnection/connection.selectors'
 import { randomBytes } from 'crypto'
 
 const logger = createLogger('factories')
@@ -323,14 +314,15 @@ export const getReduxStoreFactory = async (store: Store) => {
           teamId: factory.assoc('Community', 'teamId'),
         }
       }),
+      status: ChannelOperationStatus.SUCCESS,
     },
     {
       afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         await factory.create('PublicChannelSubscription', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         return payload
       },

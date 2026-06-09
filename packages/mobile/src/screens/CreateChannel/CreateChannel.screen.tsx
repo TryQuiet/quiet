@@ -23,6 +23,7 @@ export const CreateChannelScreen: FC = () => {
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
+  const isOwner = useSelector(communities.selectors.isOwner)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -58,7 +59,7 @@ export const CreateChannelScreen: FC = () => {
   }
 
   const createChannelAction = useCallback(
-    (name: string) => {
+    (name: string, isPublic: boolean) => {
       clearErrors()
 
       // Validate channel name
@@ -97,8 +98,8 @@ export const CreateChannelScreen: FC = () => {
           name: name,
           description: `Welcome to #${name}`,
           id: id,
+          public: isPublic,
           teamId: community.teamId,
-          public: true,
         })
       )
     },
@@ -119,6 +120,8 @@ export const CreateChannelScreen: FC = () => {
       channelCreationError={error?.message}
       clearComponent={clearComponent}
       handleBackButton={handleBackButton}
+      // TODO: Pass roles to state manager and check for admin role
+      isAdmin={isOwner}
     />
   )
 }

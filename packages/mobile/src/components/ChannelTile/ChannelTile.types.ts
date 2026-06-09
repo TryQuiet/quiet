@@ -4,5 +4,6 @@ export interface ChannelTileProps {
   unread: boolean
   message?: string
   date?: string
+  isPublic: boolean
   redirect: (id: string) => void
 }

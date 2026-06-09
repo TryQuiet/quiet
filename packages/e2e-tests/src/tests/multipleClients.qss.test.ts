@@ -104,7 +104,7 @@ describe('Multiple Clients (QSS)', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
     stageStartTime = Date.now()
   })
 

@@ -1,5 +1,5 @@
 import React, { FC, useState, useRef, useEffect } from 'react'
-import { Keyboard, KeyboardAvoidingView, TextInput, View, Image } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, TextInput, View, Image, Switch, Platform } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 
@@ -11,21 +11,25 @@ import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
 import { icons } from '../../assets'
+import LockIcon from '../../assets/icons/svg/lock'
 
 export interface CreateChannelProps {
-  createChannelAction: (name: string) => void
+  isAdmin: boolean
+  createChannelAction: (name: string, isPublic: boolean) => void
   channelCreationError?: string
   clearComponent?: boolean
   handleBackButton: () => void
 }
 
 export const CreateChannel: FC<CreateChannelProps> = ({
+  isAdmin,
   createChannelAction,
   channelCreationError,
   clearComponent,
   handleBackButton,
 }) => {
   const [createChannelInput, setCreateChannelInput] = useState<string | undefined>()
+  const [channelIsPrivate, setChannelIsPrivate] = useState<boolean>(false)
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const [inputError, setInputError] = useState<string | undefined>()
@@ -51,7 +55,11 @@ export const CreateChannel: FC<CreateChannelProps> = ({
       setInputError('Channel name can not be empty')
       return
     }
-    createChannelAction(createChannelInput)
+    createChannelAction(createChannelInput, !channelIsPrivate)
+  }
+
+  const toggleSwitch = () => {
+    setChannelIsPrivate(!channelIsPrivate)
   }
 
   useEffect(() => {
@@ -64,6 +72,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   useEffect(() => {
     if (clearComponent) {
       setCreateChannelInput('')
+      setChannelIsPrivate(false)
       setInputError(undefined)
       setLoading(false)
       inputRef.current?.clear()
@@ -79,12 +88,13 @@ export const CreateChannel: FC<CreateChannelProps> = ({
     >
       <Appbar title={'Create channel'} back={handleBackButton} />
       <KeyboardAvoidingView
-        behavior='height'
+        behavior={Platform.select({ ios: 'padding', android: 'height' })}
         style={{
           flex: 1,
           marginTop: 24,
           paddingLeft: 20,
           paddingRight: 20,
+          marginBottom: 16,
         }}
       >
         <Input
@@ -108,6 +118,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
                 gap: 10,
                 alignItems: 'center',
                 marginTop: 12,
+                marginBottom: 16,
               }}
             >
               <View>
@@ -129,6 +140,52 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
+        {isAdmin && (
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 24,
+              height: 'auto',
+              width: 'auto',
+            }}
+            testID={'create_channel_private'}
+          >
+            <View testID={'create_channel_private_lock'} style={{ flex: 1 }}>
+              <LockIcon fill={false} />
+            </View>
+            <View testID={'create_channel_private_label'} style={{ flex: 8 }}>
+              <Typography fontSize={16}>{'Private channel'}</Typography>
+              <Typography
+                fontSize={12}
+                color={'gray50'}
+                style={{
+                  flexWrap: 'wrap',
+                }}
+              >
+                {'Only assigned members and roles have access'}
+              </Typography>
+            </View>
+            <View testID={'create_channel_private_toggle'} style={{ flex: 2 }}>
+              <Switch
+                trackColor={{
+                  false: defaultTheme.palette.typography.gray50,
+                  true: defaultTheme.palette.background.grassGreen,
+                }}
+                thumbColor={defaultTheme.palette.background.white}
+                onValueChange={toggleSwitch}
+                value={channelIsPrivate}
+                style={{
+                  height: 32,
+                  width: 52,
+                }}
+              />
+            </View>
+          </View>
+        )}
         <View style={{ marginTop: 12 + 12 }}>
           <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
         </View>

@@ -81,7 +81,7 @@ describe('Add new channel', () => {
     expect(privateToggle.className.includes('checked')).toBeTruthy()
   })
 
-  it('Adds new channel and opens it. Sends initial message', async () => {
+  it('Adds new public channel and opens it. Sends initial message', async () => {
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {

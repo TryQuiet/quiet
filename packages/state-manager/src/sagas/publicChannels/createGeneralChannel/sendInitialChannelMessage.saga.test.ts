@@ -57,7 +57,7 @@ describe('sendInitialChannelMessageSaga', () => {
           id: generateChannelId('photo'),
         },
       })
-    ).channel
+    ).channel!
   })
 
   test('send initial channel message', async () => {

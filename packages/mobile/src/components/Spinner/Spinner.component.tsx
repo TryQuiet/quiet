@@ -4,7 +4,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { Typography } from '../Typography/Typography.component'
 import { SpinnerProps } from './Spinner.types'
 
-export const Spinner: FC<SpinnerProps> = ({ description }) => {
+export const Spinner: FC<SpinnerProps> = ({ description, testID }) => {
   return (
     <View
       style={{
@@ -13,6 +13,7 @@ export const Spinner: FC<SpinnerProps> = ({ description }) => {
         justifyContent: 'center',
         backgroundColor: defaultTheme.palette.background.white,
       }}
+      testID={testID}
     >
       <ActivityIndicator size='large' color={defaultTheme.palette.background.lushSky} />
       <Typography fontSize={14} horizontalTextAlign={'center'} style={{ margin: 10, maxWidth: 200 }}>

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { type KeyValueType, IPFSAccessController, type LogEntry } from '@orbitdb/core'
+import { IPFSAccessController, type LogEntry } from '@orbitdb/core'
 import { EventEmitter } from 'events'
-import { type PeerId } from '@libp2p/interface'
 import {
   ChannelMessage,
   ConnectionProcessInfo,
@@ -23,10 +22,12 @@ import {
   AddMembersChannelStatus,
   DownloadStatus,
   RemoveDownloadStatus,
+  CHANNEL_METADATA_STORE_NAME,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
-import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../../const'
+import { IPFS_REPO_PATCH, ORBIT_DB_DIR } from '../../const'
 import { IpfsFilesManagerEvents } from '../../ipfs-file-manager/ipfs-file-manager.types'
 import { createLogger } from '../../common/logger'
 import { ChannelRepo } from '../../common/types'
@@ -166,7 +167,7 @@ export class ChannelsService extends EventEmitter {
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating channels database')
     this.channels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      'public-channels',
+      CHANNEL_METADATA_STORE_NAME,
       {
         sync: false,
         Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
@@ -473,7 +474,7 @@ export class ChannelsService extends EventEmitter {
     if (!store) {
       throw new Error('Failed to create channel')
     }
-    return { channel: channelData }
+    return { channel: channelData, status: ChannelOperationStatus.SUCCESS }
   }
 
   /**
@@ -523,7 +524,7 @@ export class ChannelsService extends EventEmitter {
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
     } as ChannelSubscribedPayload)
-    return { channel: channelData }
+    return { channel: channelData, status: ChannelOperationStatus.SUCCESS }
   }
 
   /**
@@ -614,6 +615,12 @@ export class ChannelsService extends EventEmitter {
     if (!isMemberOfChannel) {
       this.logger.error(`You are not a member of private channel ${channelId}, cannot add members!`)
       return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
+    }
+
+    const isAdmin = this.sigchainService.activeChain.roles.amIAdmin()
+    if (!isAdmin) {
+      this.logger.error(`You are not an admin, cannot add members to private channel!`)
+      return { channelId, status: AddMembersChannelStatus.NOT_ADMIN }
     }
 
     const repo = this.channelsRepos.get(channelId)

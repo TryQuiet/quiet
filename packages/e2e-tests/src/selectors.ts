@@ -438,7 +438,7 @@ export class StartingLoadingPanel {
       if (e.message?.includes('stale element reference')) {
         logger.warn(`Starting loading panel disappeared and we couldn't get visibility information. This is fine.`)
       } else {
-        logger.warn('Either socket didnt get setup or you are running on an old version.')
+        logger.warn('Either socket didnt get setup or you are running on an old version.', e)
       }
     }
   }

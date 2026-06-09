@@ -1,14 +1,19 @@
 # Changelog
 
-## [unreleased]
+## [7.3.0]
 
 ### Features
 
 * Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Private channel creation and modification is limited to admins [#3256](https://github.com/TryQuiet/quiet/issues/3256)
 
 ### Fixes
 
 * Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
+* Fixed android not requesting permission for foreground push notifications [#3254](https://github.com/TryQuiet/quiet/issues/3254)
+* Fixes race condition with android push notifications [#3255](https://github.com/TryQuiet/quiet/issues/3255)
+* Mark IOS UI as needing compatibility updates to fix contrast problems on IOS 26 [#3266](https://github.com/TryQuiet/quiet/issues/3266)
 
 ## [7.2.0]
 

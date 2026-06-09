@@ -42,5 +42,6 @@ export const defaultPalette = {
     blue: '#2373EA',
     lushSky: '#67BFD3',
     lightPurple: '#F3E8FF',
+    grassGreen: '#80B857',
   },
 }

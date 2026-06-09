@@ -43,7 +43,7 @@ describe('One Client (QSS)', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   describe('Abort Creation Midway (at Create Username) >', () => {
