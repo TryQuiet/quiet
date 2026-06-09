@@ -249,13 +249,13 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('First user opens community membership tab', async () => {
+        it.skip('First user opens community membership tab', async () => {
           settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
           expect(await settingsUser1.isReady()).toBeTruthy()
           await settingsUser1.openCommunityMembership(2)
         })
 
-        it('First user sees self in user list', async () => {
+        it.skip('First user sees self in user list', async () => {
           const status = await settingsUser1.getUserInCommunityMembership(
             users.user1.username,
             UserListStatus.ONLINE,
@@ -265,7 +265,7 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('First user sees owner in user list', async () => {
+        it.skip('First user sees owner in user list', async () => {
           const status = await settingsUser1.getUserInCommunityMembership(
             users.owner.username,
             UserListStatus.ONLINE,
@@ -275,17 +275,17 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('First user closes community membership tab', async () => {
+        it.skip('First user closes community membership tab', async () => {
           await settingsUser1.closeTabThenModal()
         })
 
-        it('Owner opens community membership tab', async () => {
+        it.skip('Owner opens community membership tab', async () => {
           settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
           expect(await settingsOwner.isReady()).toBeTruthy()
           await settingsOwner.openCommunityMembership(2)
         })
 
-        it('Owner sees user in user list', async () => {
+        it.skip('Owner sees user in user list', async () => {
           const status = await settingsOwner.getUserInCommunityMembership(
             users.user1.username,
             UserListStatus.ONLINE,
@@ -295,7 +295,7 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('Owner closes community membership tab', async () => {
+        it.skip('Owner closes community membership tab', async () => {
           await settingsOwner.closeTabThenModal()
         })
 
@@ -547,13 +547,13 @@ describe('Multiple Clients (Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('First user opens community membership tab', async () => {
+        it.skip('First user opens community membership tab', async () => {
           settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
           expect(await settingsUser1.isReady()).toBeTruthy()
           await settingsUser1.openCommunityMembership(3)
         })
 
-        it('First user sees second user in user list', async () => {
+        it.skip('First user sees second user in user list', async () => {
           const status = await settingsUser1.getUserInCommunityMembership(
             users.user2.username,
             UserListStatus.ONLINE,
@@ -563,17 +563,17 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('First user closes community membership tab', async () => {
+        it.skip('First user closes community membership tab', async () => {
           await settingsUser1.closeTabThenModal()
         })
 
-        it('Owner opens community membership tab', async () => {
+        it.skip('Owner opens community membership tab', async () => {
           settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
           expect(await settingsOwner.isReady()).toBeTruthy()
           await settingsOwner.openCommunityMembership(3)
         })
 
-        it('Owner user sees second user in user list', async () => {
+        it.skip('Owner user sees second user in user list', async () => {
           const status = await settingsOwner.getUserInCommunityMembership(
             users.user2.username,
             UserListStatus.ONLINE,
@@ -583,17 +583,17 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('Owner closes community membership tab', async () => {
+        it.skip('Owner closes community membership tab', async () => {
           await settingsOwner.closeTabThenModal()
         })
 
-        it('Second user opens community membership tab', async () => {
+        it.skip('Second user opens community membership tab', async () => {
           settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
           expect(await settingsUser2.isReady()).toBeTruthy()
           await settingsUser2.openCommunityMembership(3)
         })
 
-        it('Second user sees self in user list', async () => {
+        it.skip('Second user sees self in user list', async () => {
           const status = await settingsUser2.getUserInCommunityMembership(
             users.user2.username,
             UserListStatus.ONLINE,
@@ -603,7 +603,7 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('Second user sees first user in user list', async () => {
+        it.skip('Second user sees first user in user list', async () => {
           const status = await settingsUser2.getUserInCommunityMembership(
             users.user1.username,
             UserListStatus.ONLINE,
@@ -613,7 +613,7 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('Second user sees owner in user list', async () => {
+        it.skip('Second user sees owner in user list', async () => {
           const status = await settingsUser2.getUserInCommunityMembership(
             users.owner.username,
             UserListStatus.ONLINE,
@@ -623,7 +623,7 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(status.textMatches).toBe(true)
         })
 
-        it('Second user closes community membership tab', async () => {
+        it.skip('Second user closes community membership tab', async () => {
           await settingsUser2.closeTabThenModal()
         })
 

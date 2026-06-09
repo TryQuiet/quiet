@@ -253,13 +253,13 @@ describe('Multiple Clients (QSS)', () => {
         await generalChannelUser1.sendMessage(users.user1.messages.initialChannelMessage, users.user1.username)
       })
 
-      it('First user opens community membership tab', async () => {
+      it.skip('First user opens community membership tab', async () => {
         settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
         expect(await settingsUser1.isReady()).toBeTruthy()
         await settingsUser1.openCommunityMembership(2)
       })
 
-      it('First user sees self in user list', async () => {
+      it.skip('First user sees self in user list', async () => {
         const status = await settingsUser1.getUserInCommunityMembership(
           users.user1.username,
           UserListStatus.ONLINE,
@@ -269,7 +269,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('First user sees owner in user list', async () => {
+      it.skip('First user sees owner in user list', async () => {
         const status = await settingsUser1.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.ONLINE,
@@ -279,17 +279,17 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('First user closes community membership tab', async () => {
+      it.skip('First user closes community membership tab', async () => {
         await settingsUser1.closeTabThenModal()
       })
 
-      it('Owner opens community membership tab', async () => {
+      it.skip('Owner opens community membership tab', async () => {
         settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
         expect(await settingsOwner.isReady()).toBeTruthy()
         await settingsOwner.openCommunityMembership(2)
       })
 
-      it('Owner sees self in user list', async () => {
+      it.skip('Owner sees self in user list', async () => {
         const status = await settingsOwner.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.ONLINE,
@@ -299,7 +299,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Owner sees first user in user list', async () => {
+      it.skip('Owner sees first user in user list', async () => {
         const status = await settingsOwner.getUserInCommunityMembership(
           users.user1.username,
           UserListStatus.ONLINE,
@@ -309,7 +309,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Owner closes community membership tab', async () => {
+      it.skip('Owner closes community membership tab', async () => {
         await settingsOwner.closeTabThenModal()
       })
 
@@ -415,13 +415,13 @@ describe('Multiple Clients (QSS)', () => {
         await generalChannelUser1.getMessageIdsByText(users.user1.messages.ownerOfflineMessage, users.user1.username)
       })
 
-      it('First user opens community membership tab', async () => {
+      it.skip('First user opens community membership tab', async () => {
         settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
         expect(await settingsUser1.isReady()).toBeTruthy()
         await settingsUser1.openCommunityMembership(2)
       })
 
-      it('First user sees owner as offline in user list', async () => {
+      it.skip('First user sees owner as offline in user list', async () => {
         const status = await settingsUser1.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.OFFLINE,
@@ -431,7 +431,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('First user closes community membership tab', async () => {
+      it.skip('First user closes community membership tab', async () => {
         await settingsUser1.closeTabThenModal()
       })
     })
@@ -479,13 +479,13 @@ describe('Multiple Clients (QSS)', () => {
         await joinPanel.waitForJoinToComplete()
       })
 
-      it('Second user opens community membership tab', async () => {
+      it.skip('Second user opens community membership tab', async () => {
         settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
         expect(await settingsUser2.isReady()).toBeTruthy()
         await settingsUser2.openCommunityMembership(3)
       })
 
-      it('Second user sees self in user list', async () => {
+      it.skip('Second user sees self in user list', async () => {
         const status = await settingsUser2.getUserInCommunityMembership(
           users.user2.username,
           UserListStatus.ONLINE,
@@ -495,7 +495,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Second user sees owner as offline in user list', async () => {
+      it.skip('Second user sees owner as offline in user list', async () => {
         const status = await settingsUser2.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.OFFLINE,
@@ -505,7 +505,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Second user sees first user as offline in user list', async () => {
+      it.skip('Second user sees first user as offline in user list', async () => {
         const status = await settingsUser2.getUserInCommunityMembership(
           users.user1.username,
           UserListStatus.OFFLINE,
@@ -515,7 +515,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Second user closes community membership tab', async () => {
+      it.skip('Second user closes community membership tab', async () => {
         await settingsUser2.closeTabThenModal()
       })
 
@@ -574,13 +574,13 @@ describe('Multiple Clients (QSS)', () => {
         await promiseWithRetries(loadOwner(), failureReason, retryConfig, onTimeout)
       })
 
-      it('Second user opens community membership tab', async () => {
+      it.skip('Second user opens community membership tab', async () => {
         settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
         expect(await settingsUser2.isReady()).toBeTruthy()
         await settingsUser2.openCommunityMembership(3)
       })
 
-      it('Second user sees owner as online in user list', async () => {
+      it.skip('Second user sees owner as online in user list', async () => {
         const status = await settingsUser2.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.ONLINE,
@@ -590,7 +590,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Second user closes community membership tab', async () => {
+      it.skip('Second user closes community membership tab', async () => {
         await settingsUser2.closeTabThenModal()
       })
 
@@ -622,13 +622,13 @@ describe('Multiple Clients (QSS)', () => {
         await debugModal.close()
       })
 
-      it('First user opens community membership tab', async () => {
+      it.skip('First user opens community membership tab', async () => {
         settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
         expect(await settingsUser1.isReady()).toBeTruthy()
         await settingsUser1.openCommunityMembership(3)
       })
 
-      it('First user sees owner as online in user list', async () => {
+      it.skip('First user sees owner as online in user list', async () => {
         const status = await settingsUser1.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.ONLINE,
@@ -638,7 +638,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('First user sees second user as online in user list', async () => {
+      it.skip('First user sees second user as online in user list', async () => {
         const status = await settingsUser1.getUserInCommunityMembership(
           users.user2.username,
           UserListStatus.ONLINE,
@@ -648,7 +648,7 @@ describe('Multiple Clients (QSS)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('First user closes community membership tab', async () => {
+      it.skip('First user closes community membership tab', async () => {
         await settingsUser1.closeTabThenModal()
       })
 

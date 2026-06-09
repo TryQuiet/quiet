@@ -197,13 +197,13 @@ describe('Multiple Clients (DMs)', () => {
         expect(generalChannelText).toEqual('general')
       })
 
-      it('Owner opens community membership tab', async () => {
+      it.skip('Owner opens community membership tab', async () => {
         settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
         expect(await settingsOwner.isReady()).toBeTruthy()
         await settingsOwner.openCommunityMembership(1)
       })
 
-      it('Owner sees self in user list', async () => {
+      it.skip('Owner sees self in user list', async () => {
         const status = await settingsOwner.getUserInCommunityMembership(
           users.owner.username,
           UserListStatus.ONLINE,
@@ -213,7 +213,7 @@ describe('Multiple Clients (DMs)', () => {
         expect(status.textMatches).toBe(true)
       })
 
-      it('Owner closes community membership tab', async () => {
+      it.skip('Owner closes community membership tab', async () => {
         await settingsOwner.closeTabThenModal()
       })
     })

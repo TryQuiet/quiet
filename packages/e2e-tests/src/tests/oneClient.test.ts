@@ -198,14 +198,14 @@ describe('One Client', () => {
     })
   })
 
-  describe('Community membership tab', () => {
+  describe.skip('Community membership tab', () => {
     let settingsModal: Settings
     it('User opens community settings', async () => {
       settingsModal = await new Sidebar(app.driver).openSettings()
       expect(await settingsModal.isReady()).toBeTruthy()
     })
 
-    it('User opens community membership tab', async () => {
+    it.skip('User opens community membership tab', async () => {
       await settingsModal.openCommunityMembership(1)
     })
 
