@@ -13,7 +13,13 @@ import {
   StartingLoadingPanel,
 } from '../selectors'
 import { promiseWithRetries, createArbitraryFile } from '../utils'
-import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestChannelType, UserTestData } from '../types'
+import {
+  DEFAULT_ADD_NEW_CHANNEL_NONADMIN_OPTIONS,
+  DEFAULT_ADD_NEW_CHANNEL_OPTIONS,
+  MessageIds,
+  TestChannelType,
+  UserTestData,
+} from '../types'
 import { createLogger } from '../logger'
 import * as path from 'path'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
@@ -333,24 +339,33 @@ describe('Multiple Clients', () => {
     describe('Owner Creates New Channel', () => {
       it('Owner creates second channel', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
-        await sidebarOwner.addNewChannel(newChannelName)
+        const { channel, errors } = await sidebarOwner.addNewChannel(newChannelName)
+        expect(channel).toBeDefined()
+        expect(errors).toBeUndefined()
+        await sidebarOwner.waitForChannelsNum(2)
         await sidebarOwner.switchChannel(newChannelName)
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(2)
       })
 
       it('First user sees second channel', async () => {
         sidebarUser1 = new Sidebar(users.user1.app.driver)
-        await sidebarUser1.switchChannel(newChannelName)
-        const channels = await sidebarUser1.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarUser1.waitForChannelsNum(2, 60_000)
+      })
+
+      it('First user switches to second channel', async () => {
+        secondChannelUser1 = await sidebarUser1.switchChannel(newChannelName)
+        expect(await secondChannelUser1.isReady()).toBeTruthy()
+        expect(await secondChannelUser1.isMessageInputReady()).toBeTruthy()
       })
 
       it('Second user sees second channel', async () => {
         sidebarUser3 = new Sidebar(users.user3.app.driver)
-        await sidebarUser3.switchChannel(newChannelName)
-        const channels = await sidebarUser3.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarUser3.waitForChannelsNum(2, 60_000)
+      })
+
+      it('Second user switches to second channel', async () => {
+        secondChannelUser3 = await sidebarUser3.switchChannel(newChannelName)
+        expect(await secondChannelUser3.isReady()).toBeTruthy()
+        expect(await secondChannelUser3.isMessageInputReady()).toBeTruthy()
       })
 
       it('Owner sends message in second channel', async () => {
@@ -420,13 +435,17 @@ describe('Multiple Clients', () => {
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
-        await sidebarUser1.addNewChannel(newChannelName, DEFAULT_ADD_NEW_CHANNEL_OPTIONS)
+        const { channel, errors } = await sidebarUser1.addNewChannel(
+          newChannelName,
+          DEFAULT_ADD_NEW_CHANNEL_NONADMIN_OPTIONS
+        )
+        expect(channel).toBeDefined()
+        expect(errors).toBeUndefined()
+        await sidebarUser1.waitForChannelsNum(2)
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
         expect(await secondChannelUser1.isReady()).toBeTruthy()
-        const channels = await sidebarUser1.getChannelList()
-        expect(channels.length).toEqual(2)
       })
 
       it('Owner sees the recreated second channel', async () => {

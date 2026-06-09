@@ -1,5 +1,5 @@
 import { WebElement } from 'selenium-webdriver'
-import { App } from './selectors'
+import { App, Channel } from './selectors'
 
 export interface UserTestData<Messages = string[]> {
   username: string
@@ -69,9 +69,20 @@ export interface TestAddNewChannelOptions {
   buttonId: TestAddNewChannelButtonId
 }
 
+export interface TestNewChannelResult {
+  channel?: Channel
+  errors?: Error[]
+}
+
 export const DEFAULT_ADD_NEW_CHANNEL_OPTIONS: TestAddNewChannelOptions = {
   isPublic: true,
   expectToggle: true,
+  buttonId: TestAddNewChannelButtonId.DMS,
+}
+
+export const DEFAULT_ADD_NEW_CHANNEL_NONADMIN_OPTIONS: TestAddNewChannelOptions = {
+  isPublic: true,
+  expectToggle: false,
   buttonId: TestAddNewChannelButtonId.DMS,
 }
 

@@ -13,6 +13,7 @@ import {
   RetryConfig,
   TestAddNewChannelOptions,
   TestChannelType,
+  TestNewChannelResult,
   UserListItem,
   UserListStatus,
 } from './types'
@@ -2518,59 +2519,122 @@ export class Sidebar {
   async addNewChannel(
     name: string,
     options: TestAddNewChannelOptions = DEFAULT_ADD_NEW_CHANNEL_OPTIONS
-  ): Promise<Channel> {
-    const button = await this.driver.wait(
-      until.elementLocated(By.xpath(`//button[@data-testid="${options.buttonId}"]`)),
-      5_000,
-      `Add channel button couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(button), 5_000)
-    await this.driver.wait(until.elementIsEnabled(button), 5_000)
-    await button.click()
-    const channelNameInput = await this.driver.wait(
-      until.elementLocated(By.xpath('//input[@name="channelName"]')),
-      5_000,
-      `Add channel name input field couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(channelNameInput), 5_000)
-    await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
-    await channelNameInput.sendKeys(name)
+  ): Promise<TestNewChannelResult> {
+    try {
+      const button = await this.driver.wait(
+        until.elementLocated(By.xpath(`//button[@data-testid="${options.buttonId}"]`)),
+        5_000,
+        `Add channel button couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(button), 5_000)
+      await this.driver.wait(until.elementIsEnabled(button), 5_000)
+      await button.click()
+    } catch (e) {
+      logger.error('Error while opening create channel modal', e)
+      return {
+        errors: [e],
+      }
+    }
 
+    try {
+      const channelNameInput = await this.driver.wait(
+        until.elementLocated(By.xpath('//input[@name="channelName"]')),
+        5_000,
+        `Add channel name input field couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(channelNameInput), 5_000)
+      await this.driver.wait(until.elementIsEnabled(channelNameInput), 5_000)
+      await channelNameInput.sendKeys(name)
+    } catch (e) {
+      logger.error(`Error while entering channel name: ${name}`, e)
+      return {
+        errors: [e],
+      }
+    }
+
+    const errors: Error[] = []
     let expectToggle = options.expectToggle
     if (!options.isPublic && !options.expectToggle) {
-      logger.warn(`Can't create a private channel without the privacy toggle - overriding expectToggle`)
+      errors.push(new Error(`Can't create a private channel without the privacy toggle - overriding expectToggle`))
       expectToggle = true
     }
 
     if (expectToggle) {
-      const channelPrivateToggle = await this.driver.wait(
-        until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
-        5_000,
-        `Channel private toggle couldn't be found within timeout`,
-        500
-      )
-      await this.driver.wait(until.elementIsVisible(channelPrivateToggle), 5_000)
-      if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-        throw new Error('Channel privacy toggle was enabled before clicking')
-      }
-      if (!options.isPublic) {
-        await channelPrivateToggle.click()
-        if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-          throw new Error('Channel privacy toggle was disabled after clicking')
+      try {
+        const channelPrivateToggle = await this.driver.wait(
+          until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
+          5_000,
+          `Channel private toggle couldn't be found within timeout`,
+          500
+        )
+        await this.driver.wait(
+          until.elementIsVisible(channelPrivateToggle),
+          5_000,
+          `Channel private toggle wasn't visible within timeout`,
+          500
+        )
+        if (!expectToggle) {
+          errors.push(new Error(`Channel privacy toggle was present but expected it to be missing`))
+        }
+        if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+          if (options.isPublic) {
+            await channelPrivateToggle.click()
+            if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+              errors.push(new Error(`Channel privacy toggle was enabled before clicking and couldn't be disabled`))
+              return {
+                errors,
+              }
+            }
+            errors.push(new Error(`Channel privacy toggle was enabled before clicking but was disabled`))
+          } else {
+            errors.push(new Error('Channel privacy toggle was enabled before clicking'))
+          }
+        }
+        if (!options.isPublic) {
+          await channelPrivateToggle.click()
+          if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+            errors.push(new Error('Channel privacy toggle was disabled after clicking'))
+            return {
+              errors,
+            }
+          }
+        }
+      } catch (e) {
+        if (
+          expectToggle ||
+          (!(e as Error).message.includes(`Channel private toggle couldn't be found within timeout`) &&
+            !(e as Error).message.includes(`Channel private toggle wasn't visible within timeout`))
+        ) {
+          logger.error('Error while validating and optionally clicking the private channel toggle', e)
+          errors.push(e)
+          return {
+            errors,
+          }
         }
       }
     }
-    const channelNameButton = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="channelNameSubmit"]')),
-      5_000,
-      `Add channel submit button couldn't be found within timeout`,
-      500
-    )
-    await this.driver.wait(until.elementIsVisible(channelNameButton), 5_000)
-    await channelNameButton.click()
-    return new Channel(this.driver, name)
+
+    let channel: Channel | undefined = undefined
+    try {
+      const channelNameButton = await this.driver.wait(
+        until.elementLocated(By.xpath('//button[@data-testid="channelNameSubmit"]')),
+        5_000,
+        `Add channel submit button couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(until.elementIsVisible(channelNameButton), 5_000)
+      await channelNameButton.click()
+      channel = new Channel(this.driver, name)
+    } catch (e) {
+      logger.error('Error while submiting create channel request', e)
+      errors.push(e)
+    }
+    return {
+      channel,
+      errors: errors.length > 0 ? errors : undefined,
+    }
   }
 
   /**

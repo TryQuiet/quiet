@@ -143,14 +143,15 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName, {
+        const { channel, errors } = await sidebar.addNewChannel(newChannelName, {
           isPublic: true,
           expectToggle: false,
           buttonId: TestAddNewChannelButtonId.PRE_DMS,
         })
+        expect(channel).toBeDefined()
+        expect(errors).toBeUndefined()
+        await sidebar.waitForChannelsNum(2)
         await sidebar.switchChannel(newChannelName, true, false)
-        const channels = await sidebar.getChannelList()
-        expect(channels.length).toEqual(2)
       })
 
       itif(process.platform == 'linux')('Owner sends a message in second channel', async () => {

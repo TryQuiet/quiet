@@ -158,7 +158,13 @@ describe('Multiple Clients (Private Channels)', () => {
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(privateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannelName,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
+          await sidebarOwner.waitForChannelsNum(2)
           await sidebarOwner.switchChannel(privateChannelName, false)
         })
 
@@ -398,10 +404,16 @@ describe('Multiple Clients (Private Channels)', () => {
       describe('Owner Creates Another Private Channel', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
-          await sidebarOwner.addNewChannel(privateChannel2Name, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannel2Name,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
+          await sidebarOwner.waitForChannelsNum(3)
+          const channels = await sidebarOwner.getChannelsNames()
+          expect(channels).toContain(privateChannel2Name)
           await sidebarOwner.switchChannel(privateChannel2Name, false)
-          const channels = await sidebarOwner.getChannelList()
-          expect(channels.length).toEqual(3)
         })
 
         it(`Second private channel is in owner's sidebar`, async () => {

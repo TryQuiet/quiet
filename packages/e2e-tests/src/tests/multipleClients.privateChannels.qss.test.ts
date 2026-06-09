@@ -201,10 +201,16 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(privateChannelName, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
-          await sidebarOwner.switchChannel(privateChannelName, false)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannelName,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
+          await sidebarOwner.waitForChannelsNum(2)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannelName)
+          await sidebarOwner.switchChannel(privateChannelName, false)
           await sidebarOwner.getChannelIcon(privateChannelName, false)
         })
 
@@ -475,11 +481,16 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
       describe('Owner Creates Another Private Channel', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
-          await sidebarOwner.addNewChannel(privateChannel2Name, DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS)
-          await sidebarOwner.switchChannel(privateChannel2Name, false)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannel2Name,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
           await sidebarOwner.waitForChannelsNum(3)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannel2Name)
+          await sidebarOwner.switchChannel(privateChannel2Name, false)
           await sidebarOwner.getChannelIcon(privateChannel2Name, false)
         })
 
