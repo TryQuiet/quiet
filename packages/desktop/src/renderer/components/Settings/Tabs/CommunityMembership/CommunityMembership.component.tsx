@@ -160,6 +160,7 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
       _initializeOptions()
       setVisibleUsers(Object.values(userProfiles))
     } else {
+      LOGGER.debug('Tab closed')
       setOptions([])
       setVisibleUsers([])
     }
