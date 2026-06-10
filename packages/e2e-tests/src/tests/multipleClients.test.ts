@@ -420,7 +420,7 @@ describe('Multiple Clients', () => {
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
-        await sidebarUser1.addNewChannel(newChannelName, true, false)
+        await sidebarUser1.addNewChannel(newChannelName, true, true)
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
