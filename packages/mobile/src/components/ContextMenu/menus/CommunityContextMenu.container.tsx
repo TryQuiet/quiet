@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { NativeModules, Platform } from 'react-native'
 
-import { communities } from '@quiet/state-manager'
+import { communities, publicChannels } from '@quiet/state-manager'
 import Config from 'react-native-config'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
@@ -32,6 +32,7 @@ export const CommunityContextMenu: FC = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
   const backgroundTorEnabled = useSelector(pushNotificationsSelectors.backgroundTorEnabled)
+  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
 
   let title = '...'
   if (community?.name) {
@@ -64,7 +65,6 @@ export const CommunityContextMenu: FC = () => {
   }, [backgroundTorEnabled, dispatch])
 
   const items: ContextMenuItemProps[] = [
-    { title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) },
     { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
     ...(Platform.OS === 'android' && Config.QSS_ALLOWED === 'true' && community?.qssEnabled === true
       ? [
@@ -78,6 +78,11 @@ export const CommunityContextMenu: FC = () => {
       : []),
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
   ]
+
+  // if you have permissions to create channels add create channel to the top of the menu
+  if (canCreateChannel) {
+    items.unshift({ title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) })
+  }
 
   if (Config.NODE_ENV !== NodeEnv.Production) {
     items.push({
