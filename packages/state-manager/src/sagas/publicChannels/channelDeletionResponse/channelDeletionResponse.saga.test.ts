@@ -26,6 +26,7 @@ describe('channelDeletionResponseSaga', () => {
 
   let photoChannel: PublicChannel
   let generalChannel: PublicChannel
+  let privateChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -55,6 +56,19 @@ describe('channelDeletionResponseSaga', () => {
         },
       })
     ).channel!
+
+    privateChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'private',
+          description: 'Welcome to #private',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.userId,
+          id: generateChannelId('private'),
+          public: false,
+        },
+      })
+    ).channel!
   })
 
   describe('handle saga logic as owner of community', () => {
@@ -75,7 +89,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
-        .put(messagesActions.sendDeletionMessage({ channelId }))
+        .put(messagesActions.sendDeletionMessage({ channelId, isPublic: true }))
         .run()
     })
 
@@ -103,6 +117,27 @@ describe('channelDeletionResponseSaga', () => {
         .run()
     })
 
+    test('delete private channel', async () => {
+      const channelId = photoChannel.id
+
+      const reducer = combineReducers(testReducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId,
+          deleted: true,
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put(messagesActions.sendDeletionMessage({ channelId, isPublic: false }))
+        .run()
+    })
+
     test('delete channel which not exist in store', async () => {
       const channelId = 'random channel'
 
@@ -120,7 +155,7 @@ describe('channelDeletionResponseSaga', () => {
         .not.put(messagesActions.deleteChannelEntry({ channelId }))
         .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .not.put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId }))
+        .not.put(messagesActions.sendDeletionMessage({ channelId, isPublic: true }))
         .run()
     })
   })
@@ -234,7 +269,7 @@ describe('channelDeletionResponseSaga', () => {
         .not.put(messagesActions.deleteChannelEntry({ channelId }))
         .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .not.put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId }))
+        .not.put(messagesActions.sendDeletionMessage({ channelId, isPublic: true }))
         .run()
     })
   })
