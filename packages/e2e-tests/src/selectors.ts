@@ -2515,6 +2515,7 @@ export class Sidebar {
     options: TestAddNewChannelOptions = DEFAULT_ADD_NEW_CHANNEL_OPTIONS
   ): Promise<TestNewChannelResult> {
     try {
+      logger.debug('Opening create channel modal')
       const button = await this.driver.wait(
         until.elementLocated(By.xpath(`//button[@data-testid="${options.buttonId}"]`)),
         5_000,
@@ -2532,6 +2533,7 @@ export class Sidebar {
     }
 
     try {
+      logger.debug('Entering channel name', name)
       const channelNameInput = await this.driver.wait(
         until.elementLocated(By.xpath('//input[@name="channelName"]')),
         5_000,
@@ -2555,63 +2557,64 @@ export class Sidebar {
       expectToggle = true
     }
 
-    if (expectToggle) {
-      try {
-        const channelPrivateToggle = await this.driver.wait(
-          until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
-          5_000,
-          `Channel private toggle couldn't be found within timeout`,
-          500
-        )
-        await this.driver.wait(
-          until.elementIsVisible(channelPrivateToggle),
-          5_000,
-          `Channel private toggle wasn't visible within timeout`,
-          500
-        )
-        if (!expectToggle) {
-          errors.push(new Error(`Channel privacy toggle was present but expected it to be missing`))
-        }
-        if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-          if (options.isPublic) {
-            await channelPrivateToggle.click()
-            if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-              errors.push(new Error(`Channel privacy toggle was enabled before clicking and couldn't be disabled`))
-              return {
-                errors,
-              }
-            }
-            errors.push(new Error(`Channel privacy toggle was enabled before clicking but was disabled`))
-          } else {
-            errors.push(new Error('Channel privacy toggle was enabled before clicking'))
-          }
-        }
-        if (!options.isPublic) {
+    try {
+      logger.debug('Checking for private toggle', expectToggle, options.isPublic)
+      const channelPrivateToggle = await this.driver.wait(
+        until.elementLocated(By.xpath('//span[@data-testid="createChannel-private-form-control-toggle"]')),
+        5_000,
+        `Channel private toggle couldn't be found within timeout`,
+        500
+      )
+      await this.driver.wait(
+        until.elementIsVisible(channelPrivateToggle),
+        5_000,
+        `Channel private toggle wasn't visible within timeout`,
+        500
+      )
+      if (!expectToggle) {
+        errors.push(new Error(`Channel privacy toggle was present but expected it to be missing`))
+      }
+      if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+        if (options.isPublic) {
           await channelPrivateToggle.click()
-          if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
-            errors.push(new Error('Channel privacy toggle was disabled after clicking'))
+          if ((await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+            errors.push(new Error(`Channel privacy toggle was enabled before clicking and couldn't be disabled`))
             return {
               errors,
             }
           }
+          errors.push(new Error(`Channel privacy toggle was enabled before clicking but was disabled`))
+        } else {
+          errors.push(new Error('Channel privacy toggle was enabled before clicking'))
         }
-      } catch (e) {
-        if (
-          expectToggle ||
-          (!(e as Error).message.includes(`Channel private toggle couldn't be found within timeout`) &&
-            !(e as Error).message.includes(`Channel private toggle wasn't visible within timeout`))
-        ) {
-          logger.error('Error while validating and optionally clicking the private channel toggle', e)
-          errors.push(e)
+      }
+      if (!options.isPublic) {
+        logger.debug('Enabled private toggle')
+        await channelPrivateToggle.click()
+        if (!(await channelPrivateToggle.getAttribute('class')).includes('checked')) {
+          errors.push(new Error('Channel privacy toggle was disabled after clicking'))
           return {
             errors,
           }
+        }
+      }
+    } catch (e) {
+      if (
+        expectToggle ||
+        (!(e as Error).message.includes(`Channel private toggle couldn't be found within timeout`) &&
+          !(e as Error).message.includes(`Channel private toggle wasn't visible within timeout`))
+      ) {
+        logger.error('Error while validating and optionally clicking the private channel toggle', e)
+        errors.push(e)
+        return {
+          errors,
         }
       }
     }
 
     let channel: Channel | undefined = undefined
     try {
+      logger.debug('Submitting channel creation')
       const channelNameButton = await this.driver.wait(
         until.elementLocated(By.xpath('//button[@data-testid="channelNameSubmit"]')),
         5_000,
