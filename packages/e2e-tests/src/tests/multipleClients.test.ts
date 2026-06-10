@@ -245,7 +245,7 @@ describe('Multiple Clients', () => {
         await users.owner.app.close()
       })
 
-      it(`First user sends a message`, async () => {
+      it(`First user sends a message after owner goes offline`, async () => {
         await generalChannelUser1.sendMessage(users.user1.messages[1], users.user1.username)
       })
 
