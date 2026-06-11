@@ -3,7 +3,6 @@ name: E2E linux
 on: [workflow_call]
 jobs:
   linux-build:
-    name: Build Linux Binary
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     env:
@@ -64,11 +63,10 @@ jobs:
       - name: Upload linux binary
         uses: actions/upload-artifact@v4
         with:
-          name: linux-binary
-          path: ./packages/e2e-tests/Quiet/$FILE_NAME
+          name: linux-binary-${{ github.sha }}
+          path: packages/e2e-tests/Quiet/${{ env.FILE_NAME }}
 
   linux-test-basic:
-    name: Basic E2E Test Scenarios (Tor)
     needs: linux-build
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -82,7 +80,7 @@ jobs:
       - name: Download linux binary
         uses: actions/download-artifact@v5
         with:
-          name: linux-binary
+          name: linux-binary-${{ github.sha }}
 
       - name: Run one client test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
@@ -99,7 +97,6 @@ jobs:
           command: cd packages/e2e-tests && npm run test userProfile.test.ts
 
   linux-test-multi:
-    name: Multi-user E2E Test Scenarios (Tor)
     needs: linux-build
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -113,7 +110,7 @@ jobs:
       - name: Download linux binary
         uses: actions/download-artifact@v5
         with:
-          name: linux-binary
+          name: linux-binary-${{ github.sha }}
 
       - name: Run multiple clients test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
@@ -137,7 +134,6 @@ jobs:
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
 
   linux-test-back-compat:
-    name: Basic E2E Test Scenarios (Tor)
     needs: linux-build
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -169,7 +165,7 @@ jobs:
       - name: Download linux binary
         uses: actions/download-artifact@v5
         with:
-          name: linux-binary
+          name: linux-binary-${{ github.sha }}
           
       - name: Run Backwards Compatibility test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
