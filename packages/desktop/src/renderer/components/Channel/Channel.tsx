@@ -265,6 +265,7 @@ const Channel = () => {
   const setOrCreateDmChannel = useCallback(
     (memberIds: string[]) => {
       if (me == null || memberIds.length === 0) {
+        logger.warn('Setting channel ID to empty', me, memberIds)
         dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
       }
@@ -272,6 +273,7 @@ const Channel = () => {
       const { channelId, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
       const dmChannel = channels.find(channel => channel.id === channelId)
       if (dmChannel != null) {
+        logger.info('Found existing DM channel', dmChannel, uniqueMemberIds)
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
@@ -279,7 +281,9 @@ const Channel = () => {
           })
         )
       } else {
+        logger.info('Creating new DM channel', channelId, uniqueMemberIds)
         if (community == null || community.teamId == null) {
+          logger.error(`Community or team ID was undefined, can't create DM channel`)
           return
         }
         const payload: CreateChannelPayload = {
@@ -291,7 +295,9 @@ const Channel = () => {
           memberIds: uniqueMemberIds,
           teamId: community.teamId,
         }
+        logger.info('Running create channel action')
         dispatch(publicChannels.actions.createChannel(payload))
+        logger.info('Closing new message view and updating current channel', channelId)
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
@@ -303,9 +309,18 @@ const Channel = () => {
     [dispatch, me, channels]
   )
 
-  if (!currentChannelId) return null
-  if (!channelName) return null
-  if (!isNewMessageOpen && currentChannelId === EMPTY_CHANNEL_ID) return null
+  if (!currentChannelId) {
+    logger.warn('Current channel ID is nullish')
+    return null
+  }
+  if (!channelName) {
+    logger.warn('Channel name is nullish')
+    return null
+  }
+  if (!isNewMessageOpen && currentChannelId === EMPTY_CHANNEL_ID) {
+    logger.warn('New message view is closed but current channel ID is considered empty')
+    return null
+  }
 
   const channelComponentProps: ChannelComponentProps = {
     user: me,

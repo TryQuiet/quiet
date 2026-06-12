@@ -160,17 +160,21 @@ export const NewDirectMessageComponent: React.FC<
   }
 
   const onEnterKeyPress = (message: string) => {
-    logger.warn('Setting or creating dm channel and sending message', message, selectedMembers, user)
+    logger.warn('Setting or creating dm channel and sending message on enter', message, selectedMembers, user)
     if (user == null) {
+      logger.error('Me profile was nullish')
       setInputErrorMessage(ERROR_CANT_DETERMINE_MEMBERSHIP)
       return
     }
     if (channelId === EMPTY_CHANNEL_ID && message === '') {
+      logger.error('This is a new DM but the message to be sent was empty')
       setInputErrorMessage(ERROR_EMPTY_INPUT_NEW_DM)
       return
     }
+    logger.info('Setting or creating a new DM channel')
     setOrCreateDmChannel(selectedMembers.map(member => member.userId))
     // Send message and files
+    logger.info('Sending message to DM channel and scrolling to bottom of messages')
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
     setScrollPosition(ScrollPosition.BOTTOM)

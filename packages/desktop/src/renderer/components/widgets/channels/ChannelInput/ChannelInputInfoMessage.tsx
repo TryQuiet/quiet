@@ -51,7 +51,7 @@ const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ state
   }
 
   return (
-    <StyledGrid container className={classes.boot}>
+    <StyledGrid container className={classes.boot} data-testid={'channel-input-info-message-container'}>
       <Grid item xs>
         {infoMessage != null && (
           <Typography
@@ -60,6 +60,7 @@ const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ state
               [classes.info]: state === INPUT_STATE.NOT_CONNECTED,
               [classes.error]: errorMessage != null,
             })}
+            data-testid={'channel-input-info-message'}
           >
             {infoMessage}
           </Typography>
