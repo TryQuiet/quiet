@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Features
+
+* Adds one-on-one and group DMs to desktop [#2571](https://github.com/TryQuiet/quiet/issues/2571)
+
 ## [7.3.0]
 
 ### Features
