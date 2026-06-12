@@ -124,7 +124,6 @@ describe('Multiple Clients (DMs)', () => {
   afterAll(async () => {
     for (const user of Object.values(users)) {
       try {
-        if (!user.app.isOpened) continue
         await user.app.close()
         await user.app.cleanup()
       } catch (e) {
@@ -134,7 +133,7 @@ describe('Multiple Clients (DMs)', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   describe('Stages:', () => {

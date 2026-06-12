@@ -1422,7 +1422,7 @@ export class Channel {
 
   async isOpen(
     channelType: TestChannelType = TestChannelType.PUBLIC_CHANNEL,
-    expectChannelTypeIcon: boolean = true,
+    expectHeaderIcon: boolean = true,
     timeout = 15_000
   ): Promise<boolean> {
     const titleElement = await this.driver.wait(
@@ -1432,13 +1432,17 @@ export class Channel {
       500
     )
 
-    if (channelType !== TestChannelType.DM && expectChannelTypeIcon) {
-      await this.driver.wait(
-        until.elementIsVisible(await (channelType === TestChannelType.PUBLIC_CHANNEL ? this.hash : this.lock)),
-        timeout,
-        `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
-        500
-      )
+    if (expectHeaderIcon) {
+      if (channelType === TestChannelType.DM) {
+        // TODO: Add logic for validating DM profile photo in header
+      } else {
+        await this.driver.wait(
+          until.elementIsVisible(await (channelType === TestChannelType.PUBLIC_CHANNEL ? this.hash : this.lock)),
+          timeout,
+          `Channel title type icon element for ${this.name} couldn't be seen within timeout`,
+          500
+        )
+      }
     }
     return (await titleElement.getText()) === this.name
   }
