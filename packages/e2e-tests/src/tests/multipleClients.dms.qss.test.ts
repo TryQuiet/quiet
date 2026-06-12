@@ -241,6 +241,7 @@ describe('Multiple Clients (DMs)', () => {
           [users.owner.username],
           users.owner.messages.selfDm[0]
         )
+        expect(dmCreationStatus.error).toBeUndefined()
         expect(dmCreationStatus.failedUsers).toHaveLength(0)
         expect(dmCreationStatus.successfulUsers).toHaveLength(1)
         expect(dmCreationStatus.success).toBeTruthy()
@@ -358,6 +359,7 @@ describe('Multiple Clients (DMs)', () => {
           [users.owner.username],
           users.user1.messages.oneOnOne[0]
         )
+        expect(dmCreationStatus.error).toBeUndefined()
         expect(dmCreationStatus.failedUsers).toHaveLength(0)
         expect(dmCreationStatus.successfulUsers).toHaveLength(1)
         expect(dmCreationStatus.success).toBeTruthy()
@@ -510,6 +512,7 @@ describe('Multiple Clients (DMs)', () => {
           [users.owner.username, users.user1.username],
           users.user2.messages.groupDm[0]
         )
+        expect(dmCreationStatus.error).toBeUndefined()
         expect(dmCreationStatus.failedUsers).toHaveLength(0)
         expect(dmCreationStatus.successfulUsers).toHaveLength(2)
         expect(dmCreationStatus.success).toBeTruthy()

@@ -2285,24 +2285,53 @@ export class NewMessage {
   }
 
   async createNewDm(usernames: string[], firstMessage: string): Promise<CreatedDM> {
+    logger.info('Creating new DM', usernames, firstMessage)
     const { successfulUsers, failedUsers } = await this.changeDmUsers(usernames)
     let messageInput: WebElement
     try {
+      logger.info('Checking for message input')
       messageInput = await this.messageInput
       await this.isMessageInputReady()
     } catch (e) {
       logger.error(`Failed to find message input on new message view`, e)
       return {
-        successfulUsers: [],
-        failedUsers: usernames,
+        successfulUsers,
+        failedUsers,
         success: false,
+        error: e,
       }
     }
 
-    await sleep(2_000)
+    logger.info('Waiting...')
+    await sleep(5_000)
 
+    logger.info('Entering and sending message')
     await messageInput.sendKeys(firstMessage)
     await messageInput.sendKeys(Key.ENTER)
+
+    let titleElement: WebElement | undefined = undefined
+    try {
+      logger.info('Waiting for new message view to disappear')
+      titleElement = await this.title
+      if (titleElement) {
+        await this.driver.wait(
+          until.elementIsNotVisible(titleElement),
+          15_000,
+          `New message title element was still visible after sending message`,
+          500
+        )
+      }
+    } catch (e) {
+      if (!(e as Error).message.includes(`New message title element couldn't be found within timeout`)) {
+        logger.error(`Failed to create new DM`, e)
+        return {
+          successfulUsers,
+          failedUsers,
+          success: false,
+          error: e,
+        }
+      }
+    }
 
     return {
       successfulUsers,

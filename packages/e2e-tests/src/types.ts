@@ -50,6 +50,7 @@ export interface NewMessageDM {
 
 export interface CreatedDM extends NewMessageDM {
   success: boolean
+  error?: Error
 }
 
 export enum TestChannelType {
