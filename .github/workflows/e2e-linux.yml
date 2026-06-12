@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 180
 
     env:
-      DISPLAY: ":0"
+      DISPLAY: ":99"
       TEST_MODE: true
       IS_CI: true
       SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
@@ -55,7 +55,7 @@ jobs:
 
       - name: Run X11
         run: |
-          Xvfb :0 -screen 0 1920x1080x24 &
+          Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
           fluxbox &
 

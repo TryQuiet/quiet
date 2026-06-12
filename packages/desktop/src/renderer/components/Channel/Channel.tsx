@@ -83,10 +83,10 @@ const Channel = () => {
   const contextMenu = useContextMenu(MenuName.Channel)
 
   useEffect(() => {
-    if (currentChannel == null) return
-    logger.info('Channel data', currentChannel)
+    logger.info('Channel data', currentChannelId, currentChannelName, currentChannel)
+    // if (currentChannel == null) return
     setChannelName(currentChannelName)
-  }, [currentChannel, currentChannelName])
+  }, [currentChannel, currentChannelName, currentChannelId])
 
   useEffect(() => {
     if (currentChannel == null || currentChannel.memberIds == null) {
