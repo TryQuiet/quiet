@@ -66,6 +66,13 @@ jobs:
           name: linux-binary-${{ github.sha }}
           path: packages/e2e-tests/Quiet/${{ env.FILE_NAME }}
 
+      - name: "Cache Working Directory"
+        id: cache-wd-save
+        uses: actions/cache/save@v5
+        with:
+          path: .
+          key: e2e-linux-${{ runner.OS }}-wd-cache-${{ github.sha }}
+
   linux-test-basic:
     needs: linux-build
     runs-on: ubuntu-22.04
@@ -77,6 +84,13 @@ jobs:
       SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
 
     steps:
+      - name: "Restore Cached Working Directory"
+        id: cache-wd-restore
+        uses: actions/cache/restore@v5
+        with:
+          path: .
+          key: e2e-linux-${{ runner.OS }}-wd-cache-${{ github.sha }}
+
       - name: Download linux binary
         uses: actions/download-artifact@v5
         with:
