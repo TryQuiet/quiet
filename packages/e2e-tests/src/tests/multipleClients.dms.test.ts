@@ -230,7 +230,7 @@ describe('Multiple Clients (DMs)', () => {
 
       it('Owner sees newly created DM channel', async () => {
         selfDmChannelOwner = new Channel(users.owner.app.driver, channelNameMap.owner.selfDm)
-        await selfDmChannelOwner.isOpen(TestChannelType.DM, false, 60_000)
+        await selfDmChannelOwner.isOpen(TestChannelType.DM)
         await selfDmChannelOwner.isMessageInputReady()
       })
 
