@@ -474,9 +474,11 @@ export class ChannelsService extends EventEmitter {
       teamId: payload.teamId,
     }
     let roleName: string | undefined = undefined
+    // Create a private channel role if the type === CHANNEL and is private
     if (!channelData.public && (channelData.type == null || channelData.type === ChannelType.CHANNEL)) {
       roleName = this.sigchainService.getActiveChain().channels.create(channelData.id)
       channelData.roleName = roleName
+      // Create a DM role and add the specified members if the type === DM
     } else if (channelData.type === ChannelType.DM) {
       if (channelData.memberIds == null) {
         throw new Error('Attempted to create a DM with no members')

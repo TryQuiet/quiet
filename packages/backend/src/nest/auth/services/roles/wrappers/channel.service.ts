@@ -32,7 +32,7 @@ class ChannelService extends ChainServiceBase {
   }
 
   public addMember(memberId: string, channelId: string) {
-    logger.info(`Adding member with ID ${memberId} to channel ${channelId}`)
+    logger.info(`Adding member to channel ${channelId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles!.addMember(memberId, roleName)
   }
@@ -53,7 +53,7 @@ class ChannelService extends ChainServiceBase {
   }
 
   public revokeMembership(memberId: string, channelId: string) {
-    logger.info(`Revoking membership of channel ${channelId} for member with ID ${memberId}`)
+    logger.info(`Revoking membership of channel ${channelId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles.revokeMembership(memberId, roleName)
   }

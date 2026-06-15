@@ -273,10 +273,6 @@ export class SigChainService extends EventEmitter {
     }
   }
 
-  private _handleEventSigchainUpdated = (chain: SigChain): (() => void) => {
-    return () => this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
-  }
-
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {

@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
-import { type PeerId } from '@libp2p/interface'
 import {
   ConnectionProcessInfo,
   SocketEvents,

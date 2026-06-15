@@ -35,7 +35,7 @@ class RoleService extends ChainServiceBase {
   }
 
   public addMember(memberId: string, roleName: RoleName | string) {
-    logger.info(`Adding member with ID ${memberId} to role ${roleName}`)
+    logger.info(`Adding member to role ${roleName}`)
     this.sigChain.team!.addMemberRole(memberId, roleName)
   }
 
@@ -49,7 +49,7 @@ class RoleService extends ChainServiceBase {
   }
 
   public revokeMembership(memberId: string, roleName: RoleName | string) {
-    logger.info(`Revoking role ${roleName} for member with ID ${memberId}`)
+    logger.info(`Revoking membership for role ${roleName}`)
     this.sigChain.team!.removeMemberRole(memberId, roleName)
   }
 

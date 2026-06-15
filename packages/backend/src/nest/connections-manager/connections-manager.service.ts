@@ -956,6 +956,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
   }
 
+  /**
+   * Add team ID to community in LocalDB and state-manager storage
+   *
+   * @param community Community that is being modified
+   * @param chainOrTeamId Sigchain associated with the community or its team ID
+   */
   private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
   private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
   private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {
