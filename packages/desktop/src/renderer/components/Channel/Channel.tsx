@@ -83,8 +83,8 @@ const Channel = () => {
   const contextMenu = useContextMenu(MenuName.Channel)
 
   useEffect(() => {
-    logger.info('Channel data', currentChannelId, currentChannelName, currentChannel)
-    // if (currentChannel == null) return
+    logger.debug('Current channel updated')
+    if (currentChannel == null) return
     setChannelName(currentChannelName)
   }, [currentChannel, currentChannelName, currentChannelId])
 
