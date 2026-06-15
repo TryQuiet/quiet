@@ -22,7 +22,7 @@ export function* syncChannelDisplayNamesSaga(): Generator {
         ? channel.name
         : generateDmChannelName(channel.memberIds, userProfiles, me)
     if (channel && channel.displayedName !== displayedName) {
-      logger.warn('Setting display name', channel.id, displayedName)
+      logger.warn('Setting display name')
       yield* putResolve(publicChannelsActions.setDisplayedName({ channelId: channel.id, displayedName }))
     }
   }

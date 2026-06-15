@@ -35,8 +35,6 @@ import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX
 import { CompoundError, InvitationDataV3, NseQssUrlUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
-import { Serializer } from '../common/serializer.service'
-import { SigchainEvents } from '../auth/types'
 import { QSSSyncManager } from './qss-sync-manager.service'
 
 @Injectable()

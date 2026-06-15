@@ -24,6 +24,7 @@ export function* sendInitialChannelMessageSaga(
       ? yield* call(generalChannelDeletionMessage, user?.nickname || '')
       : yield* call(createdChannelMessage, channelName)
 
+  // if the message is being sent to a regular channel send a visible message, for DMs send an empty message
   const payload: WriteMessagePayload = {
     type: type === ChannelType.CHANNEL ? MessageType.Info : MessageType.Empty,
     message,

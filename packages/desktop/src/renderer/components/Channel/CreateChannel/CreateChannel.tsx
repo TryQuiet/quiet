@@ -46,7 +46,7 @@ export const CreateChannel = () => {
   }
 
   const createChannel = (name: string, isPublic: boolean) => {
-    logger.warn(`Creating ${isPublic ? 'public' : 'private'} channel...`)
+    logger.debug(`Creating ${isPublic ? 'public' : 'private'} channel...`)
     // Clear errors
     clearErrors()
     if (!user) {
@@ -61,7 +61,7 @@ export const CreateChannel = () => {
       )
       return
     }
-    logger.warn('Creating channel 2...')
+    logger.debug('Creating channel - checking for duplicate name')
     // Validate channel name
     if (channels.some(channel => channel.name === name)) {
       dispatch(
@@ -74,6 +74,7 @@ export const CreateChannel = () => {
       )
       return
     }
+    logger.debug('Creating channel - checking for community metadata')
     if (community == null || community.teamId == null) {
       logger.error('Community or team ID was nullish')
       dispatch(
@@ -86,7 +87,7 @@ export const CreateChannel = () => {
       )
       return
     }
-    logger.warn('Creating channel 3...')
+    logger.debug('Creating channel - executing saga')
     const payload: CreateChannelPayload = {
       id: generateChannelId(name),
       name: name,
@@ -97,7 +98,7 @@ export const CreateChannel = () => {
     } as CreateChannelPayload
     dispatch(publicChannels.actions.createChannel(payload))
     setNewChannel(payload)
-    logger.warn('Creating channel 4...')
+    logger.debug('Creating channel - done')
   }
   return (
     <>

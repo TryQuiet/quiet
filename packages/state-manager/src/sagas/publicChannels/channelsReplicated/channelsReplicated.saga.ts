@@ -15,7 +15,7 @@ const logger = createLogger('channelsReplicatedSaga')
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  logger.info(`Syncing channels: ${JSON.stringify(action.payload, null, 2)}`)
+  logger.info(`Syncing channels`)
 
   const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
@@ -25,8 +25,6 @@ export function* channelsReplicatedSaga(
   const userProfiles = yield* select(userProfileSelectors.userProfiles)
   const me = yield* select(userProfileSelectors.myUserProfile)
 
-  logger.info({ locallyStoredChannels, databaseStoredChannelsIds })
-
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     const displayedName =
@@ -34,7 +32,7 @@ export function* channelsReplicatedSaga(
         ? channel.name
         : generateDmChannelName(channel.memberIds, userProfiles, me)
     if (!locallyStoredChannels.includes(channel.id)) {
-      logger.info(`Adding #${channel.name} to store`)
+      logger.info(`Adding channel to store`, channel.name)
       yield* putResolve(
         publicChannelsActions.addChannel({
           channel,
@@ -42,7 +40,7 @@ export function* channelsReplicatedSaga(
           status: ChannelOperationStatus.SUCCESS,
         })
       )
-      logger.info(`Adding #${channel.name} messages to store`)
+      logger.info(`Adding messages to store`, channel.name)
       yield* putResolve(
         messagesActions.addPublicChannelsMessagesBase({
           channelId: channel.id,
@@ -55,7 +53,7 @@ export function* channelsReplicatedSaga(
   if (databaseStoredChannelsIds.length > 0) {
     for (const channelId of locallyStoredChannels) {
       if (!databaseStoredChannelsIds.includes(channelId)) {
-        logger.info(`Removing #${channelId} from store`)
+        logger.info(`Removing channel from store`)
         yield* putResolve(publicChannelsActions.deleteChannel({ channelId }))
         yield* take(publicChannelsActions.completeChannelDeletion)
       }

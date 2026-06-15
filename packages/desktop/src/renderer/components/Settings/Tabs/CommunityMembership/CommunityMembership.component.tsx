@@ -156,11 +156,9 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
 
   useEffect(() => {
     if (open) {
-      LOGGER.debug('Tab opened')
       _initializeOptions()
       setVisibleUsers(Object.values(userProfiles))
     } else {
-      LOGGER.debug('Tab closed')
       setOptions([])
       setVisibleUsers([])
     }
@@ -170,7 +168,6 @@ export const CommunityMembershipComponent: FC<CommunityMembershipComponentProps>
     setVisibleUsers(visibleOptions.map(option => userProfiles[option.id]))
   }
 
-  LOGGER.debug('Returning component')
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>

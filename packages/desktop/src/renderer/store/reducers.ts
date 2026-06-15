@@ -1,8 +1,7 @@
 import { AnyAction, combineReducers } from '@reduxjs/toolkit'
 import ElectronStore from 'electron-store'
 import createElectronStorage from 'redux-persist-electron-storage'
-import path from 'path'
-import { createMigrate, PersistConfig, persistReducer } from 'redux-persist'
+import { createMigrate, persistReducer } from 'redux-persist'
 
 import stateManagerReducers, {
   storeKeys as StateManagerStoreKeys,

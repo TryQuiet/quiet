@@ -1,11 +1,10 @@
 import { Socket } from '../../types'
-import { all, takeEvery, takeLeading, cancelled, put } from 'typed-redux-saga'
+import { all, takeEvery, takeLeading, cancelled } from 'typed-redux-saga'
 import { appActions } from './app.slice'
 import { closeServicesSaga } from './closeServices.saga'
 import { stopBackendSaga } from './stopBackend/stopBackend.saga'
 import { loadMigrationDataSaga } from './loadMigrationData/loadMigrationData.saga'
 import { createLogger } from '../../utils/logger'
-import { publicChannelsActions } from '../publicChannels/publicChannels.slice'
 
 const logger = createLogger('appMasterSaga')
 

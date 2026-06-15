@@ -6,7 +6,6 @@ import { Grid } from '@mui/material'
 import Page from '../ui/Page/Page'
 import PageHeader from '../ui/Page/PageHeader'
 
-import ChannelHeaderComponent from '../widgets/channels/ChannelHeader'
 import ChannelMessagesComponent from '../widgets/channels/ChannelMessages'
 import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
@@ -14,12 +13,10 @@ import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
 import {
   ChannelMessage,
-  ChannelType,
   DownloadStatus,
   EMPTY_CHANNEL_ID,
   MessagesDailyGroups,
   MessageSendingStatus,
-  PublicChannelStorage,
   UserProfile,
 } from '@quiet/types'
 
@@ -160,7 +157,7 @@ export const NewDirectMessageComponent: React.FC<
   }
 
   const onEnterKeyPress = (message: string) => {
-    logger.warn('Setting or creating dm channel and sending message on enter', message, selectedMembers, user)
+    logger.debug('Setting or creating dm channel and sending message on enter')
     if (user == null) {
       logger.error('Me profile was nullish')
       setInputErrorMessage(ERROR_CANT_DETERMINE_MEMBERSHIP)
@@ -171,10 +168,10 @@ export const NewDirectMessageComponent: React.FC<
       setInputErrorMessage(ERROR_EMPTY_INPUT_NEW_DM)
       return
     }
-    logger.info('Setting or creating a new DM channel')
+    logger.debug('Setting or creating a new DM channel')
     setOrCreateDmChannel(selectedMembers.map(member => member.userId))
     // Send message and files
-    logger.info('Sending message to DM channel and scrolling to bottom of messages')
+    logger.debug('Sending message to DM channel and scrolling to bottom of messages')
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
     setScrollPosition(ScrollPosition.BOTTOM)

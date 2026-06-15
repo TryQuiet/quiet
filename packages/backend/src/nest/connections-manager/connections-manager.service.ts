@@ -792,6 +792,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.LAUNCHING
     this.logger.info(`Community state is now ${this.communityState}`)
 
+    // Clear the data about which peers are connected from the state-manager so it accurately reflects real connection
+    // statuses
     this.logger.debug('Clearing connected peers from frontend')
     this.serverIoProvider.io.emit(SocketEvents.PEER_CLEAR, { communityId: community.id })
 

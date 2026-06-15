@@ -247,7 +247,7 @@ const Channel = () => {
   }
 
   const handleNewMessageInputChange = (members: UserProfile[]) => {
-    logger.warn('Handling new message input', members)
+    logger.debug('New message - Handling member ID change')
     const memberIds = members.map(member => member.userId)
     if (me == null || members.length === 0) {
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
@@ -255,7 +255,7 @@ const Channel = () => {
     }
     const { channelId: dmChannelId } = generateDmChannelIdFromMemberIds(memberIds, me)
     if (channels.find(channel => channel.id === dmChannelId)) {
-      logger.warn('Found dm channel', dmChannelId)
+      logger.debug('New message - Found existing DM channel')
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: dmChannelId }))
     } else {
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
@@ -265,7 +265,7 @@ const Channel = () => {
   const setOrCreateDmChannel = useCallback(
     (memberIds: string[]) => {
       if (me == null || memberIds.length === 0) {
-        logger.warn('Setting channel ID to empty', me, memberIds)
+        logger.debug('Setting channel ID to empty - missing own user profile or member IDs was empty')
         dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
       }
@@ -273,7 +273,7 @@ const Channel = () => {
       const { channelId, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
       const dmChannel = channels.find(channel => channel.id === channelId)
       if (dmChannel != null) {
-        logger.info('Found existing DM channel', dmChannel, uniqueMemberIds)
+        logger.debug('Found existing DM channel')
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
@@ -281,7 +281,7 @@ const Channel = () => {
           })
         )
       } else {
-        logger.info('Creating new DM channel', channelId, uniqueMemberIds)
+        logger.debug('Creating new DM channel')
         if (community == null || community.teamId == null) {
           logger.error(`Community or team ID was undefined, can't create DM channel`)
           return
@@ -295,9 +295,9 @@ const Channel = () => {
           memberIds: uniqueMemberIds,
           teamId: community.teamId,
         }
-        logger.info('Running create channel action')
+        logger.debug('Running create channel action')
         dispatch(publicChannels.actions.createChannel(payload))
-        logger.info('Closing new message view and updating current channel', channelId)
+        logger.debug('Closing new message view and updating current channel', channelId)
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
