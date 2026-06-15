@@ -2,12 +2,11 @@
  * Handles role-related chain operations
  */
 
-import { Member } from '@localfirst/auth'
-import { hash } from '@localfirst/crypto'
-
 import { SigChain } from '../../../sigchain'
 import { ChainServiceBase } from '../../chainServiceBase'
+import { Member } from '@localfirst/auth'
 import { createLogger } from '../../../../common/logger'
+import { hash } from '@localfirst/crypto'
 import { defaultChannelPermissions } from '../permissions'
 
 const logger = createLogger('auth:channelService')

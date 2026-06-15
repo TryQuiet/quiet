@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
 import {
   Connection,
-  Hash,
   InviteeMemberContext,
   Keyring,
   LocalUserContext,

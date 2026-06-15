@@ -1,10 +1,10 @@
-import { SigChain } from '../../../sigchain'
-import { createLogger } from '../../../../common/logger'
-import { RoleName } from '../roles'
+import { SigChain } from '../../sigchain'
+import { createLogger } from '../../../common/logger'
+import { RoleName } from './roles'
 import { hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
 import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
-import { InviteLockboxMetadata } from '../../crypto/types'
+import { InviteLockboxMetadata } from '../crypto/types'
 
 const logger = createLogger('auth:services:channels.spec')
 
@@ -26,7 +26,7 @@ describe('channels', () => {
     expect(adminSigChain.context).toBeDefined()
     expect(adminSigChain.team!.teamName).toBe(teamName)
     expect(adminSigChain.user.userName).toBe(adminUsername)
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('should create channel and admin should be added as member', () => {
