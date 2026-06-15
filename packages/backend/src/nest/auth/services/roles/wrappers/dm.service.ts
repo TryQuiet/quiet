@@ -19,18 +19,18 @@ class DMService extends ChainServiceBase {
   public createWithMembers(memberIds: string[]): string {
     const membersWithMe = [...memberIds, this.sigChain.context.user.userId]
     const roleName = this.generateDmRoleName(membersWithMe)
-    logger.info(`Adding new group DM role with name ${roleName}`)
+    logger.info(`Adding new group DM role`)
     this.sigChain.roles.createWithMembers(roleName, memberIds, defaultDmPermissions(memberIds))
     return roleName
   }
 
   public memberHasDmRole(memberId: string, roleName: string): boolean {
-    logger.trace(`Checking for membership in DM role`, memberId, roleName)
+    logger.trace(`Checking for membership in DM role`)
     return this.sigChain.roles.memberHasRole(memberId, roleName)
   }
 
   public delete(memberIds: string[]) {
-    logger.info(`Removing role for DM with members`, memberIds)
+    logger.info(`Removing role for DM`)
     const roleName = this.generateDmRoleName(memberIds)
     this.sigChain.roles.delete(roleName)
   }
