@@ -1,10 +1,10 @@
-import { SigChain } from '../../sigchain'
-import { createLogger } from '../../../common/logger'
-import { RoleName } from './roles'
+import { SigChain } from '../../../sigchain'
+import { createLogger } from '../../../../common/logger'
+import { RoleName } from '../roles'
 import { hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
 import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
-import { InviteLockboxMetadata } from '../crypto/types'
+import { InviteLockboxMetadata } from '../../crypto/types'
 
 const logger = createLogger('auth:services:channels.spec')
 
