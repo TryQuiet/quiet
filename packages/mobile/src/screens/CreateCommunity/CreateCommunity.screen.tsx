@@ -30,7 +30,7 @@ export const CreateCommunityScreen: FC = () => {
         dispatch(communities.actions.launchCommunity({ id: currentCommunity.id } as LaunchCommunityPayload))
         dispatch(
           navigationActions.replaceScreen({
-            screen: ScreenNames.ChannelListScreen,
+            screen: ScreenNames.AppHomeScreen,
           })
         )
         dispatch(navigationActions.clearBackStack())

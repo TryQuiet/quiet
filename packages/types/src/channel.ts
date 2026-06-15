@@ -39,6 +39,7 @@ export interface PublicChannelStatus {
   newestMessage: ChannelMessage | null
   public?: boolean
   type?: ChannelType
+  displayedName?: string
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {

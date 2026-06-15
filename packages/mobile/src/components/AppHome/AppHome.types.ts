@@ -2,8 +2,11 @@ import { Community } from '@quiet/types'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { ChannelTileProps } from '../ChannelTile/ChannelTile.types'
 
-export interface ChannelListProps {
+export interface AppHomeProps {
   community?: Community
-  tiles: ChannelTileProps[]
+  channelTiles: ChannelTileProps[]
+  dmTiles: any[]
+  createChannel: () => void
+  createDm: () => void
   communityContextMenu: ReturnType<typeof useContextMenu> | null
 }

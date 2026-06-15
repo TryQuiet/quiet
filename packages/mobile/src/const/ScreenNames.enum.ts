@@ -1,5 +1,5 @@
 export enum ScreenNames {
-  ChannelListScreen = 'ChannelList',
+  AppHomeScreen = 'AppHome',
   ChannelScreen = 'ChannelScreen',
   ChannelMembershipScreen = 'ChannelMembershipScreen',
   UpdateChannelMembershipScreen = 'UpdateChannelMembershipScreen',

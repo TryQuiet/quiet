@@ -1,7 +1,7 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react-native'
 
-import { ChannelList } from './ChannelList.component'
+import { AppHome } from './AppHome.component'
 
 import { createLogger } from '../../utils/logger'
 
@@ -9,18 +9,15 @@ const logger = createLogger('channelList:stories')
 
 storiesOf('ChannelList', module)
   .add('Default', () => (
-    <ChannelList
+    <AppHome
       // @ts-ignore
       community={{
         name: 'Quiet',
       }}
-      tiles={[
+      channelTiles={[
         {
           name: 'general',
           id: 'general',
-          message:
-            'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-          date: '1:55pm',
           unread: false,
           isPublic: true,
           redirect: (id: string) => {
@@ -30,9 +27,6 @@ storiesOf('ChannelList', module)
         {
           name: 'spam',
           id: 'spam',
-          message:
-            'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-          date: '1:55pm',
           unread: false,
           isPublic: true,
           redirect: (id: string) => {
@@ -42,9 +36,6 @@ storiesOf('ChannelList', module)
         {
           name: 'design',
           id: 'design',
-          message:
-            'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-          date: '6/1/22',
           unread: true,
           isPublic: true,
           redirect: (id: string) => {
@@ -54,9 +45,6 @@ storiesOf('ChannelList', module)
         {
           name: 'qa',
           id: 'qa',
-          message:
-            'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-          date: 'Yesterday',
           unread: false,
           isPublic: true,
           redirect: (id: string) => {
@@ -66,9 +54,6 @@ storiesOf('ChannelList', module)
         {
           name: 'private-chat',
           id: 'private-chat',
-          message:
-            'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-          date: 'Yesterday',
           unread: false,
           isPublic: false,
           redirect: (id: string) => {
@@ -79,11 +64,11 @@ storiesOf('ChannelList', module)
     />
   ))
   .add('Empty', () => (
-    <ChannelList
+    <AppHome
       // @ts-ignore
       community={{
         name: 'Quiet',
       }}
-      tiles={[]}
+      channelTiles={[]}
     />
   ))

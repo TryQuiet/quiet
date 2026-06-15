@@ -12,10 +12,6 @@ storiesOf('ChannelTile', module)
     <ChannelTile
       name={'general'}
       id={'general'}
-      message={
-        'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-      }
-      date={'1:55pm'}
       unread={false}
       isPublic={true}
       redirect={(id: string) => {
@@ -27,10 +23,6 @@ storiesOf('ChannelTile', module)
     <ChannelTile
       name={'general'}
       id={'general'}
-      message={
-        'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-      }
-      date={'1:55pm'}
       unread={true}
       isPublic={true}
       redirect={(id: string) => {
@@ -42,10 +34,6 @@ storiesOf('ChannelTile', module)
     <ChannelTile
       name={'private'}
       id={'private'}
-      message={
-        'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-      }
-      date={'1:55pm'}
       unread={true}
       isPublic={false}
       redirect={(id: string) => {

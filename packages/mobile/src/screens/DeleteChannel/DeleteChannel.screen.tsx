@@ -18,7 +18,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
 
   useEffect(() => {
     if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelName)) {
-      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.AppHomeScreen }))
     }
   }, [dispatch, screen, channels])
 
@@ -33,7 +33,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
+        screen: ScreenNames.AppHomeScreen,
       })
     )
   }, [dispatch])

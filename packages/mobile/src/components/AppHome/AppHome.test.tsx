@@ -1,11 +1,11 @@
 import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import { ChannelList } from './ChannelList.component'
+import { AppHome } from './AppHome.component'
 
-describe('ChannelList component', () => {
+describe('AppHome component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
-      <ChannelList
+      <AppHome
         // @ts-ignore
         community={{
           name: 'Quiet',

@@ -8,7 +8,7 @@ import { FactoryGirl } from 'factory-girl'
 import { getReduxStoreFactory, communities, identity, users } from '@quiet/state-manager'
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { initActions } from '../store/init/init.slice'
-import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from '../screens/AppHome/AppHome.screen'
 import { navigationSelectors } from '../store/navigation/navigation.selectors'
 import { navigationActions } from '../store/navigation/navigation.slice'
 

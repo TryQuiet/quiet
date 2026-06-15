@@ -49,7 +49,7 @@ export function* redirectionSaga(): Generator {
     logger.info('INIT_NAVIGATION: Switching to the channel list screen (community membership).')
     yield* put(
       navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
+        screen: ScreenNames.AppHomeScreen,
       })
     )
     return

@@ -18,7 +18,7 @@ export type RootStackParamList = {
   [ScreenNames.QRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
-  [ScreenNames.ChannelListScreen]: undefined
+  [ScreenNames.AppHomeScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined

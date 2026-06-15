@@ -44,7 +44,7 @@ describe('redirectionSaga', () => {
       )
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
+          screen: ScreenNames.AppHomeScreen,
         })
       )
       .run()
@@ -98,7 +98,7 @@ describe('redirectionSaga', () => {
     await expectSaga(redirectionSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+      .put(navigationActions.replaceScreen({ screen: ScreenNames.AppHomeScreen }))
       .run()
   })
 })

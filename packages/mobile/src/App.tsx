@@ -12,7 +12,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { MenuProvider } from 'react-native-popup-menu'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
-import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from './screens/AppHome/AppHome.screen'
 import { ConnectionProcessScreen } from './screens/ConnectionProcess/ConnectionProcess.screen'
 import { CreateChannelScreen } from './screens/CreateChannel/CreateChannel.screen'
 import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
@@ -105,7 +105,7 @@ function App(): JSX.Element {
                   headerShown: false,
                 }}
               >
-                <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
+                <Screen component={AppHomeScreen} name={ScreenNames.AppHomeScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
                 <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
                 <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />

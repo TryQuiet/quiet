@@ -43,5 +43,6 @@ export const defaultPalette = {
     lushSky: '#67BFD3',
     lightPurple: '#F3E8FF',
     grassGreen: '#80B857',
+    hotPink: '#E42656',
   },
 }

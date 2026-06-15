@@ -8,7 +8,7 @@ import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
 import { getReduxStoreFactory, communities, identity, connection } from '@quiet/state-manager'
 import { ScreenNames } from '../const/ScreenNames.enum'
-import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
+import { AppHomeScreen } from '../screens/AppHome/AppHome.screen'
 import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
 import { ConnectionProcessInfo } from '@quiet/types'
@@ -42,7 +42,7 @@ describe('Joining process', () => {
     renderComponent(
       <>
         <ConnectionProcessScreen />
-        <ChannelListScreen />
+        <AppHomeScreen />
       </>,
       store
     )
@@ -71,7 +71,7 @@ describe('Joining process', () => {
 
     await act(async () => {})
 
-    const channelList = screen.getByTestId('channels_list')
+    const channelList = screen.getByTestId('channel-list')
 
     expect(channelList).toBeVisible()
 

@@ -104,9 +104,10 @@ export const publicChannelsSlice = createSlice({
         logger.error('addChannel got a success status but null channel')
         return
       }
+      const resolvedDisplayedName = displayedName ?? channel.name
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
-        displayedName: displayedName ?? channel.name,
+        displayedName: resolvedDisplayedName,
         messages: channelMessagesAdapter.getInitialState(),
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
@@ -115,6 +116,7 @@ export const publicChannelsSlice = createSlice({
         newestMessage: null,
         public: channel.public,
         type: channel.type,
+        displayedName: resolvedDisplayedName,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
@@ -192,6 +194,12 @@ export const publicChannelsSlice = createSlice({
     setDisplayedName: (state, action: PayloadAction<{ channelId: string; displayedName: string }>) => {
       const { channelId, displayedName } = action.payload
       publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          displayedName,
+        },
+      })
+      publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
         id: channelId,
         changes: {
           displayedName,

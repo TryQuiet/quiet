@@ -70,7 +70,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
         params: {
-          onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
+          onPress: () => replaceScreen(ScreenNames.AppHomeScreen),
           icon: icons.quiet_icon_round,
           title: AlreadyBelongToCommunityWarning.TITLE,
           message: AlreadyBelongToCommunityWarning.MESSAGE,

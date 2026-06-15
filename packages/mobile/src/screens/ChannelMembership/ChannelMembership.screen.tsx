@@ -26,7 +26,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
 
   useEffect(() => {
     if (screen === ScreenNames.ChannelMembershipScreen && !channels.find(c => c.name === channelName)) {
-      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.AppHomeScreen }))
       setMembers(undefined)
       setMemberCount(undefined)
     }

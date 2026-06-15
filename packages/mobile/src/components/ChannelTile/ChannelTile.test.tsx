@@ -3,20 +3,10 @@ import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelTile } from './ChannelTile.component'
 
-describe('ChannelList component', () => {
+describe('ChannelTile component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
-      <ChannelTile
-        name={'general'}
-        id={'general'}
-        message={
-          'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-        }
-        date={'1:55pm'}
-        unread={false}
-        isPublic={true}
-        redirect={jest.fn()}
-      />
+      <ChannelTile name={'general'} id={'general'} unread={false} isPublic={true} redirect={jest.fn()} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -380,17 +370,7 @@ describe('ChannelList component', () => {
 
   it('should match inline snapshot (unread)', () => {
     const { toJSON } = renderComponent(
-      <ChannelTile
-        name={'general'}
-        id={'general'}
-        message={
-          'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-        }
-        date={'1:55pm'}
-        unread={true}
-        isPublic={true}
-        redirect={jest.fn()}
-      />
+      <ChannelTile name={'general'} id={'general'} unread={true} isPublic={true} redirect={jest.fn()} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -788,17 +768,7 @@ describe('ChannelList component', () => {
 
   it('should match inline snapshot (private)', () => {
     const { toJSON } = renderComponent(
-      <ChannelTile
-        name={'general'}
-        id={'general'}
-        message={
-          'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-        }
-        date={'1:55pm'}
-        unread={false}
-        isPublic={false}
-        redirect={jest.fn()}
-      />
+      <ChannelTile name={'general'} id={'general'} unread={false} isPublic={false} redirect={jest.fn()} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`

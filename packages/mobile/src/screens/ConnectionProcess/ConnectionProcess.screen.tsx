@@ -30,7 +30,7 @@ export const ConnectionProcessScreen: FC = () => {
       logger.info('Joining completed')
       dispatch(
         navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
+          screen: ScreenNames.AppHomeScreen,
         })
       )
       dispatch(navigationActions.clearBackStack())
