@@ -86,6 +86,7 @@ describe('ChannelInput', () => {
               </div>
               <div
                 class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-15146l7-MuiGrid-root"
+                data-testid="channel-input-info-message-container"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
@@ -177,12 +178,14 @@ describe('ChannelInput', () => {
               </div>
               <div
                 class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-15146l7-MuiGrid-root"
+                data-testid="channel-input-info-message-container"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <span
                     class="MuiTypography-root MuiTypography-caption ChannelInputInfoMessageinfo css-1m4pgvy-MuiTypography-root"
+                    data-testid="channel-input-info-message"
                   >
                     Initializing community. This may take a few minutes...
                   </span>
