@@ -256,8 +256,11 @@ storiesOf('Chat', module)
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
     />
   ))
   .add('Empty', () => (
@@ -294,8 +297,11 @@ storiesOf('Chat', module)
       removeFilePreview={function (id: string): void {
         logger.info(`removeFilePreview ${id}`)
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
     />
   ))
   .add('MultiDayChat', () => (
@@ -761,7 +767,10 @@ storiesOf('Chat', module)
           ],
         },
       }}
+      newChat={false}
+      userProfiles={{}}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
+      createOrSetDmChannelAction={function (): void {}}
     />
   ))

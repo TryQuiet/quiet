@@ -16,4 +16,5 @@ export interface UpdateChannelMembershipListProps {
   visibleOptionsIndices: Set<number> | undefined
   userProfiles: Record<string, UserProfile>
   channelId: string
+  maxVisibleOptions?: number
 }

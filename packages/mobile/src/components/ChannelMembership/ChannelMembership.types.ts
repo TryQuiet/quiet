@@ -16,3 +16,5 @@ export interface ChannelMembershipHeaderTitleProps extends HeaderTitleProps {
   channelName: string
   membershipCount?: number
 }
+
+export const USER_ROW_HEIGHT = 60

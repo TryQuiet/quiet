@@ -26,6 +26,7 @@ describe('Chat component', () => {
     openImagePreview: jest.fn(),
     duplicatedUsernameHandleBack: jest.fn(),
     unregisteredUsernameHandleBack: jest.fn(),
+    createOrSetDmChannelAction: jest.fn(),
     openUrl: jest.fn(),
     downloadFile: jest.fn(),
     cancelDownload: jest.fn(),
@@ -40,6 +41,8 @@ describe('Chat component', () => {
       teamId: 'foobar',
     },
     channelName: 'general',
+    newChat: false,
+    userProfiles: {},
     pendingMessages: {},
     messages: {
       count: 16,

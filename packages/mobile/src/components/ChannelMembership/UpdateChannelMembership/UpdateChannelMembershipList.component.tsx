@@ -9,6 +9,7 @@ import { SelectableListOption, UpdateChannelMembershipListProps } from './Update
 import { Spinner } from '../../Spinner/Spinner.component'
 import { createLogger } from '../../../utils/logger'
 import { uniqueId } from 'lodash'
+import { USER_ROW_HEIGHT } from '../ChannelMembership.types'
 
 const logger = createLogger('UpdateChannelMembershipList')
 
@@ -20,6 +21,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
   visibleOptionsIndices,
   channelId,
   userProfiles,
+  maxVisibleOptions,
 }) => {
   const [hasOptions, setHasOptions] = useState<boolean | undefined>(undefined)
   const updateOptionsOnCheck = (option: SelectableListOption) => {
@@ -87,7 +89,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
         uncheckedColor={uncheckedColor}
         disabled={!item.mutable}
         onPress={() => updateOptionsOnCheck(item)}
-        viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING }}
+        viewStyle={{ paddingHorizontal: HORIZ_ELEM_PADDING, height: 60 }}
       />
     )
   }
@@ -108,17 +110,20 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
             MEMBERS
           </Typography>
           {hasOptions ? (
-            <FlatList
-              data={[...visibleOptionsIndices]}
-              extraData={{ visibleOptionsIndices, options }}
-              keyExtractor={index => (options && options[index].id) ?? `default-id-${uniqueId()}`}
-              renderItem={index => renderItem(index)}
-              ItemSeparatorComponent={() => {
-                return <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
-              }}
-              style={{ backgroundColor: defaultTheme.palette.background.white }}
-              testID={`update-channel-membership-list-${channelId}`}
-            />
+            <View style={{ height: maxVisibleOptions != null ? USER_ROW_HEIGHT * maxVisibleOptions : undefined }}>
+              <FlatList
+                data={[...visibleOptionsIndices]}
+                extraData={{ visibleOptionsIndices, options }}
+                keyExtractor={index => (options && options[index].id) ?? `default-id-${uniqueId()}`}
+                renderItem={index => renderItem(index)}
+                ItemSeparatorComponent={() => {
+                  return <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
+                }}
+                style={{ backgroundColor: defaultTheme.palette.background.white }}
+                testID={`update-channel-membership-list-${channelId}`}
+                scrollEnabled={true}
+              />
+            </View>
           ) : (
             <Typography
               fontSize={14}

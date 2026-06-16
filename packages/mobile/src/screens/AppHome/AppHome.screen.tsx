@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, publicChannels } from '@quiet/state-manager'
+import { communities, identity, network, publicChannels, users } from '@quiet/state-manager'
 import { getChannelNameFromChannelId } from '@quiet/common'
 
 import { AppHome } from '../../components/AppHome/AppHome.component'
@@ -10,7 +10,12 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
-import { ChannelType } from '@quiet/types'
+import { ChannelType, EMPTY_CHANNEL_ID } from '@quiet/types'
+import type { PartialChannelTileProps } from '../../components/AppHome/AppHome.types'
+import { createLogger } from '../../utils/logger'
+import { getUserData } from '../../components/ProfilePhoto/ProfilePhotoWithBadge.component'
+
+const logger = createLogger('AppHomeScreen')
 
 export const AppHomeScreen: FC = () => {
   const dispatch = useDispatch()
@@ -28,10 +33,15 @@ export const AppHomeScreen: FC = () => {
   }, [dispatch, usernameTaken])
 
   const redirect = useCallback(
-    (id: string) => {
+    (id: string, newChat = false) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
           channelId: id,
+        })
+      )
+      dispatch(
+        publicChannels.actions.setNewMessageOpen({
+          isOpen: newChat,
         })
       )
       dispatch(
@@ -58,6 +68,14 @@ export const AppHomeScreen: FC = () => {
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
 
+  const userProfiles = useSelector(users.selectors.userProfiles)
+
+  const me = useSelector(users.selectors.myUserProfile)
+
+  const connectedPeers = useSelector(network.selectors.connectedPeers)
+
+  const dmChannels = useSelector(publicChannels.selectors.dmChannels)
+
   const channelTiles: ChannelTileProps[] = []
   const dmTiles: ChannelTileProps[] = []
   channelsStatusSorted.forEach(status => {
@@ -67,15 +85,24 @@ export const AppHomeScreen: FC = () => {
         isPublic: status.public ?? true,
         id: status.id,
         unread: status.unread,
+        channelType: status.type,
         redirect,
       }
       channelTiles.push(tile)
     } else if (status.type === ChannelType.DM) {
+      const channel = dmChannels.find(channel => channel.id === status.id)
+      if (channel == null) {
+        logger.error('Channel status was marked as a DM but no DM channel was found')
+      }
+      const representativeUserData = channel && getUserData(channel, connectedPeers, userProfiles, me)
       const tile: ChannelTileProps = {
-        name: status.displayedName ?? 'Null DM Name',
+        name: status.displayedName ?? '<DM name missing>',
         isPublic: false,
         id: status.id,
         unread: status.unread,
+        channelType: status.type,
+        representativeUserData,
+        channel,
         redirect,
       }
       dmTiles.push(tile)
@@ -88,7 +115,9 @@ export const AppHomeScreen: FC = () => {
     redirectOtherScreen(ScreenNames.CreateChannelScreen)
   }
 
-  const createDm = () => {}
+  const createDm = () => {
+    redirect(EMPTY_CHANNEL_ID, true)
+  }
 
   return (
     <AppHome
@@ -98,6 +127,8 @@ export const AppHomeScreen: FC = () => {
       createChannel={createChannel}
       createDm={createDm}
       communityContextMenu={communityContextMenu}
+      userProfiles={userProfiles}
+      me={me}
     />
   )
 }

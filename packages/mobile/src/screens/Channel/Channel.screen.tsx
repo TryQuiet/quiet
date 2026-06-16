@@ -2,8 +2,18 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
-import { communities, publicChannels, messages, files } from '@quiet/state-manager'
-import { CancelDownload, FileContent, FileMetadata, FilePreviewData } from '@quiet/types'
+import { communities, publicChannels, messages, files, users, errors } from '@quiet/state-manager'
+import {
+  CancelDownload,
+  ChannelType,
+  EMPTY_CHANNEL_ID,
+  ErrorCodes,
+  ErrorMessages,
+  FileContent,
+  FileMetadata,
+  FilePreviewData,
+  SocketActions,
+} from '@quiet/types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
@@ -11,7 +21,10 @@ import { MenuName } from '../../const/MenuNames.enum'
 import { initSelectors } from '../../store/init/init.selectors'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
-import { getFilesData } from '@quiet/common'
+import { generateDmChannelId, generateDmChannelName, getFilesData } from '@quiet/common'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('ChannelScreen')
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -41,6 +54,12 @@ export const ChannelScreen: FC = () => {
 
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
+  const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
+
+  const channels = useSelector(publicChannels.selectors.publicChannels)
+
+  const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
+
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -53,9 +72,19 @@ export const ChannelScreen: FC = () => {
 
   const isOwner = useSelector(communities.selectors.isOwner)
 
+  const userProfiles = useSelector(users.selectors.userProfiles)
+
+  const me = useSelector(users.selectors.myUserProfile)
+
+  const communityError = useSelector(errors.selectors.currentCommunityErrors)
+
+  const community = useSelector(communities.selectors.currentCommunity)
+
+  const error = communityError[SocketActions.CREATE_CHANNEL]
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!isWebsocketConnected || (!isOwner && currentChannel?.public)) {
+  if (!isWebsocketConnected || (!isOwner && currentChannel?.public) || isNewMessageOpen) {
     contextMenu = null
   }
 
@@ -164,8 +193,58 @@ export const ChannelScreen: FC = () => {
   )
 
   useEffect(() => {
-    dispatch(messages.actions.resetCurrentPublicChannelCache())
-  }, [currentChannel?.id])
+    if (currentChannelId !== EMPTY_CHANNEL_ID) {
+      dispatch(messages.actions.resetCurrentPublicChannelCache())
+    }
+  }, [currentChannelId])
+
+  const createOrSetDmChannelAction = useCallback(
+    (memberIds: string[]) => {
+      logger.debug('Setting or creating dm channel', memberIds)
+      if (memberIds.length === 0 || me === undefined) {
+        logger.error('Member IDs was empty or me profile was nullish')
+        dispatch(
+          errors.actions.addError({
+            type: SocketActions.CREATE_CHANNEL,
+            code: ErrorCodes.BAD_REQUEST,
+            message: ErrorMessages.GENERAL,
+            community: community?.id,
+          })
+        )
+        return
+      }
+
+      const uniquedMemberIds = [...new Set([...memberIds, me.userId])]
+      const dmId = generateDmChannelId(uniquedMemberIds)
+      // Validate channel name
+      if (channels.some(channel => channel.id === dmId)) {
+        logger.debug('Found existing DM channel', dmId)
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId: dmId }))
+        dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+        return
+      }
+
+      if (community == null || community.teamId == null) {
+        throw new Error(`Can't create channel when community isn't initialized`)
+      }
+
+      logger.debug('Creating DM channel', dmId, uniquedMemberIds)
+      dispatch(
+        publicChannels.actions.createChannel({
+          name: dmId,
+          description: `Empty`,
+          id: dmId,
+          public: false,
+          type: ChannelType.DM,
+          teamId: community.teamId,
+          memberIds: uniquedMemberIds,
+        })
+      )
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: dmId }))
+      dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+    },
+    [dispatch]
+  )
 
   const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
 
@@ -173,7 +252,7 @@ export const ChannelScreen: FC = () => {
     void Linking.openURL(url)
   }, [])
 
-  if (!currentChannel) return null
+  if (!isNewMessageOpen && !currentChannel) return null
 
   return (
     <Chat
@@ -183,6 +262,10 @@ export const ChannelScreen: FC = () => {
       handleBackButton={handleBackButton}
       channel={currentChannel}
       channelName={currentChannelName}
+      channelId={currentChannelId}
+      newChat={isNewMessageOpen}
+      userProfiles={userProfiles}
+      me={me}
       messages={{
         count: channelMessagesCount,
         groups: channelMessages,
@@ -202,6 +285,7 @@ export const ChannelScreen: FC = () => {
       ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+      createOrSetDmChannelAction={createOrSetDmChannelAction}
     />
   )
 }

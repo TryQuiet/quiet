@@ -6,6 +6,7 @@ import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { UserProfile } from '@quiet/types'
 import { Spinner } from '../Spinner/Spinner.component'
+import { USER_ROW_HEIGHT } from './ChannelMembership.types'
 
 export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({ members, channelId }) => {
   const renderItem = (listItem: ListRenderItemInfo<UserProfile>) => {
@@ -21,6 +22,7 @@ export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({ me
           gap: 12,
           paddingVertical: 11,
           paddingHorizontal: 16,
+          height: USER_ROW_HEIGHT,
         }}
         testID={`channel-membership-list-item-${channelId}-${item.userId}`}
       >

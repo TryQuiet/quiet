@@ -6,8 +6,20 @@ import { Typography } from '../Typography/Typography.component'
 import { ChannelTileProps } from './ChannelTile.types'
 import LockIcon from '../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../assets/icons/svg/public-channel'
+import { ChannelType } from '@quiet/types'
+import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
+import { ProfilePhotoSize, type DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
 
-export const ChannelTile: FC<ChannelTileProps> = ({ name, id, unread, isPublic, redirect }) => {
+export const ChannelTile: FC<ChannelTileProps> = ({
+  name,
+  id,
+  unread,
+  isPublic,
+  channelType,
+  redirect,
+  representativeUserData,
+  channel,
+}) => {
   // TODO Question: can this be deleted?
   const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
@@ -36,8 +48,10 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, unread, isPublic, 
   }
 
   const channelTitleColor = (unread: boolean) => {
-    return unread ? defaultTheme.palette.typography.gray70 : defaultTheme.palette.typography.grayLight
+    return unread ? defaultTheme.palette.typography.main : defaultTheme.palette.typography.gray90
   }
+
+  const rowHeight = channelType === ChannelType.DM ? 24 : 20
 
   return (
     <GestureHandlerRootView>
@@ -60,14 +74,28 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, unread, isPublic, 
               flexDirection: 'row',
             }}
           >
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', height: 20 }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', height: rowHeight }}>
               <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                {!isPublic ? (
+                {channelType === ChannelType.DM ? (
+                  <View style={{ paddingRight: 4 }}>
+                    <ProfilePhotoWithBadge
+                      userData={representativeUserData}
+                      channel={channel}
+                      size={ProfilePhotoSize.MEDIUM_SMALL}
+                    />
+                  </View>
+                ) : !isPublic ? (
                   <LockIcon color={channelTitleColor(unread)} fill={true} size={18} />
                 ) : (
                   <PublicChannelIcon color={channelTitleColor(unread)} size={18} />
                 )}
-                <Typography fontSize={16} fontWeight={'normal'} style={{ color: channelTitleColor(unread) }}>
+                <Typography
+                  fontSize={16}
+                  fontWeight={unread ? 'medium' : 'normal'}
+                  style={{ color: channelTitleColor(unread) }}
+                  ellipsizeMode={'tail'}
+                  numberOfLines={1}
+                >
                   {name}
                 </Typography>
               </View>

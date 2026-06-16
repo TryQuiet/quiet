@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
-import { Community, InvitationData, UserProfile } from '@quiet/types'
+import { Community, InvitationData, UserProfile, type ChannelType } from '@quiet/types'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
@@ -29,6 +29,7 @@ export type RootStackParamList = {
   [ScreenNames.ChannelMembershipScreen]: {
     channelName: string
     channelId: string
+    channelType: ChannelType
   }
   [ScreenNames.UpdateChannelMembershipScreen]: {
     channelName: string

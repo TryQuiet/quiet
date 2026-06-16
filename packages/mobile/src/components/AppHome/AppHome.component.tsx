@@ -18,6 +18,8 @@ export const AppHome: FC<AppHomeProps> = ({
   createChannel,
   createDm,
   communityContextMenu,
+  userProfiles,
+  me,
 }) => {
   let communityName = '...'
   if (community?.name) {

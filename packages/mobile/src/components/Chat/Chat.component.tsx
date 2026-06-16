@@ -24,7 +24,7 @@ import { MessageSendButton } from '../MessageSendButton/MessageSendButton.compon
 import { ChatProps, ListItem } from './Chat.types'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
-import { ChannelType, DisplayableMessage } from '@quiet/types'
+import { ChannelType, DisplayableMessage, EMPTY_CHANNEL_ID } from '@quiet/types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
@@ -32,6 +32,9 @@ import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmen
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
 import { ChatAppbarHeaderTitle } from './ChatAppbarHeaderTitle.component'
+import type { SelectableListOption } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.types'
+import Fuse from 'fuse.js'
+import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
 
 const logger = createLogger('chat:component')
 
@@ -40,6 +43,7 @@ const DEFAULT_PADDING = 20
 const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
 const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
 const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
+const MAX_DM_TITLE_MEMBER_NAMES = 2 // truncate DM names to a specific amount (e.g. 'bob, sue, alice' would become 'bob, sue and 1 more')
 
 const ChatInner: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -48,6 +52,10 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   handleBackButton,
   channel,
   channelName,
+  channelId,
+  newChat,
+  userProfiles,
+  me,
   messages = {
     count: 0,
     groups: {},
@@ -67,6 +75,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   openUrl,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
+  createOrSetDmChannelAction,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
@@ -74,6 +83,45 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
   const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
+  const [options, setOptions] = useState<SelectableListOption[] | undefined>(undefined)
+  const [visibleOptionIndices, setVisibleOptionIndices] = useState<Set<number> | undefined>(undefined)
+  const [inputError, setInputError] = useState<string | undefined>(undefined)
+  const [membershipSearchInput, setMembershipSearchInput] = useState<string | undefined>(undefined)
+  const [fuzzySearch, setFuzzySearch] = useState<Fuse<SelectableListOption> | undefined>(undefined)
+  const inputRef = useRef<TextInput>(null)
+  const [headerTitle, setHeaderTitle] = useState<string>('')
+
+  const _initializeOptions = () => {
+    const initialOptions: SelectableListOption[] = []
+    const visibleIndices: Set<number> = new Set()
+    let index = 0
+    for (const user of Object.values(userProfiles)) {
+      const mutable = true
+      const selected = false
+      const hide = false
+      initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
+      if (!hide) {
+        visibleIndices.add(index)
+      }
+      index++
+    }
+    setOptions(initialOptions)
+    setVisibleOptionIndices(visibleIndices)
+    setFuzzySearch(
+      new Fuse(initialOptions, {
+        keys: ['label'],
+        minMatchCharLength: 1,
+        ignoreDiacritics: true,
+        threshold: 0.3,
+      })
+    )
+  }
+
+  const _clearOptions = () => {
+    setOptions([])
+    setVisibleOptionIndices(new Set())
+    setFuzzySearch(undefined)
+  }
 
   const messageInputRef = useRef<null | TextInput>(null)
   // keep latest input text (including any pending autocorrect) in a ref
@@ -88,12 +136,64 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    if (channel.type === ChannelType.CHANNEL) {
+    if (newChat) {
+      setInputPlaceholder('Write message')
+      setHeaderTitle('New message')
+    } else if (channel?.type === ChannelType.CHANNEL) {
       setInputPlaceholder(`Message #${channelName}`)
+      setHeaderTitle(channelName)
     } else {
-      setInputPlaceholder(`Message ${channelName}`)
+      const memberNames = channelName.split(', ')
+      const truncatedDmChannelName =
+        memberNames.length <= MAX_DM_TITLE_MEMBER_NAMES
+          ? channelName
+          : `${memberNames.slice(0, 2).join(', ')} and ${memberNames.length - MAX_DM_TITLE_MEMBER_NAMES} more`
+      setInputPlaceholder(`Message ${truncatedDmChannelName}`)
+      setHeaderTitle(truncatedDmChannelName)
     }
   }, [channelName, channel])
+
+  useEffect(() => {
+    if (newChat) {
+      _initializeOptions()
+    } else {
+      _clearOptions()
+    }
+  }, [newChat, userProfiles])
+
+  const _setAllOptionsVisible = (): Set<number> => {
+    if (options == null) return new Set()
+    return new Set(Array(options.length).keys())
+  }
+
+  const _parseFilterText = (rawFilterText: string): string => {
+    if (rawFilterText === '@') {
+      return ''
+    }
+    if (rawFilterText.startsWith('@')) {
+      return rawFilterText.slice(1)
+    }
+    return rawFilterText
+  }
+
+  const _fuzzyFilterUsers = (filterText: string): Set<number> => {
+    if (fuzzySearch == null || options == null) {
+      return _setAllOptionsVisible()
+    }
+    const searchResults = fuzzySearch.search(filterText)
+    return new Set(searchResults.map(result => result.item.index))
+  }
+
+  const onChangeText = (value: string) => {
+    setInputError(undefined)
+    setMembershipSearchInput(value)
+    if (value === '') {
+      setVisibleOptionIndices(_setAllOptionsVisible())
+      return
+    }
+    const foundIndices = _fuzzyFilterUsers(_parseFilterText(value))
+    setVisibleOptionIndices(foundIndices)
+  }
 
   // Flatten the nested messages.groups structure into an array that combines dividers and message groups
 
@@ -346,6 +446,10 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     // only send if there's text or uploaded files
     if (messageInputValueRef.current.length > 0 || areFilesUploaded) {
       if (messageInputValueRef.current.length > 0) {
+        const selectedMembers = (options ?? []).filter(option => option.selected)
+        if (newChat && selectedMembers.length > 0 && me != null) {
+          createOrSetDmChannelAction(selectedMembers.map(member => member.id))
+        }
         // append space to force iOS to commit any pending autocorrect
         const original = messageInputValueRef.current
         const commitText = original + ' '
@@ -408,10 +512,17 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [loadMessagesAction])
 
   return (
-    <View style={styles.container} testID={`chat_${channel?.name}`}>
+    <View style={styles.container} testID={`chat_${channelName}`}>
       <Appbar
-        title={channelName}
-        titleComponent={<ChatAppbarHeaderTitle title={channelName} isPublic={channel?.public ?? true} />}
+        title={headerTitle}
+        titleComponent={
+          <ChatAppbarHeaderTitle
+            title={headerTitle}
+            isPublic={channel?.public ?? true}
+            isNewChat={newChat}
+            channelType={channel?.type ?? ChannelType.CHANNEL}
+          />
+        }
         back={handleBackButton}
         contextMenu={contextMenu}
       />
@@ -421,7 +532,41 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         enabled={Platform.select({ ios: true, android: true })}
         style={styles.keyboardAvoidingView}
       >
-        {messages.count === 0 ? (
+        {newChat && (
+          <View
+            style={{
+              paddingTop: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 32,
+            }}
+          >
+            <Input
+              onChangeText={onChangeText}
+              subtitle={`Add members with '@'`}
+              placeholder={'E.g. @jane123'}
+              value={membershipSearchInput}
+              length={20}
+              disabled={false}
+              validation={inputError}
+              ref={inputRef}
+              autoCorrect={false}
+              bottomSeparator={<View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />}
+              wrapperStyle={{ paddingHorizontal: 16, display: 'flex', flexDirection: 'column' }}
+              keyboardType={'email-address'}
+              testID={`update-channel-membership-input-${channelId}`}
+            />
+            <UpdateChannelMembershipList
+              options={options}
+              visibleOptionsIndices={visibleOptionIndices}
+              setOptions={setOptions}
+              channelId={channelId ?? EMPTY_CHANNEL_ID}
+              userProfiles={userProfiles}
+              maxVisibleOptions={3}
+            />
+          </View>
+        )}
+        {!newChat && messages.count === 0 ? (
           <Loading title={'Loading messages'} caption={'Chat will become available shortly'} />
         ) : (
           <>
@@ -496,7 +641,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       {imagePreview && setImagePreview && (
         <ImagePreviewModal
           imagePreviewData={imagePreview}
-          currentChannelName={channel?.name}
+          currentChannelName={channelName}
           resetPreviewData={() => setImagePreview(null)}
         />
       )}

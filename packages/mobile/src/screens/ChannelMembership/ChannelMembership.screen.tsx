@@ -13,7 +13,7 @@ import { UserProfile } from '@quiet/types'
 export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelName, channelId } = route.params
+  const { channelName, channelId, channelType } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -52,6 +52,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
     <ChannelMembership
       channelName={channelName}
       channelId={channelId}
+      channelType={channelType}
       community={community}
       userProfiles={userProfiles}
       members={members}

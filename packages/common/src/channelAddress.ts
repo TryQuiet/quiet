@@ -8,7 +8,7 @@ export const generateDmChannelId = (memberIds: string[]) =>
     .createHash('sha256')
     .update([...new Set(memberIds)].sort().toString())
     .digest()
-    .toString('base64url')
+    .toString('base64')
 
 export const getChannelNameFromChannelId = (channelId: string) => {
   const index = channelId.indexOf('_')
