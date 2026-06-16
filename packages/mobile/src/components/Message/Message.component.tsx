@@ -227,6 +227,9 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
           </View>
           <View style={{ flexShrink: 1 }}>
             {data.map((message: DisplayableMessage, index: number) => {
+              if (message.type === MessageType.Empty) {
+                return <></>
+              }
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>
