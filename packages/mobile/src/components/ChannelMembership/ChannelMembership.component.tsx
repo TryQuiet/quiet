@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { communities } from '@quiet/state-manager'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('ChannelMembership')
 
@@ -22,6 +23,7 @@ const NON_OWNER_TITLE = 'Members'
 export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   channelName,
   channelId,
+  channelType,
   community,
   members,
   memberCount,
@@ -31,6 +33,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [headerTitle, setHeaderTitle] = useState<string>('')
+  const [isPrivateChannelOwner, setIsPrivateChannelOwner] = useState<boolean>(false)
 
   const isOwner = useSelector(communities.selectors.isOwner)
 
@@ -61,8 +64,9 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   }, [channelName])
 
   useEffect(() => {
-    setHeaderTitle(isOwner ? TITLE : NON_OWNER_TITLE)
-  }, [isOwner])
+    setIsPrivateChannelOwner(isOwner && channelType === ChannelType.CHANNEL)
+    setHeaderTitle(isPrivateChannelOwner ? TITLE : NON_OWNER_TITLE)
+  }, [isOwner, channelType])
 
   return (
     <View
@@ -95,7 +99,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
             gap: 32,
           }}
         >
-          {isOwner && (
+          {isPrivateChannelOwner && (
             <View>
               <View
                 style={{

@@ -1,5 +1,5 @@
 import { getBaseTypesFactory, getSocketFactory } from '@quiet/state-manager'
-import { UserProfile } from '@quiet/types'
+import { ChannelType, UserProfile } from '@quiet/types'
 import { render } from '@testing-library/react-native'
 import { FactoryGirl } from 'factory-girl'
 import React from 'react'
@@ -50,6 +50,7 @@ describe('ChannelMembership component', () => {
         <ChannelMembership
           channelName={channelName}
           channelId={channelId}
+          channelType={ChannelType.CHANNEL}
           community={undefined}
           userProfiles={{}}
           members={undefined}
@@ -479,6 +480,7 @@ describe('ChannelMembership component', () => {
         <ChannelMembership
           channelName={channelName}
           channelId={channelId}
+          channelType={ChannelType.CHANNEL}
           community={undefined}
           userProfiles={userProfiles}
           members={[userProfiles[userId]]}

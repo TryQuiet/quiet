@@ -1,9 +1,10 @@
-import { Community, UserProfile } from '@quiet/types'
+import { Community, UserProfile, type ChannelType } from '@quiet/types'
 import { HeaderTitleProps } from '../Appbar/Appbar.types'
 
 export interface ChannelMembershipProps {
   channelName: string
   channelId: string
+  channelType: ChannelType
   community?: Community
   userProfiles: Record<string, UserProfile>
   members: UserProfile[] | undefined

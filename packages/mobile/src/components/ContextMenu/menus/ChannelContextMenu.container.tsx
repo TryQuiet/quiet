@@ -14,7 +14,7 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
-import { UserProfile } from '@quiet/types'
+import { ChannelType, UserProfile } from '@quiet/types'
 
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -61,14 +61,22 @@ export const ChannelContextMenu: FC = () => {
   let items: ContextMenuItemProps[] = []
 
   if (channel?.public === false) {
+    const isPrivateChannelOwner = isOwner && channel.type === ChannelType.CHANNEL
+    const title = isPrivateChannelOwner
+      ? 'Permissions'
+      : channel.type === ChannelType.CHANNEL
+      ? 'Members in this channel'
+      : 'Members in this DM'
+    const subtitle = isPrivateChannelOwner ? 'Members' : undefined
     items.push({
-      title: isOwner ? 'Permissions' : 'Members in this channel',
-      subtitle: isOwner ? 'Members' : undefined,
+      title,
+      subtitle,
       suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {
           channelName: channel?.name,
           channelId: channel?.id,
+          channelType: channel?.type ?? ChannelType.CHANNEL,
         }),
     })
   }
