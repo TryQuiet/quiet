@@ -3,4 +3,5 @@ export interface PencilButtonProps {
   size?: number
   iconColor?: string
   backgroundColor?: string
+  rippleColor?: string
 }

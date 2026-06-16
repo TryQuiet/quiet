@@ -1,24 +1,32 @@
 import React, { FC } from 'react'
-import { Button, Icon, IconButton } from 'react-native-paper'
+import { FAB } from 'react-native-paper'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 import type { PencilButtonProps } from './PencilButton.types'
 
 export const PencilButton: FC<PencilButtonProps> = ({
   onPress,
-  size = 48,
+  size = 56,
   iconColor = defaultTheme.palette.typography.white,
   backgroundColor = defaultTheme.palette.typography.darkPurple,
+  rippleColor = defaultTheme.palette.background.lightPurple,
 }) => {
-  const iconSize = size / 2
   return (
-    <IconButton
+    <FAB
       icon='pencil-outline'
-      mode={'contained'}
       onPress={onPress}
-      size={iconSize}
-      style={{ height: size, width: size, borderRadius: 100 }}
-      iconColor={iconColor}
-      containerColor={backgroundColor}
+      style={{
+        position: 'absolute',
+        margin: 16,
+        marginBottom: 24,
+        bottom: 0,
+        right: 0,
+        backgroundColor,
+        borderRadius: 100,
+      }}
+      mode={'flat'}
+      customSize={size}
+      color={iconColor}
+      background={{ color: rippleColor, borderless: true, radius: 100 }}
     />
   )
 }

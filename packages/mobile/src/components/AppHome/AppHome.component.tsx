@@ -8,6 +8,8 @@ import { Spinner } from '../Spinner/Spinner.component'
 import { Typography } from '../Typography/Typography.component'
 import { PlusButton } from '../IconButtons/PlusButton/PlusButton.component'
 import { PencilButton } from '../IconButtons/PencilButton/PencilButton.component'
+import { Overlay } from 'react-native-share'
+import { FAB } from 'react-native-paper'
 
 export const AppHome: FC<AppHomeProps> = ({
   community,
@@ -115,11 +117,7 @@ export const AppHome: FC<AppHomeProps> = ({
               testID={'dm-list'}
             />
           </View>
-          {/* <View style={{ flex: 1, flexDirection: 'column-reverse' }}>
-            <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
-              <PencilButton onPress={createDm} />
-            </View>
-          </View> */}
+          <PencilButton onPress={createDm} />
         </View>
       )}
     </View>
