@@ -179,6 +179,7 @@ describe('Chat component list data', () => {
       type: ChannelType.CHANNEL,
       teamId: 'foobar',
     },
+    channelName: 'test-channel',
     pendingMessages: {},
     messages: mockMessages,
     updateFileAttachments: jest.fn(),

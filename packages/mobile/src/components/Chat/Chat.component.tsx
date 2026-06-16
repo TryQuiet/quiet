@@ -47,6 +47,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   loadMessagesAction,
   handleBackButton,
   channel,
+  channelName,
   messages = {
     count: 0,
     groups: {},
@@ -400,8 +401,8 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   return (
     <View style={styles.container} testID={`chat_${channel?.name}`}>
       <Appbar
-        title={channel?.name}
-        titleComponent={<ChatAppbarHeaderTitle title={channel?.name} isPublic={channel?.public ?? true} />}
+        title={channelName}
+        titleComponent={<ChatAppbarHeaderTitle title={channelName} isPublic={channel?.public ?? true} />}
         back={handleBackButton}
         contextMenu={contextMenu}
       />

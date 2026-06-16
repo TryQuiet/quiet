@@ -39,6 +39,7 @@ describe('Chat component', () => {
       type: ChannelType.CHANNEL,
       teamId: 'foobar',
     },
+    channelName: 'general',
     pendingMessages: {},
     messages: {
       count: 16,

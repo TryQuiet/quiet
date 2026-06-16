@@ -52,6 +52,7 @@ export interface ChatProps extends UserLabelHandlers {
   uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
   ready?: boolean
+  channelName: string
 }
 
 export interface ChannelMessagesComponentProps extends UserLabelHandlers {

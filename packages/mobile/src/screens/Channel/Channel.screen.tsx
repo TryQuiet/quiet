@@ -39,6 +39,8 @@ export const ChannelScreen: FC = () => {
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
+  const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
+
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
@@ -180,6 +182,7 @@ export const ChannelScreen: FC = () => {
       loadMessagesAction={loadMessages}
       handleBackButton={handleBackButton}
       channel={currentChannel}
+      channelName={currentChannelName}
       messages={{
         count: channelMessagesCount,
         groups: channelMessages,
