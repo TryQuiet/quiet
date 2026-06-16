@@ -24,7 +24,7 @@ import { MessageSendButton } from '../MessageSendButton/MessageSendButton.compon
 import { ChatProps, ListItem } from './Chat.types'
 import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MessagesDivider } from '../MessagesDivider/MessagesDivider.component'
-import { DisplayableMessage } from '@quiet/types'
+import { ChannelType, DisplayableMessage } from '@quiet/types'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
@@ -73,6 +73,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const [isKeyboardShowing, setKeyboardShowing] = useState(false)
   const [messageInput, setMessageInput] = useState<string>('')
   const [currentVisibleTimestamp, setCurrentVisibleTimestamp] = useState<number | null>(null)
+  const [inputPlaceholder, setInputPlaceholder] = useState<string>('')
 
   const messageInputRef = useRef<null | TextInput>(null)
   // keep latest input text (including any pending autocorrect) in a ref
@@ -85,6 +86,14 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current
   const isScrolling = useRef(false)
   const scrollTimer = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (channel.type === ChannelType.CHANNEL) {
+      setInputPlaceholder(`Message #${channelName}`)
+    } else {
+      setInputPlaceholder(`Message ${channelName}`)
+    }
+  }, [channelName, channel])
 
   // Flatten the nested messages.groups structure into an array that combines dividers and message groups
 
@@ -455,7 +464,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
                         onChangeText={onInputTextChange}
                         onChange={onInputChange}
                         onEndEditing={onInputEndEditing}
-                        placeholder={`Message #${channel?.name}`}
+                        placeholder={inputPlaceholder}
                         multiline={true}
                         style={styles.inputStyle}
                         round
