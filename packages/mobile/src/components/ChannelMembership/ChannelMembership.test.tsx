@@ -485,7 +485,7 @@ describe('ChannelMembership component', () => {
           channelType={ChannelType.CHANNEL}
           community={undefined}
           userProfiles={userProfiles}
-          members={[userProfiles[userId]]}
+          members={[{ connected: true, user: userProfiles[userId] }]}
           memberCount={1}
           handleBackButton={jest.fn()}
         />

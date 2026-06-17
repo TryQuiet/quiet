@@ -179,6 +179,7 @@ describe('Chat component list data', () => {
       type: ChannelType.CHANNEL,
       teamId: 'foobar',
     },
+    connectedPeers: [],
     channelName: 'test-channel',
     newChat: false,
     userProfiles: {},
@@ -188,6 +189,7 @@ describe('Chat component list data', () => {
     updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
     createOrSetDmChannelAction: jest.fn(),
+    setDmChannelOnSelection: jest.fn(),
   }
 
   it('renders the correct number of messages and dividers', () => {

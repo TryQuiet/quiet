@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, identity, network, publicChannels, users } from '@quiet/state-manager'
@@ -21,6 +21,9 @@ export const AppHomeScreen: FC = () => {
   const dispatch = useDispatch()
 
   const usernameTaken = useSelector(identity.selectors.usernameTaken)
+
+  const [channelTiles, setChannelTiles] = useState<ChannelTileProps[]>([])
+  const [dmTiles, setDmTiles] = useState<ChannelTileProps[]>([])
 
   useEffect(() => {
     if (usernameTaken) {
@@ -76,38 +79,42 @@ export const AppHomeScreen: FC = () => {
 
   const dmChannels = useSelector(publicChannels.selectors.dmChannels)
 
-  const channelTiles: ChannelTileProps[] = []
-  const dmTiles: ChannelTileProps[] = []
-  channelsStatusSorted.forEach(status => {
-    if (status.type === ChannelType.CHANNEL) {
-      const tile: ChannelTileProps = {
-        name: status.displayedName ?? getChannelNameFromChannelId(status.id),
-        isPublic: status.public ?? true,
-        id: status.id,
-        unread: status.unread,
-        channelType: status.type,
-        redirect,
+  useEffect(() => {
+    const newChannelTiles: ChannelTileProps[] = []
+    const newDmTitles: ChannelTileProps[] = []
+    channelsStatusSorted.forEach(status => {
+      if (status.type === ChannelType.CHANNEL) {
+        const tile: ChannelTileProps = {
+          name: status.displayedName ?? getChannelNameFromChannelId(status.id),
+          isPublic: status.public ?? true,
+          id: status.id,
+          unread: status.unread,
+          channelType: status.type,
+          redirect,
+        }
+        newChannelTiles.push(tile)
+      } else if (status.type === ChannelType.DM) {
+        const channel = dmChannels.find(channel => channel.id === status.id)
+        if (channel == null) {
+          logger.error('Channel status was marked as a DM but no DM channel was found')
+        }
+        const representativeUserData = channel && getUserData(channel, connectedPeers, userProfiles, me)
+        const tile: ChannelTileProps = {
+          name: status.displayedName ?? '<DM name missing>',
+          isPublic: false,
+          id: status.id,
+          unread: status.unread,
+          channelType: status.type,
+          representativeUserData,
+          channel,
+          redirect,
+        }
+        newDmTitles.push(tile)
       }
-      channelTiles.push(tile)
-    } else if (status.type === ChannelType.DM) {
-      const channel = dmChannels.find(channel => channel.id === status.id)
-      if (channel == null) {
-        logger.error('Channel status was marked as a DM but no DM channel was found')
-      }
-      const representativeUserData = channel && getUserData(channel, connectedPeers, userProfiles, me)
-      const tile: ChannelTileProps = {
-        name: status.displayedName ?? '<DM name missing>',
-        isPublic: false,
-        id: status.id,
-        unread: status.unread,
-        channelType: status.type,
-        representativeUserData,
-        channel,
-        redirect,
-      }
-      dmTiles.push(tile)
-    }
-  })
+    })
+    setChannelTiles(newChannelTiles)
+    setDmTiles(newDmTitles)
+  }, [channelsStatusSorted, connectedPeers, userProfiles, me])
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 

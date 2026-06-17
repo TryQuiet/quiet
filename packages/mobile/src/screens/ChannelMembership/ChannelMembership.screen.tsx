@@ -1,15 +1,15 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, publicChannels, users } from '@quiet/state-manager'
+import { communities, network, publicChannels, users } from '@quiet/state-manager'
 
 import { ChannelMembershipScreenProps } from './ChannelMembership.types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ChannelMembership } from '../../components/ChannelMembership/ChannelMembership.component'
-import { UserProfile } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import type { DmChannelUserData } from '../../components/ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('ChannelMembershipScreen')
 
@@ -23,8 +23,10 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   const userProfiles = useSelector(users.selectors.userProfiles)
   const isOwner = useSelector(communities.selectors.isOwner)
   const screen = useSelector(navigationSelectors.currentScreen)
+  const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const me = useSelector(users.selectors.myUserProfile)
 
-  const [members, setMembers] = useState<UserProfile[]>()
+  const [members, setMembers] = useState<DmChannelUserData[]>()
   const [memberCount, setMemberCount] = useState<number>()
 
   useEffect(() => {
@@ -37,13 +39,20 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
 
   useEffect(() => {
     if (screen === ScreenNames.ChannelMembershipScreen && userProfiles != null) {
-      logger.warn('User profiles', JSON.stringify(userProfiles, null, 2))
       const currentMembers = Object.values(userProfiles).filter(profile => profile.channels?.includes(channelId))
-      logger.warn('Current members', JSON.stringify(currentMembers, null, 2))
-      setMembers(currentMembers)
-      setMemberCount(currentMembers.length)
+      const memberData = currentMembers.map(
+        user =>
+          ({
+            connected:
+              (me != null && me.userId === user.userId) ||
+              (user.userData != null && connectedPeers.includes(user.userData.peerId)),
+            user,
+          } as DmChannelUserData)
+      )
+      setMembers(memberData)
+      setMemberCount(memberData.length)
     }
-  }, [userProfiles, channels, channelId])
+  }, [userProfiles, channels, connectedPeers, me])
 
   const handleBackButton = useCallback(() => {
     dispatch(

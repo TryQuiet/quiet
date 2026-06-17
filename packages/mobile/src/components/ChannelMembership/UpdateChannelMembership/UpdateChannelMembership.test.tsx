@@ -9,6 +9,7 @@ import { ReactTestInstance } from 'react-test-renderer'
 import { renderComponent } from '../../../utils/functions/renderComponent/renderComponent'
 import { createLogger } from '../../../utils/logger'
 import { UpdateChannelMembership } from './UpdateChannelMembership.component'
+import type { DmChannelUserData } from '../../ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('UpdateChannelMembership:test')
 
@@ -47,7 +48,7 @@ describe('UpdateChannelMembership component', () => {
         channelType={ChannelType.CHANNEL}
         channelId={channelId}
         community={undefined}
-        userProfiles={{}}
+        nonMembers={{}}
         handleBackButton={jest.fn()}
         updateChannelMembership={jest.fn()}
       />
@@ -676,6 +677,13 @@ describe('UpdateChannelMembership component', () => {
         photo: 'foobar',
       }),
     }
+    const nonMembers: { [userId: string]: DmChannelUserData } = {}
+    Object.entries(userProfiles).forEach(([userId, userProfile]) => {
+      nonMembers[userId] = {
+        connected: true,
+        user: userProfile,
+      }
+    })
     const rendered = renderComponent(
       <UpdateChannelMembership
         channelName={channelName}
@@ -683,7 +691,7 @@ describe('UpdateChannelMembership component', () => {
         channelType={ChannelType.CHANNEL}
         channelId={channelId}
         community={undefined}
-        userProfiles={userProfiles}
+        nonMembers={nonMembers}
         handleBackButton={jest.fn()}
         updateChannelMembership={jest.fn()}
       />
@@ -1539,6 +1547,13 @@ describe('UpdateChannelMembership component', () => {
         channels: [channelId],
       }),
     }
+    const nonMembers: { [userId: string]: DmChannelUserData } = {}
+    Object.entries(userProfiles).forEach(([userId, userProfile]) => {
+      nonMembers[userId] = {
+        connected: true,
+        user: userProfile,
+      }
+    })
     const rendered = renderComponent(
       <UpdateChannelMembership
         channelName={channelName}
@@ -1546,7 +1561,7 @@ describe('UpdateChannelMembership component', () => {
         channelType={ChannelType.CHANNEL}
         channelId={channelId}
         community={undefined}
-        userProfiles={userProfiles}
+        nonMembers={nonMembers}
         handleBackButton={jest.fn()}
         updateChannelMembership={jest.fn()}
       />

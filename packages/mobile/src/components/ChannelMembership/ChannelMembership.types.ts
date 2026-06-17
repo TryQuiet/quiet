@@ -1,5 +1,6 @@
 import { Community, UserProfile, type ChannelType } from '@quiet/types'
 import { HeaderTitleProps } from '../Appbar/Appbar.types'
+import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
 
 export interface ChannelMembershipProps {
   channelTitle: string
@@ -8,7 +9,7 @@ export interface ChannelMembershipProps {
   channelType: ChannelType
   community?: Community
   userProfiles: Record<string, UserProfile>
-  members: UserProfile[] | undefined
+  members: DmChannelUserData[] | undefined
   memberCount: number | undefined
   handleBackButton: () => void
 }

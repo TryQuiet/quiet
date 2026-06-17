@@ -10,6 +10,8 @@ import { Spinner } from '../../Spinner/Spinner.component'
 import { createLogger } from '../../../utils/logger'
 import { uniqueId } from 'lodash'
 import { USER_ROW_HEIGHT } from '../ChannelMembership.types'
+import { ProfilePhotoWithBadge } from '../../ProfilePhoto/ProfilePhotoWithBadge.component'
+import { ProfilePhotoSize } from '../../ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('UpdateChannelMembershipList')
 
@@ -20,7 +22,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
   setOptions,
   visibleOptionsIndices,
   channelId,
-  userProfiles,
+  nonMembers,
   maxVisibleOptions,
 }) => {
   const [hasOptions, setHasOptions] = useState<boolean | undefined>(undefined)
@@ -37,11 +39,11 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
 
   useEffect(() => {
     setHasOptions(
-      visibleOptionsIndices == null || Object.values(userProfiles ?? {}).length === 0
+      visibleOptionsIndices == null || Object.values(nonMembers ?? {}).length === 0
         ? undefined
         : visibleOptionsIndices.size > 0
     )
-  }, [visibleOptionsIndices, userProfiles])
+  }, [visibleOptionsIndices, nonMembers])
 
   const renderItem = (listItem: ListRenderItemInfo<number>) => {
     // @ts-expect-error
@@ -67,14 +69,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
           paddingVertical: 11,
         }}
       >
-        <ProfilePhoto
-          userId={item.id}
-          username={item.label}
-          photo={userProfiles[item.id]?.photo}
-          profilePhoto={userProfiles[item.id]?.profilePhoto}
-          size={32}
-          borderRadius={4}
-        />
+        <ProfilePhotoWithBadge userData={nonMembers[item.id]} photoBorderRadius={4} size={ProfilePhotoSize.MEDIUM} />
         <Typography fontSize={16} style={{ color: labelColor }}>
           {item.label}
         </Typography>

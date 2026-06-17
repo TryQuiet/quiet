@@ -7,9 +7,11 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { UserProfile } from '@quiet/types'
 import { Spinner } from '../Spinner/Spinner.component'
 import { USER_ROW_HEIGHT } from './ChannelMembership.types'
+import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
+import { ProfilePhotoSize, type DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
 
 export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({ members, channelId }) => {
-  const renderItem = (listItem: ListRenderItemInfo<UserProfile>) => {
+  const renderItem = (listItem: ListRenderItemInfo<DmChannelUserData>) => {
     const { item } = listItem
     const labelColor = defaultTheme.palette.typography.main
     return (
@@ -24,18 +26,11 @@ export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({ me
           paddingHorizontal: 16,
           height: USER_ROW_HEIGHT,
         }}
-        testID={`channel-membership-list-item-${channelId}-${item.userId}`}
+        testID={`channel-membership-list-item-${channelId}-${item.user.userId}`}
       >
-        <ProfilePhoto
-          userId={item.userId}
-          username={item.nickname}
-          photo={item.photo}
-          profilePhoto={item.profilePhoto}
-          borderRadius={4}
-          size={32}
-        />
+        <ProfilePhotoWithBadge userData={item} photoBorderRadius={4} size={ProfilePhotoSize.MEDIUM} />
         <Typography fontSize={16} style={{ color: labelColor }}>
-          {item.nickname}
+          {item.user.nickname}
         </Typography>
       </View>
     )
@@ -56,7 +51,7 @@ export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({ me
       </Typography>
       <FlatList
         data={[...members]}
-        keyExtractor={item => item.userId}
+        keyExtractor={item => item.user.userId}
         renderItem={item => renderItem(item)}
         ItemSeparatorComponent={() => {
           return <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />

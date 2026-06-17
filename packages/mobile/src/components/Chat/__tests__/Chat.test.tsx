@@ -43,6 +43,7 @@ describe('Chat component', () => {
     channelName: 'general',
     newChat: false,
     userProfiles: {},
+    connectedPeers: [],
     pendingMessages: {},
     messages: {
       count: 16,
@@ -258,6 +259,7 @@ describe('Chat component', () => {
     updateFileAttachments: jest.fn(),
     updateImageAttachments: jest.fn(),
     removeFilePreview: jest.fn(),
+    setDmChannelOnSelection: jest.fn(),
   }
 
   it('renders component', () => {

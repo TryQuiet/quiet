@@ -1,4 +1,5 @@
 import { Community, UserProfile, type ChannelType } from '@quiet/types'
+import type { DmChannelUserData } from '../../ProfilePhoto/ProfilePhoto.types'
 
 export interface UpdateChannelMembershipProps {
   channelTitle: string
@@ -6,7 +7,7 @@ export interface UpdateChannelMembershipProps {
   channelName: string
   channelType: ChannelType
   community?: Community
-  userProfiles: Record<string, UserProfile>
+  nonMembers: Record<string, DmChannelUserData>
   updateChannelMembership: (memberIds: string[]) => void
   handleBackButton: () => void
 }

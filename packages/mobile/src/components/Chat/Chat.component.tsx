@@ -36,6 +36,7 @@ import type { SelectableListOption } from '../ChannelMembership/UpdateChannelMem
 import Fuse from 'fuse.js'
 import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
 import { generateTruncatedDmTitle } from '../../utils/functions/dmUtils/dmUtils'
+import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
 
 const logger = createLogger('chat:component')
 
@@ -55,6 +56,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   channelId,
   newChat,
   userProfiles,
+  connectedPeers,
   me,
   messages = {
     count: 0,
@@ -76,6 +78,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
   createOrSetDmChannelAction,
+  setDmChannelOnSelection,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
@@ -90,10 +93,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   const [fuzzySearch, setFuzzySearch] = useState<Fuse<SelectableListOption> | undefined>(undefined)
   const inputRef = useRef<TextInput>(null)
   const [headerTitle, setHeaderTitle] = useState<string>('')
+  const [userData, setUserData] = useState<Record<string, DmChannelUserData>>({})
 
   const _initializeOptions = () => {
     const initialOptions: SelectableListOption[] = []
     const visibleIndices: Set<number> = new Set()
+    const updatedUsers: { [userId: string]: DmChannelUserData } = {}
     let index = 0
     for (const user of Object.values(userProfiles)) {
       const mutable = true
@@ -102,6 +107,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
       if (!hide) {
         visibleIndices.add(index)
+        updatedUsers[user.userId] = {
+          connected:
+            (me != null && me.userId === user.userId) ||
+            (user.userData != null && connectedPeers.includes(user.userData.peerId)),
+          user,
+        } as DmChannelUserData
       }
       index++
     }
@@ -115,6 +126,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
         threshold: 0.3,
       })
     )
+    setUserData(updatedUsers)
   }
 
   const _clearOptions = () => {
@@ -155,7 +167,13 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
     } else {
       _clearOptions()
     }
-  }, [newChat, userProfiles])
+  }, [newChat, userProfiles, me, connectedPeers])
+
+  useEffect(() => {
+    if (options == null) return
+    const selectedIds = options.filter(option => option.selected).map(option => option.id)
+    setDmChannelOnSelection(selectedIds)
+  }, [options, me])
 
   const _setAllOptionsVisible = (): Set<number> => {
     if (options == null) return new Set()
@@ -557,7 +575,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
               visibleOptionsIndices={visibleOptionIndices}
               setOptions={setOptions}
               channelId={channelId ?? EMPTY_CHANNEL_ID}
-              userProfiles={userProfiles}
+              nonMembers={userData}
               maxVisibleOptions={3}
             />
           </View>

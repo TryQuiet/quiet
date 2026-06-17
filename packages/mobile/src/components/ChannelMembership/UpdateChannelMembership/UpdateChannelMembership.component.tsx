@@ -21,7 +21,7 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
   channelName,
   channelId,
   channelType,
-  userProfiles,
+  nonMembers,
   community,
   updateChannelMembership,
   handleBackButton,
@@ -39,16 +39,16 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
     const initialOptions: SelectableListOption[] = []
     const visibleIndices: Set<number> = new Set()
     let index = 0
-    for (const user of Object.values(userProfiles)) {
+    for (const userData of Object.values(nonMembers)) {
       let mutable = true
       let selected = false
       let hide = false
-      if ((user.channels ?? []).includes(channelId)) {
+      if ((userData.user.channels ?? []).includes(channelId)) {
         mutable = false
         selected = true
         hide = true
       }
-      initialOptions.push({ label: user.nickname, id: user.userId, selected, index, mutable, hide })
+      initialOptions.push({ label: userData.user.nickname, id: userData.user.userId, selected, index, mutable, hide })
       if (!hide) {
         visibleIndices.add(index)
       }
@@ -96,7 +96,7 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
 
   useEffect(() => {
     _initializeOptions()
-  }, [userProfiles])
+  }, [nonMembers])
 
   const _setAllOptionsVisible = (): Set<number> => {
     if (options == null) return new Set()
@@ -181,7 +181,7 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
             visibleOptionsIndices={visibleOptionIndices}
             setOptions={setOptions}
             channelId={channelId}
-            userProfiles={userProfiles}
+            nonMembers={nonMembers}
           />
         </View>
       </KeyboardAvoidingView>

@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
-import { communities, publicChannels, messages, files, users, errors } from '@quiet/state-manager'
+import { communities, publicChannels, messages, files, users, errors, network } from '@quiet/state-manager'
 import {
   CancelDownload,
   ChannelType,
@@ -79,6 +79,8 @@ export const ChannelScreen: FC = () => {
   const communityError = useSelector(errors.selectors.currentCommunityErrors)
 
   const community = useSelector(communities.selectors.currentCommunity)
+
+  const connectedPeers = useSelector(network.selectors.connectedPeers)
 
   const error = communityError[SocketActions.CREATE_CHANNEL]
 
@@ -246,6 +248,22 @@ export const ChannelScreen: FC = () => {
     [dispatch]
   )
 
+  const setDmChannelOnSelection = useCallback(
+    (selectedIds: string[]) => {
+      if (channels == null) return
+      if (me != null) {
+        selectedIds.push(me.userId)
+      }
+      const possibleDmId = generateDmChannelId(selectedIds)
+      if (channels.find(channel => channel.id === possibleDmId)) {
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId: possibleDmId }))
+      } else {
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
+      }
+    },
+    [dispatch, channels, me]
+  )
+
   const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
 
   const openUrl = useCallback((url: string) => {
@@ -270,6 +288,7 @@ export const ChannelScreen: FC = () => {
         count: channelMessagesCount,
         groups: channelMessages,
       }}
+      connectedPeers={connectedPeers}
       pendingMessages={pendingMessages}
       downloadStatuses={downloadStatusesMapping}
       downloadFile={downloadFile}
@@ -286,6 +305,7 @@ export const ChannelScreen: FC = () => {
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
       createOrSetDmChannelAction={createOrSetDmChannelAction}
+      setDmChannelOnSelection={setDmChannelOnSelection}
     />
   )
 }

@@ -7,6 +7,7 @@ import {
   MessageSendingStatus,
   PublicChannel,
   type ChannelType,
+  type PublicChannelStorage,
   type UserProfile,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -59,7 +60,9 @@ export interface ChatProps extends UserLabelHandlers {
   newChat: boolean
   userProfiles: Record<string, UserProfile>
   me?: UserProfile
+  connectedPeers: string[]
   createOrSetDmChannelAction: (memberIds: string[]) => void
+  setDmChannelOnSelection: (selectedIds: string[]) => void
 }
 
 export interface ChannelMessagesComponentProps extends UserLabelHandlers {

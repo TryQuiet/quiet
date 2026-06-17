@@ -1,5 +1,6 @@
 import { UserProfile } from '@quiet/types'
 import React, { SetStateAction } from 'react'
+import type { DmChannelUserData } from '../../ProfilePhoto/ProfilePhoto.types'
 
 export interface SelectableListOption {
   id: string
@@ -14,7 +15,7 @@ export interface UpdateChannelMembershipListProps {
   options: SelectableListOption[] | undefined
   setOptions: React.Dispatch<SetStateAction<SelectableListOption[] | undefined>>
   visibleOptionsIndices: Set<number> | undefined
-  userProfiles: Record<string, UserProfile>
+  nonMembers: Record<string, DmChannelUserData>
   channelId: string
   maxVisibleOptions?: number
 }

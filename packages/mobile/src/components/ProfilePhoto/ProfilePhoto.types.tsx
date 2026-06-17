@@ -19,7 +19,7 @@ export enum ProfilePhotoSize {
 
 export interface ProfilePhotoWithBadgeProps {
   userData: DmChannelUserData | undefined
-  channel: PublicChannelStorage | undefined
+  channel?: PublicChannelStorage
   size?: ProfilePhotoSize
   photoBorderRadius?: number
   badgeBorderColor?: string

@@ -14,7 +14,7 @@ storiesOf('UpdateChannelMembership', module).add('Default', () => (
     channelName={'private-channel'}
     channelType={ChannelType.CHANNEL}
     channelId={'abc123'}
-    userProfiles={{}}
+    nonMembers={{}}
     updateChannelMembership={(memberIds: string[]) => {
       logger.info('updating channel membership')
     }}

@@ -36,6 +36,7 @@ storiesOf('Chat', module)
         teamId: 'foobar',
       }}
       channelName='Quiet'
+      connectedPeers={[]}
       messages={{
         count: 16,
         groups: {
@@ -261,6 +262,7 @@ storiesOf('Chat', module)
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
       createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
   .add('Empty', () => (
@@ -288,6 +290,7 @@ storiesOf('Chat', module)
         teamId: 'foobar',
       }}
       channelName='Quiet'
+      connectedPeers={[]}
       updateFileAttachments={function (_filesData: DocumentPickerResponse[]): void {
         logger.info('updateFileAttachments')
       }}
@@ -302,6 +305,7 @@ storiesOf('Chat', module)
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
       createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
   .add('MultiDayChat', () => (
@@ -337,6 +341,7 @@ storiesOf('Chat', module)
         type: ChannelType.CHANNEL,
         teamId: 'foobar',
       }}
+      connectedPeers={[]}
       channelName='StickyDateTest'
       messages={{
         count: 40,
@@ -772,5 +777,6 @@ storiesOf('Chat', module)
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (nickname: string): void {}}
       createOrSetDmChannelAction={function (): void {}}
+      setDmChannelOnSelection={function (): void {}}
     />
   ))
