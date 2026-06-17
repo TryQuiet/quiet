@@ -28,10 +28,13 @@ export type RootStackParamList = {
   }
   [ScreenNames.ChannelMembershipScreen]: {
     channelName: string
+    channelTitle: string
     channelId: string
     channelType: ChannelType
   }
   [ScreenNames.UpdateChannelMembershipScreen]: {
+    channelTitle: string
+    channelType: ChannelType
     channelName: string
     channelId: string
   }

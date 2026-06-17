@@ -5,12 +5,14 @@ import { DefaultAppbarTitle } from '../Appbar/DefaultAppbarHeaderTitle.component
 import { ChannelMembershipHeaderTitleProps } from './ChannelMembership.types'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { ChannelType } from '@quiet/types'
 
 export const ChannelMembershipAppbarHeaderTitle: React.FC<ChannelMembershipHeaderTitleProps> = ({
   title,
   fontSize = 16,
   fontWeight = 'medium',
-  channelName,
+  channelTitle,
+  channelType,
   membershipCount,
 }) => {
   return (
@@ -28,8 +30,8 @@ export const ChannelMembershipAppbarHeaderTitle: React.FC<ChannelMembershipHeade
         </Typography>
       </View>
       <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-        <LockIcon fill={true} size={16} />
-        <Typography fontSize={12}>{channelName}</Typography>
+        {channelType === ChannelType.CHANNEL && <LockIcon fill={true} size={16} />}
+        <Typography fontSize={12}>{channelTitle}</Typography>
       </View>
     </View>
   )

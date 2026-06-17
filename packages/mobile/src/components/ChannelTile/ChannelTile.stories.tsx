@@ -4,6 +4,7 @@ import { storiesOf } from '@storybook/react-native'
 import { ChannelTile } from './ChannelTile.component'
 
 import { createLogger } from '../../utils/logger'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('channelTile:stories')
 
@@ -17,6 +18,7 @@ storiesOf('ChannelTile', module)
       redirect={(id: string) => {
         logger.info(`Clicked ${id}`)
       }}
+      channelType={ChannelType.CHANNEL}
     />
   ))
   .add('Unread', () => (
@@ -28,6 +30,7 @@ storiesOf('ChannelTile', module)
       redirect={(id: string) => {
         logger.info(`Clicked ${id}`)
       }}
+      channelType={ChannelType.CHANNEL}
     />
   ))
   .add('Private', () => (
@@ -39,5 +42,6 @@ storiesOf('ChannelTile', module)
       redirect={(id: string) => {
         logger.info(`Clicked ${id}`)
       }}
+      channelType={ChannelType.CHANNEL}
     />
   ))

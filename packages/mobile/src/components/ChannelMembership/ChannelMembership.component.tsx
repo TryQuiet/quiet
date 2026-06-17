@@ -21,6 +21,7 @@ const TITLE = 'Permissions'
 const NON_OWNER_TITLE = 'Members'
 
 export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
+  channelTitle,
   channelName,
   channelId,
   channelType,
@@ -43,12 +44,14 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
       navigationActions.replaceScreen({
         screen: ScreenNames.UpdateChannelMembershipScreen,
         params: {
+          channelTitle,
           channelName,
           channelId,
+          channelType,
         },
       })
     )
-  }, [dispatch, channelName, channelId])
+  }, [dispatch, channelTitle, channelId])
 
   const goBack = () => {
     if (!loading) {
@@ -58,10 +61,10 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
 
   // Don't loose channel name during store cleanup
   useEffect(() => {
-    if (channelName !== '') {
-      setDisplayedName(channelName)
+    if (channelTitle !== '') {
+      setDisplayedName(channelTitle)
     }
-  }, [channelName])
+  }, [channelTitle])
 
   useEffect(() => {
     setIsPrivateChannelOwner(isOwner && channelType === ChannelType.CHANNEL)
@@ -85,7 +88,8 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
           titleComponent={
             <ChannelMembershipAppbarHeaderTitle
               title={headerTitle}
-              channelName={displayedName}
+              channelTitle={displayedName}
+              channelType={channelType}
               membershipCount={memberCount}
             />
           }

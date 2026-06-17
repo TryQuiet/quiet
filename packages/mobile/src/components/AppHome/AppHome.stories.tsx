@@ -4,6 +4,7 @@ import { storiesOf } from '@storybook/react-native'
 import { AppHome } from './AppHome.component'
 
 import { createLogger } from '../../utils/logger'
+import { ChannelType } from '@quiet/types'
 
 const logger = createLogger('channelList:stories')
 
@@ -23,6 +24,7 @@ storiesOf('ChannelList', module)
           redirect: (id: string) => {
             logger.info(`Clicked ${id}`)
           },
+          channelType: ChannelType.CHANNEL,
         },
         {
           name: 'spam',
@@ -32,6 +34,7 @@ storiesOf('ChannelList', module)
           redirect: (id: string) => {
             logger.info(`Clicked ${id}`)
           },
+          channelType: ChannelType.CHANNEL,
         },
         {
           name: 'design',
@@ -41,6 +44,7 @@ storiesOf('ChannelList', module)
           redirect: (id: string) => {
             logger.info(`Clicked ${id}`)
           },
+          channelType: ChannelType.CHANNEL,
         },
         {
           name: 'qa',
@@ -50,6 +54,7 @@ storiesOf('ChannelList', module)
           redirect: (id: string) => {
             logger.info(`Clicked ${id}`)
           },
+          channelType: ChannelType.CHANNEL,
         },
         {
           name: 'private-chat',
@@ -59,6 +64,7 @@ storiesOf('ChannelList', module)
           redirect: (id: string) => {
             logger.info(`Clicked ${id}`)
           },
+          channelType: ChannelType.CHANNEL,
         },
       ]}
     />

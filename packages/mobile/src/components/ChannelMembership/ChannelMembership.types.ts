@@ -2,6 +2,7 @@ import { Community, UserProfile, type ChannelType } from '@quiet/types'
 import { HeaderTitleProps } from '../Appbar/Appbar.types'
 
 export interface ChannelMembershipProps {
+  channelTitle: string
   channelName: string
   channelId: string
   channelType: ChannelType
@@ -13,7 +14,8 @@ export interface ChannelMembershipProps {
 }
 
 export interface ChannelMembershipHeaderTitleProps extends HeaderTitleProps {
-  channelName: string
+  channelTitle: string
+  channelType: ChannelType
   membershipCount?: number
 }
 

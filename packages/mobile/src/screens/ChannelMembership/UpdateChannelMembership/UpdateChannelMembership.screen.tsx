@@ -12,7 +12,7 @@ import { UpdateChannelMembership } from '../../../components/ChannelMembership/U
 export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelName, channelId } = route.params
+  const { channelTitle, channelName, channelType, channelId } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -68,7 +68,9 @@ export const UpdateChannelMembershipScreen: FC<UpdateChannelMembershipScreenProp
 
   return (
     <UpdateChannelMembership
+      channelTitle={channelTitle}
       channelName={channelName}
+      channelType={channelType}
       channelId={channelId}
       community={community}
       userProfiles={userProfiles ?? {}}

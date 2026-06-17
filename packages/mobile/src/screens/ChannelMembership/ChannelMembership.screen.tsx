@@ -9,11 +9,14 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ChannelMembership } from '../../components/ChannelMembership/ChannelMembership.component'
 import { UserProfile } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('ChannelMembershipScreen')
 
 export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelName, channelId, channelType } = route.params
+  const { channelTitle, channelName, channelId, channelType } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -25,7 +28,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   const [memberCount, setMemberCount] = useState<number>()
 
   useEffect(() => {
-    if (screen === ScreenNames.ChannelMembershipScreen && !channels.find(c => c.name === channelName)) {
+    if (screen === ScreenNames.ChannelMembershipScreen && !channels.find(c => c.id === channelId)) {
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.AppHomeScreen }))
       setMembers(undefined)
       setMemberCount(undefined)
@@ -34,11 +37,13 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
 
   useEffect(() => {
     if (screen === ScreenNames.ChannelMembershipScreen && userProfiles != null) {
+      logger.warn('User profiles', JSON.stringify(userProfiles, null, 2))
       const currentMembers = Object.values(userProfiles).filter(profile => profile.channels?.includes(channelId))
+      logger.warn('Current members', JSON.stringify(currentMembers, null, 2))
       setMembers(currentMembers)
       setMemberCount(currentMembers.length)
     }
-  }, [userProfiles])
+  }, [userProfiles, channels, channelId])
 
   const handleBackButton = useCallback(() => {
     dispatch(
@@ -50,6 +55,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
 
   return (
     <ChannelMembership
+      channelTitle={channelTitle}
       channelName={channelName}
       channelId={channelId}
       channelType={channelType}

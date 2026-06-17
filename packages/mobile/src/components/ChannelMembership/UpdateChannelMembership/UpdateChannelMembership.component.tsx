@@ -17,8 +17,10 @@ const logger = createLogger('ChannelMembership')
 const HEADER_TITLE = 'Add members'
 
 export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = ({
+  channelTitle,
   channelName,
   channelId,
+  channelType,
   userProfiles,
   community,
   updateChannelMembership,
@@ -87,10 +89,10 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
 
   // Don't loose channel name during store cleanup
   useEffect(() => {
-    if (channelName !== '') {
-      setDisplayedName(channelName)
+    if (channelTitle !== '') {
+      setDisplayedName(channelTitle)
     }
-  }, [channelName])
+  }, [channelTitle])
 
   useEffect(() => {
     _initializeOptions()
@@ -141,7 +143,13 @@ export const UpdateChannelMembership: React.FC<UpdateChannelMembershipProps> = (
       >
         <Appbar
           title={HEADER_TITLE}
-          titleComponent={<ChannelMembershipAppbarHeaderTitle title={HEADER_TITLE} channelName={displayedName} />}
+          titleComponent={
+            <ChannelMembershipAppbarHeaderTitle
+              title={HEADER_TITLE}
+              channelTitle={displayedName}
+              channelType={channelType}
+            />
+          }
           back={goBack}
           submit={onPress}
         />

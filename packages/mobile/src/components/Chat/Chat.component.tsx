@@ -35,6 +35,7 @@ import { ChatAppbarHeaderTitle } from './ChatAppbarHeaderTitle.component'
 import type { SelectableListOption } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.types'
 import Fuse from 'fuse.js'
 import { UpdateChannelMembershipList } from '../ChannelMembership/UpdateChannelMembership/UpdateChannelMembershipList.component'
+import { generateTruncatedDmTitle } from '../../utils/functions/dmUtils/dmUtils'
 
 const logger = createLogger('chat:component')
 
@@ -43,7 +44,6 @@ const DEFAULT_PADDING = 20
 const DATE_FADE_IN_DURATION = 100 // ms - how quickly the date marker fades in
 const DATE_FADE_OUT_DURATION = 200 // ms - how quickly the date marker fades out
 const DATE_VISIBILITY_TIMEOUT = 2000 // ms - how long to show date marker after scrolling stops
-const MAX_DM_TITLE_MEMBER_NAMES = 2 // truncate DM names to a specific amount (e.g. 'bob, sue, alice' would become 'bob, sue and 1 more')
 
 const ChatInner: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -143,11 +143,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       setInputPlaceholder(`Message #${channelName}`)
       setHeaderTitle(channelName)
     } else {
-      const memberNames = channelName.split(', ')
-      const truncatedDmChannelName =
-        memberNames.length <= MAX_DM_TITLE_MEMBER_NAMES
-          ? channelName
-          : `${memberNames.slice(0, 2).join(', ')} and ${memberNames.length - MAX_DM_TITLE_MEMBER_NAMES} more`
+      const truncatedDmChannelName = generateTruncatedDmTitle(channelName)
       setInputPlaceholder(`Message ${truncatedDmChannelName}`)
       setHeaderTitle(truncatedDmChannelName)
     }

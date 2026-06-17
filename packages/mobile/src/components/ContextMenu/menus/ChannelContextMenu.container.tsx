@@ -15,11 +15,16 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
 import { ChannelType, UserProfile } from '@quiet/types'
+import { generateTruncatedDmTitle } from '../../../utils/functions/dmUtils/dmUtils'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('ChannelContextMenu')
 
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
 
   const [memberCountSuffix, setMemberCountSuffix] = useState<string>('')
+  const [title, setTitle] = useState<string>('')
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
@@ -35,10 +40,15 @@ export const ChannelContextMenu: FC = () => {
     setMemberCountSuffix(`${membersInChannel.length}`)
   }
 
-  let title = ''
-  if (channel?.name) {
-    title = channel.name
-  }
+  useEffect(() => {
+    if (channel?.displayedName) {
+      const resolvedTitle =
+        (channel.type ?? ChannelType.CHANNEL) === ChannelType.CHANNEL
+          ? channel.displayedName
+          : generateTruncatedDmTitle(channel.displayedName)
+      setTitle(resolvedTitle)
+    }
+  }, [channel])
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
 
@@ -56,32 +66,33 @@ export const ChannelContextMenu: FC = () => {
 
   useEffect(() => {
     _initializeData()
-  }, [userProfiles])
+  }, [userProfiles, channel])
 
   let items: ContextMenuItemProps[] = []
 
   if (channel?.public === false) {
     const isPrivateChannelOwner = isOwner && channel.type === ChannelType.CHANNEL
-    const title = isPrivateChannelOwner
+    const itemTitle = isPrivateChannelOwner
       ? 'Permissions'
       : channel.type === ChannelType.CHANNEL
       ? 'Members in this channel'
       : 'Members in this DM'
     const subtitle = isPrivateChannelOwner ? 'Members' : undefined
     items.push({
-      title,
+      title: itemTitle,
       subtitle,
       suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {
-          channelName: channel?.name,
+          channelTitle: title,
+          channelName: channel?.displayedName,
           channelId: channel?.id,
           channelType: channel?.type ?? ChannelType.CHANNEL,
         }),
     })
   }
 
-  if (isOwner) {
+  if (isOwner && channel?.type === ChannelType.CHANNEL) {
     items = [
       ...items,
       {
@@ -102,7 +113,15 @@ export const ChannelContextMenu: FC = () => {
   return (
     <ContextMenu
       title={title}
-      titleIcon={channel?.public ?? true ? <PublicChannelIcon /> : <LockIcon fill={true} />}
+      titleIcon={
+        channel?.type === ChannelType.DM ? (
+          <></>
+        ) : channel?.public ?? true ? (
+          <PublicChannelIcon />
+        ) : (
+          <LockIcon fill={true} />
+        )
+      }
       items={items}
       {...channelContextMenu}
     />

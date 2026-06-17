@@ -2,11 +2,19 @@ import React from 'react'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelTile } from './ChannelTile.component'
+import { ChannelType } from '@quiet/types'
 
 describe('ChannelTile component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
-      <ChannelTile name={'general'} id={'general'} unread={false} isPublic={true} redirect={jest.fn()} />
+      <ChannelTile
+        name={'general'}
+        id={'general'}
+        unread={false}
+        isPublic={true}
+        redirect={jest.fn()}
+        channelType={ChannelType.CHANNEL}
+      />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -370,7 +378,14 @@ describe('ChannelTile component', () => {
 
   it('should match inline snapshot (unread)', () => {
     const { toJSON } = renderComponent(
-      <ChannelTile name={'general'} id={'general'} unread={true} isPublic={true} redirect={jest.fn()} />
+      <ChannelTile
+        name={'general'}
+        id={'general'}
+        unread={true}
+        isPublic={true}
+        redirect={jest.fn()}
+        channelType={ChannelType.CHANNEL}
+      />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -768,7 +783,14 @@ describe('ChannelTile component', () => {
 
   it('should match inline snapshot (private)', () => {
     const { toJSON } = renderComponent(
-      <ChannelTile name={'general'} id={'general'} unread={false} isPublic={false} redirect={jest.fn()} />
+      <ChannelTile
+        name={'general'}
+        id={'general'}
+        unread={false}
+        isPublic={false}
+        redirect={jest.fn()}
+        channelType={ChannelType.CHANNEL}
+      />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`

@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { AppHome } from './AppHome.component'
+import { ChannelType } from '@quiet/types'
 
 describe('AppHome component', () => {
   it('should match inline snapshot', () => {
@@ -20,6 +21,7 @@ describe('AppHome component', () => {
             unread: false,
             isPublic: true,
             redirect: jest.fn(),
+            channelType: ChannelType.CHANNEL,
           },
           {
             name: 'spam',
@@ -30,6 +32,7 @@ describe('AppHome component', () => {
             unread: false,
             isPublic: true,
             redirect: jest.fn(),
+            channelType: ChannelType.CHANNEL,
           },
           {
             name: 'design',
@@ -40,6 +43,7 @@ describe('AppHome component', () => {
             unread: true,
             isPublic: true,
             redirect: jest.fn(),
+            channelType: ChannelType.CHANNEL,
           },
           {
             name: 'qa',
@@ -50,6 +54,7 @@ describe('AppHome component', () => {
             unread: false,
             isPublic: true,
             redirect: jest.fn(),
+            channelType: ChannelType.CHANNEL,
           },
           {
             name: 'private-chat',
@@ -60,6 +65,7 @@ describe('AppHome component', () => {
             unread: false,
             isPublic: false,
             redirect: jest.fn(),
+            channelType: ChannelType.CHANNEL,
           },
         ]}
       />
