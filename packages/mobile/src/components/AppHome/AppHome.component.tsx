@@ -47,80 +47,82 @@ export const AppHome: FC<AppHomeProps> = ({
       {channelTiles.length === 0 || !community ? (
         <Spinner description='Connecting to peers' />
       ) : (
-        <ScrollView
-          style={{
-            backgroundColor: defaultTheme.palette.background.white,
-            flexDirection: 'column',
-            flex: 1,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-          }}
-        >
-          <View
+        <>
+          <ScrollView
             style={{
-              flexDirection: 'column',
               backgroundColor: defaultTheme.palette.background.white,
-              justifyContent: 'flex-start',
+              flexDirection: 'column',
+              flex: 1,
               borderTopLeftRadius: 16,
               borderTopRightRadius: 16,
             }}
-            testID={'messages-home-container'}
           >
             <View
               style={{
+                flexDirection: 'column',
+                backgroundColor: defaultTheme.palette.background.white,
+                justifyContent: 'flex-start',
                 borderTopLeftRadius: 16,
                 borderTopRightRadius: 16,
-                flexDirection: 'row',
-                backgroundColor: defaultTheme.palette.background.white,
-                paddingTop: 16,
-                paddingBottom: 8,
-                paddingLeft: 16,
-                alignItems: 'center',
-                alignContent: 'center',
-                justifyContent: 'space-between',
               }}
-              testID={'channel-list-title'}
+              testID={'messages-home-container'}
             >
-              <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
-                Channels
-              </Typography>
-              <PlusButton onPress={createChannel} />
+              <View
+                style={{
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16,
+                  flexDirection: 'row',
+                  backgroundColor: defaultTheme.palette.background.white,
+                  paddingTop: 16,
+                  paddingBottom: 8,
+                  paddingLeft: 16,
+                  alignItems: 'center',
+                  alignContent: 'center',
+                  justifyContent: 'space-between',
+                }}
+                testID={'channel-list-title'}
+              >
+                <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
+                  Channels
+                </Typography>
+                <PlusButton onPress={createChannel} />
+              </View>
+              <FlatList
+                data={channelTiles}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => <ChannelTile {...item} />}
+                style={{ backgroundColor: defaultTheme.palette.background.white }}
+                testID={'channel-list'}
+              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  backgroundColor: defaultTheme.palette.background.white,
+                  paddingTop: 16,
+                  paddingBottom: 8,
+                  paddingLeft: 16,
+                  alignItems: 'center',
+                  alignContent: 'center',
+                  justifyContent: 'space-between',
+                }}
+                testID={'dm-list-title'}
+              >
+                <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
+                  Direct Messages
+                </Typography>
+                <PlusButton onPress={createDm} />
+              </View>
+              <FlatList
+                data={dmTiles}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => <ChannelTile {...item} />}
+                style={{ backgroundColor: defaultTheme.palette.background.white }}
+                testID={'dm-list'}
+              />
             </View>
-            <FlatList
-              data={channelTiles}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => <ChannelTile {...item} />}
-              style={{ backgroundColor: defaultTheme.palette.background.white }}
-              testID={'channel-list'}
-            />
-            <View
-              style={{
-                flexDirection: 'row',
-                backgroundColor: defaultTheme.palette.background.white,
-                paddingTop: 16,
-                paddingBottom: 8,
-                paddingLeft: 16,
-                alignItems: 'center',
-                alignContent: 'center',
-                justifyContent: 'space-between',
-              }}
-              testID={'dm-list-title'}
-            >
-              <Typography fontSize={14} fontWeight={'medium'} color={'gray70'}>
-                Direct Messages
-              </Typography>
-              <PlusButton onPress={createDm} />
-            </View>
-            <FlatList
-              data={dmTiles}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => <ChannelTile {...item} />}
-              style={{ backgroundColor: defaultTheme.palette.background.white }}
-              testID={'dm-list'}
-            />
-          </View>
+          </ScrollView>
           <PencilButton onPress={createDm} />
-        </ScrollView>
+        </>
       )}
     </View>
   )
