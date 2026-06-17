@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { FlatList, View } from 'react-native'
+import { FlatList, ScrollView, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Appbar } from '../Appbar/Appbar.component'
 import { AppHomeProps } from './AppHome.types'
@@ -47,7 +47,7 @@ export const AppHome: FC<AppHomeProps> = ({
       {channelTiles.length === 0 || !community ? (
         <Spinner description='Connecting to peers' />
       ) : (
-        <View
+        <ScrollView
           style={{
             backgroundColor: defaultTheme.palette.background.white,
             flexDirection: 'column',
@@ -120,7 +120,7 @@ export const AppHome: FC<AppHomeProps> = ({
             />
           </View>
           <PencilButton onPress={createDm} />
-        </View>
+        </ScrollView>
       )}
     </View>
   )

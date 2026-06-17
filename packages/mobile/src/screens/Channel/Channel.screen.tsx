@@ -40,6 +40,11 @@ export const ChannelScreen: FC = () => {
         channelId: '', // Necessary for marking channels as unread on channel's list
       })
     )
+    dispatch(
+      publicChannels.actions.setNewMessageOpen({
+        isOpen: false,
+      })
+    )
     return true
   }, [dispatch])
 
