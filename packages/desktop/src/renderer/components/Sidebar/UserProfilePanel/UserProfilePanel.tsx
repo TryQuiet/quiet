@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { Identity, UserProfile } from '@quiet/types'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
-import Jdenticon from '../../Jdenticon/Jdenticon'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 
 const PREFIX = 'UserProfilePanel-'
 
@@ -22,22 +22,20 @@ const classes = {
 
 const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
   marginTop: theme.spacing(1),
-  borderTop: '1px solid rgba(255, 255, 255, 0.10)',
 
   [`& .${classes.button}`]: {
     color: theme.palette.colors.white,
     padding: '12px 16px',
     display: 'flex',
+    alignItems: 'center',
     justifyContent: 'flex-start',
-    transition: 'background-color 0.2s, opacity 0.2s',
+    transition: 'background-color 0.2s',
     width: '100%',
     textAlign: 'left',
-    opacity: 0.7,
     textTransform: 'lowercase',
     backgroundColor: 'inherit',
     '&:hover': {
-      opacity: 1,
-      backgroundColor: theme.palette.action.hover,
+      backgroundColor: 'rgba(255, 255, 255, 0.10)',
     },
   },
 
@@ -49,6 +47,7 @@ const UserProfilePanelButtonStyled = styled('div')(({ theme }) => ({
   },
 
   [`& .${classes.nickname}`]: {
+    opacity: 0.7,
     fontWeight: 300,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -88,21 +87,16 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
         classes={{ root: classes.button }}
         data-testid={'user-profile-menu-button'}
       >
-        {userProfile?.photo ? (
-          <img className={classes.profilePhoto} src={userProfile?.photo} alt={'Your user profile image'} />
-        ) : (
-          <Jdenticon
-            value={userID}
-            size='24'
-            style={{
-              width: '24px',
-              height: '24px',
-              background: theme.palette.background.paper,
-              borderRadius: '4px',
-              marginRight: '8px',
-            }}
-          />
-        )}
+        <ProfilePhoto
+          userProfile={userProfile}
+          userId={userID}
+          className={classes.profilePhoto}
+          size={24}
+          style={{
+            marginRight: '8px',
+            marginBottom: 0,
+          }}
+        />
         <Typography variant='body2' className={classes.nickname} data-testid='user-profile-nickname'>
           {username}
         </Typography>

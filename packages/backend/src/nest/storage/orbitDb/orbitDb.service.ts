@@ -10,7 +10,6 @@ import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesA
 import {
   createOrbitDB,
   type OrbitDBType,
-  type IdentitiesType,
   useAccessController as orbitDbUseAccessController, // this is to fix a linting issue about react hooks
   ComposedStorage,
   LRUStorage,
@@ -19,27 +18,41 @@ import {
   LogEntry,
   Entry,
   DatabaseType,
+  LogType,
+  IdentitiesType,
 } from '@orbitdb/core'
 import { HeliaLibp2p } from 'helia'
 import { OrbitDbStorage } from '../../types'
-import { IdentitiesWithStorage } from './identitiesWithStorage'
 import drain from 'it-drain'
 import IPFSBlockStorage from './ipfsBlockStorage'
 import { LocalDbService } from '../../local-db/local-db.service'
+import { SigChainService } from '../../auth/sigchain.service'
+import { LogEntrySyncMessage } from '../../qss/qss.types'
+import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 
 @Injectable()
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | undefined = undefined
-  private stores: Record<string, any> = {}
-  public identities: IdentitiesType | undefined = undefined
+  private stores: Record<string, DatabaseType> = {}
+  public identities: LFAIdentities | undefined = undefined
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
 
   constructor(
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
-    private readonly localDbService: LocalDbService
-  ) {}
+    private readonly localDbService: LocalDbService,
+    private readonly sigChainService: SigChainService,
+    private readonly lfaIdentities: LFAIdentities,
+    private readonly messagesAccessController: MessagesAccessController
+  ) {
+    OrbitDbService.events.on('update', (entry: LogEntry) => {
+      if (entry.identity == this.orbitDbInstance?.identity.hash) {
+        const store = this.stores[entry.id]
+        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
+      }
+    })
+  }
 
   get orbitDb() {
     if (this.orbitDbInstance == undefined) {
@@ -56,16 +69,24 @@ export class OrbitDbService {
       return
     }
 
-    orbitDbUseAccessController(MessagesAccessController)
+    orbitDbUseAccessController(
+      this.messagesAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+      }) as any
+    )
 
-    this.identities = await IdentitiesWithStorage(this.orbitDbDir, ipfs)
+    /**
+     * This overrides the built-in identity system to use our custom LFA-based identity service
+     */
+    this.identities = this.lfaIdentities
 
     const peerId = ipfs.libp2p.peerId
     const orbitDb = await createOrbitDB({
       ipfs,
       id: peerId.toString(),
       directory: this.orbitDbDir,
-      identities: this.identities,
+      identities: this.identities as any, // our type diverges from the base type
     })
 
     this.orbitDbInstance = orbitDb
@@ -130,12 +151,6 @@ export class OrbitDbService {
     const storeAddress = (store as { address: string }).address
     this.stores[storeAddress] = store
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
-
-    store.events.on('update', (entry: LogEntry) => {
-      if (entry.identity == this.orbitDbInstance?.identity.hash) {
-        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
-      }
-    })
 
     await this.joinPendingHeads(storeAddress)
     return store
@@ -230,12 +245,39 @@ export class OrbitDbService {
     await Promise.all(joinAll)
   }
 
+  public async handleFanoutMessage(message: LogEntrySyncMessage): Promise<boolean> {
+    this.logger.debug('Ingesting fanout message, ', message.payload.hash)
+    try {
+      const logEntry: LogEntry = this.sigChainService.crypto.decryptAndVerify<LogEntry>(
+        message.payload.encEntry.encrypted,
+        message.payload.encEntry.signature
+      ).contents
+      await this.ingestEntries([logEntry])
+      return true
+    } catch (err) {
+      this.logger.error(`Failed to handle fanout log entry sync message`, err)
+      return false
+    }
+  }
+
   public async getLogEntriesByHashes(address: string, hashes: string[]): Promise<LogEntry[]> {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
 
-    return []
+    const entries: LogEntry[] = []
+    const store = this.stores[address]
+    for (const hash of hashes) {
+      try {
+        const entry = await (store.log as LogType).get(hash)
+        entries.push(entry)
+      } catch (err) {
+        this.logger.warn(`Failed to get log entry ${hash} from store ${address}`, err)
+        continue
+      }
+    }
+
+    return entries
   }
 
   public static async createDefaultStorage(

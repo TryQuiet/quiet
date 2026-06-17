@@ -1,15 +1,11 @@
 import { setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 
-const webcrypto = new Crypto()
 setEngine(
   'newEngine',
-  webcrypto,
+  global.crypto,
   new CryptoEngine({
     name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
+    crypto: global.crypto,
+    subtle: global.crypto.subtle,
   })
 )
-
-global.crypto = webcrypto

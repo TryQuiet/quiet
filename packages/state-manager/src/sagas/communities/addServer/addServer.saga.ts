@@ -30,7 +30,9 @@ export function* addServerSaga(
   yield* put(
     communitiesActions.updateCommunityData({
       id,
-      serverHosts: updatedServerHosts,
+      updates: {
+        serverHosts: updatedServerHosts,
+      },
     } as UpdateCommunityPayload)
   )
 }

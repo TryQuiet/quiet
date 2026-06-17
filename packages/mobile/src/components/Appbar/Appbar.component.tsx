@@ -1,23 +1,28 @@
 import React, { FC } from 'react'
-import { View, Image, TouchableOpacity } from 'react-native'
+import { View, Image, TouchableOpacity, Keyboard } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { StyledAppbar } from './Appbar.styles'
 import { AppbarProps } from './Appbar.types'
 import { icons } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { DefaultAppbarTitle } from './DefaultAppbarHeaderTitle.component'
 
 export const Appbar: FC<AppbarProps> = ({
   title,
+  titleComponent,
   prefix,
   position,
   style,
   back,
+  submit,
   contextMenu,
   crossBackIcon = false,
 }) => {
   const arrow_icon = icons.arrow_left
   const cross_icon = icons.icon_close
   const menu_icon = icons.dots
+  const displayedTitleComponent =
+    titleComponent != null ? titleComponent : <DefaultAppbarTitle title={title} fontSize={16} fontWeight={'medium'} />
   return (
     <StyledAppbar style={style}>
       <View style={{ flex: 1 }}>
@@ -65,16 +70,13 @@ export const Appbar: FC<AppbarProps> = ({
           </View>
         </TouchableOpacity>
       </View>
-      <View style={{ flex: 4, alignItems: `${position || 'center'}` }}>
-        <Typography fontSize={16} fontWeight={'medium'}>
-          {title}
-        </Typography>
-      </View>
+      <View style={{ flex: 4, alignItems: `${position || 'center'}` }}>{displayedTitleComponent}</View>
       <View style={{ flex: 1 }}>
         {contextMenu && (
           <TouchableOpacity
             onPress={event => {
               event.persist()
+              Keyboard.dismiss()
               contextMenu.handleOpen()
             }}
             testID={'open_menu'}
@@ -89,6 +91,21 @@ export const Appbar: FC<AppbarProps> = ({
                   height: 16,
                 }}
               />
+            </View>
+          </TouchableOpacity>
+        )}
+        {submit && (
+          <TouchableOpacity
+            onPress={event => {
+              event.persist()
+              submit()
+            }}
+            testID={'submit'}
+          >
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Typography style={{ color: defaultTheme.palette.typography.blue }} fontSize={16}>
+                Done
+              </Typography>
             </View>
           </TouchableOpacity>
         )}

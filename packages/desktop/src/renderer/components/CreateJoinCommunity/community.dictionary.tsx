@@ -28,6 +28,7 @@ export const CreateCommunityDictionary = (handleRedirection?: () => void): Perfo
           },
         ]}
         testIdPrefix={'CreateCommunity'}
+        disableWebDrag={true}
       />
     )
   }
@@ -57,6 +58,7 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
           },
         ]}
         testIdPrefix={'JoinCommunity'}
+        disableWebDrag={true}
       />
     )
   }

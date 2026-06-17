@@ -31,9 +31,9 @@ export const ChannelScreen: FC = () => {
   }, [dispatch])
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton)
+    const subscription = BackHandler.addEventListener('hardwareBackPress', handleBackButton)
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
+      subscription.remove()
     }
   }, [handleBackButton])
 
@@ -53,7 +53,7 @@ export const ChannelScreen: FC = () => {
 
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
 
-  if (!isOwner || !isWebsocketConnected) {
+  if (!isWebsocketConnected || (!isOwner && currentChannel?.public)) {
     contextMenu = null
   }
 

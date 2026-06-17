@@ -7,7 +7,6 @@ import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
 import { setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '@quiet/common'
@@ -23,6 +22,8 @@ const logger = createLogger('main')
 let resetting = false
 let SOCKET_IO_SECRET: string | undefined = undefined
 let updating = false
+let rendererReady = false
+let quitting = false
 
 const updaterInterval = 15 * 60_000
 
@@ -32,10 +33,6 @@ export const isE2Etest = process.env.IS_E2E === 'true'
 if (isE2Etest) {
   autoUpdater.autoInstallOnAppQuit = false
 }
-
-const webcrypto = new Crypto()
-
-global.crypto = webcrypto
 
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
@@ -59,7 +56,11 @@ ElectronStore.initRenderer()
 const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
-  logger.info('This is second instance. Quitting')
+  if (isDev) {
+    logger.warn('Second instance started with same DATA_DIR environment variable set. Quitting')
+  } else {
+    logger.info('This is second instance. Quitting')
+  }
   app.quit()
   app.exit()
 } else {
@@ -93,13 +94,14 @@ const windowSize: IWindowSize = {
   height: 540,
 }
 
+const crypto = require('crypto').webcrypto
 setEngine(
   'newEngine',
-  webcrypto,
+  crypto,
   new CryptoEngine({
     name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
+    crypto: crypto,
+    subtle: crypto.subtle,
   })
 )
 
@@ -150,6 +152,16 @@ export const applyDevTools = async () => {
   )
 }
 
+const requestStateSaveOrQuit = () => {
+  if (rendererReady && isBrowserWindow(mainWindow) && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send('force-save-state')
+    return
+  }
+
+  logger.info('Renderer not ready for state save, quitting immediately')
+  app.quit()
+}
+
 app.on('open-url', (event, url) => {
   // MacOS only
   logger.info('Event app.open-url', url)
@@ -165,8 +177,11 @@ let browserWidth: number
 let browserHeight: number
 
 // Default title bar must be hidden for macos because we have custom styles for it
-const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
+const titleBarStyle = process.platform === 'darwin' ? 'hidden' : 'default'
 export const createWindow = async () => {
+  logger.trace('Creating splash and main windows')
+  logger.trace('Creating main window')
+  logger.time('Created mainWindow')
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
@@ -181,6 +196,8 @@ export const createWindow = async () => {
 
   remote.enable(mainWindow.webContents)
 
+  logger.trace('Creating splash window')
+  logger.time('Created splash')
   splash = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
@@ -196,8 +213,11 @@ export const createWindow = async () => {
 
   remote.enable(splash.webContents)
 
+  logger.trace('Loading splash HTML', splash.id)
   // eslint-disable-next-line
-  splash.loadURL(`file://${__dirname}/splash.html`)
+  splash.loadURL(`file://${__dirname}/splash.html`)?.then(() => {
+    logger.timeEnd('Created splash')
+  })
   splash.setAlwaysOnTop(false)
   splash.setMovable(true)
   splash.show()
@@ -214,20 +234,26 @@ export const createWindow = async () => {
   })
 
   mainWindow.setMinimumSize(600, 400)
+  logger.trace('Loading main HTML', mainWindow.id)
   /* eslint-disable */
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}`,
-      protocol: 'file:',
-      slashes: true,
-      hash: '/',
+  mainWindow
+    .loadURL(
+      url.format({
+        pathname: path.join(__dirname, './index.html'),
+        search: `dataPort=${ports.dataServer}`,
+        protocol: 'file:',
+        slashes: true,
+        hash: '/',
+      })
+    )
+    ?.then(() => {
+      logger.timeEnd('Created mainWindow')
     })
-  )
   /* eslint-enable */
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
     logger.info('Event mainWindow.closed')
+    rendererReady = false
     mainWindow = null
   })
   mainWindow.on('resize', () => {
@@ -259,7 +285,7 @@ export const createWindow = async () => {
     if (!mainWindow || currentFactor <= 0.25) return
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
-  logger.info('Created mainWindow')
+  logger.debug('App windows created')
 }
 
 export async function openHCaptcha(siteKey: string): Promise<string> {
@@ -495,10 +521,13 @@ app.on('ready', async () => {
   await sodium.ready
   SOCKET_IO_SECRET = sodium.to_hex(sodium.randombytes_buf(32))
 
+  logger.trace('Setting application menu')
   Menu.setApplicationMenu(null)
 
+  logger.trace('Applying dev tools')
   await applyDevTools()
 
+  logger.trace('Creating context menu')
   contextMenu({
     showInspectElement: false,
     showSaveLinkAs: true,
@@ -508,12 +537,22 @@ app.on('ready', async () => {
     showSaveImageAs: true,
   })
 
+  if (quitting) {
+    logger.warn('Quit requested before backend setup, skipping startup')
+    return
+  }
+
+  logger.trace('Getting ports')
   ports = await getPorts()
+
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
+    logger.info('Main window finished loading')
+    rendererReady = true
     // Only send the secret to the renderer via IPC, not via URL
     if (splash && !splash.isDestroyed()) {
+      logger.trace('Destroying splash window and showing main window')
       const [width, height] = splash.getSize()
       mainWindow?.setSize(width, height)
 
@@ -524,6 +563,7 @@ app.on('ready', async () => {
       mainWindow?.show()
     }
 
+    logger.trace('Creating temp files directory')
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     fs.readdir(temporaryFilesDirectory, (err, files) => {
@@ -536,6 +576,7 @@ app.on('ready', async () => {
     })
   })
 
+  logger.info('Forking backend process')
   const forkArgvs = [
     '-d',
     `${ports.dataServer}`,
@@ -559,7 +600,7 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     env: {
-      NODE_OPTIONS: '--experimental-global-customevent --trace-uncaught --enable-source-maps',
+      NODE_OPTIONS: '--trace-uncaught --enable-source-maps',
       DEBUG: process.env.DEBUG,
       LOG_DIR: process.env.LOG_DIR,
       COLORIZE: process.env.COLORIZE ?? 'true',
@@ -567,9 +608,11 @@ app.on('ready', async () => {
       STATIC_LOG_ID: process.env.STATIC_LOG_ID,
       QSS_ALLOWED: process.env.QSS_ALLOWED ?? 'false',
       QSS_ENDPOINT: process.env.QSS_ENDPOINT,
+      QPS_ALLOWED: process.env.QPS_ALLOWED ?? 'false',
       HCAPTCHA_TEMPLATE_PATH: path.join(__dirname, 'captcha.html'),
       HCAPTCHA_FORWARD_ENDPOINT: process.env.HCAPTCHA_FORWARD_ENDPOINT,
       IS_E2E: process.env.IS_E2E ?? 'false',
+      NETWORK_LOGGING: process.env.NETWORK_LOGGING ?? 'false',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
@@ -646,7 +689,7 @@ app.on('ready', async () => {
     logger.warn('Backend process close event', code, signal)
     backendProcess = null
     if (updating) return
-    mainWindow?.webContents.send('force-save-state')
+    requestStateSaveOrQuit()
   })
 
   backendProcess.on('error', e => {
@@ -663,11 +706,12 @@ app.on('ready', async () => {
   })
 
   mainWindow.on('close', e => {
+    logger.info('Main window close event received')
     if (resetting) return
 
     // --- macOS: hide instead of destroying the renderer ---
     if (process.platform === 'darwin' && !updating && backendProcess !== null) {
-      logger.info('Main window close (macOS) will hide after saving state')
+      logger.trace('Main window close (macOS) will hide after saving state')
       e.preventDefault()
       mainWindow?.webContents.send('force-save-state') // state‑saved → hide
       return
@@ -688,6 +732,7 @@ app.on('ready', async () => {
 
   // splash window is destroyed when mainWindow is ready and close should not fire in regular case
   splash?.once('close', e => {
+    logger.trace('Splash window close event received')
     if (resetting) return
 
     // in the case where the user closes the splash window before the main window is ready
@@ -696,15 +741,16 @@ app.on('ready', async () => {
       if (!updating) {
         e.preventDefault()
       }
-      logger.info('Closing splash window')
+      logger.trace('Closing splash window')
       backendProcess?.send('close')
       return
     }
-    logger.info('Splash window close event, saving state')
+    logger.trace('Splash window close event, saving state')
     mainWindow?.webContents.send('force-save-state')
   })
 
   ipcMain.on('state-saved', () => {
+    logger.info('ipcMain: state-saved')
     if (updating) return
 
     if (backendProcess === null) {
@@ -713,7 +759,7 @@ app.on('ready', async () => {
       return
     }
     if (process.platform === 'darwin' && !updating) {
-      logger.info('Saved state hiding window (macOS)')
+      logger.trace('Saved state hiding window (macOS)')
       mainWindow?.hide()
     } else {
       logger.info('Saved state closing window')
@@ -822,7 +868,7 @@ app.on('ready', async () => {
 })
 
 app.on('browser-window-created', (_, window) => {
-  logger.info('Event: app.browser-window-created', window.getTitle())
+  logger.info('Event: app.browser-window-created', window.id)
   remote.enable(window.webContents)
 })
 
@@ -849,8 +895,9 @@ app.on('activate', async () => {
 })
 
 app.on('before-quit', e => {
+  quitting = true
   if (backendProcess !== null) {
-    logger.info('App before-quit intercepted waiting for backend to exit')
+    logger.info('App before-quit intercepted waiting for backend to exit', e)
     if (!updating) {
       e.preventDefault()
     }
@@ -859,5 +906,5 @@ app.on('before-quit', e => {
     }
     return
   }
-  logger.info('App before-quit backend exited, quitting app')
+  logger.info('App before-quit backend exited, quitting app', e)
 })

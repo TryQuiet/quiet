@@ -19,7 +19,7 @@
     "build:noise": "cd ./3rd-party/js-libp2p-noise && npm i && npm run build",
     "build:orbitdb": "cd ./3rd-party/orbitdb && npm i && npm run build:dist && npm run build:debug",
     "applyPatches:qss": "patch -f -p0 < ./patch/qss.npmrc.patch || true",
-    "build:qss": "npm run applyPatches:qss && cd ./3rd-party/qss && pnpm run bootstrap",
+    "build:qss": "cd ./3rd-party/qss && pnpm run bootstrap",
     "build:submodules": "npm run build:auth && npm run build:noise && npm run build:orbitdb && npm run build:qss",
     "build:submodules:ci": "npm run build:auth && npm run build:noise && npm run build:orbitdb",
     "bootstrap": "npm run build:submodules && lerna bootstrap",
@@ -28,8 +28,8 @@
     "stop:qss": "cd ./3rd-party/qss && pnpm run run:app docker:down:complete"
   },
   "engines": {
-    "node": "18.20.4",
-    "npm": "10.7.0"
+    "node": "20.20.1",
+    "npm": "10.8.2"
   },
   "devDependencies": {
     "husky": "^9.0.11",
@@ -38,8 +38,8 @@
     "typescript": "^4.9.5"
   },
   "volta": {
-    "node": "18.20.4",
-    "npm": "10.7.0"
+    "node": "20.20.1",
+    "npm": "10.8.2"
   },
   "dependencies": {
     "unicode-emoji-json": "^0.8.0"

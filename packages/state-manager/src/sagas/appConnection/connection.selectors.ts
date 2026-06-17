@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { peersStatsAdapter } from './connection.adapter'
-import { isCurrentCommunityInitialized } from '../network/network.selectors'
+import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { composeInvitationShareUrl, createLibp2pAddress, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
@@ -21,9 +21,13 @@ export const torBootstrapProcess = createSelector(connectionSlice, reducerState 
 
 export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
 
+export const isQssConnected = createSelector(connectionSlice, reducerState => reducerState.isQssConnected)
+
 export const connectionProcess = createSelector(connectionSlice, reducerState => reducerState.connectionProcess)
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
+
+export const p2pEnabled = createSelector(connectionSlice, reducerState => reducerState.p2pEnabled)
 
 export const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
@@ -39,7 +43,8 @@ export const peerList = createSelector(
   userProfileSelectors.userProfiles,
   identitySelectors.currentPeerAddress,
   peerStats,
-  (userProfiles, localPeerAddress, stats) => {
+  connectedPeers,
+  (userProfiles, localPeerAddress, stats, connectedPeers) => {
     let arr: string[] = []
     if (userProfiles) {
       const profiles = Object.values(userProfiles)
@@ -52,7 +57,7 @@ export const peerList = createSelector(
         })
         .filter((address): address is string => address !== null && address !== undefined)
     }
-    const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress)
+    const filteredAndSortedPeers = filterAndSortPeers(arr, stats, localPeerAddress, true, connectedPeers)
     return filteredAndSortedPeers
   }
 )
@@ -82,6 +87,10 @@ export const invitationUrl = createSelector(
     if (!currentCommunity.name) {
       return ''
     }
+    if (!currentCommunity.teamId) {
+      logger.warn('Community is missing team ID')
+    }
+    const teamId = currentCommunity.teamId
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
     let inviteData: InvitationData = {
@@ -90,11 +99,12 @@ export const invitationUrl = createSelector(
       authData: {
         communityName: currentCommunity.name,
         seed: longLivedInvite.seed,
+        salt: longLivedInvite.salt,
+        teamId,
       },
       version: InvitationDataVersion.v2,
     }
     const qssEnabled = currentCommunity.qssEnabled
-    const teamId = currentCommunity.teamId
     const qssEndpoint = currentCommunity.qssEndpoint
 
     if (qssEnabled === true) {
@@ -109,10 +119,7 @@ export const invitationUrl = createSelector(
         version: InvitationDataVersion.v3,
         qssEnabled,
         qssEndpoint,
-        authData: {
-          ...inviteData.authData,
-          teamId,
-        },
+        authData: inviteData.authData,
       }
     }
     return composeInvitationShareUrl(inviteData)
@@ -137,7 +144,9 @@ export const connectionSelectors = {
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,
+  isQssConnected,
   socketIOSecret,
   isJoiningCompleted,
   peerStats,
+  p2pEnabled,
 }

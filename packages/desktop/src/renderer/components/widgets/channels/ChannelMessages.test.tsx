@@ -2,7 +2,8 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
-import { DisplayableMessage } from '@quiet/types'
+import type { DisplayableMessage } from '@quiet/types'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 describe('ChannelMessages', () => {
   beforeEach(() => {
@@ -42,6 +43,7 @@ describe('ChannelMessages', () => {
       <ChannelMessagesComponent
         duplicatedUsernameModalHandleOpen={jest.fn()}
         unregisteredUsernameModalHandleOpen={jest.fn()}
+        maxAutodownloadSizeBytes={DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         messages={messages}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}

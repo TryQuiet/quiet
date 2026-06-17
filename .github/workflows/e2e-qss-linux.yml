@@ -18,7 +18,7 @@ jobs:
       IS_CI: true
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -79,6 +79,13 @@ jobs:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test multipleClients.qss.test.ts
+
+      - name: Run multiple clients with QSS test (private channels)
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test multipleClients.privateChannels.qss.test.ts
 
       - name: Run one client with QSS test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0

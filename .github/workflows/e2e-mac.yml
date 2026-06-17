@@ -3,7 +3,17 @@ name: E2E Mac
 on: [workflow_call]
 jobs:
   mac:
-    runs-on: macos-15
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-26
+            binary_suffix: "-arm64"
+          # TODO: this seems to be broken right now, should we try to fix or decide to abandon intel mac tests?
+          # - os: macos-26-intel
+          #   binary_suffix: ""
+
     timeout-minutes: 180
     env:
       TEST_MODE: true
@@ -11,7 +21,7 @@ jobs:
       IS_CI: true
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -38,7 +48,7 @@ jobs:
 
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
-        run: echo "FILE_NAME="Quiet-$VERSION-arm64.dmg"" >> $GITHUB_ENV
+        run: echo "FILE_NAME="Quiet-$VERSION${{matrix.binary_suffix}}.dmg"" >> $GITHUB_ENV
 
       - name: List dist dir content
         working-directory: ./packages/desktop/dist
@@ -53,7 +63,7 @@ jobs:
         run: hdiutil mount $FILE_NAME
 
       - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet $VERSION-arm64/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet $VERSION${{matrix.binary_suffix}}/Quiet.app" /Applications
 
       - name: Run one client test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
@@ -75,6 +85,13 @@ jobs:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test multipleClients.test.ts
+      
+      - name: Run multiple clients test (private channels)
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test multipleClients.privateChannels.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0

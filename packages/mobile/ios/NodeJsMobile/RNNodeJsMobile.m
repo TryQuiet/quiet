@@ -63,6 +63,7 @@ RCT_EXPORT_MODULE()
   {
     nodeArguments = [NSMutableArray arrayWithObjects:
                               @"node",
+                              @"--experimental-global-webcrypto",
                               @"--experimental-global-customevent",
                               srcPath,
                               nil
@@ -72,6 +73,7 @@ RCT_EXPORT_MODULE()
   } else {
     nodeArguments = [NSMutableArray arrayWithObjects:
                               @"node",
+                              @"--experimental-global-webcrypto",
                               @"--experimental-global-customevent",
                               @"-r",
                               dlopenoverridePath,

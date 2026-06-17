@@ -1,5 +1,5 @@
 import { KeyMetadata } from '@localfirst/crdx/'
-import { Base58 } from '@localfirst/auth'
+import { Base58, KeysetWithSecrets } from '@localfirst/auth'
 
 export enum EncryptionScopeType {
   ROLE = 'ROLE',
@@ -38,4 +38,9 @@ export type DecryptedPayload<T> = {
 export type Signature = {
   signature: Base58
   author: KeyMetadata
+}
+
+export type InviteLockboxMetadata = {
+  id: string
+  keys: KeysetWithSecrets
 }

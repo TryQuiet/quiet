@@ -13,7 +13,7 @@ export type TermsOfServiceProps = {
   serverHost?: string
 }
 
-const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use'
+const privacyPolicyUrl = 'https://github.com/TryQuiet/quiet/wiki/Privacy-Policy'
 
 export const TermsOfService: FC<TermsOfServiceProps> = ({ onAgree, onBack, onLeave, serverHost = '' }) => {
   const openLink = (url: string) => {

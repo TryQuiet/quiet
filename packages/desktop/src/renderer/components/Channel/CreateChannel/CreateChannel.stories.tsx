@@ -18,6 +18,7 @@ const args: CreateChannelProps = {
   createChannel: function (name: string): void {
     logger.info('creating channel: ', name)
   },
+  isAdmin: true,
   handleClose: function (): void {},
   clearErrorsDispatch: function (): void {},
 }

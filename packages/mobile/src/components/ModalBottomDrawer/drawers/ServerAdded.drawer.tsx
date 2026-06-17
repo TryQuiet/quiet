@@ -30,8 +30,10 @@ export const ServerAddedDrawer: React.FC = () => {
       if (useServer) {
         const updateCommunityPayload = {
           id: currentCommunity.id,
-          qssEnabled: true,
-          serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
+          updates: {
+            qssEnabled: true,
+            serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
+          },
         }
         dispatch(communities.actions.updateCommunityData(updateCommunityPayload))
         if (!currentCommunity.tosAccepted) {

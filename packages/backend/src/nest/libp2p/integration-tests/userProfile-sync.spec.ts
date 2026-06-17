@@ -33,6 +33,11 @@ describe('UserProfileStore OrbitDB Sync', () => {
   let aliceProfile: UserProfile
   let bobProfile: UserProfile
 
+  const initOrbitDb = async (i: number) => {
+    await orbitDbServices[i].create(ipfsServices[i].ipfsInstance!)
+    await userProfileStores[i].init()
+  }
+
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
     modules = await spawnTestModules(N_PEERS)
@@ -56,9 +61,10 @@ describe('UserProfileStore OrbitDB Sync', () => {
       await localDbServices[i].open()
       await ipfsServices[i].createInstance()
       await ipfsServices[i].start()
-      await orbitDbServices[i].create(ipfsServices[i].ipfsInstance!)
       userProfileStores.push(await modules[i].resolve(UserProfileStore))
-      await userProfileStores[i].init()
+      if (i === 0) {
+        await initOrbitDb(i)
+      }
       libp2pServices[i].pauseDialQueue()
     }
 
@@ -96,8 +102,9 @@ describe('UserProfileStore OrbitDB Sync', () => {
       logger.info(`dialed peer ${i}`)
       // Wait for the peer to be connected (AUTH_JOINED)
       await new Promise<void>(resolve => {
-        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, () => {
+        peerLibp2pService.once(Libp2pEvents.AUTH_JOINED, async () => {
           logger.info(`peer ${i} connected`)
+          await initOrbitDb(i)
           resolve()
         })
       })
@@ -269,7 +276,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
       10000,
       100
     )
-    userProfileStores[N_PEERS - 1].startSync()
+    await userProfileStores[N_PEERS - 1].startSync()
 
     await waitForExpect(
       async () => {
@@ -284,11 +291,17 @@ describe('UserProfileStore OrbitDB Sync', () => {
       1000
     )
 
-    // Ensure only the new peer emitted 'updated'
-    for (let i = 0; i < N_PEERS - 1; i++) {
-      expect(updatedSpies[i]).toHaveBeenCalledTimes(1)
-    }
-    logger.info('New peer updated:', updatedSpies[N_PEERS - 1].mock.calls.length, 'times')
-    expect(updatedSpies[N_PEERS - 1]).toHaveBeenCalled()
+    await waitForExpect(
+      async () => {
+        // Ensure only the new peer emitted 'updated'
+        for (let i = 0; i < N_PEERS - 1; i++) {
+          expect(updatedSpies[i]).toHaveBeenCalledTimes(1)
+        }
+        logger.info('New peer updated:', updatedSpies[N_PEERS - 1].mock.calls.length, 'times')
+        expect(updatedSpies[N_PEERS - 1]).toHaveBeenCalled()
+      },
+      5000,
+      100
+    )
   })
 })

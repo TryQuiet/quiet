@@ -22,7 +22,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: false
 
@@ -86,8 +86,15 @@ jobs:
       - name: "Decode keystore"
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
+      - name: "Decrypt Firebase config (google-services.json)"
+        run: ./.github/secrets/decrypt_android_secrets.sh
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
+
       - name: "Build .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardRelease
+        env:
+          ENVFILE: ../.env.production
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardRelease
 
       - name: "Upload .apk to artifacts"
         continue-on-error: true
@@ -97,13 +104,49 @@ jobs:
           path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
       - name: "Build debug .apk"
-        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew assembleStandardDebug
+        env:
+          ENVFILE: ../.env.production
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardDebug
 
       - name: "Upload debug .apk to artifacts"
         continue-on-error: true
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: app-standard-debug.apk
+          path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+
+      - name: "Preserve standard .apk release assets"
+        run: |
+          mkdir -p ./packages/mobile/android/app/build/release-assets
+          cp ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
+          cp ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
+
+      - name: "Build experimental .apk"
+        if: github.event.release.prerelease
+        env:
+          ENVFILE: ../.env.staging
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardRelease
+
+      - name: "Upload experimental .apk to artifacts"
+        if: github.event.release.prerelease
+        continue-on-error: true
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: app-standard-release-experimental.apk
+          path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
+
+      - name: "Build experimental debug .apk"
+        if: github.event.release.prerelease
+        env:
+          ENVFILE: ../.env.staging
+        run: cd ./packages/mobile/android && ./gradlew assembleStandardDebug
+
+      - name: "Upload experimental debug .apk to artifacts"
+        if: github.event.release.prerelease
+        continue-on-error: true
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: app-standard-debug-experimental.apk
           path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
 
       - name: "Get release"
@@ -118,7 +161,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
+          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-release-production.apk
           asset_name: app-standard-release.apk
           asset_content_type: application/.apk
 
@@ -128,8 +171,30 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+          asset_path: ./packages/mobile/android/app/build/release-assets/app-standard-debug-production.apk
           asset_name: app-standard-debug.apk
+          asset_content_type: application/.apk
+
+      - name: "Upload experimental release assets"
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
+          asset_name: app-standard-release-experimental.apk
+          asset_content_type: application/.apk
+
+      - name: "Upload experimental debug release assets"
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+          asset_name: app-standard-debug-experimental.apk
           asset_content_type: application/.apk
 
       - name: Send Release Notificaton
@@ -147,7 +212,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: false
 
@@ -191,6 +256,11 @@ jobs:
       - name: "Prepare ndk configuration"
         run: |
           printf "NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n" > $HOME/.gradle/gradle.properties
+
+      - name: "Decrypt Firebase config (google-services.json)"
+        run: ./.github/secrets/decrypt_android_secrets.sh
+        env:
+          ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug

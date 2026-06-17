@@ -19,10 +19,15 @@ jobs:
             source_path: linux
             build_cmd: "--linux AppImage"
             artifact_glob: "packages/desktop/dist/*.AppImage"
-          - os: macos-latest
+          - os: macos-26-intel
             target: macos
             source_path: darwin
             build_cmd: "--mac"
+            artifact_glob: "packages/desktop/dist/*.dmg"
+          - os: macos-26
+            target: macos-arm
+            source_path: darwin
+            build_cmd: "--mac --arm64"
             artifact_glob: "packages/desktop/dist/*.dmg"
           - os: windows-latest
             target: win
@@ -35,7 +40,7 @@ jobs:
       TEST_MODE: true
       IS_LOCAL: true
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -66,7 +71,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: ${{ matrix.source_path }}
-          envfile: .env.development
+          envfile: .env.staging
 
       - name: Build desktop preview
         shell: bash
@@ -99,7 +104,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -141,11 +146,11 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.5.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -167,6 +172,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: linux
+          envfile: .env.production
 
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
@@ -207,6 +213,38 @@ jobs:
           asset_name: Quiet-${{ steps.extract_version.outputs.version }}.AppImage
           asset_content_type: application/.AppImage
 
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: linux
+          envfile: .env.staging
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ARCH: x86_64
+        run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p never --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Tag experimental Linux artifact
+        if: github.event.release.prerelease
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}-experimental.AppImage
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}-experimental.AppImage
+          asset_name: Quiet-${{ steps.extract_version.outputs.version }}-experimental.AppImage
+          asset_content_type: application/.AppImage
+
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier
         if: always()
@@ -218,16 +256,16 @@ jobs:
 
   build-macos-prod:
     # needs: run-e2e-tests-mac
-    runs-on: macos-latest
+    runs-on: macos-26-intel
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.5.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -237,13 +275,9 @@ jobs:
         with:
           path: packages/desktop
 
-      - uses: actions-rs/components-nightly@254194ebf6ba07d2bb7cec8be76cee368d44fb90 # v1.1.1
-        with:
-          component: clippy
-
       - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
         with:
-          toolchain: nightly-2020-08-28
+          toolchain: stable
           components: clippy
           override: true
 
@@ -256,14 +290,19 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: darwin
+          envfile: .env.production
 
       - name: "Remove crud files"
         run: xattr -crs .
 
-      - name: "Set electron-builder props"
-        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+      - name: "Disable mac updater metadata publication"
+        run: |
+          node packages/desktop/scripts/macUpdateMetadata.js disable-publish \
+            --package packages/desktop/package.json \
+            --bucket "$S3_BUCKET"
 
       - name: "Release"
+        uses: nick-fields/retry@v3
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
@@ -274,7 +313,33 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          retry_wait_seconds: 90
+          shell: bash
+          command: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac
+
+      - name: Collect Intel updater metadata
+        env:
+          VERSION: ${{ steps.extract_version.outputs.version }}
+        run: |
+          cd packages/desktop
+          node scripts/macUpdateMetadata.js collect \
+            --arch x64 \
+            --version "$VERSION" \
+            --dist-dir dist \
+            --output dist/mac-update-info/x64.json
+
+      - name: Upload Intel updater metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-update-info-x64
+          path: packages/desktop/dist/mac-update-info/x64.json
+          retention-days: 14
+
+      - name: Tag Intel artifact
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
 
       - name: Get release
         id: get_release
@@ -288,8 +353,48 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-x64.dmg
+          asset_content_type: application/.dmg
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+          envfile: .env.staging
+
+      - name: "Remove crud files for experimental build"
+        if: github.event.release.prerelease
+        run: xattr -crs .
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --mac
+
+      - name: Tag experimental Intel artifact
+        if: github.event.release.prerelease
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-x64.dmg
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-x64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-experimental-x64.dmg
           asset_content_type: application/.dmg
 
       - name: Send Release Notificaton
@@ -297,6 +402,245 @@ jobs:
         if: always()
         with:
           os-name: MacOS
+          version: ${{ steps.extract_version.outputs.version }}
+          status: ${{ job.status }}
+          slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
+
+  build-macos-arm64-prod:
+    runs-on: macos-26
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/desktop
+
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,helia,@quiet/node-common"
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+          envfile: .env.production
+
+      - name: "Remove crud files"
+        run: xattr -crs .
+
+      - name: "Disable mac updater metadata publication"
+        run: |
+          node packages/desktop/scripts/macUpdateMetadata.js disable-publish \
+            --package packages/desktop/package.json \
+            --bucket "$S3_BUCKET"
+
+      - name: "Release"
+        uses: nick-fields/retry@v3
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        with:
+          timeout_minutes: 60
+          max_attempts: 2
+          retry_wait_seconds: 90
+          shell: bash
+          command: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac --arm64
+
+      - name: Collect arm64 updater metadata
+        env:
+          VERSION: ${{ steps.extract_version.outputs.version }}
+        run: |
+          cd packages/desktop
+          node scripts/macUpdateMetadata.js collect \
+            --arch arm64 \
+            --version "$VERSION" \
+            --dist-dir dist \
+            --output dist/mac-update-info/arm64.json
+
+      - name: Upload arm64 updater metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-update-info-arm64
+          path: packages/desktop/dist/mac-update-info/arm64.json
+          retention-days: 14
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg
+          asset_content_type: application/.dmg
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+          envfile: .env.staging
+
+      - name: "Remove crud files for experimental build"
+        if: github.event.release.prerelease
+        run: xattr -crs .
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --mac --arm64
+
+      - name: Tag experimental arm64 artifact
+        if: github.event.release.prerelease
+        run: mv ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-arm64.dmg ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-arm64.dmg
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}-experimental-arm64.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}-experimental-arm64.dmg
+          asset_content_type: application/.dmg
+
+      - name: Send Release Notificaton
+        uses: ./.github/actions/release-notifier
+        if: always()
+        with:
+          os-name: MacOS (arm64)
+          version: ${{ steps.extract_version.outputs.version }}
+          status: ${{ job.status }}
+          slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
+
+  publish-macos-update-metadata:
+    needs:
+      - build-macos-prod
+      - build-macos-arm64-prod
+    runs-on: ubuntu-22.04
+    if: |
+      always() &&
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    env:
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
+      MAC_UPDATE_CHANNEL_FILE: ${{ github.event.action == 'released' && 'latest-mac.yml' || 'alpha-mac.yml' }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Require successful mac builds
+        run: |
+          set -euo pipefail
+          x64_result="${{ needs['build-macos-prod'].result }}"
+          arm64_result="${{ needs['build-macos-arm64-prod'].result }}"
+          if [ "$x64_result" != "success" ] || [ "$arm64_result" != "success" ]; then
+            echo "::error::Mac updater metadata requires successful x64 and arm64 builds. x64=$x64_result arm64=$arm64_result"
+            exit 1
+          fi
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/desktop
+
+
+      - name: Download mac updater metadata
+        uses: actions/download-artifact@v4
+        with:
+          pattern: mac-update-info-*
+          path: mac-update-info/artifacts
+          merge-multiple: true
+
+      - name: Build combined mac updater metadata
+        run: |
+          node packages/desktop/scripts/macUpdateMetadata.js merge \
+            --version "${{ steps.extract_version.outputs.version }}" \
+            --input-dir mac-update-info/artifacts \
+            --output "mac-update-info/publish/${MAC_UPDATE_CHANNEL_FILE}" \
+            --objects-output mac-update-info/listed-objects.txt
+
+      - name: Verify listed mac S3 objects
+        run: |
+          set -euo pipefail
+          while IFS= read -r object; do
+            if [ -z "$object" ]; then
+              continue
+            fi
+            url="https://s3.amazonaws.com/${S3_BUCKET}/${object}"
+            status=$(curl -sS -o /dev/null -w "%{http_code}" -I "$url")
+            if [ "$status" != "200" ]; then
+              echo "::error::Expected HTTP 200 for $url, got $status"
+              exit 1
+            fi
+          done < mac-update-info/listed-objects.txt
+
+      - name: Publish mac updater metadata
+        uses: TryQuiet/upload-s3-action@c1c7c2268c91fbbc1293455e7b4bb2292267d2bd # master
+        with:
+          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ env.S3_BUCKET }}
+          source_dir: mac-update-info/publish/${{ env.MAC_UPDATE_CHANNEL_FILE }}
+          destination_dir: ''
+
+      - name: Verify published mac updater metadata
+        run: |
+          set -euo pipefail
+          url="https://s3.amazonaws.com/${S3_BUCKET}/${MAC_UPDATE_CHANNEL_FILE}"
+          status=$(curl -sS -o /dev/null -w "%{http_code}" -I "$url")
+          if [ "$status" != "200" ]; then
+            echo "::error::Expected HTTP 200 for $url, got $status"
+            exit 1
+          fi
+
+      - name: Send Release Notificaton
+        uses: ./.github/actions/release-notifier
+        if: always()
+        with:
+          os-name: MacOS updater metadata
           version: ${{ steps.extract_version.outputs.version }}
           status: ${{ job.status }}
           slack_oauth_token: ${{ secrets.SLACK_BOT_OAUTH_TOKEN }}
@@ -309,10 +653,10 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.5.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.7.x' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -346,6 +690,7 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: win32
+          envfile: .env.production
 
       - name: "Set electron-builder props"
         shell: bash
@@ -377,6 +722,42 @@ jobs:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
           asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_content_type: application/.exe
+
+      - name: Before experimental build
+        if: github.event.release.prerelease
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
+          envfile: .env.staging
+
+      - name: "Release experimental"
+        if: github.event.release.prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p never --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Tag experimental Windows artifact
+        if: github.event.release.prerelease
+        shell: bash
+        run: mv "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe" "./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}-experimental.exe"
+
+      - name: Upload Experimental Release Assets
+        if: github.event.release.prerelease
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}-experimental.exe
+          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}-experimental.exe
           asset_content_type: application/.exe
 
       - name: Send Release Notificaton

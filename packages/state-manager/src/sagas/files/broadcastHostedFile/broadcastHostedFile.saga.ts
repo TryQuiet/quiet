@@ -1,11 +1,11 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
 
-import { select, apply } from 'typed-redux-saga'
+import { select, apply, put } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
-import { type filesActions } from '../files.slice'
-import { ChannelMessage, instanceOfChannelMessage, SocketActions } from '@quiet/types'
+import { filesActions } from '../files.slice'
+import { ChannelMessage, instanceOfChannelMessage, SocketActions, PROFILE_PHOTO_CHANNEL_ID } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('broadcastHostedFileSaga')
@@ -15,6 +15,17 @@ export function* broadcastHostedFileSaga(
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
   const payload = action.payload
+  if (payload.message.channelId === PROFILE_PHOTO_CHANNEL_ID) {
+    logger.info('Skipping message broadcast for profile photo attachment')
+    yield* put(
+      filesActions.setProfilePhotoMetadata({
+        messageId: payload.message.id,
+        fileMetadata: payload,
+      })
+    )
+    return
+  }
+
   logger.info('Broadcasting hosted file', payload)
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) return

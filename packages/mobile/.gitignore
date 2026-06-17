@@ -26,6 +26,7 @@ DerivedData
 *.xcuserstate
 ios/.xcode.env.local
 .xcode.env.local
+ios/LocalDev.xcconfig
 
 # Android/IntelliJ
 #
@@ -72,12 +73,13 @@ buck-out/
 /vendor/bundle/
 
 # Backend
-/nodejs-assets/nodejs-project/
+/nodejs-assets/nodejs-project/bundle.cjs
 /nodejs-assets/build-native-modules-MacOS-helper-script-node.sh
 /nodejs-assets/build-native-modules-MacOS-helper-script-npm.sh
 
 # Native
 /android/app/.cxx
+/android/app/google-services.json
 .env
 
 # Detox

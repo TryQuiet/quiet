@@ -1,18 +1,11 @@
 package com.quietmobile
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import android.util.Log
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.ReactInstanceEventListener
@@ -21,8 +14,13 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.quietmobile.Backend.BackendWorkManager
+import com.quietmobile.Communication.CommunicationModule
+import com.quietmobile.Push.QuietStorage
 
 class MainActivity : ReactActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     /**
      * Returns the name of the main component registered from JavaScript. This is used to schedule
@@ -38,39 +36,32 @@ class MainActivity : ReactActivity() {
             DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // pass null to super.onCreate
+        // https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
         super.onCreate(null)
 
         val intent = intent
         checkAgainstIntentUpdate(intent)
 
-        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER === "true") {
+        if (shouldStartBackend()) {
             val context = applicationContext
-            BackendWorkManager(context).enqueueRequests()
-        }
-    }
-
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkNotificationsPermission()
-        }
-        return super.onCreateView(name, context, attrs)
-    }
-
-    companion object {
-        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 200
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun checkNotificationsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // Requesting the permission
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST_CODE)
+            Log.i(TAG, "onCreate ensureStartedForForegroundAppOpen requested")
+            BackendWorkManager(context).ensureStartedForForegroundAppOpen()
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         checkAgainstIntentUpdate(intent)
+    }
+
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        CommunicationModule.handleNotificationPermissionResult(requestCode, grantResults)
     }
 
     private fun checkAgainstIntentUpdate(intent: Intent) {
@@ -94,12 +85,13 @@ class MainActivity : ReactActivity() {
 
     @Throws(java.lang.Exception::class)
     private fun respondOnNotification(bundle: Bundle) {
-        val channel = bundle.getString("channel")
-                ?: throw java.lang.Exception("respondOnNotification() failed because of missing channel")
+        val channel =
+                bundle.getString("channel")
+                        ?: throw java.lang.Exception(
+                                "respondOnNotification() failed because of missing channel"
+                        )
 
-        getCurrentReactContext { context: ReactContext ->
-            emitSwitchChannelEvent(context, channel)
-        }
+        getCurrentReactContext { context: ReactContext -> emitSwitchChannelEvent(context, channel) }
     }
 
     @SuppressLint("VisibleForTests")
@@ -108,27 +100,46 @@ class MainActivity : ReactActivity() {
         if (null != reactContext) {
             callback(reactContext)
         } else {
-            reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceEventListener {
-                override fun onReactContextInitialized(context: ReactContext) {
-                    callback(context)
-                    reactInstanceManager.removeReactInstanceEventListener(this)
-                }
-            })
+            reactInstanceManager.addReactInstanceEventListener(
+                    object : ReactInstanceEventListener {
+                        override fun onReactContextInitialized(context: ReactContext) {
+                            callback(context)
+                            reactInstanceManager.removeReactInstanceEventListener(this)
+                        }
+                    }
+            )
         }
     }
 
     private fun emitSwitchChannelEvent(reactContext: ReactContext, channel: String) {
-        val deviceEventEmitter: RCTDeviceEventEmitter = reactContext.getJSModule(
-                RCTDeviceEventEmitter::class.java
-        )
+        val deviceEventEmitter: RCTDeviceEventEmitter =
+                reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
 
         deviceEventEmitter.emit("notification", channel)
     }
 
     override fun onResume() {
         super.onResume()
+        QuietStorage.setAppForeground(true)
+        if (shouldStartBackend()) {
+            Log.i(TAG, "onResume ensureStartedForForegroundAppOpen requested")
+            BackendWorkManager(applicationContext).ensureStartedForForegroundAppOpen()
+        }
+        Log.i(TAG, "onResume syncBackendWorkerState requested")
+        CommunicationModule.syncBackendWorkerState(applicationContext)
         // Dismiss all notifications if one of them is tapped
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancelAll()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        QuietStorage.setAppForeground(false)
+        Log.i(TAG, "onPause syncBackendWorkerState requested")
+        CommunicationModule.syncBackendWorkerState(applicationContext)
+    }
+
+    private fun shouldStartBackend(): Boolean {
+        return BuildConfig.SHOULD_RUN_BACKEND_WORKER == "true"
     }
 }

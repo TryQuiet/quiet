@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
@@ -55,7 +55,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           testID={'create-community-component'}
         >
           <KeyboardAvoidingView
-            behavior='height'
+            behavior={Platform.select({ ios: 'padding', android: 'height' })}
             style={{
               flex: 1,
               justifyContent: 'center',

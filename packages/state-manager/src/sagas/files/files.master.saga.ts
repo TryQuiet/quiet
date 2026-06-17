@@ -12,6 +12,8 @@ import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel/deleteFiles
 import { uploadFileSaga } from './sendFileMessage/attachFile.saga'
 import { messagesActions } from '../messages/messages.slice'
 import { sendFileMessageSaga } from './attachFile/sendFileMessage.saga'
+import { settingsActions } from '../settings/settings.slice'
+import { recheckAutoDownloadThresholdSaga } from './recheckAutoDownloadThreshold/recheckAutoDownloadThreshold.saga'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('filesMasterSaga')
@@ -29,6 +31,7 @@ export function* filesMasterSaga(socket: Socket): Generator {
       takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
       takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket),
       takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
+      takeEvery(settingsActions.setMaxAutodownloadBytes.type, recheckAutoDownloadThresholdSaga, socket),
     ])
   } finally {
     logger.info('filesMasterSaga stopping')

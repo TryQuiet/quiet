@@ -20,6 +20,7 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:theme="@style/AppTheme"
+      android:supportsRtl="true"
       android:usesCleartextTraffic="true"
       android:networkSecurityConfig="@xml/network_security_config" >
       <activity
@@ -50,6 +51,13 @@
               <category android:name="android.intent.category.DEFAULT" />
           </intent-filter>
       </receiver>
+      <service
+          android:name=".Push.QssFirebaseMessagingService"
+          android:exported="false">
+          <intent-filter>
+              <action android:name="com.google.firebase.MESSAGING_EVENT" />
+          </intent-filter>
+      </service>
       <service
           android:name="androidx.work.impl.foreground.SystemForegroundService"
           android:foregroundServiceType="dataSync"

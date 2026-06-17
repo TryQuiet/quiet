@@ -1,6 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { UserProfile, User, SaveUserProfileActionPayload, DeleteUserProfileActionPayload } from '@quiet/types'
+import {
+  UserProfile,
+  User,
+  SaveUserProfileActionPayload,
+  DeleteUserProfileActionPayload,
+  FileMetadata,
+} from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('usersSlice')
@@ -25,31 +31,13 @@ export const usersSlice = createSlice({
     },
     // Bootstraps initial user profiles from the server, wipes state and sets new profiles
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
-      // Creating user profiles object for backwards compatibility with 2.0.1
-      if (!state.userProfiles) {
-        state.userProfiles = {}
-      }
+      state.userProfiles = {}
       for (const userProfile of action.payload) {
         state.userProfiles[userProfile.userId] = userProfile
       }
       return state
     },
-    updateUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
-      if (!state.userProfiles) {
-        state.userProfiles = {}
-      }
-      for (const userProfile of action.payload) {
-        if (state.userProfiles[userProfile.userId]) {
-          state.userProfiles[userProfile.userId] = {
-            ...state.userProfiles[userProfile.userId],
-            ...userProfile,
-          }
-        } else {
-          state.userProfiles[userProfile.userId] = userProfile
-        }
-      }
-      return state
-    },
+    updateUserProfiles: (state, _action: PayloadAction<UserProfile[]>) => state,
     // Sets a single user profile, overwriting the existing one
     setUserProfile: (state, action: PayloadAction<UserProfile>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1

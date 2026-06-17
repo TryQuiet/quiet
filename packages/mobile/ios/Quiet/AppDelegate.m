@@ -3,12 +3,26 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
 
+// Firebase imports
+@import FirebaseCore;
+@import FirebaseMessaging;
+
 #import "RNNodeJsMobile.h"
 #import "Quiet-Swift.h"
 
 @implementation AppDelegate
 
 static NSString *const platform = @"mobile";
+static NSString *const QuietAppGroupIdentifier = @"group.com.quietmobile";
+static NSString *const QuietAppIsForegroundKey = @"quiet.app.isForeground";
+
+static void QuietSetAppForegroundFlag(BOOL isForeground) {
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:QuietAppGroupIdentifier];
+  if (defaults == nil) {
+    defaults = [NSUserDefaults standardUserDefaults];
+  }
+  [defaults setBool:isForeground forKey:QuietAppIsForegroundKey];
+}
 
 - (BOOL)application:(UIApplication *)application
    openURL:(NSURL *)url
@@ -27,10 +41,19 @@ static NSString *const platform = @"mobile";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  QuietSetAppForegroundFlag(YES);
   self.moduleName = @"QuietMobile";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+
+  // Set notification center delegate
+  [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+
+  // Configure Firebase
+  [self configureFirebase];
+
+  [CommunicationModule performFreshInstallCleanupIfNeeded];
 
   // Call only once per nodejs thread
   [self createDataDirectory];
@@ -166,7 +189,7 @@ static NSString *const platform = @"mobile";
 
     NSLog(@"Tor control port response message %@", message);
 
-    // BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
+    //  BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
 
     *stop = YES;
     return YES;
@@ -175,6 +198,7 @@ static NSString *const platform = @"mobile";
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+  QuietSetAppForegroundFlag(NO);
   [self stopTor];
 
   NSString * message = [NSString stringWithFormat:@"app:close"];
@@ -192,6 +216,7 @@ static NSString *const platform = @"mobile";
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+  QuietSetAppForegroundFlag(YES);
   // Display splash screen until services become available again
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     NSTimeInterval delayInSeconds = 0;
@@ -227,6 +252,11 @@ static NSString *const platform = @"mobile";
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  return [self bundleURL];
+}
+
+- (NSURL *)bundleURL
 {
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
@@ -273,5 +303,19 @@ static NSString *const platform = @"mobile";
 }
 
 #endif
+
+#pragma mark - Push Notification Registration
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+  // Forward APNS token to Firebase Messaging so it can generate an FCM token,
+  // which will be delivered via the MessagingDelegate in AppDelegate+Firebase.swift
+  [FIRMessaging.messaging setAPNSToken:deviceToken type:FIRMessagingAPNSTokenTypeUnknown];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+  NSLog(@"Failed to register for remote notifications: %@", error.localizedDescription);
+}
 
 @end

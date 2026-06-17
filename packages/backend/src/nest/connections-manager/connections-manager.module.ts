@@ -8,6 +8,8 @@ import { StorageServiceClientModule } from '../storageServiceClient/storageServi
 import { Libp2pModule } from '../libp2p/libp2p.module'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import { QSSModule } from '../qss/qss.module'
+import { QPSModule } from '../qps/qps.module'
+import { CaptchaModule } from '../captcha/captcha.module'
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { QSSModule } from '../qss/qss.module'
     StorageServiceClientModule,
     SigChainModule,
     QSSModule,
+    QPSModule,
+    CaptchaModule,
   ],
   providers: [ConnectionsManagerService],
   exports: [ConnectionsManagerService],

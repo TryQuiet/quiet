@@ -11,6 +11,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 // Provide a user object that satisfies 'Identity'
 const validUser = {
@@ -133,6 +134,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   isCommunityInitialized: defaultIsCommunityInitialized,
   handleClipboardFiles: dummyFn,
   pendingGeneralChannelRecreation: false,
+  isPublic: true,
 }
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
@@ -829,6 +831,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
         user={validUser}
         channelId='general'
         channelName='general'
+        isPublic={true}
         newestMessage={
           args.newestMessage || {
             id: '31',
@@ -840,6 +843,7 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
           }
         }
         pendingMessages={args.pendingMessages || {}}
+        maxAutodownloadSizeBytes={args.maxAutodownloadSizeBytes || DEFAULT_AUTODOWNLOAD_SIZE_LIMIT}
         lazyLoading={args.lazyLoading || function (_load: boolean): void {}}
         onInputChange={args.onInputChange || function (_value: string): void {}}
         openUrl={args.openUrl || dummyFn}

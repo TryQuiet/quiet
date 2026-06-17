@@ -34,6 +34,7 @@
     "@localfirst/crdx": "file:../../3rd-party/auth/packages/crdx/dist",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1",
+    "msgpackr": "^1.11.8",
     "multiformats": "13.1.0"
   },
   "jest": {

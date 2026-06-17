@@ -1,4 +1,5 @@
 export enum StorageEvents {
+  INITIALIZED = 'storageInitialized',
   // Public Channels
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',
@@ -17,6 +18,8 @@ export enum StorageEvents {
   // Community
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
   COMMUNITY_UPDATED = 'communityUpdated',
+  // Notifications
+  NOTIFICATION_TOKENS_STORED = 'notificationTokensStored',
 }
 
 export enum UnixFSEvents {
@@ -35,4 +38,8 @@ export interface CsrReplicatedPromiseValues {
 
 export interface DBOptions {
   sync: boolean
+}
+
+export type PurgeDataOptions = {
+  removeTorDataDirectory?: boolean
 }

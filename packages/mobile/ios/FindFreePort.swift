@@ -5,7 +5,7 @@ class FindFreePort: NSObject {
     func getFirstStartingFrom(port: in_port_t) -> UInt16 {
       var returned = port;
       for i in port..<65000 {
-        let (result, _) = checkPort(port: port)
+        let (result, _) = checkPort(port: i)
         if result == true {
             returned = i;
             break;
@@ -53,5 +53,5 @@ class FindFreePort: NSObject {
     func descriptionOfLastError() -> String {
         return String.init(cString: (UnsafePointer(strerror(errno))))
     }
-    
+
 }

@@ -1,13 +1,14 @@
 import * as uint8arrays from 'uint8arrays'
+import fs from 'fs'
+import path from 'path'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
-import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
 import * as url from 'node:url'
+import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
-import { createPeerId } from '../common/utils'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import {
   ChannelMessageIdsResponse,
@@ -49,14 +50,19 @@ import {
   DownloadFilePayload,
   DeleteChannelPayload,
   SetUserProfilePayload,
-  InvitationData,
   SetUserProfileResponse,
-  UpdateCommunityPayload,
   ServerHost,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
+  PublicChannel,
+  User,
+  UserProfilesUpdatedPayload,
+  UpdateCommunityPayload,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
-import { Libp2pService } from '../libp2p/libp2p.service'
-import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
+import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
+import { CreatedLibp2pPeerId, Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { emitError } from '../socket/socket.errors'
@@ -73,8 +79,11 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
+import { QSSEvents } from '../qss/qss.types'
+import { SigchainEvents } from '../auth/types'
+import { QPSService } from '../qps/qps.service'
+import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
-import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -83,9 +92,11 @@ import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
   public communityState: ServiceState
+  private hibernating = false
+  private hibernateInFlight: Promise<void> | null = null
+  private wakeInFlight: Promise<void> | null = null
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
-  private peerInfo: Libp2pPeerInfo | undefined = undefined
 
   private readonly logger = createLogger(ConnectionsManagerService.name)
   constructor(
@@ -100,7 +111,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly storageService: StorageService,
     private readonly tor: Tor,
     private readonly sigChainService: SigChainService,
-    private readonly qssService: QSSService
+    private readonly qssService: QSSService,
+    private readonly qpsService: QPSService,
+    private readonly captchaService: CaptchaService
   ) {
     super()
   }
@@ -110,19 +123,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   async onModuleInit() {
-    const webcrypto = new Crypto()
-    // @ts-ignore
-    global.crypto = webcrypto
-
     setEngine(
       'newEngine',
       // @ts-ignore
       new CryptoEngine({
         name: 'newEngine',
         // @ts-ignore
-        crypto: webcrypto,
+        crypto: global.crypto,
       })
     )
+
+    this.logger.info('QSS_ENDPOINT', this.qssEndpoint)
 
     await this.init()
   }
@@ -154,6 +165,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.attachSocketServiceListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
+    this.attachSigchainListeners()
 
     if (this.localDbService.getStatus() === 'closed') {
       await this.localDbService.open()
@@ -216,8 +228,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunityFromStorage() {
     this.logger.info('Launching community from storage')
+
+    // Defense in depth for #3225: if a leaveCommunity crashed mid-way, finish the purge
+    // before doing anything else — including reading CURRENT_COMMUNITY_ID. The marker is
+    // written at the start of leaveCommunity and cleared at full success, so its presence
+    // is unambiguous: the user intended to leave. Whether CURRENT_COMMUNITY_ID happens to
+    // still be set depends on exactly when the crash hit (it's cleared by resetState() near
+    // the end of leaveCommunity), so we cannot use its absence as the signal.
+    if (this.leaveInProgressMarkerExists()) {
+      this.logger.info('Interrupted leaveCommunity detected at startup; finishing purge')
+      await this.localDbService.purgeArtifacts()
+      this.storageService.purgeData()
+      this.clearLeaveInProgressMarker()
+      return
+    }
+
     const community: Community | undefined = await this.localDbService.getCurrentCommunity()
     if (!community) {
+      // Absent marker + no community = fresh install or a pending LevelDB migration where
+      // CURRENT_COMMUNITY_ID hasn't been populated from the renderer's persistor yet. Don't
+      // purge speculatively — that was the backwards-compatibility regression.
       this.logger.info('No community found in storage')
       return
     }
@@ -226,9 +256,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         this.logger.info('Loading sigchain for community', community.name)
         await this.sigChainService.loadChain(community.name, true)
-        this.qssService.connect(community.qssEndpoint)
       } catch (e) {
-        this.logger.warn('Failed to load sigchain', e)
+        this.logger.error('Failed to load sigchain', e)
+        await this.localDbService.deleteCommunity(community.id)
+        await this.sigChainService.deleteChain(community.name, true)
+        return
       }
     } else {
       this.logger.warn('No community name found in storage')
@@ -251,16 +283,127 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async pause() {
     this.logger.info('Pausing!')
+    this.qssService.pause()
+    await this.libp2pService?.pause()
     await this.closeSocket()
     this.logger.info('Pausing libp2pService!')
-    this.peerInfo = await this.libp2pService?.pause()
-    this.logger.info('Found the following peer info on pause: ', this.peerInfo)
   }
 
   public async resume() {
     this.logger.info('Resuming!')
     await this.openSocket()
     this.libp2pService?.resume()
+    await this.qssService.resume()
+  }
+
+  /**
+   * Hibernate: flush state to disk and pause all networking. Keeps the node
+   * process and Nest context alive so wake() can bring the app back without a
+   * cold start. Survives Android low-memory kill because sigchain is persisted.
+   */
+  public async hibernate() {
+    if (this.hibernating) {
+      this.logger.info('hibernate: already hibernated, skipping')
+      return
+    }
+    if (this.hibernateInFlight) return this.hibernateInFlight
+    if (this.wakeInFlight) {
+      this.logger.info('hibernate: waiting for in-flight wake to finish before hibernating')
+      try {
+        await this.wakeInFlight
+      } catch (e) {
+        this.logger.error('hibernate: in-flight wake failed', e)
+      }
+    }
+
+    this.hibernateInFlight = (async () => {
+      this.logger.info('Hibernating!')
+      try {
+        await this.saveActiveChain()
+      } catch (e) {
+        this.logger.error('hibernate: saveActiveChain failed', e)
+      }
+      try {
+        await this.pause()
+      } catch (e) {
+        this.logger.error('hibernate: pause failed', e)
+      }
+      if (this.storageService) {
+        try {
+          this.logger.info('hibernate: stopping OrbitDB sync')
+          await this.storageService.stopSync()
+        } catch (e) {
+          this.logger.error('hibernate: storage.stopSync failed', e)
+        }
+      }
+      if (this.tor) {
+        try {
+          this.logger.info('hibernate: killing tor')
+          await this.tor.kill()
+        } catch (e) {
+          this.logger.error('hibernate: tor.kill failed', e)
+        }
+      }
+      this.hibernating = true
+      this.logger.info('Hibernated')
+    })()
+    try {
+      await this.hibernateInFlight
+    } finally {
+      this.hibernateInFlight = null
+    }
+  }
+
+  /**
+   * Wake from hibernate. Re-spawns Tor (if killed), re-opens onions, resumes
+   * libp2p + QSS + socket. Safe to call when not hibernated (no-op if tor still
+   * alive and services already resumed).
+   */
+  public async wake() {
+    if (!this.hibernating && !this.hibernateInFlight) {
+      this.logger.info('wake: not hibernated, skipping')
+      return
+    }
+    if (this.wakeInFlight) return this.wakeInFlight
+    if (this.hibernateInFlight) {
+      this.logger.info('wake: waiting for in-flight hibernate to finish before waking')
+      try {
+        await this.hibernateInFlight
+      } catch (e) {
+        this.logger.error('wake: in-flight hibernate failed', e)
+      }
+    }
+
+    this.wakeInFlight = (async () => {
+      this.logger.info('Waking!')
+      if (this.tor) {
+        try {
+          await this.tor.init()
+        } catch (e) {
+          this.logger.error('wake: tor.init failed', e)
+        }
+      }
+      try {
+        await this.resume()
+      } catch (e) {
+        this.logger.error('wake: resume failed', e)
+      }
+      if (this.storageService) {
+        try {
+          this.logger.info('wake: restarting OrbitDB sync')
+          await this.storageService.startSync()
+        } catch (e) {
+          this.logger.error('wake: storage.startSync failed', e)
+        }
+      }
+      this.hibernating = false
+      this.logger.info('Woke')
+    })()
+    try {
+      await this.wakeInFlight
+    } finally {
+      this.wakeInFlight = null
+    }
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -275,6 +418,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       deleteChainFromDisk: false,
     }
   ) {
+    this.logger.info('Closing services', options)
+
     if (!options.deleteChainFromDisk) {
       this.logger.info('Saving active sigchain')
       try {
@@ -283,8 +428,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error('Error while saving active sigchain', e)
       }
     }
-
-    this.logger.info('Closing services', options)
 
     await this.closeSocket()
 
@@ -318,6 +461,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
+    // #3225: write a marker before any state change so a startup after a crashed leave can
+    // detect and finish the purge. Cleared at the end of this function on full success;
+    // anything that throws between leaves the marker in place.
+    this.writeLeaveInProgressMarker()
+    this.logger.info('Tombstoning notification tokens before leave')
+    const tombstoneAcked = await this.qpsService.tombstoneCurrentUserNotificationTokens()
+    if (!tombstoneAcked) {
+      this.logger.warn('Proceeding with leave without confirmed notification token tombstone ack')
+    }
+
+    this.logger.info('Resetting captcha tokens before leave')
+    this.captchaService.reset()
 
     await this.closeAllServices({ saveTor: true, closeDatastore: false, deleteChainFromDisk: true })
 
@@ -345,7 +500,86 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Restarting socket')
     await this.openSocket()
 
+    this.logger.info('Resuming QSS service')
+    await this.qssService.resume()
+
+    this.clearLeaveInProgressMarker()
     return true
+  }
+
+  private static readonly LEAVE_IN_PROGRESS_MARKER = '.leave-in-progress'
+
+  private leaveInProgressMarkerPath(): string {
+    return path.join(this.storageService.quietDir, ConnectionsManagerService.LEAVE_IN_PROGRESS_MARKER)
+  }
+
+  private writeLeaveInProgressMarker(): void {
+    try {
+      fs.mkdirSync(this.storageService.quietDir, { recursive: true })
+      fs.writeFileSync(this.leaveInProgressMarkerPath(), new Date().toISOString())
+    } catch (e) {
+      this.logger.warn('Failed to write leave-in-progress marker; continuing', e)
+    }
+  }
+
+  private clearLeaveInProgressMarker(): void {
+    try {
+      fs.unlinkSync(this.leaveInProgressMarkerPath())
+    } catch (e) {
+      // Marker may legitimately not exist (e.g. cleared by a previous successful leave or
+      // by the startup recovery path). Anything else is best-effort; swallow.
+    }
+  }
+
+  private leaveInProgressMarkerExists(): boolean {
+    try {
+      return fs.existsSync(this.leaveInProgressMarkerPath())
+    } catch {
+      return false
+    }
+  }
+
+  private async erasePreviousCommunityArtifacts(): Promise<void> {
+    this.logger.info('Erasing previous community artifacts before creating or joining a community')
+
+    if (this.storageService) {
+      this.logger.info('Cleaning storage service')
+      await this.storageService.clean()
+    }
+
+    if (this.libp2pService) {
+      this.logger.info('Stopping libp2p without closing datastore')
+      await this.libp2pService.close(false)
+
+      this.logger.info('Cleaning libp2p datastore')
+      await this.libp2pService.cleanDatastore()
+
+      this.logger.info('Closing libp2p datastore')
+      await this.libp2pService.closeDatastore()
+    }
+
+    if (this.sigChainService.activeChainTeamName != null) {
+      await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName, true)
+    }
+
+    if (this.localDbService) {
+      this.logger.info('Purging local DB artifacts')
+      await this.localDbService.purgeArtifacts()
+    }
+
+    if (this.storageService) {
+      this.logger.info('Purging storage data')
+      this.storageService.purgeData({ removeTorDataDirectory: false })
+    }
+
+    this.logger.info('Resetting Tor hidden services')
+    this.tor.resetHiddenServices()
+
+    this.logger.info('Resetting community state')
+    await this.resetState()
+
+    this.logger.info('Reopening local DB')
+    await this.localDbService.open()
   }
 
   async resetState() {
@@ -376,6 +610,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async createCommunity(payload: InitCommunityPayload): Promise<ResponseCreateCommunityPayload | undefined> {
     this.logger.info('Creating community', payload.id)
+    await this.erasePreviousCommunityArtifacts()
 
     this.logger.info(`Creating new LFA chain`)
     const sigchain = await this.sigChainService.createChain(payload.name, payload.username, true)
@@ -398,9 +633,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       id: payload.id,
       name: payload.name,
       peerList: [localAddress],
-      psk: Libp2pService.generateLibp2pPSK().psk,
+      psk: generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
-      teamId: sigchain.team!.id,
+      teamId: sigchain.team?.id,
       qssEnabled: this.qssAllowed && payload.useServer && payload.tosAccepted,
       qssEndpoint: this.qssEndpoint,
       tosAccepted: payload.tosAccepted,
@@ -408,8 +643,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-
-    this.qssService.connect(this.qssEndpoint)
 
     await this.launchCommunity(community.id)
 
@@ -431,17 +664,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } as ResponseCreateCommunityPayload
   }
 
-  private async joinViaQSS(inviteData: InvitationData) {
-    if (
-      inviteData.version === InvitationDataVersion.v3 &&
-      inviteData.qssEnabled &&
-      inviteData.authData.teamId != null &&
-      inviteData.qssEndpoint != null
-    ) {
-      await this.qssService.connect(inviteData.qssEndpoint, true)
-    }
-  }
-
   public async joinCommunity(payload: InitCommunityPayload): Promise<ResponseJoinCommunityPayload | undefined> {
     this.logger.info('Joining community', payload.id)
     const inviteData = payload.inviteData
@@ -453,24 +675,32 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
+    if (!isPSKcodeValid(inviteData.psk)) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActions.JOIN_COMMUNITY,
+        message: ErrorMessages.NETWORK_SETUP_FAILED,
+        community: payload.id,
+      })
+      return
+    }
+
+    await this.erasePreviousCommunityArtifacts()
+
     let communityName: string | undefined
+    let teamId: string | undefined
     if (
       inviteData &&
       (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
     ) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
+      teamId = (payload.inviteData as InvitationDataV2).authData.teamId
       await this.sigChainService.createChainFromInvite(
         payload.username,
         communityName,
         inviteData.authData.seed,
-        inviteData.authData.teamId,
+        teamId,
         true
       )
-      try {
-        this.joinViaQSS(inviteData)
-      } catch (error) {
-        this.logger.error(`Failed signing into qss community ${communityName}`, error)
-      }
     }
 
     if (!isPSKcodeValid(inviteData.psk)) {
@@ -507,7 +737,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       } as NetworkStats
     }
     // this adds bootstrap peers to the local db with the expectation that they are replaced once the user connects
-    this.localDbService.updatePeerStats(bootstrapPeerStats)
+    await this.localDbService.updatePeerStats(bootstrapPeerStats)
 
     const community: Community = {
       id: payload.id,
@@ -515,6 +745,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [...new Set([localAddress, ...Object.keys(bootstrapPeerStats)])], // TODO: we should deprecate this field and use db
       inviteData,
       psk: inviteData.psk,
+      teamId,
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
@@ -543,7 +774,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         peerId: identity.networkInfo.peerId.id,
       },
     }
-    this.storageService.addUserProfile(userProfile)
+    await this.storageService.deferUserProfile(userProfile)
 
     return {
       id: community.id,
@@ -564,6 +795,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
       return
     }
+    await this.localDbService.setCurrentCommunityId(id)
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -582,6 +814,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         }
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
+        emitError(this.serverIoProvider.io, {
+          type: SocketActions.LAUNCH_COMMUNITY,
+          message: ErrorMessages.SIGCHAIN_LOAD_FAILED,
+          community: community.id,
+          trace: (e as Error).stack,
+        })
+        await this.localDbService.deleteCommunity(community.id)
+        return
       }
     } else {
       this.logger.warn('No community name found in storage')
@@ -592,7 +832,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
       emitError(this.serverIoProvider.io, {
-        type: SocketActions.JOIN_COMMUNITY,
+        type: SocketActions.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: community.id,
         trace: e.stack,
@@ -645,32 +885,147 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
-      psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
+      psk: generateLibp2pPSK(community.psk).fullKey,
+      torBootstrap: this.tor,
     }
     await this.libp2pService.createInstance(params)
 
-    const setupStorage = async () => {
-      this.logger.info('Setting up storage')
-      await this.storageService.init()
+    let storageTeamId: string | undefined
+    let setupStorageWithTeamMetaPromise: Promise<void> | undefined
+    const setupStorageWithTeamMeta = async (teamId: string) => {
+      if (storageTeamId != null && storageTeamId !== teamId) {
+        throw new Error(`Storage metadata team mismatch: ${storageTeamId} !== ${teamId}`)
+      }
+      storageTeamId = teamId
+
+      if (setupStorageWithTeamMetaPromise != null) {
+        this.logger.info('Storage metadata setup already in progress, waiting')
+        return setupStorageWithTeamMetaPromise
+      }
+
+      setupStorageWithTeamMetaPromise = (async () => {
+        this.logger.info('Setting up storage')
+        await this.storageService.init(teamId)
+        this.qssService.markTeamStorageReady(teamId)
+      })()
+
+      return setupStorageWithTeamMetaPromise
     }
 
     const activeChain = this.sigChainService.getActiveChain()
-    if (activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)) {
-      await setupStorage()
-      this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
+    const hasStorageReadyChain = activeChain.team != null && activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
+    if (hasStorageReadyChain) {
+      this.logger.debug('Active chain already has team and user is a member, setting up storage immediately')
+      await setupStorageWithTeamMeta(activeChain.team!.id)
+      this.qssService.connect(community.qssEndpoint)
+      await this._updateTeamIdOnStoredCommunity(community, activeChain)
     } else {
-      this.libp2pService.once(Libp2pEvents.AUTH_JOINED, async (payload: { peer: string }) => {
-        this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
-        await setupStorage()
-        this.storageService.addTeamIdToDbMetas(activeChain.team!.id)
+      this.logger.debug(
+        'Active chain does not have team or user is not a member, waiting for team metadata before setting up storage'
+      )
+      const storageReadyPromise = new Promise<void>((resolve, reject) => {
+        const handleStorageReady = async (teamId: string) => {
+          try {
+            await setupStorageWithTeamMeta(teamId)
+            await this._updateTeamIdOnStoredCommunity(community, teamId)
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        }
+
+        this.qssService.once(QSSEvents.QSS_FULLY_JOINED, (teamId: string) => {
+          this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
+          void handleStorageReady(teamId)
+        })
+        this.libp2pService.once(Libp2pEvents.AUTH_JOINED, (payload: { peer: string }) => {
+          this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
+          const teamId = this.sigChainService.getActiveChain().team?.id
+          if (teamId == null) {
+            reject(new Error(`Cannot initialize storage after ${Libp2pEvents.AUTH_JOINED}; active chain has no team`))
+            return
+          }
+          void handleStorageReady(teamId)
+        })
       })
+
+      this.qssService.connect(community.qssEndpoint)
+
+      if (await this.tor.isBootstrappingFinished()) {
+        this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
+      }
+      this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+
+      await storageReadyPromise
     }
+
     if (await this.tor.isBootstrappingFinished()) {
       this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
     }
 
     this.logger.info('Storage initialized')
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+  }
+
+  private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
+  private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {
+    if (community.teamId != null) return
+    if (chainOrTeamId instanceof SigChain && chainOrTeamId.team == null) {
+      this.logger.warn(`Can't update team ID on stored community ${community.id} because sigchain has nullish team`)
+      return
+    }
+    this.logger.debug(`Updating team ID for stored community ${community.id}`)
+    const teamId = chainOrTeamId instanceof SigChain ? chainOrTeamId.team!.id : chainOrTeamId
+    await this.localDbService.setCommunity({ ...community, teamId })
+    const payload: UpdateCommunityPayload = {
+      id: community.id,
+      updates: {
+        teamId,
+      },
+    }
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_UPDATED, payload)
+  }
+
+  /**
+   * Update user records in the state manager based on sigchain user data and private channel metadata (to get channel membership)
+   *
+   * @param sourceEvent The emitted event whose handler triggered the update
+   * @param teamId ID of the LFA team/Quiet community that was updated
+   */
+  private async _updateUsersInStateManager(sourceEvent: string, teamId: string): Promise<void> {
+    this.logger.debug('Updating users after source event', sourceEvent, teamId)
+    if (!this.sigChainService) {
+      this.logger.warn(`Skipping users update, sigchainservice hasn't been initialized`)
+      return
+    }
+
+    // handle chain updates
+    let channelMapping: Record<string, PublicChannel> = {}
+    if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
+      this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
+    } else {
+      channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
+    }
+    /**
+     * TODO: clean this up so we are only updating users that are actually updated
+     *
+     * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
+     */
+    const users = this.sigChainService
+      .getChain({ teamId })
+      .team?.members()
+      .map(user => ({
+        userId: user.userId,
+        roles: user.roles,
+        channelIds:
+          channelMapping != null
+            ? user.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
+            : [],
+        isRegistered: true,
+        isDuplicated: false,
+      })) as User[]
+    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
   /**
@@ -705,20 +1060,35 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       SocketActions.CREATE_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: ResponseCreateCommunityPayload | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActions.CREATE_COMMUNITY}`)
-        callback(await this.createCommunity(args))
+        try {
+          callback(await this.createCommunity(args))
+        } catch (e) {
+          this.logger.error('Error while handling create community request', e)
+          callback(undefined)
+        }
       }
     )
     this.socketService.on(
       SocketActions.JOIN_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: ResponseJoinCommunityPayload | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActions.JOIN_COMMUNITY}`)
-        callback(await this.joinCommunity(args))
+        try {
+          callback(await this.joinCommunity(args))
+        } catch (e) {
+          this.logger.error('Error while handling join community request', e)
+          callback(undefined)
+        }
       }
     )
 
     this.socketService.on(SocketActions.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
       this.logger.info(`socketService - ${SocketActions.LEAVE_COMMUNITY}`)
-      callback(await this.leaveCommunity())
+      try {
+        callback(await this.leaveCommunity())
+      } catch (e) {
+        this.logger.error('Error while handling leave community request', e)
+        callback(false)
+      }
     })
 
     this.socketService.on(SocketActions.UPDATE_COMMUNITY, async (payload: UpdateCommunityPayload) => {
@@ -728,7 +1098,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error(`No community found with id ${payload.id}`)
         return
       }
-      await this.localDbService.setCommunity({ ...community, ...payload })
+      await this.localDbService.setCommunity({ ...community, ...payload.updates })
     })
 
     // Local First Auth
@@ -747,6 +1117,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         } else {
           try {
             const newInvite = this.sigChainService.getActiveChain().invites.createLongLivedUserInvite()
+            const qssInitStatus = await this.qssService.getQssInitStatus()
+            // create the lockboxes using invite-based keys for users to self-assign the MEMBER role
+            if (qssInitStatus.qssEnabled) {
+              this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, newInvite.salt)
+            }
             await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })
@@ -765,7 +1140,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActions.CREATE_CHANNEL,
       async (payload: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
-        callback(await this.storageService?.channels.handleCreateChannel(payload))
+        const _createChannel = async (payload: CreateChannelPayload): Promise<CreateChannelResponse> => {
+          try {
+            return await this.storageService?.channels.handleCreateChannel(payload)
+          } catch (e) {
+            this.logger.error('Error while creating channel', e)
+            return {
+              status: ChannelOperationStatus.FAILED,
+            }
+          }
+        }
+        callback(await _createChannel(payload))
       }
     )
     this.socketService.on(
@@ -790,6 +1175,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       SocketActions.GET_MESSAGES,
       async (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
         callback(await this.storageService?.channels.getMessages(payload.channelId, payload.ids))
+      }
+    )
+
+    // Private Channels
+
+    this.socketService.on(
+      SocketActions.ADD_MEMBERS_TO_CHANNEL,
+      async (payload: AddMembersChannelPayload, callback: (response?: AddMembersChannelResponse) => void) => {
+        callback(await this.storageService?.channels.addMembersToPrivateChannel(payload))
       }
     )
 
@@ -819,6 +1213,42 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.storageService?.addUserProfile(payload.profile))
       }
     )
+
+    this.socketService.on(SocketActions.USER_PROFILES_UPDATED, (payload: UserProfilesUpdatedPayload) => {
+      this.logger.info(`Forwarding ${SocketActions.USER_PROFILES_UPDATED} back to state manager`)
+      this.serverIoProvider.io.emit(SocketEvents.USER_PROFILES_UPDATED, payload)
+    })
+
+    this.socketService.on(SocketActions.TOGGLE_P2P, async (payload: boolean, callback: (response: boolean) => void) => {
+      try {
+        if (payload) {
+          await this.libp2pService.resume()
+          await this.storageService.startSync()
+        } else {
+          await this.libp2pService.pause()
+          await this.storageService.stopSync()
+        }
+      } catch (e) {
+        this.logger.error('Error toggling libp2p service', e)
+      }
+
+      if (this.libp2pService.state === Libp2pState.Started) {
+        callback(true)
+      } else {
+        callback(false)
+      }
+    })
+  }
+
+  /**
+   * Handle events from the sigchain service and update data in the state manager
+   */
+  private attachSigchainListeners() {
+    if (!this.sigChainService) return
+
+    this.sigChainService.on(SigchainEvents.UPDATED, async (teamId: string) => {
+      await this._updateUsersInStateManager(SigchainEvents.UPDATED, teamId)
+    })
   }
 
   /**
@@ -827,11 +1257,34 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   private attachStorageListeners() {
     if (!this.storageService) return
+
+    this.storageService.on(StorageEvents.INITIALIZED, async () => {
+      this.logger.info(`Storage - ${StorageEvents.INITIALIZED}`)
+      try {
+        const activeChain = this.sigChainService.activeChain
+        await this._updateUsersInStateManager(StorageEvents.INITIALIZED, activeChain.team!.id)
+      } catch (e) {
+        this.logger.warn(
+          `Couldn't update state manager users based on sigchain after storage init, active sigchain likely not found`,
+          e
+        )
+      }
+    })
+
     // Channel and Message Events
-    this.storageService.channels.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+    this.storageService.channels.on(StorageEvents.CHANNELS_STORED, async (payload: ChannelsReplicatedPayload) => {
       this.logger.info(`Storage - ${StorageEvents.CHANNELS_STORED}`)
       this.serverIoProvider.io.emit(SocketEvents.CHANNELS_STORED, payload)
       this.logger.info(`Storage (emitted) - ${SocketEvents.CHANNELS_STORED}`)
+      try {
+        const activeChain = this.sigChainService.activeChain
+        await this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
+      } catch (e) {
+        this.logger.warn(
+          `Couldn't update state manager users based on sigchain after channels stored, active sigchain likely not found`,
+          e
+        )
+      }
     })
     this.storageService.channels.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketEvents.MESSAGES_STORED, payload)

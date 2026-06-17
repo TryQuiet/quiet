@@ -12,6 +12,7 @@ import { useContextMenu } from '../../hooks/useContextMenu'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import { Asset } from 'react-native-image-picker'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
+import { HeaderTitleProps } from '../Appbar/Appbar.types'
 
 // Define a new type for date groups with timestamps
 export interface DateGroup {
@@ -41,6 +42,7 @@ export interface ChatProps extends UserLabelHandlers {
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  maxAutodownloadSizeBytes?: number
   imagePreview?: FileMetadata | null
   setImagePreview?: (media: FileMetadata | null) => void
   openImagePreview: (media: FileMetadata) => void
@@ -59,4 +61,8 @@ export interface ChannelMessagesComponentProps extends UserLabelHandlers {
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
+}
+
+export interface ChatAppbarHeaderTitleProps extends HeaderTitleProps {
+  isPublic: boolean
 }

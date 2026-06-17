@@ -67,6 +67,7 @@ interface Props {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  maxAutodownloadSizeBytes: number
   scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
   openUrl: (url: string) => void
@@ -84,6 +85,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
   messages = {},
   pendingMessages = {},
   downloadStatuses = {},
+  maxAutodownloadSizeBytes,
   scrollbarRef,
   onScroll,
   uploadedFileModal,
@@ -243,6 +245,7 @@ export const ChannelMessagesComponent: React.FC<Props> = ({
                   messages={items}
                   pendingMessages={pendingMessages}
                   downloadStatuses={downloadStatuses}
+                  maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
                   uploadedFileModal={uploadedFileModal}
                   openUrl={openUrl}
                   openContainingFolder={openContainingFolder}

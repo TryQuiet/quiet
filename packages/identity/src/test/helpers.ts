@@ -1,5 +1,4 @@
 import { Time, setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 import { createRootCA, type RootCA } from '../createRootCA'
 import { createUserCert, type UserCert } from '../createUserCert'
 import { createUserCsr, type UserCsr } from '../createUserCsr'
@@ -35,17 +34,17 @@ export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): 
 }
 
 export function setupCrypto() {
-  const webcrypto = new Crypto()
+  // prettier-ignore
+  const crypto = require('crypto').webcrypto;
   setEngine(
     'newEngine',
-    webcrypto,
+    crypto,
     new CryptoEngine({
       name: '',
-      crypto: webcrypto,
-      subtle: webcrypto.subtle,
+      crypto: crypto,
+      subtle: crypto.subtle,
     })
   )
-  global.crypto = webcrypto
 }
 
 export const createRootCertificateTestHelper = async (commonName: string): Promise<RootCA> => {

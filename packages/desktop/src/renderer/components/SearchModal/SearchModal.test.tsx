@@ -46,6 +46,7 @@ describe('Search Modal', () => {
           timestamp: channelMock.timestamp,
           owner: alice.nickname,
           id: generateChannelId(channelMock.name),
+          teamId: community.teamId,
         },
       })
     }

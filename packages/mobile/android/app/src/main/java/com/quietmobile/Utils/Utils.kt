@@ -10,13 +10,12 @@ import kotlin.coroutines.suspendCoroutine
 
 object Utils {
     fun createDirectory(context: Context): String {
-        val dataDirectory = File(context.filesDir, "backend/files6")
+        val dataDirectory = File(context.filesDir, "backend/files7")
         dataDirectory.mkdirs()
 
         return dataDirectory.absolutePath
     }
 
-    @JvmStatic
     suspend fun getOpenPort(starting: Int) = suspendCoroutine { continuation ->
         val port = checkPort(starting)
         continuation.resume(port)
@@ -26,7 +25,7 @@ object Utils {
         var isPortUsed = true
         var portToCheck = port
         while (isPortUsed) {
-            isPortUsed = isPortOpen( portToCheck)
+            isPortUsed = isPortOpen(portToCheck)
             if (isPortUsed) {
                 portToCheck++
             }

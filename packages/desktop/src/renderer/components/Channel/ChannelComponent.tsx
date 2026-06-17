@@ -37,6 +37,7 @@ export interface ChannelComponentProps {
   user: UserProfile | undefined
   channelId: string
   channelName: string
+  isPublic: boolean
   messages: {
     count: number
     groups: MessagesDailyGroups
@@ -44,6 +45,7 @@ export interface ChannelComponentProps {
   newestMessage: ChannelMessage
   pendingMessages: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  maxAutodownloadSizeBytes: number
   lazyLoading: (load: boolean) => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -72,10 +74,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   user,
   channelId,
   channelName,
+  isPublic,
   messages,
   newestMessage,
   pendingMessages,
   downloadStatuses = {},
+  maxAutodownloadSizeBytes,
   lazyLoading,
   onInputChange,
   onInputEnter,
@@ -217,6 +221,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
+          isPublic={isPublic}
           openContextMenu={openContextMenu}
           enableContextMenu={enableContextMenu}
         />
@@ -228,6 +233,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             messages={messages.groups}
             pendingMessages={pendingMessages}
             downloadStatuses={downloadStatuses}
+            maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}

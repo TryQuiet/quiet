@@ -5,17 +5,16 @@ Here are the steps:
 
 1. Install `patch` via your Linux package manager (you can skip this step on Mac because it is already installed)
 
-2. Use `Node 18.20.4` and `npm 10.7.0`. We recommend [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh/) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
+2. Use `Node 20.20.1` and `npm 10.8.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh/) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.nvmrc). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
 
 3. Install python3 and setuptools through your preferred method. (used by node-gyp)
 
 4. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies/submodules and trigger a prepublish script which builds them.
 
 ```bash
-npm i lerna@6.6.2
-npm i typescript@4.9.5
+npm i lerna@6.6.2 typescript@4.9.5
 npm i -g pnpm@9.12.1 # may be needed depending on configuration
-npm install
+npm i
 npm run pull:submodules
 npm run bootstrap
 ```
@@ -24,7 +23,7 @@ If you run into problems please double check if you have exact version Node and 
 
 5. In project root run,
 
-```
+```bash
 npm run start:desktop
 ```
 
@@ -38,13 +37,13 @@ The project uses independent versioning which means each package has its own ver
 
 To create a release run:
 
-```
+```bash
 npm run lerna version <release-type>
 ```
 
 To build a prerelease version, run:
 
-```
+```bash
 npm run lerna version prerelease
 ```
 
@@ -52,7 +51,14 @@ npm run lerna version prerelease
 
 ## Updating Tor Binaries
 
+### Windows, Mac, Linux, Android 
+
 Quiet uses Tor binaries that are bundled in the `3rd-party/tor/` directory for desktop and `packages/mobile/android/app/src/main/jniLibs/arm64-v8a/libtor.so` for Android. Use `./scripts/update-tor-binaries-desktop.sh` to update them for all platforms, or use `--desktop-only` or `--android-only` flags to update specific platforms.
+
+
+### iOS
+Quiet uses the [Tor.framework project](https://github.com/iCepa/Tor.framework) to get `tor` binaries that can be run on iOS devics and in the simulator. Relesaes can be found [here](https://github.com/iCepa/Tor.framework/releases/) and are distributed as cocoapods. We define which version of Tor.Framework to use in Quiet's iOS build in `packages/mobile/ios/Podfile`...
+
 
 ----
 

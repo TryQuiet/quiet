@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
-
-import { Grid, Typography } from '@mui/material'
-
+import { FormControlLabel, Grid, Typography } from '@mui/material'
 import WarningIcon from '@mui/icons-material/Warning'
+
+import { parseName } from '@quiet/common'
 
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
-
 import { TextField } from '../../ui/TextField/TextField'
-import { channelNameField } from '../../../forms/fields/createChannelFields'
+import { channelNameField, channelPrivateField } from '../../../forms/fields/createChannelFields'
+import { createLogger } from '../../../logger'
+import IOSSwitch from '../../ui/Switch/IOSSwitch'
+import LockIcon from '../../../static/images/components/lock'
 
-import { parseName } from '@quiet/common'
+const logger = createLogger('CreateChannelComponent')
 
 const PREFIX = 'CreateChannelComponent'
 
@@ -24,9 +26,16 @@ const classes = {
   iconDiv: `${PREFIX}iconDiv`,
   warningIcon: `${PREFIX}warningIcon`,
   warningMessage: `${PREFIX}warningMessage`,
+  errorMessage: `${PREFIX}errorMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
+  publicPrivateGrid: `${PREFIX}publicPrivateGrid`,
+  lock: `${PREFIX}lock`,
+  publicPrivate: `${PREFIX}publicPrivate`,
+  bold: `${PREFIX}bold`,
+  offset: `${PREFIX}offset`,
+  subtitle: `${PREFIX}subtitle`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -73,6 +82,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     wordBreak: 'break-word',
   },
 
+  [`& .${classes.errorMessage}`]: {
+    color: theme.palette.error.main,
+    fontSize: 12,
+  },
+
   [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
@@ -87,20 +101,51 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     lineHeight: '19px',
     color: theme.palette.colors.darkGray,
   },
+
+  [`& .${classes.publicPrivateGrid}`]: {
+    marginLeft: 0,
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  [`& .${classes.lock}`]: {
+    padding: 0,
+  },
+
+  [`& .${classes.bold}`]: {
+    fontWeight: 500,
+  },
+
+  [`& .${classes.offset}`]: {
+    marginTop: 5,
+  },
+
+  [`& .${classes.subtitle}`]: {
+    color: theme.palette.colors.gray50,
+    fontWeight: 400,
+    marginTop: -2,
+  },
+
+  [`& .${classes.publicPrivate}`]: {
+    marginTop: 0,
+  },
 }))
 
 const createChannelFields = {
   channelName: channelNameField(),
+  private: channelPrivateField(),
 }
 
 interface CreateChannelFormValues {
   channelName: string
+  private: boolean
 }
 
 export interface CreateChannelProps {
   open: boolean
   channelCreationError?: string
-  createChannel: (name: string) => void
+  isAdmin: boolean
+  createChannel: (name: string, isPublic: boolean) => void
   handleClose: () => void
   clearErrorsDispatch: () => void
 }
@@ -108,6 +153,7 @@ export interface CreateChannelProps {
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
   channelCreationError,
+  isAdmin,
   createChannel,
   handleClose,
   clearErrorsDispatch,
@@ -115,14 +161,10 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    setError,
-    clearErrors,
-    control,
-  } = useForm<{ channelName: string }>({
+  const { handleSubmit, formState, setValue, setError, clearErrors, control } = useForm<{
+    channelName: string
+    private: boolean
+  }>({
     mode: 'onSubmit',
   })
 
@@ -130,23 +172,30 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     submitForm(createChannel, values)
   }
 
-  const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
-    handleSubmit(parseName(values.channelName))
+  const submitForm = (handleSubmit: (name: string, isPublic: boolean) => void, values: CreateChannelFormValues) => {
+    handleSubmit(parseName(values.channelName), !values.private)
   }
 
-  const onChange = (name: string) => {
+  const onNameChange = (name: string) => {
     setValue('channelName', name)
     const parsedName = parseName(name)
     setChannelName(parsedName)
     setParsedNameDiffers(name !== parsedName)
   }
 
+  const onIsPrivateChange = (checked: boolean) => {
+    setValue('private', checked)
+  }
+
   React.useEffect(() => {
     if (!open) {
       setValue('channelName', '')
       setChannelName('')
+      setValue('private', false)
       clearErrors()
       clearErrorsDispatch()
+    } else {
+      setValue('private', false)
     }
   }, [open])
 
@@ -159,10 +208,18 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   return (
     <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <StyledModalContent container direction='column'>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          onSubmit={handleSubmit(onSubmit, errors => {
+            logger.error(
+              'Errors on submit',
+              JSON.stringify(errors.channelName, null, 2),
+              JSON.stringify(errors.private, null, 2)
+            )
+          })}
+        >
           <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
-              Create a new public channel
+              Create a new channel
             </Typography>
             <Typography variant='body2'>Channel name</Typography>
             <Controller
@@ -178,11 +235,11 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   variant='outlined'
                   placeholder={'Enter a channel name'}
                   autoFocus
-                  errors={errors}
+                  errors={formState.errors}
                   onchange={event => {
                     event.persist()
                     const value = event.target.value
-                    onChange(value)
+                    onNameChange(value)
                     // Call default
                     field.onChange(event)
                   }}
@@ -195,7 +252,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               )}
             />
             <div className={classes.gutter}>
-              {!errors.channelName && channelName.length > 0 && parsedNameDiffers && (
+              {!formState.errors.channelName && channelName.length > 0 && parsedNameDiffers && (
                 <Grid container alignItems='center' direction='row'>
                   <Grid item className={classes.iconDiv}>
                     <WarningIcon className={classes.warningIcon} />
@@ -212,6 +269,72 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                 </Grid>
               )}
             </div>
+            {isAdmin && (
+              <>
+                <Controller
+                  control={control}
+                  name={'private'}
+                  rules={createChannelFields.private.validation}
+                  render={({ field }) => (
+                    <Grid item container direction='row' className={classes.publicPrivateGrid}>
+                      <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
+                      <Grid item className={classes.publicPrivate} alignItems='center'>
+                        <FormControlLabel
+                          defaultChecked={false}
+                          data-testid={'createChannel-private-form-control'}
+                          control={
+                            <IOSSwitch
+                              checked={field.value}
+                              data-testid={'createChannel-private-form-control-toggle'}
+                              onChange={event => {
+                                event.persist()
+                                onIsPrivateChange(event.target.checked)
+                                field.onChange(event.target.checked)
+                              }}
+                            />
+                          }
+                          label={
+                            <Grid
+                              container
+                              direction='column'
+                              justifyContent='left'
+                              alignContent='center'
+                              paddingRight='18px'
+                              data-testid={'createChannel-private-form-control-label'}
+                            >
+                              <Grid item>
+                                <Typography variant='body1'>Private Channel</Typography>
+                              </Grid>
+                              <Grid item>
+                                <Typography variant='caption' className={classes.subtitle}>
+                                  Only assigned members and roles have access
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          }
+                          labelPlacement='start'
+                        />
+                      </Grid>
+                    </Grid>
+                  )}
+                />
+                <div className={classes.gutter}>
+                  {formState.errors.private && (
+                    <Grid container alignItems='center' direction='row'>
+                      <Grid item xs>
+                        <Typography
+                          variant='body2'
+                          className={classes.errorMessage}
+                          data-testid={'createChannelPrivacyWarning'}
+                        >
+                          {formState.errors.private.message}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                </div>
+              </>
+            )}
             <LoadingButton
               variant='contained'
               color='primary'

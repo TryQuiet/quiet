@@ -130,7 +130,7 @@ describe('join community', () => {
 
     const result = renderComponent(component, store)
 
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
     expect(textInput).not.toBeNull()
 
     await userEvent.type(textInput!, validCode)
@@ -165,7 +165,7 @@ describe('join community', () => {
 
       const result = renderComponent(component, store)
 
-      const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+      const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
       expect(textInput).not.toBeNull()
       // @ts-expect-error
       await userEvent.type(textInput, registrarUrl.href)
@@ -199,7 +199,7 @@ describe('join community', () => {
 
     const result = renderComponent(component, store)
 
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
     expect(textInput).not.toBeNull()
     // @ts-expect-error
     await userEvent.type(textInput, registrarUrl)
@@ -272,7 +272,7 @@ describe('join community', () => {
 
     const result = renderComponent(component, store)
 
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
     expect(textInput).not.toBeNull()
     // @ts-expect-error
     await userEvent.type(textInput, validCode)
@@ -299,7 +299,7 @@ describe('join community', () => {
       />
     )
 
-    const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder!)
     await userEvent.type(textInput, validCode)
 
     const submitButton = screen.getByText('Continue')

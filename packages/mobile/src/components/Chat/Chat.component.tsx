@@ -31,6 +31,7 @@ import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-pick
 import UploadFilesPreviewsComponent from '../FileAttachmentPreview/FileAttachmentPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { createLogger } from '../../utils/logger'
+import { ChatAppbarHeaderTitle } from './ChatAppbarHeaderTitle.component'
 
 const logger = createLogger('chat:component')
 
@@ -52,6 +53,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   },
   pendingMessages = {},
   downloadStatuses = {},
+  maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
   imagePreview,
@@ -370,6 +372,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
           downloadFile={downloadFile}
           cancelDownload={cancelDownload}
           openImagePreview={openImagePreview}
+          maxAutodownloadSizeBytes={maxAutodownloadSizeBytes}
           openUrl={openUrl}
           pendingMessages={pendingMessages}
           duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
@@ -382,6 +385,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       downloadFile,
       cancelDownload,
       openImagePreview,
+      maxAutodownloadSizeBytes,
       openUrl,
       pendingMessages,
       duplicatedUsernameHandleBack,
@@ -395,7 +399,12 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
 
   return (
     <View style={styles.container} testID={`chat_${channel?.name}`}>
-      <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
+      <Appbar
+        title={channel?.name}
+        titleComponent={<ChatAppbarHeaderTitle title={channel?.name} isPublic={channel?.public ?? true} />}
+        back={handleBackButton}
+        contextMenu={contextMenu}
+      />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
         keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: insets.bottom })}

@@ -54,7 +54,7 @@ const TermsOfService = () => {
   }
 
   const openURL = () => {
-    shell.openExternal('https://github.com/TryQuiet/quiet/wiki/Privacy-Policy-&-Terms-of-Use')
+    shell.openExternal('https://github.com/TryQuiet/quiet/wiki/Privacy-Policy')
   }
 
   return (

@@ -76,6 +76,13 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
+          <ListItemButton data-testid={'attachments-settings-tab'} onClick={() => handleChange('attachments')}>
+            <ListItemText>Files and Images</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
           <ListItemButton data-testid={'invite-settings-tab'} onClick={() => handleChange('invite')}>
             <ListItemText>Add Members</ListItemText>
             <ListItemIcon>
@@ -89,21 +96,17 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               <ChevronRightIcon />
             </ListItemIcon>
           </ListItemButton>
-          {!isWindows && (
-            <>
-              <Divider />
-              <ListItemButton
-                data-testid='leave-community-settings-tab'
-                className={classes.leaveComunity}
-                onClick={() => handleChange('leaveCommunity')}
-              >
-                <ListItemText>Leave community</ListItemText>
-                <ListItemIcon>
-                  <ChevronRightIcon />
-                </ListItemIcon>
-              </ListItemButton>
-            </>
-          )}
+          <Divider />
+          <ListItemButton
+            data-testid='leave-community-settings-tab'
+            className={classes.leaveComunity}
+            onClick={() => handleChange('leaveCommunity')}
+          >
+            <ListItemText>Leave community</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
           <Divider />
           {(process.env.NODE_ENV === 'development' || process.env.IS_E2E === 'true') && (
             <ListItemButton data-testid={'debug-settings-tab'} onClick={() => handleChange('debug')}>

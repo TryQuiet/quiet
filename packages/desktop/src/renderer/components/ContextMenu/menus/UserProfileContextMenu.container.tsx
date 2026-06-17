@@ -10,8 +10,9 @@ import { UserProfile } from '@quiet/types'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
 import { MenuName } from '../../../../const/MenuNames.enum'
-import Jdenticon from '../../Jdenticon/Jdenticon'
+import ProfilePhoto from '../../ProfilePhoto/ProfilePhoto'
 import { createLogger } from '../../../logger'
+import { webUtils } from 'electron'
 
 const logger = createLogger('userProfileContextMenu:container')
 
@@ -211,21 +212,12 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                 >
                   <Grid container direction='column'>
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.photo ? (
-                        <img className={classes.profilePhoto} src={userProfile?.photo} alt={'User profile image'} />
-                      ) : (
-                        <Jdenticon
-                          value={userId}
-                          size='96'
-                          style={{
-                            width: '96px',
-                            height: '96px',
-                            background: theme.palette.background.paper,
-                            borderRadius: '8px',
-                            marginBottom: '16px',
-                          }}
-                        />
-                      )}
+                      <ProfilePhoto
+                        userProfile={userProfile}
+                        userId={userId}
+                        className={classes.profilePhoto}
+                        size={96}
+                      />
                       <Typography variant='body2' className={classes.nickname}>
                         {username}
                       </Typography>
@@ -293,6 +285,9 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const contextMenu = useContextMenu(MenuName.UserProfile)
   const saveUserProfileError = useSelector(users.selectors.saveUserProfileError)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
+    // since on electron 32+ .path is undefined on File, we need to set the path property before sneding the profile pic to the backend
+    // @ts-ignore
+    photo.path = webUtils.getPathForFile(photo)
     dispatch(users.actions.saveUserProfile({ photo }))
   }
 
@@ -415,25 +410,12 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                       </Grid>
                     )}
                     <Grid container direction='column' className={classes.profilePhotoContainer} alignItems='center'>
-                      {userProfile?.photo ? (
-                        <img
-                          className={classes.profilePhoto}
-                          src={userProfile?.photo}
-                          alt={'Your user profile image'}
-                        />
-                      ) : (
-                        <Jdenticon
-                          value={userId}
-                          size='96'
-                          style={{
-                            width: '96px',
-                            height: '96px',
-                            background: theme.palette.background.paper,
-                            borderRadius: '8px',
-                            marginBottom: '16px',
-                          }}
-                        />
-                      )}
+                      <ProfilePhoto
+                        userProfile={userProfile}
+                        userId={userId}
+                        className={classes.profilePhoto}
+                        size={96}
+                      />
                       <EditPhotoButton onChange={onChange} />
                     </Grid>
                     <label htmlFor='username' className={classes.editUsernameFieldLabel}>

@@ -17,3 +17,29 @@ export type GetChainFilter = {
   teamId?: string
   teamName?: string
 }
+
+/**
+ * Native LFA Events
+ */
+export enum LFAEvents {
+  UPDATED = 'updated',
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnected',
+  JOINED = 'joined',
+  CHANGE = 'change',
+  LOCAL_ERROR = 'localError',
+  REMOTE_ERROR = 'remoteError',
+}
+
+/**
+ * Events emitted by Sigchains and the SigchainService
+ */
+export enum SigchainEvents {
+  UPDATED = 'sigchainUpdated',
+}
+
+export enum StoredKeyType {
+  SECRET = 'secret',
+  USER_PUBLIC = 'userPublic',
+  USER_SIG = 'userSig',
+}

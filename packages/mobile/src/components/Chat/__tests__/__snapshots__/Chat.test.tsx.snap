@@ -104,26 +104,169 @@ exports[`Chat component renders component 1`] = `
         }
       }
     >
-      <Text
-        color="main"
-        fontSize={16}
-        fontWeight="medium"
-        horizontalTextAlign="left"
+      <View
         style={
-          [
-            {
-              "color": "#000000",
-              "fontFamily": "Rubik-Medium",
-              "fontSize": 16,
-              "textAlign": "left",
-              "textAlignVertical": "center",
-            },
-          ]
+          {
+            "alignItems": "center",
+            "display": "flex",
+            "flexDirection": "row",
+          }
         }
-        verticalTextAlign="center"
       >
-        #general
-      </Text>
+        <RNSVGSvgView
+          align="xMidYMid"
+          bbHeight={24}
+          bbWidth={24}
+          fill="none"
+          focusable={false}
+          height={24}
+          meetOrSlice={0}
+          minX={0}
+          minY={0}
+          style={
+            [
+              {
+                "backgroundColor": "transparent",
+                "borderWidth": 0,
+              },
+              {
+                "flex": 0,
+                "height": 24,
+                "width": 24,
+              },
+            ]
+          }
+          vbHeight={24}
+          vbWidth={24}
+          width={24}
+        >
+          <RNSVGGroup
+            fill={null}
+            propList={
+              [
+                "fill",
+              ]
+            }
+          >
+            <RNSVGPath
+              d="M15.7318 4.875L12.8818 19.125"
+              fill={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              propList={
+                [
+                  "stroke",
+                  "strokeWidth",
+                  "strokeLinecap",
+                ]
+              }
+              stroke={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              strokeLinecap={1}
+              strokeWidth="2"
+            />
+            <RNSVGPath
+              d="M10.5355 4.875L7.68555 19.125"
+              fill={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              propList={
+                [
+                  "stroke",
+                  "strokeWidth",
+                  "strokeLinecap",
+                ]
+              }
+              stroke={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              strokeLinecap={1}
+              strokeWidth="2"
+            />
+            <RNSVGPath
+              d="M6.8252 8.58594H17.7502"
+              fill={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              propList={
+                [
+                  "stroke",
+                  "strokeWidth",
+                  "strokeLinecap",
+                ]
+              }
+              stroke={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              strokeLinecap={1}
+              strokeWidth="2"
+            />
+            <RNSVGPath
+              d="M5.875 15.4141H16.8"
+              fill={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              propList={
+                [
+                  "stroke",
+                  "strokeWidth",
+                  "strokeLinecap",
+                ]
+              }
+              stroke={
+                {
+                  "payload": 4278190080,
+                  "type": 0,
+                }
+              }
+              strokeLinecap={1}
+              strokeWidth="2"
+            />
+          </RNSVGGroup>
+        </RNSVGSvgView>
+        <Text
+          color="main"
+          fontSize={16}
+          fontWeight="medium"
+          horizontalTextAlign="left"
+          style={
+            [
+              {
+                "color": "#000000",
+                "fontFamily": "Rubik-Medium",
+                "fontSize": 16,
+                "textAlign": "left",
+                "textAlignVertical": "center",
+              },
+            ]
+          }
+          verticalTextAlign="center"
+        >
+          general
+        </Text>
+      </View>
     </View>
     <View
       style={
@@ -598,8 +741,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -811,8 +954,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1038,8 +1181,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1265,8 +1408,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1478,8 +1621,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1691,8 +1834,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -1929,8 +2072,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2142,8 +2285,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2355,8 +2498,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2568,8 +2711,8 @@ exports[`Chat component renders component 1`] = `
                   >
                     <RNSVGSvgView
                       align="xMidYMid"
-                      bbHeight="37"
-                      bbWidth="37"
+                      bbHeight={37}
+                      bbWidth={37}
                       focusable={false}
                       height={37}
                       meetOrSlice={0}
@@ -2819,79 +2962,83 @@ exports[`Chat component renders component 1`] = `
               }
             >
               <View>
-                <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  round={true}
-                  style={
-                    [
+                <View>
+                  <View
+                    accessibilityState={
                       {
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#C4C4C4",
-                        "borderRadius": 16,
-                        "borderWidth": 1,
-                        "flexGrow": 1,
-                        "height": 56,
-                        "justifyContent": "center",
-                        "paddingLeft": 16,
-                        "paddingRight": 16,
-                      },
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": false,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
                       {
-                        "height": 74,
-                        "paddingRight": 50,
-                      },
-                    ]
-                  }
-                >
-                  <TextInput
-                    autoCorrect={true}
-                    editable={true}
-                    height={54}
-                    multiline={true}
-                    onChange={[Function]}
-                    onChangeText={[Function]}
-                    onContentSizeChange={[Function]}
-                    onEndEditing={[Function]}
-                    placeholder="Message #general"
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    round={true}
                     style={
                       [
                         {
-                          "height": 54,
-                          "paddingBottom": 0,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
+                          "backgroundColor": "#ffffff",
+                          "borderColor": "#C4C4C4",
+                          "borderRadius": 16,
+                          "borderWidth": 1,
+                          "flexGrow": 1,
+                          "height": 56,
+                          "justifyContent": "center",
+                          "paddingLeft": 16,
+                          "paddingRight": 16,
+                        },
+                        {
+                          "height": 74,
+                          "paddingRight": 50,
                         },
                       ]
                     }
-                    testID="input"
-                  />
+                  >
+                    <TextInput
+                      autoCorrect={true}
+                      editable={true}
+                      height={54}
+                      keyboardType="default"
+                      multiline={true}
+                      onChange={[Function]}
+                      onChangeText={[Function]}
+                      onContentSizeChange={[Function]}
+                      onEndEditing={[Function]}
+                      placeholder="Message #general"
+                      placeholderTextColor="#999999"
+                      style={
+                        [
+                          {
+                            "height": 54,
+                            "paddingBottom": 0,
+                            "paddingTop": 12,
+                            "textAlignVertical": "center",
+                          },
+                        ]
+                      }
+                      testID="input"
+                    />
+                  </View>
                 </View>
               </View>
             </View>

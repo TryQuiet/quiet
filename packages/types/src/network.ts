@@ -30,6 +30,7 @@ export type InvitationAuthData = {
   communityName: string
   seed: string
   teamId?: string
+  salt?: string
 }
 
 export type InvitationDataV2 = InvitationDataP2P & {

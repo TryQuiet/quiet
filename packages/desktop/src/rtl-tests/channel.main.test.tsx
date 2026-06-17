@@ -18,7 +18,7 @@ import {
   getReduxStoreFactory,
   messages,
   files,
-  AUTODOWNLOAD_SIZE_LIMIT,
+  DEFAULT_AUTODOWNLOAD_SIZE_LIMIT,
   network,
   generateMessageFactoryContentWithId,
   getBaseTypesFactory,
@@ -49,7 +49,7 @@ import { cleanup } from '@testing-library/react'
 
 jest.setTimeout(20_000)
 
-describe('Channel', () => {
+describe('PublicChannel', () => {
   let socket: MockedSocket
   let notification: any
 
@@ -138,7 +138,7 @@ describe('Channel', () => {
       store
     )
 
-    const channelName = screen.getByText('#general')
+    const channelName = screen.getByText('general')
     expect(channelName).toBeVisible()
 
     const messageInput = screen.getByPlaceholderText(`Message #general as @${nickname}`)
@@ -739,7 +739,9 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        ownership: CommunityOwnership.Owner,
+        updates: {
+          ownership: CommunityOwnership.Owner,
+        },
       })
     )
     initialState.dispatch(network.actions.addInitializedCommunity(community.id))
@@ -772,7 +774,7 @@ describe('Channel', () => {
           path: null,
           width: 100,
           height: 100,
-          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
         })
         return socket.socketClient.emit<DownloadStatus>(SocketEvents.DOWNLOAD_PROGRESS, {
           mid: payload.file.message.id,
@@ -915,7 +917,7 @@ describe('Channel', () => {
         id: messageId,
         channelId: generalId!,
       },
-      size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
     }
 
     const baseTypesFactory = await getBaseTypesFactory()
@@ -939,8 +941,8 @@ describe('Channel', () => {
         cid: `attaching_${missingFile.cid}`,
         downloadState: DownloadState.Queued,
         downloadProgress: {
-          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
-          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          downloaded: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT / 2,
+          size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 2048,
           transferSpeed: 1024,
         },
       })
@@ -1047,7 +1049,9 @@ describe('Channel', () => {
       initialState.dispatch(
         communities.actions.updateCommunityData({
           id: community.id,
-          ownership: CommunityOwnership.Owner,
+          updates: {
+            ownership: CommunityOwnership.Owner,
+          },
         })
       )
     })
@@ -1161,7 +1165,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
         channelId: generalId!,
@@ -1277,7 +1281,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
         channelId: generalId!,
@@ -1386,7 +1390,9 @@ describe('Channel', () => {
       initialState.dispatch(
         communities.actions.updateCommunityData({
           id: community.id,
-          ownership: CommunityOwnership.Owner,
+          updates: {
+            ownership: CommunityOwnership.Owner,
+          },
         })
       )
     })
@@ -1399,7 +1405,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
-      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      size: DEFAULT_AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
         // @ts-expect-error

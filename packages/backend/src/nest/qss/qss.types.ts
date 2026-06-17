@@ -25,8 +25,13 @@ export enum WebsocketEvents {
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
   LOG_ENTRY_SYNC = 'log-entry-sync',
+  LOG_ENTRY_FANOUT = 'log-entry-fanout',
+  LOG_ENTRY_PULL = 'log-entry-pull',
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
+  REGISTER_DEVICE_TOKEN = 'register-device-token',
+  SEND_PUSH = 'qps-send-push',
+  SEND_BATCH_PUSH = 'qps-send-batch-push',
 }
 
 /**
@@ -34,12 +39,16 @@ export enum WebsocketEvents {
  */
 export enum QSSEvents {
   QSS_AUTH_JOINED = 'qssAuthJoined',
+  QSS_SELF_ASSIGN_MEMBER = 'qssSelfAssignMember',
+  QSS_FULLY_JOINED = 'qssFullyJoined',
   QSS_CONNECTED = 'qssConnected',
   QSS_DISCONNECTED = 'qssDisconnected',
   QSS_HANDLE_SIGN_IN = 'qssHandleSignIn',
   QSS_CAPTCHA_VERIFIED = 'qssCaptchaVerified',
   QSS_CAPTCHA_REQUIRED = 'qssCaptchaRequired',
   QSS_START_AUTH_CONN = 'qssStartAuthConn',
+  QSS_AUTH_CONNECTED = 'qssAuthConnected',
+  QSS_LOG_SYNCED = 'qssLogSynced',
 }
 
 export enum QSSOperationResult {
@@ -147,31 +156,71 @@ export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySi
   payload?: CommunitySignInPayload
 }
 
-export interface QSSLogEntrySyncPayload {
+export interface LogEntrySyncPayload {
   teamId: string
   hash: string
   hashedDbId: string
   encEntry: EncryptedAndSignedPayload
+  receivedAt?: number
+  syncSeq?: number
 }
 
-export interface QSSLogEntrySyncMessage extends BaseWebsocketMessage<QSSLogEntrySyncPayload> {
+export interface LogEntrySyncMessage extends BaseWebsocketMessage<LogEntrySyncPayload> {
   ts: number
   status: CommunityOperationStatus
   reason?: string
-  payload: QSSLogEntrySyncPayload
+  payload: LogEntrySyncPayload
 }
 
-export interface QSSLogEntrySyncResponsePayload {
+export interface LogEntrySyncResponsePayload {
   teamId: string
   hash: string
   hashedDbId: string
+  receivedAt?: number
+  syncSeq?: number
 }
 
-export interface QSSLogEntrySyncResponseMessage extends BaseWebsocketMessage<QSSLogEntrySyncResponsePayload> {
+export interface LogEntrySyncResponseMessage extends BaseWebsocketMessage<LogEntrySyncResponsePayload> {
   ts: number
   status: CommunityOperationStatus
   reason?: string
-  payload: QSSLogEntrySyncResponsePayload
+  payload: LogEntrySyncResponsePayload
+}
+
+export interface LogEntryPullPayload {
+  teamId: string
+  userId: string
+  direction?: 'forward' | 'backward'
+  cursor?: string
+  startSeq?: number
+  endSeq?: number
+  startTs?: number
+  endTs?: number
+  limit?: number
+  hash?: string
+  hashedDbId?: string
+}
+
+export interface LogEntryPullMessage extends BaseWebsocketMessage<LogEntryPullPayload> {
+  ts: number
+  status: CommunityOperationStatus
+  reason?: string
+  payload: LogEntryPullPayload
+}
+
+export interface LogEntryPullResponsePayload {
+  cursor?: string
+  hasNextPage: boolean
+  entries: Buffer[]
+  highestSyncSeq?: number
+  resolvedStartSeq?: number
+}
+
+export interface LogEntryPullResponseMessage extends BaseWebsocketMessage<LogEntryPullResponsePayload> {
+  ts: number
+  status: CommunityOperationStatus
+  reason?: string
+  payload: LogEntryPullResponsePayload
 }
 
 export interface CaptchaVerifyPayload {
@@ -193,3 +242,31 @@ export interface GetCaptchaSiteKeyResponsePayload {
 export interface GetCaptchaSiteKeyResponse extends BaseWebsocketMessage<GetCaptchaSiteKeyResponsePayload> {
   payload?: GetCaptchaSiteKeyResponsePayload
 }
+
+export interface SendPushPayload {
+  ucan: string
+  title?: string
+  body?: string
+  data?: Record<string, string>
+}
+
+export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
+  payload: SendPushPayload
+}
+
+export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
+
+export interface SendBatchPushPayload {
+  teamId: string
+  ucans: string[]
+}
+
+export interface SendBatchPushMessage extends BaseWebsocketMessage<SendBatchPushPayload> {
+  payload: SendBatchPushPayload
+}
+
+export interface SendBatchPushResponsePayload {
+  invalidTokens: string[]
+}
+
+export interface SendBatchPushResponse extends BaseWebsocketMessage<SendBatchPushResponsePayload> {}

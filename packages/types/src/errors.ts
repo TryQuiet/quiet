@@ -41,6 +41,8 @@ export enum ErrorMessages {
   // Community
   COMMUNITY_LAUNCH_FAILED = 'Could not launch community',
   INVITE_DATA_REQUIRED = 'Invite data is required',
+  COMMUNITY_NOT_INITIALIZED = 'Community not initialized',
+  SIGCHAIN_LOAD_FAILED = 'Loading sigchain failed',
 
   // Network
   NETWORK_SETUP_FAILED = 'Creating network failed',
@@ -67,5 +69,11 @@ export class CompoundError<T extends Error> extends Error {
     public readonly originalError?: T
   ) {
     super(message)
+  }
+}
+
+export class NotImplementedError<T extends Error> extends Error {
+  constructor(functionName: string) {
+    super(`${functionName} is not implemented`)
   }
 }

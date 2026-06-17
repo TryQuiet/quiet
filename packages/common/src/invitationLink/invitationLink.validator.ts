@@ -23,6 +23,7 @@ import {
   PSK_PARAM_KEY,
   QSS_ENABLED_KEY,
   QSS_ENDPOINT_KEY,
+  SALT_KEY,
   TEAM_ID_KEY,
 } from './invitationLink.const'
 import { isPSKcodeValid } from '../libp2p'
@@ -38,6 +39,7 @@ const PEER_ID_REGEX = /^(?:[A-Za-z0-9]{46}|[A-Za-z0-9]{52})$/
 const INVITATION_SEED_REGEX = /^[a-zA-Z0-9]{16}$/g
 const COMMUNITY_NAME_REGEX = /^[-a-zA-Z0-9 ]+$/g
 const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
+const SALT_REGEX = /^[a-zA-Z0-9]{16}$/g
 const BASE58_REGEX = /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$/
 
 /**
@@ -79,7 +81,10 @@ export class UrlParamValidatorError extends Error {
 export const encodeAuthData = (authData: InvitationAuthData): string => {
   let encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
   if (authData.teamId) {
-    encodedAuthData = `${encodedAuthData}&t=${authData.teamId}`
+    encodedAuthData = `${encodedAuthData}&${TEAM_ID_KEY}=${authData.teamId}`
+  }
+  if (authData.salt) {
+    encodedAuthData = `${encodedAuthData}&${SALT_KEY}=${authData.salt}`
   }
   return base64url.encode(Buffer.from(encodedAuthData, 'utf8'))
 }
@@ -323,9 +328,6 @@ const validateQssEndpoint: InvitationLinkUrlNamedParamValidatorFun<InvitationDat
     if (wsUrl.hostname == null || wsUrl.hostname === '') {
       errorDetails.push(`Hostname was null`)
     }
-    if (wsUrl.port == null || wsUrl.port === '') {
-      errorDetails.push(`Port was null`)
-    }
     if (wsUrl.protocol == null || wsUrl.protocol === '') {
       errorDetails.push(`Protocol was null`)
     } else if (wsUrl.protocol !== 'ws:' && wsUrl.protocol !== 'wss:') {
@@ -476,6 +478,38 @@ const validateTeamId: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData
 }
 
 /**
+ * **** NESTED VALIDATOR ****
+ *
+ * Parse and validate the provided salt string
+ *
+ * Example:
+ *
+ * 4kgd5mwq5z4fmfwq
+ *
+ * =>
+ *
+ * {
+ *   "salt": "4kgd5mwq5z4fmfwq"
+ * }
+ *
+ * @param value Nested salt string pulled from the decoded auth data string
+ * @param processor Optional post-processor to run the validated value through
+ *
+ * @returns {Partial<InvitationAuthData>} The processed salt represented as a partial InvitationAuthData object
+ */
+const validateSalt: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData> = (
+  value: string
+): Partial<InvitationAuthData> => {
+  if (value.match(SALT_REGEX) == null) {
+    logger.warn(`Salt ${value} is not valid`)
+    throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${SALT_KEY}`, value)
+  }
+  return {
+    salt: value,
+  }
+}
+
+/**
  * URL param validation config for V1 (non-LFA) invite links
  */
 export const PARAM_CONFIG_V1: VersionedInvitationLinkUrlParamConfig<InvitationDataV1> = {
@@ -528,6 +562,10 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
                 required: true,
                 validator: validateInvitationSeed,
               },
+              [TEAM_ID_KEY]: {
+                required: false,
+                validator: validateTeamId,
+              },
             })
           ),
         },
@@ -577,6 +615,10 @@ export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDa
               [TEAM_ID_KEY]: {
                 required: true,
                 validator: validateTeamId,
+              },
+              [SALT_KEY]: {
+                required: true,
+                validator: validateSalt,
               },
             })
           ),

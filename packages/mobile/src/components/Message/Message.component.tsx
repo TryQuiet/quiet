@@ -1,20 +1,20 @@
-import React, { Component, FC, ReactNode } from 'react'
+import React, { type FC, type ReactNode } from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
-import { MessageProps } from './Message.types'
+import type { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
 import { icons } from '../../assets'
-import { MessageType, DisplayableMessage } from '@quiet/types'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
+import { MessageType, type DisplayableMessage } from '@quiet/types'
 import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
 import { FileAttachment } from '../FileAttachment/FileAttachment.component'
-import { FileActionsProps } from '../FileAttachment/FileAttachment.types'
+import type { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown, { MarkdownIt, ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
+import Markdown, { MarkdownIt, type ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 import { DateTime } from 'luxon'
+import { DEFAULT_AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
@@ -24,6 +24,12 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   }
   return message.photo ? (
     <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
+  ) : message.profilePhoto?.path ? (
+    <Image
+      style={imgStyle}
+      source={{ uri: `file://${message.profilePhoto.path}` }}
+      alt={"Message author's profile image"}
+    />
   ) : (
     <Jdenticon value={message.userId} size={37} />
   )
@@ -32,6 +38,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
 const MessageInner: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
+  maxAutodownloadSizeBytes,
   downloadFile,
   cancelDownload,
   openImagePreview,
@@ -52,9 +59,10 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
   }
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
-      case 2: // MessageType.Image (cypress tests incompatibility with enums)
+      case 2: {
+        // MessageType.Image (cypress tests incompatibility with enums)
         const size = message.media?.size
-        const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
+        const fileDisplay = !size || size < (maxAutodownloadSizeBytes || DEFAULT_AUTODOWNLOAD_SIZE_LIMIT)
         return (
           <>
             {fileDisplay && message.media ? (
@@ -69,7 +77,9 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             )}
           </>
         )
-      case 4: // MessageType.File
+      }
+      case 4: {
+        // MessageType.File
         return (
           <FileAttachment
             message={message}
@@ -78,7 +88,8 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             cancelDownload={cancelDownload}
           />
         )
-      default:
+      }
+      default: {
         const color = pending ? 'lightGray' : 'main'
 
         const markdownRules = {
@@ -129,6 +140,7 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             {pushBr(message.message)}
           </Markdown>
         )
+      }
     }
   }
 

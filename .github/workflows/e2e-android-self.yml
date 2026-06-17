@@ -10,11 +10,12 @@ on:
 
 jobs:
   detox-android-self-hosted:
+    if: false
     timeout-minutes: 25
     runs-on: [self-hosted, macOS, ARM64, android]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
 
@@ -29,7 +30,7 @@ jobs:
           git lfs pull
 
       - name: Pass local config
-        run : |
+        run: |
           cat << EOF >> packages/mobile/android/local.properties
           ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
           EOF

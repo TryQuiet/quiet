@@ -272,20 +272,21 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
   _currentModuleInstance = module;
 }
 
-- (void)sendMessageToNode:(NSString *)channelName :(NSString *)message {
+- (void)sendMessageToNode:(NSString *)channelName:(NSString *)message {
   const char *c_channelName = [channelName UTF8String];
   const char *c_message = [message UTF8String];
   rn_bridge_notify(c_channelName, c_message);
 }
 
-- (void)sendMessageBackToReact:(NSString *)channelName :(NSString *)message {
+- (void)sendMessageBackToReact:(NSString *)channelName:(NSString *)message {
   if (_currentModuleInstance != nil) {
     [_currentModuleInstance sendMessageBackToReact:channelName:message];
   }
 }
 
 // node's libUV requires all arguments being on contiguous memory.
-- (void)startEngineWithArguments:(NSArray *)arguments :(NSString *)builtinModulesPath {
+- (void)startEngineWithArguments:(NSArray *)
+                       arguments:(NSString *)builtinModulesPath {
 
   // Set the builtin_modules path to NODE_PATH
   NSString *nodePath = [[NSProcessInfo processInfo] environment][@"NODE_PATH"];
@@ -306,7 +307,6 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
          "backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,"
          "libp2p*,helia*,blockstore*,datastore*",
          1);
-  setenv([@"LOG_TO_FILE" UTF8String], "false", 1);
   setenv([@"LOG_DIR" UTF8String], (const char *)[backendLogsDir UTF8String], 1);
 
   NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"Env"
@@ -322,7 +322,7 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
         id v = vars[k];
         if ([v isKindOfClass:[NSString class]]) {
           setenv(k.UTF8String, [(NSString *)v UTF8String], 1);
-          NSLog(@"[NodeRunner] ENV: %@", k);
+          NSLog(@"[NodeRunner] ENV: %@=%@", k, v);
         }
       }
     }

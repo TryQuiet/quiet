@@ -1,21 +1,31 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
-import { Connection, InviteeMemberContext, Keyring, LocalUserContext, MemberContext, Team } from '@localfirst/auth'
+import {
+  Connection,
+  Hash,
+  InviteeMemberContext,
+  Keyring,
+  LocalUserContext,
+  MemberContext,
+  Team,
+  UserWithSecrets,
+  DeviceWithSecrets,
+} from '@localfirst/auth'
+import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
-import { SocketService } from '../socket/socket.service'
-import { SocketEvents, User } from '@quiet/types'
+import { SocketEvents, StorableKey, type User } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
 import { type UserService } from './services/members/user.service'
 import { type CryptoService } from './services/crypto/crypto.service'
-import { type UserWithSecrets } from '@localfirst/auth'
-import { type DeviceWithSecrets } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { GetChainFilter } from './types'
+import { GetChainFilter, SigchainEvents, StoredKeyType } from './types'
+import { ModuleRef } from '@nestjs/core'
+import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -23,13 +33,18 @@ export class SigChainService extends EventEmitter {
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
+  private readonly _chainListeners: Map<SigChain, () => void> = new Map()
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     private readonly localDbService: LocalDbService,
-    private readonly socketService: SocketService
+    private readonly moduleRef: ModuleRef
   ) {
     super()
+  }
+
+  get chainCount(): number {
+    return this.chains.size
   }
 
   get activeChain(): SigChain {
@@ -72,20 +87,21 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().device
   }
 
-  getActiveChain(): SigChain {
-    if (!this.activeChainTeamName) {
-      throw new Error('No active chain found!')
-    }
-    return this.getChain({ teamName: this.activeChainTeamName })
+  getActiveChain(throwError?: true | undefined): SigChain
+  getActiveChain(throwError: false): SigChain | undefined
+  getActiveChain(throwError = true): SigChain | undefined {
+    return this.getChain({ teamName: this.activeChainTeamName }, throwError as any)
   }
 
+  getChain(filter: GetChainFilter, throwError?: true | undefined): SigChain
+  getChain(filter: GetChainFilter, throwError: false): SigChain | undefined
   /**
    * Gets a chain by team name or ID
    * @param filter Filter query with either team name or team ID
    * @returns The chain for the team name or ID specified
    * @throws Error if the chain doesn't exist, if ID and name in filter, or no filter criteria provided
    */
-  getChain(filter: GetChainFilter): SigChain {
+  getChain(filter: GetChainFilter, throwError = true): SigChain | undefined {
     // reject filters with both team name and ID
     if (filter.teamName != null && filter.teamId != null) {
       throw new Error('Must provide only one of `teamName` or `teamId` in filter query, not both!')
@@ -102,10 +118,15 @@ export class SigChainService extends EventEmitter {
           return potentialChain
         }
       }
-      throw new Error(`No chain found for team ID ${filter.teamId}`)
+
+      if (throwError) {
+        throw new Error(`No chain found for team ID ${filter.teamId}`)
+      } else {
+        return undefined
+      }
     }
 
-    if (!this.chains.has(filter.teamName!)) {
+    if (!this.chains.has(filter.teamName!) && throwError) {
       throw new Error(`No chain found for team ${filter.teamName}`)
     }
     return this.chains.get(filter.teamName!)!
@@ -122,40 +143,178 @@ export class SigChainService extends EventEmitter {
     this.attachSocketListeners(this.getChain({ teamName }))
   }
 
-  private handleChainUpdate = async () => {
-    const users = this.getActiveChain()
-      .team?.members()
-      .map(user => ({
+  private handleChainUpdate = async (teamId: string, teamName: string) => {
+    const chain = this.getChain({ teamName }, false)
+    if (chain?.team != null) {
+      const users = chain.team.members().map(user => ({
         userId: user.userId,
         roles: user.roles,
         isRegistered: true,
         isDuplicated: false,
       })) as User[]
-    this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
-    const community = await this.localDbService.getCurrentCommunity()
-    if (community) {
-      const teamServerHosts = this.team.servers().map(s => s.host)
-      const communityHostsSet = new Set(community.serverHosts?.map(sh => sh.hostUrl) || [])
-      const teamHostsSet = new Set(teamServerHosts)
-      const setsAreEqual =
-        communityHostsSet.size === teamHostsSet.size && [...communityHostsSet].every(h => teamHostsSet.has(h))
-      if (!setsAreEqual && teamServerHosts.length > 0) {
-        this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
+      this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
+
+      const community = await this.localDbService.getCurrentCommunity()
+      if (community) {
+        const teamServerHosts = chain.team.servers().map(s => s.host)
+        const communityHostsSet = new Set(community.serverHosts?.map(sh => sh.hostUrl) || [])
+        const teamHostsSet = new Set(teamServerHosts)
+        const setsAreEqual =
+          communityHostsSet.size === teamHostsSet.size && [...communityHostsSet].every(h => teamHostsSet.has(h))
+        if (!setsAreEqual && teamServerHosts.length > 0) {
+          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
+        }
       }
     }
-    this.emit('updated')
-    this.saveChain(this.activeChainTeamName!)
+
+    void this._updateKeysOnChainUpdate(teamName).catch(err => {
+      this.logger.error('Failed to update iOS keychain on chain update', err)
+    })
+    this._updateDeviceCredentials(teamName)
+    void this.saveChain(teamName).catch(err => {
+      this.logger.error('Failed to save chain after update', err)
+    })
+    this.emit(SigchainEvents.UPDATED, teamId)
     this.logger.info('Chain updated, emitted updated event')
+  }
+
+  /**
+   * Update mobile native storage with any new keys on chain update.
+   */
+  private async _updateKeysOnChainUpdate(teamName: string): Promise<void> {
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') {
+      this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
+      return
+    }
+
+    if (process.env.QPS_ALLOWED !== 'true') {
+      this.logger.trace('Not updating IOS keychain because QPS is not allowed in this environment')
+      return
+    }
+
+    const generateKeyName = (teamId: string, keyType: string, scope: KeyMetadata): string => {
+      return `quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_${keyType}`
+    }
+
+    const sigchain = this.getChain({ teamName })
+    if (sigchain == null) {
+      this.logger.error('No chain for name found', teamName)
+      return
+    }
+
+    const teamId = sigchain.team!.id
+    await this._ensureDb()
+    const alreadySentKeys: Set<string> = new Set(await this.localDbService.getKeysStoredInKeychain(teamId))
+    const keysToSend: StorableKey[] = []
+    const keyNamesSent: string[] = []
+    // get all secret keys that this user has that haven't been added to the keychain
+    const allKeys = sigchain.crypto.getAllKeys()
+    for (const keyData of Object.values(allKeys)) {
+      for (const keyTypeData of Object.values(keyData)) {
+        for (const keyTypeGenData of Object.values(keyTypeData)) {
+          const keyName = generateKeyName(teamId, StoredKeyType.SECRET, {
+            name: keyTypeGenData.name,
+            type: keyTypeGenData.type,
+            generation: keyTypeGenData.generation,
+          })
+          if (!alreadySentKeys.has(keyName)) {
+            keysToSend.push({ key: keyTypeGenData.secretKey, keyName })
+            keyNamesSent.push(keyName)
+          }
+        }
+      }
+    }
+    // TODO: update to pull all generations of user public/sig keys
+    // get all user public keys that haven't been added to the keychain
+    const allUserPublicKeys = sigchain.crypto.getPublicKeysForAllMembers(true)
+    for (const keySet of allUserPublicKeys) {
+      const publicKeyName = generateKeyName(teamId, StoredKeyType.USER_PUBLIC, {
+        name: keySet.name,
+        type: keySet.type,
+        generation: keySet.generation,
+      })
+      if (!alreadySentKeys.has(publicKeyName)) {
+        keysToSend.push({ key: keySet.encryption, keyName: publicKeyName })
+        keyNamesSent.push(publicKeyName)
+      }
+
+      const sigKeyName = generateKeyName(teamId, StoredKeyType.USER_SIG, {
+        name: keySet.name,
+        type: keySet.type,
+        generation: keySet.generation,
+      })
+      if (!alreadySentKeys.has(sigKeyName)) {
+        keysToSend.push({ key: keySet.signature, keyName: sigKeyName })
+        keyNamesSent.push(sigKeyName)
+      }
+    }
+
+    if (keysToSend.length === 0) {
+      this.logger.trace('Skipping native key update, no new keys')
+      return
+    }
+
+    // send new keys to the state manager to add to the keychain and update list of key names in
+    const keyUpdateEvent: KeysUpdatedEvent = {
+      keys: keysToSend,
+    }
+    await this.localDbService.updateKeysStoredInKeychain(teamId, keyNamesSent)
+    this.serverIoProvider.io.emit(SocketEvents.KEYS_UPDATED, keyUpdateEvent)
+  }
+
+  /**
+   * Emit device credentials to mobile clients so native background handlers can
+   * authenticate with QSS.
+   */
+  private _updateDeviceCredentials(teamName: string): void {
+    const platform = process.platform as string
+    if (platform !== 'ios' && platform !== 'android') return
+    if (process.env.QPS_ALLOWED !== 'true') {
+      this.logger.trace('Not emitting device credentials because QPS is not allowed in this environment')
+      return
+    }
+    try {
+      const sigchain = this.getChain({ teamName })
+      if (sigchain?.team == null) return
+      const teamId = sigchain.team.id
+      const device = sigchain.device
+      if (!device?.deviceId || !device.keys?.signature?.secretKey) {
+        this.logger.warn('Device credentials not available, skipping NSE credential update')
+        return
+      }
+      const event: DeviceCredentialsUpdatedEvent = {
+        deviceId: device.deviceId,
+        teamId,
+        signingPrivateKey: device.keys.signature.secretKey,
+      }
+      this.serverIoProvider.io.emit(SocketEvents.DEVICE_CREDENTIALS_UPDATED, event)
+      this.logger.info('Emitted device credentials for NSE')
+    } catch (e) {
+      this.logger.error('Failed to emit device credentials', e)
+    }
+  }
+
+  private _handleEventSigchainUpdated = (chain: SigChain): (() => void) => {
+    return () => this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
   }
 
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
-    chain.on('updated', this.handleChainUpdate)
+    const listener = (): void => {
+      this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
+    }
+    this._chainListeners.set(chain, listener)
+    chain.on(SigchainEvents.UPDATED, listener)
   }
 
   private detachSocketListeners(chain: SigChain): void {
     this.logger.info('Detaching socket listeners')
-    chain.removeListener('updated', this.handleChainUpdate)
+    const listener = this._chainListeners.get(chain)
+    if (listener) {
+      chain.removeListener(SigchainEvents.UPDATED, listener)
+      this._chainListeners.delete(chain)
+    }
   }
 
   /**
@@ -186,6 +345,10 @@ export class SigChainService extends EventEmitter {
    * @param fromDisk Whether to delete the chain from disk as well
    */
   async deleteChain(teamName: string, fromDisk: boolean): Promise<void> {
+    const chain = this.chains.get(teamName)
+    if (chain) {
+      this.detachSocketListeners(chain)
+    }
     if (fromDisk) {
       this.localDbService.deleteSigChain(teamName)
     }
@@ -209,6 +372,7 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.create(teamName, username)
     this.addChain(sigChain, setActive, teamName)
     await this.saveChain(teamName)
+    this.handleChainUpdate(sigChain.team!.id, teamName)
     return sigChain
   }
 

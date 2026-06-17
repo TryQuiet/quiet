@@ -57,12 +57,12 @@ describe('Multiple Clients', () => {
   const thirdChannelName = 'delete-this'
 
   beforeAll(async () => {
-    const commonApp = new App()
+    const commonApp = new App({ username: 'user-joining-1' })
     users = {
       owner: {
         username: 'owner',
         messages: ['Hi', 'Hello', 'After guest left the app'],
-        app: new App(),
+        app: new App({ username: 'owner' }),
       },
       user1: {
         username: 'user-joining-1',
@@ -77,7 +77,7 @@ describe('Multiple Clients', () => {
       user3: {
         username: 'user-joining-2',
         messages: ['Hi everyone'],
-        app: new App(),
+        app: new App({ username: 'user-joining-2' }),
       },
     }
   })
@@ -90,7 +90,7 @@ describe('Multiple Clients', () => {
   })
 
   beforeEach(async () => {
-    logger.info(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ${expect.getState().currentTestName}`)
+    logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
   describe('Stages:', () => {
@@ -130,7 +130,7 @@ describe('Multiple Clients', () => {
         expect(await generalChannelOwner.isOpen()).toBeTruthy()
 
         const generalChannelText = await generalChannelOwner.element.getText()
-        expect(generalChannelText).toEqual('# general')
+        expect(generalChannelText).toEqual('general')
       })
 
       it('Owner sends a message', async () => {
@@ -378,7 +378,10 @@ describe('Multiple Clients', () => {
     describe('Channel Deletion', () => {
       it('Owner deletes second channel', async () => {
         channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-        await channelContextMenuOwner.openMenu()
+        const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
+        expect(menuButton).toBe(true)
+        expect(menuOpened).toBe(true)
+        expect(iconVisible).toBe(true)
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
         const channels = await sidebarOwner.getChannelList()
@@ -402,7 +405,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Second user sees info about channel deletion in general channel', async () => {
-        expect(await generalChannelUser3.isOpen(30_000)).toBeTruthy()
+        expect(await generalChannelUser3.isOpen(true, true, 30_000)).toBeTruthy()
         await generalChannelUser3.getMessageIdsByText(deleteChannelMessage(newChannelName), users.owner.username)
       })
 
@@ -417,7 +420,7 @@ describe('Multiple Clients', () => {
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
-        await sidebarUser1.addNewChannel(newChannelName)
+        await sidebarUser1.addNewChannel(newChannelName, true, false)
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
@@ -454,9 +457,13 @@ describe('Multiple Clients', () => {
           expect(await generalChannelOwner.isReady()).toBeTruthy()
           expect(await generalChannelOwner.isOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
-          await channelContextMenuOwner.openMenu()
+          channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+          const { menuOpened, menuButton, iconVisible } = await channelContextMenuOwner.openMenu()
           await channelContextMenuOwner.openDeletionChannelModal()
           await channelContextMenuOwner.deleteChannel()
+          expect(menuButton).toBe(true)
+          expect(menuOpened).toBe(true)
+          expect(iconVisible).toBe(true)
         })
 
         it('Owner sees recreated general channel', async () => {
@@ -671,6 +678,7 @@ describe('Multiple Clients', () => {
 
       it('Owner sends another message after guest left the app and it is visible', async () => {
         logger.info('TEST 10')
+        await new Promise(res => setTimeout(res, 2000))
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         expect(await generalChannelOwner.isReady()).toBeTruthy()
         expect(await generalChannelOwner.isOpen()).toBeTruthy()

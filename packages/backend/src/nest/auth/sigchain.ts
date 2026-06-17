@@ -9,20 +9,26 @@ import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
 import { ServerService } from './services/members/server.service'
-import { RoleName } from './services/roles/roles'
+import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
+import { LockboxService } from './services/crypto/lockbox.service'
+import { ChannelService } from './services/roles/channel.service'
+import { LFAEvents, SigchainEvents } from './types'
 
 const logger = createLogger('auth:sigchain')
+const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
   private _context: auth.MemberContext | auth.InviteeMemberContext
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
+  private _channels: ChannelService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
   private _server: ServerService | null = null
+  private _lockbox: LockboxService | null = null
 
   private constructor(context: auth.MemberContext | auth.InviteeMemberContext) {
     super()
@@ -50,11 +56,11 @@ class SigChain extends EventEmitter {
 
     if (oldTeam) {
       logger.info('Detaching socket listeners')
-      oldTeam.removeListener('updated', this.handleTeamUpdate)
+      oldTeam.removeListener(LFAEvents.UPDATED, this.handleTeamUpdate)
     }
     if (newTeam) {
       logger.info('Attaching socket listeners')
-      newTeam.on('updated', this.handleTeamUpdate)
+      newTeam.on(LFAEvents.UPDATED, this.handleTeamUpdate)
     }
 
     this._context = context
@@ -73,7 +79,7 @@ class SigChain extends EventEmitter {
   }
 
   private handleTeamUpdate = async (payload: { head: auth.Hash[] }) => {
-    this.emit('updated', payload)
+    this.emit(SigchainEvents.UPDATED, payload)
   }
 
   /**
@@ -85,7 +91,13 @@ class SigChain extends EventEmitter {
    */
   public static create(teamName: string, username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
-    const team: auth.Team = auth.createTeam(teamName, localUser)
+    const team: auth.Team = auth.createTeam(
+      teamName,
+      localUser,
+      undefined,
+      { selfAssignableRoles: SELF_ASSIGN_ROLES },
+      lfaLogger
+    )
     const adminContext = {
       user: localUser.user,
       device: localUser.device,
@@ -93,8 +105,8 @@ class SigChain extends EventEmitter {
     } as auth.MemberContext
     const sigChain = new SigChain(adminContext)
 
-    // Initialize member role with yourself
-    sigChain.roles.createWithMembers(RoleName.MEMBER, [localUser.user.userId])
+    // Initialize member role (your own user is added by default to the role)
+    sigChain.roles.create(RoleName.MEMBER)
 
     return sigChain
   }
@@ -124,7 +136,7 @@ class SigChain extends EventEmitter {
    * @returns LoadedSigChain instance with the given team and user context
    */
   public static load(serializedTeam: Uint8Array, context: auth.LocalUserContext, teamKeyRing: auth.Keyring): SigChain {
-    const team: auth.Team = auth.loadTeam(serializedTeam, context, teamKeyRing)
+    const team: auth.Team = auth.loadTeam(serializedTeam, context, teamKeyRing, lfaLogger)
     const memberContext = {
       user: context.user,
       device: context.device,
@@ -155,9 +167,11 @@ class SigChain extends EventEmitter {
     this._users = new UserService(this)
     this._devices = new DeviceService(this)
     this._roles = new RoleService(this)
+    this._channels = new ChannelService(this)
     this._invites = new InviteService(this)
     this._crypto = new CryptoService(this)
     this._server = new ServerService(this)
+    this._lockbox = new LockboxService(this)
   }
 
   public save(): Uint8Array {
@@ -173,6 +187,10 @@ class SigChain extends EventEmitter {
 
   get roles(): RoleService {
     return this._roles!
+  }
+
+  get channels(): ChannelService {
+    return this._channels!
   }
 
   get devices(): DeviceService {
@@ -191,6 +209,10 @@ class SigChain extends EventEmitter {
     return this._server!
   }
 
+  get lockbox(): LockboxService {
+    return this._lockbox!
+  }
+
   static get lfa(): typeof auth {
     return auth
   }
@@ -203,7 +225,7 @@ class SigChain extends EventEmitter {
     serializedTeam: Uint8Array,
     teamKeyRing: auth.Keyring
   ): SigChain {
-    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing)
+    const team: auth.Team = this.lfa.loadTeam(serializedTeam, context, teamKeyRing, lfaLogger)
     team.join(teamKeyRing)
     const memberContext = {
       user: context.user,

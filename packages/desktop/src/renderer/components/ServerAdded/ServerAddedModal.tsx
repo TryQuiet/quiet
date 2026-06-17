@@ -40,8 +40,10 @@ export const ServerAddedModal = () => {
       if (useServer) {
         const updateCommunityPayload = {
           id: currentCommunity.id,
-          qssEnabled: true,
-          serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
+          updates: {
+            qssEnabled: true,
+            serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
+          },
         }
         if (!currentCommunity.tosAccepted) {
           dispatch(communities.actions.requestTermsOfService())

@@ -7,7 +7,7 @@ import { OrbitDbService } from './orbitDb/orbitDb.service'
 
 const logger = createLogger('store')
 
-abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends EventEmitter {
+export abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends EventEmitter {
   protected abstract store: S | undefined
 
   getStore() {

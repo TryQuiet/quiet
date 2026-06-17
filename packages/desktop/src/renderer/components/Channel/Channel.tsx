@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react'
 
-import { shell, ipcRenderer } from 'electron'
+import { shell, ipcRenderer, webUtils } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { users, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
+import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -25,6 +25,7 @@ const Channel = () => {
   const user = useSelector(users.selectors.myUserProfile)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -33,6 +34,7 @@ const Channel = () => {
   const newestCurrentChannelMessage = useSelector(publicChannels.selectors.newestCurrentChannelMessage)
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+  const maxAutodownloadSizeBytes = useSelector(settings.selectors.maxAutodownloadBytes)
 
   const community = useSelector(communities.selectors.currentCommunity)
 
@@ -58,12 +60,9 @@ const Channel = () => {
 
   const contextMenu = useContextMenu(MenuName.Channel)
 
-  const onInputChange = useCallback(
-    (_value: string) => {
-      // TODO https://github.com/TryQuiet/ZbayLite/issues/442
-    },
-    [dispatch]
-  )
+  const onInputChange = useCallback((_value: string) => {
+    // TODO https://github.com/TryQuiet/ZbayLite/issues/442
+  }, [])
 
   const onInputEnter = useCallback(
     (message: string) => {
@@ -97,7 +96,7 @@ const Channel = () => {
       updateAttachingFiles(
         getFilesData(
           item.files.map(droppedFile => {
-            return { path: droppedFile.path }
+            return { path: webUtils.getPathForFile(droppedFile) }
           })
         )
       )
@@ -141,7 +140,7 @@ const Channel = () => {
           [arg.id]: {
             ext: arg.ext,
             name: arg.name,
-            path: arg.path,
+            path: webUtils.getPathForFile(arg),
           },
         }
 
@@ -197,6 +196,7 @@ const Channel = () => {
     user: user,
     channelId: currentChannelId,
     channelName: currentChannelName,
+    isPublic: currentChannel?.public ?? true,
     messages: {
       count: currentChannelMessagesCount,
       groups: currentChannelDisplayableMessages,
@@ -204,6 +204,7 @@ const Channel = () => {
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
     downloadStatuses: downloadStatusesMapping,
+    maxAutodownloadSizeBytes,
     lazyLoading: lazyLoading,
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,

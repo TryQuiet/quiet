@@ -10,3 +10,17 @@ packages/.DS_Store
 *.log
 clangd/
 **/.claude/settings.local.json
+.claude/worktrees
+
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Firebase
+GoogleService-Info.plist
+google-services.json

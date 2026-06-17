@@ -2,7 +2,11 @@ import { type EntityState } from '@reduxjs/toolkit'
 import { type FileMetadata } from './files'
 import { Base58, KeyMetadata } from '@localfirst/crdx'
 
+export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
+
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
+
+export const CHANNEL_METADATA_STORE_NAME = 'public-channels'
 
 export interface PublicChannel {
   id: string
@@ -11,6 +15,9 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   disabled?: boolean
+  public?: boolean
+  teamId?: string
+  roleName?: string
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -21,6 +28,7 @@ export interface PublicChannelStatus {
   id: string
   unread: boolean
   newestMessage: ChannelMessage | null
+  public?: boolean
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {
@@ -67,7 +75,8 @@ export interface DisplayableMessage {
   media?: FileMetadata
   isRegistered: boolean
   isDuplicated: boolean
-  photo?: string // base64 encoded image
+  photo?: string // base64 encoded image, deprecated
+  profilePhoto?: FileMetadata
   pubkey?: string // deprecated
   signature?: string // deprecated
 }
@@ -83,11 +92,19 @@ export interface ChannelsReplicatedPayload {
 export interface CreateChannelPayload {
   id: string
   name: string
+  public: boolean
+  teamId: string
   description?: string
 }
 
+export enum ChannelOperationStatus {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
 export interface CreateChannelResponse {
-  channel: PublicChannel
+  status: ChannelOperationStatus
+  channel?: PublicChannel
 }
 
 export interface DeleteChannelPayload {
@@ -162,6 +179,26 @@ export interface DisableChannelPayload {
 export interface ChannelStructure {
   channelName: string | null
   channelId: string | null
+}
+
+export interface AddMembersChannelPayload {
+  channelId: string
+  channelName: string
+  memberIds: string[]
+}
+
+export enum AddMembersChannelStatus {
+  SUCCESS = 'SUCCESS',
+  FAILURE = 'FAILURE',
+  CHANNEL_MISSING = 'CHANNEL_MISSING',
+  NOT_MEMBER = 'NOT_MEMBER',
+  INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
+  NOT_ADMIN = 'NOT_ADMIN',
+}
+
+export interface AddMembersChannelResponse {
+  channelId: string
+  status: AddMembersChannelStatus
 }
 
 export function instanceOfChannelMessage(object: ChannelMessage): boolean {

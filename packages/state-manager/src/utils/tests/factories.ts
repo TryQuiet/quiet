@@ -20,7 +20,6 @@ import {
   GetMessagesPayload,
   InitCommunityPayload,
   MessagesLoadedPayload,
-  NetworkInfo,
   SendMessagePayload,
   SocketActions,
   SocketEvents,
@@ -38,33 +37,33 @@ import {
   DeleteChannelPayload,
   ErrorPayload,
   ConnectionProcessInfo,
-  SetConnectionProcessInfoPayload,
   User,
   PublicChannel,
-  TestMessage,
   Community,
   SetUserProfilePayload,
   SetUserProfileResponse,
   LaunchCommunityPayload,
   HCaptchaFormResponse,
   HCaptchaRequest,
+  InviteResultWithSalt,
+  AddMembersChannelPayload,
+  AddMembersChannelResponse,
+  AddMembersChannelStatus,
+  FileMessage,
+  FileEncryptionMetadata,
+  UserProfilesUpdatedPayload,
+  ChannelOperationStatus,
 } from '@quiet/types'
-import { InviteResult } from '@localfirst/auth'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
 import { communitiesSelectors } from '../../sagas/communities/communities.selectors'
 import { identityActions } from '../../sagas/identity/identity.slice'
-import { identitySelectors } from '../../sagas/identity/identity.selectors'
 import { usersActions } from '../../sagas/users/users.slice'
-import { usersSelectors } from '../../sagas/users/users.selectors'
 import { messagesActions } from '../../sagas/messages/messages.slice'
-import { messagesSelectors } from '../../sagas/messages/messages.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
-import { publicChannelsSelectors } from '../../sagas/publicChannels/publicChannels.selectors'
 import { errorsActions } from '../../sagas/errors/errors.slice'
-import { errorsSelectors } from '../../sagas/errors/errors.selectors'
 import { connectionActions } from '../../sagas/appConnection/connection.slice'
-import { connectionSelectors } from '../../sagas/appConnection/connection.selectors'
+import { randomBytes } from 'crypto'
 
 const logger = createLogger('factories')
 
@@ -108,14 +107,17 @@ export const getBaseTypesFactory = async () => {
     name: factory.sequence('Community.name', (n: number) => `community_${n}`),
     peerList: [],
     ownership: CommunityOwnership.Owner,
+    teamId: factory.sequence('Community.teamId', (n: number) => `team_id_${n}`),
   })
 
   factory.define<PublicChannel>('PublicChannel', Object, {
     id: factory.sequence('PublicChannel.id', (n: number) => generateChannelId(`publicChannel${n}`)),
     name: factory.sequence('PublicChannel.name', (n: number) => `public-channel-${n}`),
     description: factory.sequence('PublicChannel.description', (n: number) => `description-${n}`),
+    public: true,
     owner: factory.assoc('User', 'userId'),
     timestamp: DateTime.utc().toSeconds(),
+    teamId: factory.assoc('Community', 'teamId'),
   })
 
   factory.define<UserProfileDisplayData>('UserProfileDisplayData', Object, {
@@ -124,11 +126,38 @@ export const getBaseTypesFactory = async () => {
     bio: factory.sequence('UserProfileDisplayData.bio', (n: number) => `bio_${n}`),
   })
 
+  factory.define<FileMessage>('FileMessage', Object, {
+    id: factory.sequence('FileMessage.id', (n: number) => `profile-photo-user-profile-photo-cid-${n}-${n}`),
+    channelId: '__profile-photo__',
+  })
+
+  factory.define<FileEncryptionMetadata>('FileEncryptionMetadata', Object, {
+    header: factory.sequence('FileEncryptionMetadata.header', (n: number) => randomBytes(32).toString('base64')),
+    recipient: {
+      generation: 0,
+      type: 'ROLE',
+      name: 'MEMBER',
+    },
+  })
+
+  factory.define<FileMetadata>('FileMetadata', Object, {
+    cid: factory.sequence('FileMetadata.cid', (n: number) => `user-profile-photo-cid-${n}`),
+    path: factory.sequence('FileMetadata.path', (n: number) => `/foo/bar/user-profile-photo-cid-${n}.png`),
+    ext: '.png',
+    name: factory.sequence('FileMetadata.name', (n: number) => `user-profile-photo-name-${n}`),
+    message: factory.assoc('FileMessage'),
+    size: factory.sequence('FileMetadata.size', (n: number) => 1024 + n),
+    width: factory.sequence('FileMetadata.width', (n: number) => 100 + n),
+    height: factory.sequence('FileMetadata.height', (n: number) => 100 + n),
+    enc: factory.assoc('FileEncryptionMetadata'),
+  })
+
   factory.define<UserProfile>('UserProfile', Object, {
     userId: factory.sequence('UserProfile.userId', (n: number) => `userId_${n}`),
     nickname: factory.sequence('UserProfile.nickname', (n: number) => `userProfile.nickname_${n}`),
-    photo: 'dGVzdAo=',
+    photo: undefined,
     bio: factory.sequence('UserProfile.bio', (n: number) => `bio_${n}`),
+    profilePhoto: factory.assoc('FileMetadata'),
   })
 
   factory.define<User>('User', Object, {
@@ -182,6 +211,7 @@ export const getReduxStoreFactory = async (store: Store) => {
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
       peerList: [],
       ownership: CommunityOwnership.Owner,
+      teamId: factory.sequence('Community.teamId', (n: number) => `team_id_${n.toString()}`),
     },
     {
       afterCreate: async (payload: ReturnType<typeof communitiesActions.addNewCommunity>['payload']) => {
@@ -199,6 +229,8 @@ export const getReduxStoreFactory = async (store: Store) => {
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
             id: generateChannelId('general'),
+            public: true,
+            teamId: payload.teamId,
           },
         })
         return payload
@@ -278,16 +310,19 @@ export const getReduxStoreFactory = async (store: Store) => {
           timestamp: DateTime.utc().toSeconds(),
           owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
           id: generateChannelId(name),
+          public: true,
+          teamId: factory.assoc('Community', 'teamId'),
         }
       }),
+      status: ChannelOperationStatus.SUCCESS,
     },
     {
       afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         await factory.create('PublicChannelSubscription', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         return payload
       },
@@ -535,6 +570,7 @@ export const getSocketFactory = async () => {
     id: 'new-channel-id',
     name: 'Test Channel',
     description: 'A channel used for tests',
+    teamId: 'foobar',
   })
 
   factory.define<CreateChannelResponse>(`${SocketActions.CREATE_CHANNEL}_response`, Object, {
@@ -544,8 +580,21 @@ export const getSocketFactory = async () => {
       description: 'A channel used for tests',
       owner: 'test-owner',
       timestamp: Date.now(),
+      public: true,
+      teamId: 'foobar',
     },
   })
+
+  factory.define<AddMembersChannelPayload>(SocketActions.ADD_MEMBERS_TO_CHANNEL, Object, {
+    channelId: 'new-channel-id',
+    channelName: 'Test Channel',
+    memberIds: [],
+  } as AddMembersChannelPayload)
+
+  factory.define<AddMembersChannelResponse>(`${SocketActions.ADD_MEMBERS_TO_CHANNEL}_response`, Object, {
+    channelId: 'new-channel-id',
+    status: AddMembersChannelStatus.SUCCESS,
+  } as AddMembersChannelResponse)
 
   factory.define<DeleteChannelPayload>(SocketActions.DELETE_CHANNEL, Object, {
     channelId: 'channel-to-delete',
@@ -593,6 +642,22 @@ export const getSocketFactory = async () => {
     },
   })
 
+  factory.define<UserProfilesUpdatedPayload>(SocketActions.USER_PROFILES_UPDATED, Object, {
+    new: [
+      {
+        userId: 'user-id',
+        nickname: 'Test User',
+        photo: 'dGVzdAo=',
+        bio: 'This is a test user profile',
+        userData: {
+          onionAddress: 'test.onion',
+          peerId: 'peer-id',
+        },
+      },
+    ],
+    updates: [],
+  })
+
   factory.define<SetUserProfileResponse>(`${SocketActions.SET_USER_PROFILE}_response`, Object, {
     success: true,
     error: undefined,
@@ -607,7 +672,7 @@ export const getSocketFactory = async () => {
   // Local First Auth
   factory.define<string>(SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE, Object, () => 'invite-code')
 
-  factory.define<{ valid: boolean; newInvite?: InviteResult }>(
+  factory.define<{ valid: boolean; newInvite?: InviteResultWithSalt }>(
     `${SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE}_response`,
     Object,
     {
@@ -629,6 +694,19 @@ export const getSocketFactory = async () => {
   factory.define<string>(SocketEvents.HCAPTCHA_SITE_KEY, Object, () => 'test-site-key')
 
   factory.define<boolean>(SocketEvents.HCAPTCHA_VERIFICATION_UPDATE, Object, () => true)
+
+  factory.define<boolean>(SocketActions.TOGGLE_P2P, Object, () => true)
+
+  // Push notification events
+  factory.define<{ deviceToken: string; bundleId: string; platform: 'ios' | 'android' }>(
+    SocketActions.SEND_DEVICE_TOKEN,
+    Object,
+    {
+      deviceToken: 'test-device-token',
+      bundleId: 'com.quietmobile',
+      platform: 'ios',
+    }
+  )
 
   return factory
 }

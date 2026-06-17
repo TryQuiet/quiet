@@ -15,10 +15,10 @@ import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.MainApplication
 import com.quietmobile.Notification.NotificationHandler
+import com.quietmobile.Push.QuietStorage
 import com.quietmobile.R
 import com.quietmobile.Utils.Const
 import com.quietmobile.Utils.Utils
-import com.quietmobile.Utils.isAppOnForeground
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import java.util.concurrent.ThreadLocalRandom
@@ -30,7 +30,7 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) :
-        CoroutineWorker(context, workerParams) {
+    CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
@@ -42,24 +42,109 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     private lateinit var notificationHandler: NotificationHandler
 
     companion object {
+        private const val TAG = "BackendWorker"
+
         init {
             System.loadLibrary("own-native-lib")
             System.loadLibrary("node")
             System.loadLibrary("tor")
         }
 
+        @Volatile
+        private var startupInProgress: Boolean = false
+
+        @Volatile
+        private var shutdownInProgress: Boolean = false
+
+        @Volatile
+        private var nodeRuntimeActive: Boolean = false
+
         /** Populated once in `doWork()`; used later by the JNI‑callback handshake */
-        @JvmStatic var socketIOSecret: String = ""
+        @JvmStatic
+        var socketIOSecret: String = ""
 
         /** Kotlin → C++ bridge for sending messages to Node (see `own-native-lib.cpp`) */
-        @JvmStatic external fun sendMessageToNodeChannel(channelName: String, message: String)
+        @JvmStatic
+        external fun sendMessageToNodeChannel(channelName: String, message: String)
+
+        @JvmStatic
+        fun requestNodeShutdown() {
+            synchronized(this) {
+                shutdownInProgress = true
+            }
+            Log.i(TAG, "Requesting Node shutdown: " + lifecycleSummary())
+            val response =
+                JSONObject()
+                    .put("event", "shutdown")
+                    .put("payload", org.json.JSONArray().toString())
+                    .toString()
+            sendMessageToNodeChannel("_EVENTS_", response)
+        }
+
+        @JvmStatic
+        fun isStartupInProgress(): Boolean = startupInProgress
+
+        @JvmStatic
+        fun isShutdownInProgress(): Boolean = shutdownInProgress
+
+        @JvmStatic
+        fun isNodeRuntimeActive(): Boolean = nodeRuntimeActive
+
+        @JvmStatic
+        @Synchronized
+        fun lifecycleSummary(): String {
+            return "startupInProgress=" + startupInProgress +
+                ", shutdownInProgress=" + shutdownInProgress +
+                ", nodeRuntimeActive=" + nodeRuntimeActive
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun beginStartup(): Boolean {
+            if (shutdownInProgress || startupInProgress || nodeRuntimeActive) {
+                return false
+            }
+            startupInProgress = true
+            return true
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun markBackendReady() {
+            startupInProgress = false
+            shutdownInProgress = false
+            nodeRuntimeActive = true
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun markBackendClosed() {
+            startupInProgress = false
+            shutdownInProgress = false
+            nodeRuntimeActive = false
+            socketIOSecret = ""
+        }
+
+        @JvmStatic
+        @Synchronized
+        fun forceRecoverForForegroundStart() {
+            if (nodeRuntimeActive) {
+                Log.i(TAG, "Skipping lifecycle recovery because backend is already active: " + lifecycleSummary())
+                return
+            }
+
+            startupInProgress = false
+            shutdownInProgress = false
+            socketIOSecret = ""
+            Log.i(TAG, "Recovered backend lifecycle for foreground start: " + lifecycleSummary())
+        }
 
         /**
          * Called from native code (`rcv_message` in `own-native-lib.cpp`) whenever Node posts over
          * rn‑bridge.
          */
         @JvmStatic
-        @SuppressLint("UnusedMethod")
+        @Suppress("unused") // used in C++, but Android Studio can't see that
         fun handleNodeMessages(channelName: String, msg: String?) {
             if (channelName == "_EVENTS_" && msg != null) {
                 try {
@@ -68,40 +153,64 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                     val payloadStr = envelope.optString("payload", "")
                     if (event == "message" && payloadStr.isNotEmpty()) {
                         val payloadArr = org.json.JSONArray(payloadStr)
-                        if (payloadArr.length() > 0 && payloadArr.getString(0) == "readyForSecret"
-                        ) {
-                            val nonce =
-                                    if (payloadArr.length() > 1) payloadArr.getString(1) else null
-                            if (nonce != null) {
-                                val response =
-                                        JSONObject()
+                        if (payloadArr.length() > 0) {
+                            when (payloadArr.getString(0)) {
+                                "readyForSecret" -> {
+                                    val nonce =
+                                        if (payloadArr.length() > 1) payloadArr.getString(1) else null
+                                    if (nonce != null) {
+                                        val response =
+                                            JSONObject()
                                                 .put("event", "secret")
                                                 .put(
-                                                        "payload",
-                                                        JSONObject()
-                                                                .put("type", "set-socket-secret")
-                                                                .put("secret", socketIOSecret)
-                                                                .put("nonce", nonce)
+                                                    "payload",
+                                                    JSONObject()
+                                                        .put("type", "set-socket-secret")
+                                                        .put("secret", socketIOSecret)
+                                                        .put("nonce", nonce)
                                                 )
                                                 .toString()
-                                sendMessageToNodeChannel("_EVENTS_", response)
+                                        sendMessageToNodeChannel("_EVENTS_", response)
+                                    }
+                                }
+                                "backendReady" -> handleBackendReady()
+                                "backendClosed" -> handleBackendClosed()
+                                else ->
+                                    Log.d(
+                                        TAG,
+                                        "Received unhandled message payload: $payloadStr"
+                                    )
                             }
                         }
                     } else if (event == "backendReady") {
-                        CommunicationModule.handleIncomingEvents(event, "", "")
+                        handleBackendReady()
+                    } else if (event == "backendClosed") {
+                        handleBackendClosed()
                     } else {
                         Log.d(
-                                "BackendWorker",
-                                "Received unhandled event: $event with payload: $payloadStr"
+                            TAG,
+                            "Received unhandled event: $event with payload: $payloadStr"
                         )
                     }
                 } catch (_: JSONException) {
                     Log.d(
-                            "BackendWorker",
-                            "handleNodeMessages: JSONException while parsing message from backend"
+                        TAG,
+                        "handleNodeMessages: JSONException while parsing message from backend"
                     )
                 }
             }
+        }
+
+        private fun handleBackendReady() {
+            markBackendReady()
+            Log.i(TAG, "Backend reported ready: " + lifecycleSummary())
+            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_READY_CHANNEL, "", "")
+        }
+
+        private fun handleBackendClosed() {
+            markBackendClosed()
+            Log.i(TAG, "Backend reported closed: " + lifecycleSummary())
+            CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
         }
     }
 
@@ -112,41 +221,41 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         //     .createCancelPendingIntent(id)
 
         val title =
-                if (!BuildConfig.DEBUG) {
-                    applicationContext.getString(R.string.app_name)
-                } else {
-                    applicationContext.getString(R.string.debug_app_name)
-                }
+            if (!BuildConfig.DEBUG) {
+                applicationContext.getString(R.string.app_name)
+            } else {
+                applicationContext.getString(R.string.debug_app_name)
+            }
 
         val icon =
-                if (!BuildConfig.DEBUG) {
-                    R.drawable.ic_notification
-                } else {
-                    R.drawable.ic_notification_dev
-                }
+            if (!BuildConfig.DEBUG) {
+                R.drawable.ic_notification
+            } else {
+                R.drawable.ic_notification_dev
+            }
 
         val notification =
-                NotificationCompat.Builder(
-                                applicationContext,
-                                Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID
-                        )
-                        .setContentTitle(title)
-                        .setTicker("Quiet")
-                        .setContentText("Backend is running")
-                        .setSmallIcon(icon)
-                        // Add the cancel action to the notification which can
-                        // be used to cancel the worker
-                        // .addAction(android.R.drawable.ic_delete, "cancel", intent)
-                        .build()
+            NotificationCompat.Builder(
+                applicationContext,
+                Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID
+            )
+                .setContentTitle(title)
+                .setTicker("Quiet")
+                .setContentText("Backend is running")
+                .setSmallIcon(icon)
+                // Add the cancel action to the notification which can
+                // be used to cancel the worker
+                // .addAction(android.R.drawable.ic_delete, "cancel", intent)
+                .build()
 
         val id = ThreadLocalRandom.current().nextInt(0, 9000 + 1)
 
         val foregroundInfo: ForegroundInfo =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    ForegroundInfo(id, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
-                } else {
-                    ForegroundInfo(id, notification)
-                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ForegroundInfo(id, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            } else {
+                ForegroundInfo(id, notification)
+            }
 
         return foregroundInfo
     }
@@ -157,6 +266,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         https://stackoverflow.com/questions/59724922/workmanager-dowork-getting-fired-twice */
         if (running) return Result.success()
         running = true
+
+        if (!beginStartup()) {
+            Log.i(TAG, "Skipping backend startup because lifecycle transition is in flight: " + lifecycleSummary())
+            return Result.success()
+        }
 
         setForegroundAsync(createForegroundInfo())
 
@@ -182,7 +296,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val dataPath = Utils.createDirectory(context)
 
             val appInfo =
-                    applicationContext.packageManager.getApplicationInfo(context.packageName, 0)
+                applicationContext.packageManager.getApplicationInfo(context.packageName, 0)
             val torBinary = appInfo.nativeLibraryDir + "/libtor.so"
 
             val platform = "mobile"
@@ -194,9 +308,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * https://github.com/TryQuiet/quiet/issues/2214
                  */
                 delay(500)
+                Log.i(TAG, "Starting Node project: " + lifecycleSummary())
                 startNodeProjectWithArguments(
-                        "bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform",
-                        context.filesDir.absolutePath
+                    "bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform",
+                    context.filesDir.absolutePath
                 )
                 delay(500)
             }
@@ -204,6 +319,8 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         println("FINISHING BACKEND WORKER")
 
+        markBackendClosed()
+        Log.i(TAG, "Backend worker finished: " + lifecycleSummary())
         CommunicationModule.handleIncomingEvents(CommunicationModule.BACKEND_CLOSED_CHANNEL, "", "")
 
         // Indicate whether the work finished successfully with the Result
@@ -211,10 +328,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     }
 
     private external fun startNodeWithArguments(
-            arguments: Array<String?>?,
-            modulesPath: String?,
-            dataPath: String?,
-            envVars: Array<String?>?
+        arguments: Array<String?>?,
+        modulesPath: String?,
+        dataPath: String?,
+        envVars: Array<String?>?
     ): Int?
 
     @Throws(Exception::class)
@@ -226,21 +343,31 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         val command: MutableList<String> = ArrayList()
         command.add("node")
+        command.add("--experimental-global-webcrypto")
         command.add("--experimental-global-customevent")
         command.add(scriptPath)
         command.addAll(args)
 
-        val envVars = mutableListOf<String>()
-        envVars.add("QSS_ALLOWED=${BuildConfig.QSS_ALLOWED}")
-        envVars.add("QSS_ENDPOINT=${BuildConfig.QSS_ENDPOINT}")
+        val standardFields = setOf(
+            "DEBUG", "APPLICATION_ID", "BUILD_TYPE", "FLAVOR",
+            "VERSION_CODE", "VERSION_NAME", "LIBRARY_PACKAGE_NAME",
+            "IS_NEW_ARCHITECTURE_ENABLED", "IS_HERMES_ENABLED"
+        )
+        val envVars = BuildConfig::class.java.fields
+            .filter { it.name !in standardFields }
+            .mapNotNull { field ->
+                field.get(null)?.let { value -> "${field.name}=$value" }
+            }
+            .also { vars -> vars.forEach { Log.d("BackendWorker", "Passing env var: $it") } }
+            .toMutableList()
 
         nodeProject.waitForInit()
 
         startNodeWithArguments(
-                command.toTypedArray(),
-                "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}",
-                dataPath,
-                envVars.toTypedArray()
+            command.toTypedArray(),
+            "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}",
+            dataPath,
+            envVars.toTypedArray()
         )
     }
 
@@ -258,19 +385,31 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     }
 
     private val onPushNotification =
-            Emitter.Listener { args ->
-                var message = ""
-                var username = ""
-                try {
-                    val data = args[0] as JSONObject
-                    message = data.getString("message")
-                    username = data.getString("username")
-                } catch (e: JSONException) {
-                    Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
-                }
-                if (context.isAppOnForeground())
-                        return@Listener // If application is in foreground, let redux be in charge
-                // of displaying notifications
-                notificationHandler.notify(message, username)
+        Emitter.Listener { args ->
+            var message = ""
+            var username = ""
+            try {
+                val data = args[0] as JSONObject
+                message = data.getString("message")
+                username = data.getString("username")
+            } catch (e: JSONException) {
+                Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
             }
+            if (QuietStorage.isAppForeground()) {
+                Log.i("ON_PUSH_NOTIFICATION", "Skipping backend worker notification because app is foregrounded")
+                return@Listener // If application is in foreground, let redux be in charge
+            }
+
+            if (shouldUseFcmBackgroundNotifications()) {
+                Log.i("ON_PUSH_NOTIFICATION", "Skipping backend worker notification because FCM owns background delivery")
+                return@Listener
+            }
+
+            notificationHandler.notify(message, username)
+        }
+
+    private fun shouldUseFcmBackgroundNotifications(): Boolean =
+        BuildConfig.QSS_ALLOWED == "true" &&
+            QuietStorage.isTeamQssEnabled() &&
+            !QuietStorage.isUserBackgroundTorEnabled()
 }

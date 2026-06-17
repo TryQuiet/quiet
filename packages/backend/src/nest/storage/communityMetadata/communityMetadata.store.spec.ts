@@ -200,8 +200,8 @@ describe('CommmunityMetadataStore', () => {
         expect(entryInvalid).not.toBeTruthy()
       } catch (e) {
         expect(e).toBeTruthy()
-        // packages/backend/node_modules/@orbitdb/core/src/identities/identities.js - sign
-        expect(e.message).toEqual('Private signing key not found from KeyStore')
+        // packages/backend/src/nest/storage/orbitDb/identity/lfa/lfa-identity.service.ts - sign
+        expect(e.message).toEqual('Error signing identity with LFAIdentityProvider')
       }
     })
 

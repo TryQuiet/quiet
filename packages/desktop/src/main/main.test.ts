@@ -24,6 +24,7 @@ const mockWindowHide = jest.fn()
 const mockWindowClose = jest.fn()
 const mockSetMovable = jest.fn()
 const mockSetAlwaysOnTop = jest.fn()
+const mockIsDestroyed = jest.fn()
 
 const spyCreateWindow = jest.spyOn(main, 'createWindow')
 const spyGetPorts = jest.spyOn(backendHelpers, 'getPorts')
@@ -104,6 +105,7 @@ jest.mock('electron', () => {
           on: mockwebContentsOn,
           once: mockwebContentsOnce,
           send: mockWindowWebContentsSend,
+          isDestroyed: mockIsDestroyed,
         },
       }
     }),

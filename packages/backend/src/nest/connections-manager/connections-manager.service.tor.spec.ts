@@ -7,6 +7,7 @@ import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
 import {
   createPeerId,
   createTmpDir,
+  generateLibp2pPSK,
   removeFilesFromDir,
   tmpQuietDirPath,
   generateRandomOnionAddress,
@@ -65,6 +66,7 @@ let communityRootCa: string
 let peerId: CreatedLibp2pPeerId
 let torControl: TorControl
 let sigchainService: SigChainService
+let handleChainUpdateSpy: jest.SpiedFunction<any>
 
 beforeEach(async () => {
   jest.clearAllMocks()
@@ -98,9 +100,13 @@ beforeEach(async () => {
       torHashedPassword: '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63',
     })
     .compile()
+
+  sigchainService = await module.resolve(SigChainService)
+  handleChainUpdateSpy = jest.spyOn(sigchainService as any, 'handleChainUpdate').mockImplementation(() => {
+    logger.debug('MOCK: handling chain update')
+  })
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
   localDbService = await module.resolve(LocalDbService)
-  sigchainService = await module.resolve(SigChainService)
   libp2pService = connectionsManagerService.libp2pService
   peerId = await createPeerId()
   tor = await module.resolve(Tor)
@@ -111,7 +117,7 @@ beforeEach(async () => {
   torControl.authString = 'AUTHENTICATE ' + torPassword + '\r\n'
   quietDir = await module.resolve(QUIET_DIR)
 
-  const pskBase64 = Libp2pService.generateLibp2pPSK().psk
+  const pskBase64 = generateLibp2pPSK().psk
   await sigchainService.createChain(community.name!, 'john', false)
   await sigchainService.saveChain(community.name!)
   await sigchainService.deleteChain(community.name!, false)
@@ -122,6 +128,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  handleChainUpdateSpy.mockReset()
   if (connectionsManagerService) {
     await connectionsManagerService.closeAllServices()
   }

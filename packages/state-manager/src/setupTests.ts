@@ -1,15 +1,13 @@
 import { setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 
-const webcrypto = new Crypto()
+const crypto = require('crypto').webcrypto
+
 setEngine(
   'newEngine',
-  webcrypto,
+  crypto,
   new CryptoEngine({
     name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
+    crypto: crypto,
+    subtle: crypto.subtle,
   })
 )
-
-global.crypto = webcrypto

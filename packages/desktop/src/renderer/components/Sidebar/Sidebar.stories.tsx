@@ -46,6 +46,7 @@ const args: IdentityPanelProps &
     name: 'rockets',
     id: 'rocketsCommunityId',
     ownership: CommunityOwnership.Owner,
+    teamId: 'foobar',
   },
   accountSettingsModal: {
     open: false,
@@ -59,6 +60,8 @@ const args: IdentityPanelProps &
       description: 'General discussion channel',
       owner: 'aliceUserId',
       timestamp: Date.now(),
+      public: true,
+      teamId: 'foobar',
     },
     {
       id: 'spooky',
@@ -66,6 +69,8 @@ const args: IdentityPanelProps &
       description: 'Spooky channel for Halloween discussions',
       owner: 'bobUserId',
       timestamp: Date.now(),
+      public: true,
+      teamId: 'foobar',
     },
     {
       id: 'kalkan',
@@ -73,6 +78,8 @@ const args: IdentityPanelProps &
       description: 'Kalkan channel for discussions about Kalkan',
       owner: 'charlieUserId',
       timestamp: Date.now(),
+      public: true,
+      teamId: 'foobar',
     },
   ],
   myUserProfile: {
@@ -82,6 +89,7 @@ const args: IdentityPanelProps &
       peerId: 'alicePeerId',
       onionAddress: 'alice.onion',
     },
+    channels: [],
   },
   userProfiles: {
     aliceUserId: {
@@ -91,6 +99,7 @@ const args: IdentityPanelProps &
         peerId: 'alicePeerId',
         onionAddress: 'alice.onion',
       },
+      channels: [],
     },
     bobUserId: {
       userId: 'bobUserId',
@@ -99,6 +108,7 @@ const args: IdentityPanelProps &
         peerId: 'bobPeerId',
         onionAddress: 'bob.onion',
       },
+      channels: [],
     },
     charlieUserId: {
       userId: 'charlieUserId',
@@ -107,6 +117,7 @@ const args: IdentityPanelProps &
         peerId: 'charliePeerId',
         onionAddress: 'charlie.onion',
       },
+      channels: [],
     },
   },
   connectedPeers: ['alicePeerId', 'bobPeerId'],

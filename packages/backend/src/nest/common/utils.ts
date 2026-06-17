@@ -12,14 +12,16 @@ import crypto from 'crypto'
 import { TestConfig } from '../const'
 import { CreatedLibp2pPeerId, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
-import { Libp2pService } from '../libp2p/libp2p.service'
-import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
 import { createLogger } from './logger'
 import { pureJsCrypto } from '@chainsafe/libp2p-noise'
 import { webSockets } from '@libp2p/websockets'
 import { memory } from '@libp2p/memory'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 
 const logger = createLogger('utils')
+const KEY_LENGTH = 32
+export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 
 export interface Ports {
   socksPort: number
@@ -38,10 +40,21 @@ export function createPaths(paths: string[]) {
   }
 }
 
-export function removeFilesFromDir(dirPath: string) {
+export function removeFilesFromDir(
+  dirPath: string,
+  options: { throwOnError?: boolean; maxRetries?: number; retryDelay?: number } = {}
+) {
+  const { throwOnError = true, maxRetries = 5, retryDelay = 200 } = options
   if (fs.existsSync(dirPath)) {
     logger.info(`Removing ${dirPath}`)
-    fs.rmdirSync(dirPath, { recursive: true })
+    try {
+      fs.rmSync(dirPath, { recursive: true, force: true, maxRetries, retryDelay })
+    } catch (e) {
+      if (throwOnError) {
+        throw e
+      }
+      logger.warn(`Failed to remove ${dirPath}, continuing`, e)
+    }
   }
 }
 
@@ -152,40 +165,26 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
   // Wrap path in quotes to handle spaces in path
-  let pathCandidate = path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
+  const pathCandidate = path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
   logger.info(`Checking for Tor binary at: ${pathCandidate}`)
   if (fs.existsSync(pathCandidate)) {
     return pathCandidate
-  } else if (basePath === '') {
+  } else {
     throw new Error(
       `Tor binary not found at ${pathCandidate}. Please ensure the Tor binary is installed and the path is correct.`
     )
-  } else {
-    logger.info(`Tor binary not found at ${pathCandidate}, trying local tor directory.`)
-    pathCandidate = path.join(torDirForPlatform(), `${binName}`.concat(ext))
   }
-  if (fs.existsSync(pathCandidate)) {
-    return pathCandidate
-  } else {
-    // check if the parent dir exists
-    if (fs.existsSync(path.dirname(pathCandidate))) {
-      throw new Error(
-        `Tor binary not found at ${pathCandidate}. Please ensure the Tor binary is installed and the path is correct.`
-      )
-    }
-  }
-  return `"${pathCandidate}"`
 }
 
 export const torDirForPlatform = (basePath?: string): string => {
-  let torPath: string
-  if (!basePath) {
-    basePath = path.join(process.cwd(), '..', '..', '3rd-party')
-    torPath = path.join(basePath, 'tor', process.platform)
+  const devPath = path.join(process.cwd(), '..', '..', '3rd-party', 'tor', process.platform)
+  const prodPath = basePath ? path.join(basePath, 'tor') : undefined
+  if (!prodPath || !fs.existsSync(prodPath)) {
+    logger.info(`Tor directory not found in ${basePath}, falling back to dev directory ${devPath}.`)
+    return devPath
   } else {
-    torPath = path.join(basePath, 'tor')
+    return prodPath
   }
-  return torPath
 }
 
 export const getUsersAddresses = async (users: UserData[]): Promise<string[]> => {
@@ -230,6 +229,26 @@ export const testBootstrapMultiaddrs = [
   createLibp2pAddress(generateRandomOnionAddress(56), '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'),
 ]
 
+/**
+ * Based on 'libp2p/pnet' generateKey
+ *
+ * @param key base64 encoded psk
+ */
+export function generateLibp2pPSK(key?: string) {
+  let psk: Buffer | undefined = undefined
+
+  if (key) {
+    psk = Buffer.from(key, 'base64')
+  } else {
+    psk = crypto.randomBytes(KEY_LENGTH)
+  }
+
+  const base16StringKey = uint8ArrayToString(psk, 'base16')
+  const fullKey = uint8ArrayFromString(LIBP2P_PSK_METADATA + base16StringKey)
+
+  return { psk: psk.toString('base64'), fullKey }
+}
+
 // generate a local multiaddr: /ip4/127.0.0.1/tcp/<PORT>/ws
 function createLocalListenAddr(port: number): string {
   return `/ip4/127.0.0.1/tcp/${port}/ws`
@@ -243,7 +262,7 @@ function createLocalDialAddr(port: number, peerIdStr: string): string {
 export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
   const port = await getPort()
   const peerId = await createPeerId()
-  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
+  const libp2pKey = generateLibp2pPSK().fullKey
   return {
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
@@ -262,7 +281,7 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
 export async function getLocalLibp2pInstanceParams(): Promise<Libp2pNodeParams> {
   const port = await getPort()
   const peerId = await createPeerId()
-  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
+  const libp2pKey = generateLibp2pPSK().fullKey
   return {
     peerId,
     listenAddresses: [createLocalListenAddr(port)],
@@ -282,7 +301,7 @@ export async function getLocalLibp2pInstanceParams(): Promise<Libp2pNodeParams> 
 export async function getInMemoryLibp2pInstanceParams(): Promise<Libp2pNodeParams> {
   const port = await getPort()
   const peerId = await createPeerId()
-  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
+  const libp2pKey = generateLibp2pPSK().fullKey
   return {
     peerId,
     listenAddresses: [`/memory/${port}`],

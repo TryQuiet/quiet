@@ -39,10 +39,11 @@ export const communitiesSlice = createSlice({
       communitiesAdapter.addOne(state.communities, action.payload)
     },
     updateCommunityData: (state, action: PayloadAction<UpdateCommunityPayload>) => {
+      logger.info('Updating community data', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
-          ...action.payload,
+          ...action.payload.updates,
         },
       })
     },

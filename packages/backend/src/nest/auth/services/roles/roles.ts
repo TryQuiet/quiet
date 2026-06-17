@@ -5,6 +5,8 @@ export enum RoleName {
   MEMBER = 'member',
 }
 
+export const SELF_ASSIGN_ROLES: (RoleName | string)[] = [RoleName.MEMBER]
+
 export type RoleMemberInfo = {
   id: string
   name: string
@@ -29,3 +31,9 @@ export type BaseChannel = {
 export type Channel = QuietRole & BaseChannel
 
 export type TruncatedChannel = TruncatedQuietRole & BaseChannel
+
+export class NotAdminError extends Error {
+  constructor() {
+    super('User is not an admin on this community')
+  }
+}

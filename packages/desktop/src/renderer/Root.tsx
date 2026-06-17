@@ -25,6 +25,7 @@ import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { UserProfileContextMenu } from './components/ContextMenu/menus/UserProfileContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
+import { AddMembersChannel } from './components/Channel/AddMembersChannel/AddMembersChannel'
 import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 import UnregisteredModalContainer from './components/widgets/userLabel/unregistered/UnregisteredModal.container'
@@ -69,6 +70,7 @@ export default () => {
                 <UserProfileContextMenu />
                 <DeleteChannel />
                 <ServerAddedModal />
+                <AddMembersChannel />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />

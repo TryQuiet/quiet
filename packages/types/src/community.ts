@@ -67,9 +67,6 @@ export interface LeaveCommunityPayload {
   id: string
 }
 
-// ----- State-Manager <-> Backend Payloads -----
-export type UpdateCommunityPayload = { id: Community['id'] } & Partial<Omit<Community, 'id'>>
-
 export interface InitCommunityPayload {
   id: string
   name: string
@@ -85,6 +82,11 @@ export interface InitCommunityPayload {
   username: string
   useServer?: boolean
   tosAccepted?: boolean
+}
+
+export interface UpdateCommunityPayload {
+  id: string
+  updates: Partial<Omit<Community, 'id'>>
 }
 
 export interface ResponseLaunchCommunityPayload {
@@ -118,9 +120,13 @@ export interface RequestInvitePayload {
   id: Base58 | undefined
 }
 
+export interface InviteResultWithSalt extends InviteResult {
+  salt: string
+}
+
 export interface ResponseInvitePayload {
   valid: boolean
-  newInvite?: InviteResult
+  newInvite?: InviteResultWithSalt
 }
 
 // ----- deprecated -----
