@@ -113,12 +113,12 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
         .put(publicChannelsActions.createGeneralChannel())
-
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
     test('delete private channel', async () => {
-      const channelId = photoChannel.id
+      const channelId = privateChannel.id
 
       const reducer = combineReducers(testReducers)
       await expectSaga(
@@ -134,7 +134,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId, isPublic: false }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -155,7 +155,7 @@ describe('channelDeletionResponseSaga', () => {
         .not.put(messagesActions.deleteChannelEntry({ channelId }))
         .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .not.put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId, isPublic: true }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
   })
@@ -182,6 +182,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -222,6 +223,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.completeChannelDeletion({}))
         .provide([{ call: provideDelay }, [select(publicChannelsSelectors.generalChannel), generalChannel]])
         .put(publicChannelsActions.setCurrentChannel({ channelId }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -249,6 +251,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
 
@@ -269,7 +272,7 @@ describe('channelDeletionResponseSaga', () => {
         .not.put(messagesActions.deleteChannelEntry({ channelId }))
         .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .not.put(publicChannelsActions.completeChannelDeletion({}))
-        .not.put(messagesActions.sendDeletionMessage({ channelId, isPublic: true }))
+        .not.put.actionType(messagesActions.sendDeletionMessage.type)
         .run()
     })
   })
