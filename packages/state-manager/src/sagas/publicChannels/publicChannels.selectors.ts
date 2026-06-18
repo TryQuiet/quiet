@@ -335,6 +335,16 @@ export const prevChannelId = createSelector(selectState, state => {
   return state.prevChannelId
 })
 
+// TODO: update when we have assignable roles and tie channel operations to specific roles
+export const canCreateChannel = createSelector(selectState, () => {
+  return true
+})
+
+// TODO: update when we have assignable roles and tie channel operations to specific roles
+export const canCreatePrivateChannel = createSelector(selectState, () => {
+  return true
+})
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -363,4 +373,6 @@ export const publicChannelsSelectors = {
   sortedDmChannels,
   unreadDms,
   prevChannelId,
+  canCreateChannel,
+  canCreatePrivateChannel,
 }

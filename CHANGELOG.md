@@ -5,6 +5,7 @@
 ### Features
 
 * Adds one-on-one and group DMs to desktop [#2571](https://github.com/TryQuiet/quiet/issues/2571)
+* Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
 
 ### Fixes
 

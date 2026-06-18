@@ -14,7 +14,8 @@ import { icons } from '../../assets'
 import LockIcon from '../../assets/icons/svg/lock'
 
 export interface CreateChannelProps {
-  isAdmin: boolean
+  canCreateChannel: boolean
+  canCreatePrivateChannel: boolean
   createChannelAction: (name: string, isPublic: boolean) => void
   channelCreationError?: string
   clearComponent?: boolean
@@ -22,7 +23,8 @@ export interface CreateChannelProps {
 }
 
 export const CreateChannel: FC<CreateChannelProps> = ({
-  isAdmin,
+  canCreateChannel,
+  canCreatePrivateChannel,
   createChannelAction,
   channelCreationError,
   clearComponent,
@@ -140,7 +142,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
-        {isAdmin && (
+        {canCreatePrivateChannel && (
           <View
             style={{
               display: 'flex',

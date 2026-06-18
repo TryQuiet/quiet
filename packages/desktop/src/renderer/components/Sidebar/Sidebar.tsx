@@ -32,6 +32,7 @@ const Sidebar = () => {
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
+  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
   const userId = userProfile?.userId || ''
 
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
@@ -68,6 +69,7 @@ const Sidebar = () => {
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
     isTorInitialized: isTorInitialized,
+    canCreateChannel: canCreateChannel,
   }
 
   const userProfilePanelProps: UserProfilePanelProps = {

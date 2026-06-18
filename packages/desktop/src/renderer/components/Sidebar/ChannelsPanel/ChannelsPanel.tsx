@@ -15,11 +15,13 @@ export interface ChannelsPanelProps {
   currentChannelId: string
   createChannelModal: ReturnType<typeof useModal>
   isTorInitialized: boolean
+  canCreateChannel: boolean
 }
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
   unreadChannels,
+  canCreateChannel,
   setCurrentChannel,
   currentChannelId,
   createChannelModal,
@@ -29,8 +31,8 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
       <Grid item>
         <SidebarHeader
           title={'Channels'}
-          action={createChannelModal.handleOpen}
-          actionTitle={'createChannel'}
+          action={canCreateChannel ? createChannelModal.handleOpen : undefined}
+          actionTitle={canCreateChannel ? 'createChannel' : undefined}
           tooltipText='Create new channel'
         />
       </Grid>
