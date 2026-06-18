@@ -333,6 +333,7 @@ exports[`Chat component renders component 1`] = `
                 "width": 16,
               }
             }
+            tintColor="#000000"
           />
         </View>
       </View>
@@ -735,6 +736,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -755,6 +761,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -764,7 +775,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#545454" d="M11 11L11 4L18 4ZM18 4L25 4L25 11ZM25 25L25 32L18 32ZM18 32L11 32L11 25ZM4 18L4 11L11 11ZM25 11L32 11L32 18ZM32 18L32 25L25 25ZM11 25L4 25L4 18Z"/><path fill="#d17589" d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M13 13L17 13L17 17L13 17ZM23 13L23 17L19 17L19 13ZM23 23L19 23L19 19L23 19ZM13 23L13 19L17 19L17 23Z"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#545454" d="M9 9L9 0L18 0ZM18 0L27 0L27 9ZM27 27L27 36L18 36ZM18 36L9 36L9 27ZM0 18L0 9L9 9ZM27 9L36 9L36 18ZM36 18L36 27L27 27ZM9 27L0 27L0 18Z"/><path fill="#d17589" d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M11 11L17 11L17 17L11 17ZM25 11L25 17L19 17L19 11ZM25 25L19 25L19 19L25 19ZM11 25L11 19L17 19L17 25Z"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -775,8 +786,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M11 11L11 4L18 4ZM18 4L25 4L25 11ZM25 25L25 32L18 32ZM18 32L11 32L11 25ZM4 18L4 11L11 11ZM25 11L32 11L32 18ZM32 18L32 25L25 25ZM11 25L4 25L4 18Z"
+                          d="M9 9L9 0L18 0ZM18 0L27 0L27 9ZM27 27L27 36L18 36ZM18 36L9 36L9 27ZM0 18L0 9L9 9ZM27 9L36 9L36 18ZM36 18L36 27L27 27ZM9 27L0 27L0 18Z"
                           fill={
                             {
                               "payload": 4283716692,
@@ -790,7 +819,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M13 13L17 13L17 17L13 17ZM23 13L23 17L19 17L19 13ZM23 23L19 23L19 19L23 19ZM13 23L13 19L17 19L17 23Z"
+                          d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M11 11L17 11L17 17L11 17ZM25 11L25 17L19 17L19 11ZM25 25L19 25L19 19L25 19ZM11 25L11 19L17 19L17 25Z"
                           fill={
                             {
                               "payload": 4291917193,
@@ -948,6 +977,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -968,6 +1002,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -977,7 +1016,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#eaeaea" d="M14.5 4L18 7.5L14.5 11L11 7.5ZM25 7.5L21.5 11L18 7.5L21.5 4ZM21.5 32L18 28.5L21.5 25L25 28.5ZM11 28.5L14.5 25L18 28.5L14.5 32ZM7.5 11L11 14.5L7.5 18L4 14.5ZM32 14.5L28.5 18L25 14.5L28.5 11ZM28.5 25L25 21.5L28.5 18L32 21.5ZM4 21.5L7.5 18L11 21.5L7.5 25Z"/><path fill="#5b5b5b" d="M11 11L4 11L4 4ZM25 11L25 4L32 4ZM25 25L32 25L32 32ZM11 25L11 32L4 32Z"/><path fill="#84a8d6" d="M14 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M14 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#eaeaea" d="M13.5 0L18 4.5L13.5 9L9 4.5ZM27 4.5L22.5 9L18 4.5L22.5 0ZM22.5 36L18 31.5L22.5 27L27 31.5ZM9 31.5L13.5 27L18 31.5L13.5 36ZM4.5 9L9 13.5L4.5 18L0 13.5ZM36 13.5L31.5 18L27 13.5L31.5 9ZM31.5 27L27 22.5L31.5 18L36 22.5ZM0 22.5L4.5 18L9 22.5L4.5 27Z"/><path fill="#5b5b5b" d="M9 9L0 9L0 0ZM27 9L27 0L36 0ZM27 27L36 27L36 36ZM9 27L9 36L0 36Z"/><path fill="#84a8d6" d="M13 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -988,8 +1027,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M14.5 4L18 7.5L14.5 11L11 7.5ZM25 7.5L21.5 11L18 7.5L21.5 4ZM21.5 32L18 28.5L21.5 25L25 28.5ZM11 28.5L14.5 25L18 28.5L14.5 32ZM7.5 11L11 14.5L7.5 18L4 14.5ZM32 14.5L28.5 18L25 14.5L28.5 11ZM28.5 25L25 21.5L28.5 18L32 21.5ZM4 21.5L7.5 18L11 21.5L7.5 25Z"
+                          d="M13.5 0L18 4.5L13.5 9L9 4.5ZM27 4.5L22.5 9L18 4.5L22.5 0ZM22.5 36L18 31.5L22.5 27L27 31.5ZM9 31.5L13.5 27L18 31.5L13.5 36ZM4.5 9L9 13.5L4.5 18L0 13.5ZM36 13.5L31.5 18L27 13.5L31.5 9ZM31.5 27L27 22.5L31.5 18L36 22.5ZM0 22.5L4.5 18L9 22.5L4.5 27Z"
                           fill={
                             {
                               "payload": 4293585642,
@@ -1003,7 +1060,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M11 11L4 11L4 4ZM25 11L25 4L32 4ZM25 25L32 25L32 32ZM11 25L11 32L4 32Z"
+                          d="M9 9L0 9L0 0ZM27 9L27 0L36 0ZM27 27L36 27L36 36ZM9 27L9 36L0 36Z"
                           fill={
                             {
                               "payload": 4284177243,
@@ -1017,7 +1074,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M14 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M14 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"
+                          d="M13 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"
                           fill={
                             {
                               "payload": 4286884054,
@@ -1175,6 +1232,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -1195,6 +1257,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -1204,7 +1271,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#a8389b" d="M14.5 11L11 7.5L14.5 4L18 7.5ZM18 7.5L21.5 4L25 7.5L21.5 11ZM21.5 25L25 28.5L21.5 32L18 28.5ZM18 28.5L14.5 32L11 28.5L14.5 25ZM7.5 18L4 14.5L7.5 11L11 14.5ZM25 14.5L28.5 11L32 14.5L28.5 18ZM28.5 18L32 21.5L28.5 25L25 21.5ZM11 21.5L7.5 25L4 21.5L7.5 18Z"/><path fill="#e8e8e8" d="M4 4L11 4L11 7.5ZM32 4L32 11L28.5 11ZM32 32L25 32L25 28.5ZM4 32L4 25L7.5 25Z"/><path fill="#d175c6" d="M14 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M14 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#a8389b" d="M13.5 9L9 4.5L13.5 0L18 4.5ZM18 4.5L22.5 0L27 4.5L22.5 9ZM22.5 27L27 31.5L22.5 36L18 31.5ZM18 31.5L13.5 36L9 31.5L13.5 27ZM4.5 18L0 13.5L4.5 9L9 13.5ZM27 13.5L31.5 9L36 13.5L31.5 18ZM31.5 18L36 22.5L31.5 27L27 22.5ZM9 22.5L4.5 27L0 22.5L4.5 18Z"/><path fill="#e8e8e8" d="M0 0L9 0L9 4.5ZM36 0L36 9L31.5 9ZM36 36L27 36L27 31.5ZM0 36L0 27L4.5 27Z"/><path fill="#d175c6" d="M13 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -1215,8 +1282,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M14.5 11L11 7.5L14.5 4L18 7.5ZM18 7.5L21.5 4L25 7.5L21.5 11ZM21.5 25L25 28.5L21.5 32L18 28.5ZM18 28.5L14.5 32L11 28.5L14.5 25ZM7.5 18L4 14.5L7.5 11L11 14.5ZM25 14.5L28.5 11L32 14.5L28.5 18ZM28.5 18L32 21.5L28.5 25L25 21.5ZM11 21.5L7.5 25L4 21.5L7.5 18Z"
+                          d="M13.5 9L9 4.5L13.5 0L18 4.5ZM18 4.5L22.5 0L27 4.5L22.5 9ZM22.5 27L27 31.5L22.5 36L18 31.5ZM18 31.5L13.5 36L9 31.5L13.5 27ZM4.5 18L0 13.5L4.5 9L9 13.5ZM27 13.5L31.5 9L36 13.5L31.5 18ZM31.5 18L36 22.5L31.5 27L27 22.5ZM9 22.5L4.5 27L0 22.5L4.5 18Z"
                           fill={
                             {
                               "payload": 4289214619,
@@ -1230,7 +1315,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M4 4L11 4L11 7.5ZM32 4L32 11L28.5 11ZM32 32L25 32L25 28.5ZM4 32L4 25L7.5 25Z"
+                          d="M0 0L9 0L9 4.5ZM36 0L36 9L31.5 9ZM36 36L27 36L27 31.5ZM0 36L0 27L4.5 27Z"
                           fill={
                             {
                               "payload": 4293454056,
@@ -1244,7 +1329,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M14 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 15.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M19 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0M14 20.5a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"
+                          d="M13 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 15a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M19 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0M13 21a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"
                           fill={
                             {
                               "payload": 4291917254,
@@ -1402,6 +1487,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -1422,6 +1512,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -1431,7 +1526,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#75cc66" d="M18 7.5L14.5 11L11 7.5L14.5 4ZM21.5 11L18 7.5L21.5 4L25 7.5ZM18 28.5L21.5 25L25 28.5L21.5 32ZM14.5 25L18 28.5L14.5 32L11 28.5ZM11 14.5L7.5 18L4 14.5L7.5 11ZM28.5 18L25 14.5L28.5 11L32 14.5ZM25 21.5L28.5 18L32 21.5L28.5 25ZM7.5 18L11 21.5L7.5 25L4 21.5ZM13.8 18a4.2,4.2 0 1,1 8.4,0a4.2,4.2 0 1,1 -8.4,0"/><path fill="#bae5b2" d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#75cc66" d="M18 4.5L13.5 9L9 4.5L13.5 0ZM22.5 9L18 4.5L22.5 0L27 4.5ZM18 31.5L22.5 27L27 31.5L22.5 36ZM13.5 27L18 31.5L13.5 36L9 31.5ZM9 13.5L4.5 18L0 13.5L4.5 9ZM31.5 18L27 13.5L31.5 9L36 13.5ZM27 22.5L31.5 18L36 22.5L31.5 27ZM4.5 18L9 22.5L4.5 27L0 22.5ZM12.6 18a5.4,5.4 0 1,1 10.8,0a5.4,5.4 0 1,1 -10.8,0"/><path fill="#bae5b2" d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -1442,8 +1537,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M18 7.5L14.5 11L11 7.5L14.5 4ZM21.5 11L18 7.5L21.5 4L25 7.5ZM18 28.5L21.5 25L25 28.5L21.5 32ZM14.5 25L18 28.5L14.5 32L11 28.5ZM11 14.5L7.5 18L4 14.5L7.5 11ZM28.5 18L25 14.5L28.5 11L32 14.5ZM25 21.5L28.5 18L32 21.5L28.5 25ZM7.5 18L11 21.5L7.5 25L4 21.5ZM13.8 18a4.2,4.2 0 1,1 8.4,0a4.2,4.2 0 1,1 -8.4,0"
+                          d="M18 4.5L13.5 9L9 4.5L13.5 0ZM22.5 9L18 4.5L22.5 0L27 4.5ZM18 31.5L22.5 27L27 31.5L22.5 36ZM13.5 27L18 31.5L13.5 36L9 31.5ZM9 13.5L4.5 18L0 13.5L4.5 9ZM31.5 18L27 13.5L31.5 9L36 13.5ZM27 22.5L31.5 18L36 22.5L31.5 27ZM4.5 18L9 22.5L4.5 27L0 22.5ZM12.6 18a5.4,5.4 0 1,1 10.8,0a5.4,5.4 0 1,1 -10.8,0"
                           fill={
                             {
                               "payload": 4285910118,
@@ -1457,7 +1570,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"
+                          d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
                           fill={
                             {
                               "payload": 4290438578,
@@ -1615,6 +1728,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -1635,6 +1753,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -1644,7 +1767,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#4c4c4c" d="M12.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M12.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"/><path fill="#ccba66" d="M11 11L4 11L4 4ZM25 11L25 4L32 4ZM25 25L32 25L32 32ZM11 25L11 32L4 32ZM11 11L18 11L18 15.9L13.8 13.8L15.9 18L11 18ZM25 11L25 18L20.1 18L22.2 13.8L18 15.9L18 11ZM25 25L18 25L18 20.1L22.2 22.2L20.1 18L25 18ZM11 25L11 18L15.9 18L13.8 22.2L18 20.1L18 25Z"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#4c4c4c" d="M10.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M10.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"/><path fill="#ccba66" d="M9 9L0 9L0 0ZM27 9L27 0L36 0ZM27 27L36 27L36 36ZM9 27L9 36L0 36ZM9 9L18 9L18 15.3L12.6 12.6L15.3 18L9 18ZM27 9L27 18L20.7 18L23.4 12.6L18 15.3L18 9ZM27 27L18 27L18 20.7L23.4 23.4L20.7 18L27 18ZM9 27L9 18L15.3 18L12.6 23.4L18 20.7L18 27Z"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -1655,8 +1778,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M12.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M12.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"
+                          d="M10.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M10.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
                           fill={
                             {
                               "payload": 4283190348,
@@ -1670,7 +1811,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M11 11L4 11L4 4ZM25 11L25 4L32 4ZM25 25L32 25L32 32ZM11 25L11 32L4 32ZM11 11L18 11L18 15.9L13.8 13.8L15.9 18L11 18ZM25 11L25 18L20.1 18L22.2 13.8L18 15.9L18 11ZM25 25L18 25L18 20.1L22.2 22.2L20.1 18L25 18ZM11 25L11 18L15.9 18L13.8 22.2L18 20.1L18 25Z"
+                          d="M9 9L0 9L0 0ZM27 9L27 0L36 0ZM27 27L36 27L36 36ZM9 27L9 36L0 36ZM9 9L18 9L18 15.3L12.6 12.6L15.3 18L9 18ZM27 9L27 18L20.7 18L23.4 12.6L18 15.3L18 9ZM27 27L18 27L18 20.7L23.4 23.4L20.7 18L27 18ZM9 27L9 18L15.3 18L12.6 23.4L18 20.7L18 27Z"
                           fill={
                             {
                               "payload": 4291607142,
@@ -1828,6 +1969,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -1848,6 +1994,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -1857,7 +2008,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#545454" d="M18 11L11 11L11 7.5ZM18 11L18 4L21.5 4ZM18 25L25 25L25 28.5ZM18 25L18 32L14.5 32ZM11 18L4 18L4 14.5ZM25 18L25 11L28.5 11ZM25 18L32 18L32 21.5ZM11 18L11 25L7.5 25Z"/><path fill="#e8c1ba" d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32Z"/><path fill="#d18475" d="M13 13L17 13L17 17L13 17ZM23 13L23 17L19 17L19 13ZM23 23L19 23L19 19L23 19ZM13 23L13 19L17 19L17 23Z"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#545454" d="M18 9L9 9L9 4.5ZM18 9L18 0L22.5 0ZM18 27L27 27L27 31.5ZM18 27L18 36L13.5 36ZM9 18L0 18L0 13.5ZM27 18L27 9L31.5 9ZM27 18L36 18L36 22.5ZM9 18L9 27L4.5 27Z"/><path fill="#e8c1ba" d="M9 0L9 9L0 9ZM36 9L27 9L27 0ZM27 36L27 27L36 27ZM0 27L9 27L9 36Z"/><path fill="#d18475" d="M11 11L17 11L17 17L11 17ZM25 11L25 17L19 17L19 11ZM25 25L19 25L19 19L25 19ZM11 25L11 19L17 19L17 25Z"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -1868,8 +2019,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M18 11L11 11L11 7.5ZM18 11L18 4L21.5 4ZM18 25L25 25L25 28.5ZM18 25L18 32L14.5 32ZM11 18L4 18L4 14.5ZM25 18L25 11L28.5 11ZM25 18L32 18L32 21.5ZM11 18L11 25L7.5 25Z"
+                          d="M18 9L9 9L9 4.5ZM18 9L18 0L22.5 0ZM18 27L27 27L27 31.5ZM18 27L18 36L13.5 36ZM9 18L0 18L0 13.5ZM27 18L27 9L31.5 9ZM27 18L36 18L36 22.5ZM9 18L9 27L4.5 27Z"
                           fill={
                             {
                               "payload": 4283716692,
@@ -1883,7 +2052,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M11 4L11 11L4 11ZM32 11L25 11L25 4ZM25 32L25 25L32 25ZM4 25L11 25L11 32Z"
+                          d="M9 0L9 9L0 9ZM36 9L27 9L27 0ZM27 36L27 27L36 27ZM0 27L9 27L9 36Z"
                           fill={
                             {
                               "payload": 4293444026,
@@ -1897,7 +2066,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M13 13L17 13L17 17L13 17ZM23 13L23 17L19 17L19 13ZM23 23L19 23L19 19L23 19ZM13 23L13 19L17 19L17 23Z"
+                          d="M11 11L17 11L17 17L11 17ZM25 11L25 17L19 17L19 11ZM25 25L19 25L19 19L25 19ZM11 25L11 19L17 19L17 25Z"
                           fill={
                             {
                               "payload": 4291921013,
@@ -2066,6 +2235,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -2086,6 +2260,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -2095,7 +2274,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#2e778c" d="M12.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M12.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"/><path fill="#59afc7" d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M13.8 18a4.2,4.2 0 1,1 8.4,0a4.2,4.2 0 1,1 -8.4,0"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#2e778c" d="M10.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M10.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"/><path fill="#59afc7" d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M12.6 18a5.4,5.4 0 1,1 10.8,0a5.4,5.4 0 1,1 -10.8,0"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -2106,8 +2285,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M12.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M12.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"
+                          d="M10.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M10.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
                           fill={
                             {
                               "payload": 4281235340,
@@ -2121,7 +2318,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M13.8 18a4.2,4.2 0 1,1 8.4,0a4.2,4.2 0 1,1 -8.4,0"
+                          d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M12.6 18a5.4,5.4 0 1,1 10.8,0a5.4,5.4 0 1,1 -10.8,0"
                           fill={
                             {
                               "payload": 4284067783,
@@ -2279,6 +2476,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -2299,6 +2501,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -2308,7 +2515,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#66cc89" d="M18 7.5L14.5 11L11 7.5L14.5 4ZM21.5 11L18 7.5L21.5 4L25 7.5ZM18 28.5L21.5 25L25 28.5L21.5 32ZM14.5 25L18 28.5L14.5 32L11 28.5ZM11 14.5L7.5 18L4 14.5L7.5 11ZM28.5 18L25 14.5L28.5 11L32 14.5ZM25 21.5L28.5 18L32 21.5L28.5 25ZM7.5 18L11 21.5L7.5 25L4 21.5ZM11 11L18 11L18 12.1L15.1 18L11 18ZM25 11L25 18L23.9 18L18 15.1L18 11ZM25 25L18 25L18 23.9L20.9 18L25 18ZM11 25L11 18L12.1 18L18 20.9L18 25Z"/><path fill="#329956" d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#66cc89" d="M18 4.5L13.5 9L9 4.5L13.5 0ZM22.5 9L18 4.5L22.5 0L27 4.5ZM18 31.5L22.5 27L27 31.5L22.5 36ZM13.5 27L18 31.5L13.5 36L9 31.5ZM9 13.5L4.5 18L0 13.5L4.5 9ZM31.5 18L27 13.5L31.5 9L36 13.5ZM27 22.5L31.5 18L36 22.5L31.5 27ZM4.5 18L9 22.5L4.5 27L0 22.5ZM9 9L18 9L18 10.4L14.2 18L9 18ZM27 9L27 18L25.6 18L18 14.2L18 9ZM27 27L18 27L18 25.6L21.8 18L27 18ZM9 27L9 18L10.4 18L18 21.8L18 27Z"/><path fill="#329956" d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -2319,8 +2526,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M18 7.5L14.5 11L11 7.5L14.5 4ZM21.5 11L18 7.5L21.5 4L25 7.5ZM18 28.5L21.5 25L25 28.5L21.5 32ZM14.5 25L18 28.5L14.5 32L11 28.5ZM11 14.5L7.5 18L4 14.5L7.5 11ZM28.5 18L25 14.5L28.5 11L32 14.5ZM25 21.5L28.5 18L32 21.5L28.5 25ZM7.5 18L11 21.5L7.5 25L4 21.5ZM11 11L18 11L18 12.1L15.1 18L11 18ZM25 11L25 18L23.9 18L18 15.1L18 11ZM25 25L18 25L18 23.9L20.9 18L25 18ZM11 25L11 18L12.1 18L18 20.9L18 25Z"
+                          d="M18 4.5L13.5 9L9 4.5L13.5 0ZM22.5 9L18 4.5L22.5 0L27 4.5ZM18 31.5L22.5 27L27 31.5L22.5 36ZM13.5 27L18 31.5L13.5 36L9 31.5ZM9 13.5L4.5 18L0 13.5L4.5 9ZM31.5 18L27 13.5L31.5 9L36 13.5ZM27 22.5L31.5 18L36 22.5L31.5 27ZM4.5 18L9 22.5L4.5 27L0 22.5ZM9 9L18 9L18 10.4L14.2 18L9 18ZM27 9L27 18L25.6 18L18 14.2L18 9ZM27 27L18 27L18 25.6L21.8 18L27 18ZM9 27L9 18L10.4 18L18 21.8L18 27Z"
                           fill={
                             {
                               "payload": 4284927113,
@@ -2334,7 +2559,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"
+                          d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
                           fill={
                             {
                               "payload": 4281506134,
@@ -2492,6 +2717,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -2512,6 +2742,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -2521,7 +2756,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#66cc89" d="M18 7.5L14.5 11L11 7.5L14.5 4ZM21.5 11L18 7.5L21.5 4L25 7.5ZM18 28.5L21.5 25L25 28.5L21.5 32ZM14.5 25L18 28.5L14.5 32L11 28.5ZM11 14.5L7.5 18L4 14.5L7.5 11ZM28.5 18L25 14.5L28.5 11L32 14.5ZM25 21.5L28.5 18L32 21.5L28.5 25ZM7.5 18L11 21.5L7.5 25L4 21.5ZM11 11L18 11L18 12.1L15.1 18L11 18ZM25 11L25 18L23.9 18L18 15.1L18 11ZM25 25L18 25L18 23.9L20.9 18L25 18ZM11 25L11 18L12.1 18L18 20.9L18 25Z"/><path fill="#329956" d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#66cc89" d="M18 4.5L13.5 9L9 4.5L13.5 0ZM22.5 9L18 4.5L22.5 0L27 4.5ZM18 31.5L22.5 27L27 31.5L22.5 36ZM13.5 27L18 31.5L13.5 36L9 31.5ZM9 13.5L4.5 18L0 13.5L4.5 9ZM31.5 18L27 13.5L31.5 9L36 13.5ZM27 22.5L31.5 18L36 22.5L31.5 27ZM4.5 18L9 22.5L4.5 27L0 22.5ZM9 9L18 9L18 10.4L14.2 18L9 18ZM27 9L27 18L25.6 18L18 14.2L18 9ZM27 27L18 27L18 25.6L21.8 18L27 18ZM9 27L9 18L10.4 18L18 21.8L18 27Z"/><path fill="#329956" d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -2532,8 +2767,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M18 7.5L14.5 11L11 7.5L14.5 4ZM21.5 11L18 7.5L21.5 4L25 7.5ZM18 28.5L21.5 25L25 28.5L21.5 32ZM14.5 25L18 28.5L14.5 32L11 28.5ZM11 14.5L7.5 18L4 14.5L7.5 11ZM28.5 18L25 14.5L28.5 11L32 14.5ZM25 21.5L28.5 18L32 21.5L28.5 25ZM7.5 18L11 21.5L7.5 25L4 21.5ZM11 11L18 11L18 12.1L15.1 18L11 18ZM25 11L25 18L23.9 18L18 15.1L18 11ZM25 25L18 25L18 23.9L20.9 18L25 18ZM11 25L11 18L12.1 18L18 20.9L18 25Z"
+                          d="M18 4.5L13.5 9L9 4.5L13.5 0ZM22.5 9L18 4.5L22.5 0L27 4.5ZM18 31.5L22.5 27L27 31.5L22.5 36ZM13.5 27L18 31.5L13.5 36L9 31.5ZM9 13.5L4.5 18L0 13.5L4.5 9ZM31.5 18L27 13.5L31.5 9L36 13.5ZM27 22.5L31.5 18L36 22.5L31.5 27ZM4.5 18L9 22.5L4.5 27L0 22.5ZM9 9L18 9L18 10.4L14.2 18L9 18ZM27 9L27 18L25.6 18L18 14.2L18 9ZM27 27L18 27L18 25.6L21.8 18L27 18ZM9 27L9 18L10.4 18L18 21.8L18 27Z"
                           fill={
                             {
                               "payload": 4284927113,
@@ -2547,7 +2800,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M5.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"
+                          d="M1.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
                           fill={
                             {
                               "payload": 4281506134,
@@ -2705,6 +2958,11 @@ exports[`Chat component renders component 1`] = `
                   <View
                     style={
                       {
+                        "alignContent": "center",
+                        "alignItems": "center",
+                        "borderRadius": 4,
+                        "height": 37,
+                        "justifyContent": "center",
                         "width": 37,
                       }
                     }
@@ -2725,6 +2983,11 @@ exports[`Chat component renders component 1`] = `
                             "borderWidth": 0,
                           },
                           {
+                            "borderRadius": 4,
+                            "height": 37,
+                            "width": 37,
+                          },
+                          {
                             "flex": 0,
                             "height": 37,
                             "width": 37,
@@ -2734,7 +2997,7 @@ exports[`Chat component renders component 1`] = `
                       vbHeight={37}
                       vbWidth={37}
                       width={37}
-                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><path fill="#5b5b5b" d="M12.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M12.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"/><path fill="#eaeaea" d="M7.5 4L11 7.5L7.5 11L4 7.5ZM32 7.5L28.5 11L25 7.5L28.5 4ZM28.5 32L25 28.5L28.5 25L32 28.5ZM4 28.5L7.5 25L11 28.5L7.5 32Z"/><path fill="#8486d6" d="M11 11L18 11L18 18L11 18ZM12.8 15.4L15.4 18L18 15.4L15.4 12.8ZM25 11L25 18L18 18L18 11ZM20.6 12.8L18 15.4L20.6 18L23.3 15.4ZM25 25L18 25L18 18L25 18ZM23.3 20.6L20.6 18L18 20.6L20.6 23.3ZM11 25L11 18L18 18L18 25ZM15.4 23.3L18 20.6L15.4 18L12.8 20.6Z"/></svg>"
+                      xml="<svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37"><rect width="100%" height="100%" fill="#ffffff" opacity="1.00"/><path fill="#5b5b5b" d="M10.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M10.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"/><path fill="#eaeaea" d="M4.5 0L9 4.5L4.5 9L0 4.5ZM36 4.5L31.5 9L27 4.5L31.5 0ZM31.5 36L27 31.5L31.5 27L36 31.5ZM0 31.5L4.5 27L9 31.5L4.5 36Z"/><path fill="#8486d6" d="M9 9L18 9L18 18L9 18ZM11.3 14.6L14.6 18L18 14.6L14.6 11.3ZM27 9L27 18L18 18L18 9ZM21.4 11.3L18 14.6L21.4 18L24.8 14.6ZM27 27L18 27L18 18L27 18ZM24.8 21.4L21.4 18L18 21.4L21.4 24.8ZM9 27L9 18L18 18L18 27ZM14.6 24.8L18 21.4L14.6 18L11.3 21.4Z"/></svg>"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <RNSVGGroup
@@ -2745,8 +3008,26 @@ exports[`Chat component renders component 1`] = `
                           }
                         }
                       >
+                        <RNSVGRect
+                          fill={
+                            {
+                              "payload": 4294967295,
+                              "type": 0,
+                            }
+                          }
+                          height="100%"
+                          opacity={1}
+                          propList={
+                            [
+                              "fill",
+                            ]
+                          }
+                          width="100%"
+                          x={0}
+                          y={0}
+                        />
                         <RNSVGPath
-                          d="M12.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 7.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M19.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M12.2 28.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 14.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M26.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0M5.2 21.5a2.3,2.3 0 1,1 4.7,0a2.3,2.3 0 1,1 -4.7,0"
+                          d="M10.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 4.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M19.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M10.5 31.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 13.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M28.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0M1.5 22.5a3,3 0 1,1 6,0a3,3 0 1,1 -6,0"
                           fill={
                             {
                               "payload": 4284177243,
@@ -2760,7 +3041,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M7.5 4L11 7.5L7.5 11L4 7.5ZM32 7.5L28.5 11L25 7.5L28.5 4ZM28.5 32L25 28.5L28.5 25L32 28.5ZM4 28.5L7.5 25L11 28.5L7.5 32Z"
+                          d="M4.5 0L9 4.5L4.5 9L0 4.5ZM36 4.5L31.5 9L27 4.5L31.5 0ZM31.5 36L27 31.5L31.5 27L36 31.5ZM0 31.5L4.5 27L9 31.5L4.5 36Z"
                           fill={
                             {
                               "payload": 4293585642,
@@ -2774,7 +3055,7 @@ exports[`Chat component renders component 1`] = `
                           }
                         />
                         <RNSVGPath
-                          d="M11 11L18 11L18 18L11 18ZM12.8 15.4L15.4 18L18 15.4L15.4 12.8ZM25 11L25 18L18 18L18 11ZM20.6 12.8L18 15.4L20.6 18L23.3 15.4ZM25 25L18 25L18 18L25 18ZM23.3 20.6L20.6 18L18 20.6L20.6 23.3ZM11 25L11 18L18 18L18 25ZM15.4 23.3L18 20.6L15.4 18L12.8 20.6Z"
+                          d="M9 9L18 9L18 18L9 18ZM11.3 14.6L14.6 18L18 14.6L14.6 11.3ZM27 9L27 18L18 18L18 9ZM21.4 11.3L18 14.6L21.4 18L24.8 14.6ZM27 27L18 27L18 18L27 18ZM24.8 21.4L21.4 18L18 21.4L21.4 24.8ZM9 27L9 18L18 18L18 27ZM14.6 24.8L18 21.4L14.6 18L11.3 21.4Z"
                           fill={
                             {
                               "payload": 4286875350,

@@ -31,7 +31,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
       alt={"Message author's profile image"}
     />
   ) : (
-    <Jdenticon value={message.userId} size={37} />
+    <Jdenticon value={message.userId} size={37} borderRadius={4} />
   )
 }
 

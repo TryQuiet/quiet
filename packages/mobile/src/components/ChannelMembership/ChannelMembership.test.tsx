@@ -875,14 +875,17 @@ describe('ChannelMembership component', () => {
                 data={
                   [
                     {
-                      "bio": "bio_1",
-                      "channels": [
-                        "abc123",
-                      ],
-                      "nickname": "foo",
-                      "photo": "foobar",
-                      "profilePhoto": undefined,
-                      "userId": "foobar",
+                      "connected": true,
+                      "user": {
+                        "bio": "bio_1",
+                        "channels": [
+                          "abc123",
+                        ],
+                        "nickname": "foo",
+                        "photo": "foobar",
+                        "profilePhoto": undefined,
+                        "userId": "foobar",
+                      },
                     },
                   ]
                 }
@@ -922,27 +925,59 @@ describe('ChannelMembership component', () => {
                           "display": "flex",
                           "flexDirection": "row",
                           "gap": 12,
+                          "height": 60,
                           "paddingHorizontal": 16,
                           "paddingVertical": 11,
                         }
                       }
                       testID="channel-membership-list-item-abc123-foobar"
                     >
-                      <Image
-                        alt="foo's profile image"
-                        source={
-                          {
-                            "uri": "foobar",
+                      <View
+                        style={{}}
+                      >
+                        <Image
+                          alt="foo's profile image"
+                          source={
+                            {
+                              "uri": "foobar",
+                            }
                           }
-                        }
-                        style={
-                          {
-                            "borderRadius": 4,
-                            "height": 32,
-                            "width": 32,
+                          style={
+                            {
+                              "borderRadius": 4,
+                              "height": 37,
+                              "padding": 0,
+                              "width": 37,
+                            }
                           }
-                        }
-                      />
+                        />
+                        <Text
+                          collapsable={false}
+                          numberOfLines={1}
+                          style={
+                            {
+                              "alignSelf": "flex-end",
+                              "backgroundColor": "#80B857",
+                              "borderColor": "#ffffff",
+                              "borderRadius": 5.5,
+                              "borderWidth": 1,
+                              "color": "rgba(255, 255, 255, 1)",
+                              "fontSize": 5.5,
+                              "height": 11,
+                              "lineHeight": 5.5,
+                              "minWidth": 11,
+                              "opacity": 1,
+                              "overflow": "hidden",
+                              "paddingHorizontal": 3,
+                              "position": "absolute",
+                              "right": -4,
+                              "textAlign": "center",
+                              "textAlignVertical": "center",
+                              "top": 28,
+                            }
+                          }
+                        />
+                      </View>
                       <Text
                         color="main"
                         fontSize={16}

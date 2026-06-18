@@ -6,9 +6,9 @@ import { AppHome } from './AppHome.component'
 import { createLogger } from '../../utils/logger'
 import { ChannelType } from '@quiet/types'
 
-const logger = createLogger('channelList:stories')
+const logger = createLogger('appHome:stories')
 
-storiesOf('ChannelList', module)
+storiesOf('AppHome', module)
   .add('Default', () => (
     <AppHome
       // @ts-ignore

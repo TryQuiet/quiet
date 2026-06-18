@@ -11,7 +11,7 @@ describe('AppHome component', () => {
         community={{
           name: 'Quiet',
         }}
-        tiles={[
+        channelTiles={[
           {
             name: 'general',
             id: 'general',
@@ -75,10 +75,11 @@ describe('AppHome component', () => {
       <View
         style={
           {
+            "backgroundColor": "#461863",
             "flex": 1,
           }
         }
-        testID="channel-list-component"
+        testID="messages-home-component"
       >
         <View
           style={
@@ -93,6 +94,10 @@ describe('AppHome component', () => {
                 "justifyContent": "center",
                 "maxHeight": 52,
                 "minHeight": 52,
+              },
+              {
+                "backgroundColor": "#461863",
+                "borderBottomWidth": 0,
               },
             ]
           }
@@ -178,7 +183,7 @@ describe('AppHome component', () => {
                     }
                     verticalTextAlign="center"
                   >
-                    qu
+                    Q
                   </Text>
                 </View>
               </View>
@@ -193,14 +198,14 @@ describe('AppHome component', () => {
             }
           >
             <Text
-              color="main"
+              color="white"
               fontSize={16}
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
                 [
                   {
-                    "color": "#000000",
+                    "color": "#ffffff",
                     "fontFamily": "Rubik-Medium",
                     "fontSize": 16,
                     "textAlign": "left",
@@ -222,1203 +227,1603 @@ describe('AppHome component', () => {
           />
         </View>
         <RCTScrollView
-          ItemSeparatorComponent={[Function]}
-          data={
-            [
-              {
-                "date": "1:55pm",
-                "id": "general",
-                "isPublic": true,
-                "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
-                "name": "general",
-                "redirect": [MockFunction],
-                "unread": false,
-              },
-              {
-                "date": "1:55pm",
-                "id": "spam",
-                "isPublic": true,
-                "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
-                "name": "spam",
-                "redirect": [MockFunction],
-                "unread": false,
-              },
-              {
-                "date": "6/1/22",
-                "id": "design",
-                "isPublic": true,
-                "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
-                "name": "design",
-                "redirect": [MockFunction],
-                "unread": true,
-              },
-              {
-                "date": "Yesterday",
-                "id": "qa",
-                "isPublic": true,
-                "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
-                "name": "qa",
-                "redirect": [MockFunction],
-                "unread": false,
-              },
-              {
-                "date": "Yesterday",
-                "id": "private-chat",
-                "isPublic": false,
-                "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
-                "name": "private-chat",
-                "redirect": [MockFunction],
-                "unread": false,
-              },
-            ]
-          }
-          getItem={[Function]}
-          getItemCount={[Function]}
-          keyExtractor={[Function]}
-          onContentSizeChange={[Function]}
-          onLayout={[Function]}
-          onMomentumScrollBegin={[Function]}
-          onMomentumScrollEnd={[Function]}
-          onScroll={[Function]}
-          onScrollBeginDrag={[Function]}
-          onScrollEndDrag={[Function]}
-          removeClippedSubviews={false}
-          renderItem={[Function]}
-          scrollEventThrottle={0.0001}
-          stickyHeaderIndices={[]}
           style={
             {
               "backgroundColor": "#ffffff",
+              "borderTopLeftRadius": 16,
+              "borderTopRightRadius": 16,
+              "flex": 1,
+              "flexDirection": "column",
             }
           }
-          testID="channels_list"
-          viewabilityConfigCallbackPairs={[]}
         >
           <View>
             <View
-              onFocusCapture={[Function]}
-              onLayout={[Function]}
-              style={null}
+              style={
+                {
+                  "backgroundColor": "#ffffff",
+                  "borderTopLeftRadius": 16,
+                  "borderTopRightRadius": 16,
+                  "flexDirection": "column",
+                  "justifyContent": "flex-start",
+                }
+              }
+              testID="messages-home-container"
             >
               <View
                 style={
                   {
-                    "flex": 1,
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "backgroundColor": "#ffffff",
+                    "borderTopLeftRadius": 16,
+                    "borderTopRightRadius": 16,
+                    "flexDirection": "row",
+                    "justifyContent": "space-between",
+                    "paddingBottom": 8,
+                    "paddingLeft": 16,
+                    "paddingTop": 16,
                   }
                 }
+                testID="channel-list-title"
               >
+                <Text
+                  color="gray70"
+                  fontSize={14}
+                  fontWeight="medium"
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#4C4C4C",
+                        "fontFamily": "Rubik-Medium",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  Channels
+                </Text>
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": undefined,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
                   collapsable={false}
-                  focusable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
                   style={
                     {
-                      "opacity": 1,
+                      "backgroundColor": "transparent",
+                      "borderRadius": 18,
+                      "height": 36,
+                      "margin": 6,
+                      "shadowColor": "#000",
+                      "shadowOffset": {
+                        "height": 0,
+                        "width": 0,
+                      },
+                      "shadowOpacity": 0,
+                      "shadowRadius": 0,
+                      "width": 36,
                     }
                   }
-                  testID="channel_tile_general"
+                  testID="icon-button-container-outer-layer"
                 >
                   <View
+                    collapsable={false}
                     style={
                       {
-                        "padding": 16,
+                        "backgroundColor": "transparent",
+                        "borderColor": "rgba(121, 116, 126, 1)",
+                        "borderRadius": 18,
+                        "borderWidth": 0,
+                        "elevation": 0,
+                        "flex": 1,
+                        "overflow": "hidden",
+                        "shadowColor": "#000",
+                        "shadowOffset": {
+                          "height": 0,
+                          "width": 0,
+                        },
+                        "shadowOpacity": 0,
+                        "shadowRadius": 0,
                       }
                     }
+                    testID="icon-button-container"
                   >
                     <View
-                      style={
+                      accessibilityComponentType="button"
+                      accessibilityRole="button"
+                      accessibilityState={
                         {
-                          "flexDirection": "row",
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": true,
+                          "expanded": undefined,
+                          "selected": undefined,
                         }
                       }
-                    >
-                      <View
-                        style={
-                          {
-                            "alignItems": "center",
-                            "flex": 1,
-                            "paddingRight": 12,
-                          }
+                      accessibilityTraits="button"
+                      accessibilityValue={
+                        {
+                          "max": undefined,
+                          "min": undefined,
+                          "now": undefined,
+                          "text": undefined,
                         }
-                      >
-                        <View
-                          style={
+                      }
+                      accessible={true}
+                      centered={true}
+                      collapsable={false}
+                      focusable={true}
+                      hitSlop={
+                        {
+                          "bottom": 6,
+                          "left": 6,
+                          "right": 6,
+                          "top": 6,
+                        }
+                      }
+                      onBlur={[Function]}
+                      onClick={[Function]}
+                      onFocus={[Function]}
+                      onResponderGrant={[Function]}
+                      onResponderMove={[Function]}
+                      onResponderRelease={[Function]}
+                      onResponderTerminate={[Function]}
+                      onResponderTerminationRequest={[Function]}
+                      onStartShouldSetResponder={[Function]}
+                      style={
+                        [
+                          {
+                            "overflow": "hidden",
+                          },
+                          [
                             {
                               "alignItems": "center",
-                              "backgroundColor": "#4C4C4C",
-                              "borderRadius": 4,
-                              "height": 36,
+                              "flexGrow": 1,
                               "justifyContent": "center",
-                              "width": 36,
-                            }
-                          }
-                        >
-                          <Text
-                            color="white"
-                            fontSize={20}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#ffffff",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 20,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            G
-                          </Text>
-                        </View>
-                      </View>
-                      <View
+                            },
+                            undefined,
+                          ],
+                        ]
+                      }
+                      testID="icon-button"
+                    >
+                      <Text
+                        accessibilityElementsHidden={true}
+                        importantForAccessibility="no-hide-descendants"
+                        pointerEvents="none"
+                        selectable={false}
                         style={
-                          {
-                            "flex": 9,
-                            "flexDirection": "column",
-                          }
+                          [
+                            {
+                              "backgroundColor": "transparent",
+                            },
+                            {
+                              "color": "#4C4C4C",
+                              "fontSize": 20,
+                            },
+                          ]
                         }
                       >
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "alignItems": "center",
-                                "display": "flex",
-                                "flex": 8,
-                                "flexDirection": "row",
-                              }
-                            }
-                          >
-                            <RNSVGSvgView
-                              align="xMidYMid"
-                              bbHeight={24}
-                              bbWidth={24}
-                              fill="none"
-                              focusable={false}
-                              height={24}
-                              meetOrSlice={0}
-                              minX={0}
-                              minY={0}
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "transparent",
-                                    "borderWidth": 0,
-                                  },
-                                  {
-                                    "flex": 0,
-                                    "height": 24,
-                                    "width": 24,
-                                  },
-                                ]
-                              }
-                              vbHeight={24}
-                              vbWidth={24}
-                              width={24}
-                            >
-                              <RNSVGGroup
-                                fill={null}
-                                propList={
-                                  [
-                                    "fill",
-                                  ]
-                                }
-                              >
-                                <RNSVGPath
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M6.8252 8.58594H17.7502"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M5.875 15.4141H16.8"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                              </RNSVGGroup>
-                            </RNSVGSvgView>
-                            <Text
-                              color="main"
-                              fontSize={16}
-                              fontWeight="medium"
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#000000",
-                                    "fontFamily": "Rubik-Medium",
-                                    "fontSize": 16,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              general
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 4,
-                              }
-                            }
-                          >
-                            <Text
-                              color="subtitle"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#999999",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              1:55pm
-                            </Text>
-                          </View>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                              "paddingTop": 3,
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "flex": 10,
-                              }
-                            }
-                          >
-                            <Text
-                              color="gray50"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#7F7F7F",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 2,
-                              }
-                            }
-                          />
-                        </View>
-                      </View>
+                        □
+                      </Text>
                     </View>
                   </View>
                 </View>
               </View>
-              <View
+              <RCTScrollView
+                data={
+                  [
+                    {
+                      "channelType": "channel",
+                      "date": "1:55pm",
+                      "id": "general",
+                      "isPublic": true,
+                      "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
+                      "name": "general",
+                      "redirect": [MockFunction],
+                      "unread": false,
+                    },
+                    {
+                      "channelType": "channel",
+                      "date": "1:55pm",
+                      "id": "spam",
+                      "isPublic": true,
+                      "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
+                      "name": "spam",
+                      "redirect": [MockFunction],
+                      "unread": false,
+                    },
+                    {
+                      "channelType": "channel",
+                      "date": "6/1/22",
+                      "id": "design",
+                      "isPublic": true,
+                      "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
+                      "name": "design",
+                      "redirect": [MockFunction],
+                      "unread": true,
+                    },
+                    {
+                      "channelType": "channel",
+                      "date": "Yesterday",
+                      "id": "qa",
+                      "isPublic": true,
+                      "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
+                      "name": "qa",
+                      "redirect": [MockFunction],
+                      "unread": false,
+                    },
+                    {
+                      "channelType": "channel",
+                      "date": "Yesterday",
+                      "id": "private-chat",
+                      "isPublic": false,
+                      "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
+                      "name": "private-chat",
+                      "redirect": [MockFunction],
+                      "unread": false,
+                    },
+                  ]
+                }
+                getItem={[Function]}
+                getItemCount={[Function]}
+                keyExtractor={[Function]}
+                onContentSizeChange={[Function]}
+                onLayout={[Function]}
+                onMomentumScrollBegin={[Function]}
+                onMomentumScrollEnd={[Function]}
+                onScroll={[Function]}
+                onScrollBeginDrag={[Function]}
+                onScrollEndDrag={[Function]}
+                removeClippedSubviews={false}
+                renderItem={[Function]}
+                scrollEventThrottle={0.0001}
+                stickyHeaderIndices={[]}
                 style={
                   {
-                    "backgroundColor": "#F0F0F0",
-                    "height": 1,
+                    "backgroundColor": "#ffffff",
                   }
                 }
-              />
-            </View>
-            <View
-              onFocusCapture={[Function]}
-              onLayout={[Function]}
-              style={null}
-            >
-              <View
-                style={
-                  {
-                    "flex": 1,
-                  }
-                }
+                testID="channel-list"
+                viewabilityConfigCallbackPairs={[]}
               >
-                <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": undefined,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  style={
-                    {
-                      "opacity": 1,
-                    }
-                  }
-                  testID="channel_tile_spam"
-                >
+                <View>
                   <View
-                    style={
-                      {
-                        "padding": 16,
-                      }
-                    }
+                    onFocusCapture={[Function]}
+                    onLayout={[Function]}
+                    style={null}
                   >
                     <View
                       style={
                         {
-                          "flexDirection": "row",
+                          "flex": 1,
                         }
                       }
                     >
                       <View
-                        style={
+                        accessibilityState={
                           {
-                            "alignItems": "center",
-                            "flex": 1,
-                            "paddingRight": 12,
+                            "busy": undefined,
+                            "checked": undefined,
+                            "disabled": undefined,
+                            "expanded": undefined,
+                            "selected": undefined,
                           }
                         }
+                        accessibilityValue={
+                          {
+                            "max": undefined,
+                            "min": undefined,
+                            "now": undefined,
+                            "text": undefined,
+                          }
+                        }
+                        accessible={true}
+                        collapsable={false}
+                        focusable={true}
+                        onClick={[Function]}
+                        onResponderGrant={[Function]}
+                        onResponderMove={[Function]}
+                        onResponderRelease={[Function]}
+                        onResponderTerminate={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        style={
+                          {
+                            "opacity": 1,
+                          }
+                        }
+                        testID="channel_tile_general"
                       >
                         <View
                           style={
                             {
-                              "alignItems": "center",
-                              "backgroundColor": "#4C4C4C",
-                              "borderRadius": 4,
-                              "height": 36,
-                              "justifyContent": "center",
-                              "width": 36,
-                            }
-                          }
-                        >
-                          <Text
-                            color="white"
-                            fontSize={20}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#ffffff",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 20,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            S
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flex": 9,
-                            "flexDirection": "column",
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
+                              "paddingLeft": 12,
+                              "paddingRight": 16,
+                              "paddingVertical": 8,
                             }
                           }
                         >
                           <View
                             style={
                               {
-                                "alignItems": "center",
-                                "display": "flex",
-                                "flex": 8,
                                 "flexDirection": "row",
-                              }
-                            }
-                          >
-                            <RNSVGSvgView
-                              align="xMidYMid"
-                              bbHeight={24}
-                              bbWidth={24}
-                              fill="none"
-                              focusable={false}
-                              height={24}
-                              meetOrSlice={0}
-                              minX={0}
-                              minY={0}
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "transparent",
-                                    "borderWidth": 0,
-                                  },
-                                  {
-                                    "flex": 0,
-                                    "height": 24,
-                                    "width": 24,
-                                  },
-                                ]
-                              }
-                              vbHeight={24}
-                              vbWidth={24}
-                              width={24}
-                            >
-                              <RNSVGGroup
-                                fill={null}
-                                propList={
-                                  [
-                                    "fill",
-                                  ]
-                                }
-                              >
-                                <RNSVGPath
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M6.8252 8.58594H17.7502"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M5.875 15.4141H16.8"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                              </RNSVGGroup>
-                            </RNSVGSvgView>
-                            <Text
-                              color="main"
-                              fontSize={16}
-                              fontWeight="medium"
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#000000",
-                                    "fontFamily": "Rubik-Medium",
-                                    "fontSize": 16,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              spam
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 4,
-                              }
-                            }
-                          >
-                            <Text
-                              color="subtitle"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#999999",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              1:55pm
-                            </Text>
-                          </View>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                              "paddingTop": 3,
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "flex": 10,
-                              }
-                            }
-                          >
-                            <Text
-                              color="gray50"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#7F7F7F",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 2,
-                              }
-                            }
-                          />
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>
-              <View
-                style={
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "height": 1,
-                  }
-                }
-              />
-            </View>
-            <View
-              onFocusCapture={[Function]}
-              onLayout={[Function]}
-              style={null}
-            >
-              <View
-                style={
-                  {
-                    "flex": 1,
-                  }
-                }
-              >
-                <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": undefined,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  style={
-                    {
-                      "opacity": 1,
-                    }
-                  }
-                  testID="channel_tile_design"
-                >
-                  <View
-                    style={
-                      {
-                        "padding": 16,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "flexDirection": "row",
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "alignItems": "center",
-                            "flex": 1,
-                            "paddingRight": 12,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignItems": "center",
-                              "backgroundColor": "#4C4C4C",
-                              "borderRadius": 4,
-                              "height": 36,
-                              "justifyContent": "center",
-                              "width": 36,
-                            }
-                          }
-                        >
-                          <Text
-                            color="white"
-                            fontSize={20}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#ffffff",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 20,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            D
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flex": 9,
-                            "flexDirection": "column",
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "alignItems": "center",
-                                "display": "flex",
-                                "flex": 8,
-                                "flexDirection": "row",
-                              }
-                            }
-                          >
-                            <RNSVGSvgView
-                              align="xMidYMid"
-                              bbHeight={24}
-                              bbWidth={24}
-                              fill="none"
-                              focusable={false}
-                              height={24}
-                              meetOrSlice={0}
-                              minX={0}
-                              minY={0}
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "transparent",
-                                    "borderWidth": 0,
-                                  },
-                                  {
-                                    "flex": 0,
-                                    "height": 24,
-                                    "width": 24,
-                                  },
-                                ]
-                              }
-                              vbHeight={24}
-                              vbWidth={24}
-                              width={24}
-                            >
-                              <RNSVGGroup
-                                fill={null}
-                                propList={
-                                  [
-                                    "fill",
-                                  ]
-                                }
-                              >
-                                <RNSVGPath
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M6.8252 8.58594H17.7502"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M5.875 15.4141H16.8"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                              </RNSVGGroup>
-                            </RNSVGSvgView>
-                            <Text
-                              color="main"
-                              fontSize={16}
-                              fontWeight="medium"
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#000000",
-                                    "fontFamily": "Rubik-Medium",
-                                    "fontSize": 16,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              design
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 4,
-                              }
-                            }
-                          >
-                            <Text
-                              color="blue"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#2373EA",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              6/1/22
-                            </Text>
-                          </View>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                              "paddingTop": 3,
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "flex": 10,
-                              }
-                            }
-                          >
-                            <Text
-                              color="gray50"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#7F7F7F",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 2,
                               }
                             }
                           >
                             <View
                               style={
                                 {
-                                  "alignItems": "center",
-                                  "backgroundColor": "#2373EA",
-                                  "borderRadius": 100,
+                                  "flex": 1,
+                                  "flexDirection": "row",
                                   "height": 20,
-                                  "justifyContent": "center",
-                                  "width": 36,
+                                  "justifyContent": "space-between",
                                 }
                               }
                             >
-                              <Text
-                                color="white"
-                                fontSize={12}
-                                fontWeight="medium"
-                                horizontalTextAlign="left"
+                              <View
                                 style={
-                                  [
-                                    {
-                                      "color": "#ffffff",
-                                      "fontFamily": "Rubik-Medium",
-                                      "fontSize": 12,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
+                                  {
+                                    "alignItems": "center",
+                                    "display": "flex",
+                                    "flex": 1,
+                                    "flexDirection": "row",
+                                    "gap": 6,
+                                  }
                                 }
-                                verticalTextAlign="center"
                               >
-                                new
-                              </Text>
+                                <RNSVGSvgView
+                                  align="xMidYMid"
+                                  bbHeight={18}
+                                  bbWidth={18}
+                                  fill="none"
+                                  focusable={false}
+                                  height={18}
+                                  meetOrSlice={0}
+                                  minX={0}
+                                  minY={0}
+                                  style={
+                                    [
+                                      {
+                                        "backgroundColor": "transparent",
+                                        "borderWidth": 0,
+                                      },
+                                      {
+                                        "flex": 0,
+                                        "height": 18,
+                                        "width": 18,
+                                      },
+                                    ]
+                                  }
+                                  vbHeight={24}
+                                  vbWidth={24}
+                                  width={18}
+                                >
+                                  <RNSVGGroup
+                                    fill={null}
+                                    propList={
+                                      [
+                                        "fill",
+                                      ]
+                                    }
+                                  >
+                                    <RNSVGPath
+                                      d="M15.7318 4.875L12.8818 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M10.5355 4.875L7.68555 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M6.8252 8.58594H17.7502"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M5.875 15.4141H16.8"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                  </RNSVGGroup>
+                                </RNSVGSvgView>
+                                <Text
+                                  color="main"
+                                  ellipsizeMode="tail"
+                                  fontSize={16}
+                                  fontWeight="normal"
+                                  horizontalTextAlign="left"
+                                  numberOfLines={1}
+                                  style={
+                                    [
+                                      {
+                                        "color": "#000000",
+                                        "fontFamily": "Rubik-Regular",
+                                        "fontSize": 16,
+                                        "textAlign": "left",
+                                        "textAlignVertical": "center",
+                                      },
+                                      {
+                                        "color": "#222222",
+                                      },
+                                    ]
+                                  }
+                                  verticalTextAlign="center"
+                                >
+                                  general
+                                </Text>
+                              </View>
+                              <View
+                                style={
+                                  {
+                                    "flexDirection": "row",
+                                  }
+                                }
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "alignItems": "flex-end",
+                                      "flex": 1,
+                                    }
+                                  }
+                                />
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <View
+                    onFocusCapture={[Function]}
+                    onLayout={[Function]}
+                    style={null}
+                  >
+                    <View
+                      style={
+                        {
+                          "flex": 1,
+                        }
+                      }
+                    >
+                      <View
+                        accessibilityState={
+                          {
+                            "busy": undefined,
+                            "checked": undefined,
+                            "disabled": undefined,
+                            "expanded": undefined,
+                            "selected": undefined,
+                          }
+                        }
+                        accessibilityValue={
+                          {
+                            "max": undefined,
+                            "min": undefined,
+                            "now": undefined,
+                            "text": undefined,
+                          }
+                        }
+                        accessible={true}
+                        collapsable={false}
+                        focusable={true}
+                        onClick={[Function]}
+                        onResponderGrant={[Function]}
+                        onResponderMove={[Function]}
+                        onResponderRelease={[Function]}
+                        onResponderTerminate={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        style={
+                          {
+                            "opacity": 1,
+                          }
+                        }
+                        testID="channel_tile_spam"
+                      >
+                        <View
+                          style={
+                            {
+                              "paddingLeft": 12,
+                              "paddingRight": 16,
+                              "paddingVertical": 8,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              {
+                                "flexDirection": "row",
+                              }
+                            }
+                          >
+                            <View
+                              style={
+                                {
+                                  "flex": 1,
+                                  "flexDirection": "row",
+                                  "height": 20,
+                                  "justifyContent": "space-between",
+                                }
+                              }
+                            >
+                              <View
+                                style={
+                                  {
+                                    "alignItems": "center",
+                                    "display": "flex",
+                                    "flex": 1,
+                                    "flexDirection": "row",
+                                    "gap": 6,
+                                  }
+                                }
+                              >
+                                <RNSVGSvgView
+                                  align="xMidYMid"
+                                  bbHeight={18}
+                                  bbWidth={18}
+                                  fill="none"
+                                  focusable={false}
+                                  height={18}
+                                  meetOrSlice={0}
+                                  minX={0}
+                                  minY={0}
+                                  style={
+                                    [
+                                      {
+                                        "backgroundColor": "transparent",
+                                        "borderWidth": 0,
+                                      },
+                                      {
+                                        "flex": 0,
+                                        "height": 18,
+                                        "width": 18,
+                                      },
+                                    ]
+                                  }
+                                  vbHeight={24}
+                                  vbWidth={24}
+                                  width={18}
+                                >
+                                  <RNSVGGroup
+                                    fill={null}
+                                    propList={
+                                      [
+                                        "fill",
+                                      ]
+                                    }
+                                  >
+                                    <RNSVGPath
+                                      d="M15.7318 4.875L12.8818 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M10.5355 4.875L7.68555 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M6.8252 8.58594H17.7502"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M5.875 15.4141H16.8"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                  </RNSVGGroup>
+                                </RNSVGSvgView>
+                                <Text
+                                  color="main"
+                                  ellipsizeMode="tail"
+                                  fontSize={16}
+                                  fontWeight="normal"
+                                  horizontalTextAlign="left"
+                                  numberOfLines={1}
+                                  style={
+                                    [
+                                      {
+                                        "color": "#000000",
+                                        "fontFamily": "Rubik-Regular",
+                                        "fontSize": 16,
+                                        "textAlign": "left",
+                                        "textAlignVertical": "center",
+                                      },
+                                      {
+                                        "color": "#222222",
+                                      },
+                                    ]
+                                  }
+                                  verticalTextAlign="center"
+                                >
+                                  spam
+                                </Text>
+                              </View>
+                              <View
+                                style={
+                                  {
+                                    "flexDirection": "row",
+                                  }
+                                }
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "alignItems": "flex-end",
+                                      "flex": 1,
+                                    }
+                                  }
+                                />
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <View
+                    onFocusCapture={[Function]}
+                    onLayout={[Function]}
+                    style={null}
+                  >
+                    <View
+                      style={
+                        {
+                          "flex": 1,
+                        }
+                      }
+                    >
+                      <View
+                        accessibilityState={
+                          {
+                            "busy": undefined,
+                            "checked": undefined,
+                            "disabled": undefined,
+                            "expanded": undefined,
+                            "selected": undefined,
+                          }
+                        }
+                        accessibilityValue={
+                          {
+                            "max": undefined,
+                            "min": undefined,
+                            "now": undefined,
+                            "text": undefined,
+                          }
+                        }
+                        accessible={true}
+                        collapsable={false}
+                        focusable={true}
+                        onClick={[Function]}
+                        onResponderGrant={[Function]}
+                        onResponderMove={[Function]}
+                        onResponderRelease={[Function]}
+                        onResponderTerminate={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        style={
+                          {
+                            "opacity": 1,
+                          }
+                        }
+                        testID="channel_tile_design"
+                      >
+                        <View
+                          style={
+                            {
+                              "paddingLeft": 12,
+                              "paddingRight": 16,
+                              "paddingVertical": 8,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              {
+                                "flexDirection": "row",
+                              }
+                            }
+                          >
+                            <View
+                              style={
+                                {
+                                  "flex": 1,
+                                  "flexDirection": "row",
+                                  "height": 20,
+                                  "justifyContent": "space-between",
+                                }
+                              }
+                            >
+                              <View
+                                style={
+                                  {
+                                    "alignItems": "center",
+                                    "display": "flex",
+                                    "flex": 1,
+                                    "flexDirection": "row",
+                                    "gap": 6,
+                                  }
+                                }
+                              >
+                                <RNSVGSvgView
+                                  align="xMidYMid"
+                                  bbHeight={18}
+                                  bbWidth={18}
+                                  fill="none"
+                                  focusable={false}
+                                  height={18}
+                                  meetOrSlice={0}
+                                  minX={0}
+                                  minY={0}
+                                  style={
+                                    [
+                                      {
+                                        "backgroundColor": "transparent",
+                                        "borderWidth": 0,
+                                      },
+                                      {
+                                        "flex": 0,
+                                        "height": 18,
+                                        "width": 18,
+                                      },
+                                    ]
+                                  }
+                                  vbHeight={24}
+                                  vbWidth={24}
+                                  width={18}
+                                >
+                                  <RNSVGGroup
+                                    fill={null}
+                                    propList={
+                                      [
+                                        "fill",
+                                      ]
+                                    }
+                                  >
+                                    <RNSVGPath
+                                      d="M15.7318 4.875L12.8818 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="3"
+                                    />
+                                    <RNSVGPath
+                                      d="M10.5355 4.875L7.68555 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="3"
+                                    />
+                                    <RNSVGPath
+                                      d="M6.8252 8.58594H17.7502"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="3"
+                                    />
+                                    <RNSVGPath
+                                      d="M5.875 15.4141H16.8"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="3"
+                                    />
+                                  </RNSVGGroup>
+                                </RNSVGSvgView>
+                                <Text
+                                  color="main"
+                                  ellipsizeMode="tail"
+                                  fontSize={16}
+                                  fontWeight="medium"
+                                  horizontalTextAlign="left"
+                                  numberOfLines={1}
+                                  style={
+                                    [
+                                      {
+                                        "color": "#000000",
+                                        "fontFamily": "Rubik-Medium",
+                                        "fontSize": 16,
+                                        "textAlign": "left",
+                                        "textAlignVertical": "center",
+                                      },
+                                      {
+                                        "color": "#000000",
+                                      },
+                                    ]
+                                  }
+                                  verticalTextAlign="center"
+                                >
+                                  design
+                                </Text>
+                              </View>
+                              <View
+                                style={
+                                  {
+                                    "flexDirection": "row",
+                                  }
+                                }
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "alignItems": "flex-end",
+                                      "flex": 1,
+                                    }
+                                  }
+                                >
+                                  <View
+                                    style={
+                                      {
+                                        "alignItems": "center",
+                                        "backgroundColor": "#E42656",
+                                        "borderRadius": 100,
+                                        "height": 20,
+                                        "justifyContent": "center",
+                                        "width": 36,
+                                      }
+                                    }
+                                  >
+                                    <Text
+                                      color="white"
+                                      fontSize={12}
+                                      fontWeight="medium"
+                                      horizontalTextAlign="left"
+                                      style={
+                                        [
+                                          {
+                                            "color": "#ffffff",
+                                            "fontFamily": "Rubik-Medium",
+                                            "fontSize": 12,
+                                            "textAlign": "left",
+                                            "textAlignVertical": "center",
+                                          },
+                                        ]
+                                      }
+                                      verticalTextAlign="center"
+                                    >
+                                      new
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <View
+                    onFocusCapture={[Function]}
+                    onLayout={[Function]}
+                    style={null}
+                  >
+                    <View
+                      style={
+                        {
+                          "flex": 1,
+                        }
+                      }
+                    >
+                      <View
+                        accessibilityState={
+                          {
+                            "busy": undefined,
+                            "checked": undefined,
+                            "disabled": undefined,
+                            "expanded": undefined,
+                            "selected": undefined,
+                          }
+                        }
+                        accessibilityValue={
+                          {
+                            "max": undefined,
+                            "min": undefined,
+                            "now": undefined,
+                            "text": undefined,
+                          }
+                        }
+                        accessible={true}
+                        collapsable={false}
+                        focusable={true}
+                        onClick={[Function]}
+                        onResponderGrant={[Function]}
+                        onResponderMove={[Function]}
+                        onResponderRelease={[Function]}
+                        onResponderTerminate={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        style={
+                          {
+                            "opacity": 1,
+                          }
+                        }
+                        testID="channel_tile_qa"
+                      >
+                        <View
+                          style={
+                            {
+                              "paddingLeft": 12,
+                              "paddingRight": 16,
+                              "paddingVertical": 8,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              {
+                                "flexDirection": "row",
+                              }
+                            }
+                          >
+                            <View
+                              style={
+                                {
+                                  "flex": 1,
+                                  "flexDirection": "row",
+                                  "height": 20,
+                                  "justifyContent": "space-between",
+                                }
+                              }
+                            >
+                              <View
+                                style={
+                                  {
+                                    "alignItems": "center",
+                                    "display": "flex",
+                                    "flex": 1,
+                                    "flexDirection": "row",
+                                    "gap": 6,
+                                  }
+                                }
+                              >
+                                <RNSVGSvgView
+                                  align="xMidYMid"
+                                  bbHeight={18}
+                                  bbWidth={18}
+                                  fill="none"
+                                  focusable={false}
+                                  height={18}
+                                  meetOrSlice={0}
+                                  minX={0}
+                                  minY={0}
+                                  style={
+                                    [
+                                      {
+                                        "backgroundColor": "transparent",
+                                        "borderWidth": 0,
+                                      },
+                                      {
+                                        "flex": 0,
+                                        "height": 18,
+                                        "width": 18,
+                                      },
+                                    ]
+                                  }
+                                  vbHeight={24}
+                                  vbWidth={24}
+                                  width={18}
+                                >
+                                  <RNSVGGroup
+                                    fill={null}
+                                    propList={
+                                      [
+                                        "fill",
+                                      ]
+                                    }
+                                  >
+                                    <RNSVGPath
+                                      d="M15.7318 4.875L12.8818 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M10.5355 4.875L7.68555 19.125"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M6.8252 8.58594H17.7502"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                    <RNSVGPath
+                                      d="M5.875 15.4141H16.8"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                          "strokeLinecap",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeLinecap={1}
+                                      strokeWidth="2"
+                                    />
+                                  </RNSVGGroup>
+                                </RNSVGSvgView>
+                                <Text
+                                  color="main"
+                                  ellipsizeMode="tail"
+                                  fontSize={16}
+                                  fontWeight="normal"
+                                  horizontalTextAlign="left"
+                                  numberOfLines={1}
+                                  style={
+                                    [
+                                      {
+                                        "color": "#000000",
+                                        "fontFamily": "Rubik-Regular",
+                                        "fontSize": 16,
+                                        "textAlign": "left",
+                                        "textAlignVertical": "center",
+                                      },
+                                      {
+                                        "color": "#222222",
+                                      },
+                                    ]
+                                  }
+                                  verticalTextAlign="center"
+                                >
+                                  qa
+                                </Text>
+                              </View>
+                              <View
+                                style={
+                                  {
+                                    "flexDirection": "row",
+                                  }
+                                }
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "alignItems": "flex-end",
+                                      "flex": 1,
+                                    }
+                                  }
+                                />
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <View
+                    onFocusCapture={[Function]}
+                    onLayout={[Function]}
+                    style={null}
+                  >
+                    <View
+                      style={
+                        {
+                          "flex": 1,
+                        }
+                      }
+                    >
+                      <View
+                        accessibilityState={
+                          {
+                            "busy": undefined,
+                            "checked": undefined,
+                            "disabled": undefined,
+                            "expanded": undefined,
+                            "selected": undefined,
+                          }
+                        }
+                        accessibilityValue={
+                          {
+                            "max": undefined,
+                            "min": undefined,
+                            "now": undefined,
+                            "text": undefined,
+                          }
+                        }
+                        accessible={true}
+                        collapsable={false}
+                        focusable={true}
+                        onClick={[Function]}
+                        onResponderGrant={[Function]}
+                        onResponderMove={[Function]}
+                        onResponderRelease={[Function]}
+                        onResponderTerminate={[Function]}
+                        onResponderTerminationRequest={[Function]}
+                        onStartShouldSetResponder={[Function]}
+                        style={
+                          {
+                            "opacity": 1,
+                          }
+                        }
+                        testID="channel_tile_private-chat"
+                      >
+                        <View
+                          style={
+                            {
+                              "paddingLeft": 12,
+                              "paddingRight": 16,
+                              "paddingVertical": 8,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              {
+                                "flexDirection": "row",
+                              }
+                            }
+                          >
+                            <View
+                              style={
+                                {
+                                  "flex": 1,
+                                  "flexDirection": "row",
+                                  "height": 20,
+                                  "justifyContent": "space-between",
+                                }
+                              }
+                            >
+                              <View
+                                style={
+                                  {
+                                    "alignItems": "center",
+                                    "display": "flex",
+                                    "flex": 1,
+                                    "flexDirection": "row",
+                                    "gap": 6,
+                                  }
+                                }
+                              >
+                                <RNSVGSvgView
+                                  align="xMidYMid"
+                                  bbHeight={18}
+                                  bbWidth={18}
+                                  fill="#222222"
+                                  focusable={false}
+                                  height={18}
+                                  meetOrSlice={0}
+                                  minX={0}
+                                  minY={0}
+                                  style={
+                                    [
+                                      {
+                                        "backgroundColor": "transparent",
+                                        "borderWidth": 0,
+                                      },
+                                      {
+                                        "flex": 0,
+                                        "height": 18,
+                                        "width": 18,
+                                      },
+                                    ]
+                                  }
+                                  vbHeight={24}
+                                  vbWidth={24}
+                                  width={18}
+                                >
+                                  <RNSVGGroup
+                                    fill={
+                                      {
+                                        "payload": 4280427042,
+                                        "type": 0,
+                                      }
+                                    }
+                                    propList={
+                                      [
+                                        "fill",
+                                      ]
+                                    }
+                                  >
+                                    <RNSVGMask
+                                      fill={
+                                        {
+                                          "payload": 4294967295,
+                                          "type": 0,
+                                        }
+                                      }
+                                      height="100%"
+                                      maskContentUnits={1}
+                                      maskType={0}
+                                      maskUnits={0}
+                                      name="a"
+                                      propList={
+                                        [
+                                          "fill",
+                                        ]
+                                      }
+                                      width="100%"
+                                      x="0%"
+                                      y="0%"
+                                    >
+                                      <RNSVGPath
+                                        d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                                        fill={
+                                          {
+                                            "payload": 4278190080,
+                                            "type": 0,
+                                          }
+                                        }
+                                      />
+                                    </RNSVGMask>
+                                    <RNSVGPath
+                                      d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
+                                      fill={
+                                        {
+                                          "payload": 4278190080,
+                                          "type": 0,
+                                        }
+                                      }
+                                      mask="a"
+                                      propList={
+                                        [
+                                          "stroke",
+                                          "strokeWidth",
+                                        ]
+                                      }
+                                      stroke={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      strokeWidth="4"
+                                    />
+                                    <RNSVGPath
+                                      clipRule={0}
+                                      d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
+                                      fill={
+                                        {
+                                          "payload": 4280427042,
+                                          "type": 0,
+                                        }
+                                      }
+                                      fillRule={0}
+                                      propList={
+                                        [
+                                          "fill",
+                                          "fillRule",
+                                          "strokeWidth",
+                                        ]
+                                      }
+                                      strokeWidth="4"
+                                    />
+                                  </RNSVGGroup>
+                                </RNSVGSvgView>
+                                <Text
+                                  color="main"
+                                  ellipsizeMode="tail"
+                                  fontSize={16}
+                                  fontWeight="normal"
+                                  horizontalTextAlign="left"
+                                  numberOfLines={1}
+                                  style={
+                                    [
+                                      {
+                                        "color": "#000000",
+                                        "fontFamily": "Rubik-Regular",
+                                        "fontSize": 16,
+                                        "textAlign": "left",
+                                        "textAlignVertical": "center",
+                                      },
+                                      {
+                                        "color": "#222222",
+                                      },
+                                    ]
+                                  }
+                                  verticalTextAlign="center"
+                                >
+                                  private-chat
+                                </Text>
+                              </View>
+                              <View
+                                style={
+                                  {
+                                    "flexDirection": "row",
+                                  }
+                                }
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "alignItems": "flex-end",
+                                      "flex": 1,
+                                    }
+                                  }
+                                />
+                              </View>
                             </View>
                           </View>
                         </View>
@@ -1426,730 +1831,364 @@ describe('AppHome component', () => {
                     </View>
                   </View>
                 </View>
-              </View>
+              </RCTScrollView>
               <View
                 style={
                   {
-                    "backgroundColor": "#F0F0F0",
-                    "height": 1,
+                    "alignContent": "center",
+                    "alignItems": "center",
+                    "backgroundColor": "#ffffff",
+                    "flexDirection": "row",
+                    "justifyContent": "space-between",
+                    "paddingBottom": 8,
+                    "paddingLeft": 16,
+                    "paddingTop": 16,
                   }
                 }
-              />
-            </View>
-            <View
-              onFocusCapture={[Function]}
-              onLayout={[Function]}
-              style={null}
-            >
-              <View
-                style={
-                  {
-                    "flex": 1,
-                  }
-                }
+                testID="dm-list-title"
               >
+                <Text
+                  color="gray70"
+                  fontSize={14}
+                  fontWeight="medium"
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#4C4C4C",
+                        "fontFamily": "Rubik-Medium",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  Direct Messages
+                </Text>
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": undefined,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
                   collapsable={false}
-                  focusable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
                   style={
                     {
-                      "opacity": 1,
+                      "backgroundColor": "transparent",
+                      "borderRadius": 18,
+                      "height": 36,
+                      "margin": 6,
+                      "shadowColor": "#000",
+                      "shadowOffset": {
+                        "height": 0,
+                        "width": 0,
+                      },
+                      "shadowOpacity": 0,
+                      "shadowRadius": 0,
+                      "width": 36,
                     }
                   }
-                  testID="channel_tile_qa"
+                  testID="icon-button-container-outer-layer"
                 >
                   <View
+                    collapsable={false}
                     style={
                       {
-                        "padding": 16,
+                        "backgroundColor": "transparent",
+                        "borderColor": "rgba(121, 116, 126, 1)",
+                        "borderRadius": 18,
+                        "borderWidth": 0,
+                        "elevation": 0,
+                        "flex": 1,
+                        "overflow": "hidden",
+                        "shadowColor": "#000",
+                        "shadowOffset": {
+                          "height": 0,
+                          "width": 0,
+                        },
+                        "shadowOpacity": 0,
+                        "shadowRadius": 0,
                       }
                     }
+                    testID="icon-button-container"
                   >
                     <View
-                      style={
+                      accessibilityComponentType="button"
+                      accessibilityRole="button"
+                      accessibilityState={
                         {
-                          "flexDirection": "row",
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": true,
+                          "expanded": undefined,
+                          "selected": undefined,
                         }
                       }
-                    >
-                      <View
-                        style={
-                          {
-                            "alignItems": "center",
-                            "flex": 1,
-                            "paddingRight": 12,
-                          }
+                      accessibilityTraits="button"
+                      accessibilityValue={
+                        {
+                          "max": undefined,
+                          "min": undefined,
+                          "now": undefined,
+                          "text": undefined,
                         }
-                      >
-                        <View
-                          style={
+                      }
+                      accessible={true}
+                      centered={true}
+                      collapsable={false}
+                      focusable={true}
+                      hitSlop={
+                        {
+                          "bottom": 6,
+                          "left": 6,
+                          "right": 6,
+                          "top": 6,
+                        }
+                      }
+                      onBlur={[Function]}
+                      onClick={[Function]}
+                      onFocus={[Function]}
+                      onResponderGrant={[Function]}
+                      onResponderMove={[Function]}
+                      onResponderRelease={[Function]}
+                      onResponderTerminate={[Function]}
+                      onResponderTerminationRequest={[Function]}
+                      onStartShouldSetResponder={[Function]}
+                      style={
+                        [
+                          {
+                            "overflow": "hidden",
+                          },
+                          [
                             {
                               "alignItems": "center",
-                              "backgroundColor": "#4C4C4C",
-                              "borderRadius": 4,
-                              "height": 36,
+                              "flexGrow": 1,
                               "justifyContent": "center",
-                              "width": 36,
-                            }
-                          }
-                        >
-                          <Text
-                            color="white"
-                            fontSize={20}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#ffffff",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 20,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            Q
-                          </Text>
-                        </View>
-                      </View>
-                      <View
+                            },
+                            undefined,
+                          ],
+                        ]
+                      }
+                      testID="icon-button"
+                    >
+                      <Text
+                        accessibilityElementsHidden={true}
+                        importantForAccessibility="no-hide-descendants"
+                        pointerEvents="none"
+                        selectable={false}
                         style={
-                          {
-                            "flex": 9,
-                            "flexDirection": "column",
-                          }
+                          [
+                            {
+                              "backgroundColor": "transparent",
+                            },
+                            {
+                              "color": "#4C4C4C",
+                              "fontSize": 20,
+                            },
+                          ]
                         }
                       >
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "alignItems": "center",
-                                "display": "flex",
-                                "flex": 8,
-                                "flexDirection": "row",
-                              }
-                            }
-                          >
-                            <RNSVGSvgView
-                              align="xMidYMid"
-                              bbHeight={24}
-                              bbWidth={24}
-                              fill="none"
-                              focusable={false}
-                              height={24}
-                              meetOrSlice={0}
-                              minX={0}
-                              minY={0}
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "transparent",
-                                    "borderWidth": 0,
-                                  },
-                                  {
-                                    "flex": 0,
-                                    "height": 24,
-                                    "width": 24,
-                                  },
-                                ]
-                              }
-                              vbHeight={24}
-                              vbWidth={24}
-                              width={24}
-                            >
-                              <RNSVGGroup
-                                fill={null}
-                                propList={
-                                  [
-                                    "fill",
-                                  ]
-                                }
-                              >
-                                <RNSVGPath
-                                  d="M15.7318 4.875L12.8818 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M10.5355 4.875L7.68555 19.125"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M6.8252 8.58594H17.7502"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                                <RNSVGPath
-                                  d="M5.875 15.4141H16.8"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                      "strokeLinecap",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeLinecap={1}
-                                  strokeWidth="2"
-                                />
-                              </RNSVGGroup>
-                            </RNSVGSvgView>
-                            <Text
-                              color="main"
-                              fontSize={16}
-                              fontWeight="medium"
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#000000",
-                                    "fontFamily": "Rubik-Medium",
-                                    "fontSize": 16,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              qa
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 4,
-                              }
-                            }
-                          >
-                            <Text
-                              color="subtitle"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#999999",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Yesterday
-                            </Text>
-                          </View>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                              "paddingTop": 3,
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "flex": 10,
-                              }
-                            }
-                          >
-                            <Text
-                              color="gray50"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#7F7F7F",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 2,
-                              }
-                            }
-                          />
-                        </View>
-                      </View>
+                        □
+                      </Text>
                     </View>
                   </View>
                 </View>
               </View>
-              <View
+              <RCTScrollView
+                getItem={[Function]}
+                getItemCount={[Function]}
+                keyExtractor={[Function]}
+                onContentSizeChange={[Function]}
+                onLayout={[Function]}
+                onMomentumScrollBegin={[Function]}
+                onMomentumScrollEnd={[Function]}
+                onScroll={[Function]}
+                onScrollBeginDrag={[Function]}
+                onScrollEndDrag={[Function]}
+                removeClippedSubviews={false}
+                renderItem={[Function]}
+                scrollEventThrottle={0.0001}
+                stickyHeaderIndices={[]}
                 style={
                   {
-                    "backgroundColor": "#F0F0F0",
-                    "height": 1,
+                    "backgroundColor": "#ffffff",
                   }
                 }
-              />
+                testID="dm-list"
+                viewabilityConfigCallbackPairs={[]}
+              >
+                <View />
+              </RCTScrollView>
             </View>
+          </View>
+        </RCTScrollView>
+        <View
+          collapsable={false}
+          style={
+            {
+              "backgroundColor": "#461863",
+              "borderRadius": 100,
+              "bottom": 0,
+              "margin": 16,
+              "marginBottom": 24,
+              "opacity": 1,
+              "position": "absolute",
+              "right": 0,
+              "shadowColor": "#000",
+              "shadowOffset": {
+                "height": 0,
+                "width": 0,
+              },
+              "shadowOpacity": 0,
+              "shadowRadius": 0,
+              "transform": [
+                {
+                  "scale": 1,
+                },
+              ],
+            }
+          }
+          testID="fab-container-outer-layer"
+        >
+          <View
+            collapsable={false}
+            pointerEvents="auto"
+            style={
+              {
+                "backgroundColor": "#461863",
+                "borderRadius": 100,
+                "flex": undefined,
+                "shadowColor": "#000",
+                "shadowOffset": {
+                  "height": 0,
+                  "width": 0,
+                },
+                "shadowOpacity": 0,
+                "shadowRadius": 0,
+              }
+            }
+            testID="fab-container"
+          >
             <View
-              onFocusCapture={[Function]}
-              onLayout={[Function]}
-              style={null}
+              accessibilityRole="button"
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": true,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onBlur={[Function]}
+              onClick={[Function]}
+              onFocus={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                [
+                  {
+                    "overflow": "hidden",
+                  },
+                  {
+                    "borderRadius": 100,
+                  },
+                ]
+              }
+              testID="fab"
             >
               <View
+                pointerEvents="none"
                 style={
-                  {
-                    "flex": 1,
-                  }
+                  [
+                    {
+                      "alignItems": "center",
+                      "flexDirection": "row",
+                      "justifyContent": "center",
+                    },
+                    {
+                      "borderRadius": 14,
+                      "height": 56,
+                      "width": 56,
+                    },
+                  ]
                 }
+                testID="fab-content"
               >
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": undefined,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onClick={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
                   style={
-                    {
-                      "opacity": 1,
-                    }
+                    [
+                      {
+                        "alignItems": "center",
+                        "justifyContent": "center",
+                      },
+                      {
+                        "height": 28,
+                        "width": 28,
+                      },
+                    ]
                   }
-                  testID="channel_tile_private-chat"
                 >
                   <View
+                    collapsable={false}
                     style={
-                      {
-                        "padding": 16,
-                      }
-                    }
-                  >
-                    <View
-                      style={
+                      [
                         {
-                          "flexDirection": "row",
-                        }
+                          "bottom": 0,
+                          "left": 0,
+                          "position": "absolute",
+                          "right": 0,
+                          "top": 0,
+                        },
+                        {
+                          "opacity": 1,
+                          "transform": [
+                            {
+                              "rotate": "0deg",
+                            },
+                          ],
+                        },
+                      ]
+                    }
+                    testID="cross-fade-icon-current"
+                  >
+                    <Text
+                      accessibilityElementsHidden={true}
+                      importantForAccessibility="no-hide-descendants"
+                      pointerEvents="none"
+                      selectable={false}
+                      style={
+                        [
+                          {
+                            "backgroundColor": "transparent",
+                          },
+                          {
+                            "color": "#ffffff",
+                            "fontSize": 28,
+                          },
+                        ]
                       }
                     >
-                      <View
-                        style={
-                          {
-                            "alignItems": "center",
-                            "flex": 1,
-                            "paddingRight": 12,
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "alignItems": "center",
-                              "backgroundColor": "#80B857",
-                              "borderRadius": 4,
-                              "height": 36,
-                              "justifyContent": "center",
-                              "width": 36,
-                            }
-                          }
-                        >
-                          <Text
-                            color="white"
-                            fontSize={20}
-                            horizontalTextAlign="left"
-                            style={
-                              [
-                                {
-                                  "color": "#ffffff",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 20,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            P
-                          </Text>
-                        </View>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "flex": 9,
-                            "flexDirection": "column",
-                          }
-                        }
-                      >
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "alignItems": "center",
-                                "display": "flex",
-                                "flex": 8,
-                                "flexDirection": "row",
-                              }
-                            }
-                          >
-                            <RNSVGSvgView
-                              align="xMidYMid"
-                              bbHeight={24}
-                              bbWidth={24}
-                              fill="#000000"
-                              focusable={false}
-                              height={24}
-                              meetOrSlice={0}
-                              minX={0}
-                              minY={0}
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "transparent",
-                                    "borderWidth": 0,
-                                  },
-                                  {
-                                    "flex": 0,
-                                    "height": 24,
-                                    "width": 24,
-                                  },
-                                ]
-                              }
-                              vbHeight={24}
-                              vbWidth={24}
-                              width={24}
-                            >
-                              <RNSVGGroup
-                                fill={
-                                  {
-                                    "payload": 4278190080,
-                                    "type": 0,
-                                  }
-                                }
-                                propList={
-                                  [
-                                    "fill",
-                                  ]
-                                }
-                              >
-                                <RNSVGMask
-                                  fill={
-                                    {
-                                      "payload": 4294967295,
-                                      "type": 0,
-                                    }
-                                  }
-                                  height="100%"
-                                  maskContentUnits={1}
-                                  maskType={0}
-                                  maskUnits={0}
-                                  name="a"
-                                  propList={
-                                    [
-                                      "fill",
-                                    ]
-                                  }
-                                  width="100%"
-                                  x="0%"
-                                  y="0%"
-                                >
-                                  <RNSVGPath
-                                    d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                                    fill={
-                                      {
-                                        "payload": 4278190080,
-                                        "type": 0,
-                                      }
-                                    }
-                                  />
-                                </RNSVGMask>
-                                <RNSVGPath
-                                  d="M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  mask="a"
-                                  propList={
-                                    [
-                                      "stroke",
-                                      "strokeWidth",
-                                    ]
-                                  }
-                                  stroke={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  strokeWidth="4"
-                                />
-                                <RNSVGPath
-                                  clipRule={0}
-                                  d="M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z"
-                                  fill={
-                                    {
-                                      "payload": 4278190080,
-                                      "type": 0,
-                                    }
-                                  }
-                                  fillRule={0}
-                                  propList={
-                                    [
-                                      "fill",
-                                      "fillRule",
-                                      "strokeWidth",
-                                    ]
-                                  }
-                                  strokeWidth="4"
-                                />
-                              </RNSVGGroup>
-                            </RNSVGSvgView>
-                            <Text
-                              color="main"
-                              fontSize={16}
-                              fontWeight="medium"
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#000000",
-                                    "fontFamily": "Rubik-Medium",
-                                    "fontSize": 16,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              private-chat
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 4,
-                              }
-                            }
-                          >
-                            <Text
-                              color="subtitle"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#999999",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Yesterday
-                            </Text>
-                          </View>
-                        </View>
-                        <View
-                          style={
-                            {
-                              "flexDirection": "row",
-                              "paddingTop": 3,
-                            }
-                          }
-                        >
-                          <View
-                            style={
-                              {
-                                "flex": 10,
-                              }
-                            }
-                          >
-                            <Text
-                              color="gray50"
-                              fontSize={14}
-                              horizontalTextAlign="left"
-                              style={
-                                [
-                                  {
-                                    "color": "#7F7F7F",
-                                    "fontFamily": "Rubik-Regular",
-                                    "fontSize": 14,
-                                    "textAlign": "left",
-                                    "textAlignVertical": "center",
-                                  },
-                                ]
-                              }
-                              verticalTextAlign="center"
-                            >
-                              Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                            </Text>
-                          </View>
-                          <View
-                            style={
-                              {
-                                "alignItems": "flex-end",
-                                "flex": 2,
-                              }
-                            }
-                          />
-                        </View>
-                      </View>
-                    </View>
+                      □
+                    </Text>
                   </View>
                 </View>
               </View>
             </View>
           </View>
-        </RCTScrollView>
+        </View>
       </View>
     `)
   })
