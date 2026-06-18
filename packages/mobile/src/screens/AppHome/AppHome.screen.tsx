@@ -68,7 +68,7 @@ export const AppHomeScreen: FC = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
 
-  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
+  const channelsStatus = useSelector(publicChannels.selectors.channelsStatus)
 
   const userProfiles = useSelector(users.selectors.userProfiles)
 
@@ -76,44 +76,46 @@ export const AppHomeScreen: FC = () => {
 
   const connectedPeers = useSelector(network.selectors.connectedPeers)
 
-  const dmChannels = useSelector(publicChannels.selectors.dmChannels)
+  const dmChannels = useSelector(publicChannels.selectors.sortedDmChannels)
+
+  const channels = useSelector(publicChannels.selectors.sortedChannels)
 
   useEffect(() => {
     const newChannelTiles: ChannelTileProps[] = []
     const newDmTitles: ChannelTileProps[] = []
-    channelsStatusSorted.forEach(status => {
-      if (status.type === ChannelType.CHANNEL) {
+    channels.forEach(channel => {
+      if (channel.type === ChannelType.CHANNEL) {
+        const status = channelsStatus[channel.id]
         const tile: ChannelTileProps = {
-          name: status.displayedName ?? getChannelNameFromChannelId(status.id),
-          isPublic: status.public ?? true,
-          id: status.id,
-          unread: status.unread,
-          channelType: status.type,
+          name: channel.displayedName ?? getChannelNameFromChannelId(channel.id),
+          isPublic: channel.public ?? true,
+          id: channel.id,
+          unread: status?.unread ?? false,
+          channelType: ChannelType.CHANNEL,
           redirect,
         }
         newChannelTiles.push(tile)
-      } else if (status.type === ChannelType.DM) {
-        const channel = dmChannels.find(channel => channel.id === status.id)
-        if (channel == null) {
-          logger.error('Channel status was marked as a DM but no DM channel was found')
-        }
-        const representativeUserData = channel && getUserData(channel, connectedPeers, userProfiles, me)
-        const tile: ChannelTileProps = {
-          name: status.displayedName ?? '<DM name missing>',
-          isPublic: false,
-          id: status.id,
-          unread: status.unread,
-          channelType: status.type,
-          representativeUserData,
-          channel,
-          redirect,
-        }
-        newDmTitles.push(tile)
       }
+    })
+    dmChannels.forEach(channel => {
+      const status = channelsStatus[channel.id]
+      const representativeUserData = getUserData(channel, connectedPeers, userProfiles, me)
+      const tile: ChannelTileProps = {
+        name: channel.displayedName,
+        isPublic: false,
+        id: channel.id,
+        unread: status?.unread ?? false,
+        channelType: ChannelType.DM,
+        representativeUserData,
+        channel,
+        redirect,
+        me,
+      }
+      newDmTitles.push(tile)
     })
     setChannelTiles(newChannelTiles)
     setDmTiles(newDmTitles)
-  }, [channelsStatusSorted, connectedPeers, userProfiles, me])
+  }, [channelsStatus, connectedPeers, userProfiles, me, dmChannels, channels])
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 

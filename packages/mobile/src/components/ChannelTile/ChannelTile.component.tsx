@@ -19,8 +19,11 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   redirect,
   representativeUserData,
   channel,
+  me,
 }) => {
   const [channelTitleColor, setChannelTitleColor] = useState<string>(defaultTheme.palette.typography.gray90)
+  const [isMe, setIsMe] = useState<boolean>(false)
+
   // TODO Question: can this be deleted?
   const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
@@ -52,6 +55,14 @@ export const ChannelTile: FC<ChannelTileProps> = ({
     setChannelTitleColor(unread ? defaultTheme.palette.typography.main : defaultTheme.palette.typography.gray90)
   }, [unread])
 
+  useEffect(() => {
+    if (channelType === ChannelType.DM && me != null && me.nickname === name) {
+      setIsMe(true)
+    } else {
+      setIsMe(false)
+    }
+  }, [me, name])
+
   const rowHeight = channelType === ChannelType.DM ? 24 : 20
 
   return (
@@ -76,9 +87,9 @@ export const ChannelTile: FC<ChannelTileProps> = ({
             }}
           >
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', height: rowHeight }}>
-              <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 {channelType === ChannelType.DM ? (
-                  <View style={{ paddingRight: 6 }}>
+                  <View style={{ paddingRight: 2 }}>
                     <ProfilePhotoWithBadge
                       userData={representativeUserData}
                       channel={channel}
@@ -99,6 +110,16 @@ export const ChannelTile: FC<ChannelTileProps> = ({
                 >
                   {name}
                 </Typography>
+                {isMe && (
+                  <Typography
+                    fontSize={16}
+                    fontWeight={'normal'}
+                    style={{ color: defaultTheme.palette.typography.grayLight }}
+                    numberOfLines={1}
+                  >
+                    me
+                  </Typography>
+                )}
               </View>
               <View style={{ flexDirection: 'row' }}>
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
