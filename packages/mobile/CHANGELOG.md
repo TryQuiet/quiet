@@ -1,3 +1,28 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [7.4.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.1.0...@quiet/mobile@7.4.0-alpha.0) (2026-06-18)
+
+
+### Bug Fixes
+
+* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
+* include flavor prefix in envConfigFiles keys so dotenv picks the right .env ([#3197](https://github.com/TryQuiet/quiet/issues/3197)) ([e3f77d1](https://github.com/TryQuiet/quiet/commit/e3f77d1ec25b673485c74c638cb952ac063b06e4))
+
+
+### Features
+
+* **3155:** Add private channels with modifiable membership (no removals) to desktop ([#3177](https://github.com/TryQuiet/quiet/issues/3177)) ([9eef40c](https://github.com/TryQuiet/quiet/commit/9eef40c7974f22e9a5bfa51449cfc35b9c2f66f4))
+* **3155:** Private channels for mobile ([#3194](https://github.com/TryQuiet/quiet/issues/3194)) ([c3c89bf](https://github.com/TryQuiet/quiet/commit/c3c89bfdc9758e57b47f6e9630e3a8e3f6f6d7ef))
+* **3277:** Open private channel creation to all users and prep for role-based permissons ([#3276](https://github.com/TryQuiet/quiet/issues/3276)) ([2592f56](https://github.com/TryQuiet/quiet/commit/2592f5689ab1482c61044c8e3c40d759282270e5))
+* **mobile:** dev/alpha-only "Share logs" menu item ([#3198](https://github.com/TryQuiet/quiet/issues/3198)) ([9d3457d](https://github.com/TryQuiet/quiet/commit/9d3457d033d06de55e42a615cc15dd682e0fd87f)), closes [#3196](https://github.com/TryQuiet/quiet/issues/3196)
+
+
+
+
+
 # Changelog
 
 ## [7.3.0]
