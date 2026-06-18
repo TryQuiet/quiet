@@ -26,6 +26,7 @@ const Sidebar = () => {
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
+  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
   const userId = userProfile?.userId || ''
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
@@ -59,6 +60,7 @@ const Sidebar = () => {
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
     isTorInitialized: isTorInitialized,
+    canCreateChannel: canCreateChannel,
   }
 
   const userProfilePanelProps: UserProfilePanelProps = {
