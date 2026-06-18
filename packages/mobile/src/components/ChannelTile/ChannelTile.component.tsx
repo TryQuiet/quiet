@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Animated, TouchableOpacity, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { defaultTheme } from '../../styles/themes/default.theme'
@@ -8,7 +8,7 @@ import LockIcon from '../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../assets/icons/svg/public-channel'
 import { ChannelType } from '@quiet/types'
 import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'
-import { ProfilePhotoSize, type DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
+import { ProfilePhotoSize } from '../ProfilePhoto/ProfilePhoto.types'
 
 export const ChannelTile: FC<ChannelTileProps> = ({
   name,
@@ -20,6 +20,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   representativeUserData,
   channel,
 }) => {
+  const [channelTitleColor, setChannelTitleColor] = useState<string>(defaultTheme.palette.typography.gray90)
   // TODO Question: can this be deleted?
   const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
@@ -47,9 +48,9 @@ export const ChannelTile: FC<ChannelTileProps> = ({
     )
   }
 
-  const channelTitleColor = (unread: boolean) => {
-    return unread ? defaultTheme.palette.typography.main : defaultTheme.palette.typography.gray90
-  }
+  useEffect(() => {
+    setChannelTitleColor(unread ? defaultTheme.palette.typography.main : defaultTheme.palette.typography.gray90)
+  }, [unread])
 
   const rowHeight = channelType === ChannelType.DM ? 24 : 20
 
@@ -85,14 +86,14 @@ export const ChannelTile: FC<ChannelTileProps> = ({
                     />
                   </View>
                 ) : !isPublic ? (
-                  <LockIcon color={channelTitleColor(unread)} fill={true} size={18} />
+                  <LockIcon color={channelTitleColor} fill={true} size={18} bold={unread} />
                 ) : (
-                  <PublicChannelIcon color={channelTitleColor(unread)} size={18} />
+                  <PublicChannelIcon color={channelTitleColor} size={18} bold={unread} />
                 )}
                 <Typography
                   fontSize={16}
                   fontWeight={unread ? 'medium' : 'normal'}
-                  style={{ color: channelTitleColor(unread) }}
+                  style={{ color: channelTitleColor }}
                   ellipsizeMode={'tail'}
                   numberOfLines={1}
                 >

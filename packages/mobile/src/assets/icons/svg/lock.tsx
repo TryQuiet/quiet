@@ -10,6 +10,7 @@ export interface LockIconProps {
   style?: StyleProp<ViewStyle>
   accessibilityLabel?: string
   testID?: string
+  bold?: boolean
 }
 
 const LockIcon: React.FC<LockIconProps> = memo(function LockIcon({
@@ -19,7 +20,9 @@ const LockIcon: React.FC<LockIconProps> = memo(function LockIcon({
   style,
   accessibilityLabel,
   testID,
+  bold = false,
 }) {
+  const strokeWidth = bold ? '5' : '4'
   return (
     <Svg
       width={size}
@@ -35,14 +38,14 @@ const LockIcon: React.FC<LockIconProps> = memo(function LockIcon({
       </Mask>
       <Path
         stroke={color}
-        strokeWidth='4'
+        strokeWidth={strokeWidth}
         d='M5.5 11.5a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z'
         mask='url(#a)'
       />
       <Path
         fill={color}
         fillRule='evenodd'
-        strokeWidth='4'
+        strokeWidth={strokeWidth}
         d='M7.5 10.5h2V7a2.5 2.5 0 0 1 5 0v3.5h2V7a4.5 4.5 0 1 0-9 0z'
         clipRule='evenodd'
       />

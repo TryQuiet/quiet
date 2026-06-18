@@ -11,7 +11,6 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { ChannelType, EMPTY_CHANNEL_ID } from '@quiet/types'
-import type { PartialChannelTileProps } from '../../components/AppHome/AppHome.types'
 import { createLogger } from '../../utils/logger'
 import { getUserData } from '../../components/ProfilePhoto/ProfilePhotoWithBadge.component'
 
