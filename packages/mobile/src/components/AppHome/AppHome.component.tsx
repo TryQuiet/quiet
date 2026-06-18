@@ -8,8 +8,6 @@ import { Spinner } from '../Spinner/Spinner.component'
 import { Typography } from '../Typography/Typography.component'
 import { PlusButton } from '../IconButtons/PlusButton/PlusButton.component'
 import { PencilButton } from '../IconButtons/PencilButton/PencilButton.component'
-import { Overlay } from 'react-native-share'
-import { FAB } from 'react-native-paper'
 
 export const AppHome: FC<AppHomeProps> = ({
   community,

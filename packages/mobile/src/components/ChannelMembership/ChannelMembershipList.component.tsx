@@ -1,10 +1,8 @@
 import { FlatList, ListRenderItemInfo, View } from 'react-native'
 
 import { ChannelMembershipListProps } from './ChannelMembershipList.types'
-import { ProfilePhoto } from '../ProfilePhoto/ProfilePhoto.component'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { UserProfile } from '@quiet/types'
 import { Spinner } from '../Spinner/Spinner.component'
 import { USER_ROW_HEIGHT } from './ChannelMembership.types'
 import { ProfilePhotoWithBadge } from '../ProfilePhoto/ProfilePhotoWithBadge.component'

@@ -15,9 +15,6 @@ describe('AppHome component', () => {
           {
             name: 'general',
             id: 'general',
-            message:
-              'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-            date: '1:55pm',
             unread: false,
             isPublic: true,
             redirect: jest.fn(),
@@ -26,9 +23,6 @@ describe('AppHome component', () => {
           {
             name: 'spam',
             id: 'spam',
-            message:
-              'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-            date: '1:55pm',
             unread: false,
             isPublic: true,
             redirect: jest.fn(),
@@ -37,9 +31,6 @@ describe('AppHome component', () => {
           {
             name: 'design',
             id: 'design',
-            message:
-              'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-            date: '6/1/22',
             unread: true,
             isPublic: true,
             redirect: jest.fn(),
@@ -48,9 +39,6 @@ describe('AppHome component', () => {
           {
             name: 'qa',
             id: 'qa',
-            message:
-              'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-            date: 'Yesterday',
             unread: false,
             isPublic: true,
             redirect: jest.fn(),
@@ -59,9 +47,6 @@ describe('AppHome component', () => {
           {
             name: 'private-chat',
             id: 'private-chat',
-            message:
-              'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
-            date: 'Yesterday',
             unread: false,
             isPublic: false,
             redirect: jest.fn(),

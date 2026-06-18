@@ -7,7 +7,6 @@ import {
   MessageSendingStatus,
   PublicChannel,
   type ChannelType,
-  type PublicChannelStorage,
   type UserProfile,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'

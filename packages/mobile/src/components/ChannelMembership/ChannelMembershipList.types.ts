@@ -1,4 +1,3 @@
-import { UserProfile } from '@quiet/types'
 import type { DmChannelUserData } from '../ProfilePhoto/ProfilePhoto.types'
 
 export interface ChannelMembershipListProps {
