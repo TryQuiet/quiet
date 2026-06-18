@@ -18,13 +18,15 @@ export function* channelDeletionResponseSaga(
 
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
-  const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))
+  const deletedChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
 
-  if (!isChannelExist) {
+  if (deletedChannel == null) {
     logger.warn(`Channel with id ${channelId} doesnt exist in store`)
     return
   }
+
+  const isDeletedChannelPublic = deletedChannel.public ?? true
 
   if (!generalChannel) {
     logger.warn('General Channel doesnt exist in store')
@@ -63,8 +65,8 @@ export function* channelDeletionResponseSaga(
   if (isOwner) {
     if (deletedGeneral) {
       yield* put(publicChannelsActions.createGeneralChannel())
-    } else {
-      yield* put(messagesActions.sendDeletionMessage({ channelId }))
+    } else if (isDeletedChannelPublic) {
+      yield* put(messagesActions.sendDeletionMessage({ channelId, isPublic: isDeletedChannelPublic }))
     }
   } else {
     const isUserOnGeneral = currentChannelId === generalChannel.id

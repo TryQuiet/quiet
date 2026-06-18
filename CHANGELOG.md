@@ -6,6 +6,10 @@
 
 * Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
 
+### Fixes
+
+* Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+
 ## [7.3.0]
 
 ### Features
