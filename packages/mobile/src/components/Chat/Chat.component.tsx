@@ -159,7 +159,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
       setInputPlaceholder(`Message ${truncatedDmChannelName}`)
       setHeaderTitle(truncatedDmChannelName)
     }
-  }, [channelName, channel])
+  }, [channelName, channel, newChat])
 
   useEffect(() => {
     if (newChat) {
@@ -170,6 +170,7 @@ const ChatInner: FC<ChatProps & FileActionsProps> = ({
   }, [newChat, userProfiles, me, connectedPeers])
 
   useEffect(() => {
+    if (!newChat) return
     if (options == null) return
     const selectedIds = options.filter(option => option.selected).map(option => option.id)
     setDmChannelOnSelection(selectedIds)

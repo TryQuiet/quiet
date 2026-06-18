@@ -205,6 +205,10 @@ export const ChannelScreen: FC = () => {
     }
   }, [currentChannelId])
 
+  /**
+   * Change to an existing DM channel if possible or create a new DM channel when sending a message on the
+   * new chat view
+   */
   const createOrSetDmChannelAction = useCallback(
     (memberIds: string[]) => {
       logger.debug('Setting or creating dm channel', memberIds)
@@ -253,9 +257,16 @@ export const ChannelScreen: FC = () => {
     [dispatch]
   )
 
+  /**
+   * Update the channel ID in-place to show messages from an existing DM when changing user selection on new chat view
+   */
   const setDmChannelOnSelection = useCallback(
     (selectedIds: string[]) => {
-      if (channels == null) return
+      if (!isNewMessageOpen) return
+      if (channels == null || selectedIds.length === 0) {
+        dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
+        return
+      }
       if (me != null) {
         selectedIds.push(me.userId)
       }
