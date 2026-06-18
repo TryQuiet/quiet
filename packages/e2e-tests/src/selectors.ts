@@ -2647,26 +2647,39 @@ export class Settings {
   }
 
   async close() {
+    logger.debug('Closing settings modal')
     const closeButton = await this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="close-settings-button"]')),
       10_000,
       `Settings close button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(closeButton), 5_000)
+    await this.driver.wait(
+      until.elementIsVisible(closeButton),
+      5_000,
+      `Settings close button wasn't visible within timeout`,
+      500
+    )
     await closeButton.click()
   }
 
   async closeTab() {
+    logger.debug('Closing settings tab')
     const closeTabButton = await this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="close-tab-button-box"]//button')),
       10_000,
       `Settings tab close button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(closeTabButton), 5_000)
+    await this.driver.wait(
+      until.elementIsVisible(closeTabButton),
+      5_000,
+      `Settings tab close button wasn't visible within timeout`,
+      500
+    )
     await closeTabButton.click()
   }
+
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
     let locator: string | undefined = undefined
     switch (tabName) {
