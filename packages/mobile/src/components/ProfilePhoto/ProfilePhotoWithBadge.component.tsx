@@ -12,7 +12,7 @@ const MAX_BADGE_MEMBER_COUNT = 9
 const styles = StyleSheet.create({
   badge: {
     position: 'absolute',
-    right: 0,
+    right: -4,
     borderWidth: 1,
   },
   badgeConnected: {
@@ -69,7 +69,7 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
   const connected = userData?.connected ?? false
   let visible = userData?.connected != undefined
   let groupDm = false
-  let badgeSize = 10
+  let badgeSize = 11
   if (channel && channel.memberIds != null && channel.memberIds.length > 2) {
     const count = channel.memberIds.length - 1
     badgeContent = count <= MAX_BADGE_MEMBER_COUNT ? count : `${MAX_BADGE_MEMBER_COUNT}+`
@@ -77,7 +77,6 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
     groupDm = true
     badgeSize = 16
   }
-  const id = (channel ? channel.id : userData?.user.nickname) ?? randomUUID()
   let componentSize: number
   switch (size) {
     case ProfilePhotoSize.SMALL:
@@ -110,7 +109,7 @@ export const ProfilePhotoWithBadge: React.FC<ProfilePhotoWithBadgeProps> = ({
         style={[
           styles.badge,
           groupDm ? styles.badgeWithContent : connected ? styles.badgeConnected : styles.badgeNotConnected,
-          { top: componentSize - badgeSize, borderColor: badgeBorderColor },
+          { top: componentSize - badgeSize + 2, borderColor: badgeBorderColor },
         ]}
         visible={visible}
         size={badgeSize}

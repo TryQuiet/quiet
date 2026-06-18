@@ -78,7 +78,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', height: rowHeight }}>
               <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 {channelType === ChannelType.DM ? (
-                  <View style={{ paddingRight: 4 }}>
+                  <View style={{ paddingRight: 6 }}>
                     <ProfilePhotoWithBadge
                       userData={representativeUserData}
                       channel={channel}

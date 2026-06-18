@@ -69,7 +69,7 @@ export const UpdateChannelMembershipList: React.FC<UpdateChannelMembershipListPr
           paddingVertical: 11,
         }}
       >
-        <ProfilePhotoWithBadge userData={nonMembers[item.id]} photoBorderRadius={4} size={ProfilePhotoSize.MEDIUM} />
+        <ProfilePhotoWithBadge userData={nonMembers[item.id]} size={ProfilePhotoSize.MEDIUM} />
         <Typography fontSize={16} style={{ color: labelColor }}>
           {item.label}
         </Typography>

@@ -28,7 +28,7 @@ export const ChannelMembershipList: React.FC<ChannelMembershipListProps> = ({ me
         }}
         testID={`channel-membership-list-item-${channelId}-${item.user.userId}`}
       >
-        <ProfilePhotoWithBadge userData={item} photoBorderRadius={4} size={ProfilePhotoSize.MEDIUM} />
+        <ProfilePhotoWithBadge userData={item} size={ProfilePhotoSize.MEDIUM} />
         <Typography fontSize={16} style={{ color: labelColor }}>
           {item.user.nickname}
         </Typography>
