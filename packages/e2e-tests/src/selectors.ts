@@ -3165,6 +3165,7 @@ export class Settings {
   }
 
   async close() {
+    logger.debug('Closing settings modal')
     const closeButton = await this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="close-settings-button"]')),
       10_000,
@@ -3181,6 +3182,7 @@ export class Settings {
   }
 
   async closeTab() {
+    logger.debug('Closing settings tab')
     const closeTabButton = await this.tabCloseElement
     await this.driver.wait(
       until.elementIsVisible(closeTabButton),
