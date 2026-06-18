@@ -20,12 +20,14 @@ export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
 
   const [memberCountSuffix, setMemberCountSuffix] = useState<string>('')
+  const [isChannelOwner, setIsChannelOwner] = useState<boolean>(false)
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const isOwner = useSelector(communities.selectors.isOwner)
   const userProfiles = useSelector(users.selectors.userProfiles)
+  const me = useSelector(users.selectors.myUserProfile)
 
   const _initializeData = () => {
     if (channel == null) return
@@ -34,6 +36,10 @@ export const ChannelContextMenu: FC = () => {
     )
     setMemberCountSuffix(`${membersInChannel.length}`)
   }
+
+  useEffect(() => {
+    setIsChannelOwner(me != null && channel != null && channel.owner === me.userId)
+  }, [channel, me])
 
   let title = ''
   if (channel?.name) {
@@ -62,13 +68,14 @@ export const ChannelContextMenu: FC = () => {
 
   if (channel?.public === false) {
     items.push({
-      title: isOwner ? 'Permissions' : 'Members in this channel',
-      subtitle: isOwner ? 'Members' : undefined,
+      title: isChannelOwner ? 'Permissions' : 'Members in this channel',
+      subtitle: isChannelOwner ? 'Members' : undefined,
       suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {
           channelName: channel?.name,
           channelId: channel?.id,
+          isChannelOwner,
         }),
     })
   }
