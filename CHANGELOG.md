@@ -5,6 +5,7 @@
 ### Fixes
 
 * Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+* Fixed a race condition that can cause stale data to remain after leaving community [#3253](https://github.com/TryQuiet/quiet/issues/3253)
 
 ## [7.3.0]
 
