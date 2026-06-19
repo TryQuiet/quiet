@@ -44,6 +44,7 @@ import { DateTime } from 'luxon'
 import { isChannel } from '../../validation/validators'
 import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
+import { generateDmChannelId } from '@quiet/common'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -248,6 +249,209 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
+  private validateChannelEntryMetadata(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    encPayload: EncryptedAndSignedPayload,
+    decEntry: PublicChannel
+  ): boolean {
+    const key = entry.payload.key
+    const sigAuthor = encPayload.signature.author.name
+    const chain = this.sigchainService.getActiveChain(false)
+
+    if (chain == null) {
+      this.logger.error('Cannot validate channel entry without an active chain:', entry.hash)
+      return false
+    }
+
+    if (!key || key !== decEntry.id) {
+      this.logger.error('Failed to validate channel entry: key must match decrypted channel id:', entry.hash, {
+        key,
+        channelId: decEntry.id,
+      })
+      return false
+    }
+
+    if (!encPayload.userId || !sigAuthor || encPayload.userId !== sigAuthor) {
+      this.logger.error('Failed to validate channel entry: payload userId must match signature author:', entry.hash, {
+        userId: encPayload.userId,
+        sigAuthor,
+      })
+      return false
+    }
+
+    if (encPayload.teamId !== chain.team!.id) {
+      this.logger.error('Failed to validate channel entry: payload teamId must match active chain:', entry.hash, {
+        payloadTeamId: encPayload.teamId,
+        activeTeamId: chain.team!.id,
+      })
+      return false
+    }
+
+    if (decEntry.type === ChannelType.DM) {
+      return this.validateDmChannelEntry(entry, encPayload, decEntry, sigAuthor)
+    }
+
+    if (!(decEntry.public ?? true)) {
+      return this.validatePrivateChannelEntry(entry, encPayload, decEntry, sigAuthor)
+    }
+
+    if (decEntry.roleName != null) {
+      this.logger.error('Failed to validate public channel entry: public channels cannot declare a role:', entry.hash, {
+        roleName: decEntry.roleName,
+      })
+      return false
+    }
+
+    const expectedPrivateRoleName = chain.channels.generateChannelRoleName(decEntry.id)
+    if (chain.roles.getAllRoles().some(role => role.roleName === expectedPrivateRoleName)) {
+      this.logger.error(
+        'Failed to validate public channel entry: channel id already has a private channel role:',
+        entry.hash,
+        {
+          channelId: decEntry.id,
+          roleName: expectedPrivateRoleName,
+        }
+      )
+      return false
+    }
+
+    return this.validateChannelEncryptionScope(entry, encPayload, RoleName.MEMBER)
+  }
+
+  private validateDmChannelEntry(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    encPayload: EncryptedAndSignedPayload,
+    decEntry: PublicChannel,
+    sigAuthor: string
+  ): boolean {
+    if (decEntry.public ?? true) {
+      this.logger.error('Failed to validate DM channel entry: DMs must be private:', entry.hash)
+      return false
+    }
+
+    const memberIds = decEntry.memberIds
+    if (memberIds == null || memberIds.length === 0) {
+      this.logger.error('Failed to validate DM channel entry: memberIds are required:', entry.hash)
+      return false
+    }
+
+    const uniqueMemberIds = new Set(memberIds)
+    if (uniqueMemberIds.size !== memberIds.length) {
+      this.logger.error('Failed to validate DM channel entry: memberIds must be unique:', entry.hash)
+      return false
+    }
+
+    if (!uniqueMemberIds.has(sigAuthor)) {
+      this.logger.error('Failed to validate DM channel entry: signer must be a DM participant:', entry.hash, {
+        sigAuthor,
+        memberIds,
+      })
+      return false
+    }
+
+    if (decEntry.owner !== sigAuthor) {
+      this.logger.error('Failed to validate DM channel entry: owner must match signature author:', entry.hash, {
+        owner: decEntry.owner,
+        sigAuthor,
+      })
+      return false
+    }
+
+    const expectedChannelId = generateDmChannelId(memberIds)
+    if (decEntry.id !== expectedChannelId) {
+      this.logger.error('Failed to validate DM channel entry: id must match DM participants:', entry.hash, {
+        channelId: decEntry.id,
+        expectedChannelId,
+      })
+      return false
+    }
+
+    const chain = this.sigchainService.getActiveChain()
+    const expectedRoleName = chain.dms.generateDmRoleName([...memberIds, sigAuthor])
+    if (decEntry.roleName !== expectedRoleName) {
+      this.logger.error('Failed to validate DM channel entry: roleName must match DM participants:', entry.hash, {
+        roleName: decEntry.roleName,
+        expectedRoleName,
+      })
+      return false
+    }
+
+    try {
+      chain.users.getUsersById(memberIds)
+      const allMembersHaveRole = memberIds.every(memberId => chain.roles.memberHasRole(memberId, expectedRoleName))
+      if (!allMembersHaveRole) {
+        this.logger.error('Failed to validate DM channel entry: all participants must have the DM role:', entry.hash, {
+          roleName: expectedRoleName,
+          memberIds,
+        })
+        return false
+      }
+    } catch (err) {
+      this.logger.error(
+        'Failed to validate DM channel entry: all participants must be valid team members:',
+        entry.hash,
+        {
+          memberIds,
+          err,
+        }
+      )
+      return false
+    }
+
+    return this.validateChannelEncryptionScope(entry, encPayload, expectedRoleName)
+  }
+
+  private validatePrivateChannelEntry(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    encPayload: EncryptedAndSignedPayload,
+    decEntry: PublicChannel,
+    sigAuthor: string
+  ): boolean {
+    if (decEntry.owner !== sigAuthor) {
+      this.logger.error('Failed to validate private channel entry: owner must match signature author:', entry.hash, {
+        owner: decEntry.owner,
+        sigAuthor,
+      })
+      return false
+    }
+
+    const chain = this.sigchainService.getActiveChain()
+    const expectedRoleName = chain.channels.generateChannelRoleName(decEntry.id)
+    if (decEntry.roleName !== expectedRoleName) {
+      this.logger.error('Failed to validate private channel entry: roleName must match channel id:', entry.hash, {
+        roleName: decEntry.roleName,
+        expectedRoleName,
+      })
+      return false
+    }
+
+    if (!chain.roles.memberHasRole(sigAuthor, expectedRoleName)) {
+      this.logger.error('Failed to validate private channel entry: signer must have the channel role:', entry.hash, {
+        sigAuthor,
+        roleName: expectedRoleName,
+      })
+      return false
+    }
+
+    return this.validateChannelEncryptionScope(entry, encPayload, expectedRoleName)
+  }
+
+  private validateChannelEncryptionScope(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    encPayload: EncryptedAndSignedPayload,
+    expectedRoleName: string
+  ): boolean {
+    const scope = encPayload.encrypted.scope
+    if (scope.type !== EncryptionScopeType.ROLE || scope.name !== expectedRoleName) {
+      this.logger.error('Failed to validate channel entry: encryption scope must match channel role:', entry.hash, {
+        scope,
+        expectedRoleName,
+      })
+      return false
+    }
+    return true
+  }
+
   /**
    * Validates a log entry in the OrbitDB store.
    * @param entry The log entry to validate.
@@ -261,6 +465,9 @@ export class ChannelsService extends EventEmitter {
         const decEntry = this.decryptChannelEntry(encPayload)
         if (!isChannel(decEntry)) {
           this.logger.error('Decrypted channel entry is not a valid channel:', entry.hash, decEntry)
+          return false
+        }
+        if (!this.validateChannelEntryMetadata(entry, encPayload, decEntry)) {
           return false
         }
       }
