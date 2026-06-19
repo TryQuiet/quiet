@@ -617,10 +617,9 @@ export class ChannelsService extends EventEmitter {
       return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
     }
 
-    const isAdmin = this.sigchainService.activeChain.roles.amIAdmin()
-    if (!isAdmin) {
-      this.logger.error(`You are not an admin, cannot add members to private channel!`)
-      return { channelId, status: AddMembersChannelStatus.NOT_ADMIN }
+    if (channel.owner !== this.sigchainService.activeChain.user.userId) {
+      this.logger.error(`You are not the owner of this channel, cannot add members to private channel!`)
+      return { channelId, status: AddMembersChannelStatus.NOT_CHANNEL_OWNER }
     }
 
     const repo = this.channelsRepos.get(channelId)

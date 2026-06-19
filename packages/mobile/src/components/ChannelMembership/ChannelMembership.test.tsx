@@ -48,6 +48,7 @@ describe('ChannelMembership component', () => {
     const rendered = renderComponent(
       <Provider store={store}>
         <ChannelMembership
+          isChannelOwner={true}
           channelName={channelName}
           channelId={channelId}
           community={undefined}
@@ -408,6 +409,83 @@ describe('ChannelMembership component', () => {
               }
             }
           >
+            <View>
+              <View
+                style={
+                  {
+                    "alignItems": "flex-end",
+                    "alignSelf": "flex-end",
+                    "display": "flex",
+                    "flexDirection": "row",
+                    "paddingBottom": 16,
+                    "paddingHorizontal": 16,
+                    "width": "auto",
+                  }
+                }
+              >
+                <View
+                  accessibilityState={
+                    {
+                      "busy": undefined,
+                      "checked": undefined,
+                      "disabled": undefined,
+                      "expanded": undefined,
+                      "selected": undefined,
+                    }
+                  }
+                  accessible={true}
+                  focusable={true}
+                  onClick={[Function]}
+                  onResponderGrant={[Function]}
+                  onResponderMove={[Function]}
+                  onResponderRelease={[Function]}
+                  onResponderTerminate={[Function]}
+                  onResponderTerminationRequest={[Function]}
+                  onStartShouldSetResponder={[Function]}
+                  style={
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#521C74",
+                      "borderRadius": 8,
+                      "justifyContent": "center",
+                      "minHeight": 45,
+                      "paddingHorizontal": 20,
+                      "paddingVertical": 12,
+                      "width": undefined,
+                    }
+                  }
+                  testID="channel-membership-component-add-members-abc123"
+                >
+                  <Text
+                    color="white"
+                    fontSize={14}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#ffffff",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    Add members
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={
+                  {
+                    "backgroundColor": "#F0F0F0",
+                    "height": 1,
+                  }
+                }
+              />
+            </View>
             <View
               style={
                 {
@@ -477,6 +555,7 @@ describe('ChannelMembership component', () => {
     const rendered = renderComponent(
       <Provider store={store}>
         <ChannelMembership
+          isChannelOwner={true}
           channelName={channelName}
           channelId={channelId}
           community={undefined}
@@ -840,6 +919,83 @@ describe('ChannelMembership component', () => {
               }
             }
           >
+            <View>
+              <View
+                style={
+                  {
+                    "alignItems": "flex-end",
+                    "alignSelf": "flex-end",
+                    "display": "flex",
+                    "flexDirection": "row",
+                    "paddingBottom": 16,
+                    "paddingHorizontal": 16,
+                    "width": "auto",
+                  }
+                }
+              >
+                <View
+                  accessibilityState={
+                    {
+                      "busy": undefined,
+                      "checked": undefined,
+                      "disabled": undefined,
+                      "expanded": undefined,
+                      "selected": undefined,
+                    }
+                  }
+                  accessible={true}
+                  focusable={true}
+                  onClick={[Function]}
+                  onResponderGrant={[Function]}
+                  onResponderMove={[Function]}
+                  onResponderRelease={[Function]}
+                  onResponderTerminate={[Function]}
+                  onResponderTerminationRequest={[Function]}
+                  onStartShouldSetResponder={[Function]}
+                  style={
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#521C74",
+                      "borderRadius": 8,
+                      "justifyContent": "center",
+                      "minHeight": 45,
+                      "paddingHorizontal": 20,
+                      "paddingVertical": 12,
+                      "width": undefined,
+                    }
+                  }
+                  testID="channel-membership-component-add-members-abc123"
+                >
+                  <Text
+                    color="white"
+                    fontSize={14}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#ffffff",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    Add members
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={
+                  {
+                    "backgroundColor": "#F0F0F0",
+                    "height": 1,
+                  }
+                }
+              />
+            </View>
             <View>
               <Text
                 color="main"

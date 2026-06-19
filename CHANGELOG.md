@@ -5,6 +5,7 @@
 ### Features
 
 * Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
+* Allow channel owners to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
 
 ### Fixes
 

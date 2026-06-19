@@ -1,7 +1,7 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { communities, publicChannels } from '@quiet/state-manager'
+import { communities, publicChannels, users } from '@quiet/state-manager'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { MenuName } from '../../../../const/MenuNames.enum'
@@ -15,10 +15,13 @@ import { exportChats } from '../../../../utils/functions/exportMessages'
 import ChannelTypeIcon from '../../widgets/channels/ChannelTypeIcon'
 
 export const ChannelContextMenu: FC = () => {
-  const [showDebug, setShowDebug] = React.useState(false)
+  const [showDebug, setShowDebug] = useState<boolean>(false)
+  const [isChannelOwner, setIsChannelOwner] = useState<boolean>(false)
+
   const isOwner = useSelector(communities.selectors.isOwner)
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
+  const me = useSelector(users.selectors.myUserProfile)
 
   let title = ''
   if (channel) {
@@ -32,8 +35,12 @@ export const ChannelContextMenu: FC = () => {
 
   const items: ContextMenuItemProps[] = []
 
+  useEffect(() => {
+    setIsChannelOwner(me != null && channel != null && channel.owner === me.userId)
+  }, [channel, me])
+
   // TODO: update this to actually use the LFA admin role
-  if (!(channel?.public ?? true) && isOwner) {
+  if (!(channel?.public ?? true) && isChannelOwner) {
     items.push({
       title: 'Add members',
       action: () => {

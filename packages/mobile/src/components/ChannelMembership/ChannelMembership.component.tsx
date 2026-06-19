@@ -25,6 +25,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   community,
   members,
   memberCount,
+  isChannelOwner,
   handleBackButton,
 }) => {
   const dispatch = useDispatch()
@@ -95,7 +96,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
             gap: 32,
           }}
         >
-          {isOwner && (
+          {isChannelOwner && (
             <View>
               <View
                 style={{
