@@ -14,7 +14,7 @@ import {
 
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
-import { type LogEntry } from '@orbitdb/core'
+import { Entry, type LogEntry } from '@orbitdb/core'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../../common/test.module'
 import { createArbitraryFile, libp2pInstanceParams } from '../../common/utils'
@@ -39,6 +39,7 @@ import { RoleName } from '../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { InviteService } from '../../auth/services/invites/invite.service'
 import { UserService } from '../../auth/services/members/user.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 
 const logger = createLogger('channelsService:test')
 
@@ -52,6 +53,7 @@ describe('ChannelsService', () => {
   let libp2pService: Libp2pService
   let localDbService: LocalDbService
   let channelsService: ChannelsService
+  let orbitDbService: OrbitDbService
   let sigChainService: SigChainService
   let peerId: PeerId
 
@@ -79,6 +81,7 @@ describe('ChannelsService', () => {
 
     storageService = await module.resolve(StorageService)
     channelsService = await module.resolve(ChannelsService)
+    orbitDbService = await module.resolve(OrbitDbService)
     localDbService = await module.resolve(LocalDbService)
     libp2pService = await module.resolve(Libp2pService)
     ipfsService = await module.resolve(IpfsService)
@@ -157,6 +160,35 @@ describe('ChannelsService', () => {
         value,
       },
     }) as unknown as LogEntry<EncryptedAndSignedPayload>
+
+  const channelDelEntry = (
+    key: string,
+    identity: string = 'test-channel-delete-identity',
+    hash: string = 'test-channel-metadata-delete-entry'
+  ): LogEntry<EncryptedAndSignedPayload> =>
+    ({
+      hash,
+      identity,
+      payload: {
+        op: 'DEL',
+        key,
+      },
+    }) as unknown as LogEntry<EncryptedAndSignedPayload>
+
+  const mockChannelEntryIdentity = (userId: string): (() => void) => {
+    const identities = orbitDbService.identities
+    expect(identities).toBeDefined()
+    const teamId = sigChainService.getActiveChain().team!.id
+    const getIdentitySpy = jest.spyOn(identities!, 'getIdentity').mockResolvedValue({ id: userId, teamId } as any)
+    const verifyIdentitySpy = jest.spyOn(identities!, 'verifyIdentity').mockResolvedValue(true)
+    const entryVerifySpy = jest.spyOn(Entry, 'verify').mockResolvedValue(true)
+
+    return () => {
+      getIdentitySpy.mockRestore()
+      verifyIdentitySpy.mockRestore()
+      entryVerifySpy.mockRestore()
+    }
+  }
 
   afterEach(async () => {
     await storageService.stop()
@@ -467,6 +499,29 @@ describe('ChannelsService', () => {
       await expect(channelsService.validateEntry(channelPutEntry('wrong-channel-id', encryptedEntry))).resolves.toBe(
         false
       )
+    })
+
+    it('accepts channel metadata deletion from a sigchain admin', async () => {
+      const restoreIdentityMocks = mockChannelEntryIdentity(aliceUserId)
+
+      try {
+        await expect(channelsService.validateEntry(channelDelEntry('channel-id-to-delete'))).resolves.toBe(true)
+      } finally {
+        restoreIdentityMocks()
+      }
+    })
+
+    it('rejects channel metadata deletion from a non-admin member', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const restoreIdentityMocks = mockChannelEntryIdentity(malloryChain.user.userId)
+
+      try {
+        await expect(
+          channelsService.validateEntry(channelDelEntry('channel-id-to-delete', 'mallory-channel-delete-identity'))
+        ).resolves.toBe(false)
+      } finally {
+        restoreIdentityMocks()
+      }
     })
   })
 

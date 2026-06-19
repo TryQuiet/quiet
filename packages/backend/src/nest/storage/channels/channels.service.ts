@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { IPFSAccessController, type LogEntry } from '@orbitdb/core'
+import { Entry, IPFSAccessController, type LogEntry } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import {
   ChannelMessage,
@@ -362,6 +362,65 @@ export class ChannelsService extends EventEmitter {
     return true
   }
 
+  private async validateChannelDeleteEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    const key = entry.payload.key
+    if (!key) {
+      this.logger.error('Delete channel entry is missing key:', entry.hash)
+      return false
+    }
+
+    if (!entry.identity) {
+      this.logger.error('Failed to validate delete channel entry: entry identity is missing:', entry.hash)
+      return false
+    }
+
+    const identities = this.orbitDbService.identities
+    if (identities == null) {
+      this.logger.error('Failed to validate delete channel entry: OrbitDB identities are not initialized:', entry.hash)
+      return false
+    }
+
+    const chain = this.sigchainService.getActiveChain(false)
+    if (chain == null) {
+      this.logger.error('Cannot validate delete channel entry without an active chain:', entry.hash)
+      return false
+    }
+
+    const writerIdentity = await identities.getIdentity(entry.identity)
+    const identityVerified = await identities.verifyIdentity(writerIdentity)
+    if (!identityVerified) {
+      this.logger.error('Failed to validate delete channel entry: entry identity verification failed:', entry.hash)
+      return false
+    }
+
+    const entryVerified = await Entry.verify(identities as any, entry)
+    if (!entryVerified) {
+      this.logger.error('Failed to validate delete channel entry: entry signature verification failed:', entry.hash)
+      return false
+    }
+
+    if (writerIdentity.teamId !== chain.team!.id) {
+      this.logger.error(
+        'Failed to validate delete channel entry: entry identity team must match active chain:',
+        entry.hash,
+        {
+          entryTeamId: writerIdentity.teamId,
+          activeTeamId: chain.team!.id,
+        }
+      )
+      return false
+    }
+
+    if (!chain.roles.memberIsAdmin(writerIdentity.id)) {
+      this.logger.error('Failed to validate delete channel entry: writer must be a sigchain admin:', entry.hash, {
+        writerId: writerIdentity.id,
+      })
+      return false
+    }
+
+    return true
+  }
+
   /**
    * Validates a log entry in the OrbitDB store.
    * @param entry The log entry to validate.
@@ -382,8 +441,7 @@ export class ChannelsService extends EventEmitter {
         }
       }
       if (entry.payload.op === 'DEL') {
-        if (!entry.payload.key) {
-          this.logger.error('Delete channel entry is missing key:', entry.hash)
+        if (!(await this.validateChannelDeleteEntry(entry))) {
           return false
         }
       }
