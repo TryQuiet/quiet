@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [7.4.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@7.4.0-alpha.1...@quiet/mobile@7.4.0-alpha.2) (2026-06-19)
-
-
-### Features
-
-* **3300:** Allow all members of a private channel to add members to that channel ([#3303](https://github.com/TryQuiet/quiet/issues/3303)) ([da5b30b](https://github.com/TryQuiet/quiet/commit/da5b30b73f9e9fcf852dc4f1bf5e62beff3161e1))
-
-
-
-
-
 # Changelog
 
 ## [7.4.0]
@@ -21,7 +5,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 * Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
-* Allow channel owners to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
+* Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
 
 ### Fixes
 
