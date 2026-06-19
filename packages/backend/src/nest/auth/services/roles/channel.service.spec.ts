@@ -103,3 +103,62 @@ describe('channels', () => {
     expect(adminSigChain.channels.memberInChannel(secondSigChain.context.user.userId, channelId)).toBe(true)
   })
 })
+
+describe('channel membership authorization PoC', () => {
+  const loadMemberFromAdminGraph = (adminChain: SigChain, memberChain: SigChain): void => {
+    const teamKeyring = adminChain.team!.teamKeyring()
+    const loadedTeam = new Team({
+      source: adminChain.save(),
+      context: {
+        device: memberChain.context.device,
+        user: memberChain.user,
+      },
+      teamKeyring,
+    })
+    loadedTeam.join(teamKeyring)
+    memberChain.context = {
+      device: memberChain.context.device,
+      team: loadedTeam,
+      user: memberChain.user,
+    } as MemberContext
+  }
+
+  const admitMember = (adminChain: SigChain, username: string): SigChain => {
+    const invite = adminChain.invites.createUserInvite()
+    const memberChain = SigChain.createFromInvite(username, invite.seed)
+    adminChain.invites.admitMemberFromInvite(
+      generateProof(invite.seed),
+      username,
+      memberChain.context.user.userId,
+      redactKeys(memberChain.context.user.keys)
+    )
+    loadMemberFromAdminGraph(adminChain, memberChain)
+    return memberChain
+  }
+
+  it('accepts a non-owner channel member adding another member when the backend owner check is bypassed', () => {
+    const owner = SigChain.create('test', 'owner')
+    const channelId = 'owner-only-channel'
+    const channelRoleName = owner.channels.create(channelId)
+    const nonOwner = admitMember(owner, 'non-owner')
+    const addedByNonOwner = admitMember(owner, 'added-by-non-owner')
+
+    expect(owner.roles.amIAdmin()).toBe(true)
+    expect(nonOwner.roles.amIAdmin()).toBe(false)
+    expect(owner.team!.roles(channelRoleName).createdBy).toBe(owner.user.userId)
+    expect(owner.channels.memberInChannel(addedByNonOwner.user.userId, channelId)).toBe(false)
+
+    owner.channels.addMember(nonOwner.user.userId, channelId)
+    nonOwner.team!.merge(owner.team!.graph)
+    expect(nonOwner.channels.amIMemberOfChannel(channelId)).toBe(true)
+
+    nonOwner.channels.addMember(addedByNonOwner.user.userId, channelId)
+
+    owner.team!.merge(nonOwner.team!.graph)
+    addedByNonOwner.team!.merge(nonOwner.team!.graph)
+
+    expect(owner.channels.memberInChannel(addedByNonOwner.user.userId, channelId)).toBe(true)
+    expect(addedByNonOwner.channels.amIMemberOfChannel(channelId)).toBe(true)
+    expect(addedByNonOwner.team!.decrypt(owner.team!.encrypt('private message', channelRoleName))).toBe('private message')
+  })
+})
