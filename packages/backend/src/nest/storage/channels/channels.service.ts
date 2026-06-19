@@ -617,11 +617,6 @@ export class ChannelsService extends EventEmitter {
       return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
     }
 
-    if (channel.owner !== this.sigchainService.activeChain.user.userId) {
-      this.logger.error(`You are not the owner of this channel, cannot add members to private channel!`)
-      return { channelId, status: AddMembersChannelStatus.NOT_CHANNEL_OWNER }
-    }
-
     const repo = this.channelsRepos.get(channelId)
     const store = repo?.store
     if (store == null) {

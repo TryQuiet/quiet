@@ -48,7 +48,6 @@ describe('ChannelMembership component', () => {
     const rendered = renderComponent(
       <Provider store={store}>
         <ChannelMembership
-          isChannelOwner={true}
           channelName={channelName}
           channelId={channelId}
           community={undefined}
@@ -555,7 +554,6 @@ describe('ChannelMembership component', () => {
     const rendered = renderComponent(
       <Provider store={store}>
         <ChannelMembership
-          isChannelOwner={true}
           channelName={channelName}
           channelId={channelId}
           community={undefined}

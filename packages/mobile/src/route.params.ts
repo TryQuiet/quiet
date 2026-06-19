@@ -29,7 +29,6 @@ export type RootStackParamList = {
   [ScreenNames.ChannelMembershipScreen]: {
     channelName: string
     channelId: string
-    isChannelOwner: boolean
   }
   [ScreenNames.UpdateChannelMembershipScreen]: {
     channelName: string

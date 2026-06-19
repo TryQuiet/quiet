@@ -9,7 +9,6 @@ const logger = createLogger('channelMembership:stories')
 
 storiesOf('ChannelMembership', module).add('Default', () => (
   <ChannelMembership
-    isChannelOwner={true}
     channelName={'private-channel'}
     channelId={'abc123'}
     userProfiles={{}}
