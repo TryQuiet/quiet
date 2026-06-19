@@ -359,6 +359,17 @@ describe('ChannelsService', () => {
   })
 
   describe('Channel metadata validation', () => {
+    it('accepts legitimate public channel metadata encrypted to the member role', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+        type: ChannelType.CHANNEL,
+      })
+      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+
+      await expect(channelsService.validateEntry(channelPutEntry(publicChannel.id, encryptedEntry))).resolves.toBe(true)
+    })
+
     it('accepts legitimate DM metadata encrypted to the deterministic DM role', async () => {
       const bobChain = createNonAdminMemberChain('bob')
       const activeChain = sigChainService.getActiveChain()
@@ -478,6 +489,34 @@ describe('ChannelsService', () => {
       await expect(
         channelsService.validateEntry(
           channelPutEntry(privateChannel.id, teamScopedEntry, 'team-scoped-private-channel-metadata')
+        )
+      ).resolves.toBe(false)
+    })
+
+    it('rejects public metadata forged for an existing private channel id', async () => {
+      const activeChain = sigChainService.getActiveChain()
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const privateChannelId = 'downgraded-private-channel-id'
+      activeChain.channels.create(privateChannelId)
+
+      const forgedPublicChannel: PublicChannel = {
+        id: privateChannelId,
+        name: 'downgraded-private-channel',
+        description: 'forged public metadata for a private channel',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: true,
+        type: ChannelType.CHANNEL,
+        teamId: community.teamId!,
+      }
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedPublicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expect(
+        channelsService.validateEntry(
+          channelPutEntry(forgedPublicChannel.id, forgedEntry, 'downgraded-private-channel-metadata')
         )
       ).resolves.toBe(false)
     })

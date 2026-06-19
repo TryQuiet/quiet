@@ -302,6 +302,19 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
+    const expectedPrivateRoleName = chain.channels.generateChannelRoleName(decEntry.id)
+    if (chain.roles.getAllRoles().some(role => role.roleName === expectedPrivateRoleName)) {
+      this.logger.error(
+        'Failed to validate public channel entry: channel id already has a private channel role:',
+        entry.hash,
+        {
+          channelId: decEntry.id,
+          roleName: expectedPrivateRoleName,
+        }
+      )
+      return false
+    }
+
     return this.validateChannelEncryptionScope(entry, encPayload, RoleName.MEMBER)
   }
 
