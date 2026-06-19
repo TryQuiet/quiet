@@ -13,7 +13,7 @@ import { UserProfile } from '@quiet/types'
 export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channelName, channelId } = route.params
+  const { channelName, channelId, isChannelOwner } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
@@ -50,6 +50,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
 
   return (
     <ChannelMembership
+      isChannelOwner={isChannelOwner}
       channelName={channelName}
       channelId={channelId}
       community={community}
