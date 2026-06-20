@@ -14,6 +14,7 @@ import {
 
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
+import { Entry, type LogEntry } from '@orbitdb/core'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../../common/test.module'
 import { createArbitraryFile, libp2pInstanceParams } from '../../common/utils'
@@ -33,6 +34,13 @@ import { createLogger } from '../../common/logger'
 import { ChannelsService } from './channels.service'
 import { SigChainService } from '../../auth/sigchain.service'
 import { CID } from 'multiformats/cid'
+import { SigChain } from '../../auth/sigchain'
+import { RoleName } from '../../auth/services/roles/roles'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
+import { InviteService } from '../../auth/services/invites/invite.service'
+import { UserService } from '../../auth/services/members/user.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
+import { generateChannelId } from '@quiet/common'
 
 const logger = createLogger('channelsService:test')
 
@@ -46,6 +54,7 @@ describe('ChannelsService', () => {
   let libp2pService: Libp2pService
   let localDbService: LocalDbService
   let channelsService: ChannelsService
+  let orbitDbService: OrbitDbService
   let sigChainService: SigChainService
   let peerId: PeerId
 
@@ -73,6 +82,7 @@ describe('ChannelsService', () => {
 
     storageService = await module.resolve(StorageService)
     channelsService = await module.resolve(ChannelsService)
+    orbitDbService = await module.resolve(OrbitDbService)
     localDbService = await module.resolve(LocalDbService)
     libp2pService = await module.resolve(Libp2pService)
     ipfsService = await module.resolve(IpfsService)
@@ -106,6 +116,96 @@ describe('ChannelsService', () => {
       userId: aliceUserId,
     })
   })
+
+  const createNonAdminMemberChain = (username: string): SigChain => {
+    const adminChain = sigChainService.getActiveChain()
+    const invite = adminChain.invites.createUserInvite()
+    const salt = `${username}-metadata-validation-salt`
+
+    adminChain.lockbox.createInviteLockboxes(invite.seed, salt, RoleName.MEMBER)
+
+    const invitedChain = SigChain.createFromInvite(username, invite.seed)
+    adminChain.invites.admitMemberFromInvite(
+      InviteService.generateProof(invite.seed),
+      invitedChain.user.userName,
+      invitedChain.user.userId,
+      UserService.redactUser(invitedChain.user).keys
+    )
+
+    const joinedChain = SigChain.joinForTesting(
+      {
+        user: invitedChain.user,
+        device: invitedChain.device,
+      },
+      adminChain.save(),
+      adminChain.team!.teamKeyring()
+    )
+    joinedChain.roles.addSelf(RoleName.MEMBER, invite.seed, salt)
+
+    expect(joinedChain.roles.amIAdmin()).toBe(false)
+    expect(joinedChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+
+    return joinedChain
+  }
+
+  const channelPutEntry = (
+    key: string,
+    value: EncryptedAndSignedPayload,
+    hash: string = 'test-channel-metadata-entry',
+    identity: string = 'test-channel-put-identity'
+  ): LogEntry<EncryptedAndSignedPayload> =>
+    ({
+      hash,
+      identity,
+      payload: {
+        op: 'PUT',
+        key,
+        value,
+      },
+    }) as unknown as LogEntry<EncryptedAndSignedPayload>
+
+  const channelDelEntry = (
+    key: string,
+    identity: string = 'test-channel-delete-identity',
+    hash: string = 'test-channel-metadata-delete-entry'
+  ): LogEntry<EncryptedAndSignedPayload> =>
+    ({
+      hash,
+      identity,
+      payload: {
+        op: 'DEL',
+        key,
+      },
+    }) as unknown as LogEntry<EncryptedAndSignedPayload>
+
+  const mockChannelEntryIdentity = (userId: string): (() => void) => {
+    const identities = orbitDbService.identities
+    expect(identities).toBeDefined()
+    const teamId = sigChainService.getActiveChain().team!.id
+    const getIdentitySpy = jest.spyOn(identities!, 'getIdentity').mockResolvedValue({ id: userId, teamId } as any)
+    const verifyIdentitySpy = jest.spyOn(identities!, 'verifyIdentity').mockResolvedValue(true)
+    const entryVerifySpy = jest.spyOn(Entry, 'verify').mockResolvedValue(true)
+
+    return () => {
+      getIdentitySpy.mockRestore()
+      verifyIdentitySpy.mockRestore()
+      entryVerifySpy.mockRestore()
+    }
+  }
+
+  const expectChannelEntryValidation = async (
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    writerUserId: string,
+    expected: boolean
+  ): Promise<void> => {
+    const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId)
+
+    try {
+      await expect(channelsService.validateEntry(entry)).resolves.toBe(expected)
+    } finally {
+      restoreIdentityMocks()
+    }
+  }
 
   afterEach(async () => {
     await storageService.stop()
@@ -299,6 +399,239 @@ describe('ChannelsService', () => {
           signature: expect.any(String),
         }),
       })
+    })
+  })
+
+  describe('Channel metadata validation', () => {
+    it('accepts legitimate public channel metadata encrypted to the member role', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+
+      await expectChannelEntryValidation(channelPutEntry(publicChannel.id, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects public channel metadata when owner does not match the encrypted signature author', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const forgedPublicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedPublicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPublicChannel.id, forgedEntry, 'owner-encrypted-signature-mismatch'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('rejects public channel metadata when owner does not match the entry signature author', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, encryptedEntry, 'owner-entry-signature-mismatch'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('accepts legitimate private channel metadata encrypted to the channel role', async () => {
+      const activeChain = sigChainService.getActiveChain()
+      const privateChannel: PublicChannel = {
+        id: 'legitimate-private-channel-id',
+        name: 'legitimate-private-channel',
+        description: 'legitimate private channel metadata',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: false,
+        teamId: community.teamId!,
+      }
+      privateChannel.roleName = activeChain.channels.create(privateChannel.id)
+      const encryptedEntry = channelsService.encryptChannelEntry(privateChannel)
+
+      await expectChannelEntryValidation(channelPutEntry(privateChannel.id, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects forged private channel metadata encrypted to the broad member role', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const forgedPrivateChannel: PublicChannel = {
+        id: 'private-channel-id',
+        name: 'private-channel',
+        description: 'forged private channel metadata',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: false,
+        roleName: RoleName.MEMBER,
+        teamId: community.teamId!,
+      }
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedPrivateChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPrivateChannel.id, forgedEntry, 'forged-private-channel-metadata'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('rejects private channel metadata encrypted outside the channel role', async () => {
+      const activeChain = sigChainService.getActiveChain()
+      const privateChannel: PublicChannel = {
+        id: 'team-scoped-private-channel-id',
+        name: 'team-scoped-private-channel',
+        description: 'private channel metadata encrypted to team scope',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: false,
+        teamId: community.teamId!,
+      }
+      privateChannel.roleName = activeChain.channels.create(privateChannel.id)
+      const teamScopedEntry = activeChain.crypto.encryptAndSign(privateChannel, {
+        type: EncryptionScopeType.TEAM,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(privateChannel.id, teamScopedEntry, 'team-scoped-private-channel-metadata'),
+        aliceUserId,
+        false
+      )
+    })
+
+    it('rejects public metadata forged for an existing private channel id', async () => {
+      const activeChain = sigChainService.getActiveChain()
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const privateChannelId = 'downgraded-private-channel-id'
+      activeChain.channels.create(privateChannelId)
+
+      const forgedPublicChannel: PublicChannel = {
+        id: privateChannelId,
+        name: 'downgraded-private-channel',
+        description: 'forged public metadata for a private channel',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: true,
+        teamId: community.teamId!,
+      }
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedPublicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPublicChannel.id, forgedEntry, 'downgraded-private-channel-metadata'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('rejects metadata whose bound id does not commit to the writer (no prior state needed)', async () => {
+      // Alice owns a channel whose id cryptographically commits to her. Mallory tries to take it over
+      // by writing under the same id. This must be rejected purely from the id, with NOTHING in the
+      // store yet, which is what makes the check safe during initial sync / index rebuild.
+      const boundId = generateChannelId('takeover-target', aliceUserId)
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const hijackChannel: PublicChannel = {
+        id: boundId,
+        name: 'hijacked',
+        description: 'hijacked channel metadata',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: true,
+        teamId: community.teamId!,
+      }
+      const hijackEntry = malloryChain.crypto.encryptAndSign(hijackChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(boundId, hijackEntry, 'bound-channel-takeover-metadata'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('accepts metadata whose bound id commits to the writer', async () => {
+      const boundId = generateChannelId('owned-by-alice', aliceUserId)
+      const boundChannel: PublicChannel = {
+        id: boundId,
+        name: 'owned-by-alice',
+        description: 'legitimate bound channel metadata',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: true,
+        teamId: community.teamId!,
+      }
+      const encryptedEntry = channelsService.encryptChannelEntry(boundChannel)
+
+      await expectChannelEntryValidation(channelPutEntry(boundId, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects legacy-id metadata that overwrites an existing channel owned by another member', async () => {
+      // Legacy (unbound) ids fall back to the stateful check, which requires the original entry to be
+      // present/indexed first.
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      // Alice legitimately creates the channel
+      await channelsService.setChannel(publicChannel)
+
+      // Mallory tries to take it over by writing a fresh, self-signed entry under the same id
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const hijackChannel: PublicChannel = {
+        ...publicChannel,
+        owner: malloryChain.user.userId,
+        name: 'hijacked',
+        description: 'hijacked channel metadata',
+      }
+      const hijackEntry = malloryChain.crypto.encryptAndSign(hijackChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, hijackEntry, 'channel-takeover-metadata'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('rejects channel metadata stored under a different key', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+
+      await expectChannelEntryValidation(channelPutEntry('wrong-channel-id', encryptedEntry), aliceUserId, false)
+    })
+
+    it('accepts channel metadata deletion from a sigchain admin', async () => {
+      await expectChannelEntryValidation(channelDelEntry('channel-id-to-delete'), aliceUserId, true)
+    })
+
+    it('rejects channel metadata deletion from a non-admin member', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+
+      await expectChannelEntryValidation(
+        channelDelEntry('channel-id-to-delete', 'mallory-channel-delete-identity'),
+        malloryChain.user.userId,
+        false
+      )
     })
   })
 

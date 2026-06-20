@@ -86,7 +86,7 @@ export const CreateChannel = () => {
       return
     }
     const payload = {
-      id: generateChannelId(name),
+      id: generateChannelId(name, user.userId),
       name: name,
       description: `Welcome to #${name}`,
       public: isPublic,
