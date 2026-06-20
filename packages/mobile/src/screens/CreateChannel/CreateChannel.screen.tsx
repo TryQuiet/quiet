@@ -85,7 +85,7 @@ export const CreateChannelScreen: FC = () => {
         )
         return
       }
-      const id = generateChannelId(name)
+      const id = generateChannelId(name, user.userId)
 
       setChannel({ channelId: id, channelName: name })
 
