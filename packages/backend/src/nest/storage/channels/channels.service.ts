@@ -41,6 +41,7 @@ import { EncryptedAndSignedPayload, EncryptionScope, EncryptionScopeType } from 
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { isChannel } from '../../validation/validators'
+import { isBoundChannelId, verifyChannelIdOwner } from '@quiet/common'
 import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
 
@@ -310,6 +311,10 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
+    if (!(await this.validateChannelOwnership(entry, decEntry, writerIdentity.id))) {
+      return false
+    }
+
     if (!(decEntry.public ?? true)) {
       return this.validatePrivateChannelEntry(entry, encPayload, decEntry, sigAuthor)
     }
@@ -429,6 +434,96 @@ export class ChannelsService extends EventEmitter {
       id: writerIdentity.id,
       teamId: writerIdentity.teamId,
     }
+  }
+
+  /**
+   * Enforce that a channel's metadata can only be written by its owner.
+   *
+   * For bound channel ids (`${name}_${nonce}_${commitment}`) the owner is committed into the id, so
+   * we can verify ownership statelessly. This holds regardless of replication/index-rebuild order,
+   * which the stateful fallback below cannot guarantee.
+   *
+   * For legacy ids (created before owner binding) there is no commitment to check, so we fall back
+   * to comparing against the stored entry. That fallback only reliably protects the live case (it
+   * depends on the existing entry already being indexed), but it is the best we can do for channels
+   * that predate the migration.
+   *
+   * @param entry The log entry being validated
+   * @param decEntry The decrypted channel metadata from the new entry
+   * @param writerId The verified id of the entry writer (already pinned to the encrypted signature author and owner)
+   * @returns True if the writer is authorized to write this channel's metadata
+   */
+  private async validateChannelOwnership(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    decEntry: PublicChannel,
+    writerId: string
+  ): Promise<boolean> {
+    if (isBoundChannelId(decEntry.id)) {
+      if (!verifyChannelIdOwner(decEntry.id, writerId)) {
+        this.logger.error('Failed to validate channel entry: channel id is not bound to the writer:', entry.hash, {
+          channelId: decEntry.id,
+          writerId,
+        })
+        return false
+      }
+      return true
+    }
+
+    return this.validateLegacyChannelMetadataUpdate(entry, decEntry, writerId)
+  }
+
+  /**
+   * Legacy (pre-owner-binding) fallback. Channel metadata is write-once: the only legitimate PUT for
+   * a given channel id is its creation. If an entry already exists for this key, ensure the writer is
+   * the original owner and that the security-relevant fields (owner, public flag, role) are
+   * unchanged. NOTE: this depends on the existing entry already being indexed, so it does not protect
+   * against a takeover observed during an initial full replication/index rebuild.
+   *
+   * @param entry The log entry being validated
+   * @param decEntry The decrypted channel metadata from the new entry
+   * @param writerId The verified id of the entry writer (already pinned to the encrypted signature author and owner)
+   * @returns True if this is a fresh channel or a valid update by the original owner
+   */
+  private async validateLegacyChannelMetadataUpdate(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    decEntry: PublicChannel,
+    writerId: string
+  ): Promise<boolean> {
+    const stored = await this.channels!.get(entry.payload.key!)
+    if (stored == null) {
+      return true
+    }
+
+    // A stored entry that we cannot decrypt (e.g. a private channel we don't belong to) must not be
+    // overwritten. decryptChannelEntry throws here and validateEntry fails closed.
+    const storedChannel = this.decryptChannelEntry(stored as EncryptedAndSignedPayload, entry.payload.key!)
+
+    if (storedChannel.owner !== writerId) {
+      this.logger.error(
+        'Failed to validate channel entry: only the original owner may modify channel metadata:',
+        entry.hash,
+        { storedOwner: storedChannel.owner, writerId }
+      )
+      return false
+    }
+
+    if ((storedChannel.public ?? true) !== (decEntry.public ?? true)) {
+      this.logger.error('Failed to validate channel entry: channel public flag is immutable:', entry.hash, {
+        storedPublic: storedChannel.public,
+        newPublic: decEntry.public,
+      })
+      return false
+    }
+
+    if ((storedChannel.roleName ?? null) !== (decEntry.roleName ?? null)) {
+      this.logger.error('Failed to validate channel entry: channel role is immutable:', entry.hash, {
+        storedRoleName: storedChannel.roleName,
+        newRoleName: decEntry.roleName,
+      })
+      return false
+    }
+
+    return true
   }
 
   private async validateChannelDeleteEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
@@ -691,6 +786,12 @@ export class ChannelsService extends EventEmitter {
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
       teamId: payload.teamId,
+    }
+    // Self-defense: the channel id must commit to us (the owner) or our own validateEntry would
+    // reject the resulting entry network-wide. Fail fast before creating a role/store.
+    if (!verifyChannelIdOwner(channelData.id, channelData.owner)) {
+      this.logger.error('Refusing to create channel: id is not bound to the owner:', channelData.id)
+      return { status: ChannelOperationStatus.FAILED }
     }
     let roleName: string | undefined = undefined
     if (!(channelData.public ?? true)) {

@@ -40,6 +40,7 @@ import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/servi
 import { InviteService } from '../../auth/services/invites/invite.service'
 import { UserService } from '../../auth/services/members/user.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
+import { generateChannelId } from '@quiet/common'
 
 const logger = createLogger('channelsService:test')
 
@@ -531,6 +532,79 @@ describe('ChannelsService', () => {
 
       await expectChannelEntryValidation(
         channelPutEntry(forgedPublicChannel.id, forgedEntry, 'downgraded-private-channel-metadata'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('rejects metadata whose bound id does not commit to the writer (no prior state needed)', async () => {
+      // Alice owns a channel whose id cryptographically commits to her. Mallory tries to take it over
+      // by writing under the same id. This must be rejected purely from the id, with NOTHING in the
+      // store yet, which is what makes the check safe during initial sync / index rebuild.
+      const boundId = generateChannelId('takeover-target', aliceUserId)
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const hijackChannel: PublicChannel = {
+        id: boundId,
+        name: 'hijacked',
+        description: 'hijacked channel metadata',
+        owner: malloryChain.user.userId,
+        timestamp: Date.now(),
+        public: true,
+        teamId: community.teamId!,
+      }
+      const hijackEntry = malloryChain.crypto.encryptAndSign(hijackChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(boundId, hijackEntry, 'bound-channel-takeover-metadata'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('accepts metadata whose bound id commits to the writer', async () => {
+      const boundId = generateChannelId('owned-by-alice', aliceUserId)
+      const boundChannel: PublicChannel = {
+        id: boundId,
+        name: 'owned-by-alice',
+        description: 'legitimate bound channel metadata',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: true,
+        teamId: community.teamId!,
+      }
+      const encryptedEntry = channelsService.encryptChannelEntry(boundChannel)
+
+      await expectChannelEntryValidation(channelPutEntry(boundId, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects legacy-id metadata that overwrites an existing channel owned by another member', async () => {
+      // Legacy (unbound) ids fall back to the stateful check, which requires the original entry to be
+      // present/indexed first.
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      // Alice legitimately creates the channel
+      await channelsService.setChannel(publicChannel)
+
+      // Mallory tries to take it over by writing a fresh, self-signed entry under the same id
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const hijackChannel: PublicChannel = {
+        ...publicChannel,
+        owner: malloryChain.user.userId,
+        name: 'hijacked',
+        description: 'hijacked channel metadata',
+      }
+      const hijackEntry = malloryChain.crypto.encryptAndSign(hijackChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, hijackEntry, 'channel-takeover-metadata'),
         malloryChain.user.userId,
         false
       )
