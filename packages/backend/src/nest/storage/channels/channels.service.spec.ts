@@ -150,10 +150,12 @@ describe('ChannelsService', () => {
   const channelPutEntry = (
     key: string,
     value: EncryptedAndSignedPayload,
-    hash: string = 'test-channel-metadata-entry'
+    hash: string = 'test-channel-metadata-entry',
+    identity: string = 'test-channel-put-identity'
   ): LogEntry<EncryptedAndSignedPayload> =>
     ({
       hash,
+      identity,
       payload: {
         op: 'PUT',
         key,
@@ -187,6 +189,20 @@ describe('ChannelsService', () => {
       getIdentitySpy.mockRestore()
       verifyIdentitySpy.mockRestore()
       entryVerifySpy.mockRestore()
+    }
+  }
+
+  const expectChannelEntryValidation = async (
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    writerUserId: string,
+    expected: boolean
+  ): Promise<void> => {
+    const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId)
+
+    try {
+      await expect(channelsService.validateEntry(entry)).resolves.toBe(expected)
+    } finally {
+      restoreIdentityMocks()
     }
   }
 
@@ -393,7 +409,40 @@ describe('ChannelsService', () => {
       })
       const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
 
-      await expect(channelsService.validateEntry(channelPutEntry(publicChannel.id, encryptedEntry))).resolves.toBe(true)
+      await expectChannelEntryValidation(channelPutEntry(publicChannel.id, encryptedEntry), aliceUserId, true)
+    })
+
+    it('rejects public channel metadata when owner does not match the encrypted signature author', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const forgedPublicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const forgedEntry = malloryChain.crypto.encryptAndSign(forgedPublicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPublicChannel.id, forgedEntry, 'owner-encrypted-signature-mismatch'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
+    it('rejects public channel metadata when owner does not match the entry signature author', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, encryptedEntry, 'owner-entry-signature-mismatch'),
+        malloryChain.user.userId,
+        false
+      )
     })
 
     it('accepts legitimate private channel metadata encrypted to the channel role', async () => {
@@ -410,9 +459,7 @@ describe('ChannelsService', () => {
       privateChannel.roleName = activeChain.channels.create(privateChannel.id)
       const encryptedEntry = channelsService.encryptChannelEntry(privateChannel)
 
-      await expect(channelsService.validateEntry(channelPutEntry(privateChannel.id, encryptedEntry))).resolves.toBe(
-        true
-      )
+      await expectChannelEntryValidation(channelPutEntry(privateChannel.id, encryptedEntry), aliceUserId, true)
     })
 
     it('rejects forged private channel metadata encrypted to the broad member role', async () => {
@@ -432,11 +479,11 @@ describe('ChannelsService', () => {
         name: RoleName.MEMBER,
       })
 
-      await expect(
-        channelsService.validateEntry(
-          channelPutEntry(forgedPrivateChannel.id, forgedEntry, 'forged-private-channel-metadata')
-        )
-      ).resolves.toBe(false)
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPrivateChannel.id, forgedEntry, 'forged-private-channel-metadata'),
+        malloryChain.user.userId,
+        false
+      )
     })
 
     it('rejects private channel metadata encrypted outside the channel role', async () => {
@@ -455,11 +502,11 @@ describe('ChannelsService', () => {
         type: EncryptionScopeType.TEAM,
       })
 
-      await expect(
-        channelsService.validateEntry(
-          channelPutEntry(privateChannel.id, teamScopedEntry, 'team-scoped-private-channel-metadata')
-        )
-      ).resolves.toBe(false)
+      await expectChannelEntryValidation(
+        channelPutEntry(privateChannel.id, teamScopedEntry, 'team-scoped-private-channel-metadata'),
+        aliceUserId,
+        false
+      )
     })
 
     it('rejects public metadata forged for an existing private channel id', async () => {
@@ -482,11 +529,11 @@ describe('ChannelsService', () => {
         name: RoleName.MEMBER,
       })
 
-      await expect(
-        channelsService.validateEntry(
-          channelPutEntry(forgedPublicChannel.id, forgedEntry, 'downgraded-private-channel-metadata')
-        )
-      ).resolves.toBe(false)
+      await expectChannelEntryValidation(
+        channelPutEntry(forgedPublicChannel.id, forgedEntry, 'downgraded-private-channel-metadata'),
+        malloryChain.user.userId,
+        false
+      )
     })
 
     it('rejects channel metadata stored under a different key', async () => {
@@ -496,32 +543,21 @@ describe('ChannelsService', () => {
       })
       const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
 
-      await expect(channelsService.validateEntry(channelPutEntry('wrong-channel-id', encryptedEntry))).resolves.toBe(
-        false
-      )
+      await expectChannelEntryValidation(channelPutEntry('wrong-channel-id', encryptedEntry), aliceUserId, false)
     })
 
     it('accepts channel metadata deletion from a sigchain admin', async () => {
-      const restoreIdentityMocks = mockChannelEntryIdentity(aliceUserId)
-
-      try {
-        await expect(channelsService.validateEntry(channelDelEntry('channel-id-to-delete'))).resolves.toBe(true)
-      } finally {
-        restoreIdentityMocks()
-      }
+      await expectChannelEntryValidation(channelDelEntry('channel-id-to-delete'), aliceUserId, true)
     })
 
     it('rejects channel metadata deletion from a non-admin member', async () => {
       const malloryChain = createNonAdminMemberChain('mallory')
-      const restoreIdentityMocks = mockChannelEntryIdentity(malloryChain.user.userId)
 
-      try {
-        await expect(
-          channelsService.validateEntry(channelDelEntry('channel-id-to-delete', 'mallory-channel-delete-identity'))
-        ).resolves.toBe(false)
-      } finally {
-        restoreIdentityMocks()
-      }
+      await expectChannelEntryValidation(
+        channelDelEntry('channel-id-to-delete', 'mallory-channel-delete-identity'),
+        malloryChain.user.userId,
+        false
+      )
     })
   })
 
