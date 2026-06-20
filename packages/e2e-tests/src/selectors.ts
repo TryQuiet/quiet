@@ -2252,7 +2252,9 @@ export class Sidebar {
     return channel
   }
 
-  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
+  // NOTE: expectToggle defaults to false because the private channel toggle is currently hidden from
+  // the UI. Creating private channels (isPublic=false) is therefore not possible via the UI.
+  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = false): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,

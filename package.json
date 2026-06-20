@@ -16,7 +16,7 @@
     "lint-staged": "lerna run lint-staged",
     "pull:submodules": "git submodule update --init --recursive --remote",
     "build:auth": "cd ./3rd-party/auth && pnpm install && pnpm build",
-    "build:noise": "cd ./3rd-party/js-libp2p-noise && npm i && npm run build",
+    "build:noise": "node scripts/patch-noise-overrides.js && cd ./3rd-party/js-libp2p-noise && npm i && npm run build",
     "build:orbitdb": "cd ./3rd-party/orbitdb && npm i && npm run build:dist && npm run build:debug",
     "applyPatches:qss": "patch -f -p0 < ./patch/qss.npmrc.patch || true",
     "build:qss": "cd ./3rd-party/qss && pnpm run bootstrap",

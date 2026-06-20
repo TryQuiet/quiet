@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.3.1]
+
+### Fixes
+
+* Temporarily disabled private channels
+
 ## [7.3.0]
 
 ### Features

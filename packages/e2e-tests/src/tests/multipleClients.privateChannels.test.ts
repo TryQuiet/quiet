@@ -28,7 +28,9 @@ import {
 const logger = createLogger('multipleClients:privateChannels')
 
 jest.setTimeout(1200000) // 20 minutes
-describe('Multiple Clients (Private Channels)', () => {
+// TODO: Re-enable when private channels are unhidden in the UI. Private channels (and the create
+// toggle) are currently hidden, so they cannot be created or viewed via the UI.
+describe.skip('Multiple Clients (Private Channels)', () => {
   let generalChannelOwner: Channel
   let generalChannelUser1: Channel
   let generalChannelUser2: Channel
