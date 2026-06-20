@@ -246,11 +246,11 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
-  private validateChannelEntryMetadata(
+  private async validateChannelEntryMetadata(
     entry: LogEntry<EncryptedAndSignedPayload>,
     encPayload: EncryptedAndSignedPayload,
     decEntry: PublicChannel
-  ): boolean {
+  ): Promise<boolean> {
     const key = entry.payload.key
     const sigAuthor = encPayload.signature.author.name
     const chain = this.sigchainService.getActiveChain(false)
@@ -273,6 +273,32 @@ export class ChannelsService extends EventEmitter {
         userId: encPayload.userId,
         sigAuthor,
       })
+      return false
+    }
+
+    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, 'PUT')
+    if (writerIdentity == null) {
+      return false
+    }
+
+    if (writerIdentity.teamId !== chain.team!.id) {
+      this.logger.error('Failed to validate channel entry: entry identity team must match active chain:', entry.hash, {
+        entryTeamId: writerIdentity.teamId,
+        activeTeamId: chain.team!.id,
+      })
+      return false
+    }
+
+    if (decEntry.owner !== sigAuthor || decEntry.owner !== writerIdentity.id) {
+      this.logger.error(
+        'Failed to validate channel entry: owner must match encrypted payload signature author and entry signature author:',
+        entry.hash,
+        {
+          owner: decEntry.owner,
+          encryptedSignatureAuthor: sigAuthor,
+          entrySignatureAuthor: writerIdentity.id,
+        }
+      )
       return false
     }
 
@@ -362,21 +388,53 @@ export class ChannelsService extends EventEmitter {
     return true
   }
 
-  private async validateChannelDeleteEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
-    const key = entry.payload.key
-    if (!key) {
-      this.logger.error('Delete channel entry is missing key:', entry.hash)
-      return false
-    }
-
+  private async getVerifiedChannelEntryWriter(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    operation: 'PUT' | 'DEL'
+  ): Promise<{ id: string; teamId: string } | undefined> {
     if (!entry.identity) {
-      this.logger.error('Failed to validate delete channel entry: entry identity is missing:', entry.hash)
-      return false
+      this.logger.error(`Failed to validate channel ${operation} entry: entry identity is missing:`, entry.hash)
+      return undefined
     }
 
     const identities = this.orbitDbService.identities
     if (identities == null) {
-      this.logger.error('Failed to validate delete channel entry: OrbitDB identities are not initialized:', entry.hash)
+      this.logger.error(
+        `Failed to validate channel ${operation} entry: OrbitDB identities are not initialized:`,
+        entry.hash
+      )
+      return undefined
+    }
+
+    const writerIdentity = await identities.getIdentity(entry.identity)
+    const identityVerified = await identities.verifyIdentity(writerIdentity)
+    if (!identityVerified) {
+      this.logger.error(
+        `Failed to validate channel ${operation} entry: entry identity verification failed:`,
+        entry.hash
+      )
+      return undefined
+    }
+
+    const entryVerified = await Entry.verify(identities as any, entry)
+    if (!entryVerified) {
+      this.logger.error(
+        `Failed to validate channel ${operation} entry: entry signature verification failed:`,
+        entry.hash
+      )
+      return undefined
+    }
+
+    return {
+      id: writerIdentity.id,
+      teamId: writerIdentity.teamId,
+    }
+  }
+
+  private async validateChannelDeleteEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    const key = entry.payload.key
+    if (!key) {
+      this.logger.error('Delete channel entry is missing key:', entry.hash)
       return false
     }
 
@@ -386,16 +444,8 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    const writerIdentity = await identities.getIdentity(entry.identity)
-    const identityVerified = await identities.verifyIdentity(writerIdentity)
-    if (!identityVerified) {
-      this.logger.error('Failed to validate delete channel entry: entry identity verification failed:', entry.hash)
-      return false
-    }
-
-    const entryVerified = await Entry.verify(identities as any, entry)
-    if (!entryVerified) {
-      this.logger.error('Failed to validate delete channel entry: entry signature verification failed:', entry.hash)
+    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, 'DEL')
+    if (writerIdentity == null) {
       return false
     }
 
@@ -436,7 +486,7 @@ export class ChannelsService extends EventEmitter {
           this.logger.error('Decrypted channel entry is not a valid channel:', entry.hash, decEntry)
           return false
         }
-        if (!this.validateChannelEntryMetadata(entry, encPayload, decEntry)) {
+        if (!(await this.validateChannelEntryMetadata(entry, encPayload, decEntry))) {
           return false
         }
       }
