@@ -10,6 +10,7 @@
 ### Fixes
 
 * Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+* Ensure notification registration waits for auth handshake [#3289](https://github.com/TryQuiet/quiet/issues/3289)
 
 ## [7.3.0]
 
