@@ -16,18 +16,21 @@ import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
 import { UserProfile } from '@quiet/types'
 
+const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE = 'Permissions'
+const CHANNEL_MEMBERSHIP_TITLE = 'Members in this channel'
+const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE = 'Members'
+const CHANNEL_MEMBERSHIP_SUBTITLE = undefined
+
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
 
   const [memberCountSuffix, setMemberCountSuffix] = useState<string>('')
-  const [isChannelOwner, setIsChannelOwner] = useState<boolean>(false)
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const isOwner = useSelector(communities.selectors.isOwner)
   const userProfiles = useSelector(users.selectors.userProfiles)
-  const me = useSelector(users.selectors.myUserProfile)
 
   const _initializeData = () => {
     if (channel == null) return
@@ -36,10 +39,6 @@ export const ChannelContextMenu: FC = () => {
     )
     setMemberCountSuffix(`${membersInChannel.length}`)
   }
-
-  useEffect(() => {
-    setIsChannelOwner(me != null && channel != null && channel.owner === me.userId)
-  }, [channel, me])
 
   let title = ''
   if (channel?.name) {
@@ -68,14 +67,13 @@ export const ChannelContextMenu: FC = () => {
 
   if (channel?.public === false) {
     items.push({
-      title: isChannelOwner ? 'Permissions' : 'Members in this channel',
-      subtitle: isChannelOwner ? 'Members' : undefined,
+      title: CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE,
+      subtitle: CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE,
       suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {
           channelName: channel?.name,
           channelId: channel?.id,
-          isChannelOwner,
         }),
     })
   }
