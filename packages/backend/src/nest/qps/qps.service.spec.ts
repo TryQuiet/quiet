@@ -23,6 +23,13 @@ class MockSigChainService extends EventEmitter {
   get team() {
     return this.activeChain?.team
   }
+  get activeTeamId() {
+    try {
+      return this.getActiveChain(false)?.team?.id
+    } catch {
+      return undefined
+    }
+  }
   getActiveChain(throwError = true) {
     if (this.activeChain == null) {
       if (!throwError) {

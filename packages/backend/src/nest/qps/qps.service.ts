@@ -50,16 +50,8 @@ export class QPSService implements OnModuleInit {
     return this.qpsAllowed
   }
 
-  private get activeTeamId(): Base58 | undefined {
-    try {
-      return this.sigChainService.getActiveChain(false)?.team?.id
-    } catch {
-      return undefined
-    }
-  }
-
   private get ready(): boolean {
-    const teamId = this.activeTeamId
+    const teamId = this.sigChainService.activeTeamId
     return (
       teamId != null &&
       this.qssClient.connected &&
@@ -174,7 +166,7 @@ export class QPSService implements OnModuleInit {
   private async _flushPendingToken(): Promise<void> {
     this.logger.debug('Checking if pending device token can be flushed')
     const hasPendingToken = this._pendingDeviceToken != undefined
-    const teamId = this.activeTeamId
+    const teamId = this.sigChainService.activeTeamId
     const qssConnected = this.qssClient.connected
     const qssAuthJoined = teamId != null && this.qssService.joinStatus(teamId) === JoinStatus.JOINED
     const hasMemberKey = this._hasMemberKey()
@@ -317,7 +309,7 @@ export class QPSService implements OnModuleInit {
   private async _register(payload: DeviceTokenPayload): Promise<QPSRegisterResponse | undefined> {
     this.logger.info('Registering device token')
     try {
-      const teamId = this.activeTeamId
+      const teamId = this.sigChainService.activeTeamId
       if (teamId == null) {
         this.logger.warn('Cannot register device token before active team is available')
         return undefined
