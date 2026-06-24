@@ -7,6 +7,7 @@ import { ORBIT_DB_DIR } from '../../const'
 import { createLogger } from '../../common/logger'
 import { logEntryToLogUpdate, posixJoin } from './util'
 import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
+import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMetadataAccessController'
 import {
   createOrbitDB,
   type OrbitDBType,
@@ -44,7 +45,8 @@ export class OrbitDbService {
     private readonly localDbService: LocalDbService,
     private readonly sigChainService: SigChainService,
     private readonly lfaIdentities: LFAIdentities,
-    private readonly messagesAccessController: MessagesAccessController
+    private readonly messagesAccessController: MessagesAccessController,
+    private readonly channelMetadataAccessController: ChannelMetadataAccessController
   ) {
     OrbitDbService.events.on('update', (entry: LogEntry) => {
       if (entry.identity == this.orbitDbInstance?.identity.hash) {
@@ -71,6 +73,12 @@ export class OrbitDbService {
 
     orbitDbUseAccessController(
       this.messagesAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+      }) as any
+    )
+    orbitDbUseAccessController(
+      this.channelMetadataAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigChainService,
       }) as any
@@ -150,6 +158,9 @@ export class OrbitDbService {
     const store = await this.orbitDbInstance.open<T>(address, options)
     const storeAddress = (store as { address: string }).address
     this.stores[storeAddress] = store
+    store.events?.on?.('close', () => {
+      delete this.stores[storeAddress]
+    })
     this.logger.info(`Opened OrbitDB store ${address} at address: ${storeAddress}`)
 
     await this.joinPendingHeads(storeAddress)

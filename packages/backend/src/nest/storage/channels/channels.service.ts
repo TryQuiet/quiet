@@ -41,9 +41,9 @@ import { EncryptedAndSignedPayload, EncryptionScope, EncryptionScopeType } from 
 import { RoleName } from '../../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { isChannel } from '../../validation/validators'
-import { isBoundChannelId, verifyChannelIdOwner } from '@quiet/common'
 import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
+import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -63,12 +63,8 @@ export class ChannelsService extends EventEmitter {
     }
 
     try {
-      const currentChannelsCount = (await this.getChannels()).length
       await this.channels.retryIndexingUnindexedEntries()
-      const newChannelsCount = (await this.getChannels()).length
-      if (currentChannelsCount !== newChannelsCount) {
-        await this.broadcastCurrentChannels()
-      }
+      await this.broadcastCurrentChannels()
     } catch (e) {
       this.logger.warn('Error when attempting to reindex on sigchain update', e)
     }
@@ -85,7 +81,8 @@ export class ChannelsService extends EventEmitter {
     private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDbService,
     private readonly moduleRef: ModuleRef,
-    private readonly sigchainService: SigChainService
+    private readonly sigchainService: SigChainService,
+    private readonly channelMetadataAccessController: ChannelMetadataAccessController
   ) {
     super()
     this._handleEventDownloadProgress = this._handleEventDownloadProgress.bind(this)
@@ -167,14 +164,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating channels database')
-    this.channels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      CHANNEL_METADATA_STORE_NAME,
-      {
-        sync: false,
-        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
-        AccessController: IPFSAccessController({ write: ['*'] }),
-      }
-    )
+    this.channels = await this.openMigratedChannelsDb()
 
     this.channels.events.on('update', (entry: LogEntry<ConsumedChannelMessage>) => {
       const channelId = entry.payload?.value?.channelId
@@ -199,6 +189,72 @@ export class ChannelsService extends EventEmitter {
     for (const channel of channels.values()) {
       await this.subscribeToChannel(channel)
     }
+  }
+
+  private async openMigratedChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
+    const legacyChannels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
+      CHANNEL_METADATA_STORE_NAME,
+      {
+        sync: false,
+        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
+        AccessController: IPFSAccessController({ write: ['*'] }),
+      }
+    )
+    const newChannels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
+      CHANNEL_METADATA_STORE_NAME,
+      {
+        sync: false,
+        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
+        AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService: this.sigchainService,
+        }),
+      }
+    )
+    const legacyEntries = await legacyChannels.all()
+    const newChannelsCount = (await newChannels.all()).length
+
+    if (newChannelsCount > 0) {
+      await legacyChannels.close()
+      return newChannels
+    }
+
+    if (legacyEntries.length === 0) {
+      await legacyChannels.close()
+      return newChannels
+    }
+
+    if (this.currentUserIsAdmin()) {
+      this.logger.info('Migrating legacy channel metadata into custom access-controller database', {
+        legacyAddress: legacyChannels.address,
+        newAddress: newChannels.address,
+        channels: legacyEntries.length,
+      })
+
+      this.channels = newChannels
+      for (const entry of legacyEntries) {
+        await newChannels.put(entry.key, entry.value)
+      }
+
+      await legacyChannels.close()
+      return newChannels
+    }
+
+    this.logger.info('Using legacy channel metadata database until an admin populates the new database', {
+      legacyAddress: legacyChannels.address,
+      newAddress: newChannels.address,
+      channels: legacyEntries.length,
+    })
+    await newChannels.close()
+    return legacyChannels
+  }
+
+  private currentUserIsAdmin(): boolean {
+    const chain = this.sigchainService.getActiveChain(false)
+    if (chain == null) {
+      return false
+    }
+    return chain.roles.memberIsAdmin(chain.user.userId)
   }
 
   public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
@@ -436,48 +492,20 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
-  /**
-   * Enforce that a channel's metadata can only be written by its owner.
-   *
-   * For bound channel ids (`${name}_${nonce}_${commitment}`) the owner is committed into the id, so
-   * we can verify ownership statelessly. This holds regardless of replication/index-rebuild order,
-   * which the stateful fallback below cannot guarantee.
-   *
-   * For legacy ids (created before owner binding) there is no commitment to check, so we fall back
-   * to comparing against the stored entry. That fallback only reliably protects the live case (it
-   * depends on the existing entry already being indexed), but it is the best we can do for channels
-   * that predate the migration.
-   *
-   * @param entry The log entry being validated
-   * @param decEntry The decrypted channel metadata from the new entry
-   * @param writerId The verified id of the entry writer (already pinned to the encrypted signature author and owner)
-   * @returns True if the writer is authorized to write this channel's metadata
-   */
   private async validateChannelOwnership(
     entry: LogEntry<EncryptedAndSignedPayload>,
     decEntry: PublicChannel,
     writerId: string
   ): Promise<boolean> {
-    if (isBoundChannelId(decEntry.id)) {
-      if (!verifyChannelIdOwner(decEntry.id, writerId)) {
-        this.logger.error('Failed to validate channel entry: channel id is not bound to the writer:', entry.hash, {
-          channelId: decEntry.id,
-          writerId,
-        })
-        return false
-      }
-      return true
-    }
-
     return this.validateLegacyChannelMetadataUpdate(entry, decEntry, writerId)
   }
 
   /**
-   * Legacy (pre-owner-binding) fallback. Channel metadata is write-once: the only legitimate PUT for
-   * a given channel id is its creation. If an entry already exists for this key, ensure the writer is
-   * the original owner and that the security-relevant fields (owner, public flag, role) are
-   * unchanged. NOTE: this depends on the existing entry already being indexed, so it does not protect
-   * against a takeover observed during an initial full replication/index rebuild.
+   * Channel metadata is write-once: the only legitimate PUT for a given channel id is its creation.
+   * If an entry already exists for this key, ensure the writer is the original owner and that the
+   * security-relevant fields (owner, public flag, role) are unchanged. NOTE: this depends on the
+   * existing entry already being indexed, so it does not protect against a takeover observed during
+   * an initial full replication/index rebuild.
    *
    * @param entry The log entry being validated
    * @param decEntry The decrypted channel metadata from the new entry
@@ -574,6 +602,10 @@ export class ChannelsService extends EventEmitter {
   public async validateEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
     // TODO: unpin invalidated entries?
     try {
+      if (await this.isAdminChannelMetadataWriter(entry)) {
+        return true
+      }
+
       if (entry.payload.op === 'PUT') {
         const encPayload = entry.payload.value!
         const decEntry = this.decryptChannelEntry(encPayload)
@@ -599,6 +631,28 @@ export class ChannelsService extends EventEmitter {
       return false
     }
     return true
+  }
+
+  private async isAdminChannelMetadataWriter(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    if (entry.payload.op !== 'PUT' && entry.payload.op !== 'DEL') {
+      return false
+    }
+
+    const chain = this.sigchainService.getActiveChain(false)
+    if (chain == null) {
+      return false
+    }
+
+    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, entry.payload.op)
+    if (writerIdentity == null) {
+      return false
+    }
+
+    if (writerIdentity.teamId !== chain.team!.id) {
+      return false
+    }
+
+    return chain.roles.memberIsAdmin(writerIdentity.id)
   }
 
   /**
@@ -786,12 +840,6 @@ export class ChannelsService extends EventEmitter {
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
       teamId: payload.teamId,
-    }
-    // Self-defense: the channel id must commit to us (the owner) or our own validateEntry would
-    // reject the resulting entry network-wide. Fail fast before creating a role/store.
-    if (!verifyChannelIdOwner(channelData.id, channelData.owner)) {
-      this.logger.error('Refusing to create channel: id is not bound to the owner:', channelData.id)
-      return { status: ChannelOperationStatus.FAILED }
     }
     let roleName: string | undefined = undefined
     if (!(channelData.public ?? true)) {

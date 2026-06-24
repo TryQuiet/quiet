@@ -40,7 +40,7 @@ import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/servi
 import { InviteService } from '../../auth/services/invites/invite.service'
 import { UserService } from '../../auth/services/members/user.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
-import { generateChannelId } from '@quiet/common'
+import { SigchainEvents } from '../../auth/types'
 
 const logger = createLogger('channelsService:test')
 
@@ -217,6 +217,22 @@ describe('ChannelsService', () => {
   })
 
   describe('Channels', () => {
+    it('rebroadcasts channel metadata after sigchain updates', async () => {
+      expect(channelsService.channels).toBeDefined()
+
+      const retryIndexingSpy = jest
+        .spyOn(channelsService.channels!, 'retryIndexingUnindexedEntries')
+        .mockResolvedValue()
+      const broadcastCurrentChannelsSpy = jest.spyOn(channelsService, 'broadcastCurrentChannels').mockResolvedValue()
+
+      sigChainService.emit(SigchainEvents.UPDATED)
+
+      await waitForExpect(() => {
+        expect(retryIndexingSpy).toHaveBeenCalled()
+        expect(broadcastCurrentChannelsSpy).toHaveBeenCalled()
+      })
+    })
+
     it('deletes channel as owner', async () => {
       logger.info('Deleting channel as owner')
       await channelsService.subscribeToChannel(channel)
@@ -446,6 +462,24 @@ describe('ChannelsService', () => {
       )
     })
 
+    it('accepts admin-republished public channel metadata owned by another member', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: malloryChain.user.userId,
+        teamId: community.teamId!,
+      })
+      const encryptedEntry = malloryChain.crypto.encryptAndSign(publicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, encryptedEntry, 'admin-republished-channel-metadata'),
+        aliceUserId,
+        true
+      )
+    })
+
     it('accepts legitimate private channel metadata encrypted to the channel role', async () => {
       const activeChain = sigChainService.getActiveChain()
       const privateChannel: PublicChannel = {
@@ -489,23 +523,24 @@ describe('ChannelsService', () => {
 
     it('rejects private channel metadata encrypted outside the channel role', async () => {
       const activeChain = sigChainService.getActiveChain()
+      const malloryChain = createNonAdminMemberChain('mallory')
       const privateChannel: PublicChannel = {
         id: 'team-scoped-private-channel-id',
         name: 'team-scoped-private-channel',
         description: 'private channel metadata encrypted to team scope',
-        owner: aliceUserId,
+        owner: malloryChain.user.userId,
         timestamp: Date.now(),
         public: false,
         teamId: community.teamId!,
       }
       privateChannel.roleName = activeChain.channels.create(privateChannel.id)
-      const teamScopedEntry = activeChain.crypto.encryptAndSign(privateChannel, {
+      const teamScopedEntry = malloryChain.crypto.encryptAndSign(privateChannel, {
         type: EncryptionScopeType.TEAM,
       })
 
       await expectChannelEntryValidation(
         channelPutEntry(privateChannel.id, teamScopedEntry, 'team-scoped-private-channel-metadata'),
-        aliceUserId,
+        malloryChain.user.userId,
         false
       )
     })
@@ -535,49 +570,6 @@ describe('ChannelsService', () => {
         malloryChain.user.userId,
         false
       )
-    })
-
-    it('rejects metadata whose bound id does not commit to the writer (no prior state needed)', async () => {
-      // Alice owns a channel whose id cryptographically commits to her. Mallory tries to take it over
-      // by writing under the same id. This must be rejected purely from the id, with NOTHING in the
-      // store yet, which is what makes the check safe during initial sync / index rebuild.
-      const boundId = generateChannelId('takeover-target', aliceUserId)
-      const malloryChain = createNonAdminMemberChain('mallory')
-      const hijackChannel: PublicChannel = {
-        id: boundId,
-        name: 'hijacked',
-        description: 'hijacked channel metadata',
-        owner: malloryChain.user.userId,
-        timestamp: Date.now(),
-        public: true,
-        teamId: community.teamId!,
-      }
-      const hijackEntry = malloryChain.crypto.encryptAndSign(hijackChannel, {
-        type: EncryptionScopeType.ROLE,
-        name: RoleName.MEMBER,
-      })
-
-      await expectChannelEntryValidation(
-        channelPutEntry(boundId, hijackEntry, 'bound-channel-takeover-metadata'),
-        malloryChain.user.userId,
-        false
-      )
-    })
-
-    it('accepts metadata whose bound id commits to the writer', async () => {
-      const boundId = generateChannelId('owned-by-alice', aliceUserId)
-      const boundChannel: PublicChannel = {
-        id: boundId,
-        name: 'owned-by-alice',
-        description: 'legitimate bound channel metadata',
-        owner: aliceUserId,
-        timestamp: Date.now(),
-        public: true,
-        teamId: community.teamId!,
-      }
-      const encryptedEntry = channelsService.encryptChannelEntry(boundChannel)
-
-      await expectChannelEntryValidation(channelPutEntry(boundId, encryptedEntry), aliceUserId, true)
     })
 
     it('rejects legacy-id metadata that overwrites an existing channel owned by another member', async () => {
@@ -611,13 +603,21 @@ describe('ChannelsService', () => {
     })
 
     it('rejects channel metadata stored under a different key', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
       const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
-        owner: aliceUserId,
+        owner: malloryChain.user.userId,
         teamId: community.teamId!,
       })
-      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+      const encryptedEntry = malloryChain.crypto.encryptAndSign(publicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
 
-      await expectChannelEntryValidation(channelPutEntry('wrong-channel-id', encryptedEntry), aliceUserId, false)
+      await expectChannelEntryValidation(
+        channelPutEntry('wrong-channel-id', encryptedEntry),
+        malloryChain.user.userId,
+        false
+      )
     })
 
     it('accepts channel metadata deletion from a sigchain admin', async () => {
