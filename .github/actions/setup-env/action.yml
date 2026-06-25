@@ -1,5 +1,5 @@
 name: 'Setup environment'
-
+description: 'Setup environment'
 inputs:
   bootstrap-packages:
     description: 'Lerna bootstrap packages (comma separated without spaces)'

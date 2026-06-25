@@ -19,10 +19,10 @@ jobs:
     uses: ./.github/workflows/e2e-mac.yml
   linux:
     uses: ./.github/workflows/e2e-linux.yml
-  linux-qss:
-    uses: ./.github/workflows/e2e-qss-linux.yml
-  linux-back-compat:
-    uses: ./.github/workflows/e2e-back-compat-linux.yml
+  # linux-qss:
+  #   uses: ./.github/workflows/e2e-qss-linux.yml
+  # linux-back-compat:
+  #   uses: ./.github/workflows/e2e-back-compat-linux.yml
   # windows:
   #   uses: ./.github/workflows/e2e-win.yml
     

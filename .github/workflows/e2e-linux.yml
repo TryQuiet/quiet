@@ -2,16 +2,9 @@ name: E2E linux
 
 on: [workflow_call]
 jobs:
-
-  linux:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-22.04]
-
+  linux-build:
+    runs-on: ubuntu-22.04
     timeout-minutes: 180
-
     env:
       DISPLAY: ":99.0"
       TEST_MODE: true
@@ -67,6 +60,42 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
+      - name: Upload linux binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary-${{ github.sha }}
+          path: packages/e2e-tests/Quiet/${{ env.FILE_NAME }}
+
+      - name: "Cache Working Directory"
+        id: cache-wd-save
+        uses: actions/cache/save@v5
+        with:
+          path: .
+          key: e2e-linux-${{ runner.OS }}-wd-cache-${{ github.sha }}
+
+  linux-test-basic:
+    needs: linux-build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    env:
+      DISPLAY: ":99.0"
+      TEST_MODE: true
+      IS_CI: true
+      SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
+
+    steps:
+      - name: "Restore Cached Working Directory"
+        id: cache-wd-restore
+        uses: actions/cache/restore@v5
+        with:
+          path: .
+          key: e2e-linux-${{ runner.OS }}-wd-cache-${{ github.sha }}
+
+      - name: Download linux binary
+        uses: actions/download-artifact@v5
+        with:
+          name: linux-binary-${{ github.sha }}
+
       - name: Run one client test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
@@ -80,6 +109,22 @@ jobs:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test userProfile.test.ts
+
+  linux-test-multi:
+    needs: linux-build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    env:
+      DISPLAY: ":99.0"
+      TEST_MODE: true
+      IS_CI: true
+      SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
+
+    steps:
+      - name: Download linux binary
+        uses: actions/download-artifact@v5
+        with:
+          name: linux-binary-${{ github.sha }}
 
       - name: Run multiple clients test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
@@ -101,3 +146,47 @@ jobs:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
+
+  linux-test-back-compat:
+    needs: linux-build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    env:
+      DISPLAY: ":99.0"
+      TEST_MODE: true
+      IS_CI: true
+      SKIP_BACK_COMPAT_TEST_BRANCHES: '["update-orbitdb", "chore/upgrade-orbitdb-2_4_3", "fix/2679-2680-2682-3_0-fixes"]'
+
+    steps:
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
+        with:
+          path: packages/mobile
+
+      - name: Check for major version
+        id: major-ver
+        run: |
+          echo ${{ steps.extract_version.outputs.version }}
+          if [[ "${{ steps.extract_version.outputs.version }}" =~ ^[[:digit:]]+\.0\.0(-alpha.[[:digit:]]+)?$ ]]; then
+              echo "This is a major version"
+              echo "match=true" >> $GITHUB_OUTPUT
+          else
+              echo "This is NOT a major version"
+              echo "match=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download linux binary
+        uses: actions/download-artifact@v5
+        with:
+          name: linux-binary-${{ github.sha }}
+          
+      - name: Run Backwards Compatibility test
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: ${{ steps.major-ver.outputs.match == 'false' }}
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            echo "Running backwards compatibility test for branch $GITHUB_HEAD_REF"
+            cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
