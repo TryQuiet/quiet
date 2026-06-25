@@ -14,6 +14,7 @@ import { createLogger } from './nest/common/logger'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { randomBytes } from 'crypto'
 import { sleep } from './nest/common/sleep'
+import { type BackendLeaveCommunityMessage } from '@quiet/types'
 
 // Shutdown helper constants
 const SHUTDOWN_TIMEOUT = 60_000 // 1 minute
@@ -213,13 +214,15 @@ export const runBackendDesktop = async (secret: string) => {
       await shutdown.gracefulCloseServices()
     }
     if (message === 'leaveCommunity') {
+      let success = false
       try {
-        await connectionsManager.leaveCommunity()
+        success = await connectionsManager.leaveCommunity()
       } catch (e) {
         logger.error('Error occurred while leaving community', e)
         await shutdown.initiateShutdown(1, 'leaveCommunity error')
       }
-      if (process.send) process.send('leftCommunity')
+      const response: BackendLeaveCommunityMessage = { type: 'leftCommunity', success }
+      if (process.connected) process.send?.(response)
     }
   })
 }
