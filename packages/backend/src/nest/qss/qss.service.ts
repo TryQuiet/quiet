@@ -183,9 +183,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       `Is user now member through self-assign?`,
       sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
     )
-    this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
     this.qssAuthConnManager.markMemberRoleReady(teamId)
     this.qssSyncManager.markMemberRoleReady(teamId)
+    this.emit(QSSEvents.QSS_FULLY_JOINED, teamId)
   }
 
   private _configureEventHandlers(): void {
