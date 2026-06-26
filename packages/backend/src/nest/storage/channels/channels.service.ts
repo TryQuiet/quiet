@@ -23,6 +23,7 @@ import {
   DownloadStatus,
   RemoveDownloadStatus,
   CHANNEL_METADATA_STORE_NAME,
+  PRIVATE_CHANNEL_METADATA_STORE_NAME,
   ChannelOperationStatus,
 } from '@quiet/types'
 import fs from 'fs'
@@ -55,15 +56,17 @@ export class ChannelsService extends EventEmitter {
 
   // Channel metadata store
   public channels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  public privateChannels: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   private fileManagerEventsAttached = false
   private sigchainListenerAttached = false
   private readonly handleSigchainUpdated = async (): Promise<void> => {
-    if (!this.channels) {
+    if (!this.channels || !this.privateChannels) {
       return
     }
 
     try {
       await this.channels.retryIndexingUnindexedEntries()
+      await this.privateChannels.retryIndexingUnindexedEntries()
       await this.broadcastCurrentChannels()
     } catch (e) {
       this.logger.warn('Error when attempting to reindex on sigchain update', e)
@@ -117,10 +120,11 @@ export class ChannelsService extends EventEmitter {
   }
 
   public updateMetadata(metadata: Record<string, any>): void {
-    if (this.channels == null) {
+    if (this.channels == null || this.privateChannels == null) {
       throw new Error('Channels database must be initialized before updating metadata!')
     }
     OrbitDbService.updateMetadata(this.channels, metadata)
+    OrbitDbService.updateMetadata(this.privateChannels, metadata)
     for (const repo of this.channelsRepos.values()) {
       repo.store.updateMetadata(metadata)
     }
@@ -144,6 +148,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async startSync(): Promise<void> {
     await this.channels?.sync.start()
+    await this.privateChannels?.sync.start()
     this.logger.info(`Started syncing channels management database`)
   }
 
@@ -152,6 +157,7 @@ export class ChannelsService extends EventEmitter {
    */
   public async stopSync(): Promise<void> {
     await this.channels?.sync.stop()
+    await this.privateChannels?.sync.stop()
   }
 
   // Channels Database Management
@@ -164,16 +170,11 @@ export class ChannelsService extends EventEmitter {
    */
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating channels database')
+    this.privateChannels = await this.openPrivateChannelsDb()
     this.channels = await this.openMigratedChannelsDb()
 
-    this.channels.events.on('update', (entry: LogEntry<ConsumedChannelMessage>) => {
-      const channelId = entry.payload?.value?.channelId
-      const operation = entry.payload.op
-      this.logger.info('channels database updated', channelId, operation)
-
-      this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
-      this.broadcastCurrentChannels()
-    })
+    this.attachChannelMetadataUpdateHandler(this.channels)
+    this.attachChannelMetadataUpdateHandler(this.privateChannels)
 
     if (!this.sigchainListenerAttached) {
       this.sigchainService.on(SigchainEvents.UPDATED, this.handleSigchainUpdated)
@@ -191,12 +192,25 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
+  private attachChannelMetadataUpdateHandler(
+    store: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  ): void {
+    store?.events.on('update', (entry: LogEntry<ConsumedChannelMessage>) => {
+      const channelId = entry.payload?.value?.channelId
+      const operation = entry.payload.op
+      this.logger.info('channels database updated', channelId, operation)
+
+      this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
+      this.broadcastCurrentChannels()
+    })
+  }
+
   private async openMigratedChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
     const legacyChannels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
       CHANNEL_METADATA_STORE_NAME,
       {
         sync: false,
-        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
+        Database: KeyValueIndexedValidated(this.validateLegacyChannelMetadataEntry.bind(this)),
         AccessController: IPFSAccessController({ write: ['*'] }),
       }
     )
@@ -204,7 +218,7 @@ export class ChannelsService extends EventEmitter {
       CHANNEL_METADATA_STORE_NAME,
       {
         sync: false,
-        Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
+        Database: KeyValueIndexedValidated(this.validatePublicChannelMetadataEntry.bind(this)),
         AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
           write: ['*'],
           sigchainService: this.sigchainService,
@@ -233,7 +247,15 @@ export class ChannelsService extends EventEmitter {
 
       this.channels = newChannels
       for (const entry of legacyEntries) {
-        await newChannels.put(entry.key, entry.value)
+        const channel = this.tryDecryptLegacyChannelEntry(entry.key, entry.value)
+        if (channel == null) {
+          continue
+        }
+        if (channel.public === false) {
+          await this.privateChannels!.put(entry.key, entry.value)
+        } else {
+          await newChannels.put(entry.key, entry.value)
+        }
       }
 
       await legacyChannels.close()
@@ -247,6 +269,20 @@ export class ChannelsService extends EventEmitter {
     })
     await newChannels.close()
     return legacyChannels
+  }
+
+  private async openPrivateChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
+    return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
+      PRIVATE_CHANNEL_METADATA_STORE_NAME,
+      {
+        sync: false,
+        Database: KeyValueIndexedValidated(this.validatePrivateChannelMetadataEntry.bind(this)),
+        AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService: this.sigchainService,
+        }),
+      }
+    )
   }
 
   private currentUserIsAdmin(): boolean {
@@ -303,10 +339,25 @@ export class ChannelsService extends EventEmitter {
     }
   }
 
+  private tryDecryptLegacyChannelEntry(key: string, value: EncryptedAndSignedPayload): PublicChannel | undefined {
+    try {
+      return this.decryptChannelEntry(value, key)
+    } catch (e) {
+      if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+        this.logger.warn(`Skipping legacy private channel metadata migration because local user is not a member`, key)
+      } else {
+        this.logger.warn(`Skipping legacy channel metadata migration because the entry could not be decrypted`, key, e)
+      }
+      return undefined
+    }
+  }
+
   private async validateChannelEntryMetadata(
     entry: LogEntry<EncryptedAndSignedPayload>,
     encPayload: EncryptedAndSignedPayload,
-    decEntry: PublicChannel
+    decEntry: PublicChannel,
+    expectedPublic: boolean | undefined,
+    metadataStore: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   ): Promise<boolean> {
     const key = entry.payload.key
     const sigAuthor = encPayload.signature.author.name
@@ -346,14 +397,13 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    if (decEntry.owner !== sigAuthor || decEntry.owner !== writerIdentity.id) {
+    if (decEntry.owner !== sigAuthor) {
       this.logger.error(
-        'Failed to validate channel entry: owner must match encrypted payload signature author and entry signature author:',
+        'Failed to validate channel entry: owner must match encrypted payload signature author:',
         entry.hash,
         {
           owner: decEntry.owner,
           encryptedSignatureAuthor: sigAuthor,
-          entrySignatureAuthor: writerIdentity.id,
         }
       )
       return false
@@ -367,7 +417,20 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    if (!(await this.validateChannelOwnership(entry, decEntry, writerIdentity.id))) {
+    if (!this.validateChannelPrivacy(entry, decEntry, expectedPublic)) {
+      return false
+    }
+
+    const writerIsAdmin = await this.writerIsAdmin(writerIdentity.id)
+    if (decEntry.owner !== writerIdentity.id && !writerIsAdmin) {
+      this.logger.error('Failed to validate channel entry: owner must match entry signature author:', entry.hash, {
+        owner: decEntry.owner,
+        entrySignatureAuthor: writerIdentity.id,
+      })
+      return false
+    }
+
+    if (!writerIsAdmin && !(await this.validateChannelOwnership(entry, decEntry, writerIdentity.id, metadataStore))) {
       return false
     }
 
@@ -495,9 +558,18 @@ export class ChannelsService extends EventEmitter {
   private async validateChannelOwnership(
     entry: LogEntry<EncryptedAndSignedPayload>,
     decEntry: PublicChannel,
-    writerId: string
+    writerId: string,
+    metadataStore: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   ): Promise<boolean> {
-    return this.validateLegacyChannelMetadataUpdate(entry, decEntry, writerId)
+    if (metadataStore == null) {
+      this.logger.warn(
+        'Skipping existing channel ownership check because metadata store is not assigned yet:',
+        entry.hash
+      )
+      return true
+    }
+
+    return this.validateLegacyChannelMetadataUpdate(entry, decEntry, writerId, metadataStore)
   }
 
   /**
@@ -515,15 +587,16 @@ export class ChannelsService extends EventEmitter {
   private async validateLegacyChannelMetadataUpdate(
     entry: LogEntry<EncryptedAndSignedPayload>,
     decEntry: PublicChannel,
-    writerId: string
+    writerId: string,
+    metadataStore: KeyValueIndexedValidatedType<EncryptedAndSignedPayload>
   ): Promise<boolean> {
-    const stored = await this.channels!.get(entry.payload.key!)
+    const stored = await metadataStore.get(entry.payload.key!)
     if (stored == null) {
       return true
     }
 
     // A stored entry that we cannot decrypt (e.g. a private channel we don't belong to) must not be
-    // overwritten. decryptChannelEntry throws here and validateEntry fails closed.
+    // overwritten. decryptChannelEntry throws here and channel metadata validation fails closed.
     const storedChannel = this.decryptChannelEntry(stored as EncryptedAndSignedPayload, entry.payload.key!)
 
     if (storedChannel.owner !== writerId) {
@@ -547,6 +620,33 @@ export class ChannelsService extends EventEmitter {
       this.logger.error('Failed to validate channel entry: channel role is immutable:', entry.hash, {
         storedRoleName: storedChannel.roleName,
         newRoleName: decEntry.roleName,
+      })
+      return false
+    }
+
+    return true
+  }
+
+  private validateChannelPrivacy(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    decEntry: PublicChannel,
+    expectedPublic: boolean | undefined
+  ): boolean {
+    if (expectedPublic == null) {
+      return true
+    }
+
+    const isPrivateChannel = !(decEntry.public ?? true)
+    if (expectedPublic && isPrivateChannel) {
+      this.logger.error('Failed to validate channel entry: private metadata cannot be stored publicly:', entry.hash, {
+        channelId: decEntry.id,
+      })
+      return false
+    }
+
+    if (!expectedPublic && !isPrivateChannel) {
+      this.logger.error('Failed to validate channel entry: public metadata cannot be stored privately:', entry.hash, {
+        channelId: decEntry.id,
       })
       return false
     }
@@ -594,18 +694,24 @@ export class ChannelsService extends EventEmitter {
     return true
   }
 
-  /**
-   * Validates a log entry in the OrbitDB store.
-   * @param entry The log entry to validate.
-   * @returns True if valid, false otherwise.
-   */
-  public async validateEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
-    // TODO: unpin invalidated entries?
-    try {
-      if (await this.isAdminChannelMetadataWriter(entry)) {
-        return true
-      }
+  public async validateLegacyChannelMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    return this.validateChannelMetadataEntry(entry, undefined, this.channels)
+  }
 
+  public async validatePublicChannelMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    return this.validateChannelMetadataEntry(entry, true, this.channels)
+  }
+
+  public async validatePrivateChannelMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+    return this.validateChannelMetadataEntry(entry, false, this.privateChannels)
+  }
+
+  private async validateChannelMetadataEntry(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    expectedPublic: boolean | undefined,
+    metadataStore: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  ): Promise<boolean> {
+    try {
       if (entry.payload.op === 'PUT') {
         const encPayload = entry.payload.value!
         const decEntry = this.decryptChannelEntry(encPayload)
@@ -613,7 +719,7 @@ export class ChannelsService extends EventEmitter {
           this.logger.error('Decrypted channel entry is not a valid channel:', entry.hash, decEntry)
           return false
         }
-        if (!(await this.validateChannelEntryMetadata(entry, encPayload, decEntry))) {
+        if (!(await this.validateChannelEntryMetadata(entry, encPayload, decEntry, expectedPublic, metadataStore))) {
           return false
         }
       }
@@ -633,26 +739,13 @@ export class ChannelsService extends EventEmitter {
     return true
   }
 
-  private async isAdminChannelMetadataWriter(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
-    if (entry.payload.op !== 'PUT' && entry.payload.op !== 'DEL') {
-      return false
-    }
-
+  private async writerIsAdmin(writerId: string): Promise<boolean> {
     const chain = this.sigchainService.getActiveChain(false)
     if (chain == null) {
       return false
     }
 
-    const writerIdentity = await this.getVerifiedChannelEntryWriter(entry, entry.payload.op)
-    if (writerIdentity == null) {
-      return false
-    }
-
-    if (writerIdentity.teamId !== chain.team!.id) {
-      return false
-    }
-
-    return chain.roles.memberIsAdmin(writerIdentity.id)
+    return chain.roles.memberIsAdmin(writerId)
   }
 
   /**
@@ -686,11 +779,25 @@ export class ChannelsService extends EventEmitter {
    * @throws Error
    */
   public async setChannel(channel: PublicChannel): Promise<void> {
-    if (!this.channels) {
+    if (!this.channels || !this.privateChannels) {
       throw new Error('Channels have not been initialized!')
     }
     const encryptedChannel = this.encryptChannelEntry(channel)
-    await this.channels.put(channel.id, encryptedChannel)
+    await this.getMetadataStoreForChannel(channel).put(channel.id, encryptedChannel)
+  }
+
+  private getMetadataStoreForChannel(channel: PublicChannel): KeyValueIndexedValidatedType<EncryptedAndSignedPayload> {
+    if (channel.public === false) {
+      if (this.privateChannels == null) {
+        throw new Error('Private channels have not been initialized!')
+      }
+      return this.privateChannels
+    }
+
+    if (this.channels == null) {
+      throw new Error('Channels have not been initialized!')
+    }
+    return this.channels
   }
 
   /**
@@ -702,23 +809,37 @@ export class ChannelsService extends EventEmitter {
    */
   public async getChannel(id: string): Promise<PublicChannel | undefined> {
     this.logger.debug('Getting channel', id)
-    if (!this.channels) {
+    if (!this.channels || !this.privateChannels) {
       throw new Error('Channels have not been initialized!')
     }
-    const channelEncrypted = await this.channels.get(id)
-    if (channelEncrypted == null) {
-      return undefined
-    }
-    // need to rehydrate the UInt8Array bc json value encoding in KeyValueIndexedValidated does not maintain type
-    try {
-      return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
-    } catch (e) {
-      if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
-        this.logger.warn(`Failed to decrypt and validate private channel entry during getChannel, ignoring...`, id)
-      } else {
-        this.logger.error('Failed to decrypt channel entry', e)
+
+    for (const store of this.getReadableMetadataStores()) {
+      const channelEncrypted = await store.get(id)
+      if (channelEncrypted == null) {
+        continue
+      }
+      // need to rehydrate the UInt8Array bc json value encoding in KeyValueIndexedValidated does not maintain type
+      try {
+        return this.decryptChannelEntry(channelEncrypted as EncryptedAndSignedPayload, id)
+      } catch (e) {
+        if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
+          this.logger.warn(`Failed to decrypt and validate private channel entry during getChannel, ignoring...`, id)
+        } else {
+          this.logger.error('Failed to decrypt channel entry', e)
+        }
       }
     }
+  }
+
+  private getReadableMetadataStores(): KeyValueIndexedValidatedType<EncryptedAndSignedPayload>[] {
+    const stores: KeyValueIndexedValidatedType<EncryptedAndSignedPayload>[] = []
+    if (this.channels != null) {
+      stores.push(this.channels)
+    }
+    if (this.privateChannels != null) {
+      stores.push(this.privateChannels)
+    }
+    return stores
   }
 
   /**
@@ -729,14 +850,16 @@ export class ChannelsService extends EventEmitter {
    */
   public async getChannels(): Promise<PublicChannel[]> {
     this.logger.debug('Getting channels')
-    if (!this.channels) {
+    if (!this.channels || !this.privateChannels) {
       throw new Error('Channels have not been initialized!')
     }
-    return (await this.channels.all())
-      .map(x => {
+    const channelsById = new Map<string, PublicChannel>()
+    for (const store of this.getReadableMetadataStores()) {
+      const entries = await store.all()
+      for (const x of entries) {
         try {
           this.logger.debug('Decrypting channel entry', x.key)
-          return this.decryptChannelEntry(x.value, x.key)
+          channelsById.set(x.key, this.decryptChannelEntry(x.value, x.key))
         } catch (e) {
           if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
             this.logger.warn(
@@ -746,10 +869,10 @@ export class ChannelsService extends EventEmitter {
           } else {
             this.logger.error('Failed to decrypt channel entry', e)
           }
-          return undefined
         }
-      })
-      .filter((x): x is PublicChannel => x !== undefined)
+      }
+    }
+    return [...channelsById.values()]
   }
 
   /**
@@ -759,7 +882,7 @@ export class ChannelsService extends EventEmitter {
    * @throws Error
    */
   public async getPrivateChannelsByRolename(): Promise<Record<string, PublicChannel>> {
-    if (!this.channels) {
+    if (!this.channels || !this.privateChannels) {
       throw new Error('Channels have not been initialized!')
     }
     const channels = await this.getChannels()
@@ -805,7 +928,7 @@ export class ChannelsService extends EventEmitter {
       this.logger.info(`Channel ${channelId} already exists`)
     }
 
-    this.channelsRepos.set(channelId, { store, eventsAttached: false, public: true })
+    this.channelsRepos.set(channelId, { store, eventsAttached: false, public: channelData.public ?? true })
     this.logger.info(`Set ${channelId} to local channels`)
     this.logger.info(`Created channel ${channelId}`)
 
@@ -948,7 +1071,7 @@ export class ChannelsService extends EventEmitter {
     // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
     // TODO: invalidate removals from non-owners
     if (iAmAdmin || iOwnThisChannel) {
-      await this.channels!.del(channelId)
+      await this.deleteChannelMetadata(channelId)
     } else {
       this.logger.error(`User is not the owner of the channel ${channelId}`)
       return { channelId, deleted: false } as DeleteChannelResponse
@@ -970,6 +1093,15 @@ export class ChannelsService extends EventEmitter {
     await store.deleteChannel()
     this.channelsRepos.delete(channelId)
     return { channelId, deleted: true } as DeleteChannelResponse
+  }
+
+  private async deleteChannelMetadata(channelId: string): Promise<void> {
+    if (this.channels == null || this.privateChannels == null) {
+      throw new Error('Channels have not been initialized!')
+    }
+
+    await this.channels.del(channelId)
+    await this.privateChannels.del(channelId)
   }
 
   public async addMembersToPrivateChannel(payload: AddMembersChannelPayload): Promise<AddMembersChannelResponse> {
@@ -1201,6 +1333,7 @@ export class ChannelsService extends EventEmitter {
     try {
       this.logger.info('Closing channels DB')
       await this.channels?.close()
+      await this.privateChannels?.close()
       this.logger.info('Closed channels DB')
     } catch (e) {
       this.logger.error('Error closing channels db', e)
@@ -1251,11 +1384,13 @@ export class ChannelsService extends EventEmitter {
     this.logger.info('Cleaning channels DB')
     try {
       await this.channels?.sync?.stop?.()
+      await this.privateChannels?.sync?.stop?.()
     } catch (e) {
       // If the sync is not started, this will throw an error
     }
     try {
       await this.channels?.drop?.()
+      await this.privateChannels?.drop?.()
     } catch (e) {
       this.logger.error('Error dropping channels DB', e)
     }
@@ -1268,6 +1403,7 @@ export class ChannelsService extends EventEmitter {
       }
     }
     this.channels = undefined
+    this.privateChannels = undefined
     this.channelsRepos = new Map()
   }
 }

@@ -14,6 +14,10 @@ const createChannelsService = (orbitDbService: any, isAdmin = false) =>
         user: { userId: 'local-user-id' },
         roles: {
           memberIsAdmin: jest.fn((userId: string) => userId === 'local-user-id' && isAdmin),
+          amIMemberOfRole: jest.fn(() => true),
+        },
+        crypto: {
+          decryptAndVerify: jest.fn((encrypted: any) => ({ contents: encrypted.contents })),
         },
       }),
     } as any,
@@ -102,7 +106,24 @@ describe('ChannelsService channel metadata access-controller migration', () => {
   })
 
   it('lets admin users populate the new channel metadata store from legacy entries', async () => {
-    const legacyEntry = { key: 'general', value: {} }
+    const legacyChannel = {
+      id: 'general',
+      name: 'general',
+      description: '',
+      owner: 'local-user-id',
+      timestamp: 1,
+      public: true,
+    }
+    const legacyEntry = {
+      key: 'general',
+      value: {
+        encrypted: {
+          scope: { type: 'TEAM' },
+          contents: legacyChannel,
+        },
+        signature: {},
+      },
+    }
     const legacyStore = {
       address: '/orbitdb/legacy-channel-metadata',
       all: jest.fn().mockResolvedValue([legacyEntry] as never),
@@ -128,5 +149,57 @@ describe('ChannelsService channel metadata access-controller migration', () => {
     expect(newStore.put).toHaveBeenCalledWith(legacyEntry.key, legacyEntry.value)
     expect(legacyStore.close).toHaveBeenCalled()
     expect(newStore.close).not.toHaveBeenCalled()
+  })
+
+  it('moves decryptable private channel metadata from the legacy store into the private store', async () => {
+    const privateChannel = {
+      id: 'secret',
+      name: 'secret',
+      description: '',
+      owner: 'local-user-id',
+      timestamp: 1,
+      public: false,
+      roleName: 'private_secret',
+    }
+    const legacyEntry = {
+      key: 'secret',
+      value: {
+        encrypted: {
+          scope: { type: 'TEAM' },
+          contents: privateChannel,
+        },
+        signature: {},
+      },
+    }
+    const legacyStore = {
+      address: '/orbitdb/legacy-channel-metadata',
+      all: jest.fn().mockResolvedValue([legacyEntry] as never),
+      close: jest.fn().mockResolvedValue(undefined as never),
+    }
+    const newStore = {
+      address: '/orbitdb/new-channel-metadata',
+      all: jest.fn().mockResolvedValue([] as never),
+      put: jest.fn().mockResolvedValue(undefined as never),
+      close: jest.fn(),
+    }
+    const privateStore = {
+      put: jest.fn().mockResolvedValue(undefined as never),
+    }
+    const orbitDbService = {
+      open: jest
+        .fn()
+        .mockResolvedValueOnce(legacyStore as never)
+        .mockResolvedValueOnce(newStore as never),
+    }
+    const channelsService = createChannelsService(orbitDbService, true)
+    const channelsServiceWithPrivateStore = channelsService as any
+    channelsServiceWithPrivateStore.privateChannels = privateStore
+
+    const result = await (channelsService as any).openMigratedChannelsDb()
+
+    expect(result).toBe(newStore)
+    expect(newStore.put).not.toHaveBeenCalled()
+    expect(privateStore.put).toHaveBeenCalledWith(legacyEntry.key, legacyEntry.value)
+    expect(legacyStore.close).toHaveBeenCalled()
   })
 })

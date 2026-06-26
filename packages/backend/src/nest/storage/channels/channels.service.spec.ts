@@ -196,12 +196,22 @@ describe('ChannelsService', () => {
   const expectChannelEntryValidation = async (
     entry: LogEntry<EncryptedAndSignedPayload>,
     writerUserId: string,
-    expected: boolean
+    expected: boolean,
+    validator: 'legacy' | 'public' | 'private' = 'public'
   ): Promise<void> => {
     const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId)
 
     try {
-      await expect(channelsService.validateEntry(entry)).resolves.toBe(expected)
+      switch (validator) {
+        case 'public':
+          await expect(channelsService.validatePublicChannelMetadataEntry(entry)).resolves.toBe(expected)
+          break
+        case 'private':
+          await expect(channelsService.validatePrivateChannelMetadataEntry(entry)).resolves.toBe(expected)
+          break
+        case 'legacy':
+          await expect(channelsService.validateLegacyChannelMetadataEntry(entry)).resolves.toBe(expected)
+      }
     } finally {
       restoreIdentityMocks()
     }
@@ -362,6 +372,25 @@ describe('ChannelsService', () => {
       await channelsService.subscribeToChannel(channel1)
     })
 
+    it('stores private channel metadata outside the public channel metadata store', async () => {
+      const privateChannel: PublicChannel = {
+        id: 'private-metadata-store-channel-id',
+        name: 'private-metadata-store-channel',
+        description: 'private channel metadata store split',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: false,
+        teamId: community.teamId!,
+      }
+      privateChannel.roleName = sigChainService.getActiveChain().channels.create(privateChannel.id)
+
+      await channelsService.createChannel(privateChannel)
+
+      await expect(channelsService.channels!.get(privateChannel.id)).resolves.toBeUndefined()
+      await expect(channelsService.privateChannels!.get(privateChannel.id)).resolves.toBeDefined()
+      await expect(channelsService.getChannel(privateChannel.id)).resolves.toEqual(privateChannel)
+    })
+
     // skipping because we don't have a strong way to prevent a user from deleting a channel yet
     it.skip('delete channel as standard user', async () => {
       logger.info('Deleting channel as standard user')
@@ -494,7 +523,55 @@ describe('ChannelsService', () => {
       privateChannel.roleName = activeChain.channels.create(privateChannel.id)
       const encryptedEntry = channelsService.encryptChannelEntry(privateChannel)
 
-      await expectChannelEntryValidation(channelPutEntry(privateChannel.id, encryptedEntry), aliceUserId, true)
+      await expectChannelEntryValidation(
+        channelPutEntry(privateChannel.id, encryptedEntry),
+        aliceUserId,
+        true,
+        'private'
+      )
+    })
+
+    it('rejects private channel metadata in the public metadata store', async () => {
+      const activeChain = sigChainService.getActiveChain()
+      const privateChannel: PublicChannel = {
+        id: 'public-store-private-channel-id',
+        name: 'public-store-private-channel',
+        description: 'private channel metadata in public store',
+        owner: aliceUserId,
+        timestamp: Date.now(),
+        public: false,
+        teamId: community.teamId!,
+      }
+      privateChannel.roleName = activeChain.channels.create(privateChannel.id)
+      const encryptedEntry = channelsService.encryptChannelEntry(privateChannel)
+
+      await expectChannelEntryValidation(
+        channelPutEntry(privateChannel.id, encryptedEntry),
+        aliceUserId,
+        false,
+        'public'
+      )
+      await expectChannelEntryValidation(
+        channelPutEntry(privateChannel.id, encryptedEntry),
+        aliceUserId,
+        true,
+        'private'
+      )
+    })
+
+    it('rejects public channel metadata in the private metadata store', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const encryptedEntry = channelsService.encryptChannelEntry(publicChannel)
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, encryptedEntry),
+        aliceUserId,
+        false,
+        'private'
+      )
     })
 
     it('rejects forged private channel metadata encrypted to the broad member role', async () => {
@@ -517,7 +594,8 @@ describe('ChannelsService', () => {
       await expectChannelEntryValidation(
         channelPutEntry(forgedPrivateChannel.id, forgedEntry, 'forged-private-channel-metadata'),
         malloryChain.user.userId,
-        false
+        false,
+        'private'
       )
     })
 
@@ -541,7 +619,8 @@ describe('ChannelsService', () => {
       await expectChannelEntryValidation(
         channelPutEntry(privateChannel.id, teamScopedEntry, 'team-scoped-private-channel-metadata'),
         malloryChain.user.userId,
-        false
+        false,
+        'private'
       )
     })
 
