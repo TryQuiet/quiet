@@ -90,6 +90,14 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
             <View style={{ marginTop: 32 + 12 }}>
               <Button onPress={onPress} title={'Continue'} loading={loading} />
             </View>
+            <View style={{ marginTop: 32 + 12 }}>
+              <Typography
+                fontSize={14}
+                style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
+              >
+                {"Quiet is in beta and shouldn't be used for activities requiring security."}
+              </Typography>
+            </View>
           </KeyboardAvoidingView>
         </View>
       ) : (

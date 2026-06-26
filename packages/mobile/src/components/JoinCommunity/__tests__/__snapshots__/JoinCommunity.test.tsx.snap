@@ -382,6 +382,37 @@ exports[`JoinCommunity component renders component 1`] = `
         </Text>
       </View>
     </View>
+    <View
+      style={
+        {
+          "marginTop": 44,
+        }
+      }
+    >
+      <Text
+        color="main"
+        fontSize={14}
+        horizontalTextAlign="left"
+        style={
+          [
+            {
+              "color": "#000000",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 14,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            },
+            {
+              "color": "#999999",
+              "textAlign": "center",
+            },
+          ]
+        }
+        verticalTextAlign="center"
+      >
+        Quiet is in beta and shouldn't be used for acticdvities requiring security.
+      </Text>
+    </View>
   </View>
 </View>
 `;
