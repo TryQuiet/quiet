@@ -116,14 +116,18 @@ export class ImageCompressionService {
           this.logger.info(`No resize needed, using original dimensions ${originalWidth}x${originalHeight}`)
         }
 
-        const qualityLevels = this.getQualityLevels(quality, originalSize)
-
         let bestBuffer: Buffer | null = null
         let bestSize = 0
         let bestQuality = 0
 
-        // Prefer the predicted quality and only retry when the first encode misses the target badly.
-        for (const testQuality of qualityLevels) {
+        // Start at the predicted quality. If the first encode misses the target, retry once at a
+        // quality adjusted in the direction of the target: lower if the result is too big, higher
+        // if it's over-compressed (too small). The retry quality depends on the first result's
+        // size, so it can't be precomputed.
+        const qualitiesToTry = [quality]
+
+        for (let i = 0; i < qualitiesToTry.length; i++) {
+          const testQuality = qualitiesToTry[i]
           this.logger.info(`Testing quality setting: ${testQuality} for ${mime}`)
 
           // Get buffer with this quality setting
@@ -154,6 +158,14 @@ export class ImageCompressionService {
           if (this.isAcceptableCompressedSize(originalSize, testSize)) {
             this.logger.info(`Quality ${testQuality} is within target range, stopping early`)
             break
+          }
+
+          // Queue a single direction-aware retry, only after the first encode.
+          if (i === 0) {
+            const retryQuality = this.getRetryQuality(testQuality, originalSize, testSize)
+            if (retryQuality != null && !qualitiesToTry.includes(retryQuality)) {
+              qualitiesToTry.push(retryQuality)
+            }
           }
         }
 
@@ -221,10 +233,18 @@ export class ImageCompressionService {
     }
   }
 
-  private getQualityLevels(quality: number, originalSize: number): number[] {
-    const fallbackQuality = originalSize > 4 * 1024 * 1024 ? Math.max(quality - 20, 10) : Math.max(quality - 25, 15)
+  private getRetryQuality(currentQuality: number, originalSize: number, currentSize: number): number | null {
+    // Result is too large: drop quality to shrink the file (matches the previous fallback steps).
+    if (currentSize > this.TARGET_MAX_SIZE) {
+      const lowered =
+        originalSize > 4 * 1024 * 1024 ? Math.max(currentQuality - 20, 10) : Math.max(currentQuality - 25, 15)
+      return lowered < currentQuality ? lowered : null
+    }
 
-    return [...new Set([quality, fallbackQuality])]
+    // Result is over-compressed (too small): raise quality to recover detail and climb back toward
+    // the target range. This only happens for large images, where the acceptable band has a floor.
+    const raised = Math.min(currentQuality + 20, this.JPEG_QUALITY_VERY_HIGH)
+    return raised > currentQuality ? raised : null
   }
 
   private isAcceptableCompressedSize(originalSize: number, compressedSize: number): boolean {
