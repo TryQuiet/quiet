@@ -52,7 +52,8 @@ const Sidebar = () => {
   }
 
   const channelsPanelProps: ChannelsPanelProps = {
-    channels: publicChannelsSelector,
+    // Hide private channels from the UI
+    channels: publicChannelsSelector.filter(channel => channel.public !== false),
     userProfiles: userProfileSelector,
     connectedPeers: connectedPeers,
     unreadChannels: unreadChannels,
