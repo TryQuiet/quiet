@@ -1,30 +1,22 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [7.4.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@7.1.0...@quiet/desktop@7.4.1-alpha.0) (2026-06-26)
-
-
-### Bug Fixes
-
-* broken privacy policy link on join-server screen ([#3186](https://github.com/TryQuiet/quiet/issues/3186)) ([4cdb3a1](https://github.com/TryQuiet/quiet/commit/4cdb3a1c8c8cb30ba481dc6c16f5c05fc5b6bac7))
-* sidebar layout tweaks ([#3184](https://github.com/TryQuiet/quiet/issues/3184)) ([accc53f](https://github.com/TryQuiet/quiet/commit/accc53ff515e302fe07d404827a4dc3a70178b08))
-
+## [unreleased]
 
 ### Features
 
-* **3155:** Add private channels with modifiable membership (no removals) to desktop ([#3177](https://github.com/TryQuiet/quiet/issues/3177)) ([9eef40c](https://github.com/TryQuiet/quiet/commit/9eef40c7974f22e9a5bfa51449cfc35b9c2f66f4))
-* **3155:** Private channels for mobile ([#3194](https://github.com/TryQuiet/quiet/issues/3194)) ([c3c89bf](https://github.com/TryQuiet/quiet/commit/c3c89bfdc9758e57b47f6e9630e3a8e3f6f6d7ef))
-* **3277:** Open private channel creation to all users and prep for role-based permissons ([#3276](https://github.com/TryQuiet/quiet/issues/3276)) ([2592f56](https://github.com/TryQuiet/quiet/commit/2592f5689ab1482c61044c8e3c40d759282270e5))
-* **3300:** Allow all members of a private channel to add members to that channel ([#3303](https://github.com/TryQuiet/quiet/issues/3303)) ([5e41f92](https://github.com/TryQuiet/quiet/commit/5e41f921c11836ef8e8031aabdd9e42eada8b43a))
-* **3300:** Allow channel owners to add members to channel ([#3299](https://github.com/TryQuiet/quiet/issues/3299)) ([8599479](https://github.com/TryQuiet/quiet/commit/85994797d82e10c81d2bb26d899233ad5a068c94))
+* Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
+* Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
 
+### Fixes
 
+* Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+* Ensure notification registration waits for auth handshake [#3289](https://github.com/TryQuiet/quiet/issues/3289)
+* Fixed a race condition that can cause stale data to remain after leaving community [#3253](https://github.com/TryQuiet/quiet/issues/3253)
+* Temporarily disable private channels
 
+### Chores
 
-
-# Changelog
+* Enable QSS on prod
 
 ## [7.3.0]
 
