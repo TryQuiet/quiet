@@ -7,6 +7,7 @@ import {
   type CanAppendFunc,
   type IdentitiesType,
   type LogEntry,
+  type LogType,
   type OrbitDBType,
 } from '@orbitdb/core'
 import { Injectable } from '@nestjs/common'
@@ -103,16 +104,25 @@ export class ChannelMetadataAccessController {
         address = posixJoin('/', TYPE, address)
       }
 
+      let log: LogType | undefined
+
       return {
         type: TYPE,
         address,
         write,
-        canAppend: this.canAppend({ ...config, write }, identities) as any,
+        setLogContext: (nextLog: LogType) => {
+          log = nextLog
+        },
+        canAppend: this.canAppend({ ...config, write }, identities, () => log) as any,
       }
     }
   }
 
-  protected canAppend(config: ChannelMetadataAccessControllerConfig, identities: IdentitiesType): CanAppendFunc {
+  protected canAppend(
+    config: ChannelMetadataAccessControllerConfig,
+    identities: IdentitiesType,
+    getLog: () => LogType | undefined
+  ): CanAppendFunc {
     return async (entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> => {
       const writerIdentity = (await identities.getIdentity(entry.identity)) as ChannelMetadataWriterIdentity
       if (!writerIdentity) {
@@ -141,6 +151,10 @@ export class ChannelMetadataAccessController {
         return false
       }
 
+      if (entry.payload.op === 'PUT' && !(await this.canAppendPutForKey(entry, getLog(), writerIdentity.id))) {
+        return false
+      }
+
       if (chain.roles.memberIsAdmin(writerIdentity.id)) {
         return true
       }
@@ -161,5 +175,54 @@ export class ChannelMetadataAccessController {
 
       return true
     }
+  }
+
+  private async canAppendPutForKey(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    log: LogType | undefined,
+    writerId: string
+  ): Promise<boolean> {
+    const channelId = entry.payload.key
+    if (channelId == null) {
+      this.logger.warn(`Channel metadata PUT rejected because the entry key is missing`, {
+        entryHash: entry.hash,
+      })
+      return false
+    }
+
+    if (log == null) {
+      this.logger.warn(`Channel metadata PUT rejected because log state is unavailable`, {
+        channelId,
+        entryHash: entry.hash,
+      })
+      return false
+    }
+
+    try {
+      for await (const existingEntry of log.traverse(null, async () => false)) {
+        if (
+          existingEntry.hash !== entry.hash &&
+          existingEntry.payload.op === 'PUT' &&
+          existingEntry.payload.key === channelId
+        ) {
+          this.logger.warn(`Channel metadata PUT rejected because the channel id already has a PUT entry`, {
+            writerId,
+            channelId,
+            entryHash: entry.hash,
+            existingEntryHash: existingEntry.hash,
+          })
+          return false
+        }
+      }
+    } catch (e) {
+      this.logger.warn(`Channel metadata PUT rejected because log state could not be checked`, {
+        channelId,
+        entryHash: entry.hash,
+        error: e,
+      })
+      return false
+    }
+
+    return true
   }
 }

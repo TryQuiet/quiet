@@ -47,15 +47,30 @@ const createSigchainService = ({
     }),
   }) as any
 
-const createEntry = (op: 'PUT' | 'DEL'): LogEntry<EncryptedAndSignedPayload> =>
+const createEntry = (
+  op: 'PUT' | 'DEL',
+  key = 'channel-id',
+  hash = `${op.toLowerCase()}-${key}`
+): LogEntry<EncryptedAndSignedPayload> =>
   ({
+    hash,
     identity: 'writer-identity-hash',
     payload: {
       op,
-      key: 'channel-id',
+      key,
       value: op === 'PUT' ? {} : undefined,
     },
   }) as unknown as LogEntry<EncryptedAndSignedPayload>
+
+const attachLogContext = (access: any, entries: LogEntry<EncryptedAndSignedPayload>[] = []) => {
+  access.setLogContext({
+    traverse: async function* () {
+      for (const entry of entries) {
+        yield entry
+      }
+    },
+  })
+}
 
 const createAccess = async (sigchainService: any) => {
   const controller = new ChannelMetadataAccessController(sigchainService)
@@ -95,14 +110,81 @@ describe('ChannelMetadataAccessController', () => {
 
   it('allows channel metadata PUT entries from team members', async () => {
     const access = await createAccess(createSigchainService({ member: true }))
+    attachLogContext(access)
 
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
   })
 
   it('rejects channel metadata PUT entries from non-members', async () => {
     const access = await createAccess(createSigchainService({ member: false }))
+    attachLogContext(access)
 
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+  })
+
+  it('rejects channel metadata PUT entries when log state is unavailable', async () => {
+    const access = await createAccess(createSigchainService({ member: true }))
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+  })
+
+  it('rejects channel metadata PUT entries when the entry key is missing', async () => {
+    const access = await createAccess(createSigchainService({ member: true }))
+    attachLogContext(access)
+    const entry = createEntry('PUT')
+    ;(entry.payload as any).key = undefined
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
+  })
+
+  it('rejects channel metadata PUT entries when log traversal throws', async () => {
+    const access = await createAccess(createSigchainService({ member: true }))
+    access.setLogContext({
+      traverse: () => ({
+        [Symbol.asyncIterator]: () => ({
+          next: () => Promise.reject(new Error('log read failed')),
+        }),
+      }),
+    })
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+  })
+
+  it('rejects channel metadata PUT entries when a previous PUT exists for the same key', async () => {
+    const access = await createAccess(createSigchainService({ member: true }))
+    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    attachLogContext(access, [previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(false)
+  })
+
+  it('allows channel metadata PUT entries when previous PUTs are for different keys', async () => {
+    const access = await createAccess(createSigchainService({ member: true }))
+    const previousEntry = createEntry('PUT', 'other-channel-id')
+    const nextEntry = createEntry('PUT', 'channel-id')
+    attachLogContext(access, [previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(true)
+  })
+
+  it('rejects channel metadata PUT entries after a prior PUT even when the latest entry is a DEL', async () => {
+    const access = await createAccess(createSigchainService({ member: true }))
+    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
+    const deleteEntry = createEntry('DEL', 'channel-id', 'deleted-channel')
+    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    attachLogContext(access, [deleteEntry, previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(false)
+  })
+
+  it('rejects duplicate channel metadata PUT entries from admins', async () => {
+    const access = await createAccess(createSigchainService({ member: false, admin: true }))
+    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    attachLogContext(access, [previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(false)
   })
 
   it('rejects channel metadata DEL entries from non-admin members', async () => {
@@ -119,6 +201,7 @@ describe('ChannelMetadataAccessController', () => {
 
   it('allows channel metadata entries from admins even without the member role', async () => {
     const access = await createAccess(createSigchainService({ member: false, admin: true }))
+    attachLogContext(access)
 
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
     await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)

@@ -391,6 +391,29 @@ describe('ChannelsService', () => {
       await expect(channelsService.getChannel(privateChannel.id)).resolves.toEqual(privateChannel)
     })
 
+    it('does not append a second metadata PUT for an existing channel id', async () => {
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      await channelsService.setChannel(publicChannel)
+
+      await channelsService.setChannel({
+        ...publicChannel,
+        name: 'renamed-channel',
+      })
+
+      const metadataLog = channelsService.channels!.log as unknown as {
+        values: () => Promise<Array<LogEntry<EncryptedAndSignedPayload>>>
+      }
+      const metadataEntries = await metadataLog.values()
+      const channelPuts = metadataEntries.filter(
+        entry => entry.payload.op === 'PUT' && entry.payload.key === publicChannel.id
+      )
+      expect(channelPuts).toHaveLength(1)
+      await expect(channelsService.getChannel(publicChannel.id)).resolves.toEqual(publicChannel)
+    })
+
     // skipping because we don't have a strong way to prevent a user from deleting a channel yet
     it.skip('delete channel as standard user', async () => {
       logger.info('Deleting channel as standard user')
