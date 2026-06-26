@@ -124,7 +124,10 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
               <Button onPress={onPress} title={'Continue'} loading={loading} />
             </View>
             <View style={{ marginTop: 32 + 12 }}>
-              <Typography fontSize={14} style={{ color: '#999999', textAlign: 'center' }}>
+              <Typography
+                fontSize={14}
+                style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
+              >
                 {"Quiet is in beta and shouldn't be used for acticdvities requiring security."}
               </Typography>
             </View>
