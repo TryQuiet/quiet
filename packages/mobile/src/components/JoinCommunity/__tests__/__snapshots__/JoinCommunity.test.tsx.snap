@@ -410,7 +410,7 @@ exports[`JoinCommunity component renders component 1`] = `
         }
         verticalTextAlign="center"
       >
-        Quiet is in beta and shouldn't be used for activities requiring security.
+        Quiet is in beta and shouldn't be used for acticdvities requiring security.
       </Text>
     </View>
   </View>
