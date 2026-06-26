@@ -628,6 +628,25 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
+  private async waitForElementToBeRemovedOrHidden(element: WebElement, reason: string, timeoutMs = 5_000) {
+    await this.driver.wait(
+      async () => {
+        try {
+          return !(await element.isDisplayed())
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e)
+          if (message.includes('stale element reference') || message.includes('no such element')) {
+            return true
+          }
+          throw e
+        }
+      },
+      timeoutMs,
+      reason,
+      500
+    )
+  }
+
   async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
     let menu: WebElement
     try {
@@ -738,7 +757,6 @@ export class ChannelContextMenu {
     await sleep(5000)
   }
 
-  // TODO: replace sleep
   async addMembersToChannel(channelName: string, memberNames: string[]) {
     const autoCompleteInput = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
@@ -777,7 +795,10 @@ export class ChannelContextMenu {
       500
     )
     await button.click()
-    await sleep(5_000)
+    await this.waitForElementToBeRemovedOrHidden(
+      await button,
+      `Channel add members modal for ${channelName} didn't close within timeout`
+    )
   }
 
   async checkForMembersInAddMembersAutocomplete(channelName: string, memberNames: string[]): Promise<string[]> {
@@ -843,7 +864,10 @@ export class ChannelContextMenu {
       500
     )
     await button.click()
-    await sleep(5000)
+    await this.waitForElementToBeRemovedOrHidden(
+      await button,
+      `Channel add members modal for ${channelName} didn't close within timeout`
+    )
     return membersInAutocomplete
   }
 }

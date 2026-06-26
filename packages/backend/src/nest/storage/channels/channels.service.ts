@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Entry, IPFSAccessController, type LogEntry } from '@orbitdb/core'
+import { Entry, type LogEntry } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import {
   ChannelMessage,
@@ -170,8 +170,8 @@ export class ChannelsService extends EventEmitter {
    */
   public async createChannelsDb(): Promise<void> {
     this.logger.info('Creating channels database')
+    this.channels = await this.openChannelsDb()
     this.privateChannels = await this.openPrivateChannelsDb()
-    this.channels = await this.openMigratedChannelsDb()
 
     this.attachChannelMetadataUpdateHandler(this.channels)
     this.attachChannelMetadataUpdateHandler(this.privateChannels)
@@ -205,16 +205,8 @@ export class ChannelsService extends EventEmitter {
     })
   }
 
-  private async openMigratedChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
-    const legacyChannels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      CHANNEL_METADATA_STORE_NAME,
-      {
-        sync: false,
-        Database: KeyValueIndexedValidated(this.validateLegacyChannelMetadataEntry.bind(this)),
-        AccessController: IPFSAccessController({ write: ['*'] }),
-      }
-    )
-    const newChannels = await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
+  private async openChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
+    return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
       CHANNEL_METADATA_STORE_NAME,
       {
         sync: false,
@@ -225,50 +217,6 @@ export class ChannelsService extends EventEmitter {
         }),
       }
     )
-    const legacyEntries = await legacyChannels.all()
-    const newChannelsCount = (await newChannels.all()).length
-
-    if (newChannelsCount > 0) {
-      await legacyChannels.close()
-      return newChannels
-    }
-
-    if (legacyEntries.length === 0) {
-      await legacyChannels.close()
-      return newChannels
-    }
-
-    if (this.currentUserIsAdmin()) {
-      this.logger.info('Migrating legacy channel metadata into custom access-controller database', {
-        legacyAddress: legacyChannels.address,
-        newAddress: newChannels.address,
-        channels: legacyEntries.length,
-      })
-
-      this.channels = newChannels
-      for (const entry of legacyEntries) {
-        const channel = this.tryDecryptLegacyChannelEntry(entry.key, entry.value)
-        if (channel == null) {
-          continue
-        }
-        if (channel.public === false) {
-          await this.privateChannels!.put(entry.key, entry.value)
-        } else {
-          await newChannels.put(entry.key, entry.value)
-        }
-      }
-
-      await legacyChannels.close()
-      return newChannels
-    }
-
-    this.logger.info('Using legacy channel metadata database until an admin populates the new database', {
-      legacyAddress: legacyChannels.address,
-      newAddress: newChannels.address,
-      channels: legacyEntries.length,
-    })
-    await newChannels.close()
-    return legacyChannels
   }
 
   private async openPrivateChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
@@ -283,14 +231,6 @@ export class ChannelsService extends EventEmitter {
         }),
       }
     )
-  }
-
-  private currentUserIsAdmin(): boolean {
-    const chain = this.sigchainService.getActiveChain(false)
-    if (chain == null) {
-      return false
-    }
-    return chain.roles.memberIsAdmin(chain.user.userId)
   }
 
   public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
@@ -336,19 +276,6 @@ export class ChannelsService extends EventEmitter {
     } catch (err) {
       this.logger.error('Failed to decrypt channel entry:', err)
       throw err
-    }
-  }
-
-  private tryDecryptLegacyChannelEntry(key: string, value: EncryptedAndSignedPayload): PublicChannel | undefined {
-    try {
-      return this.decryptChannelEntry(value, key)
-    } catch (e) {
-      if (e instanceof NotAMemberError || e.message.startsWith('Not a member of this channel')) {
-        this.logger.warn(`Skipping legacy private channel metadata migration because local user is not a member`, key)
-      } else {
-        this.logger.warn(`Skipping legacy channel metadata migration because the entry could not be decrypted`, key, e)
-      }
-      return undefined
     }
   }
 
@@ -569,22 +496,20 @@ export class ChannelsService extends EventEmitter {
       return true
     }
 
-    return this.validateLegacyChannelMetadataUpdate(entry, decEntry, writerId, metadataStore)
+    return this.validateExistingChannelMetadataUpdate(entry, decEntry, writerId, metadataStore)
   }
 
   /**
    * Channel metadata is write-once: the only legitimate PUT for a given channel id is its creation.
    * If an entry already exists for this key, ensure the writer is the original owner and that the
-   * security-relevant fields (owner, public flag, role) are unchanged. NOTE: this depends on the
-   * existing entry already being indexed, so it does not protect against a takeover observed during
-   * an initial full replication/index rebuild.
+   * security-relevant fields (owner, public flag, role) are unchanged.
    *
    * @param entry The log entry being validated
    * @param decEntry The decrypted channel metadata from the new entry
    * @param writerId The verified id of the entry writer (already pinned to the encrypted signature author and owner)
    * @returns True if this is a fresh channel or a valid update by the original owner
    */
-  private async validateLegacyChannelMetadataUpdate(
+  private async validateExistingChannelMetadataUpdate(
     entry: LogEntry<EncryptedAndSignedPayload>,
     decEntry: PublicChannel,
     writerId: string,
@@ -692,10 +617,6 @@ export class ChannelsService extends EventEmitter {
     }
 
     return true
-  }
-
-  public async validateLegacyChannelMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
-    return this.validateChannelMetadataEntry(entry, undefined, this.channels)
   }
 
   public async validatePublicChannelMetadataEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {

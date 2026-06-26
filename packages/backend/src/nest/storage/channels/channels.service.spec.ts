@@ -197,7 +197,7 @@ describe('ChannelsService', () => {
     entry: LogEntry<EncryptedAndSignedPayload>,
     writerUserId: string,
     expected: boolean,
-    validator: 'legacy' | 'public' | 'private' = 'public'
+    validator: 'public' | 'private' = 'public'
   ): Promise<void> => {
     const restoreIdentityMocks = mockChannelEntryIdentity(writerUserId)
 
@@ -209,8 +209,6 @@ describe('ChannelsService', () => {
         case 'private':
           await expect(channelsService.validatePrivateChannelMetadataEntry(entry)).resolves.toBe(expected)
           break
-        case 'legacy':
-          await expect(channelsService.validateLegacyChannelMetadataEntry(entry)).resolves.toBe(expected)
       }
     } finally {
       restoreIdentityMocks()
@@ -674,9 +672,7 @@ describe('ChannelsService', () => {
       )
     })
 
-    it('rejects legacy-id metadata that overwrites an existing channel owned by another member', async () => {
-      // Legacy (unbound) ids fall back to the stateful check, which requires the original entry to be
-      // present/indexed first.
+    it('rejects metadata that overwrites an existing channel owned by another member', async () => {
       const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
         owner: aliceUserId,
         teamId: community.teamId!,
