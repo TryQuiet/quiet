@@ -936,13 +936,16 @@ export class UserProfileContextMenu {
   }
 
   async uploadPhoto(fileName: string) {
+    await this.uploadPhotoPath(path.join(__dirname, fileName))
+  }
+
+  async uploadPhotoPath(filePath: string) {
     const input = await this.driver.wait(
       until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]')),
       10_000,
       'Edit Photo button not found',
       500
     )
-    const filePath = path.join(__dirname, fileName)
     await input.sendKeys(filePath)
   }
 

@@ -71,7 +71,6 @@ export class ImageCompressionService {
           bitmap: { width: number; height: number }
           resize: (options: { w: number; h: number }) => any
           getBuffer: (mime: string, options: { quality: number }) => Promise<Buffer>
-          clone: () => ImageType
         }
         // Cast image to proper type
         const typedImage = image as ImageType
@@ -109,70 +108,26 @@ export class ImageCompressionService {
           }
         }
 
-        // Clone the image to avoid modifying the original while testing compression
-        const workingImage = typedImage.clone()
-
         // Resize if needed
         if (newWidth !== originalWidth || newHeight !== originalHeight) {
           this.logger.info(`Resizing image from ${originalWidth}x${originalHeight} to ${newWidth}x${newHeight}`)
-          workingImage.resize({ w: newWidth, h: newHeight })
+          typedImage.resize({ w: newWidth, h: newHeight })
         } else {
           this.logger.info(`No resize needed, using original dimensions ${originalWidth}x${originalHeight}`)
         }
 
-        // More fine-grained quality testing for large images
-        // For larger images, we'll try more aggressive quality reductions
-        // since dimensions alone may not be enough
-
-        // Base set of qualities to try - will be expanded for large files
-        let qualityLevels = [quality]
-
-        // Add more qualities to test based on original file size
-        if (originalSize > 3 * 1024 * 1024) {
-          // Over 3MB
-          // For large files, test a wider range of qualities with more variants
-          // Adjusted to target 100-200KB range for NASA image and similar very large images
-          qualityLevels = [
-            quality,
-            Math.max(quality - 10, 15), // Try slightly lower
-            Math.min(quality + 10, 80), // Try slightly higher
-            Math.max(quality - 20, 10), // Try much lower (better for reaching target size)
-            40, // Specific quality that works well for large images
-            30, // Lower quality option that targets 100-200KB
-          ]
-
-          // For extremely large files, add some very low quality options
-          if (originalSize > 10 * 1024 * 1024) {
-            qualityLevels.push(25) // Lower quality for enormous images
-            qualityLevels.push(15) // Last resort ultra-compressed
-          }
-        } else if (originalSize > 1 * 1024 * 1024) {
-          // Over 1MB
-          qualityLevels = [
-            quality,
-            Math.max(quality - 15, 15), // Try lower
-            Math.max(quality - 30, 10), // Try much lower
-            Math.min(quality + 10, 90), // Try slightly higher
-          ]
-        } else {
-          // For smaller files, just try a few variations
-          qualityLevels = [
-            quality,
-            Math.max(quality - 15, 20), // Try with lower quality
-            Math.min(quality + 15, 95), // Try with higher quality
-          ]
-        }
+        const qualityLevels = this.getQualityLevels(quality, originalSize)
 
         let bestBuffer: Buffer | null = null
         let bestSize = 0
         let bestQuality = 0
 
-        // Try different quality levels to get as close as possible to target size
+        // Prefer the predicted quality and only retry when the first encode misses the target badly.
         for (const testQuality of qualityLevels) {
           this.logger.info(`Testing quality setting: ${testQuality} for ${mime}`)
 
           // Get buffer with this quality setting
-          const testBuffer = await workingImage.getBuffer(mime, {
+          const testBuffer = await typedImage.getBuffer(mime, {
             quality: testQuality,
           })
 
@@ -181,91 +136,24 @@ export class ImageCompressionService {
             `Quality ${testQuality} resulted in size: ${testSize} bytes (${(testSize / 1024).toFixed(1)}KB)`
           )
 
-          // If this is our first attempt, save it
-          if (bestBuffer === null) {
+          if (
+            bestBuffer === null ||
+            this.isBetterCompressionCandidate({
+              originalSize,
+              currentSize: bestSize,
+              currentQuality: bestQuality,
+              testSize,
+              testQuality,
+            })
+          ) {
             bestBuffer = testBuffer
             bestSize = testSize
             bestQuality = testQuality
-
-            // If we're already very close to target, we can stop
-            if (testSize <= this.TARGET_MAX_SIZE * 1.2 && testSize >= this.TARGET_MAX_SIZE * 0.8) {
-              this.logger.info(`Initial quality ${testQuality} is close enough to target size, stopping early`)
-              break
-            }
-            continue
           }
 
-          // For very large original images, we want to balance quality and file size
-          // aiming for a size within the 100-200KB range rather than just going for the smallest
-          if (originalSize > 4 * 1024 * 1024) {
-            // For images over 4MB
-
-            // For the NASA image and similar large images, we want to target 100-200KB range
-            // This is our primary objective rather than sticking to exactly TARGET_MAX_SIZE
-
-            // Define target range for very large images (100-200KB)
-            const minTargetSize = 100 * 1024
-            const maxTargetSize = 200 * 1024
-
-            // Check if current result is in target range
-            const currentInRange = bestSize >= minTargetSize && bestSize <= maxTargetSize
-            const testInRange = testSize >= minTargetSize && testSize <= maxTargetSize
-
-            // If current best is not in range but test is, use test
-            if (!currentInRange && testInRange) {
-              bestBuffer = testBuffer
-              bestSize = testSize
-              bestQuality = testQuality
-              this.logger.info(
-                `Found size in target range: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
-              )
-            }
-            // If both are in range, prefer the one with higher quality
-            else if (currentInRange && testInRange && testQuality > bestQuality) {
-              bestBuffer = testBuffer
-              bestSize = testSize
-              bestQuality = testQuality
-              this.logger.info(
-                `Found better quality in target range: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
-              )
-            }
-            // If neither is in range, choose the one closer to the middle of the range
-            else if (!currentInRange && !testInRange) {
-              const midTargetSize = (minTargetSize + maxTargetSize) / 2
-              const currentDiff = Math.abs(bestSize - midTargetSize)
-              const newDiff = Math.abs(testSize - midTargetSize)
-
-              if (newDiff < currentDiff) {
-                bestBuffer = testBuffer
-                bestSize = testSize
-                bestQuality = testQuality
-                this.logger.info(
-                  `Closer to target range: ${(testSize / 1024).toFixed(1)}KB with quality ${testQuality}`
-                )
-              }
-            }
-
-            // If we find a size in the middle of our target range, we can stop early
-            if (testSize >= minTargetSize * 1.2 && testSize <= maxTargetSize * 0.8) {
-              this.logger.info(`Found ideal compression in middle of target range, stopping early`)
-              break
-            }
-          } else {
-            // For smaller images, use the original decision logic
-            if (
-              // If previous best is too large and this one is smaller but still reasonable
-              (bestSize > this.TARGET_MAX_SIZE * 1.2 && testSize < bestSize && testSize > this.TARGET_MAX_SIZE * 0.5) ||
-              // Or if previous best is too small and this one is larger but still under target
-              (bestSize < this.TARGET_MAX_SIZE * 0.7 && testSize > bestSize && testSize < this.TARGET_MAX_SIZE * 1.2) ||
-              // Or if both are in acceptable range but this one is closer to target
-              (testSize <= this.TARGET_MAX_SIZE * 1.2 &&
-                testSize >= this.TARGET_MAX_SIZE * 0.7 &&
-                Math.abs(testSize - this.TARGET_MAX_SIZE) < Math.abs(bestSize - this.TARGET_MAX_SIZE))
-            ) {
-              bestBuffer = testBuffer
-              bestSize = testSize
-              bestQuality = testQuality
-            }
+          if (this.isAcceptableCompressedSize(originalSize, testSize)) {
+            this.logger.info(`Quality ${testQuality} is within target range, stopping early`)
+            break
           }
         }
 
@@ -331,6 +219,56 @@ export class ImageCompressionService {
         return filePath
       }
     }
+  }
+
+  private getQualityLevels(quality: number, originalSize: number): number[] {
+    const fallbackQuality = originalSize > 4 * 1024 * 1024 ? Math.max(quality - 20, 10) : Math.max(quality - 25, 15)
+
+    return [...new Set([quality, fallbackQuality])]
+  }
+
+  private isAcceptableCompressedSize(originalSize: number, compressedSize: number): boolean {
+    if (originalSize > 4 * 1024 * 1024) {
+      return compressedSize >= 100 * 1024 && compressedSize <= this.TARGET_MAX_SIZE
+    }
+
+    return compressedSize <= this.TARGET_MAX_SIZE * 1.5
+  }
+
+  private isBetterCompressionCandidate({
+    originalSize,
+    currentSize,
+    currentQuality,
+    testSize,
+    testQuality,
+  }: {
+    originalSize: number
+    currentSize: number
+    currentQuality: number
+    testSize: number
+    testQuality: number
+  }): boolean {
+    if (originalSize > 4 * 1024 * 1024) {
+      const minTargetSize = 100 * 1024
+      const maxTargetSize = this.TARGET_MAX_SIZE
+      const currentInRange = currentSize >= minTargetSize && currentSize <= maxTargetSize
+      const testInRange = testSize >= minTargetSize && testSize <= maxTargetSize
+
+      if (testInRange && !currentInRange) return true
+      if (testInRange && currentInRange) return testQuality > currentQuality
+      if (testSize > maxTargetSize && currentSize > maxTargetSize) return testSize < currentSize
+      if (testSize < minTargetSize && currentSize < minTargetSize) return testSize > currentSize
+
+      const targetMidpoint = (minTargetSize + maxTargetSize) / 2
+      return Math.abs(testSize - targetMidpoint) < Math.abs(currentSize - targetMidpoint)
+    }
+
+    if (currentSize > this.TARGET_MAX_SIZE * 1.5) return testSize < currentSize
+
+    return (
+      testSize <= this.TARGET_MAX_SIZE * 1.5 &&
+      Math.abs(testSize - this.TARGET_MAX_SIZE) < Math.abs(currentSize - this.TARGET_MAX_SIZE)
+    )
   }
 
   /**
