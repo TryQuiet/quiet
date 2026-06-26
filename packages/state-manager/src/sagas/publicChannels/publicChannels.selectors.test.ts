@@ -293,6 +293,27 @@ describe('publicChannelsSelectors', () => {
     expect(channels).toStrictEqual(['general', 'allergies', 'antiques', 'croatia', 'pets', 'sailing'])
   })
 
+  it('returns channels in the user-defined order after reordering', async () => {
+    const channelsByName = Object.fromEntries(getPublicChannels(store.getState()).map(channel => [channel.name, channel]))
+
+    store.dispatch(
+      publicChannelsActions.reorderChannels({
+        channelIds: [
+          channelsByName.sailing.id,
+          channelsByName.general.id,
+          channelsByName.allergies.id,
+          channelsByName.antiques.id,
+          channelsByName.croatia.id,
+          channelsByName.pets.id,
+        ],
+      })
+    )
+
+    const channels = getPublicChannels(store.getState()).map(channel => channel.name)
+
+    expect(channels).toStrictEqual(['sailing', 'general', 'allergies', 'antiques', 'croatia', 'pets'])
+  })
+
   it('unreadChannels return empty object if PublicChannels is in the wrong state (no channelStatus)', async () => {
     // This case occurred in a built app
     const store = prepareStore().store

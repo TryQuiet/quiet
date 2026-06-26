@@ -34,6 +34,10 @@ export const selectChannels = createSelector(selectState, state => {
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
 })
 
+const channelOrder = createSelector(selectState, state => {
+  return state?.channelOrder || []
+})
+
 const selectChannelsSubscriptions = createSelector(selectState, state => {
   if (!state) {
     logger.info('state is undefined')
@@ -75,33 +79,35 @@ export const selectGeneralChannel = createSelector(selectChannels, currentCommun
   return channel
 })
 
-export const publicChannels = createSelector(selectChannels, selectChannelsSelector => {
-  const channels = Array.from(selectChannelsSelector)
-  const sorted = channels.sort((a, b) => {
+const sortChannelsByName = <T extends PublicChannel>(channels: T[]) => {
+  return channels.sort((a, b) => {
     if (a.name === 'general') {
       return -1
     }
     if (b.name === 'general') {
-      return 0
+      return 1
     }
     return a.name.localeCompare(b.name)
   })
+}
 
-  return sorted
+export const publicChannels = createSelector(selectChannels, channelOrder, (selectChannelsSelector, order) => {
+  const channels = Array.from(selectChannelsSelector)
+  if (order.length === 0) {
+    return sortChannelsByName(channels)
+  }
+
+  const orderIndex = new Map(order.map((channelId, index) => [channelId, index]))
+  const orderedChannels = channels
+    .filter(channel => orderIndex.has(channel.id))
+    .sort((a, b) => orderIndex.get(a.id)! - orderIndex.get(b.id)!)
+  const newChannels = sortChannelsByName(channels.filter(channel => !orderIndex.has(channel.id)))
+
+  return [...orderedChannels, ...newChannels]
 })
 
 export const sortedChannels = createSelector(publicChannels, channels => {
-  const sorted = channels.sort((a, b) => {
-    if (a.name === 'general') {
-      return -1
-    }
-    if (b.name === 'general') {
-      return 0
-    }
-    return a.name.localeCompare(b.name)
-  })
-
-  return sorted
+  return Array.from(channels)
 })
 
 export const generalChannel = createSelector(publicChannels, publicChannelsSelector => {

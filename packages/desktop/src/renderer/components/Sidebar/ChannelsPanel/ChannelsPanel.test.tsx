@@ -110,6 +110,7 @@ describe('Channels panel', () => {
           connectedPeers={[aliceUserProfile.userData!.peerId, bobUserProfile.userData!.peerId]}
           unreadChannels={[]}
           setCurrentChannel={function (_id: string): void {}}
+          reorderChannels={function (_ids: string[]): void {}}
           currentChannelId={generalChannel.id}
           createChannelModal={{
             open: false,
