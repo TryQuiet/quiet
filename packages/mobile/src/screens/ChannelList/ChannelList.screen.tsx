@@ -70,27 +70,24 @@ export const ChannelListScreen: FC = () => {
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  // Hide private channels from the UI
-  const tiles = channelsStatusSorted
-    .filter(status => (status.public ?? true) !== false)
-    .map(status => {
-      const newestMessage = status.newestMessage
+  const tiles = channelsStatusSorted.map(status => {
+    const newestMessage = status.newestMessage
 
-      const message = newestMessage?.message || '...'
-      const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
+    const message = newestMessage?.message || '...'
+    const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
 
-      const tile: ChannelTileProps = {
-        name: getChannelNameFromChannelId(status.id),
-        isPublic: status.public ?? true,
-        id: status.id,
-        message,
-        date,
-        unread: status.unread,
-        redirect,
-      }
+    const tile: ChannelTileProps = {
+      name: getChannelNameFromChannelId(status.id),
+      isPublic: status.public ?? true,
+      id: status.id,
+      message,
+      date,
+      unread: status.unread,
+      redirect,
+    }
 
-      return tile
-    })
+    return tile
+  })
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 
