@@ -151,6 +151,9 @@ export interface CreateChannelProps {
   clearErrorsDispatch: () => void
 }
 
+// Private channels are hidden from the UI for now
+const SHOW_PRIVATE_CHANNEL_TOGGLE = false
+
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
   channelCreationError,
@@ -273,7 +276,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                     </Grid>
                   )}
                 </div>
-                {canCreatePrivateChannel && (
+                {SHOW_PRIVATE_CHANNEL_TOGGLE && canCreatePrivateChannel && (
                   <>
                     <Controller
                       control={control}
