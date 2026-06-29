@@ -1,8 +1,14 @@
 import { Member, Role } from '@localfirst/auth'
+import { EncryptionScopeType, type EncryptionScope } from '../crypto/types'
 
 export enum RoleName {
   ADMIN = 'admin',
   MEMBER = 'member',
+}
+
+export const MEMBER_SCOPE: EncryptionScope = {
+  name: RoleName.MEMBER,
+  type: EncryptionScopeType.ROLE,
 }
 
 export const SELF_ASSIGN_ROLES: (RoleName | string)[] = [RoleName.MEMBER]

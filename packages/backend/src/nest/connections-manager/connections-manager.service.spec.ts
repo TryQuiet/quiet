@@ -14,7 +14,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
-import { createLibp2pAddress, validInvitationDatav1 } from '@quiet/common'
+import { createLibp2pAddress, validInvitationDatav4 } from '@quiet/common'
 
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
@@ -26,6 +26,7 @@ import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
+import type { SigChain } from '../auth/sigchain'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -45,18 +46,13 @@ describe('ConnectionsManagerService', () => {
   let qssSyncManager: QSSSyncManager
   let qpsService: QPSService
   let captchaService: CaptchaService
+  let chain: SigChain
 
   beforeEach(async () => {
     jest.clearAllMocks()
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
     communityRootCa = 'rootCa'
-    community = await factory.create('Community', {
-      rootCa: communityRootCa,
-    })
-    userIdentity = await factory.create('Identity', {
-      communityId: community.id,
-    })
 
     module = await Test.createTestingModule({
       imports: [TestModule, LocalDbModule, StorageModule, ConnectionsManagerModule, SocketModule],
@@ -80,9 +76,17 @@ describe('ConnectionsManagerService', () => {
     })
 
     // initialize sigchain on local db
-    await sigChainService.createChain(community.name!, 'john', false)
-    await sigChainService.saveChain(community.name!)
-    await sigChainService.deleteChain(community.name!, false)
+    chain = await sigChainService.createChain('communityName', 'john', false)
+    community = await factory.create('Community', {
+      rootCa: communityRootCa,
+      name: 'communityName',
+      teamId: chain.teamId!,
+    })
+    userIdentity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    await sigChainService.saveChain(chain.teamId!)
+    await sigChainService.deleteChain(chain.teamId!, false)
     quietDir = await module.resolve(QUIET_DIR)
   })
 
@@ -116,6 +120,7 @@ describe('ConnectionsManagerService', () => {
       name: community.name,
       peerList: [remotePeer],
       ownership: CommunityOwnership.Owner,
+      teamId: community.teamId,
     }
     await localDbService.setCommunity(actualCommunity)
     await localDbService.setCurrentCommunityId(community.id)
@@ -177,7 +182,7 @@ describe('ConnectionsManagerService', () => {
     resolveSetCurrentCommunityId()
     await launchCommunityPromise
 
-    expect(loadChainSpy).toHaveBeenCalledWith(community.name, true)
+    expect(loadChainSpy).toHaveBeenCalledWith(community.teamId, true)
     expect(launchSpy).toHaveBeenCalledWith(community)
   })
 
@@ -381,7 +386,7 @@ describe('ConnectionsManagerService', () => {
       id: community.id,
       name: community.name!,
       username: 'john',
-      inviteData: validInvitationDatav1[0],
+      inviteData: validInvitationDatav4[0],
     })
 
     expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
@@ -405,7 +410,7 @@ describe('ConnectionsManagerService', () => {
     const resetStateSpy = jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     const localDbOpenSpy = jest.spyOn(localDbService, 'open').mockResolvedValue()
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
-    sigChainService.activeChainTeamName = community.name
+    sigChainService.activeChainTeamId = community.name
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 
@@ -576,7 +581,7 @@ describe('ConnectionsManagerService', () => {
     jest.spyOn(connectionsManagerService['tor'], 'resetHiddenServices').mockImplementation(() => {})
     jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     jest.spyOn(localDbService, 'open').mockResolvedValue()
-    sigChainService.activeChainTeamName = community.name
+    sigChainService.activeChainTeamId = community.name
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 

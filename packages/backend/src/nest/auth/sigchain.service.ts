@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common'
 import { SigChain } from './sigchain'
 import {
   Connection,
-  Hash,
   InviteeMemberContext,
   Keyring,
   LocalUserContext,
@@ -26,11 +25,10 @@ import EventEmitter from 'events'
 import { GetChainFilter, SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
-import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
-  public activeChainTeamName: string | undefined
+  public activeChainTeamId: string | undefined
   private readonly logger = createLogger(SigChainService.name)
   private chains: Map<string, SigChain> = new Map()
   public connections: Map<string, Connection> = new Map()
@@ -88,9 +86,17 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().device
   }
 
-  get activeTeamId(): Base58 | undefined {
+  get activeTeamId(): string | undefined {
     try {
-      return this.getActiveChain(false)?.team?.id
+      return this.getActiveChain(false)?.teamId
+    } catch {
+      return undefined
+    }
+  }
+
+  get activeTeamName(): string | undefined {
+    try {
+      return this.getActiveChain(false)?.teamName
     } catch {
       return undefined
     }
@@ -99,7 +105,7 @@ export class SigChainService extends EventEmitter {
   getActiveChain(throwError?: true | undefined): SigChain
   getActiveChain(throwError: false): SigChain | undefined
   getActiveChain(throwError = true): SigChain | undefined {
-    return this.getChain({ teamName: this.activeChainTeamName }, throwError as any)
+    return this.getChain({ teamId: this.activeChainTeamId }, throwError as any)
   }
 
   getChain(filter: GetChainFilter, throwError?: true | undefined): SigChain
@@ -122,44 +128,45 @@ export class SigChainService extends EventEmitter {
     }
 
     if (filter.teamId != null) {
-      for (const potentialChain of this.chains.values()) {
-        if (potentialChain.team != null && potentialChain.team.id === filter.teamId) {
-          return potentialChain
-        }
-      }
-
-      if (throwError) {
+      if (!this.chains.has(filter.teamId!) && throwError) {
         throw new Error(`No chain found for team ID ${filter.teamId}`)
-      } else {
-        return undefined
+      }
+      return this.chains.get(filter.teamId!)!
+    }
+
+    const obfuscatedTeamName = SigChain.generateTeamName(filter.teamName!)
+    for (const potentialChain of this.chains.values()) {
+      if (potentialChain.team != null && potentialChain.team.teamName === obfuscatedTeamName) {
+        return potentialChain
       }
     }
 
-    if (!this.chains.has(filter.teamName!) && throwError) {
-      throw new Error(`No chain found for team ${filter.teamName}`)
+    if (throwError) {
+      throw new Error(`No chain found for team name ${filter.teamName}`)
+    } else {
+      return undefined
     }
-    return this.chains.get(filter.teamName!)!
   }
 
-  setActiveChain(teamName: string): void {
-    if (this.activeChainTeamName && this.activeChainTeamName !== teamName) {
-      this.detachSocketListeners(this.getChain({ teamName: this.activeChainTeamName }))
+  setActiveChain(teamId: string): void {
+    if (this.activeChainTeamId && this.activeChainTeamId !== teamId) {
+      this.detachSocketListeners(this.getChain({ teamId: this.activeChainTeamId }))
     }
-    if (!this.chains.has(teamName)) {
-      throw new Error(`No chain found for team ${teamName}, can't set to active!`)
+    if (!this.chains.has(teamId)) {
+      throw new Error(`No chain found for team ${teamId}, can't set to active!`)
     }
-    this.activeChainTeamName = teamName
-    this.attachSocketListeners(this.getChain({ teamName }))
+    this.activeChainTeamId = teamId
+    this.attachSocketListeners(this.getChain({ teamId }))
   }
 
-  private handleChainUpdate = async (teamId: string, teamName: string) => {
-    this.saveChain(teamName)
+  private handleChainUpdate = async (teamId: string) => {
+    this.saveChain(teamId)
     this.logger.info('Chain updated, emitted updated event')
-    void this._updateKeysOnChainUpdate(teamName).catch(err => {
+    void this._updateKeysOnChainUpdate(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
-    this._updateDeviceCredentials(teamName)
-    void this.saveChain(teamName).catch(err => {
+    this._updateDeviceCredentials(teamId)
+    void this.saveChain(teamId).catch(err => {
       this.logger.error('Failed to save chain after update', err)
     })
     this.emit(SigchainEvents.UPDATED, teamId)
@@ -169,7 +176,7 @@ export class SigChainService extends EventEmitter {
   /**
    * Update mobile native storage with any new keys on chain update.
    */
-  private async _updateKeysOnChainUpdate(teamName: string): Promise<void> {
+  private async _updateKeysOnChainUpdate(teamId: string): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
       this.logger.trace('Skipping key update because we are not on mobile, current platform =', process.platform)
@@ -185,13 +192,12 @@ export class SigChainService extends EventEmitter {
       return `quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_${keyType}`
     }
 
-    const sigchain = this.getChain({ teamName })
+    const sigchain = this.getChain({ teamId })
     if (sigchain == null) {
-      this.logger.error('No chain for name found', teamName)
+      this.logger.error('No chain for ID found', teamId)
       return
     }
 
-    const teamId = sigchain.team!.id
     await this._ensureDb()
     const alreadySentKeys: Set<string> = new Set(await this.localDbService.getKeysStoredInKeychain(teamId))
     const keysToSend: StorableKey[] = []
@@ -255,7 +261,7 @@ export class SigChainService extends EventEmitter {
    * Emit device credentials to mobile clients so native background handlers can
    * authenticate with QSS.
    */
-  private _updateDeviceCredentials(teamName: string): void {
+  private _updateDeviceCredentials(teamId: string): void {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') return
     if (process.env.QPS_ALLOWED !== 'true') {
@@ -263,9 +269,8 @@ export class SigChainService extends EventEmitter {
       return
     }
     try {
-      const sigchain = this.getChain({ teamName })
+      const sigchain = this.getChain({ teamId })
       if (sigchain?.team == null) return
-      const teamId = sigchain.team.id
       const device = sigchain.device
       if (!device?.deviceId || !device.keys?.signature?.secretKey) {
         this.logger.warn('Device credentials not available, skipping NSE credential update')
@@ -283,14 +288,10 @@ export class SigChainService extends EventEmitter {
     }
   }
 
-  private _handleEventSigchainUpdated = (chain: SigChain): (() => void) => {
-    return () => this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
-  }
-
   private attachSocketListeners(chain: SigChain): void {
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {
-      this.handleChainUpdate(chain.team!.id, chain.team!.teamName)
+      this.handleChainUpdate(chain.teamId!)
     }
     this._chainListeners.set(chain, listener)
     chain.on(SigchainEvents.UPDATED, listener)
@@ -313,14 +314,13 @@ export class SigChainService extends EventEmitter {
    * @param teamId Optionally pass in the team ID
    * @returns Whether the chain was set as active
    */
-  addChain(chain: SigChain, setActive: boolean, teamName?: string, teamId?: string): boolean {
-    teamName = teamName || chain.team!.teamName
-    if (this.chains.has(teamName)) {
-      throw new Error(`Chain for team ${teamName} already exists`)
+  addChain(chain: SigChain, setActive: boolean, teamId: string): boolean {
+    if (this.chains.has(teamId)) {
+      throw new Error(`Chain for team ${teamId} already exists`)
     }
-    this.chains.set(teamName, chain)
+    this.chains.set(teamId, chain)
     if (setActive) {
-      this.setActiveChain(teamName)
+      this.setActiveChain(teamId)
       return true
     }
 
@@ -332,17 +332,17 @@ export class SigChainService extends EventEmitter {
    * @param teamName Name of the team to delete
    * @param fromDisk Whether to delete the chain from disk as well
    */
-  async deleteChain(teamName: string, fromDisk: boolean): Promise<void> {
-    const chain = this.chains.get(teamName)
+  async deleteChain(teamId: string, fromDisk: boolean): Promise<void> {
+    const chain = this.chains.get(teamId)
     if (chain) {
       this.detachSocketListeners(chain)
     }
     if (fromDisk) {
-      this.localDbService.deleteSigChain(teamName)
+      this.localDbService.deleteSigChain(teamId)
     }
-    this.chains.delete(teamName)
-    if (this.activeChainTeamName === teamName) {
-      this.activeChainTeamName = undefined
+    this.chains.delete(teamId)
+    if (this.activeChainTeamId === teamId) {
+      this.activeChainTeamId = undefined
     }
   }
 
@@ -354,27 +354,21 @@ export class SigChainService extends EventEmitter {
    * @returns The created chain
    */
   async createChain(teamName: string, username: string, setActive: boolean): Promise<SigChain> {
-    if (this.chains.has(teamName)) {
+    if (this.getChain({ teamName }, false)) {
       throw new Error(`Chain for team ${teamName} already exists`)
     }
     const sigChain = SigChain.create(teamName, username)
-    this.addChain(sigChain, setActive, teamName)
-    await this.saveChain(teamName)
-    this.handleChainUpdate(sigChain.team!.id, teamName)
+    this.addChain(sigChain, setActive, sigChain.teamId!)
+    await this.saveChain(sigChain.teamId!)
+    this.handleChainUpdate(sigChain.teamId!)
     return sigChain
   }
 
-  async createChainFromInvite(
-    username: string,
-    teamName: string,
-    seed: string,
-    teamId: string | undefined,
-    setActive: boolean
-  ): Promise<SigChain> {
+  async createChainFromInvite(username: string, seed: string, teamId: string, setActive: boolean): Promise<SigChain> {
     this.logger.info('Creating chain from invite')
     const sigChain = SigChain.createFromInvite(username, seed)
-    this.addChain(sigChain, setActive, teamName, teamId)
-    await this.saveChain(teamName)
+    this.addChain(sigChain, setActive, teamId)
+    await this.saveChain(teamId)
     return sigChain
   }
 
@@ -394,7 +388,7 @@ export class SigChainService extends EventEmitter {
   ): Promise<SigChain> {
     this.logger.info('Deserializing chain')
     const sigChain = SigChain.load(serializedTeam, localUserContext, teamKeyRing)
-    this.addChain(sigChain, setActive)
+    this.addChain(sigChain, setActive, sigChain.teamId!)
     return sigChain
   }
 
@@ -402,23 +396,23 @@ export class SigChainService extends EventEmitter {
 
   /**
    * Loads a chain from disk and adds it to the service
-   * @param teamName Name of the team to load
+   * @param teamId ID of the team to load
    * @param setActive Whether to set the chain as active
    * @returns The SigChain instance loaded from disk
    * @throws Error if the chain doesn't exist
    */
-  async loadChain(teamName: string, setActive: boolean): Promise<SigChain> {
+  async loadChain(teamId: string, setActive: boolean): Promise<SigChain> {
     await this._ensureDb()
-    this.logger.info(`Loading chain for team ${teamName}`)
-    const chainData = await this.localDbService.getSigChain(teamName)
+    this.logger.info(`Loading chain for team ${teamId}`)
+    const chainData = await this.localDbService.getSigChain(teamId)
     if (!chainData) {
-      throw new Error(`Chain for team ${teamName} not found`)
+      throw new Error(`Chain for team ${teamId} not found`)
     }
     if (!chainData.serializedTeam) {
-      throw new Error(`Chain for team ${teamName} is missing serialized team`)
+      throw new Error(`Chain for team ${teamId} is missing serialized team`)
     }
     if (!chainData.teamKeyRing) {
-      throw new Error(`Chain for team ${teamName} is missing keyring`)
+      throw new Error(`Chain for team ${teamId} is missing keyring`)
     }
     return await this.deserialize(
       chainData.serializedTeam,
@@ -432,11 +426,11 @@ export class SigChainService extends EventEmitter {
    * Saves a chain to disk
    * @param teamName Name of the team to save
    */
-  async saveChain(teamName: string): Promise<void> {
-    this.logger.info(`Saving chain to disk`, teamName)
+  async saveChain(teamId: string): Promise<void> {
+    this.logger.info(`Saving chain to disk`, teamId)
     await this._ensureDb()
-    const chain = this.getChain({ teamName })
-    await this.localDbService.setSigChain(chain, teamName)
+    const chain = this.getChain({ teamId })
+    await this.localDbService.setSigChain(chain, teamId)
   }
 
   private async _ensureDb(): Promise<void> {

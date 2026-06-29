@@ -118,9 +118,9 @@ beforeEach(async () => {
   quietDir = await module.resolve(QUIET_DIR)
 
   const pskBase64 = generateLibp2pPSK().psk
-  await sigchainService.createChain(community.name!, 'john', false)
-  await sigchainService.saveChain(community.name!)
-  await sigchainService.deleteChain(community.name!, false)
+  const chain = await sigchainService.createChain(community.name, 'john', false)
+  await sigchainService.saveChain(chain.teamId!)
+  await sigchainService.deleteChain(chain.teamId!, false)
   await localDbService.put(LocalDBKeys.PSK, pskBase64)
   await localDbService.put(LocalDBKeys.CURRENT_COMMUNITY_ID, community.id)
   await localDbService.setCommunity(community)

@@ -32,7 +32,14 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
-import { CompoundError, InvitationDataV3, NseQssUrlUpdatedEvent, SocketActions, SocketEvents } from '@quiet/types'
+import {
+  CompoundError,
+  InvitationDataV3,
+  NseQssUrlUpdatedEvent,
+  SocketActions,
+  SocketEvents,
+  type InvitationDataV5,
+} from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { QSSSyncManager } from './qss-sync-manager.service'
@@ -162,10 +169,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       } else {
         const teamId =
           sigChain.team != null
-            ? sigChain.team.id
-            : (initStatus.community.inviteData as InvitationDataV3).authData!.teamId!
-        const teamName = sigChain.team != null ? sigChain.team.teamName : initStatus.community.name
+            ? sigChain.teamId
+            : (initStatus.community?.inviteData as InvitationDataV5).authData.teamId
+        const teamName = initStatus.community.name
         this.logger.trace('QSS Sign in', teamId, teamName)
+        if (teamId == null) {
+          this.logger.warn('Attempted to sign into QSS but no team ID was found')
+          return
+        }
         await this.signInToCommunity(teamId, sigChain, teamName)
       }
     })
@@ -175,7 +186,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
     const initStatus = await this.getQssInitStatus()
     const sigchain = this.sigChainService.getChain({ teamId })
-    const authData = (initStatus.community?.inviteData as InvitationDataV3).authData
+    const authData = (initStatus.community?.inviteData as InvitationDataV5).authData
     if (authData.salt != null) {
       sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)
     }

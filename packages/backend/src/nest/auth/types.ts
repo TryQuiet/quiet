@@ -43,3 +43,5 @@ export enum StoredKeyType {
   USER_PUBLIC = 'userPublic',
   USER_SIG = 'userSig',
 }
+
+export const TEAM_NAME_UNSET = 'TEAM_NAME_UNSET'

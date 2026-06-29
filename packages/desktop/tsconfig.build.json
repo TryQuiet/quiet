@@ -18,8 +18,6 @@
   "exclude": [
     "node_modules",
     "**/__tests__/*",
-    "src/rtl-tests",
-    "src/renderer",
     "src/**/*.cy.ts",
     "src/**/*.cy.tsx",
     "cypress/**/*.ts",

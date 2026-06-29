@@ -11,15 +11,18 @@ const logger = createLogger('auth:sigchainManager.spec')
 
 describe('SigChain', () => {
   let sigChain: SigChain
+  const teamName = 'test'
+  const obfuscatedTeamName = SigChain.generateTeamName(teamName)
+  const userName = 'user'
 
   it('should initialize a new sigchain and be admin', () => {
-    sigChain = SigChain.create('test', 'user')
+    sigChain = SigChain.create(teamName, userName)
     expect(sigChain).toBeDefined()
     expect(sigChain.context).toBeDefined()
-    expect(sigChain.team!.teamName).toBe('test')
-    expect(sigChain.user.userName).toBe('user')
     expect(sigChain.roles.amIAdmin()).toBe(true)
-    expect(sigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(sigChain.roles.amIMember()).toBe(true)
+    expect(sigChain.teamName).toBe(obfuscatedTeamName)
+    expect(sigChain.user.userName).toBe(userName)
   })
   it('admin should not have a role that does not exist', () => {
     expect(sigChain.roles.amIMemberOfRole('nonexistent')).toBe(false)
@@ -29,8 +32,8 @@ describe('SigChain', () => {
     const localUserContext = { user: sigChain.user, device: sigChain.device } as LocalUserContext
     const sigChain2 = SigChain.load(serializedChain, localUserContext, sigChain.team!.teamKeyring())
     expect(sigChain2).toBeDefined()
-    expect(sigChain2.team!.teamName).toBe('test')
+    expect(sigChain2.teamName).toBe(obfuscatedTeamName)
     expect(sigChain2.roles.amIAdmin()).toBe(true)
-    expect(sigChain2.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(sigChain2.roles.amIMember()).toBe(true)
   })
 })

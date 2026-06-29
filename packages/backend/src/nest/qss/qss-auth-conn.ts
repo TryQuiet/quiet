@@ -234,7 +234,7 @@ export class QSSAuthConnection extends EventEmitter {
     // Handle connected events and update the sigchain/join status
     authConnection.on(LFAEvents.CONNECTED, () => {
       this._connStatus = QSSAuthConnStatus.CONNECTED
-      if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
+      if (this.sigChainService.activeChainTeamId != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
         const team = sigChain.team!
@@ -270,14 +270,14 @@ export class QSSAuthConnection extends EventEmitter {
           team,
           user,
         } as MemberContext
-        this.sigChainService.setActiveChain(team.teamName)
+        this.sigChainService.setActiveChain(team.id)
         this._joinStatus = JoinStatus.PENDING_MEMBER
         this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
         this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
       } else {
         this._joinStatus = JoinStatus.JOINED
       }
-      void this.sigChainService.saveChain(team.teamName)
+      void this.sigChainService.saveChain(team.id)
       this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
     })
 

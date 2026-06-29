@@ -8,17 +8,23 @@ import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import { type Community, InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
-import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
+import {
+  type Community,
+  InvitationData,
+  type InvitationDataV4,
+  InvitationDataVersion,
+  JoinCommunityPayload,
+} from '@quiet/types'
+import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
 import { FactoryGirl } from 'factory-girl'
 
 describe('deepLinkSaga', () => {
   let store: Store
   let factory: FactoryGirl
-  const { code } = getValidInvitationUrlTestData(validInvitationDatav1[0])
+  const { code } = getValidInvitationUrlTestData(validInvitationDatav4[0])
 
   const validCode = code()
-  const validData = validInvitationDatav1[0]
+  const validData = validInvitationDatav4[0]
 
   const id = '00d045ab'
   let community: Community
@@ -134,8 +140,8 @@ describe('deepLinkSaga', () => {
   })
 
   test('displays error if invitation code is invalid', async () => {
-    const invalidData: InvitationData = {
-      version: InvitationDataVersion.v1,
+    const invalidData: InvitationDataV4 = {
+      version: InvitationDataVersion.v4,
       pairs: [
         {
           onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
@@ -143,7 +149,11 @@ describe('deepLinkSaga', () => {
         },
       ],
       psk: 'BNlxfE=',
-      ownerOrbitDbIdentity: 'testId',
+      authData: {
+        teamId: 'abc123',
+        seed: 'def456',
+        communityName: 'foobar',
+      },
     }
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: invalidData,

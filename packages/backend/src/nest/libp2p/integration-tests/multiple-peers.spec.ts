@@ -37,9 +37,8 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
       const sigchainService = await modules[i].resolve(SigChainService)
       await sigchainService.createChainFromInvite(
         `user${i}`,
-        teamName,
         inviteResult.seed,
-        sigchainServiceA.activeChain.team?.id,
+        sigchainServiceA.activeChain.team!.id,
         true
       )
     }

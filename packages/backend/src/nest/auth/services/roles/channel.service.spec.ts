@@ -24,10 +24,10 @@ describe('channels', () => {
     adminSigChain = SigChain.create(teamName, adminUsername)
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.context).toBeDefined()
-    expect(adminSigChain.team!.teamName).toBe(teamName)
+    expect(adminSigChain.teamName).toBe(SigChain.generateTeamName(teamName))
     expect(adminSigChain.user.userName).toBe(adminUsername)
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(adminSigChain.roles.amIMember()).toBe(true)
   })
   it('should create channel and admin should be added as member', () => {
     const channel = adminSigChain.channels.create(channelId)

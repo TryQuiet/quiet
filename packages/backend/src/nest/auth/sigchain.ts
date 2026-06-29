@@ -9,17 +9,21 @@ import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
 import { ServerService } from './services/members/server.service'
-import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
+import { MEMBER_SCOPE, RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
 import { LFAEvents, SigchainEvents } from './types'
+import { Serializer } from '../common/serializer.service'
+import { SerializerEncodingType } from '@quiet/types'
+import { createHash, Hash } from 'crypto'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
+  private static serializer = new Serializer()
   private _context: auth.MemberContext | auth.InviteeMemberContext
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
@@ -66,6 +70,14 @@ class SigChain extends EventEmitter {
     this._context = context
   }
 
+  get teamId(): string | undefined {
+    return this.team?.id
+  }
+
+  get teamName(): string | undefined {
+    return this.team?.teamName
+  }
+
   get user(): auth.UserWithSecrets {
     return this.context.user
   }
@@ -92,7 +104,7 @@ class SigChain extends EventEmitter {
   public static create(teamName: string, username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
     const team: auth.Team = auth.createTeam(
-      teamName,
+      SigChain.generateTeamName(teamName),
       localUser,
       undefined,
       { selfAssignableRoles: SELF_ASSIGN_ROLES },
@@ -233,6 +245,10 @@ class SigChain extends EventEmitter {
       team: team,
     } as auth.MemberContext
     return new SigChain(memberContext)
+  }
+
+  public static generateTeamName(plaintextTeamName: string): string {
+    return createHash('md5').update(plaintextTeamName).digest('hex')
   }
 }
 

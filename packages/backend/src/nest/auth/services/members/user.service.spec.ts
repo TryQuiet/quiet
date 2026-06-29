@@ -16,7 +16,7 @@ describe('users', () => {
     adminSigChain = SigChain.create('test', 'user')
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.context).toBeDefined()
-    expect(adminSigChain.team!.teamName).toBe('test')
+    expect(adminSigChain.teamName).toBe(SigChain.generateTeamName('test'))
     expect(adminSigChain.user.userName).toBe('user')
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
