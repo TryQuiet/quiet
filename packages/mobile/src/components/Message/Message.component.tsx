@@ -9,7 +9,12 @@ import { ImageAttachment } from '../ImageAttachment/ImageAttachment.component'
 import { FileAttachment } from '../FileAttachment/FileAttachment.component'
 import type { FileActionsProps } from '../FileAttachment/FileAttachment.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown, { MarkdownIt, type ASTNode, hasParents } from '@ronradtke/react-native-markdown-display'
+import Markdown, {
+  MarkdownIt,
+  type ASTNode,
+  type MarkdownStyleMap,
+  hasParents,
+} from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
@@ -97,9 +102,8 @@ const MessageInner: FC<MessageProps & FileActionsProps> = ({
             node: ASTNode,
             children: ReactNode[],
             parent: ASTNode[],
-            styles: any,
-            allowedImageHandlers: string[],
-            defaultImageHandler: string
+            styles: MarkdownStyleMap,
+            ..._extra: unknown[]
           ) => (
             <Text key={node.key} style={styles.image}>
               ![{node.attributes.alt}]({node.attributes.src})

@@ -1,5 +1,4 @@
 /* global Notification */
-import { shell } from 'electron'
 import { call, select, fork, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import {
@@ -17,6 +16,7 @@ import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'
 import { createLogger } from '../../logger'
+import { showItemInFolder } from '../../utils/electronSecurity'
 
 const logger = createLogger('notifications.saga')
 
@@ -159,7 +159,7 @@ function subscribeNotificationEvents(
   return eventChannel<ReturnType<typeof publicChannels.actions.setCurrentChannel>>(emit => {
     notification.onclick = () => {
       if (type === MessageType.File && media?.path) {
-        shell.showItemInFolder(media.path)
+        void showItemInFolder(media.path)
       } else {
         const [browserWindow] = remote.BrowserWindow.getAllWindows()
         browserWindow.show()

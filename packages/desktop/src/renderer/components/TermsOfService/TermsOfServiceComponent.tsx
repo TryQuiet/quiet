@@ -1,5 +1,4 @@
 import React from 'react'
-import { shell } from 'electron'
 import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'

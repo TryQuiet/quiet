@@ -5,11 +5,11 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
 import { communities, publicChannels, users, connection, network } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
-import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 import { LoadingPanelType, ErrorCodes, CommunityOwnership } from '@quiet/types'
 import { createLogger } from '../../logger'
+import { openExternalUrl } from '../../utils/electronSecurity'
 
 const logger = createLogger('LoadingPanel')
 
@@ -74,8 +74,7 @@ const LoadingPanel = () => {
   }, [isConnected, message])
 
   const openUrl = useCallback((url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    shell.openExternal(url)
+    void openExternalUrl(url)
   }, [])
 
   if (message === LoadingPanelType.StartingApplication) {

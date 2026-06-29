@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 
-import { shell, ipcRenderer, webUtils } from 'electron'
+import { ipcRenderer, webUtils } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { users, messages, publicChannels, communities, files, network, settings } from '@quiet/state-manager'
@@ -18,6 +18,7 @@ import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
+import { openExternalUrl, showItemInFolder } from '../../utils/electronSecurity'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -140,7 +141,7 @@ const Channel = () => {
           [arg.id]: {
             ext: arg.ext,
             name: arg.name,
-            path: webUtils.getPathForFile(arg),
+            path: arg.path,
           },
         }
 
@@ -160,12 +161,11 @@ const Channel = () => {
   }, [])
 
   const openUrl = useCallback((url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    shell.openExternal(url)
+    void openExternalUrl(url)
   }, [])
 
   const openContainingFolder = useCallback((path: string) => {
-    shell.showItemInFolder(path)
+    void showItemInFolder(path)
   }, [])
 
   const downloadFile = useCallback(

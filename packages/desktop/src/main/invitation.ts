@@ -6,12 +6,38 @@ import { BrowserWindow } from 'electron'
 import { createLogger } from './logger'
 
 const logger = createLogger('invitation')
+const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
+const MAX_INVITATION_URL_LENGTH = 8192
 
 export const processInvitationCode = (mainWindow: BrowserWindow, code: string | string[]) => {
   if (!code || !code.length) return
+
+  const invitationCodes = normalizeInvitationCodes(code)
+  if (invitationCodes.length === 0) return
+
   mainWindow.webContents.send('invitation', {
-    code,
+    code: invitationCodes.length === 1 ? invitationCodes[0] : invitationCodes,
   })
+}
+
+export const normalizeInvitationCodes = (code: string | string[]): string[] => {
+  const values = Array.isArray(code) ? code : [code]
+  return values.filter(isValidInvitationCode)
+}
+
+const isValidInvitationCode = (code: unknown): code is string => {
+  if (typeof code !== 'string') return false
+  if (code.length === 0 || code.length > MAX_INVITATION_URL_LENGTH) return false
+  if (/[\u0000-\u001f\u007f]/.test(code)) return false
+  if (!code.startsWith(DEEP_URL_SCHEME_WITH_SEPARATOR)) return false
+
+  try {
+    const parsed = new URL(code)
+    return parsed.protocol === 'quiet:'
+  } catch (error) {
+    logger.warn('Rejected malformed invitation URL', error)
+    return false
+  }
 }
 
 export const updateDesktopFile = (isDev: boolean) => {

@@ -46,6 +46,16 @@ import { OrbitDbModule } from './storage/orbitDb/orbitdb.module'
 import { CommonModule } from './common/common.module'
 
 const logger = createLogger('appModule')
+const MAX_SOCKET_HTTP_BUFFER_BYTES = 1024 * 1024
+const LOCAL_ORIGIN_PATTERN = /^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/
+
+const isAllowedLocalOrigin = (origin?: string): boolean => {
+  return !origin || origin === 'null' || origin.startsWith('file://') || LOCAL_ORIGIN_PATTERN.test(origin)
+}
+
+const isLoopbackAddress = (address?: string): boolean => {
+  return address === '127.0.0.1' || address === '::1' || address === '::ffff:127.0.0.1'
+}
 
 @Global()
 @Module({
@@ -108,12 +118,19 @@ export class AppModule {
           useFactory: async (expressProvider: express.Application) => {
             const _ioLogger = logger.extend('serverIoProvider')
             const _app = expressProvider
-            _app.use(cors())
-            _app.use(express.json())
+            _app.use(
+              cors({
+                origin: (origin, callback) => callback(null, isAllowedLocalOrigin(origin)),
+                methods: ['GET'],
+                credentials: false,
+              })
+            )
+            _app.use(express.json({ limit: '64kb', strict: true }))
 
             const captchaTemplatePath = process.env.HCAPTCHA_TEMPLATE_PATH
             if (captchaTemplatePath) {
               _app.get('/hcaptcha', (_req, res) => {
+                res.setHeader('Cache-Control', 'no-store')
                 res.sendFile(captchaTemplatePath, err => {
                   if (err) {
                     _ioLogger.error('Failed to serve hCaptcha challenge', err)
@@ -130,11 +147,15 @@ export class AppModule {
             const server = createServer(_app)
             const io = new SocketIO<SocketActionsMap, SocketEventsMap>(server, {
               cors: {
-                origin: '127.0.0.1',
+                origin: (origin, callback) => callback(null, isAllowedLocalOrigin(origin)),
                 allowedHeaders: ['authorization', 'Upgrade', 'Connection'],
                 credentials: true,
               },
+              allowRequest: (req, callback) => {
+                callback(null, isLoopbackAddress(req.socket.remoteAddress))
+              },
               allowUpgrades: true,
+              maxHttpBufferSize: MAX_SOCKET_HTTP_BUFFER_BYTES,
               pingInterval: 60_000,
               pingTimeout: 30_000,
             })

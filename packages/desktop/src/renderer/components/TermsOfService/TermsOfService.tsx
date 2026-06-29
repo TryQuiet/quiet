@@ -5,7 +5,7 @@ import TermsOfServiceComponent from './TermsOfServiceComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
-import { shell } from 'electron'
+import { openExternalUrl } from '../../utils/electronSecurity'
 
 const logger = createLogger('TermsOfService')
 
@@ -48,7 +48,7 @@ const TermsOfService = () => {
   }
 
   const openURL = () => {
-    shell.openExternal('https://github.com/TryQuiet/quiet/wiki/Privacy-Policy')
+    void openExternalUrl('https://github.com/TryQuiet/quiet/wiki/Privacy-Policy')
   }
 
   return (

@@ -1,10 +1,11 @@
 import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog } from 'electron'
+import { app, BrowserWindow, BrowserView, Menu, ipcMain, session, dialog, shell, autoUpdater as electronAutoUpdater } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
+import { randomUUID } from 'crypto'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
 import { setEngine, CryptoEngine } from 'pkijs'
 import { createLogger } from './logger'
@@ -30,6 +31,10 @@ const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.IS_E2E === 'true'
+const MAX_TEMP_FILE_BYTES = 50 * 1024 * 1024
+const MAX_EXTERNAL_URL_LENGTH = 4096
+const SAFE_EXTERNAL_PROTOCOLS = new Set(['http:', 'https:', 'mailto:'])
+const SENSITIVE_ENV_KEY_PATTERN = /(secret|token|password|passwd|private|credential|certificate|key|cookie|auth)/i
 
 if (isE2Etest) {
   autoUpdater.autoInstallOnAppQuit = false
@@ -108,6 +113,125 @@ setEngine(
 
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
+}
+
+const redactEnvironment = (environment: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
+  return Object.fromEntries(
+    Object.entries(environment).map(([key, value]) => [
+      key,
+      value && SENSITIVE_ENV_KEY_PATTERN.test(key) ? '[REDACTED]' : value,
+    ])
+  ) as NodeJS.ProcessEnv
+}
+
+const parseSafeExternalUrl = (rawUrl: unknown): URL | null => {
+  if (typeof rawUrl !== 'string') return null
+  if (rawUrl.length === 0 || rawUrl.length > MAX_EXTERNAL_URL_LENGTH) return null
+  if (/[\u0000-\u001f\u007f]/.test(rawUrl)) return null
+
+  try {
+    const parsed = new URL(rawUrl)
+    return SAFE_EXTERNAL_PROTOCOLS.has(parsed.protocol) ? parsed : null
+  } catch (error) {
+    logger.warn('Rejected malformed external URL', error)
+    return null
+  }
+}
+
+const openExternalUrl = async (rawUrl: unknown): Promise<boolean> => {
+  const parsed = parseSafeExternalUrl(rawUrl)
+  if (!parsed) {
+    logger.warn('Rejected external URL open request')
+    return false
+  }
+
+  await shell.openExternal(parsed.toString())
+  return true
+}
+
+const isAllowedAppFileUrl = (rawUrl: string): boolean => {
+  try {
+    const parsed = new URL(rawUrl)
+    if (parsed.protocol !== 'file:') return false
+    const filePath = path.resolve(url.fileURLToPath(parsed))
+    const appDirectory = path.resolve(__dirname)
+    return filePath === appDirectory || filePath.startsWith(`${appDirectory}${path.sep}`)
+  } catch (error) {
+    logger.warn('Rejected malformed file URL navigation', error)
+    return false
+  }
+}
+
+const showItemInFolder = (rawPath: unknown): boolean => {
+  if (typeof rawPath !== 'string' || rawPath.length === 0 || /[\u0000]/.test(rawPath)) {
+    logger.warn('Rejected invalid show-item path')
+    return false
+  }
+
+  const resolvedPath = path.resolve(rawPath)
+  if (!path.isAbsolute(resolvedPath) || !fs.existsSync(resolvedPath)) {
+    logger.warn('Rejected show-item path outside local filesystem or missing file')
+    return false
+  }
+
+  shell.showItemInFolder(resolvedPath)
+  return true
+}
+
+const sanitizeFileExtension = (extension: unknown, fileName: unknown): string => {
+  const candidate =
+    typeof extension === 'string' && extension.length > 0
+      ? extension
+      : typeof fileName === 'string'
+        ? path.extname(fileName)
+        : ''
+  const normalized = candidate.startsWith('.') ? candidate : `.${candidate}`
+  return /^\.[a-z0-9]{1,16}$/i.test(normalized) ? normalized.toLowerCase() : ''
+}
+
+const sanitizeFileName = (fileName: unknown, extension: string): string => {
+  const candidate = typeof fileName === 'string' ? fileName : 'file'
+  const basename = path.basename(candidate, extension)
+  const sanitized = basename.replace(/[<>:"/\\|?*\u0000-\u001f\u007f]+/g, '_').trim()
+  return (sanitized || 'file').slice(0, 120)
+}
+
+const normalizeTempFileBuffer = (fileBuffer: unknown): Buffer | null => {
+  if (Buffer.isBuffer(fileBuffer)) return fileBuffer
+  if (fileBuffer instanceof Uint8Array) return Buffer.from(fileBuffer)
+  if (fileBuffer instanceof ArrayBuffer) return Buffer.from(fileBuffer)
+  return null
+}
+
+const buildTempFilePath = (directory: string, fileName: string): string => {
+  const resolvedDirectory = path.resolve(directory)
+  const resolvedFile = path.resolve(resolvedDirectory, fileName)
+  if (!resolvedFile.startsWith(`${resolvedDirectory}${path.sep}`)) {
+    throw new Error('Resolved temp file path escaped the temp directory')
+  }
+  return resolvedFile
+}
+
+const attachWindowSecurityHandlers = (window: BrowserWindow) => {
+  if (typeof window.webContents.setWindowOpenHandler === 'function') {
+    window.webContents.setWindowOpenHandler(({ url: targetUrl }) => {
+      void openExternalUrl(targetUrl)
+      return { action: 'deny' }
+    })
+  }
+
+  window.webContents.on('will-navigate', (event, targetUrl) => {
+    if (isAllowedAppFileUrl(targetUrl)) return
+
+    const parsed = parseSafeExternalUrl(targetUrl)
+    if (!parsed) {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+    void openExternalUrl(targetUrl)
+  })
 }
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
@@ -194,6 +318,7 @@ export const createWindow = async () => {
     },
     autoHideMenuBar: true,
   })
+  attachWindowSecurityHandlers(mainWindow)
 
   remote.enable(mainWindow.webContents)
 
@@ -211,6 +336,7 @@ export const createWindow = async () => {
     autoHideMenuBar: true,
     alwaysOnTop: true,
   })
+  attachWindowSecurityHandlers(splash)
 
   remote.enable(splash.webContents)
 
@@ -345,6 +471,10 @@ export async function openHCaptcha(siteKey: string): Promise<string> {
     let solvedHandler: ((event: Electron.IpcMainEvent, token: string) => void) | null = null
     let failedHandler: ((event: Electron.IpcMainEvent, message: string) => void) | null = null
 
+    const isExpectedCaptchaSender = (event: Electron.IpcMainEvent) => {
+      return event.sender === overlayView?.webContents || event.sender === modalWindow?.webContents
+    }
+
     const resolveOnce = (token: string) => {
       if (settled) return
       settled = true
@@ -365,8 +495,20 @@ export async function openHCaptcha(siteKey: string): Promise<string> {
       reject(new Error(message))
     }
 
-    solvedHandler = (_event, token) => resolveOnce(token)
-    failedHandler = (_event, message) => rejectOnce(message)
+    solvedHandler = (event, token) => {
+      if (!isExpectedCaptchaSender(event) || typeof token !== 'string' || token.length > 4096) {
+        logger.warn('Rejected hCaptcha solve from unexpected sender or invalid token')
+        return
+      }
+      resolveOnce(token)
+    }
+    failedHandler = (event, message) => {
+      if (!isExpectedCaptchaSender(event) || typeof message !== 'string' || message.length > 1024) {
+        logger.warn('Rejected hCaptcha error from unexpected sender or invalid message')
+        return
+      }
+      rejectOnce(message)
+    }
 
     ipcMain.once('hcaptcha:solved', solvedHandler)
     ipcMain.once('hcaptcha:error', failedHandler)
@@ -509,7 +651,7 @@ const setupUpdater = async () => {
       mainWindow.webContents.send('newUpdateAvailable')
     }
   })
-  autoUpdater.on('before-quit-for-update', () => {
+  electronAutoUpdater.on('before-quit-for-update', () => {
     logger.info('updater: before-quit-for-update')
   })
 }
@@ -521,6 +663,9 @@ app.on('ready', async () => {
   logger.info('Event: app.ready')
   await sodium.ready
   SOCKET_IO_SECRET = sodium.to_hex(sodium.randombytes_buf(32))
+  session.defaultSession?.setPermissionRequestHandler?.((_webContents, _permission, callback) => {
+    callback(false)
+  })
 
   logger.trace('Setting application menu')
   Menu.setApplicationMenu(null)
@@ -596,7 +741,7 @@ app.on('ready', async () => {
     logger.error('Error occurred while trying to close hanging backend process', e)
   }
 
-  logger.info('Environment variables', JSON.stringify(process.env, null, 2))
+  logger.info('Environment variables', JSON.stringify(redactEnvironment(process.env), null, 2))
 
   backendProcess = fork(backendBundlePath, forkArgvs, {
     stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
@@ -860,21 +1005,42 @@ app.on('ready', async () => {
     backendProcess?.send('close')
   })
 
+  ipcMain.handle('open-external-url', async (_event, rawUrl: unknown) => {
+    return openExternalUrl(rawUrl)
+  })
+
+  ipcMain.handle('show-item-in-folder', async (_event, rawPath: unknown) => {
+    return showItemInFolder(rawPath)
+  })
+
   ipcMain.on('writeTempFile', (event, arg) => {
     logger.info('ipcMain: writeTempFile')
-    const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
-    fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
-    const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
-    const name = arg.ext ? arg.fileName.split(arg.ext)[0] : arg.fileName
-    const filePath = `${path.join(temporaryFilesDirectory, `${name}_${id}${arg.ext}`)}`
-    fs.writeFileSync(filePath, arg.fileBuffer)
+    try {
+      const fileBuffer = normalizeTempFileBuffer(arg?.fileBuffer)
+      if (!fileBuffer || fileBuffer.byteLength > MAX_TEMP_FILE_BYTES) {
+        throw new Error('Invalid or oversized temp file buffer')
+      }
 
-    event.reply('writeTempFileReply', {
-      path: filePath,
-      id,
-      name,
-      ext: arg.ext,
-    })
+      const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
+      fs.mkdirSync(temporaryFilesDirectory, { recursive: true, mode: 0o700 })
+      const id = randomUUID()
+      const ext = sanitizeFileExtension(arg?.ext, arg?.fileName)
+      const name = sanitizeFileName(arg?.fileName, ext)
+      const filePath = buildTempFilePath(temporaryFilesDirectory, `${name}_${id}${ext}`)
+      fs.writeFileSync(filePath, fileBuffer, { mode: 0o600 })
+
+      event.reply('writeTempFileReply', {
+        path: filePath,
+        id,
+        name,
+        ext,
+      })
+    } catch (error) {
+      logger.error('Failed to write temp file', error)
+      event.reply('writeTempFileError', {
+        message: error instanceof Error ? error.message : 'Failed to write temp file',
+      })
+    }
   })
 
   ipcMain.on('openUploadFileDialog', async e => {

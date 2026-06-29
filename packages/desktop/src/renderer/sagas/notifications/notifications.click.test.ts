@@ -1,4 +1,3 @@
-import { shell } from 'electron'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
 import { prepareStore, testReducers } from '../../testUtils/prepareStore'
@@ -8,6 +7,7 @@ import { publicChannels, NotificationsSounds } from '@quiet/state-manager'
 import { MessageType, FileMetadata } from '@quiet/types'
 import { createNotification, handleNotificationActions, NotificationData } from './notifications.saga'
 import { generateChannelId } from '@quiet/common'
+import { showItemInFolder } from '../../utils/electronSecurity'
 
 const notification = jest.fn().mockImplementation(() => {
   return jest.fn()
@@ -25,11 +25,9 @@ jest.mock('../../../shared/sounds', () => ({
   },
 }))
 
-jest.mock('electron', () => {
+jest.mock('../../utils/electronSecurity', () => {
   return {
-    shell: {
-      showItemInFolder: jest.fn(),
-    },
+    showItemInFolder: jest.fn(),
   }
 })
 
@@ -97,7 +95,8 @@ describe('clicking in notification', () => {
       sound: NotificationsSounds.splat,
     }
 
-    const spy = jest.spyOn(shell, 'showItemInFolder')
+    const spy = showItemInFolder as jest.MockedFunction<typeof showItemInFolder>
+    spy.mockClear()
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
