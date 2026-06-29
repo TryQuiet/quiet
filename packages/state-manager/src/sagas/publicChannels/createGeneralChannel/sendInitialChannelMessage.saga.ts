@@ -31,6 +31,7 @@ export function* sendInitialChannelMessageSaga(
   }
 
   if (isGeneral) {
+    yield* put(publicChannelsActions.setCurrentChannel({ channelId }))
     yield* put(publicChannelsActions.finishGeneralRecreation())
   }
 

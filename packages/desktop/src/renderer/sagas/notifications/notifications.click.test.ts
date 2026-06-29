@@ -7,7 +7,7 @@ import { call, fork } from 'typed-redux-saga'
 import { publicChannels, NotificationsSounds } from '@quiet/state-manager'
 import { MessageType, FileMetadata } from '@quiet/types'
 import { createNotification, handleNotificationActions, NotificationData } from './notifications.saga'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 
 const notification = jest.fn().mockImplementation(() => {
   return jest.fn()
@@ -44,8 +44,8 @@ describe('clicking in notification', () => {
 
     const { store, runSaga } = await prepareStore({}, socket)
 
-    const generalId = generateChannelId('general')
-    const sailingId = generateChannelId('sailing')
+    const generalId = generateTestChannelId('general')
+    const sailingId = generateTestChannelId('sailing')
 
     const notificationData: NotificationData = {
       label: 'label',
@@ -77,7 +77,7 @@ describe('clicking in notification', () => {
 
     const { runSaga } = await prepareStore({}, socket)
 
-    const sailingId = generateChannelId('sailing')
+    const sailingId = generateTestChannelId('sailing')
 
     const media: FileMetadata = {
       cid: 'cid',

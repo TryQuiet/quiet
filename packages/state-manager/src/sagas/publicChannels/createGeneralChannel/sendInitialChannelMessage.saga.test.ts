@@ -11,7 +11,7 @@ import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
-import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
+import { generalChannelDeletionMessage, generateTestChannelId } from '@quiet/common'
 import { type Community, type PublicChannel, type Identity, UserProfile } from '@quiet/types'
 import { userProfiles, userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
@@ -54,7 +54,7 @@ describe('sendInitialChannelMessageSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).channel!

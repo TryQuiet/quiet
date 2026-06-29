@@ -22,7 +22,7 @@ import {
   type PublicChannel,
   MessageType,
 } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
 describe('sendFileMessageSaga', () => {
@@ -56,7 +56,7 @@ describe('sendFileMessageSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).channel!

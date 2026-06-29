@@ -14,7 +14,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { ChannelOperationStatus, type Community, type Identity, type PublicChannel } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -60,7 +60,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).payload.channel
@@ -73,7 +73,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).payload.channel

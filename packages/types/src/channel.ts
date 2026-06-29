@@ -91,7 +91,6 @@ export interface ChannelsReplicatedPayload {
 }
 
 export interface CreateChannelPayload {
-  id: string
   name: string
   public: boolean
   teamId: string

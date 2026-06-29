@@ -19,6 +19,7 @@ import {
   type MessagesGroupsType,
   type PublicChannel,
   type PublicChannelStatus,
+  type PublicChannelStatusWithName,
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
@@ -262,11 +263,23 @@ export const channelsStatus = createSelector(selectState, state => {
   return publicChannelsStatusAdapter.getSelectors().selectEntities(state.channelsStatus)
 })
 
-export const channelsStatusSorted = createSelector(selectState, state => {
+export const channelsStatusSorted = createSelector(selectState, selectChannels, (state, channels) => {
   if (!state?.channelsStatus) return []
+  const channelNamesById = new Map(channels.map(channel => [channel.id, channel.name]))
   const statuses = publicChannelsStatusAdapter.getSelectors().selectAll(state.channelsStatus)
 
   return statuses
+    .map((status): PublicChannelStatusWithName | undefined => {
+      const name = channelNamesById.get(status.id)
+      if (name == null) {
+        return undefined
+      }
+      return {
+        ...status,
+        name,
+      }
+    })
+    .filter(isDefined)
     .sort((a, b) => {
       const aCreatedAt = a.newestMessage?.createdAt
       const bCreatedAt = b.newestMessage?.createdAt

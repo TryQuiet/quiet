@@ -2,7 +2,6 @@ import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, identity, publicChannels } from '@quiet/state-manager'
-import { getChannelNameFromChannelId } from '@quiet/common'
 
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
@@ -77,7 +76,7 @@ export const ChannelListScreen: FC = () => {
     const date = newestMessage?.createdAt ? formatTileDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
-      name: getChannelNameFromChannelId(status.id),
+      name: status.name,
       isPublic: status.public ?? true,
       id: status.id,
       message,

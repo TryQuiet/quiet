@@ -4,10 +4,8 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
-import { call } from 'redux-saga-test-plan/matchers'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { createGeneralChannelSaga } from './createGeneralChannel.saga'
-import { generateChannelId } from '@quiet/common'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type Community, type Identity } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
@@ -37,24 +35,16 @@ describe('createGeneralChannelSaga', () => {
   })
 
   test('create general channel', async () => {
-    const generalId = generateChannelId('general')
     const channel: ReturnType<typeof publicChannelsActions.createChannel>['payload'] = {
       name: 'general',
       description: 'Welcome to #general',
-      id: generalId,
       teamId: community.teamId!,
       public: true,
     }
     await expectSaga(createGeneralChannelSaga)
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
-      .provide([[call.fn(generateChannelId), generalId]])
       .put(publicChannelsActions.createChannel(channel))
-      .put(
-        publicChannelsActions.setCurrentChannel({
-          channelId: generalId,
-        })
-      )
       .run()
   })
 })

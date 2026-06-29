@@ -12,7 +12,7 @@ import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
 import { type FactoryGirl } from 'factory-girl'
 
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
@@ -67,7 +67,7 @@ describe('sendMessageSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).channel!

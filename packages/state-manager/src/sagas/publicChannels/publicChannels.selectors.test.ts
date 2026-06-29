@@ -13,7 +13,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import {
   type ChannelMessage,
   type Community,
@@ -83,7 +83,7 @@ describe('publicChannelsSelectors', () => {
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId(name),
+          id: generateTestChannelId(name),
         },
       })
       channelIdes = [...channelIdes, channel.channel.id]
@@ -322,7 +322,7 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    const channelId = channelIdes.find(channelId => channelId.includes('allergies'))
+    const channelId = getPublicChannels(store.getState()).find(channel => channel.name === 'allergies')?.id
     if (!channelId) throw new Error('no channel id')
     store.dispatch(
       publicChannelsActions.markUnreadChannel({

@@ -45,6 +45,7 @@ import { isChannel } from '../../validation/validators'
 import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
 import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
+import crypto from 'crypto'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -763,6 +764,14 @@ export class ChannelsService extends EventEmitter {
     return stores
   }
 
+  private async generateChannelId(): Promise<string> {
+    let id: string
+    do {
+      id = crypto.randomBytes(16).toString('hex')
+    } while (this.channelsRepos.has(id) || (await this.getChannel(id)) != null)
+    return id
+  }
+
   /**
    * Read entries for all keys in the channels management database
    *
@@ -876,8 +885,9 @@ export class ChannelsService extends EventEmitter {
    * @returns Response containing metadata for new channel
    */
   public async handleCreateChannel(payload: CreateChannelPayload): Promise<CreateChannelResponse> {
+    const id = await this.generateChannelId()
     const channelData: PublicChannel = {
-      id: payload.id,
+      id: id,
       name: payload.name,
       description: payload.description ?? '',
       owner: this.sigchainService.getActiveChain().user.userId,

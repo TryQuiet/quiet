@@ -1,4 +1,4 @@
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
 import { SocketActions, socketEventData } from '@quiet/types'
 import { screen } from '@testing-library/dom'
@@ -24,7 +24,7 @@ jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
-  const generalId = generateChannelId('general')
+  const generalId = generateTestChannelId('general')
 
   let factory: FactoryGirl
   let baseTypesFactory: FactoryGirl
@@ -150,17 +150,8 @@ describe('User', () => {
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",
         "Communities/launchCommunity",
-        "PublicChannels/setCurrentChannel",
         "Connection/createInvite",
-        "PublicChannels/clearUnreadChannel",
         "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
         "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
@@ -168,6 +159,8 @@ describe('User', () => {
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/addChannel",
         "PublicChannels/sendInitialChannelMessage",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/clearUnreadChannel",
         "PublicChannels/finishGeneralRecreation",
         "Messages/sendMessage",
         "Messages/addMessagesSendingStatus",
@@ -177,6 +170,15 @@ describe('User', () => {
         "PublicChannels/cacheMessages",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
+        "Messages/addMessageVerificationStatus",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
+        "Messages/addMessageVerificationStatus",
       ]
     `)
   })

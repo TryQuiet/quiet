@@ -4,7 +4,9 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import {
   ChannelMessage,
+  ChannelOperationStatus,
   Community,
+  CreateChannelPayload,
   DeleteChannelResponse,
   FileMetadata,
   Identity,
@@ -41,6 +43,7 @@ import { InviteService } from '../../auth/services/invites/invite.service'
 import { UserService } from '../../auth/services/members/user.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { SigchainEvents } from '../../auth/types'
+import crypto from 'crypto'
 
 const logger = createLogger('channelsService:test')
 
@@ -225,6 +228,60 @@ describe('ChannelsService', () => {
   })
 
   describe('Channels', () => {
+    it('generates an opaque channel id and stores metadata encrypted', async () => {
+      const payload: CreateChannelPayload = {
+        name: 'secret-channel-name',
+        description: 'secret channel description',
+        public: true,
+        teamId: community.teamId!,
+      }
+
+      const response = await channelsService.handleCreateChannel(payload)
+
+      expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+      expect(response.channel).toBeDefined()
+      expect(response.channel!.id).toMatch(/^[0-9a-f]{32}$/)
+      expect(response.channel!.id).not.toContain(payload.name)
+      expect(response.channel!.name).toBe(payload.name)
+
+      const encryptedEntry = await channelsService.channels!.get(response.channel!.id)
+      expect(encryptedEntry).toBeDefined()
+      const serializedEntry = JSON.stringify(encryptedEntry)
+      expect(serializedEntry).not.toContain(payload.name)
+      expect(serializedEntry).not.toContain(payload.description!)
+      await expect(channelsService.getChannel(response.channel!.id)).resolves.toEqual(response.channel)
+    })
+
+    it('retries channel id generation when a generated id already exists', async () => {
+      const collidingId = '0'.repeat(32)
+      const expectedId = '1'.repeat(32)
+      const existingChannel = await factory.build<PublicChannel>('PublicChannel', {
+        id: collidingId,
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      await channelsService.setChannel(existingChannel)
+
+      const randomBytesSpy = jest
+        .spyOn(crypto, 'randomBytes')
+        .mockReturnValueOnce(Buffer.from(collidingId, 'hex') as any)
+        .mockReturnValueOnce(Buffer.from(expectedId, 'hex') as any)
+
+      try {
+        const response = await channelsService.handleCreateChannel({
+          name: 'unique-channel-name',
+          description: 'unique channel description',
+          public: true,
+          teamId: community.teamId!,
+        })
+
+        expect(response.channel!.id).toBe(expectedId)
+        expect(randomBytesSpy.mock.calls.length).toBeGreaterThanOrEqual(2)
+      } finally {
+        randomBytesSpy.mockRestore()
+      }
+    })
+
     it('rebroadcasts channel metadata after sigchain updates', async () => {
       expect(channelsService.channels).toBeDefined()
 

@@ -11,7 +11,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { markUnreadChannelsSaga } from './markUnreadChannels.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { type ChannelMessage, type Community, type Identity, MessageType } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
@@ -47,7 +47,7 @@ describe('markUnreadChannelsSaga', () => {
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId(name),
+          id: generateTestChannelId(name),
         },
       })
       channelIds = [...channelIds, channel.channel.id]
