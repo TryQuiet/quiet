@@ -121,8 +121,12 @@ export class SigChainService extends EventEmitter {
    * @throws Error if the chain doesn't exist, if ID and name in filter, or no filter criteria provided
    */
   getChain(teamId: string, throwError = true): SigChain | undefined {
-    if (!this.chains.has(teamId) && throwError) {
-      throw new Error(`No chain found for team ID ${teamId}`)
+    if (!this.chains.has(teamId)) {
+      if (throwError) {
+        throw new Error(`No chain found for team ID ${teamId}`)
+      }
+      this.logger.warn('No chain found for ID')
+      return undefined
     }
     return this.chains.get(teamId)!
   }
