@@ -7,7 +7,7 @@
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push",
     "start:desktop": "lerna run --scope @quiet/desktop start",
     "lint:all": "lerna run lint",
-    "lint:all:ci": "lerna run lint-ci",
+    "lint:all:ci": "lerna run lint-ci --stream",
     "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && npm run e2e:mac:local",
     "e2e:mac:local": "npm run start:qss && lerna run --scope e2e-tests test:localBinary --",
     "distAndRunE2ETests:linux:local": "npm run e2e:linux:build && npm run e2e:linux:run",
