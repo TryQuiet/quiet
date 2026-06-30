@@ -44,6 +44,7 @@ import { UserService } from '../../auth/services/members/user.service'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
+import { EventEmitter } from 'events'
 
 const logger = createLogger('channelsService:test')
 
@@ -295,6 +296,23 @@ describe('ChannelsService', () => {
       await waitForExpect(() => {
         expect(retryIndexingSpy).toHaveBeenCalled()
         expect(broadcastCurrentChannelsSpy).toHaveBeenCalled()
+      })
+    })
+
+    it('logs channel metadata update handler errors without rejecting the event', async () => {
+      const events = new EventEmitter()
+      const error = new Error('broadcast failed')
+      const broadcastCurrentChannelsSpy = jest
+        .spyOn(channelsService, 'broadcastCurrentChannels')
+        .mockRejectedValue(error)
+      const loggerErrorSpy = jest.spyOn((channelsService as any).logger, 'error').mockImplementation(() => {})
+
+      ;(channelsService as any).attachChannelMetadataUpdateHandler({ events })
+      events.emit('update', channelPutEntry('test-channel-id', {} as EncryptedAndSignedPayload))
+
+      await waitForExpect(() => {
+        expect(broadcastCurrentChannelsSpy).toHaveBeenCalled()
+        expect(loggerErrorSpy).toHaveBeenCalledWith('Error handling channels database update', error)
       })
     })
 

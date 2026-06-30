@@ -16,7 +16,6 @@ import {
   CreateChannelPayload,
   ChannelSubscribedPayload,
   DeleteChannelPayload,
-  ConsumedChannelMessage,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   AddMembersChannelStatus,
@@ -196,14 +195,20 @@ export class ChannelsService extends EventEmitter {
   private attachChannelMetadataUpdateHandler(
     store: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
   ): void {
-    store?.events.on('update', (entry: LogEntry<ConsumedChannelMessage>) => {
-      const channelId = entry.payload?.value?.channelId
-      const operation = entry.payload.op
-      this.logger.info('channels database updated', channelId, operation)
-
-      this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
-      this.broadcastCurrentChannels()
+    store?.events.on('update', (entry: LogEntry<EncryptedAndSignedPayload>) => {
+      void this.handleChannelMetadataUpdate(entry).catch(e => {
+        this.logger.error('Error handling channels database update', e)
+      })
     })
+  }
+
+  private async handleChannelMetadataUpdate(entry: LogEntry<EncryptedAndSignedPayload>): Promise<void> {
+    const channelId = entry.payload?.key
+    const operation = entry.payload.op
+    this.logger.info('channels database updated', channelId, operation)
+
+    this.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
+    await this.broadcastCurrentChannels()
   }
 
   private async openChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
@@ -1261,17 +1266,20 @@ export class ChannelsService extends EventEmitter {
    * Close the channels management database on OrbitDB and each channel's DB
    */
   public async closeChannels(): Promise<void> {
-    try {
-      this.logger.info('Closing channels DB')
-      await this.channels?.close()
-      await this.privateChannels?.close()
-      this.logger.info('Closed channels DB')
-    } catch (e) {
-      this.logger.error('Error closing channels db', e)
-    }
+    const channels = this.channels
+    const privateChannels = this.privateChannels
+    const channelsRepos = this.channelsRepos
+    this.channels = undefined
+    this.privateChannels = undefined
+    this.channelsRepos = new Map()
+
+    this.logger.info('Closing channels DB')
+    await this.closeMetadataStore('public', channels)
+    await this.closeMetadataStore('private', privateChannels)
+    this.logger.info('Closed channels DB')
 
     this.logger.info(`Closing each channel's DB`)
-    for (const [channelId, channel] of this.channelsRepos.entries()) {
+    for (const [channelId, channel] of channelsRepos.entries()) {
       try {
         this.logger.info(`Closing ${channelId} DB`)
         await channel.store.close()
@@ -1312,20 +1320,18 @@ export class ChannelsService extends EventEmitter {
   public async clean(): Promise<void> {
     this.initialized = false
     this.detachFileManagerEvents()
+    const channels = this.channels
+    const privateChannels = this.privateChannels
+    const channelsRepos = this.channelsRepos
+    this.channels = undefined
+    this.privateChannels = undefined
+    this.channelsRepos = new Map()
+
     this.logger.info('Cleaning channels DB')
-    try {
-      await this.channels?.sync?.stop?.()
-      await this.privateChannels?.sync?.stop?.()
-    } catch (e) {
-      // If the sync is not started, this will throw an error
-    }
-    try {
-      await this.channels?.drop?.()
-      await this.privateChannels?.drop?.()
-    } catch (e) {
-      this.logger.error('Error dropping channels DB', e)
-    }
-    for (const [channelId, channel] of this.channelsRepos.entries()) {
+    await this.cleanMetadataStore('public', channels)
+    await this.cleanMetadataStore('private', privateChannels)
+
+    for (const [channelId, channel] of channelsRepos.entries()) {
       try {
         this.logger.info(`Cleaning ${channelId} DB`)
         await channel.store.clean()
@@ -1333,8 +1339,53 @@ export class ChannelsService extends EventEmitter {
         this.logger.error(`Error cleaning ${channelId} DB`, e)
       }
     }
-    this.channels = undefined
-    this.privateChannels = undefined
-    this.channelsRepos = new Map()
+  }
+
+  private async closeMetadataStore(
+    label: string,
+    store: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  ): Promise<void> {
+    if (store == null) {
+      return
+    }
+
+    try {
+      await store.sync?.stop?.()
+    } catch (e) {
+      // If the sync is not started, this will throw an error
+    }
+
+    try {
+      await store.close()
+    } catch (e) {
+      this.logger.error(`Error closing ${label} channels DB`, e)
+    }
+  }
+
+  private async cleanMetadataStore(
+    label: string,
+    store: KeyValueIndexedValidatedType<EncryptedAndSignedPayload> | undefined
+  ): Promise<void> {
+    if (store == null) {
+      return
+    }
+
+    try {
+      await store.sync?.stop?.()
+    } catch (e) {
+      // If the sync is not started, this will throw an error
+    }
+
+    try {
+      await store.drop?.()
+    } catch (e) {
+      this.logger.error(`Error dropping ${label} channels DB`, e)
+    }
+
+    try {
+      await store.close()
+    } catch (e) {
+      this.logger.error(`Error closing ${label} channels DB after drop`, e)
+    }
   }
 }

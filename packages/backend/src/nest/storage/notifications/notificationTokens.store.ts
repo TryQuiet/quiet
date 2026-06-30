@@ -260,11 +260,21 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
   public async clean(): Promise<void> {
     logger.info('Cleaning notification tokens store')
     this.deferredEntries = []
+    const store = this.store
     try {
-      await this.store?.sync?.stop?.()
-      await this.store?.drop?.()
+      await store?.sync?.stop?.()
     } catch (err) {
-      logger.error('Failed to clean notification tokens store:', err)
+      // If the sync is not started, this will throw an error
+    }
+    try {
+      await store?.drop?.()
+    } catch (err) {
+      logger.error('Failed to drop notification tokens store:', err)
+    }
+    try {
+      await store?.close?.()
+    } catch (err) {
+      logger.error('Failed to close notification tokens store after drop:', err)
     }
     this.store = undefined
   }

@@ -499,36 +499,50 @@ export class JoiningLoadingPanel {
   }
 
   async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
-    // First check if the panel exists at all. In some flows (e.g., Not Now on server offer),
-    // the joining panel may never appear, which is OK.
-    const candidates = await this.driver.findElements(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
-    if (!candidates || candidates.length === 0) {
-      logger.warn('Joining loading panel not present; skipping wait')
-      return
-    }
-
-    const panel = candidates[0]
-    await this.driver.wait(
-      until.elementIsVisible(panel),
-      visibleTimeoutMs,
-      `Loading panel element couldn't be seen within timeout`,
-      500
-    )
-
+    const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
+    const visiblePanelTimeoutMs = Math.min(visibleTimeoutMs, 10_000)
     try {
       await this.driver.wait(
-        until.elementIsNotVisible(panel),
-        completionTimeoutMs,
-        `Loading panel element didn't disappear within timeout`,
-        5_000
+        async () => this.hasVisiblePanel(panelLocator),
+        visiblePanelTimeoutMs,
+        `Loading panel element couldn't be seen within timeout`,
+        500
       )
     } catch (e) {
-      if (e.message.includes('stale element reference')) {
-        logger.warn(`Join loading panel disappeared and we couldn't get visibility information. This is fine.`)
-      } else {
+      if (this.isLoadingPanelTimeout(e)) {
+        logger.warn('Joining loading panel not present; skipping wait')
+        return
+      }
+      throw e
+    }
+
+    await this.driver.wait(
+      async () => !(await this.hasVisiblePanel(panelLocator)),
+      completionTimeoutMs,
+      `Loading panel element didn't disappear within timeout`,
+      5_000
+    )
+  }
+
+  private async hasVisiblePanel(panelLocator: By): Promise<boolean> {
+    const panels = await this.driver.findElements(panelLocator)
+    for (const panel of panels) {
+      try {
+        if (await panel.isDisplayed()) return true
+      } catch (e) {
+        if (this.isStaleElementReference(e)) continue
         throw e
       }
     }
+    return false
+  }
+
+  private isLoadingPanelTimeout(e: unknown): boolean {
+    return e instanceof Error && e.message.includes(`Loading panel element couldn't be seen within timeout`)
+  }
+
+  private isStaleElementReference(e: unknown): boolean {
+    return e instanceof Error && e.message.includes('stale element reference')
   }
 }
 

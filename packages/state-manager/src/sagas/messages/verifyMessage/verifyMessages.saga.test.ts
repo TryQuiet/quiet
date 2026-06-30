@@ -49,6 +49,7 @@ describe('verifyMessage saga test', () => {
     logger.info('create owner identity')
     owner = await factory.create('Identity', {
       communityId: community.id,
+      userId: 'alice',
     })
 
     ownerProfile = await factory.create('UserProfile', {
@@ -146,7 +147,7 @@ describe('verifyMessage saga test', () => {
           userId: owner.userId,
           channelId: generalChannel.id,
           type: MessageType.Info,
-          message: createdChannelMessage(generalChannel.name),
+          message: verifyUserInfoMessage(ownerProfile.nickname, ownerProfile.userId, generalChannel),
         }),
       ],
       isVerified: true,

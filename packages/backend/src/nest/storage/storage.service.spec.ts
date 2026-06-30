@@ -22,6 +22,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { ORBIT_DB_DIR } from '../const'
 import { createLogger } from '../common/logger'
 import { UserProfileStore } from './userProfile/userProfile.store'
+import { NotificationTokensStore } from './notifications/notificationTokens.store'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import waitForExpect from 'wait-for-expect'
@@ -38,6 +39,7 @@ describe('StorageService', () => {
   let libp2pService: Libp2pService
   let localDbService: LocalDbService
   let userProfileStore: UserProfileStore
+  let notificationTokensStore: NotificationTokensStore
   let sigchainService: SigChainService
 
   let store: Store
@@ -90,6 +92,7 @@ describe('StorageService', () => {
     libp2pService = await module.resolve(Libp2pService)
     ipfsService = await module.resolve(IpfsService)
     userProfileStore = await module.resolve(UserProfileStore)
+    notificationTokensStore = await module.resolve(NotificationTokensStore)
     sigchainService = await module.resolve(SigChainService)
 
     await sigchainService.createChain('team', 'alice', true)
@@ -133,6 +136,18 @@ describe('StorageService', () => {
     expect(() => storageService.orbitDbService.orbitDb).toThrow('[get orbitDb]:no orbitDbInstance')
     expect(ipfsService.isStarted()).toBe(false)
     await storageService.init()
+  })
+
+  it('should clean after stop and reinitialize metadata stores', async () => {
+    await storageService.init()
+    await storageService.stop()
+    await storageService.clean()
+    await storageService.init()
+
+    expect(storageService.channelsService.channels).toBeDefined()
+    expect(storageService.channelsService.privateChannels).toBeDefined()
+    expect(userProfileStore.getStore()).toBeDefined()
+    expect(notificationTokensStore.getStore()).toBeDefined()
   })
 
   describe('Storage', () => {

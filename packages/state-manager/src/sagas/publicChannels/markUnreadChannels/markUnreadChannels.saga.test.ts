@@ -22,6 +22,7 @@ describe('markUnreadChannelsSaga', () => {
   let alice: Identity
 
   let channelIds: string[] = []
+  const channelIdsByName: Partial<Record<string, string>> = {}
 
   beforeAll(async () => {
     setupCrypto()
@@ -51,6 +52,7 @@ describe('markUnreadChannelsSaga', () => {
         },
       })
       channelIds = [...channelIds, channel.channel.id]
+      channelIdsByName[name] = channel.channel.id
     }
   })
 
@@ -78,7 +80,7 @@ describe('markUnreadChannelsSaga', () => {
     }
 
     // Set the newest message
-    const channelId = channelIds.find(id => id.includes('enya'))
+    const channelId = channelIdsByName.enya
     if (!channelId) throw new Error('no channel id')
     const message = (
       await factory.create('TestMessage', {
@@ -98,11 +100,9 @@ describe('markUnreadChannelsSaga', () => {
 
     store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
 
-    const channelIdMemes = channelIds.find(id => id.includes('memes'))
-
-    const channelIdEnya = channelIds.find(id => id.includes('enya'))
-
-    const channelIdTravels = channelIds.find(id => id.includes('travels'))
+    const channelIdMemes = channelIdsByName.memes
+    const channelIdEnya = channelIdsByName.enya
+    const channelIdTravels = channelIdsByName.travels
     if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
 
     const reducer = combineReducers(testReducers)
@@ -167,7 +167,7 @@ describe('markUnreadChannelsSaga', () => {
       messages.push(message)
     }
 
-    const channelId = channelIds.find(id => id.includes('enya'))
+    const channelId = channelIdsByName.enya
     if (!channelId) throw new Error('no channel id')
     // Set the newest message
     const message = (
@@ -186,11 +186,9 @@ describe('markUnreadChannelsSaga', () => {
 
     messages.push(message)
 
-    const channelIdMemes = channelIds.find(id => id.includes('memes'))
-
-    const channelIdEnya = channelIds.find(id => id.includes('enya'))
-
-    const channelIdTravels = channelIds.find(id => id.includes('travels'))
+    const channelIdMemes = channelIdsByName.memes
+    const channelIdEnya = channelIdsByName.enya
+    const channelIdTravels = channelIdsByName.travels
     if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
     const reducer = combineReducers(testReducers)
     await expectSaga(
