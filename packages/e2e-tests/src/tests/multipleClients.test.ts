@@ -379,10 +379,11 @@ describe('Multiple Clients', () => {
     describe('Channel Deletion', () => {
       it('Owner deletes second channel', async () => {
         channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-        const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu()
+        const { iconVisible, menuOpened, menuButton } = await channelContextMenuOwner.openMenu(false)
         expect(menuButton).toBe(true)
         expect(menuOpened).toBe(true)
-        expect(iconVisible).toBe(true)
+        // TODO: revert when private channels are added back
+        expect(iconVisible).toBeUndefined()
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
         const channels = await sidebarOwner.getChannelList()
@@ -460,12 +461,13 @@ describe('Multiple Clients', () => {
           expect(await generalChannelOwner.isOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()
           channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-          const { menuOpened, menuButton, iconVisible } = await channelContextMenuOwner.openMenu()
+          const { menuOpened, menuButton, iconVisible } = await channelContextMenuOwner.openMenu(false)
           await channelContextMenuOwner.openDeletionChannelModal()
           await channelContextMenuOwner.deleteChannel()
           expect(menuButton).toBe(true)
           expect(menuOpened).toBe(true)
-          expect(iconVisible).toBe(true)
+          // TODO: revert when private channels are added back
+          expect(iconVisible).toBeUndefined()
         })
 
         it('Owner sees recreated general channel', async () => {
