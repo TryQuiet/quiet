@@ -253,17 +253,15 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        const idsMatch =
+          key != null &&
+          valueUserId != null &&
+          decUserId != null &&
+          sigAuthor != null &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        if (!idsMatch) {
           logger.error(
             `Failed to verify user profile entry: ${entry.hash} - key, value.userId, decEntry.userId, and signature.author.name must all match. Got key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )
