@@ -53,3 +53,5 @@ src/renderer/zcash/index.node
 
 # Tor
 tor/*
+
+distPrepare/
