@@ -297,7 +297,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     peers.push(owner)
 
     const teamName = `qss-create-owner-${randomUUID()}`
-    const ownerSigChain = await owner.sigChainService.createChain(teamName, 'qss-create-owner', true)
+    const ownerSigChain = await owner.sigChainService.createChain('qss-create-owner', true)
     const teamId = ownerSigChain.team!.id
 
     await setCurrentCommunity(owner, {
@@ -334,7 +334,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     peers.push(owner)
 
     const teamName = `qss-storage-ready-owner-${randomUUID()}`
-    const ownerSigChain = await owner.sigChainService.createChain(teamName, 'qss-storage-ready-owner', true)
+    const ownerSigChain = await owner.sigChainService.createChain('qss-storage-ready-owner', true)
     const teamId = ownerSigChain.team!.id
 
     await setCurrentCommunity(owner, {
@@ -404,7 +404,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     owner = await createPeer(ownerName)
     peers.push(owner)
 
-    const ownerSigChain = await owner.sigChainService.createChain(teamName, ownerName, true)
+    const ownerSigChain = await owner.sigChainService.createChain(ownerName, true)
     teamId = ownerSigChain.team!.id
     invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
     ownerSigChain.lockbox.createInviteLockboxes(invite.seed, invite.salt)

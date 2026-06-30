@@ -5,7 +5,7 @@ import { createKeyset, redactKeys, Server } from '@localfirst/auth'
 const logger = createLogger('auth:services:invite.spec')
 
 describe('servers', () => {
-  const adminSigChain = SigChain.create('test', 'user')
+  const adminSigChain = SigChain.create('user')
   const server: Server = {
     host: 'testserver',
     keys: redactKeys(

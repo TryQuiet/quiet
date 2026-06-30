@@ -92,7 +92,7 @@ describe('ChannelsService', () => {
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
 
-    await sigChainService.createChain(community.name!, 'alice', true)
+    await sigChainService.createChain('alice', true)
     aliceUserId = sigChainService.getActiveChain().user.userId
 
     await storageService.init()

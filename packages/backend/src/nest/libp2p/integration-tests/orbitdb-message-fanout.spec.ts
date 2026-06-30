@@ -234,7 +234,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const sigchainServiceA = await modules[0].resolve(SigChainService)
 
     // Create sigChain that all other peers will join
-    await sigchainServiceA.createChain(teamName, 'user0', true)
+    await sigchainServiceA.createChain('user0', true)
     inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed

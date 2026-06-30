@@ -41,7 +41,7 @@ describe('NotificationTokensStore', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('test-community', 'alice', true)
+    await sigChainService.createChain('alice', true)
     userId = sigChainService.getActiveChain().user.userId
 
     libp2pService = await module.resolve(Libp2pService)

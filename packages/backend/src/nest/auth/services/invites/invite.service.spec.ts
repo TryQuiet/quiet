@@ -4,6 +4,8 @@ import { RoleName } from '..//roles/roles'
 import { UserService } from '../members/user.service'
 import { InviteService } from './invite.service'
 import { DeviceService } from '../members/device.service'
+import { base58 } from '@localfirst/crypto'
+import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
 
 const logger = createLogger('auth:services:invite.spec')
 
@@ -11,10 +13,12 @@ describe('invites', () => {
   let adminSigChain: SigChain
   let newMemberSigChain: SigChain
   it('should initialize a new sigchain and be admin', () => {
-    adminSigChain = SigChain.create('test', 'user')
+    adminSigChain = SigChain.create('user')
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.user).toBeDefined()
-    expect(adminSigChain.teamName).toBe(SigChain.generateTeamName('test'))
+    expect(adminSigChain.teamName).toBeDefined()
+    expect(base58.detect(adminSigChain.teamName!)).toBeTruthy()
+    expect(adminSigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
     expect(adminSigChain.user.userName).toBe('user')
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)

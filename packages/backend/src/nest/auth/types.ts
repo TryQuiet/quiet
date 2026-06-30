@@ -39,4 +39,4 @@ export enum StoredKeyType {
   USER_SIG = 'userSig',
 }
 
-export const TEAM_NAME_UNSET = 'TEAM_NAME_UNSET'
+export const RANDOM_TEAM_NAME_LENGTH = 32

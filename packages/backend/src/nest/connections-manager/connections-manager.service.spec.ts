@@ -76,7 +76,7 @@ describe('ConnectionsManagerService', () => {
     })
 
     // initialize sigchain on local db
-    chain = await sigChainService.createChain('communityName', 'john', false)
+    chain = await sigChainService.createChain('john', false)
     community = await factory.create('Community', {
       rootCa: communityRootCa,
       name: 'communityName',

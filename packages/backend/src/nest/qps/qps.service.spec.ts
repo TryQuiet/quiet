@@ -108,7 +108,7 @@ describe('QPSService', () => {
   function setReady() {
     qssClient.connected = true
     sigChainService.activeChain = {
-      team: { id: TEAM_ID, name: SigChain.generateTeamName(TEAM_NAME) },
+      team: { id: TEAM_ID, name: SigChain.generateRandomTeamName() },
       context: { user: sigChainService.user },
       user: sigChainService.user,
       roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER, amIMember: () => true },

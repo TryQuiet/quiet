@@ -49,7 +49,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
       localDbServices.push(await modules[i].resolve(LocalDbService))
     }
     // Create chains and users
-    await sigChainServices[0].createChain('test-team', 'alice', true)
+    await sigChainServices[0].createChain('alice', true)
     const invite = sigChainServices[0].getActiveChain().invites.createLongLivedUserInvite()
     await sigChainServices[1].createChainFromInvite('bob', invite.seed, sigChainServices[0].activeTeamId!, true)
     await sigChainServices[2].createChainFromInvite('charlie', invite.seed, sigChainServices[0].activeTeamId!, true)

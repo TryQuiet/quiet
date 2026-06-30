@@ -9,15 +9,14 @@ import { DeviceService } from './services/members/device.service'
 import { InviteService } from './services/invites/invite.service'
 import { CryptoService } from './services/crypto/crypto.service'
 import { ServerService } from './services/members/server.service'
-import { MEMBER_SCOPE, RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
+import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
-import { LFAEvents, SigchainEvents } from './types'
+import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
 import { Serializer } from '../common/serializer.service'
-import { SerializerEncodingType } from '@quiet/types'
-import { createHash, Hash } from 'crypto'
+import { randomKey } from '@localfirst/crypto'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
@@ -101,10 +100,10 @@ class SigChain extends EventEmitter {
    * @param username Username of the initial user we are generating
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(teamName: string, username: string, userId?: string): SigChain {
+  public static create(username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
     const team: auth.Team = auth.createTeam(
-      SigChain.generateTeamName(teamName),
+      SigChain.generateRandomTeamName(),
       localUser,
       undefined,
       { selfAssignableRoles: SELF_ASSIGN_ROLES },
@@ -247,8 +246,8 @@ class SigChain extends EventEmitter {
     return new SigChain(memberContext)
   }
 
-  public static generateTeamName(plaintextTeamName: string): string {
-    return createHash('md5').update(plaintextTeamName).digest('hex')
+  public static generateRandomTeamName(): string {
+    return randomKey(RANDOM_TEAM_NAME_LENGTH)
   }
 }
 

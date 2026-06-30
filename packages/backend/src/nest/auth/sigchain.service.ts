@@ -332,8 +332,8 @@ export class SigChainService extends EventEmitter {
    * @param setActive Whether to set the chain as active
    * @returns The created chain
    */
-  async createChain(teamName: string, username: string, setActive: boolean): Promise<SigChain> {
-    const sigChain = SigChain.create(teamName, username)
+  async createChain(username: string, setActive: boolean): Promise<SigChain> {
+    const sigChain = SigChain.create(username)
     this.addChain(sigChain, setActive, sigChain.teamId!)
     await this.saveChain(sigChain.teamId!)
     this.handleChainUpdate(sigChain.teamId!)

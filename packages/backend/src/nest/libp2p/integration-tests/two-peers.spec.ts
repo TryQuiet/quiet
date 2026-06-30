@@ -39,7 +39,7 @@ describe('Libp2pAuth', () => {
     attachEventListeners(libp2pServiceB, eventTimelineB, 'B')
 
     // Create chain for instance A
-    const chain = await sigchainServiceA.createChain(teamName, userA, true)
+    const chain = await sigchainServiceA.createChain(userA, true)
     expect(chain.teamId).toBeDefined()
     expect(sigchainServiceA.activeChainTeamId).toBe(chain.teamId)
 

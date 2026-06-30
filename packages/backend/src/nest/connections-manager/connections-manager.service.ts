@@ -612,7 +612,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.erasePreviousCommunityArtifacts()
 
     this.logger.info(`Creating new LFA chain`)
-    const sigchain = await this.sigChainService.createChain(payload.name, payload.username, true)
+    const sigchain = await this.sigChainService.createChain(payload.username, true)
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
