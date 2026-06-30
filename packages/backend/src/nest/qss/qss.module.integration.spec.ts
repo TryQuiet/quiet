@@ -428,7 +428,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     await waitForQssSetup(owner)
     await waitForAuthReady(owner, teamId)
 
-    expect(await owner.qssService.signInToCommunity(teamId, ownerSigChain, teamName)).toBe(QSSOperationResult.SUCCESS)
+    expect(await owner.qssService.signInToCommunity(teamId, ownerSigChain)).toBe(QSSOperationResult.SUCCESS)
   })
 
   it('joins an invitee to the QSS community and opens matching QSS-backed stores', async () => {

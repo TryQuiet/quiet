@@ -96,7 +96,6 @@ class SigChain extends EventEmitter {
   /**
    * Create a brand new SigChain with a given name and also generate the initial user with a given name
    *
-   * @param teamName Name of the team we are creating
    * @param username Username of the initial user we are generating
    * @returns LoadedSigChain instance with the new SigChain and user context
    */

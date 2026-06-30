@@ -917,7 +917,6 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     if (!activeChain?.team) {
       return
     }
-    const teamName = activeChain.team.teamName
     const BATCH_SIZE = 50
 
     this._dlqDecryptInFlight = true

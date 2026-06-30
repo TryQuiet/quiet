@@ -22,7 +22,6 @@ describe('QSSAuthConnectionManager', () => {
   let sigchainService: SigChainService
   let socket: ClientSocket
 
-  const teamName = 'foobar'
   const username = 'testuser'
   const createDeferred = <T>() => {
     let resolve!: (value: T) => void
@@ -113,11 +112,11 @@ describe('QSSAuthConnectionManager', () => {
     const authConnection = createMockAuthConnection('race-auth-connection')
     const createSpy = jest.spyOn(moduleRef, 'create').mockReturnValue(createDeferredConnection.promise as any)
 
-    const firstStart = qssAuthConnManager.startNewConnection(teamId, 'race-team')
+    const firstStart = qssAuthConnManager.startNewConnection(teamId)
     expect(createSpy).toHaveBeenCalledTimes(1)
     expect(qssAuthConnManager.getConnection(teamId)).toBeUndefined()
 
-    const secondStart = qssAuthConnManager.startNewConnection(teamId, 'race-team')
+    const secondStart = qssAuthConnManager.startNewConnection(teamId)
     expect(createSpy).toHaveBeenCalledTimes(1)
     expect(qssAuthConnManager.getConnection(teamId)).toBeUndefined()
 
@@ -127,7 +126,7 @@ describe('QSSAuthConnectionManager', () => {
     expect(createSpy).toHaveBeenCalledTimes(1)
     expect(authConnection.teamId).toBe(teamId)
     expect(authConnection.start).toHaveBeenCalledTimes(1)
-    expect(authConnection.start).toHaveBeenCalledWith('race-team')
+    expect(authConnection.start).toHaveBeenCalledWith()
     expect(qssAuthConnManager.getConnection(teamId)).toBe(authConnection)
   })
 

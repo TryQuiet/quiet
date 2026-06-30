@@ -100,8 +100,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
-  private _handleStartAuthConnection = (teamId: string, teamName?: string): void => {
-    void this.startAuthConnection(teamId, teamName)
+  private _handleStartAuthConnection = (teamId: string): void => {
+    void this.startAuthConnection(teamId)
   }
 
   private _handleHcaptchaRequest = (): void => {
@@ -171,13 +171,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
           sigChain.team != null
             ? sigChain.teamId
             : (initStatus.community?.inviteData as InvitationDataV5).authData.teamId
-        const teamName = initStatus.community.name
-        this.logger.trace('QSS Sign in', teamId, teamName)
+        this.logger.trace('QSS Sign in', teamId)
         if (teamId == null) {
           this.logger.warn('Attempted to sign into QSS but no team ID was found')
           return
         }
-        await this.signInToCommunity(teamId, sigChain, teamName)
+        await this.signInToCommunity(teamId, sigChain)
       }
     })
   }
@@ -233,9 +232,9 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._eventHandlersConfigured = false
   }
 
-  private async startAuthConnection(teamId: string, teamName?: string): Promise<boolean> {
+  private async startAuthConnection(teamId: string): Promise<boolean> {
     try {
-      await this.qssAuthConnManager.startNewConnection(teamId, teamName)
+      await this.qssAuthConnManager.startNewConnection(teamId)
       return true
     } catch (e) {
       this.logger.error('Failed to start QSS auth connection', e)
@@ -651,12 +650,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    *
    * @param teamId ID of the team we are signing in to
    * @param sigChain Sigchain for this team
-   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async signInToCommunity(teamId: string, sigChain: SigChain, teamName?: string): Promise<QSSOperationResult> {
+  public async signInToCommunity(teamId: string, sigChain: SigChain): Promise<QSSOperationResult> {
     let result: QSSOperationResult
     try {
-      result = await this._signInToCommunityImpl(teamId, sigChain, teamName)
+      result = await this._signInToCommunityImpl(teamId, sigChain)
     } catch (e) {
       this.logger.error('Failed to sign in to QSS', e)
       result = QSSOperationResult.ERROR
@@ -676,13 +674,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    *
    * @param teamId ID of the team we are signing in to
    * @param sigChain Sigchain for this team
-   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async _signInToCommunityImpl(
-    teamId: string,
-    sigChain: SigChain,
-    teamName?: string
-  ): Promise<QSSOperationResult> {
+  public async _signInToCommunityImpl(teamId: string, sigChain: SigChain): Promise<QSSOperationResult> {
     if (!this.canConnect) {
       this.logger.info(`Can't sign in to community on QSS because QSS is not enabled for this community`)
       return QSSOperationResult.DISABLED
@@ -720,7 +713,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
     // start the auth sync connection with QSS now that we've successfully signed in
     this.logger.trace(`Sign in request to QSS was successful, initiating LFA connection`)
-    const authConnectionStarted = await this.startAuthConnection(teamId, teamName)
+    const authConnectionStarted = await this.startAuthConnection(teamId)
     if (!authConnectionStarted) {
       return QSSOperationResult.ERROR
     }

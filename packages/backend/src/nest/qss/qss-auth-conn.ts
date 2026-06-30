@@ -147,10 +147,8 @@ export class QSSAuthConnection extends EventEmitter {
   /**
    * Starts this auth sync connection with QSS.  If an existing connection is present we will either bypass this operation
    * if it is active or attempt to restart.
-   *
-   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async start(teamName?: string): Promise<void> {
+  public async start(): Promise<void> {
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
     }
@@ -256,12 +254,12 @@ export class QSSAuthConnection extends EventEmitter {
       const { team, user } = payload
 
       const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(`${sigChain.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`)
+      this.logger.info(`${sigChain.user.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
       // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
       // and thus don't have the member role so our joining is still pending
       if (sigChain.team == null) {
         this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
+          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`
         )
         sigChain.context = {
           device: (sigChain.context as InviteeContext).device,

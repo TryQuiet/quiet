@@ -386,10 +386,10 @@ export class Libp2pAuth {
     authConnection.on(LFAEvents.JOINED, payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
-      const teamName = sigChain.teamName ?? team.teamName
+      const teamId = sigChain.teamId!
       if (sigChain.team == null) {
         this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
+          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${teamId}`
         )
         if (!('team' in sigChain.context)) {
           sigChain.context = {
@@ -398,7 +398,7 @@ export class Libp2pAuth {
             user,
           } as Auth.MemberContext
         }
-        this.logger.info(`Joined team ${teamName} (userid: ${user.userId})!`)
+        this.logger.info(`Joined team ${teamId} (userid: ${user.userId})!`)
         this.sigChainService.setActiveChain(sigChain.teamId!)
       }
       this.joinStatus = JoinStatus.JOINED
