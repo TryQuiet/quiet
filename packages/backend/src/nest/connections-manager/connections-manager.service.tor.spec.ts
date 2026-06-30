@@ -4,13 +4,7 @@ import { type DirResult } from 'tmp'
 import crypto from 'crypto'
 import { isPeerId } from '@libp2p/interface'
 import { getReduxStoreFactory, prepareStore, Store } from '@quiet/state-manager'
-import {
-  createPeerId,
-  createTmpDir,
-  generateLibp2pPSK,
-  removeFilesFromDir,
-  tmpQuietDirPath,
-} from '../common/utils'
+import { createPeerId, createTmpDir, generateLibp2pPSK, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
 import { type Community, type Identity } from '@quiet/types'
 import { TestingModule, Test } from '@nestjs/testing'
 import { FactoryGirl } from 'factory-girl'

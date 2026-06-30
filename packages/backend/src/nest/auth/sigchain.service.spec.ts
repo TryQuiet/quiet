@@ -98,10 +98,7 @@ describe('SigChainService', () => {
     expect(handleChainUpdateSpy).toBeCalledTimes(1)
   })
   it('should handle concurrent chain operations correctly', async () => {
-    const [chain1, chain2] = await Promise.all([
-      sigChainService.createChain(true),
-      sigChainService.createChain(false),
-    ])
+    const [chain1, chain2] = await Promise.all([sigChainService.createChain(true), sigChainService.createChain(false)])
     expect(sigChainService.getChain(chain1.teamId!)).toBeDefined()
     expect(sigChainService.getChain(chain2.teamId!)).toBeDefined()
     expect(handleChainUpdateSpy).toBeCalledTimes(2)

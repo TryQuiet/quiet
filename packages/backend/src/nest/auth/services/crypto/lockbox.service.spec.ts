@@ -5,7 +5,6 @@ import { base58, hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
 import { EncryptionScopeType, InviteLockboxMetadata } from './types'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
-import { base58 } from '@localfirst/crypto'
 import { RANDOM_USERNAME_LENGTH } from '../members/types'
 
 const logger = createLogger('auth:services:lockbox.spec')
