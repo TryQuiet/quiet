@@ -1,5 +1,5 @@
 name: 'Setup environment'
-
+description: 'Setup tooling and bootstrap repo'
 inputs:
   bootstrap-packages:
     description: 'Lerna bootstrap packages (comma separated without spaces)'
@@ -16,7 +16,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@master
+    - uses: actions/setup-node@v5
       with:
         node-version-file: ".nvmrc"
 
@@ -77,18 +77,13 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: "Build submodules"
-      run: |
-        npm run build:submodules:ci
-      shell: bash
-
-    - name: "Bootstrap project"
+    - name: "Bootstrap project (with submodules)"
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
-            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+            npm run bootstrap:ci -- --scope '{${{ inputs.bootstrap-packages }},}'
         else
-            lerna bootstrap
+            npm run bootstrap:ci
         fi
       shell: bash
 
