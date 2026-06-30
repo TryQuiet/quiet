@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals'
 import { SigChain } from './sigchain'
-import { SigChainService } from './sigchain.service'
 import { createLogger } from '../common/logger'
 import { LocalUserContext } from '3rd-party/auth/packages/auth/dist'
-import exp from 'constants'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from './types'
 
