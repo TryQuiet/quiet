@@ -333,7 +333,8 @@ describe('Multiple Clients', () => {
     describe('Owner Creates New Channel', () => {
       it('Owner creates second channel', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
-        await sidebarOwner.addNewChannel(newChannelName)
+        // TODO: revert when private channels are added back
+        await sidebarOwner.addNewChannel(newChannelName, true, false)
         await sidebarOwner.switchChannel(newChannelName)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
@@ -420,7 +421,8 @@ describe('Multiple Clients', () => {
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
-        await sidebarUser1.addNewChannel(newChannelName, true, true)
+        // TODO: revert when private channels are added back
+        await sidebarUser1.addNewChannel(newChannelName, true, false)
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
