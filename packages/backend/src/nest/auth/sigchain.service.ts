@@ -25,6 +25,7 @@ import EventEmitter from 'events'
 import { SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
+import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -332,21 +333,25 @@ export class SigChainService extends EventEmitter {
   /**
    * Creates a new chain and adds it to the service
    * @param teamName Name of the team to create
-   * @param username Name of the user to create
    * @param setActive Whether to set the chain as active
+   * @param createUserInput Optional input to create user
    * @returns The created chain
    */
-  async createChain(username: string, setActive: boolean): Promise<SigChain> {
-    const sigChain = SigChain.create(username)
+  async createChain(setActive: boolean, createUserInput: CreateUserInput = {}): Promise<SigChain> {
+    const sigChain = SigChain.create(createUserInput)
     this.addChain(sigChain, setActive, sigChain.teamId!)
     await this.saveChain(sigChain.teamId!)
     this.handleChainUpdate(sigChain.teamId!)
     return sigChain
   }
 
-  async createChainFromInvite(username: string, seed: string, teamId: string, setActive: boolean): Promise<SigChain> {
+  async createChainFromInvite(
+    createFromInviteSeedInput: CreateUserFromInviteSeedInput,
+    teamId: string,
+    setActive: boolean
+  ): Promise<SigChain> {
     this.logger.info('Creating chain from invite')
-    const sigChain = SigChain.createFromInvite(username, seed)
+    const sigChain = SigChain.createFromInvite(createFromInviteSeedInput)
     this.addChain(sigChain, setActive, teamId)
     await this.saveChain(teamId)
     return sigChain

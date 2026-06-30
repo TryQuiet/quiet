@@ -75,7 +75,7 @@ describe('QSSAuthConnectionManager', () => {
       })
     jest.spyOn(qssClient, 'getClientSocket').mockImplementation((): ClientSocket | undefined => socket)
     sigchainService = module.get<SigChainService>(SigChainService)
-    await sigchainService.createChain(username, true)
+    await sigchainService.createChain(true)
     await qssClient.createSocketAndConnect('')
   })
 

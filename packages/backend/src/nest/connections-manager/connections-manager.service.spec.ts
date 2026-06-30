@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, SocketActions, SocketEvents, type Community, type Identity } from '@quiet/types'
+import { CommunityOwnership, SocketActions, type Community, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -76,7 +76,7 @@ describe('ConnectionsManagerService', () => {
     })
 
     // initialize sigchain on local db
-    chain = await sigChainService.createChain('john', false)
+    chain = await sigChainService.createChain(false)
     community = await factory.create('Community', {
       rootCa: communityRootCa,
       name: 'communityName',

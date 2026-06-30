@@ -17,6 +17,7 @@ import { ChannelService } from './services/roles/channel.service'
 import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
 import { Serializer } from '../common/serializer.service'
 import { randomKey } from '@localfirst/crypto'
+import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
@@ -94,13 +95,13 @@ class SigChain extends EventEmitter {
   }
 
   /**
-   * Create a brand new SigChain with a given name and also generate the initial user with a given name
+   * Create a brand new SigChain with a given name and also generate the initial user with an optional name/ID
    *
-   * @param username Username of the initial user we are generating
+   * @param createUserInput Optional input to user creation
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(username: string, userId?: string): SigChain {
-    const localUser = UserService.create(username, userId)
+  public static create(createUserInput: CreateUserInput = {}): SigChain {
+    const localUser = UserService.create(createUserInput)
     const team: auth.Team = auth.createTeam(
       SigChain.generateRandomTeamName(),
       localUser,
@@ -159,12 +160,12 @@ class SigChain extends EventEmitter {
   /**
    * Create a SigChain from an invite seed
    *
-   * @param username Username of the user to create
-   * @param seed Seed of the invite
+   * @param input Create user input with invite seed
    * @returns LoadedSigChain instance with the given user context
    */
-  public static createFromInvite(username: string, seed: string): SigChain {
-    const prospectiveUser = UserService.createFromInviteSeed(username, seed)
+  public static createFromInvite(input: CreateUserFromInviteSeedInput): SigChain {
+    const { seed } = input
+    const prospectiveUser = UserService.createFromInviteSeed(input)
     const context = {
       user: prospectiveUser.context.user,
       device: prospectiveUser.context.device,
