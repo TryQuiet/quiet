@@ -13,11 +13,6 @@ export type SerializedSigChain = {
   teamKeyRing: Keyring | undefined
 }
 
-export type GetChainFilter = {
-  teamId?: string
-  teamName?: string
-}
-
 /**
  * Native LFA Events
  */

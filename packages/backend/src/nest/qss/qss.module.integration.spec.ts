@@ -155,7 +155,7 @@ async function waitForAuthReady(peer: QSSIntegrationPeer, teamId: string): Promi
 
 async function waitForMemberRole(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
   await waitForExpect(() => {
-    const sigChain = peer.sigChainService.getChain({ teamId })
+    const sigChain = peer.sigChainService.getChain(teamId)
     expect(sigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   }, 60_000)
 }
@@ -177,7 +177,7 @@ async function reconnectAndSignIn(peer: QSSIntegrationPeer, teamId: string, team
   const connectResult = await peer.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)
   expect(connectResult).toBe(QSSOperationResult.SUCCESS)
 
-  expect(peer.sigChainService.getChain({ teamId })).toBeDefined()
+  expect(peer.sigChainService.getChain(teamId)).toBeDefined()
   await waitForAuthReady(peer, teamId)
   await waitForMemberRole(peer, teamId)
   peer.qssService.markTeamStorageReady(teamId)

@@ -22,7 +22,7 @@ import { type CryptoService } from './services/crypto/crypto.service'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { GetChainFilter, SigchainEvents, StoredKeyType } from './types'
+import { SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 
@@ -105,58 +105,37 @@ export class SigChainService extends EventEmitter {
   getActiveChain(throwError?: true | undefined): SigChain
   getActiveChain(throwError: false): SigChain | undefined
   getActiveChain(throwError = true): SigChain | undefined {
-    return this.getChain({ teamId: this.activeChainTeamId }, throwError as any)
+    if (this.activeChainTeamId == null) {
+      if (throwError) throw new Error('Active team ID was nullish')
+      return undefined
+    }
+    return this.getChain(this.activeChainTeamId, throwError as any)
   }
 
-  getChain(filter: GetChainFilter, throwError?: true | undefined): SigChain
-  getChain(filter: GetChainFilter, throwError: false): SigChain | undefined
+  getChain(teamId: string, throwError?: true | undefined): SigChain
+  getChain(teamId: string, throwError: false): SigChain | undefined
   /**
    * Gets a chain by team name or ID
    * @param filter Filter query with either team name or team ID
    * @returns The chain for the team name or ID specified
    * @throws Error if the chain doesn't exist, if ID and name in filter, or no filter criteria provided
    */
-  getChain(filter: GetChainFilter, throwError = true): SigChain | undefined {
-    // reject filters with both team name and ID
-    if (filter.teamName != null && filter.teamId != null) {
-      throw new Error('Must provide only one of `teamName` or `teamId` in filter query, not both!')
+  getChain(teamId: string, throwError = true): SigChain | undefined {
+    if (!this.chains.has(teamId) && throwError) {
+      throw new Error(`No chain found for team ID ${teamId}`)
     }
-
-    // reject filters without ID or name
-    if (filter.teamName == null && filter.teamId == null) {
-      throw new Error('Must provide one of `teamName` or `teamId` in filter query!')
-    }
-
-    if (filter.teamId != null) {
-      if (!this.chains.has(filter.teamId!) && throwError) {
-        throw new Error(`No chain found for team ID ${filter.teamId}`)
-      }
-      return this.chains.get(filter.teamId!)!
-    }
-
-    const obfuscatedTeamName = SigChain.generateTeamName(filter.teamName!)
-    for (const potentialChain of this.chains.values()) {
-      if (potentialChain.team != null && potentialChain.team.teamName === obfuscatedTeamName) {
-        return potentialChain
-      }
-    }
-
-    if (throwError) {
-      throw new Error(`No chain found for team name ${filter.teamName}`)
-    } else {
-      return undefined
-    }
+    return this.chains.get(teamId)!
   }
 
   setActiveChain(teamId: string): void {
     if (this.activeChainTeamId && this.activeChainTeamId !== teamId) {
-      this.detachSocketListeners(this.getChain({ teamId: this.activeChainTeamId }))
+      this.detachSocketListeners(this.getChain(this.activeChainTeamId))
     }
     if (!this.chains.has(teamId)) {
       throw new Error(`No chain found for team ${teamId}, can't set to active!`)
     }
     this.activeChainTeamId = teamId
-    this.attachSocketListeners(this.getChain({ teamId }))
+    this.attachSocketListeners(this.getChain(teamId))
   }
 
   private handleChainUpdate = async (teamId: string) => {
@@ -192,7 +171,7 @@ export class SigChainService extends EventEmitter {
       return `quiet_${teamId}_${scope.type}_${scope.name}_${scope.generation}_${keyType}`
     }
 
-    const sigchain = this.getChain({ teamId })
+    const sigchain = this.getChain(teamId)
     if (sigchain == null) {
       this.logger.error('No chain for ID found', teamId)
       return
@@ -269,7 +248,7 @@ export class SigChainService extends EventEmitter {
       return
     }
     try {
-      const sigchain = this.getChain({ teamId })
+      const sigchain = this.getChain(teamId)
       if (sigchain?.team == null) return
       const device = sigchain.device
       if (!device?.deviceId || !device.keys?.signature?.secretKey) {
@@ -354,9 +333,6 @@ export class SigChainService extends EventEmitter {
    * @returns The created chain
    */
   async createChain(teamName: string, username: string, setActive: boolean): Promise<SigChain> {
-    if (this.getChain({ teamName }, false)) {
-      throw new Error(`Chain for team ${teamName} already exists`)
-    }
     const sigChain = SigChain.create(teamName, username)
     this.addChain(sigChain, setActive, sigChain.teamId!)
     await this.saveChain(sigChain.teamId!)
@@ -429,7 +405,7 @@ export class SigChainService extends EventEmitter {
   async saveChain(teamId: string): Promise<void> {
     this.logger.info(`Saving chain to disk`, teamId)
     await this._ensureDb()
-    const chain = this.getChain({ teamId })
+    const chain = this.getChain(teamId)
     await this.localDbService.setSigChain(chain, teamId)
   }
 

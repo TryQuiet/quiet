@@ -185,7 +185,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   private _handleSelfAssignMember = async (teamId: string): Promise<void> => {
     this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
     const initStatus = await this.getQssInitStatus()
-    const sigchain = this.sigChainService.getChain({ teamId })
+    const sigchain = this.sigChainService.getChain(teamId)
     const authData = (initStatus.community?.inviteData as InvitationDataV5).authData
     if (authData.salt != null) {
       sigchain.roles.addSelf(RoleName.MEMBER, authData.seed, authData.salt)

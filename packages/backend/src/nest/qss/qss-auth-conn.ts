@@ -164,12 +164,10 @@ export class QSSAuthConnection extends EventEmitter {
     // get the chain by ID and check for an existing auth connection
     let sigChain: SigChain | undefined = undefined
     try {
-      sigChain = this.sigChainService.getChain({ teamId: this._teamId })
+      sigChain = this.sigChainService.getChain(this.teamId)
     } catch (e) {
-      if (!(e as Error).message.includes('No chain found') || teamName == null) {
-        throw e
-      }
-      sigChain = this.sigChainService.getChain({ teamName })
+      this.logger.error('No chain found', e)
+      throw e
     }
 
     if (this._authConnection != null) {

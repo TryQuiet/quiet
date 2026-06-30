@@ -398,7 +398,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
     let chain = sigChain ?? this._signedInTeams.get(teamId)
     if (chain?.team == null) {
       try {
-        chain = this.sigChainService.getChain({ teamId })
+        chain = this.sigChainService.getChain(teamId)
       } catch (e) {
         return { ready: false, reason: 'Sigchain is unavailable, waiting before QSS log sync' }
       }
@@ -576,7 +576,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     let sigChain: SigChain
     try {
-      sigChain = this.sigChainService.getChain({ teamId: update.teamId })
+      sigChain = this.sigChainService.getChain(update.teamId)
     } catch (e) {
       this.logger.warn(
         `No sigchain present for team ${update.teamId}, cannot send ${update.hash} log sync message to QSS`
@@ -730,7 +730,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
   public async pullLatestLogEntries(teamId: string): Promise<LogEntryPullResponseMessage> {
     this.logger.info(`Pulling all log entries from QSS for team ${teamId}`)
     let nextStartSeq = await this.localDbService.getLastSyncSeq(teamId)
-    const sigchain = this.sigChainService.getChain({ teamId })
+    const sigchain = this.sigChainService.getChain(teamId)
     const userId = sigchain.context.user.userId
     if (!sigchain.roles.amIMemberOfRole(RoleName.MEMBER)) {
       this.logger.warn(`User is not a member of team ${teamId}, skipping log entry pull until full join`)
@@ -782,7 +782,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
       for (const entry of deserializedEntries) {
         try {
           const decrypted = this.sigChainService
-            .getChain({ teamId })
+            .getChain(teamId)
             .crypto.decryptAndVerify<LogEntry>(entry.encrypted, entry.signature, false)
           if (decrypted.isValid) {
             decryptedEntries.push(decrypted.contents)
@@ -909,7 +909,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     let activeChain: SigChain
     try {
-      activeChain = this.sigChainService.getChain({ teamId })
+      activeChain = this.sigChainService.getChain(teamId)
     } catch (e) {
       this.logger.debug('No sigchain present for decrypt DLQ processing', teamId)
       return
@@ -941,7 +941,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
         for (const { key, entry } of entries) {
           try {
             const decrypted = this.sigChainService
-              .getChain({ teamId })
+              .getChain(teamId)
               .crypto.decryptAndVerify<LogEntry>(entry.payload.encrypted, entry.payload.signature, false)
             if (decrypted.isValid) {
               decryptedLogEntries.push(decrypted.contents)

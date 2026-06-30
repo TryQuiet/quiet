@@ -82,6 +82,7 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
+import { teamKeyring } from '3rd-party/auth/packages/auth/dist/team/selectors'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -986,7 +987,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
      * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
      */
     const users = this.sigChainService
-      .getChain({ teamId })
+      .getChain(teamId)
       .team?.members()
       .map(user => ({
         userId: user.userId,

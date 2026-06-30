@@ -62,14 +62,14 @@ describe('SigChainService', () => {
     sigChainTest2 = await sigChainService.createChain('test2', 'user2', true)
     expect(sigChainService.getActiveChain()).toBe(sigChainTest2)
     expect(handleChainUpdateSpy).toBeCalledTimes(1)
-    const prevSigChain = sigChainService.getChain({ teamId: sigChainTest.teamId! })
+    const prevSigChain = sigChainService.getChain(sigChainTest.teamId!)
     expect(prevSigChain).toBeDefined()
     expect(prevSigChain).not.toBe(sigChainTest2)
   })
   it('should delete nonactive chain without changing active chain', async () => {
     sigChainService.setActiveChain(sigChainTest2.teamId!)
     await sigChainService.deleteChain(sigChainTest.teamId!, false)
-    expect(() => sigChainService.getChain({ teamId: sigChainTest.teamId! })).toThrowError()
+    expect(() => sigChainService.getChain(sigChainTest.teamId!)).toThrowError()
     expect(sigChainService.getActiveChain()).toBeDefined()
   })
   it('should delete active chain and set active chain to undefined', async () => {
@@ -88,7 +88,7 @@ describe('SigChainService', () => {
   })
   it('should delete sigchains from disk', async () => {
     await sigChainService.deleteChain(sigChainTest3.teamId!, true)
-    expect(() => sigChainService.getChain({ teamId: sigChainTest3.teamId! })).toThrowError()
+    expect(() => sigChainService.getChain(sigChainTest3.teamId!)).toThrowError()
     await expect(sigChainService.loadChain(sigChainTest3.teamId!, true)).rejects.toThrowError()
   })
   it('should not allow duplicate chains to be added', async () => {
@@ -99,12 +99,12 @@ describe('SigChainService', () => {
   it('should handle concurrent chain operations correctly', async () => {
     const TEAM_NAME1 = 'test6'
     const TEAM_NAME2 = 'test7'
-    await Promise.all([
+    const [chain1, chain2] = await Promise.all([
       sigChainService.createChain(TEAM_NAME1, 'user1', true),
       sigChainService.createChain(TEAM_NAME2, 'user2', false),
     ])
-    expect(sigChainService.getChain({ teamName: TEAM_NAME1 })).toBeDefined()
-    expect(sigChainService.getChain({ teamName: TEAM_NAME2 })).toBeDefined()
+    expect(sigChainService.getChain(chain1.teamId!)).toBeDefined()
+    expect(sigChainService.getChain(chain2.teamId!)).toBeDefined()
     expect(handleChainUpdateSpy).toBeCalledTimes(2)
   })
 })
