@@ -128,6 +128,42 @@ describe('sendMessageSaga', () => {
       .run()
   })
 
+  test('waits for the target channel subscription before emitting', async () => {
+    const channelId = sailingChannel.id
+    const channelMessage = await baseTypesFactory.build<ChannelMessage>('ChannelMessage', {
+      userId: alice.userId,
+      channelId,
+    })
+    const reducer = combineReducers(testReducers)
+    const baseState = store.getState()
+    const stateWithNoSubscriptions = {
+      ...baseState,
+      PublicChannels: {
+        ...baseState.PublicChannels,
+        channelsSubscriptions: {
+          ids: [],
+          entities: {},
+        },
+      },
+    }
+
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: channelMessage.message, channelId })
+    )
+      .withReducer(reducer)
+      .withState(stateWithNoSubscriptions)
+      .provide([
+        [call.fn(generateMessageId), channelMessage.id],
+        [call.fn(getCurrentTime), channelMessage.createdAt],
+      ])
+      .dispatch(publicChannelsActions.setChannelSubscribed({ channelId: generateTestChannelId('unrelated') }))
+      .dispatch(publicChannelsActions.setChannelSubscribed({ channelId }))
+      .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, channelMessage))
+      .run()
+  })
+
   test('do not broadcast message until file is uploaded', async () => {
     const messageId = Math.random().toString(36).substr(2.9)
     const currentChannel = currentChannelId(store.getState())

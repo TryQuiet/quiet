@@ -332,6 +332,44 @@ describe('publicChannelsSelectors', () => {
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
     expect(unreadChannels).toEqual([channelId])
   })
+
+  it('subscription selectors return only subscribed channels and current channel readiness', async () => {
+    const baseState = store.getState()
+    const stateWithSubscriptions = {
+      ...baseState,
+      PublicChannels: {
+        ...baseState.PublicChannels,
+        currentChannelId: 'subscribed-channel-id',
+        channelsSubscriptions: {
+          ids: ['subscribed-channel-id', 'unsubscribed-channel-id'],
+          entities: {
+            'subscribed-channel-id': {
+              id: 'subscribed-channel-id',
+              subscribed: true,
+            },
+            'unsubscribed-channel-id': {
+              id: 'unsubscribed-channel-id',
+              subscribed: false,
+            },
+          },
+        },
+      },
+    }
+
+    expect(publicChannelsSelectors.subscribedChannels(stateWithSubscriptions)).toEqual(['subscribed-channel-id'])
+    expect(publicChannelsSelectors.isChannelSubscribed('subscribed-channel-id')(stateWithSubscriptions)).toBe(true)
+    expect(publicChannelsSelectors.isChannelSubscribed('unsubscribed-channel-id')(stateWithSubscriptions)).toBe(false)
+    expect(publicChannelsSelectors.currentChannelSubscribed(stateWithSubscriptions)).toBe(true)
+    expect(
+      publicChannelsSelectors.currentChannelSubscribed({
+        ...stateWithSubscriptions,
+        PublicChannels: {
+          ...stateWithSubscriptions.PublicChannels,
+          currentChannelId: 'unsubscribed-channel-id',
+        },
+      })
+    ).toBe(false)
+  })
 })
 
 export {}

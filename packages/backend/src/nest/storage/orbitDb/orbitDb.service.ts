@@ -35,10 +35,29 @@ import { LFAIdentities } from './identity/lfa/lfa-identity.service'
 export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | undefined = undefined
   private stores: Record<string, DatabaseType> = {}
+  private orbitDbUpdateListenerAttached = false
   public identities: LFAIdentities | undefined = undefined
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
+
+  private readonly handleOrbitDbUpdate = (entry: LogEntry): void => {
+    const localIdentityHash = this.orbitDbInstance?.identity.hash
+    if (localIdentityHash == null || entry.identity !== localIdentityHash) {
+      return
+    }
+
+    const store = this.stores[entry.id]
+    if (store == null) {
+      this.logger.warn('Skipping OrbitDB put fanout for local entry without an open store', {
+        storeId: entry.id,
+        hash: entry.hash,
+      })
+      return
+    }
+
+    OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta?.['teamId']))
+  }
 
   constructor(
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
@@ -48,12 +67,23 @@ export class OrbitDbService {
     private readonly messagesAccessController: MessagesAccessController,
     private readonly channelMetadataAccessController: ChannelMetadataAccessController
   ) {
-    OrbitDbService.events.on('update', (entry: LogEntry) => {
-      if (entry.identity == this.orbitDbInstance?.identity.hash) {
-        const store = this.stores[entry.id]
-        OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, store.address, store.meta['teamId']))
-      }
-    })
+    this.attachOrbitDbUpdateListener()
+  }
+
+  private attachOrbitDbUpdateListener(): void {
+    if (this.orbitDbUpdateListenerAttached) {
+      return
+    }
+    OrbitDbService.events.on('update', this.handleOrbitDbUpdate)
+    this.orbitDbUpdateListenerAttached = true
+  }
+
+  private detachOrbitDbUpdateListener(): void {
+    if (!this.orbitDbUpdateListenerAttached) {
+      return
+    }
+    OrbitDbService.events.off('update', this.handleOrbitDbUpdate)
+    this.orbitDbUpdateListenerAttached = false
   }
 
   get orbitDb() {
@@ -70,6 +100,7 @@ export class OrbitDbService {
       this.logger.warn(`Already had an instance of OrbitDB, returning...`)
       return
     }
+    this.attachOrbitDbUpdateListener()
 
     orbitDbUseAccessController(
       this.messagesAccessController.createAccessControllerFunc({
@@ -138,6 +169,7 @@ export class OrbitDbService {
   }
 
   public async stop() {
+    this.detachOrbitDbUpdateListener()
     if (this.orbitDbInstance != undefined) {
       this.logger.info('Stopping OrbitDB')
       try {

@@ -18,6 +18,7 @@ import {
   type MessagesDailyGroups,
   type MessagesGroupsType,
   type PublicChannel,
+  type PublicChannelSubscription,
   type PublicChannelStatus,
   type PublicChannelStatusWithName,
   INITIAL_CURRENT_CHANNEL_ID,
@@ -48,10 +49,18 @@ const pendingGeneralChannelRecreation = createSelector(selectState, state => {
 })
 
 export const subscribedChannels = createSelector(selectChannelsSubscriptions, subscriptions => {
-  return subscriptions.map(subscription => {
-    if (subscription.subscribed) return subscription.id
-  })
+  return subscriptions.filter(subscription => subscription.subscribed).map(subscription => subscription.id)
 })
+
+const hasSubscribedChannel = (subscriptions: PublicChannelSubscription[], channelId: string | undefined): boolean => {
+  if (!channelId) return false
+  return subscriptions.some(subscription => subscription.id === channelId && subscription.subscribed)
+}
+
+export const isChannelSubscribed = (channelId: string | undefined) =>
+  createSelector(selectChannelsSubscriptions, subscriptions => {
+    return hasSubscribedChannel(subscriptions, channelId)
+  })
 
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, currentCommunity, (channels, currentCommunity) => {
@@ -123,6 +132,14 @@ export const currentChannelId = createSelector(selectState, generalChannel, (sta
     return state.currentChannelId
   }
 })
+
+export const currentChannelSubscribed = createSelector(
+  currentChannelId,
+  selectChannelsSubscriptions,
+  (id, subscriptions) => {
+    return hasSubscribedChannel(subscriptions, id)
+  }
+)
 
 export const recentChannels = createSelector(
   publicChannels,
@@ -325,6 +342,8 @@ export const canCreatePrivateChannel = createSelector(selectState, () => {
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
+  isChannelSubscribed,
+  currentChannelSubscribed,
   currentChannelId,
   currentChannelName,
   currentChannel,

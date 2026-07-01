@@ -102,4 +102,97 @@ describe('sendInitialChannelMessageSaga', () => {
       )
       .run()
   })
+
+  test('waits for matching general channel subscription before queueing the recreation message', async () => {
+    const localStore = prepareStore().store
+    const localFactory = await getReduxStoreFactory(localStore)
+    const localCommunity = await localFactory.create('Community')
+    const localOwner = await localFactory.create('Identity', {
+      communityId: localCommunity.id,
+      userId: 'localOwnerUserId',
+    })
+    const localOwnerUserProfile = await localFactory.create('UserProfile', {
+      userId: localOwner.userId,
+    })
+    const localGeneralChannel = publicChannelsSelectors.generalChannel(localStore.getState())
+    if (!localGeneralChannel) throw new Error('No general channel')
+    localStore.dispatch(publicChannelsActions.startGeneralRecreation())
+    const baseState = localStore.getState()
+    const stateWithNoSubscriptions = {
+      ...baseState,
+      PublicChannels: {
+        ...baseState.PublicChannels,
+        channelsSubscriptions: {
+          ids: [],
+          entities: {},
+        },
+      },
+    }
+    const expectedMessagePayload = {
+      type: 3,
+      message: generalChannelDeletionMessage(localOwnerUserProfile.nickname),
+      channelId: localGeneralChannel.id,
+    }
+    const reducer = combineReducers(testReducers)
+
+    await expectSaga(
+      sendInitialChannelMessageSaga,
+      publicChannelsActions.sendInitialChannelMessage({
+        channelName: localGeneralChannel.name,
+        channelId: localGeneralChannel.id,
+      })
+    )
+      .withReducer(reducer)
+      .withState(stateWithNoSubscriptions)
+      .dispatch(publicChannelsActions.setChannelSubscribed({ channelId: generateTestChannelId('unrelated') }))
+      .dispatch(publicChannelsActions.setChannelSubscribed({ channelId: localGeneralChannel.id }))
+      .put(publicChannelsActions.setCurrentChannel({ channelId: localGeneralChannel.id }))
+      .put(publicChannelsActions.finishGeneralRecreation())
+      .put(messagesActions.sendMessage(expectedMessagePayload))
+      .run()
+  })
+
+  test('finishes general recreation before waiting to queue the recreation message', async () => {
+    const localStore = prepareStore().store
+    const localFactory = await getReduxStoreFactory(localStore)
+    const localCommunity = await localFactory.create('Community')
+    const localOwner = await localFactory.create('Identity', {
+      communityId: localCommunity.id,
+      userId: 'orderedOwnerUserId',
+    })
+    const localOwnerUserProfile = await localFactory.create('UserProfile', {
+      userId: localOwner.userId,
+    })
+    const localGeneralChannel = publicChannelsSelectors.generalChannel(localStore.getState())
+    if (!localGeneralChannel) throw new Error('No general channel')
+    const expectedMessage = generalChannelDeletionMessage(localOwnerUserProfile.nickname)
+    const expectedMessagePayload = {
+      type: 3,
+      message: expectedMessage,
+      channelId: localGeneralChannel.id,
+    }
+    const generator = sendInitialChannelMessageSaga(
+      publicChannelsActions.sendInitialChannelMessage({
+        channelName: localGeneralChannel.name,
+        channelId: localGeneralChannel.id,
+      })
+    )
+
+    generator.next()
+    generator.next(localGeneralChannel)
+    generator.next(true)
+    generator.next(localOwnerUserProfile)
+
+    const setCurrentChannelEffect = generator.next(expectedMessage).value as any
+    expect(setCurrentChannelEffect.payload.action).toEqual(
+      publicChannelsActions.setCurrentChannel({ channelId: localGeneralChannel.id })
+    )
+
+    const finishGeneralRecreationEffect = generator.next().value as any
+    expect(finishGeneralRecreationEffect.payload.action).toEqual(publicChannelsActions.finishGeneralRecreation())
+
+    generator.next()
+    const sendMessageEffect = generator.next(true).value as any
+    expect(sendMessageEffect.payload.action).toEqual(messagesActions.sendMessage(expectedMessagePayload))
+  })
 })

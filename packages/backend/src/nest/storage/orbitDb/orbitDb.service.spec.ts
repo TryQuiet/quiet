@@ -120,15 +120,54 @@ describe('OrbitDbService', () => {
       AccessController: IPFSAccessController({ write: ['*'] }),
       sync: false,
     })
-    let putEventEmitted = false
-    OrbitDbService.events.on('put', (update: LogUpdate) => {
-      putEventEmitted = true
+
+    const putListener = jest.fn((update: LogUpdate) => {
       expect(update).toBeDefined()
       expect(update.entry.payload.value).toStrictEqual({ content: 'test content' })
       expect(update.entry.identity).toEqual(orbitDbService.orbitDb.identity.hash)
     })
+    OrbitDbService.events.on('put', putListener)
 
-    await store.add({ content: 'test content' })
-    expect(putEventEmitted).toBeTruthy()
+    try {
+      await store.add({ content: 'test content' })
+      expect(putListener).toHaveBeenCalled()
+    } finally {
+      OrbitDbService.events.off('put', putListener)
+    }
+  })
+
+  it('ignores local update events when the entry store is not open', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    const putListener = jest.fn()
+    OrbitDbService.events.on('put', putListener)
+
+    try {
+      expect(() => {
+        OrbitDbService.events.emit('update', {
+          id: 'missing-store',
+          hash: 'missing-store-entry',
+          identity: orbitDbService.orbitDb.identity.hash,
+          payload: {
+            value: { content: 'test content' },
+          },
+        } as LogEntry)
+      }).not.toThrow()
+      expect(putListener).not.toHaveBeenCalled()
+    } finally {
+      OrbitDbService.events.off('put', putListener)
+    }
+  })
+
+  it('detaches and reattaches its static update listener across stop and create', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    const updateListener = (orbitDbService as any).handleOrbitDbUpdate
+
+    expect(OrbitDbService.events.listeners('update')).toContain(updateListener)
+
+    await orbitDbService.stop()
+    expect(OrbitDbService.events.listeners('update')).not.toContain(updateListener)
+
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    expect(OrbitDbService.events.listeners('update')).toContain(updateListener)
   })
 })

@@ -45,6 +45,7 @@ import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
+import { StorageEvents } from '../storage.types'
 
 const logger = createLogger('channelsService:test')
 
@@ -156,9 +157,11 @@ describe('ChannelsService', () => {
     key: string,
     value: EncryptedAndSignedPayload,
     hash: string = 'test-channel-metadata-entry',
-    identity: string = 'test-channel-put-identity'
+    identity: string = 'test-channel-put-identity',
+    storeId: string = 'test-channel-metadata-store'
   ): LogEntry<EncryptedAndSignedPayload> =>
     ({
+      id: storeId,
       hash,
       identity,
       payload: {
@@ -171,9 +174,11 @@ describe('ChannelsService', () => {
   const channelDelEntry = (
     key: string,
     identity: string = 'test-channel-delete-identity',
-    hash: string = 'test-channel-metadata-delete-entry'
+    hash: string = 'test-channel-metadata-delete-entry',
+    storeId: string = 'test-channel-metadata-store'
   ): LogEntry<EncryptedAndSignedPayload> =>
     ({
+      id: storeId,
       hash,
       identity,
       payload: {
@@ -253,6 +258,127 @@ describe('ChannelsService', () => {
       await expect(channelsService.getChannel(response.channel!.id)).resolves.toEqual(response.channel)
     })
 
+    it('subscribes to a created channel before returning success', async () => {
+      const payload: CreateChannelPayload = {
+        name: 'ready-channel-name',
+        description: 'ready channel description',
+        public: true,
+        teamId: community.teamId!,
+      }
+      const subscribedChannelIds: string[] = []
+      channelsService.on(StorageEvents.CHANNEL_SUBSCRIBED, payload => {
+        subscribedChannelIds.push(payload.channelId)
+      })
+
+      const response = await channelsService.handleCreateChannel(payload)
+
+      expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+      expect(response.channel).toBeDefined()
+      const repo = channelsService.channelsRepos.get(response.channel!.id)
+      expect(repo).toBeDefined()
+      expect(repo!.eventsAttached).toBe(true)
+      expect(repo!.subscribed).toBe(true)
+      expect(subscribedChannelIds).toContain(response.channel!.id)
+    })
+
+    it('shares one subscription promise for concurrent subscribe calls', async () => {
+      const channel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      let resolveSubscription: () => void = () => {}
+      const subscriptionGate = new Promise<void>(resolve => {
+        resolveSubscription = resolve
+      })
+      const store = new EventEmitter() as any
+      store.subscribe = jest.fn(async () => await subscriptionGate)
+      const subscribedChannelIds: string[] = []
+      channelsService.channelsRepos.set(channel.id, {
+        store,
+        eventsAttached: false,
+        subscribed: false,
+        public: true,
+      })
+      channelsService.on(StorageEvents.CHANNEL_SUBSCRIBED, payload => {
+        subscribedChannelIds.push(payload.channelId)
+      })
+
+      const firstSubscription = channelsService.subscribeToChannel(channel)
+      const secondSubscription = channelsService.subscribeToChannel(channel)
+      await Promise.resolve()
+
+      expect(store.subscribe).toHaveBeenCalledTimes(1)
+      expect(channelsService.channelsRepos.get(channel.id)!.eventsAttached).toBe(true)
+      expect(channelsService.channelsRepos.get(channel.id)!.subscribed).toBe(false)
+
+      resolveSubscription()
+      await Promise.all([firstSubscription, secondSubscription])
+
+      expect(channelsService.channelsRepos.get(channel.id)!.subscribed).toBe(true)
+      expect(subscribedChannelIds).toEqual([channel.id])
+    })
+
+    it('shares one channel creation for concurrent subscribe calls before a repo exists', async () => {
+      const channel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      let resolveStoreCreation: (store: any) => void = () => {}
+      const storeCreationGate = new Promise<any>(resolve => {
+        resolveStoreCreation = resolve
+      })
+      const store = new EventEmitter() as any
+      store.subscribe = jest.fn(async () => {})
+      const createChannelStoreSpy = jest
+        .spyOn(channelsService as any, 'createChannelStore')
+        .mockImplementation(async () => await storeCreationGate)
+
+      try {
+        const firstSubscription = channelsService.subscribeToChannel(channel)
+        const secondSubscription = channelsService.subscribeToChannel(channel)
+        await Promise.resolve()
+
+        expect(createChannelStoreSpy).toHaveBeenCalledTimes(1)
+
+        resolveStoreCreation(store)
+        await Promise.all([firstSubscription, secondSubscription])
+
+        expect(channelsService.channelsRepos.get(channel.id)?.store).toBe(store)
+        expect(store.subscribe).toHaveBeenCalledTimes(1)
+      } finally {
+        createChannelStoreSpy.mockRestore()
+      }
+    })
+
+    it('broadcasts current channels before background subscriptions settle', async () => {
+      const channel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const store = new EventEmitter() as any
+      store.subscribe = jest.fn(() => new Promise<void>(() => {}))
+      channelsService.channelsRepos.set(channel.id, {
+        store,
+        eventsAttached: false,
+        subscribed: false,
+        public: true,
+      })
+      const getChannelsSpy = jest.spyOn(channelsService, 'getChannels').mockResolvedValue([channel])
+      const channelsStoredPayloads: Array<{ channels: PublicChannel[] }> = []
+      channelsService.on(StorageEvents.CHANNELS_STORED, payload => {
+        channelsStoredPayloads.push(payload)
+      })
+
+      try {
+        await channelsService.broadcastCurrentChannels()
+
+        expect(channelsStoredPayloads).toEqual([{ channels: [channel] }])
+        expect(store.subscribe).toHaveBeenCalledTimes(1)
+      } finally {
+        getChannelsSpy.mockRestore()
+      }
+    })
+
     it('retries channel id generation when a generated id already exists', async () => {
       const collidingId = '0'.repeat(32)
       const expectedId = '1'.repeat(32)
@@ -301,19 +427,89 @@ describe('ChannelsService', () => {
 
     it('logs channel metadata update handler errors without rejecting the event', async () => {
       const events = new EventEmitter()
+      const storeAddress = 'test-channel-metadata-store'
       const error = new Error('broadcast failed')
       const broadcastCurrentChannelsSpy = jest
         .spyOn(channelsService, 'broadcastCurrentChannels')
         .mockRejectedValue(error)
+      const retryIndexingUnindexedEntries = jest.fn<() => Promise<void>>().mockResolvedValue()
       const loggerErrorSpy = jest.spyOn((channelsService as any).logger, 'error').mockImplementation(() => {})
 
-      ;(channelsService as any).attachChannelMetadataUpdateHandler({ events })
+      ;(channelsService as any).attachChannelMetadataUpdateHandler({
+        events,
+        address: storeAddress,
+        retryIndexingUnindexedEntries,
+      })
       events.emit('update', channelPutEntry('test-channel-id', {} as EncryptedAndSignedPayload))
 
       await waitForExpect(() => {
+        expect(retryIndexingUnindexedEntries).toHaveBeenCalled()
         expect(broadcastCurrentChannelsSpy).toHaveBeenCalled()
         expect(loggerErrorSpy).toHaveBeenCalledWith('Error handling channels database update', error)
       })
+    })
+
+    it('ignores shared OrbitDB update events from non-channel metadata stores', async () => {
+      const events = new EventEmitter()
+      const retryIndexingUnindexedEntries = jest.fn<() => Promise<void>>().mockResolvedValue()
+      const broadcastCurrentChannelsSpy = jest.spyOn(channelsService, 'broadcastCurrentChannels').mockResolvedValue()
+
+      ;(channelsService as any).attachChannelMetadataUpdateHandler({
+        events,
+        address: 'test-channel-metadata-store',
+        retryIndexingUnindexedEntries,
+      })
+      events.emit(
+        'update',
+        channelPutEntry(
+          'test-user-profile-id',
+          {} as EncryptedAndSignedPayload,
+          'test-user-profile-entry',
+          'test-user-profile-identity',
+          'test-user-profile-store'
+        )
+      )
+
+      await new Promise(resolve => setImmediate(resolve))
+
+      expect(retryIndexingUnindexedEntries).not.toHaveBeenCalled()
+      expect(broadcastCurrentChannelsSpy).not.toHaveBeenCalled()
+    })
+
+    it('reindexes the channel metadata store before broadcasting channel updates', async () => {
+      const events = new EventEmitter()
+      const calls: string[] = []
+      const retryIndexingUnindexedEntries = jest.fn<() => Promise<void>>().mockImplementation(async () => {
+        calls.push('retry')
+      })
+      jest.spyOn(channelsService, 'broadcastCurrentChannels').mockImplementation(async () => {
+        calls.push('broadcast')
+      })
+      ;(channelsService as any).attachChannelMetadataUpdateHandler({
+        events,
+        address: 'test-channel-metadata-store',
+        retryIndexingUnindexedEntries,
+      })
+      events.emit('update', channelPutEntry('test-channel-id', {} as EncryptedAndSignedPayload))
+
+      await waitForExpect(() => {
+        expect(calls).toEqual(['retry', 'broadcast'])
+      })
+    })
+
+    it('detaches channel metadata update handlers', async () => {
+      const events = new EventEmitter()
+
+      ;(channelsService as any).attachChannelMetadataUpdateHandler({
+        events,
+        address: 'test-channel-metadata-store',
+        retryIndexingUnindexedEntries: jest.fn<() => Promise<void>>().mockResolvedValue(),
+      })
+
+      expect(events.listenerCount('update')).toBe(1)
+      ;(channelsService as any).detachChannelMetadataUpdateHandlers()
+
+      expect(events.listenerCount('update')).toBe(0)
     })
 
     it('deletes channel as owner', async () => {
@@ -485,6 +681,38 @@ describe('ChannelsService', () => {
       )
       expect(channelPuts).toHaveLength(1)
       await expect(channelsService.getChannel(publicChannel.id)).resolves.toEqual(publicChannel)
+    })
+
+    it('subscribes before sending to an existing unsubscribed channel repo', async () => {
+      const channel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: aliceUserId,
+        teamId: community.teamId!,
+      })
+      const message = await factory.build<ChannelMessage>('ChannelMessage', {
+        channelId: channel.id,
+        userId: aliceUserId,
+      })
+      const store = new EventEmitter() as any
+      store.subscribe = jest.fn(async () => {})
+      store.sendMessage = jest.fn(async () => true)
+      channelsService.channelsRepos.set(channel.id, {
+        store,
+        eventsAttached: false,
+        subscribed: false,
+        public: true,
+      })
+      const getChannelSpy = jest.spyOn(channelsService, 'getChannel').mockResolvedValue(channel)
+
+      try {
+        const sent = await channelsService.sendMessage(message)
+
+        expect(sent).toBe(true)
+        expect(store.subscribe).toHaveBeenCalledTimes(1)
+        expect(store.sendMessage).toHaveBeenCalledWith(message)
+        expect(channelsService.channelsRepos.get(channel.id)!.subscribed).toBe(true)
+      } finally {
+        getChannelSpy.mockRestore()
+      }
     })
 
     // skipping because we don't have a strong way to prevent a user from deleting a channel yet
