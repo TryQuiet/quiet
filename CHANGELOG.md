@@ -20,6 +20,10 @@
 * Enable QSS on prod
 * Add script for cleaning compiled/generated code directories
 
+### Breaking
+
+* Include team ID and createdAt in message encryption and validate on consume [#3304](https://github.com/TryQuiet/quiet/issues/3304)
+
 ## [7.3.0]
 
 ### Features
