@@ -122,6 +122,26 @@ Available package names are:
 
 ----
 
+### Cleaning node_modules and generated/compiled code
+
+To delete `node_modules` from all packages run:
+
+```
+npm run clean:node-modules
+```
+
+To delete generated and compiled code from all packages (e.g. generated `.d.ts` files, e2e test binaries, etc.) run:
+
+```
+npm run clean:compiled
+```
+
+A wrapper script for running both can be run, as well:
+
+```
+npm run clean:all
+```
+
 ## Locally linking packages (mobile)
 
 Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows

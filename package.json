@@ -3,6 +3,9 @@
   "private": true,
   "scripts": {
     "lerna": "lerna",
+    "clean:node-modules": "lerna clean",
+    "clean:compiled": "sh ./scripts/clean-compiled-code.sh",
+    "clean:all": "npm run clean:node-modules && npm run clean:compiled",
     "publish": "lerna version $npm_config_release --no-private",
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push",
     "start:desktop": "lerna run --scope @quiet/desktop start",
