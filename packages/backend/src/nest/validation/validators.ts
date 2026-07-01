@@ -61,6 +61,7 @@ const messageSchema = joi.object({
 // extends messageSchema to include "verified" field
 const consumedChannelMessageSchema = messageSchema.append({
   verified: joi.boolean().required(),
+  teamId: joi.string().required(),
 })
 
 const encryptedMessageSchema = joi.object({

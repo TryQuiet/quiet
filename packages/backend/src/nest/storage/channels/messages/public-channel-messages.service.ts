@@ -72,6 +72,8 @@ export class PublicChannelMessagesService extends BaseMessagesService {
         channelId: rawMessage.channelId,
         message: rawMessage.message,
         media: rawMessage.media,
+        teamId: chain.team!.id,
+        createdAt: rawMessage.createdAt,
       }
       const encryptedMessage = chain.crypto.encryptAndSign(encryptable, {
         type: EncryptionScopeType.ROLE,
@@ -107,28 +109,5 @@ export class PublicChannelMessagesService extends BaseMessagesService {
     } catch (e) {
       throw new CompoundError(`Failed to decrypt message with error`, e)
     }
-  }
-
-  /**
-   * Validates a decrypted message for critical immutable properties.
-   * Only properties which can not eventually change should be validated here.
-   * This is to ensure that the message has not been tampered with
-   * and that it matches the encrypted message it was decrypted from.
-   * Failing messages should be discarded.
-   *
-   * @param message Message to validate
-   * @param encryptedMessage Encrypted message to validate against
-   * @returns True if the message is valid, false otherwise
-   */
-  public validateMessage(message: ConsumedChannelMessage, encryptedMessage: EncryptedMessage): boolean {
-    if (message.id !== encryptedMessage.id) {
-      this.logger.warn(`Cannot validate msg ${message.id}: IDs do not match`)
-      return false
-    }
-    if (!isConsumedChannelMessage(message)) {
-      this.logger.warn(`Cannot validate msg ${message.id}: message shape is not valid`)
-      return false
-    }
-    return true
   }
 }

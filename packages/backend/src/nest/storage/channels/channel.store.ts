@@ -155,7 +155,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       }
 
       this.logger.info(`${this.channelData.id} database updated`, entry.hash, entryChannelId)
-      let message: ChannelMessage | undefined | false = undefined
+      let message: ConsumedChannelMessage | undefined | false = undefined
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
       } else {
