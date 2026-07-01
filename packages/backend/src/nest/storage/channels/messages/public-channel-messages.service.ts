@@ -102,7 +102,7 @@ export class PublicChannelMessagesService extends BaseMessagesService {
       return {
         ...decryptedMessage.contents,
         userId: decryptedMessage.contents.userId,
-        createdAt: encryptedMessage.createdAt,
+        createdAt: decryptedMessage.contents.createdAt,
         encSignature: encryptedMessage.encSignature,
         verified: decryptedMessage.isValid,
       }

@@ -290,6 +290,7 @@ describe('ChannelsService', () => {
       expect(savedMessages?.messages[0]).toEqual({
         ...messageCopy,
         verified: true,
+        teamId: sigChainService.activeChain.team!.id,
         encSignature: expect.objectContaining({
           author: {
             generation: 0,
