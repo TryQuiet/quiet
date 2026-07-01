@@ -81,7 +81,7 @@ runs:
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
-            npm run bootstrap:ci -- --scope '{${{ inputs.bootstrap-packages }},}'
+            npm run bootstrap:ci -- --scope ${{ inputs.bootstrap-packages }}
         else
             npm run bootstrap:ci
         fi
