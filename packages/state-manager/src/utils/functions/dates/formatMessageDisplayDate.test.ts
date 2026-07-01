@@ -84,4 +84,21 @@ describe('Format message display date', () => {
     const result = formatMessageDisplayDate(specificDate)
     expect(result).toBe('Mar 5, 2004')
   })
+
+  it('falls back to English formatting when LC_ALL is not a valid locale', () => {
+    const previousLocale = process.env.LC_ALL
+    process.env.LC_ALL = 'C.UTF-8'
+
+    try {
+      const createdAt = DateTime.now().minus({ days: 2 }).toSeconds()
+      const result = formatMessageDisplayDate(createdAt)
+      expect(result).toBe('Wednesday')
+    } finally {
+      if (previousLocale === undefined) {
+        delete process.env.LC_ALL
+      } else {
+        process.env.LC_ALL = previousLocale
+      }
+    }
+  })
 })

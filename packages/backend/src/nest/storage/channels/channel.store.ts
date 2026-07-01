@@ -144,9 +144,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
       const entryChannelId = entry.payload.value?.channelId
       // TODO: seperate event bus for each channel so we don't have to check this on every update
-      if (entryChannelId != null && entryChannelId !== this.channelData.id) {
+      if (entryChannelId !== this.channelData.id) {
         this.logger.debug(
-          `Ignoring database update for different channel`,
+          `Ignoring database update without matching channel`,
           entry.hash,
           entryChannelId,
           this.channelData.id
