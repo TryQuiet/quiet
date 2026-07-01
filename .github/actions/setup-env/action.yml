@@ -77,13 +77,18 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: "Bootstrap project (with submodules)"
+    - name: "Build submodules"
+      run: |
+        npm run build:submodules:ci
+      shell: bash
+
+    - name: "Bootstrap project"
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
-            npm run bootstrap:ci -- --scope {${{ inputs.bootstrap-packages }}}
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
         else
-            npm run bootstrap:ci
+            lerna bootstrap
         fi
       shell: bash
 
