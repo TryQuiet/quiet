@@ -1,6 +1,6 @@
 import { generateTestChannelId } from '@quiet/common'
 import { getSocketFactory, getBaseTypesFactory } from '@quiet/state-manager'
-import { SocketActions, socketEventData } from '@quiet/types'
+import { ChannelSubscribedPayload, SocketActions, SocketEvents, socketEventData } from '@quiet/types'
 import { screen } from '@testing-library/dom'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
@@ -85,8 +85,12 @@ describe('User', () => {
           }),
         })
       } else if (action === SocketActions.CREATE_CHANNEL) {
+        const channel = await baseTypesFactory.build('PublicChannel', { ...input[1], id: generalId })
+        socket.socketClient.emit<ChannelSubscribedPayload>(SocketEvents.CHANNEL_SUBSCRIBED, {
+          channelId: channel.id,
+        })
         return await factory.build(`${action}_response`, {
-          channel: baseTypesFactory.build('PublicChannel', { ...input[1] }),
+          channel,
         })
       }
     }
@@ -156,6 +160,7 @@ describe('User', () => {
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Connection/setLongLivedInvite",
+        "PublicChannels/setChannelSubscribed",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/addChannel",
         "PublicChannels/sendInitialChannelMessage",

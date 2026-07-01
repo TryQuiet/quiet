@@ -5,13 +5,18 @@ import { getBaseTypesFactory } from '@quiet/state-manager'
 import {
   ChannelMessage,
   ChannelOperationStatus,
+  ChannelSubscribedPayload,
+  ChannelsReplicatedPayload,
   Community,
   CreateChannelPayload,
+  CreateChannelResponse,
+  DeleteChannelPayload,
   DeleteChannelResponse,
   FileMetadata,
-  Identity,
   MessageType,
   PublicChannel,
+  SocketActions,
+  SocketEvents,
 } from '@quiet/types'
 
 import path from 'path'
@@ -224,6 +229,88 @@ describe('ChannelsService', () => {
     }
   }
 
+  type MockStateManagerSocket = EventEmitter & {
+    channelSubscribedPayloads: ChannelSubscribedPayload[]
+    channelsStoredPayloads: ChannelsReplicatedPayload[]
+    emitWithAck: <Response>(
+      event: SocketActions.CREATE_CHANNEL | SocketActions.DELETE_CHANNEL,
+      payload: CreateChannelPayload | DeleteChannelPayload
+    ) => Promise<Response>
+  }
+
+  const createMockStateManagerSocket = (): MockStateManagerSocket => {
+    const socket = new EventEmitter() as MockStateManagerSocket
+    socket.channelSubscribedPayloads = []
+    socket.channelsStoredPayloads = []
+
+    socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
+      socket.channelSubscribedPayloads.push(payload)
+    })
+    socket.on(SocketEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+      socket.channelsStoredPayloads.push(payload)
+    })
+
+    socket.emitWithAck = async <Response>(
+      event: SocketActions.CREATE_CHANNEL | SocketActions.DELETE_CHANNEL,
+      payload: CreateChannelPayload | DeleteChannelPayload
+    ): Promise<Response> => {
+      return await new Promise<Response>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error(`Timed out waiting for ${event} ack`))
+        }, 5000)
+        const callback = (response: Response) => {
+          clearTimeout(timeout)
+          resolve(response)
+        }
+        const emitted = socket.emit(event, payload, callback)
+        if (!emitted) {
+          clearTimeout(timeout)
+          reject(new Error(`No mock socket listener registered for ${event}`))
+        }
+      })
+    }
+
+    return socket
+  }
+
+  const connectMockStateManagerSocket = (socket: MockStateManagerSocket): (() => void) => {
+    const handleCreateChannel = async (
+      payload: CreateChannelPayload,
+      callback: (response: CreateChannelResponse) => void
+    ) => {
+      try {
+        callback(await channelsService.handleCreateChannel(payload))
+      } catch {
+        callback({ status: ChannelOperationStatus.FAILED })
+      }
+    }
+    const handleDeleteChannel = async (
+      payload: DeleteChannelPayload,
+      callback: (response: DeleteChannelResponse) => void
+    ) => {
+      callback(await channelsService.deleteChannel(payload))
+    }
+    const forwardChannelsStored = (payload: ChannelsReplicatedPayload) => {
+      socket.emit(SocketEvents.CHANNELS_STORED, payload)
+    }
+    const forwardChannelSubscribed = (payload: ChannelSubscribedPayload) => {
+      socket.emit(SocketEvents.CHANNEL_SUBSCRIBED, payload)
+    }
+
+    socket.on(SocketActions.CREATE_CHANNEL, handleCreateChannel)
+    socket.on(SocketActions.DELETE_CHANNEL, handleDeleteChannel)
+    channelsService.on(StorageEvents.CHANNELS_STORED, forwardChannelsStored)
+    channelsService.on(StorageEvents.CHANNEL_SUBSCRIBED, forwardChannelSubscribed)
+
+    return () => {
+      socket.off(SocketActions.CREATE_CHANNEL, handleCreateChannel)
+      socket.off(SocketActions.DELETE_CHANNEL, handleDeleteChannel)
+      channelsService.off(StorageEvents.CHANNELS_STORED, forwardChannelsStored)
+      channelsService.off(StorageEvents.CHANNEL_SUBSCRIBED, forwardChannelSubscribed)
+      socket.removeAllListeners()
+    }
+  }
+
   afterEach(async () => {
     await storageService.stop()
     await libp2pService.close()
@@ -279,6 +366,105 @@ describe('ChannelsService', () => {
       expect(repo!.eventsAttached).toBe(true)
       expect(repo!.subscribed).toBe(true)
       expect(subscribedChannelIds).toContain(response.channel!.id)
+    })
+
+    it('stress tests channel repo lifecycle through a mocked state-manager socket', async () => {
+      const stateManagerSocket = createMockStateManagerSocket()
+      const disconnectSocket = connectMockStateManagerSocket(stateManagerSocket)
+      const getLatestStoredChannels = (): PublicChannel[] =>
+        stateManagerSocket.channelsStoredPayloads[stateManagerSocket.channelsStoredPayloads.length - 1]?.channels ?? []
+
+      try {
+        const createPayloads: CreateChannelPayload[] = Array.from({ length: 6 }, (_, index) => ({
+          name: `socket-channel-${index}`,
+          description: `socket channel ${index}`,
+          public: true,
+          teamId: community.teamId!,
+        }))
+
+        const createResponses = await Promise.all(
+          createPayloads.map(payload =>
+            stateManagerSocket.emitWithAck<CreateChannelResponse>(SocketActions.CREATE_CHANNEL, payload)
+          )
+        )
+        const createdChannels = createResponses.map(response => response.channel!)
+        const createdChannelIds = createdChannels.map(createdChannel => createdChannel.id)
+
+        expect(createResponses.every(response => response.status === ChannelOperationStatus.SUCCESS)).toBe(true)
+        expect(new Set(createdChannelIds).size).toBe(createPayloads.length)
+        for (const createdChannel of createdChannels) {
+          const repo = channelsService.channelsRepos.get(createdChannel.id)
+          expect(repo).toBeDefined()
+          expect(repo!.eventsAttached).toBe(true)
+          expect(repo!.subscribed).toBe(true)
+          expect(repo!.public).toBe(true)
+          await expect(channelsService.getChannel(createdChannel.id)).resolves.toEqual(createdChannel)
+        }
+
+        const replicatedChannel = await factory.build<PublicChannel>('PublicChannel', {
+          id: 'socket-metadata-update-channel-id',
+          name: 'socket-metadata-update-channel',
+          description: 'channel replicated through metadata update',
+          owner: aliceUserId,
+          teamId: community.teamId!,
+          public: true,
+        })
+        await channelsService.setChannel(replicatedChannel)
+
+        const expectedSubscribedIds = [...createdChannelIds, replicatedChannel.id]
+        await waitForExpect(() => {
+          const subscribedIds = stateManagerSocket.channelSubscribedPayloads.map(payload => payload.channelId)
+          for (const channelId of expectedSubscribedIds) {
+            expect(subscribedIds.filter(id => id === channelId)).toHaveLength(1)
+          }
+          const replicatedRepo = channelsService.channelsRepos.get(replicatedChannel.id)
+          expect(replicatedRepo).toBeDefined()
+          expect(replicatedRepo!.eventsAttached).toBe(true)
+          expect(replicatedRepo!.subscribed).toBe(true)
+          expect(getLatestStoredChannels().map(storedChannel => storedChannel.id)).toEqual(
+            expect.arrayContaining(expectedSubscribedIds)
+          )
+        })
+
+        const subscriptionEventsBeforeResubscribe = stateManagerSocket.channelSubscribedPayloads.length
+        await Promise.all(
+          createdChannels
+            .flatMap(createdChannel => [createdChannel, createdChannel])
+            .map(createdChannel => channelsService.subscribeToChannel(createdChannel))
+        )
+        expect(stateManagerSocket.channelSubscribedPayloads).toHaveLength(subscriptionEventsBeforeResubscribe)
+
+        const channelIdsToDelete = [createdChannels[1].id, createdChannels[4].id, replicatedChannel.id]
+        const deleteResponses = await Promise.all(
+          channelIdsToDelete.map(channelId =>
+            stateManagerSocket.emitWithAck<DeleteChannelResponse>(SocketActions.DELETE_CHANNEL, { channelId })
+          )
+        )
+        expect(deleteResponses).toEqual(channelIdsToDelete.map(channelId => ({ channelId, deleted: true })))
+
+        for (const channelId of channelIdsToDelete) {
+          expect(channelsService.channelsRepos.has(channelId)).toBe(false)
+          await expect(channelsService.getChannel(channelId)).resolves.toBeUndefined()
+        }
+
+        const survivingChannelIds = createdChannelIds.filter(channelId => !channelIdsToDelete.includes(channelId))
+        for (const channelId of survivingChannelIds) {
+          const repo = channelsService.channelsRepos.get(channelId)
+          expect(repo).toBeDefined()
+          expect(repo!.eventsAttached).toBe(true)
+          expect(repo!.subscribed).toBe(true)
+          await expect(channelsService.getChannel(channelId)).resolves.toBeDefined()
+        }
+
+        await channelsService.broadcastCurrentChannels()
+
+        await waitForExpect(() => {
+          const latestStoredChannelIds = getLatestStoredChannels().map(storedChannel => storedChannel.id)
+          expect([...latestStoredChannelIds].sort()).toEqual([...survivingChannelIds].sort())
+        })
+      } finally {
+        disconnectSocket()
+      }
     })
 
     it('shares one subscription promise for concurrent subscribe calls', async () => {
