@@ -1,12 +1,4 @@
-import {
-  InvitationDataV1,
-  InvitationDataV2,
-  InvitationDataV3,
-  InvitationDataVersion,
-  InvitationPair,
-  type InvitationDataV4,
-  type InvitationDataV5,
-} from '@quiet/types'
+import { InvitationDataVersion, InvitationPair, type InvitationDataV4, type InvitationDataV5 } from '@quiet/types'
 import {
   argvInvitationLink,
   composeInvitationDeepUrl,
