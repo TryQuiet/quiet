@@ -144,16 +144,21 @@ interface CreateChannelFormValues {
 export interface CreateChannelProps {
   open: boolean
   channelCreationError?: string
-  isAdmin: boolean
+  canCreateChannel: boolean
+  canCreatePrivateChannel: boolean
   createChannel: (name: string, isPublic: boolean) => void
   handleClose: () => void
   clearErrorsDispatch: () => void
 }
 
+// Private channels are hidden from the UI for now
+const SHOW_PRIVATE_CHANNEL_TOGGLE = false
+
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
   channelCreationError,
-  isAdmin,
+  canCreateChannel,
+  canCreatePrivateChannel,
   createChannel,
   handleClose,
   clearErrorsDispatch,
@@ -206,148 +211,152 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }, [channelCreationError])
 
   return (
-    <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
-      <StyledModalContent container direction='column'>
-        <form
-          onSubmit={handleSubmit(onSubmit, errors => {
-            logger.error(
-              'Errors on submit',
-              JSON.stringify(errors.channelName, null, 2),
-              JSON.stringify(errors.private, null, 2)
-            )
-          })}
-        >
-          <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-            <Typography variant='h3' className={classes.title}>
-              Create a new channel
-            </Typography>
-            <Typography variant='body2'>Channel name</Typography>
-            <Controller
-              control={control}
-              defaultValue={''}
-              rules={createChannelFields.channelName.validation}
-              name={'channelName'}
-              render={({ field }) => (
-                <TextField
-                  {...createChannelFields.channelName.fieldProps}
-                  fullWidth
-                  classes={''}
-                  variant='outlined'
-                  placeholder={'Enter a channel name'}
-                  autoFocus
-                  errors={formState.errors}
-                  onchange={event => {
-                    event.persist()
-                    const value = event.target.value
-                    onNameChange(value)
-                    // Call default
-                    field.onChange(event)
-                  }}
-                  onblur={() => {
-                    field.onBlur()
-                  }}
-                  value={field.value}
-                  data-testid={'createChannelInput'}
-                />
-              )}
-            />
-            <div className={classes.gutter}>
-              {!formState.errors.channelName && channelName.length > 0 && parsedNameDiffers && (
-                <Grid container alignItems='center' direction='row'>
-                  <Grid item className={classes.iconDiv}>
-                    <WarningIcon className={classes.warningIcon} />
-                  </Grid>
-                  <Grid item xs>
-                    <Typography
-                      variant='body2'
-                      className={classes.warningMessage}
-                      data-testid={'createChannelNameWarning'}
-                    >
-                      Your channel will be created as <b>{`#${channelName}`}</b>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
-            {isAdmin && (
-              <>
+    <>
+      {canCreateChannel && (
+        <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
+          <StyledModalContent container direction='column'>
+            <form
+              onSubmit={handleSubmit(onSubmit, errors => {
+                logger.error(
+                  'Errors on submit',
+                  JSON.stringify(errors.channelName, null, 2),
+                  JSON.stringify(errors.private, null, 2)
+                )
+              })}
+            >
+              <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
+                <Typography variant='h3' className={classes.title}>
+                  Create a new channel
+                </Typography>
+                <Typography variant='body2'>Channel name</Typography>
                 <Controller
                   control={control}
-                  name={'private'}
-                  rules={createChannelFields.private.validation}
+                  defaultValue={''}
+                  rules={createChannelFields.channelName.validation}
+                  name={'channelName'}
                   render={({ field }) => (
-                    <Grid item container direction='row' className={classes.publicPrivateGrid}>
-                      <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
-                      <Grid item className={classes.publicPrivate} alignItems='center'>
-                        <FormControlLabel
-                          defaultChecked={false}
-                          data-testid={'createChannel-private-form-control'}
-                          control={
-                            <IOSSwitch
-                              checked={field.value}
-                              data-testid={'createChannel-private-form-control-toggle'}
-                              onChange={event => {
-                                event.persist()
-                                onIsPrivateChange(event.target.checked)
-                                field.onChange(event.target.checked)
-                              }}
-                            />
-                          }
-                          label={
-                            <Grid
-                              container
-                              direction='column'
-                              justifyContent='left'
-                              alignContent='center'
-                              paddingRight='18px'
-                              data-testid={'createChannel-private-form-control-label'}
-                            >
-                              <Grid item>
-                                <Typography variant='body1'>Private Channel</Typography>
-                              </Grid>
-                              <Grid item>
-                                <Typography variant='caption' className={classes.subtitle}>
-                                  Only assigned members and roles have access
-                                </Typography>
-                              </Grid>
-                            </Grid>
-                          }
-                          labelPlacement='start'
-                        />
-                      </Grid>
-                    </Grid>
+                    <TextField
+                      {...createChannelFields.channelName.fieldProps}
+                      fullWidth
+                      classes={''}
+                      variant='outlined'
+                      placeholder={'Enter a channel name'}
+                      autoFocus
+                      errors={formState.errors}
+                      onchange={event => {
+                        event.persist()
+                        const value = event.target.value
+                        onNameChange(value)
+                        // Call default
+                        field.onChange(event)
+                      }}
+                      onblur={() => {
+                        field.onBlur()
+                      }}
+                      value={field.value}
+                      data-testid={'createChannelInput'}
+                    />
                   )}
                 />
                 <div className={classes.gutter}>
-                  {formState.errors.private && (
+                  {!formState.errors.channelName && channelName.length > 0 && parsedNameDiffers && (
                     <Grid container alignItems='center' direction='row'>
+                      <Grid item className={classes.iconDiv}>
+                        <WarningIcon className={classes.warningIcon} />
+                      </Grid>
                       <Grid item xs>
                         <Typography
                           variant='body2'
-                          className={classes.errorMessage}
-                          data-testid={'createChannelPrivacyWarning'}
+                          className={classes.warningMessage}
+                          data-testid={'createChannelNameWarning'}
                         >
-                          {formState.errors.private.message}
+                          Your channel will be created as <b>{`#${channelName}`}</b>
                         </Typography>
                       </Grid>
                     </Grid>
                   )}
                 </div>
-              </>
-            )}
-            <LoadingButton
-              variant='contained'
-              color='primary'
-              inProgress={false}
-              type='submit'
-              text='Create Channel'
-              classes={{ button: classes.button }}
-              data-testid='channelNameSubmit'
-            />
-          </Grid>
-        </form>
-      </StyledModalContent>
-    </Modal>
+                {SHOW_PRIVATE_CHANNEL_TOGGLE && canCreatePrivateChannel && (
+                  <>
+                    <Controller
+                      control={control}
+                      name={'private'}
+                      rules={createChannelFields.private.validation}
+                      render={({ field }) => (
+                        <Grid item container direction='row' className={classes.publicPrivateGrid}>
+                          <LockIcon className={classes.lock} data-testid={'createChannel-private-lockIcon'} />
+                          <Grid item className={classes.publicPrivate} alignItems='center'>
+                            <FormControlLabel
+                              defaultChecked={false}
+                              data-testid={'createChannel-private-form-control'}
+                              control={
+                                <IOSSwitch
+                                  checked={field.value}
+                                  data-testid={'createChannel-private-form-control-toggle'}
+                                  onChange={event => {
+                                    event.persist()
+                                    onIsPrivateChange(event.target.checked)
+                                    field.onChange(event.target.checked)
+                                  }}
+                                />
+                              }
+                              label={
+                                <Grid
+                                  container
+                                  direction='column'
+                                  justifyContent='left'
+                                  alignContent='center'
+                                  paddingRight='18px'
+                                  data-testid={'createChannel-private-form-control-label'}
+                                >
+                                  <Grid item>
+                                    <Typography variant='body1'>Private Channel</Typography>
+                                  </Grid>
+                                  <Grid item>
+                                    <Typography variant='caption' className={classes.subtitle}>
+                                      Only assigned members and roles have access
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              }
+                              labelPlacement='start'
+                            />
+                          </Grid>
+                        </Grid>
+                      )}
+                    />
+                    <div className={classes.gutter}>
+                      {formState.errors.private && (
+                        <Grid container alignItems='center' direction='row'>
+                          <Grid item xs>
+                            <Typography
+                              variant='body2'
+                              className={classes.errorMessage}
+                              data-testid={'createChannelPrivacyWarning'}
+                            >
+                              {formState.errors.private.message}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      )}
+                    </div>
+                  </>
+                )}
+                <LoadingButton
+                  variant='contained'
+                  color='primary'
+                  inProgress={false}
+                  type='submit'
+                  text='Create Channel'
+                  classes={{ button: classes.button }}
+                  data-testid='channelNameSubmit'
+                />
+              </Grid>
+            </form>
+          </StyledModalContent>
+        </Modal>
+      )}
+    </>
   )
 }
 

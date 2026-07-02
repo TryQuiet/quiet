@@ -8,6 +8,7 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  Settings,
   Sidebar,
 } from '../selectors'
 import { MessageIds } from '../types'
@@ -29,6 +30,7 @@ describe('Backwards Compatibility', () => {
   let sidebar: Sidebar
   let generalChannelMessageIds: MessageIds
   let dataDir: string
+  let settings: Settings
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
@@ -117,11 +119,14 @@ describe('Backwards Compatibility', () => {
       })
 
       itif(process.platform == 'linux')(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
-        const settingsModal = await new Sidebar(ownerAppOldVersion.driver).openSettings()
-        expect(await settingsModal.isReady()).toBeTruthy()
-        const settingVersion = await settingsModal.getVersion()
+        settings = await new Sidebar(ownerAppOldVersion.driver).openSettings()
+        expect(await settings.isReady()).toBeTruthy()
+        const settingVersion = await settings.getVersion()
         expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
-        await settingsModal.closeTabThenModal()
+      })
+
+      itif(process.platform == 'linux')(`Close settings modal`, async () => {
+        await settings.closeTabThenModal()
       })
     })
 

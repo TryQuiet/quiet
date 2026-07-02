@@ -299,6 +299,16 @@ export const areChannelsLoaded = createSelector(publicChannels, channels => {
   return channelCount > 0
 })
 
+// TODO: update when we have assignable roles and tie channel operations to specific roles
+export const canCreateChannel = createSelector(selectState, () => {
+  return true
+})
+
+// TODO: update when we have assignable roles and tie channel operations to specific roles
+export const canCreatePrivateChannel = createSelector(selectState, () => {
+  return true
+})
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -322,4 +332,6 @@ export const publicChannelsSelectors = {
   getChannelById,
   areMessagesLoaded,
   areChannelsLoaded,
+  canCreateChannel,
+  canCreatePrivateChannel,
 }

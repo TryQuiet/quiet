@@ -19,7 +19,8 @@ export const CreateChannel = () => {
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  const isOwner = useSelector(communities.selectors.isOwner)
+  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
+  const canCreatePrivateChannel = useSelector(publicChannels.selectors.canCreatePrivateChannel)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -97,14 +98,14 @@ export const CreateChannel = () => {
   }
   return (
     <>
-      {communityId && (
+      {canCreateChannel && communityId && (
         <CreateChannelComponent
           {...createChannelModal}
           channelCreationError={error?.message}
           createChannel={createChannel}
           clearErrorsDispatch={clearErrors}
-          // TODO: Pass roles to state manager and check for admin role
-          isAdmin={isOwner}
+          canCreateChannel={canCreateChannel}
+          canCreatePrivateChannel={canCreatePrivateChannel}
         />
       )}
     </>

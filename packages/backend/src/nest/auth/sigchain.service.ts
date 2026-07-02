@@ -26,6 +26,7 @@ import EventEmitter from 'events'
 import { GetChainFilter, SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
+import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -85,6 +86,14 @@ export class SigChainService extends EventEmitter {
 
   get device(): DeviceWithSecrets {
     return this.getActiveChain().device
+  }
+
+  get activeTeamId(): Base58 | undefined {
+    try {
+      return this.getActiveChain(false)?.team?.id
+    } catch {
+      return undefined
+    }
   }
 
   getActiveChain(throwError?: true | undefined): SigChain

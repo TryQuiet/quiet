@@ -14,15 +14,20 @@ import { icons } from '../../assets'
 import LockIcon from '../../assets/icons/svg/lock'
 
 export interface CreateChannelProps {
-  isAdmin: boolean
+  canCreateChannel: boolean
+  canCreatePrivateChannel: boolean
   createChannelAction: (name: string, isPublic: boolean) => void
   channelCreationError?: string
   clearComponent?: boolean
   handleBackButton: () => void
 }
 
+// Private channels are hidden from the UI for now
+const SHOW_PRIVATE_CHANNEL_TOGGLE = false
+
 export const CreateChannel: FC<CreateChannelProps> = ({
-  isAdmin,
+  canCreateChannel,
+  canCreatePrivateChannel,
   createChannelAction,
   channelCreationError,
   clearComponent,
@@ -140,7 +145,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               </View>
             </View>
           )}
-        {isAdmin && (
+        {SHOW_PRIVATE_CHANNEL_TOGGLE && canCreatePrivateChannel && (
           <View
             style={{
               display: 'flex',
