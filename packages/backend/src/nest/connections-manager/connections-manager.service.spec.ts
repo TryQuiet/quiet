@@ -410,7 +410,7 @@ describe('ConnectionsManagerService', () => {
     const resetStateSpy = jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     const localDbOpenSpy = jest.spyOn(localDbService, 'open').mockResolvedValue()
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
-    sigChainService.activeChainTeamId = community.name
+    sigChainService.activeChainTeamId = community.teamId
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 
@@ -581,7 +581,7 @@ describe('ConnectionsManagerService', () => {
     jest.spyOn(connectionsManagerService['tor'], 'resetHiddenServices').mockImplementation(() => {})
     jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     jest.spyOn(localDbService, 'open').mockResolvedValue()
-    sigChainService.activeChainTeamId = community.name
+    sigChainService.activeChainTeamId = community.teamId
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 

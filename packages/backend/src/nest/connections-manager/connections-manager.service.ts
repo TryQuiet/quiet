@@ -36,7 +36,6 @@ import {
   Identity,
   PeerId as QuietPeerId,
   InvitationDataVersion,
-  InvitationDataV2,
   PermissionsError,
   CommunityOwnership,
   InitCommunityPayload,
@@ -82,7 +81,6 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
-import { teamKeyring } from '3rd-party/auth/packages/auth/dist/team/selectors'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
