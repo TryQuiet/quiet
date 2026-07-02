@@ -15,7 +15,6 @@ import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
 import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
-import { Serializer } from '../common/serializer.service'
 import { randomKey } from '@localfirst/crypto'
 import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
 
@@ -23,7 +22,6 @@ const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
-  private static serializer = new Serializer()
   private _context: auth.MemberContext | auth.InviteeMemberContext
   private _users: UserService | null = null
   private _devices: DeviceService | null = null

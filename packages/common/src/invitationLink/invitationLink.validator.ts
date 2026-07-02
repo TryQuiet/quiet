@@ -528,7 +528,7 @@ const validateSalt: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData> 
 }
 
 /**
- * URL param validation config for V2 (LFA) invite links
+ * URL param validation config for V4 (LFA) invite links
  */
 export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDataV4> = {
   version: InvitationDataVersion.v4,
@@ -574,7 +574,7 @@ export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDa
 }
 
 /**
- * URL param validation config for V3 (LFA + QSS) invite links
+ * URL param validation config for V5 (LFA + QSS) invite links
  */
 export const PARAM_CONFIG_V5: VersionedInvitationLinkUrlParamConfig<InvitationDataV5> = {
   version: InvitationDataVersion.v5,

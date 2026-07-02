@@ -36,7 +36,6 @@ import {
   Identity,
   PeerId as QuietPeerId,
   InvitationDataVersion,
-  InvitationDataV2,
   PermissionsError,
   CommunityOwnership,
   InitCommunityPayload,

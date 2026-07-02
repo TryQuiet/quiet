@@ -8,7 +8,7 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+import { getValidInvitationUrlTestData, JoiningAnotherCommunityWarning, validInvitationDatav4 } from '@quiet/common'
 import { AlreadyBelongToCommunityWarning, InvalidInvitationLinkError } from '@quiet/common'
 
 describe('Handle invitation code', () => {
@@ -54,17 +54,17 @@ describe('Handle invitation code', () => {
   })
 
   // TODO: https://github.com/TryQuiet/quiet/issues/2628
-  // it('joins network if v2 code is valid', async () => {
-  //   const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
-  //   const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
-  //   const joinCommunityPayload: JoinCommunityPayload = {
-  //     inviteData: validInvitationData,
-  //   }
-  //   await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
-  //     .withState(store.getState())
-  //     .put(communities.actions.joinCommunity(joinCommunityPayload))
-  //     .run()
-  // })
+  it('joins network if v4 code is valid', async () => {
+    const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav4[0]).data
+    const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav4[0]).deepUrl()
+    const joinCommunityPayload: JoinCommunityPayload = {
+      inviteData: validInvitationData,
+    }
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
+      .withState(store.getState())
+      .put(communities.actions.joinCommunity(joinCommunityPayload))
+      .run()
+  })
 
   it('does not try to create network if user is already in community', async () => {
     community = await factory.create('Community')
@@ -91,8 +91,8 @@ describe('Handle invitation code', () => {
   })
 
   // TODO: https://github.com/TryQuiet/quiet/issues/2628
-  // it('does not try to create network if user used v2 invitation link and is joining another community', async () => {
-  //   const invitationData = validInvitationDatav2[0]
+  // it('does not try to create network if user used v4 invitation link and is joining another community', async () => {
+  //   const invitationData = validInvitationDatav4[0]
   //   community = await factory.create('Community', {
   //     name: '',
   //     inviteData: invitationData,
