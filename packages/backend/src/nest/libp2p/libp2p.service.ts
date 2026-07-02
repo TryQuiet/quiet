@@ -101,7 +101,7 @@ const isPingStreamContentionError = (error: any): boolean => {
 }
 
 const connectionHealthConfigFromEnv = (): ConnectionHealthConfig => ({
-  enabled: booleanEnv(process.env[CONNECTION_HEALTH_CHECK_ENABLED_ENV], true),
+  enabled: booleanEnv(process.env[CONNECTION_HEALTH_CHECK_ENABLED_ENV], false),
   intervalMs:
     numberEnv(process.env[CONNECTION_HEALTH_CHECK_INTERVAL_MS_ENV]) ?? CONNECTION_HEALTH_CHECK_DEFAULT_INTERVAL_MS,
   timeoutMs:
@@ -296,6 +296,13 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.connectionHealthChecksInFlight.clear()
   }
 
+  private clearConnectionDebugState() {
+    this.connectionLifecycleDebug.clear()
+    this.connectionHealthDebug.clear()
+    this.connectionHealthChecksInFlight.clear()
+    this.pendingCloseTriggersByPeer.clear()
+  }
+
   private async checkConnectionHealth() {
     if (this.state !== Libp2pState.Started || this.libp2pInstance == null) {
       return
@@ -415,6 +422,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.log('Module is being destroyed')
     this.redialQueue.stop(true)
     this.stopConnectionHealthChecks()
+    this.clearConnectionDebugState()
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
       this._dialQueueInterval = null
@@ -1193,6 +1201,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
+    this.clearConnectionDebugState()
     this.setState(Libp2pState.Stopped)
   }
 
