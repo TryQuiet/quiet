@@ -2257,10 +2257,18 @@ export class Sidebar {
     )
   }
 
-  async waitForChannels(channelsNames: Array<string>): Promise<void> {
-    await this.waitForChannelsNum(channelsNames.length)
-    const names = await this.getChannelsNames()
-    expect(names).toEqual(expect.arrayContaining(channelsNames))
+  async waitForChannels(channelsNames: Array<string>, timeoutMs: number = 15_000): Promise<string[]> {
+    logger.info(`Waiting for channels: ${channelsNames.join(', ')}`)
+    return (await this.driver.wait(
+      async () => {
+        const names = await this.getChannelsNames()
+        const hasExpectedChannels = channelsNames.every(channelName => names.includes(channelName))
+        return names.length === channelsNames.length && hasExpectedChannels ? names : false
+      },
+      timeoutMs,
+      `Sidebar channels ${channelsNames.join(', ')} couldn't be found within timeout`,
+      500
+    )) as string[]
   }
 
   async openSettings(): Promise<Settings> {
