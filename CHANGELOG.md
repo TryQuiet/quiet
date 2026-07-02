@@ -19,6 +19,7 @@
 ### Chores
 
 * Enable QSS on prod
+* Add script for cleaning compiled/generated code directories
 
 ## [7.3.0]
 
