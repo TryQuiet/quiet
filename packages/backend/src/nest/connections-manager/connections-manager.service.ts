@@ -749,6 +749,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
+      tosAccepted: payload.tosAccepted,
     }
 
     if (community.qssEnabled && payload.tosAccepted && community.qssEndpoint) {

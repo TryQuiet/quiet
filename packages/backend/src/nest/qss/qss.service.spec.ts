@@ -203,15 +203,16 @@ describe('QSSService', () => {
   })
 
   interface InitCommunitySettings {
-    qssEnabled: boolean
-    qssSetup: boolean
-    tosAccepted: boolean
+    qssEnabled?: boolean
+    qssSetup?: boolean
+    tosAccepted?: boolean
   }
-  const initCommunity = async (
-    settings: InitCommunitySettings = { qssEnabled: true, qssSetup: false, tosAccepted: true }
-  ): Promise<Community> => {
+  const initCommunity = async (settings: InitCommunitySettings = {}): Promise<Community> => {
     await localDbService.setCommunity({
       ...community,
+      qssEnabled: true,
+      qssSetup: false,
+      tosAccepted: true,
       ...settings,
     })
     await localDbService.setCurrentCommunityId(community.id)
@@ -824,6 +825,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -853,6 +855,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -882,6 +885,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -912,6 +916,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)

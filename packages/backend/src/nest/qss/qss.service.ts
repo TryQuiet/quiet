@@ -758,6 +758,5 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
     this.qssClient.close()
-    this._connecting = false
   }
 }
