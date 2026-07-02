@@ -17,9 +17,13 @@ declare global {
 
 // Custom command to check if the channel content is scrolled to the bottom
 Cypress.Commands.add('assertScrolledToBottom', { prevSubject: 'element' }, subject => {
-  const el = subject[0]
-  const isScrolledToBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) <= 1 // Allow 1px difference for rounding
-  cy.wrap(isScrolledToBottom).should('be.true')
+  cy.wrap(subject).should($subject => {
+    const el = $subject[0]
+    const isScrolledToBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) <= 1 // Allow 1px difference for rounding
+    if (!isScrolledToBottom) {
+      throw new Error(`Expected message list to be scrolled to bottom, got ${el.scrollTop}`)
+    }
+  })
 })
 
 const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
@@ -82,10 +86,12 @@ describe('Scroll behavior test', () => {
   it('PageUp keydown should scroll message list up.', () => {
     cy.get(messageInput).focus().type('{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}{pageup}')
 
-    cy.get(channelContent).then($el => {
+    cy.get(channelContent).should($el => {
       const container = $el[0]
       const isScrolledToTop = Math.abs(container.scrollTop) <= 1 // Allow 1px difference for rounding
-      cy.wrap(isScrolledToTop).should('be.true')
+      if (!isScrolledToTop) {
+        throw new Error(`Expected message list to be scrolled to top, got ${container.scrollTop}`)
+      }
     })
   })
 
