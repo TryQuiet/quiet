@@ -20,12 +20,10 @@ import { Libp2pEvents } from './libp2p.types'
 import { abortableAsyncIterable } from '../common/utils'
 import { QuietLogger } from '@quiet/logger'
 import { createWinstonQuietLogger } from '@quiet/node-common'
-import { ServerIoProviderTypes } from '../types'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
-import { ConnectionContext, Member } from '../../../../../3rd-party/auth/packages/auth/dist'
-import { SigChain } from '../auth/sigchain'
+import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
 
 export interface Libp2pAuthComponents {

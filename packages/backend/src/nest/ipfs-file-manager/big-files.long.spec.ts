@@ -42,7 +42,7 @@ describe('IpfsFileManagerService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('username', true)
+    await sigChainService.createChain(true)
 
     ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
 
