@@ -1,9 +1,6 @@
 import {
   InvitationAuthData,
   InvitationData,
-  InvitationDataV1,
-  InvitationDataV2,
-  InvitationDataV3,
   InvitationDataVersion,
   InvitationLinkUrlNamedParamConfig,
   InvitationLinkUrlNamedParamConfigMap,
@@ -11,6 +8,10 @@ import {
   InvitationLinkUrlNamedParamValidatorFun,
   InvitationPair,
   VersionedInvitationLinkUrlParamConfig,
+  type InvitationAuthDataV4,
+  type InvitationAuthDataV5,
+  type InvitationDataV4,
+  type InvitationDataV5,
 } from '@quiet/types'
 import {
   AUTH_DATA_KEY,
@@ -18,13 +19,13 @@ import {
   COMMUNITY_NAME_KEY,
   DEEP_URL_SCHEME_WITH_SEPARATOR,
   INVITATION_SEED_KEY,
-  OWNER_ORBIT_DB_IDENTITY_PARAM_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
   QSS_ENABLED_KEY,
   QSS_ENDPOINT_KEY,
   SALT_KEY,
   TEAM_ID_KEY,
+  VERSION_KEY,
 } from './invitationLink.const'
 import { isPSKcodeValid } from '../libp2p'
 import { createLogger } from '../logger'
@@ -78,13 +79,13 @@ export class UrlParamValidatorError extends Error {
  *
  * @returns {string} Base64url-encoded string
  */
-export const encodeAuthData = (authData: InvitationAuthData): string => {
+export const encodeAuthData = (authData: InvitationAuthDataV4 | InvitationAuthDataV5): string => {
   let encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
   if (authData.teamId) {
     encodedAuthData = `${encodedAuthData}&${TEAM_ID_KEY}=${authData.teamId}`
   }
-  if (authData.salt) {
-    encodedAuthData = `${encodedAuthData}&${SALT_KEY}=${authData.salt}`
+  if ((authData as InvitationAuthDataV5).salt) {
+    encodedAuthData = `${encodedAuthData}&${SALT_KEY}=${(authData as InvitationAuthDataV5).salt}`
   }
   return base64url.encode(Buffer.from(encodedAuthData, 'utf8'))
 }
@@ -186,9 +187,9 @@ const validatePeerPairsFromUrlParams = (url: string, unnamedParams: URLSearchPar
  *
  * @returns {Partial<InvitationData>} The processed PSK represented as a partial InvitationData object
  */
-const validatePsk: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV1> = (
+const validatePsk: InvitationLinkUrlNamedParamValidatorFun<InvitationData> = (
   value: string
-): Partial<InvitationDataV1> => {
+): Partial<InvitationData> => {
   if (!isPSKcodeValid(value)) {
     logger.warn(`PSK is null or not a valid PSK code`)
     throw new UrlParamValidatorError(PSK_PARAM_KEY, value)
@@ -200,29 +201,46 @@ const validatePsk: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV1> = (
 }
 
 /**
- * Validate the format of the provided owner's OrbitDB identity string
- *
- * NOTE: currently we do no actual validation on this parameter other than the non-null check in _parseAndValidateNamedParam
+ * Validate the format of the invite version
  *
  * Example:
  *
- * Yz1jb21tdW5pdHktbmFtZSZzPTRrZ2Q1bXdxNXo0Zm1md3E
+ * v4
  *
  * =>
  *
  * {
- *  "ownerOrbitDbIdentity": "018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0"
+ *  "version": InvitationDataVersion.v4,
  * }
  *
- * @param value Owner's OrbitDB identity string pulled from invite link
+ * @param value Version number from invite string
  *
- * @returns {Partial<InvitationData>} The processed owner OrbitDB identity represented as a partial InvitationData object
+ * @returns {Partial<InvitationData>} The processed PSK represented as a partial InvitationData object
  */
-const validateOwnerOrbitDbIdentity: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV1> = (
+const validateVersion: InvitationLinkUrlNamedParamValidatorFun<InvitationData> = (
   value: string
-): Partial<InvitationDataV1> => {
+): Partial<InvitationData> => {
+  const trimmedValue = value.trim()
+  if (trimmedValue.length === 0) {
+    logger.warn('Version was empty')
+    throw new UrlParamValidatorError(VERSION_KEY, trimmedValue)
+  }
+
+  let version: InvitationDataVersion
+  switch (trimmedValue) {
+    case InvitationDataVersion.v4:
+      version = InvitationDataVersion.v4
+      break
+    case InvitationDataVersion.v5:
+      version = InvitationDataVersion.v5
+      break
+    default:
+      logger.warn('Invalid version provided', trimmedValue)
+      throw new UrlParamValidatorError(VERSION_KEY, trimmedValue)
+  }
+
   return {
-    ownerOrbitDbIdentity: value,
+    version,
   }
 }
 
@@ -245,9 +263,9 @@ const validateOwnerOrbitDbIdentity: InvitationLinkUrlNamedParamValidatorFun<Invi
  *
  * @returns {Partial<InvitationData>} The processed owner OrbitDB identity represented as a partial InvitationData object
  */
-const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV1> = (
+const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationData> = (
   value: string
-): Partial<InvitationDataV1> => {
+): Partial<InvitationData> => {
   const pairs: InvitationPair[] = []
 
   const stringPairs = value.split(';')
@@ -287,9 +305,9 @@ const validatePeerAddresses: InvitationLinkUrlNamedParamValidatorFun<InvitationD
  *
  * @returns {Partial<InvitationData>} The processed QSS enabled flag represented as a partial InvitationData object
  */
-const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
+const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV5> = (
   value: string
-): Partial<InvitationDataV3> => {
+): Partial<InvitationDataV5> => {
   if (value !== 'true' && value !== 'false') {
     logger.warn(`QSS enabled flag must be set to either 'true' or 'false'`)
     throw new UrlParamValidatorError(QSS_ENABLED_KEY, value)
@@ -317,9 +335,9 @@ const validateQssEnabled: InvitationLinkUrlNamedParamValidatorFun<InvitationData
  *
  * @returns {Partial<InvitationData>} The processed QSS endpoint string represented as a partial InvitationData object
  */
-const validateQssEndpoint: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV3> = (
+const validateQssEndpoint: InvitationLinkUrlNamedParamValidatorFun<InvitationDataV5> = (
   value: string
-): Partial<InvitationDataV3> => {
+): Partial<InvitationDataV5> => {
   let decodedValue: string | undefined = undefined
   try {
     decodedValue = decodeFromBase64Url(value, false)
@@ -510,33 +528,10 @@ const validateSalt: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData> 
 }
 
 /**
- * URL param validation config for V1 (non-LFA) invite links
- */
-export const PARAM_CONFIG_V1: VersionedInvitationLinkUrlParamConfig<InvitationDataV1> = {
-  version: InvitationDataVersion.v1,
-  named: new Map(
-    Object.entries({
-      [PSK_PARAM_KEY]: {
-        required: true,
-        validator: validatePsk,
-      },
-      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY]: {
-        required: true,
-        validator: validateOwnerOrbitDbIdentity,
-      },
-      [PEER_ADDRESS_KEY]: {
-        required: false,
-        validator: validatePeerAddresses,
-      },
-    })
-  ),
-}
-
-/**
  * URL param validation config for V2 (LFA) invite links
  */
-export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDataV2> = {
-  version: InvitationDataVersion.v2,
+export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDataV4> = {
+  version: InvitationDataVersion.v4,
   named: new Map(
     Object.entries({
       [PSK_PARAM_KEY]: {
@@ -546,6 +541,10 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
       [PEER_ADDRESS_KEY]: {
         required: false,
         validator: validatePeerAddresses,
+      },
+      [VERSION_KEY]: {
+        required: true,
+        validator: validateVersion,
       },
       [AUTH_DATA_KEY]: {
         required: true,
@@ -563,7 +562,7 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
                 validator: validateInvitationSeed,
               },
               [TEAM_ID_KEY]: {
-                required: false,
+                required: true,
                 validator: validateTeamId,
               },
             })
@@ -577,8 +576,8 @@ export const PARAM_CONFIG_V2: VersionedInvitationLinkUrlParamConfig<InvitationDa
 /**
  * URL param validation config for V3 (LFA + QSS) invite links
  */
-export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDataV3> = {
-  version: InvitationDataVersion.v3,
+export const PARAM_CONFIG_V5: VersionedInvitationLinkUrlParamConfig<InvitationDataV5> = {
+  version: InvitationDataVersion.v5,
   named: new Map(
     Object.entries({
       [PSK_PARAM_KEY]: {
@@ -596,6 +595,10 @@ export const PARAM_CONFIG_V3: VersionedInvitationLinkUrlParamConfig<InvitationDa
       [QSS_ENDPOINT_KEY]: {
         required: true,
         validator: validateQssEndpoint,
+      },
+      [VERSION_KEY]: {
+        required: true,
+        validator: validateVersion,
       },
       [AUTH_DATA_KEY]: {
         required: true,

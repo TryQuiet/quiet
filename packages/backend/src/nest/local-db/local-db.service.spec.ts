@@ -303,7 +303,7 @@ describe('LocalDbService', () => {
   // ---------------------------------------------------------------------------
 
   describe('sigchain helpers', () => {
-    const teamName = 'team1'
+    const teamId = 'abc123'
     const dummySigChain = {
       user: { id: 'u' },
       device: { id: 'd' },
@@ -315,14 +315,14 @@ describe('LocalDbService', () => {
     } as unknown as SigChain
 
     it('set / get / delete sigchain round‑trip', async () => {
-      await service.setSigChain(dummySigChain, teamName)
+      await service.setSigChain(dummySigChain, teamId)
 
-      const stored = await service.getSigChain(teamName)
+      const stored = await service.getSigChain(teamId)
       expect(stored).toBeDefined()
       expect(stored!.localUserContext.user).toEqual(dummySigChain.user)
 
-      await service.deleteSigChain(teamName)
-      const afterDelete = await service.getSigChain(teamName)
+      await service.deleteSigChain(teamId)
+      const afterDelete = await service.getSigChain(teamId)
       expect(afterDelete).toBeUndefined()
     })
   })

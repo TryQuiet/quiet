@@ -39,12 +39,13 @@ describe('Libp2pAuth', () => {
     attachEventListeners(libp2pServiceB, eventTimelineB, 'B')
 
     // Create chain for instance A
-    await sigchainServiceA.createChain(teamName, userA, true)
-    expect(sigchainServiceA.activeChainTeamName).toBe(teamName)
+    const chain = await sigchainServiceA.createChain(userA, true)
+    expect(chain.teamId).toBeDefined()
+    expect(sigchainServiceA.activeChainTeamId).toBe(chain.teamId)
 
     // Create invitation from A -> B
     const inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
-    await sigchainServiceB.createChainFromInvite(userB, teamName, inviteResult.seed, sigchainServiceA.team.id, true)
+    await sigchainServiceB.createChainFromInvite(userB, inviteResult.seed, sigchainServiceA.team.id, true)
   })
 
   afterAll(async () => {

@@ -82,6 +82,7 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
+import { teamKeyring } from '3rd-party/auth/packages/auth/dist/team/selectors'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -253,11 +254,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
-        await this.sigChainService.loadChain(community.name, true)
+        await this.sigChainService.loadChain(community.teamId, true)
       } catch (e) {
         this.logger.error('Failed to load sigchain', e)
         await this.localDbService.deleteCommunity(community.id)
-        await this.sigChainService.deleteChain(community.name, true)
+        await this.sigChainService.deleteChain(community.teamId, true)
         return
       }
     } else {
@@ -273,7 +274,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async saveActiveChain() {
     try {
-      await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName!)
+      await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId!)
     } catch (e) {
       this.logger.info('Failed to save active chain', e)
     }
@@ -449,7 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.libp2pService.close(options.closeDatastore)
     }
 
-    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName!, options.deleteChainFromDisk)
+    await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamId!, options.deleteChainFromDisk)
 
     if (this.localDbService) {
       this.logger.info('Closing local DB')
@@ -556,8 +557,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.libp2pService.closeDatastore()
     }
 
-    if (this.sigChainService.activeChainTeamName != null) {
-      await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamName, true)
+    if (this.sigChainService.activeChainTeamId != null) {
+      await this.sigChainService.deleteChain(this.sigChainService.activeChainTeamId, true)
     }
 
     if (this.localDbService) {
@@ -611,7 +612,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.erasePreviousCommunityArtifacts()
 
     this.logger.info(`Creating new LFA chain`)
-    const sigchain = await this.sigChainService.createChain(payload.name, payload.username, true)
+    const sigchain = await this.sigChainService.createChain(payload.username, true)
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
@@ -633,7 +634,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [localAddress],
       psk: generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
-      teamId: sigchain.team?.id,
+      teamId: sigchain.teamId!,
       qssEnabled: this.qssAllowed && payload.useServer,
       qssEndpoint: this.qssEndpoint,
       tosAccepted: payload.tosAccepted,
@@ -684,22 +685,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.erasePreviousCommunityArtifacts()
 
-    let communityName: string | undefined
-    let teamId: string | undefined
-    if (
-      inviteData &&
-      (inviteData?.version === InvitationDataVersion.v2 || inviteData?.version === InvitationDataVersion.v3)
-    ) {
-      communityName = (payload.inviteData as InvitationDataV2).authData.communityName
-      teamId = (payload.inviteData as InvitationDataV2).authData.teamId
-      await this.sigChainService.createChainFromInvite(
-        payload.username,
-        communityName,
-        inviteData.authData.seed,
-        teamId,
-        true
-      )
-    }
+    const communityName = inviteData.authData.communityName
+    const teamId = inviteData.authData.teamId
+    await this.sigChainService.createChainFromInvite(payload.username, inviteData.authData.seed, teamId, true)
 
     if (!isPSKcodeValid(inviteData.psk)) {
       emitError(this.serverIoProvider.io, {
@@ -745,8 +733,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: inviteData.psk,
       teamId,
       ownership: CommunityOwnership.User,
-      qssEnabled: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEnabled : undefined,
-      qssEndpoint: inviteData?.version === InvitationDataVersion.v3 ? inviteData.qssEndpoint : undefined,
+      qssEnabled: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEnabled : undefined,
+      qssEndpoint: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEndpoint : undefined,
     }
 
     await this.localDbService.setCommunity(community)
@@ -795,8 +783,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
-        if (this.sigChainService.activeChainTeamName !== community.name) {
-          await this.sigChainService.loadChain(community.name, true)
+        if (this.sigChainService.activeChainTeamId !== community.teamId) {
+          await this.sigChainService.loadChain(community.teamId, true)
         }
       } catch (e) {
         this.logger.warn('Failed to load sigchain', e)
@@ -999,7 +987,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
      * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
      */
     const users = this.sigChainService
-      .getChain({ teamId })
+      .getChain(teamId)
       .team?.members()
       .map(user => ({
         userId: user.userId,
@@ -1082,7 +1070,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE,
       async (args: RequestInvitePayload, callback: (response: ResponseInvitePayload) => void) => {
-        if (this.sigChainService.activeChainTeamName == null) {
+        if (this.sigChainService.activeChainTeamId == null) {
           this.logger.warn(`No sigchain configured, skipping long lived LFA invite code validation/generation!`)
           callback({ valid: false })
           return
@@ -1098,7 +1086,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
             if (qssInitStatus.qssEnabled) {
               this.sigChainService.activeChain.lockbox.createInviteLockboxes(newInvite.seed, newInvite.salt)
             }
-            await this.sigChainService.saveChain(this.sigChainService.activeChainTeamName)
+            await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId)
             this.serverIoProvider.io.emit(SocketEvents.CREATED_LONG_LIVED_LFA_INVITE, newInvite)
             callback({ valid: false, newInvite })
           } catch (e) {

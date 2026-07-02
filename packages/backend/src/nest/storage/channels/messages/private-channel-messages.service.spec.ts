@@ -39,7 +39,7 @@ describe('PrivateChannelMessagesService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('test-community', 'alice', true)
+    await sigChainService.createChain('alice', true)
     message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
     sigChainService.activeChain.channels.create(message.channelId)
     messagesService = await module.resolve(PrivateChannelMessagesService)

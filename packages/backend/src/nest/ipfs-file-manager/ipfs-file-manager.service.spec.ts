@@ -58,7 +58,7 @@ describe('IpfsFileManagerService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('community', 'username', true)
+    await sigChainService.createChain('username', true)
 
     ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
     localDbService = await module.resolve(LocalDbService)

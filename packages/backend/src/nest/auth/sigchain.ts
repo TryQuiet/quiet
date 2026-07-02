@@ -14,12 +14,15 @@ import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/channel.service'
-import { LFAEvents, SigchainEvents } from './types'
+import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
+import { Serializer } from '../common/serializer.service'
+import { randomKey } from '@localfirst/crypto'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
 
 class SigChain extends EventEmitter {
+  private static serializer = new Serializer()
   private _context: auth.MemberContext | auth.InviteeMemberContext
   private _users: UserService | null = null
   private _devices: DeviceService | null = null
@@ -66,6 +69,14 @@ class SigChain extends EventEmitter {
     this._context = context
   }
 
+  get teamId(): string | undefined {
+    return this.team?.id
+  }
+
+  get teamName(): string | undefined {
+    return this.team?.teamName
+  }
+
   get user(): auth.UserWithSecrets {
     return this.context.user
   }
@@ -85,14 +96,13 @@ class SigChain extends EventEmitter {
   /**
    * Create a brand new SigChain with a given name and also generate the initial user with a given name
    *
-   * @param teamName Name of the team we are creating
    * @param username Username of the initial user we are generating
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(teamName: string, username: string, userId?: string): SigChain {
+  public static create(username: string, userId?: string): SigChain {
     const localUser = UserService.create(username, userId)
     const team: auth.Team = auth.createTeam(
-      teamName,
+      SigChain.generateRandomTeamName(),
       localUser,
       undefined,
       { selfAssignableRoles: SELF_ASSIGN_ROLES },
@@ -233,6 +243,10 @@ class SigChain extends EventEmitter {
       team: team,
     } as auth.MemberContext
     return new SigChain(memberContext)
+  }
+
+  public static generateRandomTeamName(): string {
+    return randomKey(RANDOM_TEAM_NAME_LENGTH)
   }
 }
 

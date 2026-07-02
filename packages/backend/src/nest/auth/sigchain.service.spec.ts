@@ -18,6 +18,9 @@ describe('SigChainService', () => {
   let sigChainService: SigChainService
   let localDbService: LocalDbService
   let handleChainUpdateSpy: jest.SpiedFunction<any>
+  let sigChainTest: SigChain
+  let sigChainTest2: SigChain
+  let sigChainTest3: SigChain
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -49,59 +52,58 @@ describe('SigChainService', () => {
     expect(() => sigChainService.setActiveChain('nonexistent')).toThrowError()
   })
   it('should add a new chain and it not be active if not set to be', async () => {
-    const sigChain = await sigChainService.createChain('test', 'user', false)
+    sigChainTest = await sigChainService.createChain('user', false)
     expect(() => sigChainService.getActiveChain()).toThrowError()
     expect(handleChainUpdateSpy).toBeCalledTimes(1)
-    sigChainService.setActiveChain('test')
-    expect(sigChainService.getActiveChain()).toBe(sigChain)
+    sigChainService.setActiveChain(sigChainTest.teamId!)
+    expect(sigChainService.getActiveChain()).toBe(sigChainTest)
   })
   it('should add a new chain and it be active if set to be', async () => {
-    const sigChain = await sigChainService.createChain('test2', 'user2', true)
-    expect(sigChainService.getActiveChain()).toBe(sigChain)
+    sigChainTest2 = await sigChainService.createChain('user2', true)
+    expect(sigChainService.getActiveChain()).toBe(sigChainTest2)
     expect(handleChainUpdateSpy).toBeCalledTimes(1)
-    const prevSigChain = sigChainService.getChain({ teamName: 'test' })
+    const prevSigChain = sigChainService.getChain(sigChainTest.teamId!)
     expect(prevSigChain).toBeDefined()
-    expect(prevSigChain).not.toBe(sigChain)
+    expect(prevSigChain).not.toBe(sigChainTest2)
   })
   it('should delete nonactive chain without changing active chain', async () => {
-    sigChainService.setActiveChain('test2')
-    await sigChainService.deleteChain('test', false)
-    expect(() => sigChainService.getChain({ teamName: 'test' })).toThrowError()
+    sigChainService.setActiveChain(sigChainTest2.teamId!)
+    await sigChainService.deleteChain(sigChainTest.teamId!, false)
+    expect(() => sigChainService.getChain(sigChainTest.teamId!)).toThrowError()
     expect(sigChainService.getActiveChain()).toBeDefined()
   })
   it('should delete active chain and set active chain to undefined', async () => {
-    await sigChainService.deleteChain('test2', false)
+    await sigChainService.deleteChain(sigChainTest2.teamId!, false)
     expect(sigChainService.getActiveChain).toThrowError()
   })
   it('should save and load sigchain using nestjs service', async () => {
     const TEAM_NAME = 'test3'
-    const sigChain = await sigChainService.createChain(TEAM_NAME, 'user', true)
+    sigChainTest3 = await sigChainService.createChain('user', true)
     expect(handleChainUpdateSpy).toBeCalledTimes(1)
-    await sigChainService.saveChain(TEAM_NAME)
-    await sigChainService.deleteChain(TEAM_NAME, false)
-    const loadedSigChain = await sigChainService.loadChain(TEAM_NAME, true)
+    await sigChainService.saveChain(sigChainTest3.teamId!)
+    await sigChainService.deleteChain(sigChainTest3.teamId!, false)
+    const loadedSigChain = await sigChainService.loadChain(sigChainTest3.teamId!, true)
     expect(loadedSigChain).toBeDefined()
     expect(sigChainService.getActiveChain()).toBe(loadedSigChain)
   })
   it('should delete sigchains from disk', async () => {
-    await sigChainService.deleteChain('test3', true)
-    expect(() => sigChainService.getChain({ teamName: 'test3' })).toThrowError()
-    await expect(sigChainService.loadChain('test3', true)).rejects.toThrowError()
+    await sigChainService.deleteChain(sigChainTest3.teamId!, true)
+    expect(() => sigChainService.getChain(sigChainTest3.teamId!)).toThrowError()
+    await expect(sigChainService.loadChain(sigChainTest3.teamId!, true)).rejects.toThrowError()
   })
-  it('should not allow duplicate chains to be added', async () => {
-    await sigChainService.createChain('test4', 'user4', false)
-    await expect(sigChainService.createChain('test4', 'user4', false)).rejects.toThrowError()
+  // with random team names this is impossible in the cases we care about
+  it.skip('should not allow duplicate chains to be added', async () => {
+    await sigChainService.createChain('user4', false)
+    await expect(sigChainService.createChain('user4', false)).rejects.toThrowError()
     expect(handleChainUpdateSpy).toBeCalledTimes(1)
   })
   it('should handle concurrent chain operations correctly', async () => {
-    const TEAM_NAME1 = 'test6'
-    const TEAM_NAME2 = 'test7'
-    await Promise.all([
-      sigChainService.createChain(TEAM_NAME1, 'user1', true),
-      sigChainService.createChain(TEAM_NAME2, 'user2', false),
+    const [chain1, chain2] = await Promise.all([
+      sigChainService.createChain('user1', true),
+      sigChainService.createChain('user2', false),
     ])
-    expect(sigChainService.getChain({ teamName: TEAM_NAME1 })).toBeDefined()
-    expect(sigChainService.getChain({ teamName: TEAM_NAME2 })).toBeDefined()
+    expect(sigChainService.getChain(chain1.teamId!)).toBeDefined()
+    expect(sigChainService.getChain(chain2.teamId!)).toBeDefined()
     expect(handleChainUpdateSpy).toBeCalledTimes(2)
   })
 })
@@ -126,16 +128,16 @@ describe('SigChainService - listener lifecycle', () => {
   })
 
   it('does not accumulate listeners on chains when switching active chain', async () => {
-    const chainA: SigChain = await sigChainService.createChain('leakA', 'alice', true)
+    const chainA: SigChain = await sigChainService.createChain('alice', true)
     // chainA is active: one listener attached
     expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(1)
 
-    const chainB: SigChain = await sigChainService.createChain('leakB', 'bob', true)
+    const chainB: SigChain = await sigChainService.createChain('bob', true)
     // Active switched A → B. detachSocketListeners(A) must have removed A's listener.
     expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(0)
     expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(1)
 
-    sigChainService.setActiveChain('leakA')
+    sigChainService.setActiveChain(chainA.teamId!)
     // Active switched B → A. detachSocketListeners(B) must have removed B's listener,
     // and attachSocketListeners(A) adds exactly one to A.
     expect(chainA.listenerCount(SigchainEvents.UPDATED)).toBe(1)
@@ -145,7 +147,7 @@ describe('SigChainService - listener lifecycle', () => {
   it('does not emit iOS-native key or device events on non-ios platforms', async () => {
     const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
 
-    await sigChainService.createChain('desktopOnly', 'alice', true)
+    await sigChainService.createChain('alice', true)
 
     expect(emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)).toHaveLength(0)
     expect(emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)).toHaveLength(0)
@@ -159,8 +161,8 @@ describe('SigChainService - listener lifecycle', () => {
 
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
-      const chain = await sigChainService.createChain('iosKeys', 'alice', true)
-      const teamId = chain.team!.id
+      const chain = await sigChainService.createChain('alice', true)
+      const teamId = chain.teamId!
 
       await waitForExpect(async () => {
         const keyCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)
@@ -196,8 +198,8 @@ describe('SigChainService - listener lifecycle', () => {
 
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
-      const chain = await sigChainService.createChain('androidKeys', 'alice', true)
-      const teamId = chain.team!.id
+      const chain = await sigChainService.createChain('alice', true)
+      const teamId = chain.teamId!
 
       await waitForExpect(async () => {
         const keyCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.KEYS_UPDATED)
@@ -233,14 +235,14 @@ describe('SigChainService - listener lifecycle', () => {
 
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
-      const chain = await sigChainService.createChain('iosDeviceCredentials', 'alice', true)
+      const chain = await sigChainService.createChain('alice', true)
 
       await waitForExpect(() => {
         const deviceCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)
         expect(deviceCalls).toHaveLength(1)
         expect(deviceCalls[0][1]).toEqual({
           deviceId: chain.device.deviceId,
-          teamId: chain.team!.id,
+          teamId: chain.teamId!,
           signingPrivateKey: chain.device.keys.signature.secretKey,
         })
       })
@@ -262,14 +264,14 @@ describe('SigChainService - listener lifecycle', () => {
 
     try {
       const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
-      const chain = await sigChainService.createChain('androidDeviceCredentials', 'alice', true)
+      const chain = await sigChainService.createChain('alice', true)
 
       await waitForExpect(() => {
         const deviceCalls = emitSpy.mock.calls.filter(([event]) => event === SocketEvents.DEVICE_CREDENTIALS_UPDATED)
         expect(deviceCalls).toHaveLength(1)
         expect(deviceCalls[0][1]).toEqual({
           deviceId: chain.device.deviceId,
-          teamId: chain.team!.id,
+          teamId: chain.teamId!,
           signingPrivateKey: chain.device.keys.signature.secretKey,
         })
       })

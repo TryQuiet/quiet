@@ -1,21 +1,29 @@
-import { InvitationDataV1, InvitationDataVersion } from '@quiet/types'
+import { type InvitationDataV4 } from '@quiet/types'
 import { getInvitationLinks } from './invitationCode'
-import { OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, PSK_PARAM_KEY, QUIET_JOIN_PAGE, validInvitationDatav1 } from '@quiet/common'
+import {
+  AUTH_DATA_KEY,
+  encodeAuthData,
+  PSK_PARAM_KEY,
+  QUIET_JOIN_PAGE,
+  validInvitationDatav4,
+  VERSION_KEY,
+} from '@quiet/common'
 
 const getUrlParamsPart = (url: string) => url.split(QUIET_JOIN_PAGE + '?')[1]
 
 describe('Invitation link helper', () => {
   const address = 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad'
   const peerId = '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
-  const data: InvitationDataV1 = {
-    ...validInvitationDatav1[0],
-    pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId, onionAddress: address }],
+  const data: InvitationDataV4 = {
+    ...validInvitationDatav4[0],
+    pairs: [...validInvitationDatav4[0].pairs, { peerId: peerId, onionAddress: address }],
   }
   const urlParams = [
     [data.pairs[0].peerId, data.pairs[0].onionAddress],
     [data.pairs[1].peerId, data.pairs[1].onionAddress],
     [PSK_PARAM_KEY, data.psk],
-    [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
+    [AUTH_DATA_KEY, encodeAuthData(data.authData)],
+    [VERSION_KEY, data.version],
   ]
 
   // TODO: https://github.com/TryQuiet/quiet/issues/2628

@@ -16,14 +16,13 @@ import { headsAreEqual, Hash } from '@localfirst/crdx'
 import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { ChannelsService } from '../../storage/channels/channels.service'
-import { ChannelSubscribedPayload, PublicChannel } from '@quiet/types'
+import { PublicChannel } from '@quiet/types'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { StorageEvents } from '../../storage/storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { generateProof, InviteResult, MemberContext, redactDevice, redactKeys, Team } from '@localfirst/auth'
-import { RoleName } from '../../auth/services/roles/roles'
+import { generateProof, InviteResult, redactKeys, Team } from '@localfirst/auth'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
@@ -235,14 +234,14 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const sigchainServiceA = await modules[0].resolve(SigChainService)
 
     // Create sigChain that all other peers will join
-    await sigchainServiceA.createChain(teamName, 'user0', true)
+    await sigchainServiceA.createChain('user0', true)
     inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
     for (let i = 1; i < modules.length; i++) {
       // Create invitation from A -> B
       const sigchainService = await modules[i].resolve(SigChainService)
-      await sigchainService.createChainFromInvite(`user${i}`, teamName, inviteResult.seed, undefined, true)
+      await sigchainService.createChainFromInvite(`user${i}`, inviteResult.seed, sigchainServiceA.activeTeamId!, true)
     }
 
     // Create libp2p instances (in-memory transport)
@@ -565,9 +564,14 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
      * role so they can decrypt records in OrbitDB.
      */
     const username = `user${N_PEERS}`
-    const sigchain = await sigchainService.createChainFromInvite(username, teamName, inviteResult.seed, undefined, true)
-    const proof = generateProof(inviteResult.seed)
     const adminSigchainService = modules[0].get(SigChainService)
+    const sigchain = await sigchainService.createChainFromInvite(
+      username,
+      inviteResult.seed,
+      adminSigchainService.activeTeamId!,
+      true
+    )
+    const proof = generateProof(inviteResult.seed)
     adminSigchainService.activeChain.team!.admitMember(proof, redactKeys(sigchain.context.user.keys), username)
     const teamBytes = adminSigchainService.activeChain.save()
     const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
