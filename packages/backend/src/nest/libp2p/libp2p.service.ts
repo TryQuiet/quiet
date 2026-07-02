@@ -51,6 +51,7 @@ import type {
 
 const CONNECTION_LIMIT = 20
 const HEARTBEAT_ABORT_ENV = 'LIBP2P_ABORT_CONNECTION_ON_PING_FAILURE'
+const CONNECTION_MONITOR_ENABLED_ENV = 'LIBP2P_CONNECTION_MONITOR_ENABLED'
 const CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV = 'LIBP2P_CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS'
 const PING_SERVICE_TIMEOUT_MS_ENV = 'LIBP2P_PING_TIMEOUT_MS'
 const CONNECTION_HEALTH_CHECK_ENABLED_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_ENABLED'
@@ -58,7 +59,7 @@ const CONNECTION_HEALTH_CHECK_INTERVAL_MS_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_
 const CONNECTION_HEALTH_CHECK_TIMEOUT_MS_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_TIMEOUT_MS'
 const CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD'
 const CONNECTION_HEALTH_CHECK_DEFAULT_INTERVAL_MS = 75_000
-const CONNECTION_HEALTH_CHECK_DEFAULT_TIMEOUT_MS = 20_000
+const CONNECTION_HEALTH_CHECK_DEFAULT_TIMEOUT_MS = 30_000
 const CONNECTION_HEALTH_CHECK_DEFAULT_FAILURE_THRESHOLD = 3
 const REDIAL_QUEUE_CONCURRENCY = 4
 const REDIAL_QUEUE_BACKOFF_FACTOR = 1.6
@@ -89,6 +90,14 @@ const numberEnv = (value: string | undefined): number | undefined => {
 
   const parsed = Number(value)
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
+const isPingStreamContentionError = (error: any): boolean => {
+  const message = String(error?.message ?? '')
+  return (
+    error?.name === 'TooManyOutboundProtocolStreamsError' &&
+    message.includes('Too many outbound protocol streams for protocol "/ipfs/ping/1.0.0"')
+  )
 }
 
 const connectionHealthConfigFromEnv = (): ConnectionHealthConfig => ({
@@ -343,6 +352,28 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         durationMs: Date.now() - startedAtMs,
       })
     } catch (error: any) {
+      if (isPingStreamContentionError(error)) {
+        this.connectionHealthDebug.set(peerId, {
+          peerId,
+          status: previous?.status ?? 'healthy',
+          failureCount: previous?.failureCount ?? 0,
+          lastCheckedAtMs: Date.now(),
+          lastSuccessAtMs: previous?.lastSuccessAtMs,
+          lastFailureAtMs: previous?.lastFailureAtMs,
+          lastRttMs: previous?.lastRttMs,
+          reconnecting: previous?.reconnecting ?? false,
+        })
+        this.logConnectionHealth('health:ping:contention', peerId, {
+          peerAddress,
+          durationMs: Date.now() - startedAtMs,
+          errorName: error?.name,
+          errorCode: error?.code,
+          errorMessage: error?.message,
+          failureCount: previous?.failureCount ?? 0,
+        })
+        return
+      }
+
       const failureCount = (previous?.failureCount ?? 0) + 1
       const status = failureCount >= this.connectionHealthConfig.failureThreshold ? 'reconnecting' : 'degraded'
       this.connectionHealthDebug.set(peerId, {
@@ -764,10 +795,14 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     const connectionMonitorPingTimeoutMinMs = numberEnv(process.env[CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV])
     const pingServiceTimeoutMs = numberEnv(process.env[PING_SERVICE_TIMEOUT_MS_ENV])
     this.connectionHealthConfig = connectionHealthConfigFromEnv()
+    const connectionMonitorEnabled = booleanEnv(
+      process.env[CONNECTION_MONITOR_ENABLED_ENV],
+      !this.connectionHealthConfig.enabled
+    )
     const connectionMonitorConfig = {
       abortConnectionOnPingFailure: booleanEnv(process.env[HEARTBEAT_ABORT_ENV], false),
       pingInterval: 60_000,
-      enabled: true,
+      enabled: connectionMonitorEnabled,
       ...(connectionMonitorPingTimeoutMinMs == null
         ? {}
         : {
@@ -781,6 +816,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       'p2p-heartbeat-monitor-config',
       JSON.stringify({
         ...connectionMonitorConfig,
+        enabledEnv: CONNECTION_MONITOR_ENABLED_ENV,
+        enabledEnvValue: process.env[CONNECTION_MONITOR_ENABLED_ENV] ?? null,
         env: HEARTBEAT_ABORT_ENV,
         envValue: process.env[HEARTBEAT_ABORT_ENV] ?? null,
         pingTimeoutMinEnv: CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV,

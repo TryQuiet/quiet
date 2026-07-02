@@ -88,8 +88,16 @@ export interface WebSocketsMetrics {
 
 export type WebSocketsDialEvents = OutboundConnectionUpgradeEvents | ProgressEvent<'websockets:open-connection'>
 
-const EXPECTED_SERVER_RESPONSES = new Set(['Unexpected server response: 404', 'Unexpected server response: 503'])
-const CONNECT_PHASE_RETRYABLE_SERVER_RESPONSES = new Set(['Unexpected server response: 503'])
+const EXPECTED_SERVER_RESPONSE_CODES = new Set([404, 503])
+const CONNECT_PHASE_RETRYABLE_SERVER_RESPONSE_CODES = new Set([503])
+
+const websocketServerResponseCode = (message: string): number | undefined => {
+  const match = /Unexpected server response:\s*(\d+)/.exec(message)
+  if (match == null) return undefined
+
+  const statusCode = Number(match[1])
+  return Number.isFinite(statusCode) ? statusCode : undefined
+}
 
 export class RetryableWebSocketConnectError extends ConnectionFailedError {
   public readonly code = 'ERR_RETRYABLE_WEBSOCKET_CONNECT'
@@ -274,13 +282,21 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
       // information about what happened
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event
       this.metrics?.dialerEvents.increment({ error: true })
-      const message = `Could not connect to ${ma.toString()}: ${errorEvent.message}`
+      const errorMessage = String(errorEvent.message ?? errorEvent.error?.message ?? 'unknown WebSocket error')
+      const serverResponseCode = websocketServerResponseCode(errorMessage)
+      const message = `Could not connect to ${ma.toString()}: ${errorMessage}`
+      const expectedServerResponse =
+        serverResponseCode != null && EXPECTED_SERVER_RESPONSE_CODES.has(serverResponseCode)
+      const retryableServerResponse =
+        serverResponseCode != null && CONNECT_PHASE_RETRYABLE_SERVER_RESPONSE_CODES.has(serverResponseCode)
       // Expected HTTP responses are common while peers are offline, starting, or not yet listening.
-      if (EXPECTED_SERVER_RESPONSES.has(errorEvent.message)) {
+      if (expectedServerResponse) {
         _log.warn(message)
-        if (CONNECT_PHASE_RETRYABLE_SERVER_RESPONSES.has(errorEvent.message)) {
+        if (retryableServerResponse) {
           const err = new RetryableWebSocketConnectError(message, errorEvent.error)
           errorPromise.reject(err)
+        } else {
+          errorPromise.reject(new ConnectionFailedError(message))
         }
       } else {
         const err = new ConnectionFailedError(message)

@@ -16,6 +16,8 @@ describe('Libp2pService', () => {
   const localPeerAddress = '/dns4/local.onion/tcp/80/ws/p2p/local-peer'
   const remotePeerAddress = '/dns4/remote.onion/tcp/80/ws/p2p/remote-peer'
   const connectedRemotePeerAddress = '/dns4/connected-remote.onion/tcp/80/ws/p2p/remote-peer'
+  const validRemotePeerId = '12D3KooWKBpNVUqZjF4LDhkBMs2mRTSCYSaoBhCjQ9dfFJXogaWq'
+  const validRemotePeerAddress = `/dns4/remote.onion/tcp/80/ws/p2p/${validRemotePeerId}`
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -99,5 +101,44 @@ describe('Libp2pService', () => {
     expect(getSortedPeers).not.toHaveBeenCalled()
     expect(hangUpPeers).toHaveBeenCalledWith([connectedRemotePeerAddress])
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+  })
+
+  it('does not count ping stream contention as a health failure', async () => {
+    const contentionError = new Error('Too many outbound protocol streams for protocol "/ipfs/ping/1.0.0" - 1/1')
+    contentionError.name = 'TooManyOutboundProtocolStreamsError'
+    const ping = jest.fn<() => Promise<number>>().mockRejectedValue(contentionError)
+    const service = libp2pService as any
+    service.state = 'started'
+    service.connectionHealthConfig = {
+      enabled: true,
+      intervalMs: 75_000,
+      timeoutMs: 30_000,
+      failureThreshold: 3,
+    }
+    service.connectionHealthDebug.set(validRemotePeerId, {
+      peerId: validRemotePeerId,
+      status: 'degraded',
+      failureCount: 2,
+      lastFailureAtMs: 1,
+    })
+    service.libp2pInstance = {
+      getConnections: jest.fn(() => [{ status: 'open' }]),
+      services: {
+        ping: { ping },
+      },
+    }
+    const hangUpPeer = jest.spyOn(libp2pService, 'hangUpPeer').mockResolvedValue(undefined)
+
+    await service.checkPeerHealth(validRemotePeerId, validRemotePeerAddress)
+
+    expect(service.connectionHealthDebug.get(validRemotePeerId)).toEqual(
+      expect.objectContaining({
+        status: 'degraded',
+        failureCount: 2,
+        lastFailureAtMs: 1,
+      })
+    )
+    expect(hangUpPeer).not.toHaveBeenCalled()
+    service.libp2pInstance = null
   })
 })

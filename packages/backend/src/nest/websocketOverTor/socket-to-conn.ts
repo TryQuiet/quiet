@@ -32,6 +32,7 @@ export function socketToMaConn(
   const openedAtMs = Date.now()
   let localCloseTrigger: 'maConn.close' | 'maConn.abort' | undefined
   let localCloseReason: string | undefined
+  let socketCloseObserved = stream.socket.readyState === WebSocket.CLOSED
   stream.source = abortableAsyncIterable(stream.source, options.signal)
 
   const generateSink = (
@@ -81,8 +82,11 @@ export function socketToMaConn(
 
     async close(options: AbortOptions = {}) {
       const start = Date.now()
-      localCloseTrigger = 'maConn.close'
-      localCloseReason = options.signal?.aborted === true ? 'signal-already-aborted' : 'close-called'
+      const closeAlreadyObserved = socketCloseObserved || stream.socket.readyState === WebSocket.CLOSED
+      if (!closeAlreadyObserved) {
+        localCloseTrigger = 'maConn.close'
+        localCloseReason = options.signal?.aborted === true ? 'signal-already-aborted' : 'close-called'
+      }
 
       if (options.signal == null) {
         const signal = AbortSignal.timeout(CLOSE_TIMEOUT)
@@ -108,6 +112,7 @@ export function socketToMaConn(
           rawSocketLogContext({
             event: 'maConn:close:start',
             signalAborted: options.signal?.aborted ?? false,
+            closeAlreadyObserved,
           })
         )
       )
@@ -119,7 +124,9 @@ export function socketToMaConn(
         this.abort(err)
       } finally {
         options.signal?.removeEventListener('abort', listener)
-        maConn.timeline.close = Date.now()
+        if (maConn.timeline.close == null) {
+          maConn.timeline.close = Date.now()
+        }
         log(
           'p2p-websocket-raw %s',
           JSON.stringify(
@@ -149,7 +156,9 @@ export function socketToMaConn(
       log('timeout closing stream to %s:%s due to error', host, port, err)
 
       stream.destroy()
-      maConn.timeline.close = Date.now()
+      if (maConn.timeline.close == null) {
+        maConn.timeline.close = Date.now()
+      }
 
       // ws WebSocket.terminate does not accept an Error arg to emit an 'error'
       // event on destroy like other node streams so we can't update a metric
@@ -192,6 +201,10 @@ export function socketToMaConn(
   stream.socket.addEventListener(
     'close',
     (closeEvent: CloseEvent) => {
+      socketCloseObserved = true
+      if (maConn.timeline.close == null) {
+        maConn.timeline.close = Date.now()
+      }
       log(
         'p2p-websocket-raw %s',
         JSON.stringify(
@@ -216,13 +229,6 @@ export function socketToMaConn(
       }
 
       metrics?.increment({ [`${metricPrefix}close`]: true })
-
-      // In instances where `close` was not explicitly called,
-      // such as an iterable stream ending, ensure we have set the close
-      // timeline
-      if (maConn.timeline.close == null) {
-        maConn.timeline.close = Date.now()
-      }
     },
     { once: true }
   )
