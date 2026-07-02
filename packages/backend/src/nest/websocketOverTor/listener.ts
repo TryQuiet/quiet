@@ -166,11 +166,7 @@ export class WebSocketListener extends TypedEventEmitter<ListenerEvents> impleme
       .catch(async err => {
         _log.error('inbound connection failed to upgrade - %e', err)
         this.metrics.errors?.increment({ [`${this.addr} inbound_upgrade`]: true })
-
-        await maConn.close().catch(err => {
-          _log.error('inbound connection failed to close after upgrade failed', err)
-          this.metrics.errors?.increment({ [`${this.addr} inbound_closing_failed`]: true })
-        })
+        maConn.abort(err instanceof Error ? err : new Error(String(err)))
       })
 
     // store the socket so we can close it when the listener closes
