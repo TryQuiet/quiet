@@ -297,7 +297,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     peers.push(owner)
 
     const teamName = `qss-create-owner-${randomUUID()}`
-    const ownerSigChain = await owner.sigChainService.createChain('qss-create-owner', true)
+    const ownerSigChain = await owner.sigChainService.createChain(true)
     const teamId = ownerSigChain.team!.id
 
     await setCurrentCommunity(owner, {
@@ -334,7 +334,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     peers.push(owner)
 
     const teamName = `qss-storage-ready-owner-${randomUUID()}`
-    const ownerSigChain = await owner.sigChainService.createChain('qss-storage-ready-owner', true)
+    const ownerSigChain = await owner.sigChainService.createChain(true)
     const teamId = ownerSigChain.team!.id
 
     await setCurrentCommunity(owner, {
@@ -404,7 +404,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     owner = await createPeer(ownerName)
     peers.push(owner)
 
-    const ownerSigChain = await owner.sigChainService.createChain(ownerName, true)
+    const ownerSigChain = await owner.sigChainService.createChain(true)
     teamId = ownerSigChain.team!.id
     invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
     ownerSigChain.lockbox.createInviteLockboxes(invite.seed, invite.salt)
@@ -439,7 +439,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     invitee = await createPeer(inviteeName)
     peers.push(invitee)
 
-    await invitee.sigChainService.createChainFromInvite(inviteeName, invite.seed, teamId, true)
+    await invitee.sigChainService.createChainFromInvite({ seed: invite.seed }, teamId, true)
     await setCurrentCommunity(invitee, {
       id: randomUUID(),
       name: teamName,
@@ -536,7 +536,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     const lateInvitee = await createPeer(lateInviteeName)
     peers.push(lateInvitee)
 
-    await lateInvitee.sigChainService.createChainFromInvite(lateInviteeName, invite.seed, teamId, true)
+    await lateInvitee.sigChainService.createChainFromInvite({ seed: invite.seed }, teamId, true)
     await setCurrentCommunity(lateInvitee, {
       id: randomUUID(),
       name: teamName,

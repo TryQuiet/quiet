@@ -119,7 +119,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
  * Extract invitation data from deep url.
  * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
  *
- * @param url V1 or V2 invite link URL to validate parameters on
+ * @param url V4 or V5 invite link URL to validate parameters on
  *
  * @returns {InvitationData} Parsed parameters
  */
@@ -130,7 +130,7 @@ export const parseInvitationLinkDeepUrl = (url: string): InvitationData => {
 /**
  * @param link <peerId1>=<address1>&<peerId2>=<address2>&k=<psk>
  *
- * @param url V1 or V2 invite link URL to validate parameters on
+ * @param url V4 or V5 invite link URL to validate parameters on
  *
  * @returns {InvitationData} Parsed parameters
  */

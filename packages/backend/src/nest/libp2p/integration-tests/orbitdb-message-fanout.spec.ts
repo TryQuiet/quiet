@@ -234,14 +234,18 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const sigchainServiceA = await modules[0].resolve(SigChainService)
 
     // Create sigChain that all other peers will join
-    await sigchainServiceA.createChain('user0', true)
+    await sigchainServiceA.createChain(true)
     inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
     for (let i = 1; i < modules.length; i++) {
       // Create invitation from A -> B
       const sigchainService = await modules[i].resolve(SigChainService)
-      await sigchainService.createChainFromInvite(`user${i}`, inviteResult.seed, sigchainServiceA.activeTeamId!, true)
+      await sigchainService.createChainFromInvite(
+        { name: `user${i}`, seed: inviteResult.seed },
+        sigchainServiceA.activeTeamId!,
+        true
+      )
     }
 
     // Create libp2p instances (in-memory transport)
@@ -566,8 +570,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const username = `user${N_PEERS}`
     const adminSigchainService = modules[0].get(SigChainService)
     const sigchain = await sigchainService.createChainFromInvite(
-      username,
-      inviteResult.seed,
+      { name: username, seed: inviteResult.seed },
       adminSigchainService.activeTeamId!,
       true
     )
@@ -590,7 +593,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       ...userContext,
       team: loadedTeam,
     }
-    const newUser = sigchain.users.getUserByName(username)
+    const newUser = sigchain.users.getUserById(sigchain.user.userId)
     expect(newUser).toBeDefined()
     expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
 

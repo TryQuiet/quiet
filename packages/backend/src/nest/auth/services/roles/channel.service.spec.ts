@@ -6,14 +6,13 @@ import * as uint8arrays from 'uint8arrays'
 import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
 import { InviteLockboxMetadata } from '../crypto/types'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
+import { RANDOM_USERNAME_LENGTH } from '../members/types'
 
 const logger = createLogger('auth:services:channels.spec')
 
 describe('channels', () => {
   let adminSigChain: SigChain
   let secondSigChain: SigChain
-  const adminUsername = 'admin'
-  const secondUsername = 'seconduser'
   const teamName = 'test'
   let invite: InviteResult
   let seed: string
@@ -22,13 +21,14 @@ describe('channels', () => {
   const channelId = 'foobar'
 
   it('should initialize a new sigchain and be admin', () => {
-    adminSigChain = SigChain.create(adminUsername)
+    adminSigChain = SigChain.create()
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.context).toBeDefined()
     expect(adminSigChain.teamName).toBeDefined()
     expect(base58.detect(adminSigChain.teamName!)).toBeTruthy()
     expect(adminSigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
-    expect(adminSigChain.user.userName).toBe(adminUsername)
+    expect(base58.detect(adminSigChain.user.userName)).toBeTruthy()
+    expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMember()).toBe(true)
   })
@@ -58,20 +58,21 @@ describe('channels', () => {
     expect(keysFromLockbox!['ROLE'][RoleName.MEMBER].length).toBe(1)
   })
   it('should create second user who is not admin', () => {
-    secondSigChain = SigChain.createFromInvite(secondUsername, invite.seed)
+    secondSigChain = SigChain.createFromInvite({ seed: invite.seed })
     expect(secondSigChain).toBeDefined()
     expect(secondSigChain.context).toBeDefined()
-    expect(secondSigChain.context.user.userName).toBe(secondUsername)
+    expect(base58.detect(secondSigChain.user.userName)).toBeTruthy()
+    expect(secondSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('should add second user to team', () => {
     const proof = generateProof(invite.seed)
     adminSigChain.invites.admitMemberFromInvite(
       proof,
-      secondUsername,
+      secondSigChain.user.userName,
       secondSigChain.context.user.userId,
       redactKeys(secondSigChain.context.user.keys)
     )
-    expect(adminSigChain.users.getUserByName(secondUsername)).toBeDefined()
+    expect(adminSigChain.users.getUserById(secondSigChain.user.userId)).toBeDefined()
 
     const teamBytes = adminSigChain.save()
     const teamKeyring = adminSigChain.team!.teamKeyring()
