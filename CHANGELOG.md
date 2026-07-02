@@ -6,6 +6,7 @@
 
 * Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
 * Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
+* Require team ID on invite links, use team ID for all chain operations, and hash team name on sigchains [#3296](https://github.com/TryQuiet/quiet/issues/3296)
 
 ### Fixes
 
@@ -16,6 +17,7 @@
 ### Chores
 
 * Enable QSS on prod
+* Add script for cleaning compiled/generated code directories
 
 ## [7.3.0]
 

@@ -1,25 +1,21 @@
 import { communities, getReduxStoreFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, InvitationData, InvitationDataV1, JoinCommunityPayload } from '@quiet/types'
+import { Community, JoinCommunityPayload, type InvitationDataV4 } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
 import { SocketState } from '../socket/socket.slice'
-import { prepareStore, testReducers } from '../../testUtils/prepareStore'
+import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { getValidInvitationUrlTestData, validInvitationDatav1, validInvitationDatav2 } from '@quiet/common'
-import {
-  AlreadyBelongToCommunityWarning,
-  InvalidInvitationLinkError,
-  JoiningAnotherCommunityWarning,
-} from '@quiet/common'
+import { getValidInvitationUrlTestData, validInvitationDatav4 } from '@quiet/common'
+import { AlreadyBelongToCommunityWarning, InvalidInvitationLinkError } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let validInvitationData: InvitationDataV1
+  let validInvitationData: InvitationDataV4
   let validInvitationDeepUrl: string
 
   beforeEach(async () => {
@@ -34,8 +30,8 @@ describe('Handle invitation code', () => {
 
     factory = await getReduxStoreFactory(store)
 
-    validInvitationData = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
-    validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav1[0]).deepUrl()
+    validInvitationData = getValidInvitationUrlTestData(validInvitationDatav4[0]).data
+    validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav4[0]).deepUrl()
   })
 
   it('joins network if code is valid', async () => {

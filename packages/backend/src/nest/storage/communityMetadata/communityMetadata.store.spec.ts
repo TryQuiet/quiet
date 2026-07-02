@@ -74,7 +74,7 @@ describe('CommmunityMetadataStore', () => {
       imports: [TestModule, StorageModule, LocalDbModule, Libp2pModule, IpfsModule, SigChainModule],
     }).compile()
     sigChainService = await module.resolve(SigChainService)
-    sigChainService.createChain(community.name!, 'john', true)
+    sigChainService.createChain('john', true)
 
     libp2pService = await module.resolve(Libp2pService)
     const libp2pParams = await libp2pInstanceParams()

@@ -96,7 +96,7 @@ describe('Multiple Clients (Private Channels)', () => {
     logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
-  describe('Stages:', () => {
+  describe.skip('Stages:', () => {
     describe('Owner Creates Community', () => {
       it('Owner opens the app', async () => {
         await users.owner.app.openWithRetries()

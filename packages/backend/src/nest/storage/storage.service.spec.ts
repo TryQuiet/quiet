@@ -95,7 +95,7 @@ describe('StorageService', () => {
     notificationTokensStore = await module.resolve(NotificationTokensStore)
     sigchainService = await module.resolve(SigChainService)
 
-    await sigchainService.createChain('team', 'alice', true)
+    await sigchainService.createChain('alice', true)
 
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
 

@@ -213,10 +213,7 @@ export class QPSService implements OnModuleInit {
 
   private _hasMemberKey(): boolean {
     try {
-      return (
-        this.sigChainService.activeChain?.team != undefined &&
-        this.sigChainService.activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
-      )
+      return this.sigChainService.activeChain?.team != undefined && this.sigChainService.activeChain.roles.amIMember()
     } catch {
       return false
     }

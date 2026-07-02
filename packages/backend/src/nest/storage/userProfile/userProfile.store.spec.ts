@@ -49,7 +49,7 @@ describe('UserProfileStore', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('test-community', 'alice', true)
+    await sigChainService.createChain('alice', true)
 
     libp2pService = await module.resolve(Libp2pService)
     const libp2pParams = await libp2pInstanceParams()

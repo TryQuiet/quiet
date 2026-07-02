@@ -5,6 +5,7 @@ import { CommunityOperationStatus, QSSEvents, WebsocketEvents } from '../qss/qss
 import { RoleName } from '../auth/services/roles/roles'
 import { DateTime } from 'luxon'
 import { JoinStatus } from '../libp2p/libp2p.auth'
+import { SigChain } from '../auth/sigchain'
 
 /**
  * Lightweight mocks — avoid bootstrapping the full NestJS module graph.
@@ -26,6 +27,13 @@ class MockSigChainService extends EventEmitter {
   get activeTeamId() {
     try {
       return this.getActiveChain(false)?.team?.id
+    } catch {
+      return undefined
+    }
+  }
+  get activeTeamName() {
+    try {
+      return this.getActiveChain(false)?.team?.name
     } catch {
       return undefined
     }
@@ -72,6 +80,7 @@ describe('QPSService', () => {
 
   const TOKEN = 'fake-device-token-abc123'
   const TEAM_ID = 'test-team-id'
+  const TEAM_NAME = 'test-team'
   const DEVICE_TOKEN_PAYLOAD = {
     deviceToken: TOKEN,
     bundleId: 'com.quietmobile',
@@ -99,10 +108,10 @@ describe('QPSService', () => {
   function setReady() {
     qssClient.connected = true
     sigChainService.activeChain = {
-      team: { id: TEAM_ID },
+      team: { id: TEAM_ID, name: SigChain.generateRandomTeamName() },
       context: { user: sigChainService.user },
       user: sigChainService.user,
-      roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER },
+      roles: { amIMemberOfRole: (role: string) => role === RoleName.MEMBER, amIMember: () => true },
     }
   }
 

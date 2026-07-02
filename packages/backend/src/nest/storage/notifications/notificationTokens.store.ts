@@ -84,7 +84,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       logger.info('No team found, cannot flush deferred notification tokens')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write notification tokens')
       return
     }

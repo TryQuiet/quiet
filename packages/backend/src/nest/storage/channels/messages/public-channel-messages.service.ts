@@ -38,7 +38,7 @@ export class PublicChannelMessagesService extends BaseMessagesService {
    */
   public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | undefined | false> {
     this.logger.debug('Received public channel message')
-    const chain = this.sigChainService.getChain({ teamId: message.teamId }, false)
+    const chain = this.sigChainService.getChain(message.teamId, false)
     if (chain == null) {
       this.logger.warn(
         `Chain doesn't exist or hasn't been initialized, can't consume messages for ${message.channelId}`

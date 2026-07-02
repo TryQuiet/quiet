@@ -155,7 +155,7 @@ async function waitForAuthReady(peer: QSSIntegrationPeer, teamId: string): Promi
 
 async function waitForMemberRole(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
   await waitForExpect(() => {
-    const sigChain = peer.sigChainService.getChain({ teamId })
+    const sigChain = peer.sigChainService.getChain(teamId)
     expect(sigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   }, 60_000)
 }
@@ -177,7 +177,7 @@ async function reconnectAndSignIn(peer: QSSIntegrationPeer, teamId: string, team
   const connectResult = await peer.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)
   expect(connectResult).toBe(QSSOperationResult.SUCCESS)
 
-  expect(peer.sigChainService.getChain({ teamName })).toBeDefined()
+  expect(peer.sigChainService.getChain(teamId)).toBeDefined()
   await waitForAuthReady(peer, teamId)
   await waitForMemberRole(peer, teamId)
   peer.qssService.markTeamStorageReady(teamId)
@@ -297,7 +297,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     peers.push(owner)
 
     const teamName = `qss-create-owner-${randomUUID()}`
-    const ownerSigChain = await owner.sigChainService.createChain(teamName, 'qss-create-owner', true)
+    const ownerSigChain = await owner.sigChainService.createChain('qss-create-owner', true)
     const teamId = ownerSigChain.team!.id
 
     await setCurrentCommunity(owner, {
@@ -334,7 +334,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
     peers.push(owner)
 
     const teamName = `qss-storage-ready-owner-${randomUUID()}`
-    const ownerSigChain = await owner.sigChainService.createChain(teamName, 'qss-storage-ready-owner', true)
+    const ownerSigChain = await owner.sigChainService.createChain('qss-storage-ready-owner', true)
     const teamId = ownerSigChain.team!.id
 
     await setCurrentCommunity(owner, {
@@ -404,11 +404,11 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     owner = await createPeer(ownerName)
     peers.push(owner)
 
-    const ownerSigChain = await owner.sigChainService.createChain(teamName, ownerName, true)
+    const ownerSigChain = await owner.sigChainService.createChain(ownerName, true)
     teamId = ownerSigChain.team!.id
     invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
     ownerSigChain.lockbox.createInviteLockboxes(invite.seed, invite.salt)
-    await owner.sigChainService.saveChain(teamName)
+    await owner.sigChainService.saveChain(teamId)
 
     await setCurrentCommunity(owner, {
       id: randomUUID(),
@@ -428,7 +428,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     await waitForQssSetup(owner)
     await waitForAuthReady(owner, teamId)
 
-    expect(await owner.qssService.signInToCommunity(teamId, ownerSigChain, teamName)).toBe(QSSOperationResult.SUCCESS)
+    expect(await owner.qssService.signInToCommunity(teamId, ownerSigChain)).toBe(QSSOperationResult.SUCCESS)
   })
 
   it('joins an invitee to the QSS community and opens matching QSS-backed stores', async () => {
@@ -439,7 +439,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     invitee = await createPeer(inviteeName)
     peers.push(invitee)
 
-    await invitee.sigChainService.createChainFromInvite(inviteeName, teamName, invite.seed, teamId, true)
+    await invitee.sigChainService.createChainFromInvite(inviteeName, invite.seed, teamId, true)
     await setCurrentCommunity(invitee, {
       id: randomUUID(),
       name: teamName,
@@ -451,7 +451,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
       qssEndpoint: QSS_INTEGRATION_ENDPOINT,
       qssSetup: true,
       inviteData: {
-        version: InvitationDataVersion.v3,
+        version: InvitationDataVersion.v5,
         pairs: [],
         psk: randomBytes(32).toString('base64'),
         authData: {
@@ -536,7 +536,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     const lateInvitee = await createPeer(lateInviteeName)
     peers.push(lateInvitee)
 
-    await lateInvitee.sigChainService.createChainFromInvite(lateInviteeName, teamName, invite.seed, teamId, true)
+    await lateInvitee.sigChainService.createChainFromInvite(lateInviteeName, invite.seed, teamId, true)
     await setCurrentCommunity(lateInvitee, {
       id: randomUUID(),
       name: teamName,
@@ -548,7 +548,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
       qssEndpoint: QSS_INTEGRATION_ENDPOINT,
       qssSetup: true,
       inviteData: {
-        version: InvitationDataVersion.v3,
+        version: InvitationDataVersion.v5,
         pairs: [],
         psk: randomBytes(32).toString('base64'),
         authData: {

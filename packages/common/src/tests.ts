@@ -1,41 +1,10 @@
-import {
-  InvitationData,
-  InvitationDataV1,
-  InvitationDataV2,
-  InvitationDataV3,
-  InvitationDataVersion,
-} from '@quiet/types'
+import { InvitationData, InvitationDataVersion, type InvitationDataV4, type InvitationDataV5 } from '@quiet/types'
 import { composeInvitationDeepUrl, composeInvitationShareUrl } from './invitationLink/invitationLink'
 import { QUIET_JOIN_PAGE } from './const'
 
-export const validInvitationDatav1: InvitationDataV1[] = [
+export const validInvitationDatav4: InvitationDataV4[] = [
   {
-    version: InvitationDataVersion.v1,
-    pairs: [
-      {
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        peerId: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
-      },
-    ],
-    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-    ownerOrbitDbIdentity: '018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0',
-  },
-  {
-    version: InvitationDataVersion.v1,
-    pairs: [
-      {
-        onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
-        peerId: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
-      },
-    ],
-    psk: '5T9GBVpDoRpKJQK4caDTz5e5nym2zprtoySL2oLrzr4=',
-    ownerOrbitDbIdentity: '028f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0',
-  },
-]
-
-export const validInvitationDatav2: InvitationDataV2[] = [
-  {
-    version: InvitationDataVersion.v2,
+    version: InvitationDataVersion.v4,
     pairs: [
       {
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
@@ -46,10 +15,11 @@ export const validInvitationDatav2: InvitationDataV2[] = [
     authData: {
       communityName: 'community-name',
       seed: '4kgd5mwq5z4fmfwq',
+      teamId: 'abc123',
     },
   },
   {
-    version: InvitationDataVersion.v2,
+    version: InvitationDataVersion.v4,
     pairs: [
       {
         onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
@@ -60,13 +30,14 @@ export const validInvitationDatav2: InvitationDataV2[] = [
     authData: {
       communityName: 'other-community-name',
       seed: '6k6damwb3z1emfqw',
+      teamId: 'def456',
     },
   },
 ]
 
-export const validInvitationDatav3: InvitationDataV3[] = [
+export const validInvitationDatav5: InvitationDataV5[] = [
   {
-    version: InvitationDataVersion.v3,
+    version: InvitationDataVersion.v5,
     pairs: [
       {
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
@@ -84,7 +55,7 @@ export const validInvitationDatav3: InvitationDataV3[] = [
     qssEndpoint: 'ws://localhost:3000',
   },
   {
-    version: InvitationDataVersion.v3,
+    version: InvitationDataVersion.v5,
     pairs: [
       {
         onionAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
@@ -103,7 +74,7 @@ export const validInvitationDatav3: InvitationDataV3[] = [
   },
 ]
 
-export const validInvitationCodeTestData: InvitationData[] = [...validInvitationDatav1]
+export const validInvitationCodeTestData: InvitationData[] = [...validInvitationDatav4]
 
 export const generateTestChannelId = (seed: string | number): string => {
   let hash = 2166136261

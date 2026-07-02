@@ -28,7 +28,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     const sigchainServiceA = await modules[0].resolve(SigChainService)
 
     // Create sigChain that all other peers will join
-    await sigchainServiceA.createChain(teamName, 'user0', true)
+    await sigchainServiceA.createChain('user0', true)
     const inviteResult: InviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
@@ -37,9 +37,8 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
       const sigchainService = await modules[i].resolve(SigChainService)
       await sigchainService.createChainFromInvite(
         `user${i}`,
-        teamName,
         inviteResult.seed,
-        sigchainServiceA.activeChain.team?.id,
+        sigchainServiceA.activeChain.team!.id,
         true
       )
     }

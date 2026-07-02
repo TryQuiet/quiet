@@ -45,7 +45,7 @@ describe('BaseMessagesAccessController', () => {
     localDbService = await module.resolve(LocalDbService)
 
     sigchainService = module.get<SigChainService>(SigChainService)
-    await sigchainService.createChain('test', 'testuser', true)
+    await sigchainService.createChain('testuser', true)
 
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
