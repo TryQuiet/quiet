@@ -21,7 +21,7 @@ import {
   AddMembersChannelStatus,
   DownloadStatus,
   RemoveDownloadStatus,
-  CHANNEL_METADATA_STORE_NAME,
+  PUBLIC_CHANNEL_METADATA_STORE_NAME,
   PRIVATE_CHANNEL_METADATA_STORE_NAME,
   ChannelOperationStatus,
 } from '@quiet/types'
@@ -246,31 +246,25 @@ export class ChannelsService extends EventEmitter {
   }
 
   private async openChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
-    return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      CHANNEL_METADATA_STORE_NAME,
-      {
-        sync: false,
-        Database: KeyValueIndexedValidated(this.validatePublicChannelMetadataEntry.bind(this)),
-        AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
-          write: ['*'],
-          sigchainService: this.sigchainService,
-        }),
-      }
-    )
+    return await this.openMetadataDb(PUBLIC_CHANNEL_METADATA_STORE_NAME, this.validatePublicChannelMetadataEntry)
   }
 
   private async openPrivateChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
-    return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(
-      PRIVATE_CHANNEL_METADATA_STORE_NAME,
-      {
-        sync: false,
-        Database: KeyValueIndexedValidated(this.validatePrivateChannelMetadataEntry.bind(this)),
-        AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
-          write: ['*'],
-          sigchainService: this.sigchainService,
-        }),
-      }
-    )
+    return await this.openMetadataDb(PRIVATE_CHANNEL_METADATA_STORE_NAME, this.validatePrivateChannelMetadataEntry)
+  }
+
+  private async openMetadataDb(
+    dbName: string,
+    validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry
+  ): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
+    return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(dbName, {
+      sync: false,
+      Database: KeyValueIndexedValidated(validateFunc.bind(this)),
+      AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigchainService,
+      }),
+    })
   }
 
   public encryptChannelEntry(payload: PublicChannel): EncryptedAndSignedPayload {
