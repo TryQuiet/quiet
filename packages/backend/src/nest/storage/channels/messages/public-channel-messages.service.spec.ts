@@ -81,7 +81,38 @@ describe('PublicChannelMessagesService', () => {
         ...message,
         verified: true,
         encSignature: encryptedMessage.encSignature,
+        teamId: encryptedMessage.teamId,
       })
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched createdAt', async () => {
+      const encryptedMessage = await messagesService.onSend(message)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        createdAt: 1234,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched team ID', async () => {
+      const encryptedMessage = await messagesService.onSend(message)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        teamId: 'THIS IS INVALID',
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched channel ID', async () => {
+      const encryptedMessage = await messagesService.onSend(message)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        channelId: 'THIS IS INVALID',
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
     })
 
     it('returns undefined when the signature is invalid', async () => {
