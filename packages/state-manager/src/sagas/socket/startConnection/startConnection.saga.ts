@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery, cancelled, take } from 'typed-redux-saga'
+import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -22,10 +22,8 @@ import { usersActions } from '../../users/users.slice'
 import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
-  type ResponseLaunchCommunityPayload,
   type ChannelMessageIdsResponse,
   type ChannelsReplicatedPayload,
-  type Community,
   type DownloadStatus,
   type ErrorPayload,
   type FileMetadata,
@@ -34,20 +32,15 @@ import {
   type RemoveDownloadStatus,
   type ChannelSubscribedPayload,
   type UserProfilesStoredEvent,
-  type Identity,
   type UsersUpdatedEvent,
   SocketEvents,
-  AttachFilePayload,
   LaunchCommunityPayload,
-  HCaptchaRequest,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
-  UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
-import { InviteResult } from '@localfirst/auth'
 import { captchaActions } from '../../captcha/captcha.slice'
 import { captchaMasterSaga } from '../../captcha/captchaMasterSaga'
 import { pushNotificationsMasterSaga } from '../../pushNotifications/pushNotifications.master.saga'

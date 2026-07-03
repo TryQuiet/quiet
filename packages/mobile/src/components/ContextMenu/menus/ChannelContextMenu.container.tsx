@@ -16,6 +16,11 @@ import LockIcon from '../../../assets/icons/svg/lock'
 import PublicChannelIcon from '../../../assets/icons/svg/public-channel'
 import { UserProfile } from '@quiet/types'
 
+const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE = 'Permissions'
+const CHANNEL_MEMBERSHIP_TITLE = 'Members in this channel'
+const CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE = 'Members'
+const CHANNEL_MEMBERSHIP_SUBTITLE = undefined
+
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
 
@@ -62,8 +67,8 @@ export const ChannelContextMenu: FC = () => {
 
   if (channel?.public === false) {
     items.push({
-      title: isOwner ? 'Permissions' : 'Members in this channel',
-      subtitle: isOwner ? 'Members' : undefined,
+      title: CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_TITLE,
+      subtitle: CHANNEL_MEMBERSHIP_ADD_PERMISSIONS_SUBTITLE,
       suffix: memberCountSuffix,
       action: () =>
         redirect(ScreenNames.ChannelMembershipScreen, {

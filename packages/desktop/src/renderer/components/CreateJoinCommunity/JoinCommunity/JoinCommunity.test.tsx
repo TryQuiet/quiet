@@ -22,14 +22,14 @@ import {
   QUIET_JOIN_PAGE,
   getValidInvitationUrlTestData,
   PSK_PARAM_KEY,
-  validInvitationDatav1,
+  validInvitationDatav4,
 } from '@quiet/common'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('JoinCommunity.test')
 
 describe('join community', () => {
-  const { code, data } = getValidInvitationUrlTestData(validInvitationDatav1[0])
+  const { code, data } = getValidInvitationUrlTestData(validInvitationDatav4[0])
 
   const validCode = code()
 

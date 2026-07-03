@@ -7,6 +7,7 @@ import { ChainServiceBase } from '../chainServiceBase'
 import { Member } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { hash } from '@localfirst/crypto'
+import { NotAdminError, RoleName } from './roles'
 
 const logger = createLogger('auth:channelService')
 

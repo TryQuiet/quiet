@@ -95,28 +95,26 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
             gap: 32,
           }}
         >
-          {isOwner && (
-            <View>
-              <View
-                style={{
-                  width: 'auto',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'flex-end',
-                  alignSelf: 'flex-end',
-                  paddingHorizontal: 16,
-                  paddingBottom: 16,
-                }}
-              >
-                <Button
-                  title={'Add members'}
-                  onPress={onPress}
-                  testID={`channel-membership-component-add-members-${channelId}`}
-                />
-              </View>
-              <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
+          <View>
+            <View
+              style={{
+                width: 'auto',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                alignSelf: 'flex-end',
+                paddingHorizontal: 16,
+                paddingBottom: 16,
+              }}
+            >
+              <Button
+                title={'Add members'}
+                onPress={onPress}
+                testID={`channel-membership-component-add-members-${channelId}`}
+              />
             </View>
-          )}
+            <View style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }} />
+          </View>
           <ChannelMembershipList members={members} channelId={channelId} />
         </View>
       </KeyboardAvoidingView>

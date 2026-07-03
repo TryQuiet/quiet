@@ -53,7 +53,7 @@ describe('OrbitDbService', () => {
     localDbService = await module.resolve(LocalDbService)
 
     sigchainService = module.get<SigChainService>(SigChainService)
-    await sigchainService.createChain('test', 'testuser', true)
+    await sigchainService.createChain(true)
   })
 
   beforeEach(async () => {

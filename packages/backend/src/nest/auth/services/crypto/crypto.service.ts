@@ -131,7 +131,7 @@ class CryptoService extends ChainServiceBase {
   public decryptAndVerify<T>(
     encrypted: EncryptedPayload,
     signature: Signature,
-    failOnInvalid = true
+    throwOnInvalid = true
   ): DecryptedPayload<T> {
     let contents: T
     if (typeof encrypted.contents === 'string') {
@@ -178,7 +178,7 @@ class CryptoService extends ChainServiceBase {
       contents,
     }
     const isValid = this.validateSignature(fullSig)
-    if (!isValid && failOnInvalid) {
+    if (!isValid && throwOnInvalid) {
       throw new Error(`Couldn't verify signature on message`)
     }
 

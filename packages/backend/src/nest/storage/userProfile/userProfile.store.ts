@@ -90,7 +90,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       logger.info('No team found, cannot flush deferred user profiles')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write to the user profiles store')
       return
     }

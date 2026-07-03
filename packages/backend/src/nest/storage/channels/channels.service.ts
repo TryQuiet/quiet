@@ -23,6 +23,7 @@ import {
   DownloadStatus,
   RemoveDownloadStatus,
   CHANNEL_METADATA_STORE_NAME,
+  ChannelOperationStatus,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -473,7 +474,7 @@ export class ChannelsService extends EventEmitter {
     if (!store) {
       throw new Error('Failed to create channel')
     }
-    return { channel: channelData }
+    return { channel: channelData, status: ChannelOperationStatus.SUCCESS }
   }
 
   /**
@@ -523,7 +524,7 @@ export class ChannelsService extends EventEmitter {
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
     } as ChannelSubscribedPayload)
-    return { channel: channelData }
+    return { channel: channelData, status: ChannelOperationStatus.SUCCESS }
   }
 
   /**
@@ -566,7 +567,7 @@ export class ChannelsService extends EventEmitter {
       this.logger.error(`Channel ${channelId} not found`)
       return { channelId, deleted: true } as DeleteChannelResponse
     }
-    const iAmAdmin = this.sigchainService.team.memberIsAdmin(this.sigchainService.getActiveChain().user.userId)
+    const iAmAdmin = this.sigchainService.roles.amIAdmin()
     const iOwnThisChannel = channel?.owner === this.sigchainService.getActiveChain().user.userId
     // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
     // TODO: invalidate removals from non-owners

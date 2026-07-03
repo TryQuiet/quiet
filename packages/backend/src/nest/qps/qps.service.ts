@@ -51,7 +51,13 @@ export class QPSService implements OnModuleInit {
   }
 
   private get ready(): boolean {
-    return this.qssClient.connected && this._hasMemberKey()
+    const teamId = this.sigChainService.activeTeamId
+    return (
+      teamId != null &&
+      this.qssClient.connected &&
+      this.qssService.joinStatus(teamId) === JoinStatus.JOINED &&
+      this._hasMemberKey()
+    )
   }
 
   onModuleInit() {
@@ -60,6 +66,7 @@ export class QPSService implements OnModuleInit {
       await this.register(payload)
     })
 
+    this.qssService.on(QSSEvents.QSS_AUTH_JOINED, () => this._flushPendingToken())
     this.qssService.on(QSSEvents.QSS_FULLY_JOINED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_CONNECTED, () => this._flushPendingToken())
     this.qssClient.on(QSSEvents.QSS_LOG_SYNCED, (teamId: string) => void this.sendBatchPush(teamId))
@@ -77,13 +84,18 @@ export class QPSService implements OnModuleInit {
       return undefined
     }
 
+    this._pendingDeviceToken = payload
+
     if (!this.ready) {
-      this.logger.info('QSS not connected or sigchain not joined, caching device token')
-      this._pendingDeviceToken = payload
+      this.logger.info('QSS not connected or signed into the active team, caching device token')
       return undefined
     }
 
-    return this._register(payload)
+    const response = await this._register(payload)
+    if (response?.status === CommunityOperationStatus.SUCCESS) {
+      this._pendingDeviceToken = undefined
+    }
+    return response
   }
 
   public async tombstoneCurrentUserNotificationTokens(): Promise<boolean> {
@@ -131,6 +143,12 @@ export class QPSService implements OnModuleInit {
     try {
       this.logger.info(`Tombstoning notification tokens before leave for user ${userId} on team ${teamId}`)
       const tombstoneHash = await this.notificationTokensStore.tombstoneUser(userId)
+      if (tombstoneHash === '') {
+        this.logger.info(
+          `No existing notification token entry found for user ${userId} on team ${teamId}, skipping tombstone`
+        )
+        return true
+      }
 
       try {
         await this.qssSyncManager.waitForLogEntrySyncAck(tombstoneHash, LEAVE_TOMBSTONE_ACK_TIMEOUT_MS)
@@ -154,16 +172,21 @@ export class QPSService implements OnModuleInit {
   private async _flushPendingToken(): Promise<void> {
     this.logger.debug('Checking if pending device token can be flushed')
     const hasPendingToken = this._pendingDeviceToken != undefined
+    const teamId = this.sigChainService.activeTeamId
     const qssConnected = this.qssClient.connected
+    const qssAuthJoined = teamId != null && this.qssService.joinStatus(teamId) === JoinStatus.JOINED
     const hasMemberKey = this._hasMemberKey()
 
-    if (!hasPendingToken || !qssConnected || !hasMemberKey) {
+    if (!hasPendingToken || !qssConnected || !qssAuthJoined || !hasMemberKey) {
       const reasons: string[] = []
       if (!hasPendingToken) {
         reasons.push('no pending device token')
       }
       if (!qssConnected) {
         reasons.push('QSS not connected')
+      }
+      if (!qssAuthJoined) {
+        reasons.push(teamId == null ? 'no active team ID' : `QSS auth not joined for team ${teamId}`)
       }
       if (!hasMemberKey) {
         reasons.push('sigchain member key unavailable')
@@ -180,7 +203,7 @@ export class QPSService implements OnModuleInit {
 
     const token = this._pendingDeviceToken
     this._pendingDeviceToken = undefined
-    this.logger.info('Flushing cached device token')
+    this.logger.info(`Flushing cached device token for team ${teamId}`)
     const response = await this._register(token)
     if (response == null || response.status !== CommunityOperationStatus.SUCCESS) {
       this.logger.warn('Failed to register cached device token')
@@ -190,10 +213,7 @@ export class QPSService implements OnModuleInit {
 
   private _hasMemberKey(): boolean {
     try {
-      return (
-        this.sigChainService.activeChain?.team != undefined &&
-        this.sigChainService.activeChain.roles.amIMemberOfRole(RoleName.MEMBER)
-      )
+      return this.sigChainService.activeChain?.team != undefined && this.sigChainService.activeChain.roles.amIMember()
     } catch {
       return false
     }
@@ -292,6 +312,12 @@ export class QPSService implements OnModuleInit {
   private async _register(payload: DeviceTokenPayload): Promise<QPSRegisterResponse | undefined> {
     this.logger.info('Registering device token')
     try {
+      const teamId = this.sigChainService.activeTeamId
+      if (teamId == null) {
+        this.logger.warn('Cannot register device token before active team is available')
+        return undefined
+      }
+
       const response = await this.qssClient.sendMessage<QPSRegisterResponse>(
         WebsocketEvents.REGISTER_DEVICE_TOKEN,
         {
@@ -301,7 +327,7 @@ export class QPSService implements OnModuleInit {
             deviceToken: payload.deviceToken,
             bundleId: payload.bundleId,
             platform: payload.platform,
-            teamId: this.sigChainService.team.id,
+            teamId,
           },
         } satisfies QPSRegisterMessage,
         true
@@ -314,9 +340,14 @@ export class QPSService implements OnModuleInit {
           await this.notificationTokensStore.addToken(userId, response.payload.ucan)
         } catch (err) {
           this.logger.error('Failed to store UCAN in notification tokens store', err)
-          return response
+          return undefined
         }
         return response
+      }
+
+      if (response?.status === CommunityOperationStatus.SUCCESS) {
+        this.logger.warn('QPS registration succeeded without a UCAN')
+        return undefined
       }
 
       this.logger.warn(`QPS registration failed: ${response?.reason ?? 'unknown'}`)

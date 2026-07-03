@@ -4,5 +4,10 @@ import React from 'react'
 import { CreateChannel } from './CreateChannel.component'
 
 storiesOf('CreateChannel', module).add('Default', () => (
-  <CreateChannel createChannelAction={() => {}} handleBackButton={() => {}} />
+  <CreateChannel
+    createChannelAction={() => {}}
+    handleBackButton={() => {}}
+    canCreateChannel={true}
+    canCreatePrivateChannel={true}
+  />
 ))

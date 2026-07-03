@@ -6,7 +6,7 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors, isOwner } from '../../communities/communities.selectors'
 import { createLogger } from '../../../utils/logger'
-import { CommunityOwnership } from '@quiet/types'
+import { ChannelOperationStatus, CommunityOwnership } from '@quiet/types'
 
 const logger = createLogger('channelsReplicatedSaga')
 
@@ -30,6 +30,7 @@ export function* channelsReplicatedSaga(
       yield* putResolve(
         publicChannelsActions.addChannel({
           channel,
+          status: ChannelOperationStatus.SUCCESS,
         })
       )
       logger.info(`Adding #${channel.name} messages to store`)

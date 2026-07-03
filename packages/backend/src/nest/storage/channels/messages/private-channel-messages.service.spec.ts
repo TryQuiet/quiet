@@ -6,7 +6,6 @@ import { ChannelMessage } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { isUint8Array } from 'util/types'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
-import { RoleName } from '../../../auth/services/roles/roles'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { createLogger } from '../../../common/logger'
 import { TestModule } from '../../../common/test.module'
@@ -39,7 +38,7 @@ describe('PrivateChannelMessagesService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('test-community', 'alice', true)
+    await sigChainService.createChain(true)
     message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
     sigChainService.activeChain.channels.create(message.channelId)
     messagesService = await module.resolve(PrivateChannelMessagesService)
