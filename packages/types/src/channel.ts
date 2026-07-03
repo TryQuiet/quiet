@@ -62,6 +62,7 @@ export interface ChannelMessage {
 }
 
 export interface ConsumedChannelMessage extends ChannelMessage {
+  teamId: string
   verified?: boolean
 }
 

@@ -112,7 +112,7 @@ describe('ChannelsService', () => {
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
 
-    await sigChainService.createChain('alice', true)
+    await sigChainService.createChain(true)
     aliceUserId = sigChainService.getActiveChain().user.userId
 
     await storageService.init()
@@ -945,6 +945,7 @@ describe('ChannelsService', () => {
       expect(savedMessages?.messages[0]).toEqual({
         ...messageCopy,
         verified: true,
+        teamId: sigChainService.activeChain.team!.id,
         encSignature: expect.objectContaining({
           author: {
             generation: 0,

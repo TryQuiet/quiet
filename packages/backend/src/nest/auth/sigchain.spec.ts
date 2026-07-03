@@ -4,16 +4,15 @@ import { createLogger } from '../common/logger'
 import { LocalUserContext } from '3rd-party/auth/packages/auth/dist'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from './types'
+import { RANDOM_USERNAME_LENGTH } from './services/members/types'
 
 const logger = createLogger('auth:sigchainManager.spec')
 
 describe('SigChain', () => {
   let sigChain: SigChain
-  const teamName = 'test'
-  const userName = 'user'
 
   it('should initialize a new sigchain and be admin', () => {
-    sigChain = SigChain.create(userName)
+    sigChain = SigChain.create()
     expect(sigChain).toBeDefined()
     expect(sigChain.context).toBeDefined()
     expect(sigChain.roles.amIAdmin()).toBe(true)
@@ -21,7 +20,8 @@ describe('SigChain', () => {
     expect(sigChain.teamName).toBeDefined()
     expect(base58.detect(sigChain.teamName!)).toBeTruthy()
     expect(sigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
-    expect(sigChain.user.userName).toBe(userName)
+    expect(base58.detect(sigChain.user.userName)).toBeTruthy()
+    expect(sigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('admin should not have a role that does not exist', () => {
     expect(sigChain.roles.amIMemberOfRole('nonexistent')).toBe(false)

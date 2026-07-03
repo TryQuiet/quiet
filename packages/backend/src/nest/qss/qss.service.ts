@@ -32,14 +32,7 @@ import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
 import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
-import {
-  CompoundError,
-  InvitationDataV3,
-  NseQssUrlUpdatedEvent,
-  SocketActions,
-  SocketEvents,
-  type InvitationDataV5,
-} from '@quiet/types'
+import { CompoundError, NseQssUrlUpdatedEvent, SocketActions, SocketEvents, type InvitationDataV5 } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
 import { QSSSyncManager } from './qss-sync-manager.service'

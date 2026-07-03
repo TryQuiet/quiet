@@ -16,7 +16,7 @@ import { headsAreEqual, Hash } from '@localfirst/crdx'
 import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { ChannelsService } from '../../storage/channels/channels.service'
-import { PublicChannel } from '@quiet/types'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
@@ -234,14 +234,18 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const sigchainServiceA = await modules[0].resolve(SigChainService)
 
     // Create sigChain that all other peers will join
-    await sigchainServiceA.createChain('user0', true)
+    await sigchainServiceA.createChain(true)
     inviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
     for (let i = 1; i < modules.length; i++) {
       // Create invitation from A -> B
       const sigchainService = await modules[i].resolve(SigChainService)
-      await sigchainService.createChainFromInvite(`user${i}`, inviteResult.seed, sigchainServiceA.activeTeamId!, true)
+      await sigchainService.createChainFromInvite(
+        { name: `user${i}`, seed: inviteResult.seed },
+        sigchainServiceA.activeTeamId!,
+        true
+      )
     }
 
     // Create libp2p instances (in-memory transport)
@@ -370,14 +374,15 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
 
   it('sends a message from each peer and receives it on all peers', async () => {
     logger.info('sends a message from each peer and receives it on all peers')
-    const messages: string[] = []
+    const messages: ChannelMessage[] = []
     // Define the message sending as a callback to be run after listeners are set up
     const sendMessagesFromAllPeers = async () => {
       for (let i = 0; i < modules.length; i++) {
-        const message = await factory.build('ChannelMessage', {
+        const message = await factory.build<ChannelMessage>('ChannelMessage', {
           channelId: publicChannels[0].id,
+          userId: modules[i].get(SigChainService).user.userId,
         })
-        messages.push(message.content)
+        messages.push(message)
         const channelsService = modules[i].get(ChannelsService)
         const channelStore = channelsService.channelsRepos.get(publicChannels[0].id)
         if (!channelStore) {
@@ -460,8 +465,9 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(getChannels.find(channel => channel.id === newChannel.id)).toBeDefined()
 
     // Send a message in the new channel
-    const message = await factory.build('ChannelMessage', {
+    const message = await factory.build<ChannelMessage>('ChannelMessage', {
       channelId: newChannel.id,
+      userId: sigchainService.user.userId,
     })
     const channelStore = channelsService.channelsRepos.get(newChannel.id)
     await channelStore!.store.sendMessage(message)
@@ -566,8 +572,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     const username = `user${N_PEERS}`
     const adminSigchainService = modules[0].get(SigChainService)
     const sigchain = await sigchainService.createChainFromInvite(
-      username,
-      inviteResult.seed,
+      { name: username, seed: inviteResult.seed },
       adminSigchainService.activeTeamId!,
       true
     )
@@ -590,7 +595,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       ...userContext,
       team: loadedTeam,
     }
-    const newUser = sigchain.users.getUserByName(username)
+    const newUser = sigchain.users.getUserById(sigchain.user.userId)
     expect(newUser).toBeDefined()
     expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
 

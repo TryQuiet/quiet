@@ -18,7 +18,6 @@ const logger = createLogger('libp2p:multiple-peers.spec')
 const N_PEERS = 4
 jest.setTimeout(120_000)
 describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
-  const teamName: string = 'team'
   const eventTimeline: string[] = []
   const eventTimelines: Array<string[]> = []
   const modules: TestingModule[] = []
@@ -28,7 +27,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
     const sigchainServiceA = await modules[0].resolve(SigChainService)
 
     // Create sigChain that all other peers will join
-    await sigchainServiceA.createChain('user0', true)
+    await sigchainServiceA.createChain(true)
     const inviteResult: InviteResult = sigchainServiceA.getActiveChain().invites.createLongLivedUserInvite()
 
     // Initialize other chains with invite seed
@@ -36,8 +35,7 @@ describe(`Libp2pAuth with ${N_PEERS} peers`, () => {
       // Create invitation from A -> B
       const sigchainService = await modules[i].resolve(SigChainService)
       await sigchainService.createChainFromInvite(
-        `user${i}`,
-        inviteResult.seed,
+        { name: `user${i}`, seed: inviteResult.seed },
         sigchainServiceA.activeChain.team!.id,
         true
       )

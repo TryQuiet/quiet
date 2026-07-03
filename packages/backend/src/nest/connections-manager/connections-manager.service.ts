@@ -36,7 +36,6 @@ import {
   Identity,
   PeerId as QuietPeerId,
   InvitationDataVersion,
-  InvitationDataV2,
   PermissionsError,
   CommunityOwnership,
   InitCommunityPayload,
@@ -82,7 +81,6 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
-import { teamKeyring } from '3rd-party/auth/packages/auth/dist/team/selectors'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -612,7 +610,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.erasePreviousCommunityArtifacts()
 
     this.logger.info(`Creating new LFA chain`)
-    const sigchain = await this.sigChainService.createChain(payload.username, true)
+    const sigchain = await this.sigChainService.createChain(true)
     const network = await this.getNetworkInfo()
 
     const identity: Identity = {
@@ -685,9 +683,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.erasePreviousCommunityArtifacts()
 
-    const communityName = inviteData.authData.communityName
-    const teamId = inviteData.authData.teamId
-    await this.sigChainService.createChainFromInvite(payload.username, inviteData.authData.seed, teamId, true)
+    const { communityName, seed, teamId } = inviteData.authData
+    await this.sigChainService.createChainFromInvite({ seed }, teamId, true)
 
     if (!isPSKcodeValid(inviteData.psk)) {
       emitError(this.serverIoProvider.io, {
