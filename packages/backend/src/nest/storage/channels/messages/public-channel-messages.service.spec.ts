@@ -117,6 +117,7 @@ describe('PublicChannelMessagesService', () => {
       expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
     })
 
+    // https://github.com/TryQuiet/quiet/issues/3334
     it('fails to consume message with mismatched user ID', async () => {
       const messageWithBadUserId: ChannelMessage = {
         ...message,
