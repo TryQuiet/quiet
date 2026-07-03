@@ -65,7 +65,7 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
       const chain = this.sigChainService.getActiveChain()
       const encryptable: EncryptableMessageComponents = {
         id: rawMessage.id,
-        userId: chain.user.userId,
+        userId: rawMessage.userId,
         type: rawMessage.type,
         channelId: rawMessage.channelId,
         message: rawMessage.message,

@@ -26,6 +26,8 @@ describe('PrivateChannelMessagesService', () => {
 
   let handleChainUpdateSpy: jest.SpiedFunction<any>
 
+  const INVALID_FIELD_VALUE = 'THIS IS INVALID'
+
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
   })
@@ -110,7 +112,7 @@ describe('PrivateChannelMessagesService', () => {
       const encryptedMessage = await messagesService.onSend(message)
       const mismatchedEncryptedMessage: EncryptedMessage = {
         ...encryptedMessage,
-        teamId: 'THIS IS INVALID',
+        teamId: INVALID_FIELD_VALUE,
       }
       expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
     })
@@ -120,9 +122,19 @@ describe('PrivateChannelMessagesService', () => {
       const encryptedMessage = await messagesService.onSend(message)
       const mismatchedEncryptedMessage: EncryptedMessage = {
         ...encryptedMessage,
-        channelId: 'THIS IS INVALID',
+        channelId: INVALID_FIELD_VALUE,
       }
       expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3334
+    it('fails to consume message with mismatched user ID', async () => {
+      const messageWithBadUserId: ChannelMessage = {
+        ...message,
+        userId: INVALID_FIELD_VALUE,
+      }
+      const encryptedMessage = await messagesService.onSend(messageWithBadUserId)
+      expect(await messagesService.onConsume(encryptedMessage)).toBeFalsy()
     })
 
     it('returns undefined when the signature is invalid', async () => {
