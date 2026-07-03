@@ -70,7 +70,7 @@ describe('sendMessageSaga', () => {
           id: generateChannelId('sailing'),
         },
       })
-    ).channel
+    ).channel!
   })
 
   beforeEach(async () => {

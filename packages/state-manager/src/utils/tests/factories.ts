@@ -33,7 +33,6 @@ import {
   InvitationData,
   InvitationPair,
   InvitationDataVersion,
-  InvitationAuthData,
   DeleteChannelPayload,
   ErrorPayload,
   ConnectionProcessInfo,
@@ -52,6 +51,9 @@ import {
   FileMessage,
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
+  ChannelOperationStatus,
+  type InvitationAuthDataV5,
+  type InvitationAuthDataV4,
 } from '@quiet/types'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
@@ -179,17 +181,17 @@ export const getBaseTypesFactory = async () => {
     onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
   })
 
-  factory.define<InvitationAuthData>('InvitationAuthData', Object, {
+  factory.define<InvitationAuthDataV4 | InvitationAuthDataV5>('InvitationAuthData', Object, {
     communityName: 'community-name',
     seed: 'seed',
+    teamId: 'abc123',
   })
 
   factory.define<InvitationData>('InvitationData', Object, {
-    version: InvitationDataVersion.v2,
+    version: InvitationDataVersion.v4,
     authData: factory.assoc('InvitationAuthData'),
     pairs: [factory.assoc('InvitationPair')],
     psk: 'psk',
-    ownerOrbitDbIdentity: 'owner-orbit-db-identity',
   })
 
   return factory
@@ -313,14 +315,15 @@ export const getReduxStoreFactory = async (store: Store) => {
           teamId: factory.assoc('Community', 'teamId'),
         }
       }),
+      status: ChannelOperationStatus.SUCCESS,
     },
     {
       afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         await factory.create('PublicChannelSubscription', {
-          channelId: payload.channel.id,
+          channelId: payload.channel!.id,
         })
         return payload
       },
@@ -459,6 +462,7 @@ export const getSocketFactory = async () => {
       name: 'Test Community',
       ownership: CommunityOwnership.User,
       peerList: ['peer-1', 'peer-2'],
+      teamId: 'abc123',
     },
     identity: baseTypes.assoc('Identity', 'communityId'),
     profile: baseTypes.assoc('UserProfile'),
@@ -477,6 +481,7 @@ export const getSocketFactory = async () => {
       name: 'New Community',
       ownership: CommunityOwnership.Owner,
       peerList: [],
+      teamId: 'abc123',
     },
     identity: baseTypes.assoc('Identity', 'communityId'),
     profile: baseTypes.assoc('UserProfile'),

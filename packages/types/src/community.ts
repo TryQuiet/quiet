@@ -8,7 +8,7 @@ import { User, UserProfile } from './user'
 export interface Community {
   id: string
   ownership: CommunityOwnership
-  name?: string
+  name: string
   CA?: null | {
     rootCertString: string
     rootKeyString: string
@@ -20,7 +20,7 @@ export interface Community {
   psk?: string
   inviteData?: InvitationData | null
   ownerOrbitDbIdentity?: string
-  teamId?: string
+  teamId: string
   qssEnabled?: boolean
   qssEndpoint?: string
   tosAccepted?: boolean

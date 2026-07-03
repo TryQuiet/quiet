@@ -1,8 +1,8 @@
 PODS:
   - boost (1.84.0)
-  - CocoaLumberjack (3.9.0):
-    - CocoaLumberjack/Core (= 3.9.0)
-  - CocoaLumberjack/Core (3.9.0)
+  - CocoaLumberjack (3.9.1):
+    - CocoaLumberjack/Core (= 3.9.1)
+  - CocoaLumberjack/Core (3.9.1)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
   - FBLazyVector (0.77.3)
@@ -1735,11 +1735,7 @@ PODS:
   - SocketRocket (0.7.1)
   - Sodium (0.9.1)
   - SSZipArchive (2.5.5)
-  - Tor (409.5.1):
-    - Tor/CTor (= 409.5.1)
-  - Tor/Core (409.5.1)
-  - Tor/CTor (409.5.1):
-    - Tor/Core
+  - Tor (405.9.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1834,7 +1830,7 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Sodium
-  - Tor (~> 409)
+  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1857,7 +1853,6 @@ SPEC REPOS:
     - SocketRocket
     - Sodium
     - SSZipArchive
-    - Tor
 
 EXTERNAL SOURCES:
   boost:
@@ -2031,12 +2026,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
+  Tor:
+    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  CocoaLumberjack: 5644158777912b7de7469fa881f8a3f259c2512a
+  CocoaLumberjack: e4ba3b414dfca8c1916c6303d37f63b3a95134c6
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 23d8c5470c648a635893dc0956c6dbaead54b656
@@ -2138,9 +2135,9 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
-  Tor: fb12b6bcfa1309d3e40e98908eabd28e5ff4bb61
-  Yoga: 1a10502f162e8fc40ff0907c82d01cfe555d00c2
+  Tor: 39dc71bf048312e202608eb499ca5c74e841b503
+  Yoga: 2b02f3f767761bb4ffd25b1bb56fd264be57bd6b
 
-PODFILE CHECKSUM: ddc7d8f987087558efecc21d1a456e47a3846175
+PODFILE CHECKSUM: cfc64e6e7d6e469da4bad48f367062c5e329239f
 
 COCOAPODS: 1.16.2

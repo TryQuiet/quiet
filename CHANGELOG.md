@@ -4,13 +4,41 @@
 
 ### Features
 
+* Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
+* Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
+
+### Fixes
+
+* Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+* Ensure notification registration waits for auth handshake [#3289](https://github.com/TryQuiet/quiet/issues/3289)
+* Fixed a race condition that can cause stale data to remain after leaving community [#3253](https://github.com/TryQuiet/quiet/issues/3253)
+* Temporarily disable private channels
+
+### Chores
+
+* Enable QSS on prod
+* Add script for cleaning compiled/generated code directories
+
+### Breaking
+
+* Require team ID on invite links, use team ID for all chain operations, and hash team name on sigchains [#3296](https://github.com/TryQuiet/quiet/issues/3296)
+* Use randomly generated Base58 usernames on sigchain [#3321](https://github.com/TryQuiet/quiet/issues/3321)
+
+## [7.3.0]
+
+### Features
+
 * Adds private channels with modifiable membership (no removals) to desktop [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 * Adds private channels with modifiable membership (no removals) to mobile [#3155](https://github.com/TryQuiet/quiet/issues/3155)
+* Private channel creation and modification is limited to admins [#3256](https://github.com/TryQuiet/quiet/issues/3256)
 
 ### Fixes
 
 * Fix: leaving a community now purges uploaded and downloaded files; if the leave is interrupted (process killed, OS-terminated, power loss), the purge is finished on the next app launch [#3225](https://github.com/TryQuiet/quiet/issues/3225)
 * Fixed settings section titles rendering inside the scrollable content; moved section titles to the settings header and added a regression test to prevent future regressions [#2568](https://github.com/TryQuiet/quiet/issues/2568)
+* Fixed android not requesting permission for foreground push notifications [#3254](https://github.com/TryQuiet/quiet/issues/3254)
+* Fixes race condition with android push notifications [#3255](https://github.com/TryQuiet/quiet/issues/3255)
+* Mark IOS UI as needing compatibility updates to fix contrast problems on IOS 26 [#3266](https://github.com/TryQuiet/quiet/issues/3266)
 
 ## [7.2.0]
 

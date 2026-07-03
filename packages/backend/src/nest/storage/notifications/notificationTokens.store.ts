@@ -84,7 +84,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       logger.info('No team found, cannot flush deferred notification tokens')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write notification tokens')
       return
     }
@@ -148,6 +148,12 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
   }
 
   public async tombstoneUser(userId: string): Promise<string> {
+    const myEntry = await this.getStore().get(userId)
+    if (!myEntry) {
+      logger.info(`No existing notification token entry found for user ${userId}, must skip tombstone`)
+      return ''
+    }
+
     const tombstoneEntry: PushNotificationTokens = { userId, tokens: [] }
 
     try {

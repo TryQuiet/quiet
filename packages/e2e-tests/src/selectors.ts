@@ -628,7 +628,9 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
-  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+  async openMenu(
+    expectChannelTypeIcon = true
+  ): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean | undefined }> {
     let menu: WebElement
     try {
       menu = await this.driver.wait(
@@ -660,30 +662,38 @@ export class ChannelContextMenu {
         iconVisible: false,
       }
     }
-    try {
-      const channelTypeIcon = this.driver.wait(
-        until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
-        15_000,
-        `Channel context menu lock/hash icon couldn't be located within timeout`,
-        500
-      )
-      await this.driver.wait(
-        until.elementIsVisible(channelTypeIcon),
-        15_000,
-        `Channel context menu lock/hash icon was not visibile within timeout`,
-        500
-      )
-      return {
-        menuButton: true,
-        menuOpened: true,
-        iconVisible: true,
+    if (expectChannelTypeIcon) {
+      try {
+        const channelTypeIcon = this.driver.wait(
+          until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
+          15_000,
+          `Channel context menu lock/hash icon couldn't be located within timeout`,
+          500
+        )
+        await this.driver.wait(
+          until.elementIsVisible(channelTypeIcon),
+          15_000,
+          `Channel context menu lock/hash icon was not visibile within timeout`,
+          500
+        )
+        return {
+          menuButton: true,
+          menuOpened: true,
+          iconVisible: true,
+        }
+      } catch (e) {
+        logger.error('Error while checking for channel icon on context menu', e)
+        return {
+          menuButton: true,
+          menuOpened: true,
+          iconVisible: false,
+        }
       }
-    } catch (e) {
-      logger.error('Error while checking for channel icon on context menu', e)
+    } else {
       return {
         menuButton: true,
         menuOpened: true,
-        iconVisible: false,
+        iconVisible: undefined,
       }
     }
   }
@@ -2252,7 +2262,9 @@ export class Sidebar {
     return channel
   }
 
-  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
+  // NOTE: expectToggle defaults to false because the private channel toggle is currently hidden from
+  // the UI. Creating private channels (isPublic=false) is therefore not possible via the UI.
+  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = false): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,
@@ -2647,26 +2659,39 @@ export class Settings {
   }
 
   async close() {
+    logger.debug('Closing settings modal')
     const closeButton = await this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="close-settings-button"]')),
       10_000,
       `Settings close button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(closeButton), 5_000)
+    await this.driver.wait(
+      until.elementIsVisible(closeButton),
+      5_000,
+      `Settings close button wasn't visible within timeout`,
+      500
+    )
     await closeButton.click()
   }
 
   async closeTab() {
+    logger.debug('Closing settings tab')
     const closeTabButton = await this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="close-tab-button-box"]//button')),
       10_000,
       `Settings tab close button couldn't be found within timeout`,
       500
     )
-    await this.driver.wait(until.elementIsVisible(closeTabButton), 5_000)
+    await this.driver.wait(
+      until.elementIsVisible(closeTabButton),
+      5_000,
+      `Settings tab close button wasn't visible within timeout`,
+      500
+    )
     await closeTabButton.click()
   }
+
   private async waitForTabToBeReady(tabName: SettingsModalTabName) {
     let locator: string | undefined = undefined
     switch (tabName) {

@@ -23,6 +23,8 @@ export const CreateChannelScreen: FC = () => {
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
+  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
+  const canCreatePrivateChannel = useSelector(publicChannels.selectors.canCreatePrivateChannel)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -119,6 +121,8 @@ export const CreateChannelScreen: FC = () => {
       channelCreationError={error?.message}
       clearComponent={clearComponent}
       handleBackButton={handleBackButton}
+      canCreateChannel={canCreateChannel}
+      canCreatePrivateChannel={canCreatePrivateChannel}
     />
   )
 }

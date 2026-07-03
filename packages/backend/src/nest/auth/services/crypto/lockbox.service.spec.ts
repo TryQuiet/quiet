@@ -1,9 +1,11 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { RoleName } from '../roles/roles'
-import { hash, randomBytes } from '@localfirst/crypto'
+import { base58, hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
 import { EncryptionScopeType, InviteLockboxMetadata } from './types'
+import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
+import { RANDOM_USERNAME_LENGTH } from '../members/types'
 
 const logger = createLogger('auth:services:lockbox.spec')
 
@@ -14,12 +16,15 @@ describe('lockbox', () => {
   let generatedKeys: InviteLockboxMetadata
 
   it('should initialize a new sigchain and be admin', () => {
-    adminSigChain = SigChain.create('test', 'user')
+    adminSigChain = SigChain.create()
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.context).toBeDefined()
-    expect(adminSigChain.team!.teamName).toBe('test')
-    expect(adminSigChain.user.userName).toBe('user')
-    expect(adminSigChain.roles.amIMemberOfRole(RoleName.ADMIN)).toBe(true)
+    expect(adminSigChain.teamName).toBeDefined()
+    expect(base58.detect(adminSigChain.teamName!)).toBeTruthy()
+    expect(adminSigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
+    expect(base58.detect(adminSigChain.user.userName)).toBeTruthy()
+    expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
+    expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
   it('should create keys from seed and salt', () => {
