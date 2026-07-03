@@ -134,7 +134,7 @@ describe('ChannelsService', () => {
 
     adminChain.lockbox.createInviteLockboxes(invite.seed, salt, RoleName.MEMBER)
 
-    const invitedChain = SigChain.createFromInvite(username, invite.seed)
+    const invitedChain = SigChain.createFromInvite({ seed: invite.seed })
     adminChain.invites.admitMemberFromInvite(
       InviteService.generateProof(invite.seed),
       invitedChain.user.userName,
