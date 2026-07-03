@@ -661,7 +661,9 @@ export class ChannelContextMenu {
     )
   }
 
-  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+  async openMenu(
+    expectChannelTypeIcon = true
+  ): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean | undefined }> {
     let menu: WebElement
     try {
       menu = await this.driver.wait(
