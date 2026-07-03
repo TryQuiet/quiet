@@ -7,7 +7,6 @@ import { EncryptionScopeType } from '../../../auth/services/crypto/types'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
 import { RoleName } from '../../../auth/services/roles/roles'
-import { isConsumedChannelMessage } from '../../../validation/validators'
 import { BaseMessagesService } from './base-messages.service'
 import { SigChain } from '../../../auth/sigchain'
 
