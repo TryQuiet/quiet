@@ -16,7 +16,7 @@ import { headsAreEqual, Hash } from '@localfirst/crdx'
 import { OrbitDbService } from '../../storage/orbitDb/orbitDb.service'
 import { IpfsService } from '../../ipfs/ipfs.service'
 import { ChannelsService } from '../../storage/channels/channels.service'
-import { PublicChannel } from '@quiet/types'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
@@ -374,14 +374,15 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
 
   it('sends a message from each peer and receives it on all peers', async () => {
     logger.info('sends a message from each peer and receives it on all peers')
-    const messages: string[] = []
+    const messages: ChannelMessage[] = []
     // Define the message sending as a callback to be run after listeners are set up
     const sendMessagesFromAllPeers = async () => {
       for (let i = 0; i < modules.length; i++) {
-        const message = await factory.build('ChannelMessage', {
+        const message = await factory.build<ChannelMessage>('ChannelMessage', {
           channelId: publicChannels[0].id,
+          userId: modules[i].get(SigChainService).user.userId,
         })
-        messages.push(message.content)
+        messages.push(message)
         const channelsService = modules[i].get(ChannelsService)
         const channelStore = channelsService.channelsRepos.get(publicChannels[0].id)
         if (!channelStore) {
@@ -464,8 +465,9 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(getChannels[1].id).toBe(newChannel.id)
 
     // Send a message in the new channel
-    const message = await factory.build('ChannelMessage', {
+    const message = await factory.build<ChannelMessage>('ChannelMessage', {
       channelId: newChannel.id,
+      userId: sigchainService.user.userId,
     })
     const channelStore = channelsService.channelsRepos.get(newChannel.id)
     await channelStore!.store.sendMessage(message)

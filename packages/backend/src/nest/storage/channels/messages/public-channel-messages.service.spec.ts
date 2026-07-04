@@ -25,6 +25,8 @@ describe('PublicChannelMessagesService', () => {
   let factory: FactoryGirl
   let message: ChannelMessage
 
+  const INVALID_FIELD_VALUE = 'THIS IS INVALID'
+
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
   })
@@ -81,7 +83,48 @@ describe('PublicChannelMessagesService', () => {
         ...message,
         verified: true,
         encSignature: encryptedMessage.encSignature,
+        teamId: encryptedMessage.teamId,
       })
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched createdAt', async () => {
+      const encryptedMessage = await messagesService.onSend(message)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        createdAt: 1234,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched team ID', async () => {
+      const encryptedMessage = await messagesService.onSend(message)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        teamId: INVALID_FIELD_VALUE,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched channel ID', async () => {
+      const encryptedMessage = await messagesService.onSend(message)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        channelId: INVALID_FIELD_VALUE,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3334
+    it('fails to consume message with mismatched user ID', async () => {
+      const messageWithBadUserId: ChannelMessage = {
+        ...message,
+        userId: INVALID_FIELD_VALUE,
+      }
+      const encryptedMessage = await messagesService.onSend(messageWithBadUserId)
+      expect(await messagesService.onConsume(encryptedMessage)).toBeFalsy()
     })
 
     it('returns undefined when the signature is invalid', async () => {
