@@ -1,5 +1,5 @@
 import { put, select } from 'typed-redux-saga'
-import { missingChannelMessages } from '../messages.selectors'
+import { messagesSelectors, missingChannelMessages } from '../messages.selectors'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
 import { currentCommunity } from '../../communities/communities.selectors'
@@ -14,6 +14,11 @@ export function* checkForMessagesSaga(
 
   const identity = yield* select(currentIdentity)
   if (!community || !identity) return
+
+  const channelMessagesBase = yield* select(messagesSelectors.publicChannelsMessagesBase)
+  if (!channelMessagesBase[channelId]) {
+    yield* put(messagesActions.addPublicChannelsMessagesBase({ channelId }))
+  }
 
   const missingMessages = yield* select(missingChannelMessages(ids, channelId))
 

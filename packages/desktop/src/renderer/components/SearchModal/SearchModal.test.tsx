@@ -6,7 +6,7 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { getReduxStoreFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import SearchModalComponent from './SearchModelComponent'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 
 describe('Search Modal', () => {
   let socket: MockedSocket
@@ -45,7 +45,7 @@ describe('Search Modal', () => {
           description: `Welcome to #${channelMock.name}`,
           timestamp: channelMock.timestamp,
           owner: alice.nickname,
-          id: generateChannelId(channelMock.name),
+          id: generateTestChannelId(channelMock.name),
           teamId: community.teamId,
         },
       })

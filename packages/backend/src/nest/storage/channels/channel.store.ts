@@ -144,9 +144,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
       const entryChannelId = entry.payload.value?.channelId
       // TODO: seperate event bus for each channel so we don't have to check this on every update
-      if (entryChannelId != null && entryChannelId !== this.channelData.id) {
+      if (entryChannelId !== this.channelData.id) {
         this.logger.debug(
-          `Ignoring database update for different channel`,
+          `Ignoring database update without matching channel`,
           entry.hash,
           entryChannelId,
           this.channelData.id
@@ -374,8 +374,20 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async close(): Promise<void> {
     this.logger.info(`Closing channel store`)
+    const store = this.store
+    if (store == null) {
+      this.logger.warn(`Store is already undefined, nothing to close`)
+      return
+    }
+
     await this.stopSync()
-    await this.getStore().close()
+    await store.close()
+    if (this.authListenerAttached) {
+      this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)
+      this.authListenerAttached = false
+    }
+    this.store = undefined
+    this._subscribing = false
   }
 
   /**
@@ -393,6 +405,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async clean(): Promise<void> {
     this.logger.info(`Cleaning channel store`, this.channelData.id, this.channelData.name)
+    const store = this.store
     try {
       await this.stopSync()
     } catch (e) {
@@ -402,10 +415,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (!this.store) {
         this.logger.warn(`Store is already undefined, nothing to drop`)
       } else {
-        await this.getStore().drop()
+        await store!.drop()
       }
     } catch (e) {
       this.logger.error(`Failed to drop store`, e)
+    }
+    try {
+      await store?.close()
+    } catch (e) {
+      this.logger.error(`Failed to close store after drop`, e)
     }
     if (this.authListenerAttached) {
       this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)

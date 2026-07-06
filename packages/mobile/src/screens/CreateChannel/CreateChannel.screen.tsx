@@ -6,7 +6,6 @@ import { ErrorCodes, ErrorMessages, SocketActions, ChannelStructure } from '@qui
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
-import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('CreateChannelScreen')
@@ -34,13 +33,14 @@ export const CreateChannelScreen: FC = () => {
   useEffect(() => {
     if (
       currentScreen === ScreenNames.CreateChannelScreen &&
-      channel.channelId !== null &&
       channel.channelName !== null &&
-      channels.filter(_channel => _channel.name === channel.channelName).length > 0
+      channels.find(_channel => _channel.name === channel.channelName) != null
     ) {
+      const createdChannel = channels.find(_channel => _channel.name === channel.channelName)
+      if (createdChannel == null) return
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: channel.channelId,
+          channelId: createdChannel.id,
         })
       )
       setChannel({ channelId: null, channelName: null })
@@ -86,9 +86,7 @@ export const CreateChannelScreen: FC = () => {
         )
         return
       }
-      const id = generateChannelId(name)
-
-      setChannel({ channelId: id, channelName: name })
+      setChannel({ channelId: null, channelName: name })
 
       if (community == null || community.teamId == null) {
         throw new Error(`Can't create channel when community isn't initialized`)
@@ -98,7 +96,6 @@ export const CreateChannelScreen: FC = () => {
         publicChannels.actions.createChannel({
           name: name,
           description: `Welcome to #${name}`,
-          id: id,
           public: isPublic,
           teamId: community.teamId,
         })

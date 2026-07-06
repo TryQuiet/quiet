@@ -20,6 +20,7 @@ import { Libp2pNodeParams } from '../../libp2p/libp2p.types'
 import { EventsType, IPFSAccessController, LogEntry } from '@orbitdb/core'
 import { LogUpdate } from './orbitdb.types'
 import { EventsWithStorage } from './eventsWithStorage'
+import { KeyValueIndexedValidated, KeyValueIndexedValidatedType } from './keyValueIndexedValidated'
 import { SigChainModule } from '../../auth/sigchain.service.module'
 import { SigChainService } from '../../auth/sigchain.service'
 
@@ -120,15 +121,136 @@ describe('OrbitDbService', () => {
       AccessController: IPFSAccessController({ write: ['*'] }),
       sync: false,
     })
-    let putEventEmitted = false
-    OrbitDbService.events.on('put', (update: LogUpdate) => {
-      putEventEmitted = true
+
+    const putListener = jest.fn((update: LogUpdate) => {
       expect(update).toBeDefined()
       expect(update.entry.payload.value).toStrictEqual({ content: 'test content' })
       expect(update.entry.identity).toEqual(orbitDbService.orbitDb.identity.hash)
     })
+    OrbitDbService.events.on('put', putListener)
 
-    await store.add({ content: 'test content' })
-    expect(putEventEmitted).toBeTruthy()
+    try {
+      await store.add({ content: 'test content' })
+      expect(putListener).toHaveBeenCalled()
+    } finally {
+      OrbitDbService.events.off('put', putListener)
+    }
+  })
+
+  it('emits put event when a local update matches the requested store alias', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    const requestedAddress = `alias-test-store-${Date.now()}`
+    const store = await orbitDbService.open<EventsType<{ content: string; teamId: string }>>(requestedAddress, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: IPFSAccessController({ write: ['*'] }),
+      sync: false,
+    })
+    const putListener = jest.fn()
+    OrbitDbService.events.on('put', putListener)
+
+    try {
+      expect(() => {
+        OrbitDbService.events.emit('update', {
+          id: requestedAddress,
+          hash: 'alias-store-entry',
+          identity: orbitDbService.orbitDb.identity.hash,
+          payload: {
+            value: { content: 'test content', teamId: sigchainService.team.id },
+          },
+        } as unknown as LogEntry)
+      }).not.toThrow()
+      expect(putListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          addr: store.address,
+          hash: 'alias-store-entry',
+          teamId: sigchainService.team.id,
+        })
+      )
+    } finally {
+      OrbitDbService.events.off('put', putListener)
+    }
+  })
+
+  it('emits put event for key-value metadata updates keyed by resolved store address', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    const requestedAddress = `metadata-alias-test-store-${Date.now()}`
+    const teamId = sigchainService.team.id
+    const store = await orbitDbService.open<KeyValueIndexedValidatedType<{ content: string; teamId: string }>>(
+      requestedAddress,
+      {
+        Database: KeyValueIndexedValidated(),
+        AccessController: IPFSAccessController({ write: ['*'] }),
+        sync: false,
+      }
+    )
+    OrbitDbService.updateMetadata(store, { teamId })
+    const putListener = jest.fn()
+    OrbitDbService.events.on('put', putListener)
+
+    try {
+      const hash = await store.put('channel-id', { content: 'metadata content', teamId })
+      expect(putListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: store.address,
+          addr: store.address,
+          hash,
+          teamId,
+        })
+      )
+    } finally {
+      OrbitDbService.events.off('put', putListener)
+    }
+  })
+
+  it('keeps unrelated stores registered when one shared-event store closes or drops', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    const closedStore = await orbitDbService.open<EventsType<{ content: string }>>(`closed-store-${Date.now()}`, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: IPFSAccessController({ write: ['*'] }),
+      sync: false,
+    })
+    const droppedStore = await orbitDbService.open<EventsType<{ content: string }>>(`dropped-store-${Date.now()}`, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: IPFSAccessController({ write: ['*'] }),
+      sync: false,
+    })
+    const activeStore = await orbitDbService.open<EventsType<{ content: string }>>(`active-store-${Date.now()}`, {
+      type: 'events',
+      Database: EventsWithStorage(),
+      AccessController: IPFSAccessController({ write: ['*'] }),
+      sync: false,
+    })
+    const putListener = jest.fn()
+    OrbitDbService.events.on('put', putListener)
+
+    try {
+      await closedStore.close()
+      await droppedStore.drop()
+      const hash = await activeStore.add({ content: 'still registered' })
+      expect(putListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          addr: activeStore.address,
+          hash,
+        })
+      )
+    } finally {
+      OrbitDbService.events.off('put', putListener)
+    }
+  })
+
+  it('detaches and reattaches its static update listener across stop and create', async () => {
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    const updateListener = (orbitDbService as any).handleOrbitDbUpdate
+
+    expect(OrbitDbService.events.listeners('update')).toContain(updateListener)
+
+    await orbitDbService.stop()
+    expect(OrbitDbService.events.listeners('update')).not.toContain(updateListener)
+
+    await orbitDbService.create(ipfsService.ipfsInstance!)
+    expect(OrbitDbService.events.listeners('update')).toContain(updateListener)
   })
 })

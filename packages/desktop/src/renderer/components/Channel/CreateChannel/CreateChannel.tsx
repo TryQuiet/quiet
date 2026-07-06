@@ -5,7 +5,6 @@ import { communities, errors, identity, publicChannels, users } from '@quiet/sta
 import { CreateChannelPayload, ErrorCodes, ErrorMessages, SocketActions } from '@quiet/types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('createChannel')
@@ -29,10 +28,11 @@ export const CreateChannel = () => {
 
   useEffect(() => {
     if (!newChannel) return
-    if (createChannelModal.open && channels.filter(channel => channel.name === newChannel?.name).length > 0) {
+    const createdChannel = channels.find(channel => channel.name === newChannel.name)
+    if (createChannelModal.open && createdChannel != null) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: newChannel.id,
+          channelId: createdChannel.id,
         })
       )
       setNewChannel(null)
@@ -87,7 +87,6 @@ export const CreateChannel = () => {
       return
     }
     const payload = {
-      id: generateChannelId(name),
       name: name,
       description: `Welcome to #${name}`,
       public: isPublic,

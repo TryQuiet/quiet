@@ -6,7 +6,8 @@ export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
-export const CHANNEL_METADATA_STORE_NAME = 'public-channels'
+export const PUBLIC_CHANNEL_METADATA_STORE_NAME = 'public-channels'
+export const PRIVATE_CHANNEL_METADATA_STORE_NAME = 'private-channels'
 
 export interface PublicChannel {
   id: string
@@ -91,7 +92,6 @@ export interface ChannelsReplicatedPayload {
 }
 
 export interface CreateChannelPayload {
-  id: string
   name: string
   public: boolean
   teamId: string
