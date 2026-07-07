@@ -34,6 +34,7 @@ describe('channels', () => {
     expect(adminSigChain.roles.amIMember()).toBe(true)
     expect(adminSigChain.channels.canICreatePrivateChannel()).toBe(true)
     expect(adminSigChain.channels.canICreatePublicChannel()).toBe(true)
+    expect(adminSigChain.channels.canIDeletePublicChannel()).toBe(true)
   })
   it('should create channel and admin should be added as member', () => {
     const channel = adminSigChain.channels.create(channelId)
@@ -125,6 +126,7 @@ describe('channels', () => {
     expect(secondSigChain.roles.amIAdmin()).toBe(false)
     expect(secondSigChain.channels.canICreatePublicChannel()).toBe(false)
     expect(secondSigChain.channels.canICreatePrivateChannel()).toBe(false)
+    expect(secondSigChain.channels.canIDeletePublicChannel()).toBe(false)
 
     const failedToCreateChannel = () => secondSigChain.channels.create(randomUUID())
     expect(failedToCreateChannel).toThrow()

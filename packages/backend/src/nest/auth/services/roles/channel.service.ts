@@ -77,6 +77,19 @@ class ChannelService extends ChainServiceBase {
     return this.canMemberCreatePublicChannel(this.sigChain.user.userId)
   }
 
+  public canMemberDeletePublicChannel(memberId: string): boolean {
+    for (const allowedRoleName of PUBLIC_CHANNEL_MODIFICATION_ROLES) {
+      if (this.sigChain.roles.memberHasRole(memberId, allowedRoleName)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  public canIDeletePublicChannel(): boolean {
+    return this.canMemberCreatePublicChannel(this.sigChain.user.userId)
+  }
+
   public canMemberCreatePrivateChannel(memberId: string): boolean {
     return this.sigChain.roles.canMemberCreateRole(memberId)
   }

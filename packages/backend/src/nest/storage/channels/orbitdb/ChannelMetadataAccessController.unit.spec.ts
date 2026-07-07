@@ -44,6 +44,12 @@ const createSigchainService = ({
         ),
         memberIsAdmin: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
       },
+      channels: {
+        canMemberCreatePrivateChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
+        canMemberCreatePublicChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
+        canMemberDeletePrivateChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
+        canMemberDeletePublicChannel: jest.fn((memberId: string) => memberId === 'writer-id' && admin),
+      },
     }),
   }) as any
 
@@ -72,9 +78,9 @@ const attachLogContext = (access: any, entries: LogEntry<EncryptedAndSignedPaylo
   })
 }
 
-const createAccess = async (sigchainService: any) => {
+const createAccess = async (sigchainService: any, isPublic: boolean) => {
   const controller = new ChannelMetadataAccessController(sigchainService)
-  const factory = controller.createAccessControllerFunc({ write: ['*'], sigchainService })
+  const factory = controller.createAccessControllerFunc({ write: ['*'], sigchainService, isPublic })
   return (factory as any)({
     orbitdb: {
       identity: { id: 'local-orbitdb-identity' },
@@ -91,7 +97,7 @@ describe('ChannelMetadataAccessController', () => {
   it('loads the ACL manifest from a persisted typed access-controller address', async () => {
     const sigchainService = createSigchainService({})
     const controller = new ChannelMetadataAccessController(sigchainService)
-    const factory = controller.createAccessControllerFunc({ write: ['writer-id'], sigchainService })
+    const factory = controller.createAccessControllerFunc({ write: ['writer-id'], sigchainService, isPublic: true })
     const orbitdb = {
       identity: { id: 'local-orbitdb-identity' },
       ipfs: createInMemoryIpfs(),
@@ -108,28 +114,48 @@ describe('ChannelMetadataAccessController', () => {
     })
   })
 
-  it('allows channel metadata PUT entries from team members', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('allows public channel metadata PUT entries from team members with correct permissions', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     attachLogContext(access)
 
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
   })
 
-  it('rejects channel metadata PUT entries from non-members', async () => {
-    const access = await createAccess(createSigchainService({ member: false }))
+  it('allows private channel metadata PUT entries from team members with correct permissions', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+    attachLogContext(access)
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
+  })
+
+  it('rejects public channel metadata PUT entries from non-members', async () => {
+    const access = await createAccess(createSigchainService({ member: false }), true)
     attachLogContext(access)
 
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
   })
 
-  it('rejects channel metadata PUT entries when log state is unavailable', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('rejects private channel metadata PUT entries from non-members', async () => {
+    const access = await createAccess(createSigchainService({ member: false }), false)
+    attachLogContext(access)
 
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
   })
 
-  it('rejects channel metadata PUT entries when the entry key is missing', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('rejects public channel metadata PUT entries when log state is unavailable', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+  })
+
+  it('rejects private channel metadata PUT entries when log state is unavailable', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+  })
+
+  it('rejects public channel metadata PUT entries when the entry key is missing', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     attachLogContext(access)
     const entry = createEntry('PUT')
     ;(entry.payload as any).key = undefined
@@ -137,8 +163,17 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(entry)).resolves.toBe(false)
   })
 
-  it('rejects channel metadata PUT entries when log traversal throws', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('rejects private channel metadata PUT entries when the entry key is missing', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+    attachLogContext(access)
+    const entry = createEntry('PUT')
+    ;(entry.payload as any).key = undefined
+
+    await expect(access.canAppend(entry)).resolves.toBe(false)
+  })
+
+  it('rejects public channel metadata PUT entries when log traversal throws', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     access.setLogContext({
       traverse: () => ({
         [Symbol.asyncIterator]: () => ({
@@ -150,8 +185,21 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
   })
 
-  it('rejects channel metadata PUT entries when a previous PUT exists for the same key', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('rejects private channel metadata PUT entries when log traversal throws', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+    access.setLogContext({
+      traverse: () => ({
+        [Symbol.asyncIterator]: () => ({
+          next: () => Promise.reject(new Error('log read failed')),
+        }),
+      }),
+    })
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+  })
+
+  it('rejects public channel metadata PUT entries when a previous PUT exists for the same key', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
     const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
     attachLogContext(access, [previousEntry])
@@ -159,8 +207,17 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
   })
 
-  it('allows channel metadata PUT entries when previous PUTs are for different keys', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('rejects private channel metadata PUT entries when a previous PUT exists for the same key', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    attachLogContext(access, [previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(false)
+  })
+
+  it('allows public channel metadata PUT entries when previous PUTs are for different keys', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     const previousEntry = createEntry('PUT', 'other-channel-id')
     const nextEntry = createEntry('PUT', 'channel-id')
     attachLogContext(access, [previousEntry])
@@ -168,8 +225,17 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(nextEntry)).resolves.toBe(true)
   })
 
-  it('rejects channel metadata PUT entries after a prior PUT even when the latest entry is a DEL', async () => {
-    const access = await createAccess(createSigchainService({ member: true }))
+  it('allows private channel metadata PUT entries when previous PUTs are for different keys', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+    const previousEntry = createEntry('PUT', 'other-channel-id')
+    const nextEntry = createEntry('PUT', 'channel-id')
+    attachLogContext(access, [previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(true)
+  })
+
+  it('rejects public channel metadata PUT entries after a prior PUT even when the latest entry is a DEL', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
     const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
     const deleteEntry = createEntry('DEL', 'channel-id', 'deleted-channel')
     const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
@@ -178,8 +244,18 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
   })
 
-  it('rejects duplicate channel metadata PUT entries from admins', async () => {
-    const access = await createAccess(createSigchainService({ member: false, admin: true }))
+  it('rejects private channel metadata PUT entries after a prior PUT even when the latest entry is a DEL', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
+    const deleteEntry = createEntry('DEL', 'channel-id', 'deleted-channel')
+    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    attachLogContext(access, [deleteEntry, previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(false)
+  })
+
+  it('rejects duplicate public channel metadata PUT entries from admins', async () => {
+    const access = await createAccess(createSigchainService({ member: false, admin: true }), true)
     const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
     const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
     attachLogContext(access, [previousEntry])
@@ -187,23 +263,52 @@ describe('ChannelMetadataAccessController', () => {
     await expect(access.canAppend(nextEntry)).resolves.toBe(false)
   })
 
-  it('rejects channel metadata DEL entries from non-admin members', async () => {
-    const access = await createAccess(createSigchainService({ member: true, admin: false }))
+  it('rejects duplicate private channel metadata PUT entries from admins', async () => {
+    const access = await createAccess(createSigchainService({ member: false, admin: true }), true)
+    const previousEntry = createEntry('PUT', 'channel-id', 'previous-channel-put')
+    const nextEntry = createEntry('PUT', 'channel-id', 'next-channel-put')
+    attachLogContext(access, [previousEntry])
+
+    await expect(access.canAppend(nextEntry)).resolves.toBe(false)
+  })
+
+  it('rejects public channel metadata DEL entries from non-admin members', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: false }), true)
 
     await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
   })
 
-  it('allows channel metadata DEL entries from admins', async () => {
-    const access = await createAccess(createSigchainService({ member: true, admin: true }))
+  it('rejects private channel metadata DEL entries from non-admin members', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: false }), false)
+
+    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
+  })
+
+  it('allows public channel metadata DEL entries from admins', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), true)
 
     await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
   })
 
-  it('allows channel metadata entries from admins even without the member role', async () => {
-    const access = await createAccess(createSigchainService({ member: false, admin: true }))
+  it('allows private channel metadata DEL entries from admins', async () => {
+    const access = await createAccess(createSigchainService({ member: true, admin: true }), false)
+
+    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
+  })
+
+  it('rejects public channel metadata entries from admins even without the member role', async () => {
+    const access = await createAccess(createSigchainService({ member: false, admin: true }), true)
     attachLogContext(access)
 
-    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(true)
-    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(true)
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
+  })
+
+  it('rejects private channel metadata entries from admins even without the member role', async () => {
+    const access = await createAccess(createSigchainService({ member: false, admin: true }), false)
+    attachLogContext(access)
+
+    await expect(access.canAppend(createEntry('PUT'))).resolves.toBe(false)
+    await expect(access.canAppend(createEntry('DEL'))).resolves.toBe(false)
   })
 })

@@ -987,6 +987,24 @@ describe('ChannelsService', () => {
       )
     })
 
+    it('rejects public channel metadata when owner lacks permissions', async () => {
+      const malloryChain = createNonAdminMemberChain('mallory')
+      const publicChannel = await factory.build<PublicChannel>('PublicChannel', {
+        owner: malloryChain.user.userId,
+        teamId: community.teamId!,
+      })
+      const entry = malloryChain.crypto.encryptAndSign(publicChannel, {
+        type: EncryptionScopeType.ROLE,
+        name: RoleName.MEMBER,
+      })
+
+      await expectChannelEntryValidation(
+        channelPutEntry(publicChannel.id, entry, 'non-admin-public'),
+        malloryChain.user.userId,
+        false
+      )
+    })
+
     it('rejects public channel metadata when owner does not match the entry signature author', async () => {
       const malloryChain = createNonAdminMemberChain('mallory')
       const publicChannel = await factory.build<PublicChannel>('PublicChannel', {

@@ -196,6 +196,7 @@ export enum AddMembersChannelStatus {
   INVALID_CHANNEL_TYPE = 'INVALID_CHANNEL_TYPE',
   NOT_ADMIN = 'NOT_ADMIN',
   NOT_CHANNEL_OWNER = 'NOT_CHANNEL_OWNER',
+  NOT_PERMITTED = 'NOT_PERMITTED',
 }
 
 export interface AddMembersChannelResponse {
