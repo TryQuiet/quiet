@@ -11,6 +11,9 @@ export const MEMBER_SCOPE: EncryptionScope = {
   type: EncryptionScopeType.ROLE,
 }
 
+export const PUBLIC_CHANNEL_MODIFICATION_ROLES = [RoleName.ADMIN]
+export const PRIVATE_CHANNEL_MODIFICATION_ROLES = [RoleName.ADMIN]
+
 export const SELF_ASSIGN_ROLES: (RoleName | string)[] = [RoleName.MEMBER]
 
 export type RoleMemberInfo = {

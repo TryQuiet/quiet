@@ -7,7 +7,7 @@ import { ChainServiceBase } from '../chainServiceBase'
 import { Member } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { hash } from '@localfirst/crypto'
-import { NotAdminError, RoleName } from './roles'
+import { NotAdminError, PRIVATE_CHANNEL_MODIFICATION_ROLES, PUBLIC_CHANNEL_MODIFICATION_ROLES, RoleName } from './roles'
 
 const logger = createLogger('auth:channelService')
 
@@ -62,6 +62,32 @@ class ChannelService extends ChainServiceBase {
     logger.info(`Removing role for channel ${channelId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles.delete(roleName)
+  }
+
+  public canMemberCreatePublicChannel(memberId: string): boolean {
+    for (const allowedRoleName of PUBLIC_CHANNEL_MODIFICATION_ROLES) {
+      if (this.sigChain.roles.memberHasRole(memberId, allowedRoleName)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  public canMemberCreatePrivateChannel(memberId: string): boolean {
+    for (const allowedRoleName of PRIVATE_CHANNEL_MODIFICATION_ROLES) {
+      if (this.sigChain.roles.memberHasRole(memberId, allowedRoleName)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  public canICreatePublicChannel(): boolean {
+    return this.canMemberCreatePublicChannel(this.sigChain.user.userId)
+  }
+
+  public canICreatePrivateChannel(): boolean {
+    return this.canMemberCreatePrivateChannel(this.sigChain.user.userId)
   }
 
   public generateChannelRoleName(channelId: string): string {

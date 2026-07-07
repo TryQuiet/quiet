@@ -7,6 +7,7 @@ import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@l
 import { InviteLockboxMetadata } from '../crypto/types'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
 import { RANDOM_USERNAME_LENGTH } from '../members/types'
+import { randomUUID } from 'crypto'
 
 const logger = createLogger('auth:services:channels.spec')
 
@@ -31,6 +32,8 @@ describe('channels', () => {
     expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMember()).toBe(true)
+    expect(adminSigChain.channels.canICreatePrivateChannel()).toBe(true)
+    expect(adminSigChain.channels.canICreatePublicChannel()).toBe(true)
   })
   it('should create channel and admin should be added as member', () => {
     const channel = adminSigChain.channels.create(channelId)
@@ -105,5 +108,13 @@ describe('channels', () => {
   it('should add second user to channel', () => {
     adminSigChain.channels.addMember(secondSigChain.context.user.userId, channelId)
     expect(adminSigChain.channels.memberInChannel(secondSigChain.context.user.userId, channelId)).toBe(true)
+  })
+  it('should fail to create channel on second user', () => {
+    expect(secondSigChain.roles.amIAdmin()).toBe(false)
+    expect(secondSigChain.channels.canICreatePublicChannel()).toBe(false)
+    expect(secondSigChain.channels.canICreatePrivateChannel()).toBe(false)
+
+    const failedToCreateChannel = () => secondSigChain.channels.create(randomUUID())
+    expect(failedToCreateChannel).toThrow()
   })
 })
