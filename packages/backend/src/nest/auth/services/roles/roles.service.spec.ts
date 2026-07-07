@@ -30,6 +30,10 @@ describe('roles', () => {
     expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(adminSigChain.roles.canICreateRole()).toBe(true)
+    expect(adminSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(true)
+    expect(adminSigChain.roles.canIRemoveMembersFromRole(RoleName.MEMBER)).toBe(true)
+    expect(adminSigChain.roles.canIDeleteRole(RoleName.MEMBER)).toBe(true)
   })
   it('should create an invite', () => {
     invite = adminSigChain.invites.createUserInvite()
@@ -89,6 +93,10 @@ describe('roles', () => {
   it('should self-assign MEMBER role on second user', () => {
     secondSigChain.roles.addSelf(RoleName.MEMBER, seed, salt)
     expect(secondSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
+    expect(secondSigChain.roles.canICreateRole()).toBe(false)
+    expect(secondSigChain.roles.canIAddMembersToRole(RoleName.MEMBER)).toBe(true)
+    expect(secondSigChain.roles.canIRemoveMembersFromRole(RoleName.MEMBER)).toBe(false)
+    expect(secondSigChain.roles.canIDeleteRole(RoleName.MEMBER)).toBe(false)
   })
   it('should fail to self-assign ADMIN role on second user', () => {
     const failedSelfAssign = () => secondSigChain.roles.addSelf(RoleName.ADMIN, seed, salt)

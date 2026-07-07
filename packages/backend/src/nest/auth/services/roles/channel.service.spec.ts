@@ -39,7 +39,10 @@ describe('channels', () => {
     const channel = adminSigChain.channels.create(channelId)
     expect(channel).toBeDefined()
     expect(channel).toBe(adminSigChain.channels.generateChannelRoleName(channelId))
-    expect(adminSigChain.channels.amIMemberOfChannel(channelId))
+    expect(adminSigChain.channels.amIMemberOfChannel(channelId)).toBe(true)
+    expect(adminSigChain.channels.canIAddMembersToPrivateChannel(channelId)).toBe(true)
+    expect(adminSigChain.channels.canIRemoveMembersFromPrivateChannel(channelId)).toBe(true)
+    expect(adminSigChain.channels.canIDeletePrivateChannel(channelId)).toBe(true)
   })
   it('should create an invite', () => {
     invite = adminSigChain.invites.createUserInvite()
@@ -108,6 +111,15 @@ describe('channels', () => {
   it('should add second user to channel', () => {
     adminSigChain.channels.addMember(secondSigChain.context.user.userId, channelId)
     expect(adminSigChain.channels.memberInChannel(secondSigChain.context.user.userId, channelId)).toBe(true)
+    expect(
+      adminSigChain.channels.canMemberAddMembersToPrivateChannel(secondSigChain.context.user.userId, channelId)
+    ).toBe(false)
+    expect(
+      adminSigChain.channels.canMemberRemoveMembersFromPrivateChannel(secondSigChain.context.user.userId, channelId)
+    ).toBe(false)
+    expect(adminSigChain.channels.canMemberDeletePrivateChannel(secondSigChain.context.user.userId, channelId)).toBe(
+      false
+    )
   })
   it('should fail to create channel on second user', () => {
     expect(secondSigChain.roles.amIAdmin()).toBe(false)
