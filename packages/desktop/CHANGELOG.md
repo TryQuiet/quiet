@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [8.0.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@8.0.0-alpha.1...@quiet/desktop@8.0.0-alpha.2) (2026-07-07)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [8.0.0]
@@ -38,6 +25,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Include team ID and createdAt in message encryption and validate on consume [#3304](https://github.com/TryQuiet/quiet/issues/3304)
 * Require team ID on invite links, use team ID for all chain operations, and hash team name on sigchains [#3296](https://github.com/TryQuiet/quiet/issues/3296)
 * Use randomly generated Base58 usernames on sigchain [#3321](https://github.com/TryQuiet/quiet/issues/3321)
+* Update install directories for 8.x [#3338](https://github.com/TryQuiet/quiet/issues/3338)
+* Update S3 bucket for 8.x release binaries [#3346](https://github.com/TryQuiet/quiet/issues/3346as)
 
 ## [7.3.0]
 
