@@ -1,21 +1,57 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { createLogger } from '../../../utils/logger'
-import { apply, call, put, select } from 'typed-redux-saga'
+import { apply, put, select } from 'typed-redux-saga'
 import { userProfileSelectors } from './userProfile.selectors'
-import { SocketActions, SocketEvents, SocketEventsMap, UserProfile, UserProfilesUpdatedPayload } from '@quiet/types'
+import { SocketActions, UserProfile, UserProfilesUpdatedPayload } from '@quiet/types'
 import { applyEmitParams, Socket } from '../../../types'
 import { usersActions } from '../users.slice'
+import { identitySelectors } from '../../identity/identity.selectors'
 
 const logger = createLogger('updateUserProfilesSaga')
 
 export function* updateUserProfilesSaga(socket: Socket, action: PayloadAction<UserProfile[]>): Generator {
   logger.info(`Updating user profiles (profile count = ${action.payload.length})`)
   const existingProfiles = yield* select(userProfileSelectors.userProfiles)
+  const currentIdentity = yield* select(identitySelectors.currentIdentity)
   const output: UserProfilesUpdatedPayload = {
     new: [],
     updates: [],
   }
   const updates = { ...existingProfiles }
+  const cachedCurrentUserProfile =
+    currentIdentity?.userId != null ? (existingProfiles[currentIdentity.userId] as UserProfile | undefined) : undefined
+  const currentUserProfileIsStored =
+    cachedCurrentUserProfile != null &&
+    action.payload.some(profile => profile.userId === cachedCurrentUserProfile.userId)
+
+  if (cachedCurrentUserProfile != null && !currentUserProfileIsStored) {
+    logger.info('Migrating cached current user profile into storage', cachedCurrentUserProfile.userId)
+    const response = yield* apply(
+      socket,
+      socket.emitWithAck,
+      applyEmitParams(SocketActions.SET_USER_PROFILE, {
+        profile: {
+          ...cachedCurrentUserProfile,
+          fileMetadata: cachedCurrentUserProfile.fileMetadata
+            ? {
+                ...cachedCurrentUserProfile.fileMetadata,
+                path: null,
+              }
+            : undefined,
+          profilePhoto: cachedCurrentUserProfile.profilePhoto
+            ? {
+                ...cachedCurrentUserProfile.profilePhoto,
+                path: null,
+              }
+            : undefined,
+        },
+      })
+    )
+    if (!response?.success) {
+      logger.warn('Failed to migrate cached current user profile into storage', response?.error)
+    }
+  }
+
   for (const userProfile of action.payload) {
     if (existingProfiles[userProfile.userId]) {
       const existingProfile = existingProfiles[userProfile.userId]
