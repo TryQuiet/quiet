@@ -213,7 +213,11 @@ describe('UserProfileStore/validateEntry', () => {
     }
     const decEntry: any = { userId: aliceUserId }
     // Patch decryptEntry to return decEntry
-    const store = new UserProfileStore({} as any, { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any)
+    const store = new UserProfileStore(
+      {} as any,
+      { crypto: {}, user: { userId: aliceUserId }, on: jest.fn() } as any,
+      {} as any
+    )
     jest.spyOn(store, 'decryptEntry').mockResolvedValue(decEntry)
     jest.spyOn(UserProfileStore, 'validateUserProfile').mockResolvedValue({ success: true })
     const entry = {

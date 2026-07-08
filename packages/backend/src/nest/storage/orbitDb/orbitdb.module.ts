@@ -16,6 +16,7 @@ import { NotificationTokensStore } from '../notifications/notificationTokens.sto
 import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
 import { PrivateMessagesAccessController } from '../channels/messages/orbitdb/PrivateMessagesAccessController'
 import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMetadataAccessController'
+import { UserProfileAccessController } from '../userProfile/UserProfileAccessController'
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMeta
     MessagesAccessController,
     PrivateMessagesAccessController,
     ChannelMetadataAccessController,
+    UserProfileAccessController,
   ],
   exports: [
     OrbitDbService,
@@ -52,6 +54,7 @@ import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMeta
     MessagesAccessController,
     PrivateMessagesAccessController,
     ChannelMetadataAccessController,
+    UserProfileAccessController,
   ],
 })
 export class OrbitDbModule {}

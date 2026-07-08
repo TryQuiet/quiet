@@ -8,6 +8,7 @@ import { createLogger } from '../../common/logger'
 import { logEntryToLogUpdate, posixJoin } from './util'
 import { MessagesAccessController } from '../channels/messages/orbitdb/MessagesAccessController'
 import { ChannelMetadataAccessController } from '../channels/orbitdb/ChannelMetadataAccessController'
+import { UserProfileAccessController } from '../userProfile/UserProfileAccessController'
 import {
   createOrbitDB,
   type OrbitDBType,
@@ -171,7 +172,8 @@ export class OrbitDbService {
     private readonly sigChainService: SigChainService,
     private readonly lfaIdentities: LFAIdentities,
     private readonly messagesAccessController: MessagesAccessController,
-    private readonly channelMetadataAccessController: ChannelMetadataAccessController
+    private readonly channelMetadataAccessController: ChannelMetadataAccessController,
+    private readonly userProfileAccessController: UserProfileAccessController
   ) {
     this.attachOrbitDbUpdateListener()
   }
@@ -216,6 +218,12 @@ export class OrbitDbService {
     )
     orbitDbUseAccessController(
       this.channelMetadataAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+      }) as any
+    )
+    orbitDbUseAccessController(
+      this.userProfileAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigChainService,
       }) as any
