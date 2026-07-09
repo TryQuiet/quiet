@@ -4,6 +4,7 @@ import { type PeerId } from '@libp2p/interface'
 import {
   ConnectionProcessInfo,
   SocketEvents,
+  type CachedUserProfileResponse,
   type UserProfile,
   type UserProfilesStoredEvent,
   type Identity,
@@ -28,6 +29,9 @@ import { DateTime } from 'luxon'
 import { createLibp2pAddress } from '@quiet/common'
 import { existsSync, readdirSync, rmSync } from 'fs'
 import path from 'path'
+import { SocketService } from '../socket/socket.service'
+
+const CACHED_USER_PROFILE_REQUEST_TIMEOUT_MS = 5_000
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -47,7 +51,8 @@ export class StorageService extends EventEmitter {
     public readonly userProfileStore: UserProfileStore,
     public readonly notificationTokensStore: NotificationTokensStore,
     public readonly channelsService: ChannelsService,
-    public readonly sigchainService: SigChainService
+    public readonly sigchainService: SigChainService,
+    public readonly socketService: SocketService
   ) {
     super()
   }
@@ -101,6 +106,7 @@ export class StorageService extends EventEmitter {
 
     this.logger.info(`Initializing Databases`)
     await this.initDatabases()
+    await this.migrateMissingSelfUserProfile()
 
     if (teamId != null) {
       this.addTeamIdToDbMetas(teamId)
@@ -115,6 +121,64 @@ export class StorageService extends EventEmitter {
     this.logger.info('Initialized storage')
     this.initialized = true
     this.emit(StorageEvents.INITIALIZED)
+  }
+
+  private async migrateMissingSelfUserProfile(): Promise<void> {
+    const activeChain = this.sigchainService.getActiveChain(false)
+    if (!activeChain?.team || !activeChain.roles.amIMember()) {
+      this.logger.trace('Skipping cached self user profile migration; active user is not a team member')
+      return
+    }
+
+    const selfUserId = activeChain.user.userId
+    const storedProfiles = await this.userProfileStore.getUserProfiles()
+    if (storedProfiles.some(profile => profile.userId === selfUserId)) {
+      this.logger.trace('Skipping cached self user profile migration; profile already exists in store', selfUserId)
+      return
+    }
+    if (this.socketService.serverIoProvider.io.sockets.sockets.size === 0) {
+      this.logger.trace('Skipping cached self user profile migration; no connected state-manager clients')
+      return
+    }
+
+    const cachedProfile = await this.requestCachedSelfUserProfile(selfUserId)
+    if (!cachedProfile) {
+      this.logger.info('No cached self user profile returned by state-manager', selfUserId)
+      return
+    }
+    if (cachedProfile.userId !== selfUserId) {
+      this.logger.warn('Cached self user profile userId mismatch', {
+        expected: selfUserId,
+        received: cachedProfile.userId,
+      })
+      return
+    }
+
+    const response = await this.addUserProfile(cachedProfile)
+    if (!response.success) {
+      this.logger.warn('Failed to migrate cached self user profile', selfUserId, response.error)
+    }
+  }
+
+  private async requestCachedSelfUserProfile(userId: string): Promise<UserProfile | undefined> {
+    this.logger.info('Requesting cached self user profile from state-manager', userId)
+    return new Promise(resolve => {
+      this.socketService.serverIoProvider.io
+        .timeout(CACHED_USER_PROFILE_REQUEST_TIMEOUT_MS)
+        .emit(
+          SocketEvents.CACHED_USER_PROFILE_REQUEST,
+          { userId },
+          (err: Error | null, responses: CachedUserProfileResponse[] = []) => {
+            if (err) {
+              this.logger.warn('Timed out requesting cached self user profile from state-manager', userId, err)
+              resolve(undefined)
+              return
+            }
+
+            resolve(responses.find(response => response?.profile)?.profile)
+          }
+        )
+    })
   }
 
   public async clean() {

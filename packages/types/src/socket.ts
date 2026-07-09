@@ -5,6 +5,8 @@ import {
   UserProfilesUpdatedPayload,
   UsersRemovedEvent,
   UsersUpdatedEvent,
+  CachedUserProfileRequest,
+  CachedUserProfileResponse,
 } from './user'
 import {
   type DeleteChannelPayload,
@@ -140,6 +142,7 @@ export enum SocketEvents {
   USERS_UPDATED = 'usersUpdated',
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
+  CACHED_USER_PROFILE_REQUEST = 'cachedUserProfileRequest',
   KEYS_UPDATED = 'keysUpdated',
   DEVICE_CREDENTIALS_UPDATED = 'deviceCredentialsUpdated',
   USER_PROFILES_UPDATED = 'userProfilesUpdatedFwd',
@@ -261,6 +264,10 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_UPDATED]: EmitEvent<UsersUpdatedEvent>
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
+  [SocketEvents.CACHED_USER_PROFILE_REQUEST]: EmitEvent<
+    CachedUserProfileRequest,
+    (response?: CachedUserProfileResponse) => void
+  >
   [SocketEvents.KEYS_UPDATED]: EmitEvent<KeysUpdatedEvent>
   [SocketEvents.DEVICE_CREDENTIALS_UPDATED]: EmitEvent<DeviceCredentialsUpdatedEvent>
   [SocketEvents.USER_PROFILES_UPDATED]: EmitEvent<UserProfilesUpdatedPayload>

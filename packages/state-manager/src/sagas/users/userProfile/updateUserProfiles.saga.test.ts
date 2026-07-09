@@ -11,7 +11,6 @@ import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { getBaseTypesFactory } from '../../../utils/tests/factories'
 import { combineReducers } from 'redux'
 import { userProfileSelectors } from './userProfile.selectors'
-import { identitySelectors } from '../../identity/identity.selectors'
 
 describe('updateUserProfilesSaga', () => {
   let store: Store
@@ -232,91 +231,16 @@ describe('updateUserProfilesSaga', () => {
       .run()
   })
 
-  it('should migrate cached current user profile to storage when it is missing from stored profiles', async () => {
-    socket.registerExpectedResponse(SocketActions.SET_USER_PROFILE, { success: true })
-
-    const cachedProfile: UserProfile = {
-      ...userProfile,
-      fileMetadata: {
-        name: 'profile-file',
-        ext: '.jpg',
-        path: '/tmp/profile-file.jpg',
-        cid: 'profile-file-cid',
-        message: {
-          id: 'profile-file-message-id',
-          channelId: 'profile-photo-channel',
-        },
-      },
-      profilePhoto: {
-        name: 'profile-photo',
-        ext: '.jpg',
-        path: '/tmp/profile-photo.jpg',
-        cid: 'profile-photo-cid',
-        message: {
-          id: 'profile-photo-message-id',
-          channelId: 'profile-photo-channel',
-        },
-      },
-    }
-    const existingProfiles = {
-      [userId]: cachedProfile,
-    }
-    const expectedMigratedProfile: UserProfile = {
-      ...cachedProfile,
-      fileMetadata: {
-        ...cachedProfile.fileMetadata!,
-        path: null,
-      },
-      profilePhoto: {
-        ...cachedProfile.profilePhoto!,
-        path: null,
-      },
-    }
-
-    await expectSaga(updateUserProfilesSaga, socket as unknown as Socket, usersActions.updateUserProfiles([]))
-      .withReducer(combineReducers(testReducers))
-      .withState(store.getState())
-      .provide([
-        {
-          select: ({ selector }: any, next: any) => {
-            if (selector === userProfileSelectors.userProfiles) {
-              return existingProfiles
-            }
-            if (selector === identitySelectors.currentIdentity) {
-              return { userId }
-            }
-            return next()
-          },
-        },
-      ])
-      .call.like({
-        context: socket,
-        fn: socket.emitWithAck,
-        args: [
-          SocketActions.SET_USER_PROFILE,
-          {
-            profile: expectedMigratedProfile,
-          },
-        ],
-      })
-      .put.like({
-        action: {
-          type: usersActions.setUserProfiles.type,
-          payload: [cachedProfile],
-        },
-      })
-      .run()
-  })
-
-  it('should not migrate cached current user profile when it is already stored', async () => {
+  it('should not write cached profiles to storage when a partial update does not include them', async () => {
     const existingProfiles = {
       [userId]: userProfile,
     }
+    const remoteProfile = await baseTypesFactory.create<UserProfile>('UserProfile')
 
     await expectSaga(
       updateUserProfilesSaga,
       socket as unknown as Socket,
-      usersActions.updateUserProfiles([userProfile])
+      usersActions.updateUserProfiles([remoteProfile])
     )
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
@@ -326,9 +250,6 @@ describe('updateUserProfilesSaga', () => {
             if (selector === userProfileSelectors.userProfiles) {
               return existingProfiles
             }
-            if (selector === identitySelectors.currentIdentity) {
-              return { userId }
-            }
             return next()
           },
         },
@@ -336,6 +257,12 @@ describe('updateUserProfilesSaga', () => {
       .not.call.like({
         context: socket,
         fn: socket.emitWithAck,
+      })
+      .put.like({
+        action: {
+          type: usersActions.setUserProfiles.type,
+          payload: [userProfile, remoteProfile],
+        },
       })
       .run()
   })
