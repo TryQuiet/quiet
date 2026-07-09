@@ -56,8 +56,8 @@ import {
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
   ChannelOperationStatus,
-  type ChannelPermissions,
   type PrivateChannelPermissions,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -988,16 +988,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           ? member.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
           : []
       if (member.userId === sigChain.user.userId) {
-        const channelSpecific: { [channelId: string]: PrivateChannelPermissions } = {}
+        const channelSpecificPermissions: PrivateChannelPermissions[] = []
         for (const channelId of privateChannelIds) {
-          channelSpecific[channelId] = {
+          channelSpecificPermissions.push({
+            channelId,
             addMembers: sigChain.channels.canMemberAddMembersToPrivateChannel(member.userId, channelId),
             removeMembers: sigChain.channels.canMemberRemoveMembersFromPrivateChannel(member.userId, channelId),
             delete: sigChain.channels.canMemberDeletePrivateChannel(member.userId, channelId),
-          }
+          })
         }
-        const channelPermissions: ChannelPermissions = {
-          generic: {
+        const payload: SetChannelPermissionsPayload = {
+          genericPermissions: {
             public: {
               create: sigChain.channels.canMemberCreatePublicChannel(member.userId),
               delete: sigChain.channels.canMemberDeletePublicChannel(member.userId),
@@ -1006,9 +1007,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
               create: sigChain.channels.canMemberCreatePrivateChannel(member.userId),
             },
           },
-          channelSpecific,
+          channelSpecificPermissions,
         }
-        this.serverIoProvider.io.emit(SocketEvents.CHANNEL_PERMISSIONS_UPDATED, { channelPermissions })
+        this.serverIoProvider.io.emit(SocketEvents.CHANNEL_PERMISSIONS_UPDATED, payload)
       }
       return {
         userId: member.userId,

@@ -20,7 +20,7 @@ export const CreateChannel = () => {
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  const channelPermissions = useSelector(publicChannels.selectors.channelPermissions)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -46,8 +46,8 @@ export const CreateChannel = () => {
       setCanCreateChannel(undefined)
       setCanCreatePrivateChannel(undefined)
     } else {
-      setCanCreateChannel(channelPermissions.generic.public.create)
-      setCanCreatePrivateChannel(channelPermissions.generic.private.create)
+      setCanCreateChannel(channelPermissions.public.create)
+      setCanCreatePrivateChannel(channelPermissions.private.create)
     }
   }, [channelPermissions])
 

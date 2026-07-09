@@ -223,29 +223,23 @@ export interface GenericChannelPermissions {
 }
 
 export interface PrivateChannelPermissions {
+  channelId: string
   addMembers: boolean
   removeMembers: boolean
   delete: boolean
 }
 
-export interface ChannelPermissions {
-  generic: GenericChannelPermissions
-  channelSpecific: Record<string, PrivateChannelPermissions>
-}
-
 export interface SetChannelPermissionsPayload {
-  channelPermissions: ChannelPermissions
+  genericPermissions: GenericChannelPermissions
+  channelSpecificPermissions: PrivateChannelPermissions[]
 }
 
-export const DEFAULT_CHANNEL_PERMISSIONS: ChannelPermissions = {
-  generic: {
-    public: {
-      create: false,
-      delete: false,
-    },
-    private: {
-      create: false,
-    },
+export const DEFAULT_GENERIC_CHANNEL_PERMISSIONS: GenericChannelPermissions = {
+  public: {
+    create: false,
+    delete: false,
   },
-  channelSpecific: {},
+  private: {
+    create: false,
+  },
 }

@@ -21,7 +21,8 @@ export const ChannelContextMenu: FC = () => {
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
-  const channelPermissions = useSelector(publicChannels.selectors.channelPermissions)
+  const genericChannelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
+  const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
 
   let title = ''
   if (channel) {
@@ -36,7 +37,7 @@ export const ChannelContextMenu: FC = () => {
   const items: ContextMenuItemProps[] = []
 
   useEffect(() => {
-    if (channelPermissions == null || channel == null) {
+    if (channel == null) {
       setCanAddMembers(false)
       setCanDelete(false)
       return
@@ -44,18 +45,17 @@ export const ChannelContextMenu: FC = () => {
 
     if (channel.public ?? true) {
       setCanAddMembers(false)
-      setCanDelete(channelPermissions.generic.public.delete)
+      setCanDelete(genericChannelPermissions.public.delete)
     } else {
-      const channelSpecificPermissions = channelPermissions.channelSpecific[channel.id]
-      if (channelSpecificPermissions == null) {
+      if (currentChannelPermissions == null) {
         setCanAddMembers(false)
         setCanDelete(false)
       } else {
-        setCanAddMembers(channelSpecificPermissions.addMembers)
-        setCanDelete(channelSpecificPermissions.delete)
+        setCanAddMembers(currentChannelPermissions.addMembers)
+        setCanDelete(currentChannelPermissions.delete)
       }
     }
-  }, [channel, channelPermissions])
+  }, [channel, genericChannelPermissions, currentChannelPermissions])
 
   // TODO: update this to actually use the LFA admin role
   if (canAddMembers === true) {

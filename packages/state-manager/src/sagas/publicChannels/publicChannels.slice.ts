@@ -5,6 +5,7 @@ import {
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter,
+  channelSpecificPermissionsAdapter,
 } from './publicChannels.adapter'
 
 import {
@@ -29,9 +30,10 @@ import {
   type UpdateNewestMessagePayload,
   type AddMembersChannelPayload,
   ChannelOperationStatus,
-  type ChannelPermissions,
-  DEFAULT_CHANNEL_PERMISSIONS,
+  type GenericChannelPermissions,
+  DEFAULT_GENERIC_CHANNEL_PERMISSIONS,
   type SetChannelPermissionsPayload,
+  type PrivateChannelPermissions,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -49,7 +51,10 @@ export class PublicChannelsState {
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
 
-  public channelPermissions: ChannelPermissions = DEFAULT_CHANNEL_PERMISSIONS
+  public genericChannelPermissions: GenericChannelPermissions = DEFAULT_GENERIC_CHANNEL_PERMISSIONS
+
+  public channelSpecificPermissions: EntityState<PrivateChannelPermissions> =
+    channelSpecificPermissionsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({
@@ -162,8 +167,9 @@ export const publicChannelsSlice = createSlice({
       })
     },
     setChannelPermissions: (state, action: PayloadAction<SetChannelPermissionsPayload>) => {
-      const { channelPermissions } = action.payload
-      state.channelPermissions = channelPermissions
+      const { genericPermissions, channelSpecificPermissions } = action.payload
+      state.genericChannelPermissions = genericPermissions
+      channelSpecificPermissionsAdapter.upsertMany(state.channelSpecificPermissions, channelSpecificPermissions)
     },
     // Utility action for testing purposes
     test_message: (
