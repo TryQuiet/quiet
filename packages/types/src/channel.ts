@@ -225,6 +225,7 @@ export interface GenericChannelPermissions {
 export interface PrivateChannelPermissions {
   addMembers: boolean
   removeMembers: boolean
+  delete: boolean
 }
 
 export interface ChannelPermissions {

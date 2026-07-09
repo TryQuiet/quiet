@@ -993,6 +993,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           channelSpecific[channelId] = {
             addMembers: sigChain.channels.canMemberAddMembersToPrivateChannel(member.userId, channelId),
             removeMembers: sigChain.channels.canMemberRemoveMembersFromPrivateChannel(member.userId, channelId),
+            delete: sigChain.channels.canMemberDeletePrivateChannel(member.userId, channelId),
           }
         }
         const channelPermissions: ChannelPermissions = {
