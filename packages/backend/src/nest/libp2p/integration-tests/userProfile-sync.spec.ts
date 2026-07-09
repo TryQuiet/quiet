@@ -1,7 +1,8 @@
 import { jest } from '@jest/globals'
 import { headsAreEqual, Hash } from '@localfirst/crdx'
-import { Test, TestingModule } from '@nestjs/testing'
+import { TestingModule } from '@nestjs/testing'
 import waitForExpect from 'wait-for-expect'
+import { Entry, type LogEntry } from '@orbitdb/core'
 
 import { getBaseTypesFactory } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
@@ -15,6 +16,7 @@ import { spawnTestModules, spawnLibp2pInstancesInMemory } from '../../common/tes
 import { UserProfile } from '@quiet/types'
 import { createLogger } from '../../common/logger'
 import { Libp2pEvents } from '../libp2p.types'
+import { EncryptedAndSignedPayload } from '../../auth/services/crypto/types'
 
 const logger = createLogger('UserProfile-sync')
 const N_PEERS = 3
@@ -36,6 +38,25 @@ describe('UserProfileStore OrbitDB Sync', () => {
   const initOrbitDb = async (i: number) => {
     await orbitDbServices[i].create(ipfsServices[i].ipfsInstance!)
     await userProfileStores[i].init()
+  }
+
+  const getLogEntries = async (store: UserProfileStore): Promise<Array<LogEntry<EncryptedAndSignedPayload>>> => {
+    const entries: Array<LogEntry<EncryptedAndSignedPayload>> = []
+    for await (const entry of store.getStore().log.traverse()) {
+      entries.push(entry as LogEntry<EncryptedAndSignedPayload>)
+    }
+    return entries
+  }
+
+  const expectAliceAndBobProfiles = async (aliceNickname: string, bobNickname: string) => {
+    const aliceProfiles = await userProfileStores[0].getUserProfiles()
+    const bobProfiles = await userProfileStores[1].getUserProfiles()
+    expect(aliceProfiles.length).toBe(2)
+    expect(bobProfiles.length).toBe(2)
+    expect(aliceProfiles.find(p => p.userId === userIds[0])?.nickname).toBe(aliceNickname)
+    expect(aliceProfiles.find(p => p.userId === userIds[1])?.nickname).toBe(bobNickname)
+    expect(bobProfiles.find(p => p.userId === userIds[0])?.nickname).toBe(aliceNickname)
+    expect(bobProfiles.find(p => p.userId === userIds[1])?.nickname).toBe(bobNickname)
   }
 
   beforeAll(async () => {
@@ -84,11 +105,15 @@ describe('UserProfileStore OrbitDB Sync', () => {
 
   afterAll(async () => {
     for (let i = 0; i < N_PEERS; i++) {
-      await userProfileStores[i].close()
-      await orbitDbServices[i].stop()
-      await ipfsServices[i].stop()
-      await libp2pServices[i].close()
-      await localDbServices[i].close()
+      await userProfileStores[i]?.close()
+      await orbitDbServices[i]?.stop()
+      await libp2pServices[i]?.close(false)
+      await ipfsServices[i]?.stop()
+      await libp2pServices[i]?.closeDatastore()
+      await localDbServices[i]?.close()
+    }
+    for (const module of modules) {
+      await module.close()
     }
   })
 
@@ -175,42 +200,78 @@ describe('UserProfileStore OrbitDB Sync', () => {
     )
   })
 
-  it("peer cannot update the other peer's userProfile", async () => {
-    // Provide a valid base64 photo
-    // Bob tries to update Alice's profile
-    await userProfileStores[1].setEntry(userIds[0], bobProfile)
+  it("rejects adversarial attempts to overwrite another peer's userProfile", async () => {
+    const aliceStore = userProfileStores[0].getStore()
+    const bobStore = userProfileStores[1].getStore()
+    const aliceEncryptedProfile = (await userProfileStores[0].getEncryptedEntries([userIds[0]]))[userIds[0]]
+    if (aliceEncryptedProfile == null) {
+      throw new Error("Alice's encrypted profile was not stored before adversarial overwrite attempts")
+    }
+
+    // Bob tries to write his own signed profile under Alice's key via the store API.
+    await userProfileStores[1].setEntry(userIds[0], {
+      ...bobProfile,
+      nickname: 'Bob as Alice',
+    })
+
+    // Bob signs profile contents that claim Alice's userId and tries to store them under Alice's key.
+    const bobSignedAliceProfile = await userProfileStores[1].encryptEntry({
+      ...aliceProfile,
+      userId: userIds[0],
+      nickname: 'Alice overwritten by Bob',
+    })
+    await bobStore.put(userIds[0], bobSignedAliceProfile)
+
+    // Bob replays Alice's legitimate encrypted payload from his own OrbitDB writer identity.
+    await bobStore.put(userIds[0], aliceEncryptedProfile)
+
+    // Bob serves a spoofed raw OrbitDB entry to Alice over the OrbitDB sync protocol.
+    const currentBobHeadHashes = (await bobStore.log.heads()).map(
+      (entry: LogEntry<EncryptedAndSignedPayload>) => entry.hash
+    )
+    const spoofedSyncEntry = await Entry.create<EncryptedAndSignedPayload>(
+      bobStore.identity,
+      bobStore.log.id,
+      {
+        op: 'PUT',
+        key: userIds[0],
+        value: aliceEncryptedProfile,
+      },
+      undefined,
+      currentBobHeadHashes
+    )
+    const aliceSyncErrors: Error[] = []
+    const onAliceSyncError = (error: Error) => {
+      aliceSyncErrors.push(error)
+    }
+    aliceStore.events.on('error', onAliceSyncError)
+    try {
+      await bobStore.sync.add(spoofedSyncEntry)
+      await waitForExpect(
+        async () => {
+          expect(
+            aliceSyncErrors.some(error => {
+              const isAccessDenied = error.message.includes('Could not append entry')
+              const isSpoofedWriter = error.message.includes(spoofedSyncEntry.identity)
+              return isAccessDenied && isSpoofedWriter
+            })
+          ).toBe(true)
+        },
+        5000,
+        100
+      )
+    } finally {
+      aliceStore.events.off('error', onAliceSyncError)
+    }
 
     await waitForExpect(
       async () => {
-        // expect that both Alice and Bob have the maliciousProfile in their log (this is a bug)
-        const aliceAllEntries: any[] = []
-        for await (const entry of userProfileStores[0].getStore().log.traverse()) {
-          aliceAllEntries.push(entry)
-        }
-        const bobAllEntries: any[] = []
-        for await (const entry of userProfileStores[1].getStore().log.traverse()) {
-          bobAllEntries.push(entry)
-        }
-        // TODO: after implementating the access control and identities, this should be 2
-        expect(aliceAllEntries.length).toBe(3)
-        expect(bobAllEntries.length).toBe(3)
+        expect(await getLogEntries(userProfileStores[0])).toHaveLength(2)
+        expect(await getLogEntries(userProfileStores[1])).toHaveLength(2)
+        await expectAliceAndBobProfiles('Alice', 'Bob')
       },
       5000,
       100
-    )
-
-    // Alice's profile remains unchanged in the index
-    await waitForExpect(
-      async () => {
-        const aliceProfiles = await userProfileStores[0].getUserProfiles()
-        const bobProfiles = await userProfileStores[1].getUserProfiles()
-        expect(aliceProfiles.length).toBe(2)
-        expect(bobProfiles.length).toBe(2)
-        expect(aliceProfiles.find(p => p.userId === userIds[1])?.nickname).toBe('Bob')
-        expect(bobProfiles.find(p => p.userId === userIds[0])?.nickname).toBe('Alice')
-      },
-      5000,
-      1000
     )
   })
 
@@ -224,18 +285,8 @@ describe('UserProfileStore OrbitDB Sync', () => {
     // Wait for sync
     await waitForExpect(
       async () => {
-        // expect that both Alice and Bob have the maliciousProfile in their log (this is a bug)
-        const aliceAllEntries: any[] = []
-        for await (const entry of userProfileStores[0].getStore().log.traverse()) {
-          aliceAllEntries.push(entry)
-        }
-        const bobAllEntries: any[] = []
-        for await (const entry of userProfileStores[1].getStore().log.traverse()) {
-          bobAllEntries.push(entry)
-        }
-        // TODO: after implementating the access control and identities, this should be 2
-        expect(aliceAllEntries.length).toBe(5) // 2 updates + 2 initial profiles + 1 malicious profile
-        expect(bobAllEntries.length).toBe(5)
+        expect(await getLogEntries(userProfileStores[0])).toHaveLength(4)
+        expect(await getLogEntries(userProfileStores[1])).toHaveLength(4)
       },
       5000,
       100
