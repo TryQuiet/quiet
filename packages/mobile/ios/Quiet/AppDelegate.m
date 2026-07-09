@@ -10,6 +10,9 @@
 #import "RNNodeJsMobile.h"
 #import "Quiet-Swift.h"
 
+@interface AppDelegate () <TorHandlerDelegate>
+@end
+
 @implementation AppDelegate
 
 static NSString *const platform = @"mobile";
@@ -58,7 +61,7 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   // Call only once per nodejs thread
   [self createDataDirectory];
 
-  [self spinupBackend:true];
+  [self startTorAndBackend];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 };
@@ -68,9 +71,13 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   self.dataPath = [dataDirectory create];
 }
 
-- (void) spinupBackend:(BOOL)init {
+- (void) startTorAndBackend {
+  if (self.tor != nil) {
+    [self.tor enterForeground];
+    return;
+  }
 
-  // (1/4) Find ports to use in tor and backend configuration
+  // Find ports to use in Tor and backend configuration.
 
   Utils *utils = [Utils new];
 
@@ -91,72 +98,32 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
 
 
-  // (2/4) Spawn tor with proper configuration
-
+  // Spawn one Tor instance for the lifetime of this app process. App
+  // background/foreground transitions switch it between DORMANT and ACTIVE.
   self.tor = [TorHandler new];
-
-  self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-
-  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
-
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [self.tor spawnWithConfiguration:self.torConfiguration];
-  });
-
-
-  // (3/4) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
-
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-    NSData *authCookieData = [self getAuthCookieData];
-
-    self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
-
-    NSError *error = nil;
-    // BOOL connected = [self.torController connect:&error];
-
-    NSLog(@"Tor control port error %@", error);
-
-    [self.torController authenticateWithData:authCookieData completion:^(BOOL success, NSError * _Nullable error) {
-      NSString *res = success ? @"YES" : @"NO";
-      NSLog(@"Tor control port auth success %@", res);
-      NSLog(@"Tor control port auth error %@", error);
-    }];
-  });
-
-  // (4/4) Launch backend or rewire services
-
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-
-    NSString *authCookie = [self getAuthCookie];
-
-    if (init) {
-      [self launchBackend:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
-    } else {
-      [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
-    }
-  });
+  self.tor.delegate = self;
+  [self.tor startWithSocksPort:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
 }
 
-- (NSString *) getAuthCookie {
-  NSString *authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
+- (void)torHandlerReady:(TorHandler *)handler
+            controlPort:(uint16_t)controlPort
+         httpTunnelPort:(uint16_t)httpTunnelPort
+             authCookie:(NSString *)authCookie
+{
+  (void)handler;
 
-  while (authCookie == nil) {
-    authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
-  };
+  // A readiness callback can race with a background transition. The next
+  // foreground callback will request readiness again, so do nothing here.
+  if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+    return;
+  }
 
-  return authCookie;
+  if (self.nodeJsMobile == nil) {
+    [self launchBackend:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
+  } else {
+    [self rewireServices:controlPort httpTunnelPort:httpTunnelPort authCookie:authCookie];
+  }
 }
-
-- (NSData *) getAuthCookieData {
-  NSData *authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
-
-  while (authCookie == nil) {
-    authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
-  };
-
-  return authCookie;
-}
-
 
 - (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {
   self.nodeJsMobile = [RNNodeJsMobile new];
@@ -175,31 +142,10 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
   [self.nodeJsMobile sendMessageToNode:@"open":payload];
 }
 
-- (void) stopTor {
-  NSLog(@"Sending SIGNAL SHUTDOWN on Tor control port %d", (int)[self.torController isConnected]);
-  [self.torController sendCommand:@"SIGNAL SHUTDOWN" arguments:nil data:nil observer:^BOOL(NSArray<NSNumber *> *codes, NSArray<NSData *> *lines, BOOL *stop) {
-    NSUInteger code = codes.firstObject.unsignedIntegerValue;
-
-    NSLog(@"Tor control port response code %lu", (unsigned long)code);
-
-    if (code != TORControlReplyCodeOK && code != TORControlReplyCodeBadAuthentication)
-      return NO;
-
-    NSString *message = lines.firstObject ? [[NSString alloc] initWithData:(NSData * _Nonnull)lines.firstObject encoding:NSUTF8StringEncoding] : @"";
-
-    NSLog(@"Tor control port response message %@", message);
-
-    //  BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
-
-    *stop = YES;
-    return YES;
-  }];
-}
-
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
   QuietSetAppForegroundFlag(NO);
-  [self stopTor];
+  [self.tor enterBackground];
 
   NSString * message = [NSString stringWithFormat:@"app:close"];
   [self.nodeJsMobile sendMessageToNode:@"close":message];
@@ -226,7 +172,12 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
     });
   });
 
-  [self spinupBackend:false];
+  [self.tor enterForeground];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+  [self.tor shutdown];
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
