@@ -207,3 +207,44 @@ export interface AddMembersChannelResponse {
 export function instanceOfChannelMessage(object: ChannelMessage): boolean {
   return 'channelId' in object
 }
+
+export interface GenericPublicPermissions {
+  create: boolean
+  delete: boolean
+}
+
+export interface GenericPrivatePermissions {
+  create: boolean
+}
+
+export interface GenericChannelPermissions {
+  public: GenericPublicPermissions
+  private: GenericPrivatePermissions
+}
+
+export interface PrivateChannelPermissions {
+  addMembers: boolean
+  removeMembers: boolean
+}
+
+export interface ChannelPermissions {
+  generic: GenericChannelPermissions
+  channelSpecific: Record<string, PrivateChannelPermissions>
+}
+
+export interface SetChannelPermissionsPayload {
+  channelPermissions: ChannelPermissions
+}
+
+export const DEFAULT_CHANNEL_PERMISSIONS: ChannelPermissions = {
+  generic: {
+    public: {
+      create: false,
+      delete: false,
+    },
+    private: {
+      create: false,
+    },
+  },
+  channelSpecific: {},
+}

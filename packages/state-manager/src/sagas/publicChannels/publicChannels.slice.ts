@@ -29,6 +29,9 @@ import {
   type UpdateNewestMessagePayload,
   type AddMembersChannelPayload,
   ChannelOperationStatus,
+  type ChannelPermissions,
+  DEFAULT_CHANNEL_PERMISSIONS,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
@@ -45,6 +48,8 @@ export class PublicChannelsState {
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
+
+  public channelPermissions: ChannelPermissions = DEFAULT_CHANNEL_PERMISSIONS
 }
 
 export const publicChannelsSlice = createSlice({
@@ -155,6 +160,10 @@ export const publicChannelsSlice = createSlice({
           newestMessage: message,
         },
       })
+    },
+    setChannelPermissions: (state, action: PayloadAction<SetChannelPermissionsPayload>) => {
+      const { channelPermissions } = action.payload
+      state.channelPermissions = channelPermissions
     },
     // Utility action for testing purposes
     test_message: (

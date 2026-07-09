@@ -339,6 +339,10 @@ export const canCreatePrivateChannel = createSelector(selectState, () => {
   return true
 })
 
+export const channelPermissions = createSelector(selectState, state => {
+  return state.channelPermissions
+})
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -366,4 +370,5 @@ export const publicChannelsSelectors = {
   areChannelsLoaded,
   canCreateChannel,
   canCreatePrivateChannel,
+  channelPermissions,
 }
