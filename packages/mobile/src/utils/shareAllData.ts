@@ -8,7 +8,7 @@ import { createLogger } from './logger'
 
 const logger = createLogger('shareAllData')
 
-const DATA_DIR = RNFS.DocumentDirectoryPath + '/backend/files7'
+const DATA_DIR = RNFS.DocumentDirectoryPath + '/backend/files8'
 const LOGS_DIR = RNFS.DocumentDirectoryPath + '/logs'
 const SHARE_DIR = RNFS.CachesDirectoryPath + '/quiet-data-share'
 const SUPPORT_EMAIL = 'logs@tryquiet.org'
