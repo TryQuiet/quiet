@@ -13,8 +13,8 @@ export const CreateChannel = () => {
   const dispatch = useDispatch()
 
   const [newChannel, setNewChannel] = useState<CreateChannelPayload | null>(null)
-  const [canCreateChannel, setCanCreateChannel] = useState<boolean | undefined>(undefined)
-  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean | undefined>(undefined)
+  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
+  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
 
   const user = useSelector(identity.selectors.currentIdentity)
   const communityId = useSelector(communities.selectors.currentCommunityId)
@@ -42,13 +42,8 @@ export const CreateChannel = () => {
   }, [channels])
 
   useEffect(() => {
-    if (channelPermissions == null) {
-      setCanCreateChannel(undefined)
-      setCanCreatePrivateChannel(undefined)
-    } else {
-      setCanCreateChannel(channelPermissions.public.create)
-      setCanCreatePrivateChannel(channelPermissions.private.create)
-    }
+    setCanCreateChannel(channelPermissions.public.create)
+    setCanCreatePrivateChannel(channelPermissions.private.create)
   }, [channelPermissions])
 
   const clearErrors = () => {
@@ -139,8 +134,8 @@ export const CreateChannel = () => {
           channelCreationError={error?.message}
           createChannel={createChannel}
           clearErrorsDispatch={clearErrors}
-          canCreateChannel={canCreateChannel!}
-          canCreatePrivateChannel={canCreatePrivateChannel!}
+          canCreateChannel={canCreateChannel}
+          canCreatePrivateChannel={canCreatePrivateChannel}
         />
       )}
     </>

@@ -22,9 +22,7 @@ export const CreateChannelScreen: FC = () => {
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
-  const canCreatePrivateChannel = useSelector(publicChannels.selectors.canCreatePrivateChannel)
-
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
 
@@ -86,6 +84,19 @@ export const CreateChannelScreen: FC = () => {
         )
         return
       }
+
+      const canCreate = isPublic ? channelPermissions.public.create : channelPermissions.private.create
+      if (!canCreate) {
+        dispatch(
+          errors.actions.addError({
+            type: SocketActions.CREATE_CHANNEL,
+            code: ErrorCodes.FORBIDDEN,
+            message: ErrorMessages.CHANNEL_PERMISSIONS_INVALID,
+            community: community?.id,
+          })
+        )
+        return
+      }
       setChannel({ channelId: null, channelName: name })
 
       if (community == null || community.teamId == null) {
@@ -118,8 +129,8 @@ export const CreateChannelScreen: FC = () => {
       channelCreationError={error?.message}
       clearComponent={clearComponent}
       handleBackButton={handleBackButton}
-      canCreateChannel={canCreateChannel}
-      canCreatePrivateChannel={canCreatePrivateChannel}
+      canCreateChannel={channelPermissions.public.create}
+      canCreatePrivateChannel={channelPermissions.private.create}
     />
   )
 }

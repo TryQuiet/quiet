@@ -14,8 +14,8 @@ import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPa
 const Sidebar = () => {
   const dispatch = useDispatch()
 
-  const [canCreateChannel, setCanCreateChannel] = useState<boolean | undefined>(undefined)
-  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean | undefined>(undefined)
+  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
+  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
 
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
@@ -38,13 +38,8 @@ const Sidebar = () => {
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
   useEffect(() => {
-    if (channelPermissions == null) {
-      setCanCreateChannel(undefined)
-      setCanCreatePrivateChannel(undefined)
-    } else {
-      setCanCreateChannel(channelPermissions.public.create)
-      setCanCreatePrivateChannel(channelPermissions.private.create)
-    }
+    setCanCreateChannel(channelPermissions.public.create)
+    setCanCreatePrivateChannel(channelPermissions.private.create)
   }, [channelPermissions])
 
   const setCurrentChannel = (id: string) => {
