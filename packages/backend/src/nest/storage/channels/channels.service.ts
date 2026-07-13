@@ -45,6 +45,7 @@ import { NotAMemberError } from './channels.errors'
 import { SigchainEvents } from '../../auth/types'
 import { ChannelMetadataAccessController } from './orbitdb/ChannelMetadataAccessController'
 import crypto from 'crypto'
+import type { PrivateChannelMappings } from './channels.types'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -281,9 +282,12 @@ export class ChannelsService extends EventEmitter {
         name: RoleName.MEMBER,
       }
       if (!(payload.public ?? true)) {
+        if (payload.roleName == null) {
+          throw new Error(`Private channel metadata entry had a nullish role name: ${payload.id}`)
+        }
         scope = {
           type: EncryptionScopeType.ROLE,
-          name: chain.channels.generateChannelRoleName(payload.id),
+          name: payload.roleName,
         }
       }
       const encryptedPayload = chain.crypto.encryptAndSign(payload, scope)
@@ -410,19 +414,6 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    const expectedPrivateRoleName = chain.channels.generateChannelRoleName(decEntry.id)
-    if (chain.roles.getAllRoles().some(role => role.roleName === expectedPrivateRoleName)) {
-      this.logger.error(
-        'Failed to validate public channel entry: channel id already has a private channel role:',
-        entry.hash,
-        {
-          channelId: decEntry.id,
-          roleName: expectedPrivateRoleName,
-        }
-      )
-      return false
-    }
-
     return this.validateChannelEncryptionScope(entry, encPayload, RoleName.MEMBER)
   }
 
@@ -441,24 +432,27 @@ export class ChannelsService extends EventEmitter {
     }
 
     const chain = this.sigchainService.getActiveChain()
-    const expectedRoleName = chain.channels.generateChannelRoleName(decEntry.id)
-    if (decEntry.roleName !== expectedRoleName) {
-      this.logger.error('Failed to validate private channel entry: roleName must match channel id:', entry.hash, {
+    if (decEntry.roleName == null) {
+      this.logger.error('Private channel metadata entry had a nullish role name', entry.hash)
+      return false
+    }
+
+    if (decEntry.roleName === RoleName.MEMBER || decEntry.roleName === RoleName.ADMIN) {
+      this.logger.error('Failed to validate private channel entry: roleName must not be MEMBER or ADMIN', entry.hash, {
         roleName: decEntry.roleName,
-        expectedRoleName,
       })
       return false
     }
 
-    if (!chain.roles.memberHasRole(sigAuthor, expectedRoleName)) {
+    if (!chain.roles.memberHasRole(sigAuthor, decEntry.roleName)) {
       this.logger.error('Failed to validate private channel entry: signer must have the channel role:', entry.hash, {
         sigAuthor,
-        roleName: expectedRoleName,
+        roleName: decEntry.roleName,
       })
       return false
     }
 
-    return this.validateChannelEncryptionScope(entry, encPayload, expectedRoleName)
+    return this.validateChannelEncryptionScope(entry, encPayload, decEntry.roleName)
   }
 
   private validateChannelEncryptionScope(
@@ -856,15 +850,19 @@ export class ChannelsService extends EventEmitter {
    * @returns Map of private channels to their role names
    * @throws Error
    */
-  public async getPrivateChannelsByRolename(): Promise<Record<string, PublicChannel>> {
+  public async getPrivateChannelsByRolename(): Promise<PrivateChannelMappings> {
     if (!this.channels || !this.privateChannels) {
       throw new Error('Channels have not been initialized!')
     }
     const channels = await this.getChannels()
-    const channelMapping: { [channelRoleName: string]: PublicChannel } = {}
+    const channelMapping: PrivateChannelMappings = {
+      roleNameToChannel: {},
+      idToRoleName: {},
+    }
     channels.forEach((channel: PublicChannel) => {
       if (!(channel.public ?? true) && channel.roleName != null) {
-        channelMapping[channel.roleName] = channel
+        channelMapping.roleNameToChannel[channel.roleName] = channel
+        channelMapping.idToRoleName[channel.id] = channel.roleName
       }
     })
     return channelMapping
@@ -977,7 +975,7 @@ export class ChannelsService extends EventEmitter {
       if (!sigChain.channels.canICreatePrivateChannel()) {
         throw new Error('User is missing permissions to create private channels')
       }
-      roleName = sigChain.channels.create(channelData.id)
+      roleName = sigChain.channels.create()
       channelData.roleName = roleName
     } else {
       if (!sigChain.channels.canICreatePublicChannel()) {
@@ -1170,13 +1168,18 @@ export class ChannelsService extends EventEmitter {
       return { channelId, status: AddMembersChannelStatus.INVALID_CHANNEL_TYPE }
     }
 
-    const isMemberOfChannel = this.sigchainService.activeChain.channels.amIMemberOfChannel(channelId)
+    if (channel.roleName == null) {
+      this.logger.error(`Channel is marked private but has a nullish rolename, can't add members!`)
+      return { channelId, status: AddMembersChannelStatus.MISSING_ROLE }
+    }
+
+    const isMemberOfChannel = this.sigchainService.activeChain.channels.amIMemberOfChannel(channel.roleName)
     if (!isMemberOfChannel) {
       this.logger.error(`You are not a member of private channel ${channelId}, cannot add members!`)
       return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
     }
 
-    const canAddMembers = this.sigchainService.activeChain.channels.canIAddMembersToPrivateChannel(channelId)
+    const canAddMembers = this.sigchainService.activeChain.channels.canIAddMembersToPrivateChannel(channel.roleName)
     if (!canAddMembers) {
       this.logger.error(`You don't have permission to add members to private channel ${channelId}!`)
       return { channelId, status: AddMembersChannelStatus.NOT_PERMITTED }
@@ -1191,11 +1194,11 @@ export class ChannelsService extends EventEmitter {
 
     this.logger.info(`Updating private channel membership`, channelId)
     for (const memberId of memberIds) {
-      if (this.sigchainService.activeChain.channels.memberInChannel(memberId, channelId)) {
+      if (this.sigchainService.activeChain.channels.memberInChannel(memberId, channel.roleName)) {
         this.logger.debug('User already in channel', memberId, channelId)
         continue
       }
-      this.sigchainService.activeChain.channels.addMember(memberId, channelId)
+      this.sigchainService.activeChain.channels.addMember(memberId, channel.roleName)
     }
     this.logger.info(`Private channel membership updated`, channelId)
     return { channelId, status: AddMembersChannelStatus.SUCCESS }

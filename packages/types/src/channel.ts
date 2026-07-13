@@ -197,6 +197,7 @@ export enum AddMembersChannelStatus {
   NOT_ADMIN = 'NOT_ADMIN',
   NOT_CHANNEL_OWNER = 'NOT_CHANNEL_OWNER',
   NOT_PERMITTED = 'NOT_PERMITTED',
+  MISSING_ROLE = 'MISSING_ROLE',
 }
 
 export interface AddMembersChannelResponse {

@@ -45,3 +45,5 @@ export class NotAdminError extends Error {
     super('User is not an admin on this community')
   }
 }
+
+export const DEFAULT_CHANNEL_ROLE_NAME_LENGTH = 64

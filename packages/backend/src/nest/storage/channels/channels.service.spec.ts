@@ -837,7 +837,7 @@ describe('ChannelsService', () => {
         public: false,
         teamId: community.teamId!,
       }
-      privateChannel.roleName = sigChainService.getActiveChain().channels.create(privateChannel.id)
+      privateChannel.roleName = sigChainService.getActiveChain().channels.create()
 
       await channelsService.createChannel(privateChannel)
 
@@ -1049,7 +1049,7 @@ describe('ChannelsService', () => {
         public: false,
         teamId: community.teamId!,
       }
-      privateChannel.roleName = activeChain.channels.create(privateChannel.id)
+      privateChannel.roleName = activeChain.channels.create()
       const encryptedEntry = channelsService.encryptChannelEntry(privateChannel)
 
       await expectChannelEntryValidation(
@@ -1071,7 +1071,7 @@ describe('ChannelsService', () => {
         public: false,
         teamId: community.teamId!,
       }
-      privateChannel.roleName = activeChain.channels.create(privateChannel.id)
+      privateChannel.roleName = activeChain.channels.create()
       const encryptedEntry = channelsService.encryptChannelEntry(privateChannel)
 
       await expectChannelEntryValidation(
@@ -1140,7 +1140,7 @@ describe('ChannelsService', () => {
         public: false,
         teamId: community.teamId!,
       }
-      privateChannel.roleName = activeChain.channels.create(privateChannel.id)
+      privateChannel.roleName = activeChain.channels.create()
       const teamScopedEntry = malloryChain.crypto.encryptAndSign(privateChannel, {
         type: EncryptionScopeType.TEAM,
       })
@@ -1157,7 +1157,7 @@ describe('ChannelsService', () => {
       const activeChain = sigChainService.getActiveChain()
       const malloryChain = createNonAdminMemberChain('mallory')
       const privateChannelId = 'downgraded-private-channel-id'
-      activeChain.channels.create(privateChannelId)
+      activeChain.channels.create()
 
       const forgedPublicChannel: PublicChannel = {
         id: privateChannelId,

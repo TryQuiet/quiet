@@ -97,11 +97,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       })
       this._messagesService = this._publicMessagesService
     } else {
+      if (this.channelData.roleName == null) {
+        throw new Error('Invalid role name for private channel!')
+      }
       this._accessController = this._privateMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
         channelId: this.channelData.id,
         teamId: this.channelData.teamId ?? this.auth.team.id,
+        roleName: this.channelData.roleName,
       })
       this._messagesService = this._privateMessagesService
     }
@@ -159,7 +163,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
       } else {
-        message = await this.messagesService.onConsume(entry.payload.value!)
+        message = await this.messagesService.onConsume(entry.payload.value!, this.channelData)
         if (message == null) {
           this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
         } else if (message == false) {
@@ -302,7 +306,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   public async addEntry(message: ChannelMessage): Promise<string> {
     this.logger.info('Adding message to database')
     try {
-      const encryptedMessage = await this.messagesService.onSend(message)
+      const encryptedMessage = await this.messagesService.onSend(message, this.channelData)
       return await this.getStore().add(encryptedMessage)
     } catch (e) {
       throw new CompoundError(`Could not append message (entry not allowed to write to the log)`, e)
@@ -328,7 +332,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       }
 
       if (ids == null || ids?.includes(x.value.id)) {
-        const decryptedMessage = await this.messagesService.onConsume(x.value)
+        const decryptedMessage = await this.messagesService.onConsume(x.value, this.channelData)
         if (decryptedMessage == null || decryptedMessage === false) {
           continue
         }

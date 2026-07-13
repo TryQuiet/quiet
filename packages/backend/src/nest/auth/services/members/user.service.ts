@@ -80,6 +80,8 @@ class UserService extends ChainServiceBase {
     return this.sigChain.team!.members(memberIds, options)
   }
 
+  public getUserById(memberId: string, options: typeof DEFAULT_SEARCH_OPTIONS): Member
+  public getUserById(memberId: string, options?: MemberSearchOptions): Member
   public getUserById(memberId: string, options: MemberSearchOptions = DEFAULT_SEARCH_OPTIONS): Member | undefined {
     const users = this.getUsersById([memberId], options)
     if (users.length === 0) {
@@ -91,6 +93,12 @@ class UserService extends ChainServiceBase {
       throw new Error(`Expected 1 user for ID but found ${users.length} user records`)
     }
     return users[0]
+  }
+
+  public getMyUser(options: typeof DEFAULT_SEARCH_OPTIONS): Member
+  public getMyUser(options?: MemberSearchOptions): Member
+  public getMyUser(options: MemberSearchOptions = DEFAULT_SEARCH_OPTIONS): Member | undefined {
+    return this.getUserById(this.sigChain.user.userId, options)
   }
 
   public static redactUser(user: UserWithSecrets): User {

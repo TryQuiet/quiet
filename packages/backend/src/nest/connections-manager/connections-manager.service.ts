@@ -84,6 +84,7 @@ import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
+import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -975,7 +976,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     // handle chain updates
-    let channelMapping: Record<string, PublicChannel> = {}
+    const sigChain = this.sigChainService.getChain(teamId)
+    let channelMapping: PrivateChannelMappings = {
+      roleNameToChannel: {},
+      idToRoleName: {},
+    }
     if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
       this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
     } else {
@@ -983,18 +988,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     const _handleUser = (member: Member, sigChain: SigChain): User => {
-      const privateChannelIds =
+      const privateChannelIds: string[] =
         channelMapping != null
-          ? member.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
+          ? member.roles
+              .filter(roleName => roleName in channelMapping.roleNameToChannel)
+              .map(roleName => channelMapping.roleNameToChannel[roleName].id)
           : []
       if (member.userId === sigChain.user.userId) {
         const channelSpecificPermissions: PrivateChannelPermissions[] = []
         for (const channelId of privateChannelIds) {
+          const roleName = channelMapping.idToRoleName[channelId]
           channelSpecificPermissions.push({
             channelId,
-            addMembers: sigChain.channels.canMemberAddMembersToPrivateChannel(member.userId, channelId),
-            removeMembers: sigChain.channels.canMemberRemoveMembersFromPrivateChannel(member.userId, channelId),
-            delete: sigChain.channels.canMemberDeletePrivateChannel(member.userId, channelId),
+            addMembers: sigChain.channels.canMemberAddMembersToPrivateChannel(member.userId, roleName),
+            removeMembers: sigChain.channels.canMemberRemoveMembersFromPrivateChannel(member.userId, roleName),
+            delete: sigChain.channels.canMemberDeletePrivateChannel(member.userId, roleName),
           })
         }
         const payload: SetChannelPermissionsPayload = {
@@ -1025,7 +1033,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
      *
      * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
      */
-    const sigChain = this.sigChainService.getChain(teamId)
     const users = sigChain.team?.members().map((member): User => _handleUser(member, sigChain))
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
