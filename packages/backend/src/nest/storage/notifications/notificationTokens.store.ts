@@ -219,17 +219,15 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        if (!(
+          key &&
+          valueUserId &&
+          decUserId &&
+          sigAuthor &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        )) {
           logger.error(
             `Failed to verify notification token entry: ${entry.hash} - ID mismatch. key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )

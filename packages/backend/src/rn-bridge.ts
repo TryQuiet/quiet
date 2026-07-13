@@ -25,6 +25,34 @@ interface MessageEnvelope {
   payload: string | Record<string, string>
 }
 
+interface MessageEnvelopeLogMetadata {
+  event: string
+  payloadType: 'array' | 'object' | 'string'
+  payloadItemCount?: number
+  payloadFieldCount?: number
+}
+
+const getMessageEnvelopeLogMetadata = (envelope: MessageEnvelope): MessageEnvelopeLogMetadata => {
+  if (Array.isArray(envelope.payload)) {
+    return {
+      event: envelope.event,
+      payloadType: 'array',
+      payloadItemCount: envelope.payload.length,
+    }
+  }
+  if (typeof envelope.payload === 'object') {
+    return {
+      event: envelope.event,
+      payloadType: 'object',
+      payloadFieldCount: Object.keys(envelope.payload).length,
+    }
+  }
+  return {
+    event: envelope.event,
+    payloadType: 'string',
+  }
+}
+
 class MessageCodec {
   event: string
   payload: string
@@ -37,28 +65,32 @@ class MessageCodec {
     return JSON.stringify(envelope)
   }
   static parsePayload(message: string): Record<string, string> {
-    logger.warn('rn-bridge payload', message)
     const parsed: Record<string, string> = {}
     const entries = message.split('|')
+    logger.debug('Parsing legacy rn-bridge payload', { entryCount: entries.length })
     if (entries.length < 1) {
-      logger.warn('Malformed or non-existent rn-bridge payload ', entries)
+      logger.warn('Malformed or non-existent rn-bridge payload')
       return parsed
     }
-    entries.forEach(s => {
+    entries.forEach((s, index) => {
       const split = s.split(':')
       if (split.length !== 2) {
-        logger.warn('Malformed rn-bridge entry: ', split)
+        logger.warn('Malformed rn-bridge entry', { index })
         return
       }
       parsed[split[0]] = split[1]
     })
-    logger.info('parsed', JSON.stringify(parsed))
+    logger.debug('Parsed legacy rn-bridge payload', { fieldCount: Object.keys(parsed).length })
     return parsed
   }
   static deserialize(message: string): MessageEnvelope {
     const envelope = JSON.parse(message) as MessageEnvelope
     if (typeof envelope !== 'object' || !Object.prototype.hasOwnProperty.call(envelope, 'event')) {
-      logger.error('Malformed message envelope: ', envelope)
+      logger.error('Malformed message envelope', {
+        valueType: typeof envelope,
+        hasEvent:
+          typeof envelope === 'object' && envelope !== null && Object.prototype.hasOwnProperty.call(envelope, 'event'),
+      })
       throw new Error('Malformed message envelope')
     }
     if (typeof envelope.payload === 'string') {
@@ -100,8 +132,8 @@ class EventChannel extends ChannelSuper {
     this.post('message', ...msg)
   }
   processData(data: string): void {
-    logger.info('EventChannel received data:', data)
     const envelope = MessageCodec.deserialize(data)
+    logger.info('EventChannel received event', getMessageEnvelopeLogMetadata(envelope))
     setImmediate(() => {
       this.emitLocal(envelope.event, envelope.payload)
     })

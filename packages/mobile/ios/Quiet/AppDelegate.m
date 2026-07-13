@@ -128,7 +128,8 @@ static void QuietSetAppForegroundFlag(BOOL isForeground) {
 - (void)launchBackend:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {
   self.nodeJsMobile = [RNNodeJsMobile new];
   [self.nodeJsMobile setSocketIOSecret:self.socketIOSecret];
-  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
+  NSString *command = [NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform];
+  [self.nodeJsMobile startNodeProjectInBackground:command];
 }
 
 - (void)rewireServices:(uint16_t)controlPort httpTunnelPort:(uint16_t)httpTunnelPort authCookie:(NSString *)authCookie {

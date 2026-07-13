@@ -60,9 +60,26 @@ final class TorHandler: NSObject {
   private static let stableUptime: TimeInterval = 60
   private static let sharedLifecycleQueue = DispatchQueue(label: "com.quietmobile.tor-lifecycle")
 
+  // Tor 0.4.5.9's compiled-in authority identities are stale. Keep this list
+  // synchronized with the Tor Project's audited auth_dirs.inc. Bundling these
+  // trust anchors keeps bootstrap independent of a runtime network fetch.
+  // Source: tor commit 4b996aa6469ac78fe746bcc8d6d8f100643e3c01.
+  private static let directoryAuthorities = """
+    moria1 orport=9201 v3ident=F533C81CEF0BC0267857C99B2F471ADF249FA232 128.31.0.39:9231 1A25C6358DB91342AA51720A5038B72742732498
+    tor26 orport=443 v3ident=2F3DF9CA0E5D36F2685A2DA67184EB8DCB8CBA8C ipv6=[2a02:16a8:662:2203::1]:443 217.196.147.77:80 FAA4BCA4A6AC0FB4CA2F8AD5A11D9E122BA894F6
+    dizum orport=443 v3ident=E8A9C45EDE6D711294FADF8E7951F4DE6CA56B58 45.66.35.11:80 7EA6EAD6FD83083C538F44038BBFA077587DD755
+    gabelmoo orport=443 v3ident=ED03BB616EB2F60BEC80151114BB25CEF515B226 ipv6=[2001:638:a000:4140::ffff:189]:443 131.188.40.189:80 F2044413DAC2E02E3D6BCF4735A19BCA1DE97281
+    dannenberg orport=443 v3ident=0232AF901C31A04EE9848595AF9BB7620D4C5B2E ipv6=[2001:678:558:1000::244]:443 193.23.244.244:80 7BE683E65D48141321C5ED92F075C55364AC7123
+    maatuska orport=80 v3ident=49015F787433103580E3B66A1707A00E60F2D15B ipv6=[2001:67c:289c::9]:80 171.25.193.9:443 BD6A829255CB08E66FBE7D3748363586E46B3810
+    longclaw orport=443 v3ident=23D15D965BC35114467363C165C4F724B64B4F66 199.58.81.140:80 74A910646BCEEFBCD2E874FC1DC997430F968145
+    bastet orport=443 v3ident=27102BC123E7AF1D4741AE047E160C91ADC76B21 ipv6=[2620:13:4000:6000::1000:118]:443 204.13.164.118:80 24E2F139121D4394C54B5BCC368B3B411857C413
+    faravahar orport=443 v3ident=70849B868D606BAECFB6128C5E3D782029AA394F 216.218.219.41:80 E3E42D35F801C9D5AB23584E0025D56FE2B33396
+    """.split(separator: "\n").map(String.init)
+
   // Tor.framework registers callbacks globally and appends each registration.
-  // A static initializer guarantees that we install one pair per process.
-  private static let installLoggingCallbacks: Void = {
+  // Tor 0.4.5.9 also asserts if its callback is registered before init_logging,
+  // so install one pair per Tor generation only after control authentication.
+  private static func installLoggingCallbacks() {
     TORInstallTorLoggingCallback { severity, message in
       guard severity != .debug, severity != .info else { return }
       let text = String(cString: message).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -82,7 +99,7 @@ final class TorHandler: NSObject {
         TorHandler.logger.notice("libevent: \(text, privacy: .public)")
       }
     }
-  }()
+  }
 
   @objc weak var delegate: TorHandlerDelegate?
 
@@ -112,14 +129,10 @@ final class TorHandler: NSObject {
   private var restartAttempts = 0
   private var authenticationInFlight = false
   private var readyNotificationPending = false
+  private var loggingCallbacksGeneration: UInt?
 
   private var cookieData: Data?
   private var authCookie: String?
-
-  override init() {
-    super.init()
-    _ = Self.installLoggingCallbacks
-  }
 
   deinit {
     monitorTimer?.cancel()
@@ -205,7 +218,7 @@ final class TorHandler: NSObject {
       "--ControlPort", "127.0.0.1:\(controlPort)",
       "--HTTPTunnelPort", "127.0.0.1:\(httpTunnelPort)",
       "--Log", "notice stdout",
-    ]
+    ] + Self.directoryAuthorities.flatMap { ["--AlternateDirAuthority", $0] }
 
     if let dataDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
       .first?.appendingPathComponent("tor", isDirectory: true) {
@@ -427,6 +440,12 @@ final class TorHandler: NSObject {
 
         self.authenticationInFlight = false
         if success {
+          guard self.desiredMode != .stopped,
+                self.torThread?.isFinished == false else { return }
+          if self.loggingCallbacksGeneration != generation {
+            Self.installLoggingCallbacks()
+            self.loggingCallbacksGeneration = generation
+          }
           self.authCookie = cookieData.hexEncodedString()
           self.applyDesiredMode()
         } else {
