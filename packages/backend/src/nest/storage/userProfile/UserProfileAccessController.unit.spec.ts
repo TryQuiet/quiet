@@ -99,11 +99,13 @@ const createEncryptedPayload = ({
   }) as unknown as EncryptedAndSignedPayload
 
 const createEntry = ({
+  op = 'PUT',
   key = 'writer-id',
   hash = `put-${key}`,
   value = createEncryptedPayload(),
   includeValue = true,
 }: {
+  op?: 'PUT' | 'DEL'
   key?: string
   hash?: string
   value?: EncryptedAndSignedPayload
@@ -113,7 +115,7 @@ const createEntry = ({
     hash,
     identity: 'writer-identity-hash',
     payload: {
-      op: 'PUT',
+      op,
       key,
       value: includeValue ? value : undefined,
     },
@@ -236,5 +238,23 @@ describe('UserProfileAccessController', () => {
     const access = await createAccess(createSigchainService())
 
     await expect(access.canAppend(createEntry({ includeValue: false }))).resolves.toBe(false)
+  })
+
+  it('allows members to delete their own user profile', async () => {
+    const access = await createAccess(createSigchainService())
+
+    await expect(access.canAppend(createEntry({ op: 'DEL' }))).resolves.toBe(true)
+  })
+
+  it('rejects members deleting another user profile', async () => {
+    const access = await createAccess(createSigchainService())
+
+    await expect(access.canAppend(createEntry({ op: 'DEL', key: 'other-user-id' }))).resolves.toBe(false)
+  })
+
+  it('allows admins to delete another user profile', async () => {
+    const access = await createAccess(createSigchainService({ admin: true }))
+
+    await expect(access.canAppend(createEntry({ op: 'DEL', key: 'other-user-id' }))).resolves.toBe(true)
   })
 })

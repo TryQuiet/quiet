@@ -157,8 +157,29 @@ export class UserProfileAccessController {
         return false
       }
 
+      if (entry.payload.op === 'DEL') {
+        return this.canAppendDeleteEntry(entry, writerIdentity.id)
+      }
+
       return true
     }
+  }
+
+  /**
+   * Profile PUT entries are bound to their key and writer, so a non-admin can
+   * delete only the profile they created (their own profile key).
+   */
+  private canAppendDeleteEntry(entry: LogEntry<EncryptedAndSignedPayload>, writerId: string): boolean {
+    const key = entry.payload.key
+    if (key == null || key !== writerId) {
+      this.logger.warn(`User profile DELETE rejected because writer does not own the profile`, {
+        key,
+        writerId,
+        entryHash: entry.hash,
+      })
+      return false
+    }
+    return true
   }
 
   private async canAppendPutEntry(
