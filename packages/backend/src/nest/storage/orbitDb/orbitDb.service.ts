@@ -380,7 +380,7 @@ export class OrbitDbService {
     if (this.orbitDbInstance == undefined) {
       throw new Error('OrbitDB instance is not initialized. Call create() first.')
     }
-    const newHeads: Map<string, LogEntry[]> = new Map()
+    const entriesByLog: Map<string, LogEntry[]> = new Map()
     for (const entry of entries) {
       const cid = CID.parse(entry.hash, base58btc)
       await this.orbitDbInstance.ipfs.blockstore.put(cid, entry.bytes)
@@ -392,20 +392,21 @@ export class OrbitDbService {
         }
       }
 
-      if (!newHeads.has(entry.id)) {
-        newHeads.set(entry.id, [entry])
-        continue
-      }
-      const currentMaxHead = newHeads.get(entry.id)?.[0]
-      if (currentMaxHead?.clock && currentMaxHead.clock.time < entry.clock.time) {
-        newHeads.set(entry.id, [entry])
-      } else if (currentMaxHead?.clock && currentMaxHead.clock.time === entry.clock.time) {
-        newHeads.get(entry.id)?.push(entry)
-      }
+      const logEntries = entriesByLog.get(entry.id) ?? []
+      logEntries.push(entry)
+      entriesByLog.set(entry.id, logEntries)
     }
 
+    // Lamport clock order does not imply ancestry: concurrent branches can have
+    // different clock times. Keep every entry that is not referenced by another
+    // entry in this batch so independent heads are not dropped during QSS pulls.
+    const newHeads = Array.from(entriesByLog.entries()).map(([id, logEntries]) => {
+      const referencedHashes = new Set(logEntries.flatMap(entry => entry.next))
+      return [id, logEntries.filter(entry => !referencedHashes.has(entry.hash))] as const
+    })
+
     // For each id, try to join heads (async, using joinQueue)
-    const joinAll = Array.from(newHeads.entries()).map(([id, heads]) => this.joinHeads(id, heads))
+    const joinAll = newHeads.map(([id, heads]) => this.joinHeads(id, heads))
     await Promise.all(joinAll)
   }
 

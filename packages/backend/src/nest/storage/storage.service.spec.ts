@@ -258,6 +258,24 @@ describe('StorageService', () => {
       expect(timeoutSpy).not.toHaveBeenCalled()
     })
 
+    it('should flush a deferred self profile before requesting a cached migration', async () => {
+      const userId = sigchainService.user.userId
+      const profile = { userId, nickname: 'Alice' } as UserProfile
+      const storedProfiles: UserProfile[] = []
+      const timeoutSpy = jest.spyOn(storageService.socketService.serverIoProvider.io as any, 'timeout')
+      jest.spyOn(userProfileStore, 'flushDeferredEntries').mockImplementation(async () => {
+        storedProfiles.push(profile)
+      })
+      jest.spyOn(userProfileStore, 'getUserProfiles').mockImplementation(async () => storedProfiles)
+
+      storageService.socketService.serverIoProvider.io.sockets.sockets.set('state-manager', {} as any)
+
+      await (storageService as any).migrateMissingSelfUserProfile()
+
+      expect(userProfileStore.flushDeferredEntries).toHaveBeenCalledTimes(1)
+      expect(timeoutSpy).not.toHaveBeenCalled()
+    })
+
     it('should skip cached self user profile migration when no state-manager client is connected', async () => {
       const timeoutSpy = jest.spyOn(storageService.socketService.serverIoProvider.io as any, 'timeout')
       jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue([])

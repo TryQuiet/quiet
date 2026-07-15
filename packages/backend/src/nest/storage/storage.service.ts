@@ -130,6 +130,11 @@ export class StorageService extends EventEmitter {
       return
     }
 
+    // Fresh joins already queue the profile supplied by the join flow. Persist
+    // that profile first so the migration does not append a duplicate cached
+    // entry before startSync flushes the same deferred profile again.
+    await this.userProfileStore.flushDeferredEntries()
+
     const selfUserId = activeChain.user.userId
     const storedProfiles = await this.userProfileStore.getUserProfiles()
     if (storedProfiles.some(profile => profile.userId === selfUserId)) {
