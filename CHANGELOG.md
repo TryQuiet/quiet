@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Features
+
+* Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+
 ## [8.0.0]
 
 ### Features
