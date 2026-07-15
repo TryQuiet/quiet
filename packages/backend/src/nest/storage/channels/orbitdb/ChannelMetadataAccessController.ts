@@ -176,8 +176,8 @@ export class ChannelMetadataAccessController {
       }
 
       const canDelete = config.isPublic
-        ? chain.channels.canMemberCreatePrivateChannel(writerIdentity.id)
-        : chain.channels.canMemberCreatePublicChannel(writerIdentity.id)
+        ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
+        : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
       if (entry.payload.op === 'DEL' && !canDelete) {
         this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
           writerId: writerIdentity.id,

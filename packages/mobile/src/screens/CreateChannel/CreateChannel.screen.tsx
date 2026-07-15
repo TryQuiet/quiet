@@ -112,7 +112,7 @@ export const CreateChannelScreen: FC = () => {
         })
       )
     },
-    [dispatch]
+    [dispatch, channelPermissions]
   )
 
   const handleBackButton = useCallback(() => {
