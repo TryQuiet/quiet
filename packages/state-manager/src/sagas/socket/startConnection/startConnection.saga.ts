@@ -37,6 +37,7 @@ import {
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
   UpdateCommunityPayload,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
@@ -64,6 +65,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
+    | ReturnType<typeof publicChannelsActions.setChannelPermissions>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.updateIdentity>
@@ -164,6 +166,10 @@ export function subscribe(socket: Socket) {
     socket.on(SocketEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       logger.info(`${SocketEvents.CHANNEL_SUBSCRIBED}`, payload)
       emit(publicChannelsActions.setChannelSubscribed(payload))
+    })
+    socket.on(SocketEvents.CHANNEL_PERMISSIONS_UPDATED, (payload: SetChannelPermissionsPayload) => {
+      logger.info(`${SocketEvents.CHANNEL_PERMISSIONS_UPDATED}`, payload)
+      emit(publicChannelsActions.setChannelPermissions(payload))
     })
     // Messages
     socket.on(SocketEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {

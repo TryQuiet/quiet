@@ -22,15 +22,24 @@ import { EncryptedAndSignedPayload } from '../../../auth/services/crypto/types'
 import { createLogger } from '../../../common/logger'
 import { QuietLogger } from '@quiet/logger'
 import { posixJoin } from '../../orbitDb/util'
+import type { SigChain } from '../../../auth/sigchain'
 
 const TYPE = 'channelmetadataaccess'
 const codec = dagCbor
 const hasher = sha256
 const hashStringEncoding = base58btc
 
-const AccessControlList = async ({ storage, params }: { storage: Storage; params: Record<string, any> }) => {
+const AccessControlList = async ({
+  storage,
+  params,
+  isPublic,
+}: {
+  storage: Storage
+  params: Record<string, any>
+  isPublic: boolean
+}) => {
   const manifest = {
-    type: TYPE,
+    type: `${isPublic ? 'public' : 'private'}${TYPE}`,
     ...params,
   }
   const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
@@ -50,6 +59,7 @@ const getAccessControllerManifestHash = (address: string): string => {
 interface ChannelMetadataAccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
+  isPublic: boolean
 }
 
 interface ChannelMetadataWriterIdentity {
@@ -100,7 +110,7 @@ export class ChannelMetadataAccessController {
         // @ts-ignore
         write = value.write
       } else {
-        address = await AccessControlList({ storage, params: { write } })
+        address = await AccessControlList({ storage, params: { write }, isPublic: config.isPublic })
         address = posixJoin('/', TYPE, address)
       }
 
@@ -151,14 +161,6 @@ export class ChannelMetadataAccessController {
         return false
       }
 
-      if (entry.payload.op === 'PUT' && !(await this.canAppendPutForKey(entry, getLog(), writerIdentity.id))) {
-        return false
-      }
-
-      if (chain.roles.memberIsAdmin(writerIdentity.id)) {
-        return true
-      }
-
       if (!chain.roles.memberHasRole(writerIdentity.id, RoleName.MEMBER)) {
         this.logger.warn(`Channel metadata writer is not a team member`, {
           writerId: writerIdentity.id,
@@ -166,8 +168,18 @@ export class ChannelMetadataAccessController {
         return false
       }
 
-      if (entry.payload.op === 'DEL') {
-        this.logger.warn(`Channel metadata deletes require an admin writer`, {
+      if (
+        entry.payload.op === 'PUT' &&
+        !(await this.canAppendPutForKey(entry, getLog(), writerIdentity.id, chain, config))
+      ) {
+        return false
+      }
+
+      const canDelete = config.isPublic
+        ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
+        : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
+      if (entry.payload.op === 'DEL' && !canDelete) {
+        this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
           writerId: writerIdentity.id,
         })
         return false
@@ -180,7 +192,9 @@ export class ChannelMetadataAccessController {
   private async canAppendPutForKey(
     entry: LogEntry<EncryptedAndSignedPayload>,
     log: LogType | undefined,
-    writerId: string
+    writerId: string,
+    chain: SigChain,
+    config: ChannelMetadataAccessControllerConfig
   ): Promise<boolean> {
     const channelId = entry.payload.key
     if (channelId == null) {
@@ -195,6 +209,14 @@ export class ChannelMetadataAccessController {
         channelId,
         entryHash: entry.hash,
       })
+      return false
+    }
+
+    const canCreateChannel = config.isPublic
+      ? chain.channels.canMemberCreatePublicChannel(writerId)
+      : chain.channels.canMemberCreatePrivateChannel(writerId)
+    if (!canCreateChannel) {
+      this.logger.warn(`Channel metadata PUT rejected due to missing chain permissions`, { entryHash: entry.hash })
       return false
     }
 

@@ -1,4 +1,5 @@
 import {
+  PrivateChannelPermissions,
   type ChannelMessage,
   type PublicChannelStatus,
   type PublicChannelStorage,
@@ -19,3 +20,7 @@ export const publicChannelsSubscriptionsAdapter = createEntityAdapter<PublicChan
 })
 
 export const channelMessagesAdapter = createEntityAdapter<ChannelMessage>()
+
+export const channelSpecificPermissionsAdapter = createEntityAdapter<PrivateChannelPermissions>({
+  selectId: permissions => permissions.channelId,
+})
