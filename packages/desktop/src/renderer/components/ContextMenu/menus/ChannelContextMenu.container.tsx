@@ -57,7 +57,6 @@ export const ChannelContextMenu: FC = () => {
     }
   }, [channel, genericChannelPermissions, currentChannelPermissions])
 
-  // TODO: update this to actually use the LFA admin role
   if (canAddMembers === true) {
     items.push({
       title: 'Add members',

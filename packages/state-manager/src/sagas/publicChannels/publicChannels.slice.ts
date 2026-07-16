@@ -169,7 +169,7 @@ export const publicChannelsSlice = createSlice({
     setChannelPermissions: (state, action: PayloadAction<SetChannelPermissionsPayload>) => {
       const { genericPermissions, channelSpecificPermissions } = action.payload
       state.genericChannelPermissions = genericPermissions
-      channelSpecificPermissionsAdapter.upsertMany(state.channelSpecificPermissions, channelSpecificPermissions)
+      channelSpecificPermissionsAdapter.setAll(state.channelSpecificPermissions, channelSpecificPermissions)
     },
     // Utility action for testing purposes
     test_message: (
