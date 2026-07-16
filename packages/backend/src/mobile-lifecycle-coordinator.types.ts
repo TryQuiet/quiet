@@ -1,9 +1,14 @@
 import type { OpenServices } from './options'
 
+export enum MobileLifecycleIntentType {
+  PAUSED = 'paused',
+  ACTIVE = 'active',
+}
+
 export type MobileLifecycleIntent =
-  | { type: 'paused' }
+  | { type: MobileLifecycleIntentType.PAUSED }
   | {
-      type: 'active'
+      type: MobileLifecycleIntentType.ACTIVE
       services: OpenServices
     }
 

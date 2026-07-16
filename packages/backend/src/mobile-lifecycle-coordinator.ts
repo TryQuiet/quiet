@@ -1,5 +1,9 @@
 import type { OpenServices } from './options'
-import type { MobileLifecycleHandlers, MobileLifecycleIntent } from './mobile-lifecycle-coordinator.types'
+import {
+  MobileLifecycleIntentType,
+  type MobileLifecycleHandlers,
+  type MobileLifecycleIntent,
+} from './mobile-lifecycle-coordinator.types'
 
 /**
  * Serializes mobile close/open events while coalescing superseded intents.
@@ -13,11 +17,11 @@ export class MobileLifecycleCoordinator {
   constructor(private readonly handlers: MobileLifecycleHandlers) {}
 
   public pause(): Promise<void> {
-    return this.request({ type: 'paused' })
+    return this.request({ type: MobileLifecycleIntentType.PAUSED })
   }
 
   public activate(services: OpenServices): Promise<void> {
-    return this.request({ type: 'active', services: { ...services } })
+    return this.request({ type: MobileLifecycleIntentType.ACTIVE, services: { ...services } })
   }
 
   private request(intent: MobileLifecycleIntent): Promise<void> {
@@ -49,7 +53,7 @@ export class MobileLifecycleCoordinator {
       const intent = this.desiredIntent
 
       try {
-        if (intent.type === 'paused') {
+        if (intent.type === MobileLifecycleIntentType.PAUSED) {
           await this.handlers.pause()
         } else {
           await this.handlers.activate(intent.services)
@@ -79,7 +83,7 @@ export class MobileLifecycleCoordinator {
 
       // Repeated close requests require no additional work. Active requests
       // are always replayed so the newest Tor control payload is applied.
-      if (intent.type === 'paused' && latestIntent.type === 'paused') {
+      if (intent.type === MobileLifecycleIntentType.PAUSED && latestIntent.type === MobileLifecycleIntentType.PAUSED) {
         if (transitionFailed) {
           throw transitionError
         }
