@@ -99,7 +99,7 @@ class UserService extends ChainServiceBase {
   }
 
   public getMyUser(): Member
-  public getMyUser(options: MemberSearchOptions & { includethrowOnMissing: true }): Member
+  public getMyUser(options: MemberSearchOptions & { throwOnMissing: true }): Member
   public getMyUser(options: MemberSearchOptions & { throwOnMissing: false }): Member | undefined
   public getMyUser(options: MemberSearchOptions): Member | undefined
   public getMyUser(options: MemberSearchOptions = DEFAULT_SEARCH_OPTIONS): Member | undefined {
