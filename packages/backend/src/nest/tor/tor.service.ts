@@ -429,9 +429,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.logger.warn(reason, context)
 
     this.bootstrapRestartPromise = (async () => {
-      this.initializedHiddenServices = new Map()
-      this.bootstrapStallState = undefined
-      this.stopBootstrapWatcher()
       await this.init()
     })()
 
@@ -443,9 +440,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async init(timeout = 120_000): Promise<void> {
+    this.resetBootstrapState()
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger.info('Initializing tor...')
-    this.resetBootstrapState()
 
     return await new Promise((resolve, reject) => {
       if (!fs.existsSync(this.quietDir)) {
@@ -469,8 +466,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
         const bootstrapDone = await this.isBootstrappingFinished()
         if (bootstrapGeneration !== this.bootstrapGeneration) return
         if (!bootstrapDone) {
-          this.initializedHiddenServices = new Map()
-          clearInterval(this.interval)
           await this.init()
         }
       }, timeout)
