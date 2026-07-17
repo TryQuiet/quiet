@@ -29,6 +29,7 @@ import type {
   ComponentLogger,
   Logger,
   Connection,
+  MultiaddrConnection,
   OutboundConnectionUpgradeEvents,
   Metrics,
   CounterGroup,
@@ -37,7 +38,7 @@ import type { Multiaddr } from '@multiformats/multiaddr'
 import type { Server } from 'http'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 import type { ProgressEvent } from 'progress-events'
-import type { ClientOptions } from 'ws'
+import type { ClientOptions, CloseEvent } from 'ws'
 import http from 'node:http'
 import https from 'node:https'
 import { QuietLibp2pLogger } from '../libp2p/libp2p.logger'
@@ -87,6 +88,56 @@ export interface WebSocketsMetrics {
 
 export type WebSocketsDialEvents = OutboundConnectionUpgradeEvents | ProgressEvent<'websockets:open-connection'>
 
+const EXPECTED_SERVER_RESPONSE_CODES = new Set([404, 503])
+const CONNECT_PHASE_RETRYABLE_SERVER_RESPONSE_CODES = new Set([503])
+
+const websocketServerResponseCode = (message: string): number | undefined => {
+  const match = /Unexpected server response:\s*(\d+)/.exec(message)
+  if (match == null) return undefined
+
+  const statusCode = Number(match[1])
+  return Number.isFinite(statusCode) ? statusCode : undefined
+}
+
+export class RetryableWebSocketConnectError extends ConnectionFailedError {
+  public readonly code = 'ERR_RETRYABLE_WEBSOCKET_CONNECT'
+  public readonly retryable = true
+  public readonly phase = 'connect'
+  public readonly cause: unknown
+
+  constructor(message: string, cause: unknown) {
+    super(message)
+    this.name = 'RetryableWebSocketConnectError'
+    this.cause = cause
+  }
+}
+
+export class RetryableWebSocketUpgradeError extends ConnectionFailedError {
+  public readonly code = 'ERR_RETRYABLE_WEBSOCKET_UPGRADE'
+  public readonly retryable = true
+  public readonly phase: string
+  public readonly cause: unknown
+
+  constructor(message: string, phase: string, cause: unknown) {
+    super(message)
+    this.name = 'RetryableWebSocketUpgradeError'
+    this.phase = phase
+    this.cause = cause
+  }
+}
+
+const isRetryableUpgradeFailure = (err: any): boolean => {
+  const message = String(err?.message ?? '').toLowerCase()
+  return (
+    err?.code === 'ERR_UNEXPECTED_EOF' ||
+    err?.code === 'ABORT_ERR' ||
+    ['UnexpectedEOFError', 'AbortError', 'TimeoutError'].includes(err?.name) ||
+    message.includes('unexpected end of input') ||
+    message.includes('read aborted') ||
+    message.includes('websocket was closed before the connection was established')
+  )
+}
+
 export class WebSockets implements Transport<WebSocketsDialEvents> {
   private readonly init: WebSocketsInit
   private readonly logger: ComponentLogger
@@ -118,19 +169,96 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     const _log = this.components.logger.forComponent(`libp2p:websockets:dial:${ma.getPeerId()}`) as QuietLibp2pLogger
     _log('dialing %s', ma)
     options = options ?? ({} as DialTransportOptions<WebSocketsDialEvents>)
+    const peerId = ma.getPeerId() ?? 'unknown'
+    const dialStartedAtMs = Date.now()
+    const dialId = `${peerId}:${dialStartedAtMs}`
+    let phase: 'connect' | 'upgrade' = 'connect'
+    let socket: DuplexWebSocket | undefined
+    let maConn: MultiaddrConnection | undefined
 
-    const socket = await this._connect(ma, options)
-    const maConn = socketToMaConn(socket, ma, {
-      logger: this.logger,
-      metrics: this.metrics?.dialerEvents,
-      signal: options.signal,
-    })
-    _log('new outbound connection %s', maConn.remoteAddr)
+    _log(
+      'p2p-websocket-dial %s',
+      JSON.stringify({
+        event: 'dial:start',
+        dialId,
+        peerId,
+        remoteAddr: ma.toString(),
+        startedAtMs: dialStartedAtMs,
+      })
+    )
 
-    const conn = await options.upgrader.upgradeOutbound(maConn, options)
-    _log('outbound connection %s upgraded', maConn.remoteAddr)
+    try {
+      socket = await this._connect(ma, options)
+      _log(
+        'p2p-websocket-dial %s',
+        JSON.stringify({ event: 'dial:websocket-connected', dialId, peerId, ageMs: Date.now() - dialStartedAtMs })
+      )
+      maConn = socketToMaConn(socket, ma, {
+        logger: this.logger,
+        metrics: this.metrics?.dialerEvents,
+        signal: options.signal,
+      })
+      _log('new outbound connection %s', maConn.remoteAddr)
+      phase = 'upgrade'
+      _log(
+        'p2p-websocket-dial %s',
+        JSON.stringify({ event: 'dial:upgrade:start', dialId, peerId, remoteAddr: maConn.remoteAddr.toString() })
+      )
 
-    return conn
+      const conn = await options.upgrader.upgradeOutbound(maConn, options)
+      _log('outbound connection %s upgraded', maConn.remoteAddr)
+      _log(
+        'p2p-websocket-dial %s',
+        JSON.stringify({
+          event: 'dial:upgrade:complete',
+          dialId,
+          peerId,
+          connectionId: conn.id,
+          direction: conn.direction,
+          status: conn.status,
+          ageMs: Date.now() - dialStartedAtMs,
+        })
+      )
+
+      return conn
+    } catch (err: any) {
+      const retryable = err?.retryable === true || (phase === 'upgrade' && isRetryableUpgradeFailure(err))
+      const errorToThrow = retryable
+        ? err?.retryable === true
+          ? err
+          : new RetryableWebSocketUpgradeError(
+              `Retryable Tor WebSocket upgrade failure for ${ma.toString()}: ${err?.message ?? err}`,
+              phase,
+              err
+            )
+        : err
+      const logDialFailure = retryable ? _log.warn.bind(_log) : _log.error.bind(_log)
+      logDialFailure(
+        'p2p-websocket-dial %s',
+        JSON.stringify({
+          event: 'dial:failed',
+          dialId,
+          peerId,
+          phase,
+          retryable,
+          ageMs: Date.now() - dialStartedAtMs,
+          errorName: errorToThrow?.name,
+          errorCode: errorToThrow?.code,
+          errorMessage: errorToThrow?.message,
+          causeName: err?.name,
+          causeCode: err?.code,
+          causeMessage: err?.message,
+        })
+      )
+      if (phase === 'upgrade' && maConn != null) {
+        maConn.abort(errorToThrow instanceof Error ? errorToThrow : new Error(String(errorToThrow)))
+      } else if (socket != null) {
+        socket.close().catch(closeErr => {
+          _log.error('error closing raw socket after dial failure', closeErr)
+        })
+      }
+      throw errorToThrow
+    }
   }
 
   async _connect(ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<DuplexWebSocket> {
@@ -146,22 +274,51 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     const errorPromise = pDefer()
     const addr = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.init.localAddress)}`
     _log('CONNECTING TO ADDR', addr)
+    const peerId = ma.getPeerId() ?? 'unknown'
+    const rawSocketStartedAtMs = Date.now()
     const rawSocket = connect(addr, this.init)
     rawSocket.socket.addEventListener('error', errorEvent => {
       // the WebSocket.ErrorEvent type doesn't actually give us any useful
       // information about what happened
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event
       this.metrics?.dialerEvents.increment({ error: true })
-      const message = `Could not connect to ${ma.toString()}: ${errorEvent.message}`
-      // 404 errors are plentiful and logging them as errors muddies the logs
-      if (errorEvent.message === 'Unexpected server response: 404') {
+      const errorMessage = String(errorEvent.message ?? errorEvent.error?.message ?? 'unknown WebSocket error')
+      const serverResponseCode = websocketServerResponseCode(errorMessage)
+      const message = `Could not connect to ${ma.toString()}: ${errorMessage}`
+      const expectedServerResponse =
+        serverResponseCode != null && EXPECTED_SERVER_RESPONSE_CODES.has(serverResponseCode)
+      const retryableServerResponse =
+        serverResponseCode != null && CONNECT_PHASE_RETRYABLE_SERVER_RESPONSE_CODES.has(serverResponseCode)
+      // Expected HTTP responses are common while peers are offline, starting, or not yet listening.
+      if (expectedServerResponse) {
         _log.warn(message)
+        if (retryableServerResponse) {
+          const err = new RetryableWebSocketConnectError(message, errorEvent.error)
+          errorPromise.reject(err)
+        } else {
+          errorPromise.reject(new ConnectionFailedError(message))
+        }
       } else {
         const err = new ConnectionFailedError(message)
         _log.error('Connection Error:', err)
         _log.error(`Original Connection Error`, errorEvent.error)
         errorPromise.reject(err)
       }
+    })
+    rawSocket.socket.addEventListener('close', (closeEvent: CloseEvent) => {
+      _log(
+        'p2p-websocket-dial %s',
+        JSON.stringify({
+          event: 'raw-socket:close',
+          peerId,
+          remoteAddr: ma.toString(),
+          code: closeEvent.code,
+          reason: closeEvent.reason,
+          wasClean: closeEvent.wasClean,
+          ageMs: Date.now() - rawSocketStartedAtMs,
+          signalAborted: options.signal?.aborted ?? false,
+        })
+      )
     })
 
     try {

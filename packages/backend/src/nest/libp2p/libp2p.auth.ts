@@ -114,6 +114,68 @@ export class Libp2pAuth {
     this.libp2pService.emit(eventName, ...args)
   }
 
+  private authConnectionDebugInfo(connection?: Connection): Record<string, unknown> {
+    if (connection == null) {
+      return {
+        connectionId: null,
+        direction: null,
+        status: null,
+        remoteAddr: null,
+        remotePeer: null,
+      }
+    }
+
+    return {
+      connectionId: connection.id,
+      direction: connection.direction,
+      status: connection.status,
+      remoteAddr: connection.remoteAddr?.toString() ?? null,
+      remotePeer: connection.remotePeer?.toString() ?? (connection as any).remotePeerId?.toString?.() ?? null,
+    }
+  }
+
+  private authCleanupCause(event: any): string {
+    switch (event?.type) {
+      case 'LOCAL_ERROR':
+        return 'local-error'
+      case 'REMOTE_ERROR':
+        return 'remote-error'
+      case 'ERROR':
+        return 'auth-error'
+      default:
+        return 'lfa-disconnected'
+    }
+  }
+
+  private logAuthCleanup(
+    event: string,
+    peerId: PeerId | string,
+    cause: string,
+    connection?: Connection,
+    extra: Record<string, unknown> = {}
+  ) {
+    this.logger.debug(
+      'p2p-auth-cleanup',
+      JSON.stringify({
+        event,
+        peerId: peerId.toString(),
+        cause,
+        ...this.authConnectionDebugInfo(connection),
+        ...extra,
+      })
+    )
+  }
+
+  private async closeDuplicateConnection(peerId: PeerId, connection: Connection) {
+    this.logAuthCleanup('duplicate-auth-connection-close', peerId, 'duplicate-auth-connection-close', connection)
+    try {
+      await connection.close({ signal: AbortSignal.timeout(15_000) })
+    } catch (error: any) {
+      this.logger.warn(`Failed to gracefully close duplicate auth connection with ${peerId.toString()}`, error)
+      connection.abort(error instanceof Error ? error : new Error(String(error)))
+    }
+  }
+
   // Process any connections that were buffered because we were waiting for a chain
   private async unblockConnections(conns: { peerId: PeerId; connection: Connection }[]) {
     if (this.joinStatus === JoinStatus.NOT_STARTED && this.sigChainService.activeChainTeamId != null) {
@@ -298,7 +360,21 @@ export class Libp2pAuth {
    */
   private async onPeerConnected(peerId: PeerId, connection: Connection) {
     if (this.authConnections.has(peerId.toString())) {
+      const existingConnection = this.peerConnections.get(peerId.toString())
+      const duplicateIsTrackedConnection = existingConnection?.id === connection.id
+      this.logAuthCleanup(
+        'duplicate-auth-connection',
+        peerId,
+        'duplicate-auth-connection-return-without-close',
+        connection,
+        {
+          existingConnection: this.authConnectionDebugInfo(existingConnection),
+        }
+      )
       this.logger.info(`Auth connection with ${peerId.toString()} already exists`)
+      if (!duplicateIsTrackedConnection) {
+        await this.closeDuplicateConnection(peerId, connection)
+      }
       return
     }
     if (this.joinStatus === JoinStatus.JOINING) {
@@ -317,6 +393,7 @@ export class Libp2pAuth {
     }
 
     this.logger.info(`Peer connected (direction = ${connection.direction})! (status = ${connection.status})`)
+    this.logAuthCleanup('peer:connect', peerId, 'auth-connection-start', connection)
     if (connection.status !== 'open') {
       this.logger.warn(`The connection with ${peerId.toString()} was not in an open state!`)
       return
@@ -375,6 +452,9 @@ export class Libp2pAuth {
 
     authConnection.on(LFAEvents.DISCONNECTED, event => {
       this.logger.info(`LFA Disconnected!`, event)
+      this.logAuthCleanup('lfa:disconnected', peerId, this.authCleanupCause(event), connection, {
+        lfaEventType: (event as any)?.type ?? null,
+      })
       this.libp2pService.emit(Libp2pEvents.AUTH_DISCONNECTED, {
         event,
         connection,
@@ -416,9 +496,17 @@ export class Libp2pAuth {
 
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
+      this.logAuthCleanup('lfa:local-error', peerId, 'local-error', connection, {
+        errorType: (error as any)?.type ?? null,
+        errorMessage: (error as any)?.message ?? null,
+      })
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
+      this.logAuthCleanup('lfa:remote-error', peerId, 'remote-error', connection, {
+        errorType: (error as any)?.type ?? null,
+        errorMessage: (error as any)?.message ?? null,
+      })
       this.emit(Libp2pEvents.AUTH_REMOTE_ERROR, { error, connection })
     })
 
@@ -431,6 +519,9 @@ export class Libp2pAuth {
   }
 
   private async onPeerDisconnected(peerId: PeerId) {
+    this.logAuthCleanup('peer:disconnect', peerId, 'peer:disconnect', this.peerConnections.get(peerId.toString()), {
+      hadAuthConnection: this.authConnections.has(peerId.toString()),
+    })
     if (this.authConnections.has(peerId.toString())) {
       this.logger.warn(`Auth connection with ${peerId.toString()} was disconnected`)
       this.closeAuthConnection(peerId, false)
@@ -466,6 +557,18 @@ export class Libp2pAuth {
   public closeAuthConnection(peerId: PeerId | string, sendPeerDisconnect = true) {
     this.logger.info(`Attempting to close auth connection with ${peerId.toString()}`)
     const key = peerId.toString()
+    const peerConnection = this.peerConnections.get(key)
+    this.logAuthCleanup(
+      'closeAuthConnection',
+      key,
+      sendPeerDisconnect ? 'manual-close' : 'peer:disconnect',
+      peerConnection,
+      {
+        sendPeerDisconnect,
+        hadAuthConnection: this.authConnections.has(key),
+        hadPeerConnection: this.peerConnections.has(key),
+      }
+    )
 
     // Remove the stored connection (ephemeral streams are used for each message)
     if (this.peerConnections.has(key)) {

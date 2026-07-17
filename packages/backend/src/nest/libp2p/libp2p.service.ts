@@ -4,7 +4,7 @@ import { yamux } from '@chainsafe/libp2p-yamux'
 import { mplex } from '@libp2p/mplex'
 import { FaultTolerance } from '@libp2p/interface-transport'
 import { identify, identifyPush } from '@libp2p/identify'
-import { type Libp2p } from '@libp2p/interface'
+import { type Connection, type Libp2p } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
@@ -43,8 +43,77 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
 import { QSSService } from '../qss/qss.service'
+import type {
+  ConnectionHealthConfig,
+  ConnectionHealthDebugInfo,
+  ConnectionLifecycleDebugInfo,
+} from './libp2p.debug.types'
 
 const CONNECTION_LIMIT = 20
+const HEARTBEAT_ABORT_ENV = 'LIBP2P_ABORT_CONNECTION_ON_PING_FAILURE'
+const CONNECTION_MONITOR_ENABLED_ENV = 'LIBP2P_CONNECTION_MONITOR_ENABLED'
+const CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV = 'LIBP2P_CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS'
+const PING_SERVICE_TIMEOUT_MS_ENV = 'LIBP2P_PING_TIMEOUT_MS'
+const CONNECTION_HEALTH_CHECK_ENABLED_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_ENABLED'
+const CONNECTION_HEALTH_CHECK_INTERVAL_MS_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_INTERVAL_MS'
+const CONNECTION_HEALTH_CHECK_TIMEOUT_MS_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_TIMEOUT_MS'
+const CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD_ENV = 'LIBP2P_CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD'
+const CONNECTION_HEALTH_CHECK_DEFAULT_INTERVAL_MS = 75_000
+const CONNECTION_HEALTH_CHECK_DEFAULT_TIMEOUT_MS = 30_000
+const CONNECTION_HEALTH_CHECK_DEFAULT_FAILURE_THRESHOLD = 3
+const REDIAL_QUEUE_CONCURRENCY = 4
+const REDIAL_QUEUE_BACKOFF_FACTOR = 1.6
+const REDIAL_QUEUE_FUZZ_FACTOR = 0.25
+const REDIAL_QUEUE_BASE_DELAY_MS = 15_000
+const REDIAL_QUEUE_MAX_DELAY_MS = 180_000
+const DIAL_QUEUE_INITIAL_STAGGER_MS = 1_000
+
+const booleanEnv = (value: string | undefined, defaultValue: boolean): boolean => {
+  if (value == null || value.trim() === '') return defaultValue
+
+  switch (value.trim().toLowerCase()) {
+    case 'false':
+    case '0':
+    case 'no':
+      return false
+    case 'true':
+    case '1':
+    case 'yes':
+      return true
+    default:
+      return defaultValue
+  }
+}
+
+const numberEnv = (value: string | undefined): number | undefined => {
+  if (value == null || value.trim() === '') return undefined
+
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
+const isPingStreamContentionError = (error: any): boolean => {
+  const message = String(error?.message ?? '')
+  return (
+    error?.name === 'TooManyOutboundProtocolStreamsError' &&
+    message.includes('Too many outbound protocol streams for protocol "/ipfs/ping/1.0.0"')
+  )
+}
+
+const connectionHealthConfigFromEnv = (): ConnectionHealthConfig => ({
+  enabled: booleanEnv(process.env[CONNECTION_HEALTH_CHECK_ENABLED_ENV], false),
+  intervalMs:
+    numberEnv(process.env[CONNECTION_HEALTH_CHECK_INTERVAL_MS_ENV]) ?? CONNECTION_HEALTH_CHECK_DEFAULT_INTERVAL_MS,
+  timeoutMs:
+    numberEnv(process.env[CONNECTION_HEALTH_CHECK_TIMEOUT_MS_ENV]) ?? CONNECTION_HEALTH_CHECK_DEFAULT_TIMEOUT_MS,
+  failureThreshold: Math.max(
+    1,
+    Math.floor(
+      numberEnv(process.env[CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD_ENV]) ??
+        CONNECTION_HEALTH_CHECK_DEFAULT_FAILURE_THRESHOLD
+    )
+  ),
+})
 
 export enum Libp2pState {
   Started = 'started',
@@ -68,6 +137,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   public state: Libp2pState = Libp2pState.Stopped
   private torBootstrap?: TorBootstrapProvider
   private waitingForTorBootstrapToResumeDialQueue = false
+  private connectionLifecycleDebug = new Map<string, ConnectionLifecycleDebugInfo>()
+  private connectionHealthDebug = new Map<string, ConnectionHealthDebugInfo>()
+  private connectionHealthConfig: ConnectionHealthConfig = {
+    enabled: true,
+    intervalMs: CONNECTION_HEALTH_CHECK_DEFAULT_INTERVAL_MS,
+    timeoutMs: CONNECTION_HEALTH_CHECK_DEFAULT_TIMEOUT_MS,
+    failureThreshold: CONNECTION_HEALTH_CHECK_DEFAULT_FAILURE_THRESHOLD,
+  }
+  private connectionHealthChecksInFlight = new Set<string>()
+  private pendingCloseTriggersByPeer = new Map<string, string>()
+  private _connectionHealthInterval: NodeJS.Timeout | null = null
 
   private logger = createLogger(Libp2pService.name)
 
@@ -84,11 +164,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.dialedPeers = new Set()
     this.redialQueue = new TimedQueue({
       start: true,
-      concurrency: 10,
-      backoffFactor: 1.25,
-      fuzzFactor: 0.05,
-      baseDelayMs: 8_000,
-      maxDelayMs: 20_000,
+      concurrency: REDIAL_QUEUE_CONCURRENCY,
+      backoffFactor: REDIAL_QUEUE_BACKOFF_FACTOR,
+      fuzzFactor: REDIAL_QUEUE_FUZZ_FACTOR,
+      baseDelayMs: REDIAL_QUEUE_BASE_DELAY_MS,
+      maxDelayMs: REDIAL_QUEUE_MAX_DELAY_MS,
       rolloverAtMaxDelay: false,
     })
   }
@@ -100,9 +180,249 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.state = state
   }
 
+  private connectionDebugInfo(
+    connection: Connection,
+    existing?: ConnectionLifecycleDebugInfo
+  ): ConnectionLifecycleDebugInfo {
+    const connectionId = String(connection.id ?? 'unknown')
+    const timelineOpen = Number((connection as any).timeline?.open)
+    const openedAtMs = existing?.openedAtMs ?? (Number.isFinite(timelineOpen) ? timelineOpen : Date.now())
+    const openedAtIso =
+      existing?.openedAtIso ?? DateTime.fromMillis(openedAtMs).toUTC().toISO() ?? new Date(openedAtMs).toISOString()
+
+    return {
+      connectionId,
+      peerId: connection.remotePeer?.toString() ?? 'unknown',
+      direction: String(connection.direction ?? 'unknown'),
+      remoteAddr: connection.remoteAddr?.toString() ?? 'unknown',
+      status: String(connection.status ?? 'unknown'),
+      openedAtMs,
+      openedAtIso,
+      closedAtMs: existing?.closedAtMs,
+      closedAtIso: existing?.closedAtIso,
+      durationMs: existing?.durationMs,
+      closeTrigger: existing?.closeTrigger,
+    }
+  }
+
+  private logConnectionLifecycle(
+    event: string,
+    info: ConnectionLifecycleDebugInfo,
+    extra: Record<string, unknown> = {}
+  ) {
+    this.logger.debug('p2p-connection-lifecycle', JSON.stringify({ event, ...info, ...extra }))
+  }
+
+  private trackConnectionOpen(connection: Connection) {
+    const info = this.connectionDebugInfo(connection)
+    this.connectionLifecycleDebug.set(info.connectionId, info)
+    this.connectionHealthDebug.set(info.peerId, {
+      peerId: info.peerId,
+      status: 'healthy',
+      failureCount: 0,
+      lastCheckedAtMs: Date.now(),
+    })
+    this.logConnectionLifecycle('connection:open', info)
+  }
+
+  private trackConnectionClose(connection: Connection) {
+    const connectionId = String(connection.id ?? 'unknown')
+    const existing = this.connectionLifecycleDebug.get(connectionId)
+    const peerId = connection.remotePeer?.toString() ?? existing?.peerId ?? 'unknown'
+    const closedAtMs = Date.now()
+    const info = {
+      ...this.connectionDebugInfo(connection, existing),
+      closedAtMs,
+      closedAtIso: DateTime.fromMillis(closedAtMs).toUTC().toISO() ?? new Date(closedAtMs).toISOString(),
+      durationMs: closedAtMs - (existing?.openedAtMs ?? closedAtMs),
+      closeTrigger: this.pendingCloseTriggersByPeer.get(peerId) ?? existing?.closeTrigger ?? 'libp2p-connection-close',
+    }
+
+    this.connectionLifecycleDebug.set(connectionId, info)
+    this.logger.warn('p2p-connection-lifecycle', JSON.stringify({ event: 'connection:close', ...info }))
+  }
+
+  private connectionDebugInfosForPeer(peerId: string): ConnectionLifecycleDebugInfo[] {
+    return [...this.connectionLifecycleDebug.values()].filter(info => info.peerId === peerId)
+  }
+
+  private clearClosedConnectionDebugForPeer(peerId: string) {
+    for (const [connectionId, info] of this.connectionLifecycleDebug.entries()) {
+      if (info.peerId === peerId && info.closedAtMs != null) {
+        this.connectionLifecycleDebug.delete(connectionId)
+      }
+    }
+  }
+
+  private markPeerCloseTrigger(peerId: string, closeTrigger: string) {
+    this.pendingCloseTriggersByPeer.set(peerId, closeTrigger)
+  }
+
+  private logConnectionHealth(event: string, peerId: string, extra: Record<string, unknown> = {}) {
+    this.logger.debug(
+      'p2p-connection-health',
+      JSON.stringify({
+        event,
+        peerId,
+        config: this.connectionHealthConfig,
+        health: this.connectionHealthDebug.get(peerId) ?? null,
+        ...extra,
+      })
+    )
+  }
+
+  private startConnectionHealthChecks() {
+    if (!this.connectionHealthConfig.enabled) {
+      this.logger.debug('p2p-connection-health', JSON.stringify({ event: 'health:disabled' }))
+      return
+    }
+    if (this._connectionHealthInterval != null) return
+
+    this.logger.debug(
+      'p2p-connection-health',
+      JSON.stringify({ event: 'health:start', config: this.connectionHealthConfig })
+    )
+    this._connectionHealthInterval = setInterval(() => {
+      void this.checkConnectionHealth()
+    }, this.connectionHealthConfig.intervalMs)
+    this._connectionHealthInterval.unref?.()
+  }
+
+  private stopConnectionHealthChecks() {
+    if (this._connectionHealthInterval != null) {
+      clearInterval(this._connectionHealthInterval)
+      this._connectionHealthInterval = null
+    }
+    this.connectionHealthChecksInFlight.clear()
+  }
+
+  private clearConnectionDebugState() {
+    this.connectionLifecycleDebug.clear()
+    this.connectionHealthDebug.clear()
+    this.connectionHealthChecksInFlight.clear()
+    this.pendingCloseTriggersByPeer.clear()
+  }
+
+  private async checkConnectionHealth() {
+    if (this.state !== Libp2pState.Started || this.libp2pInstance == null) {
+      return
+    }
+
+    for (const [peerId, peer] of this.connectedPeers.entries()) {
+      await this.checkPeerHealth(peerId, peer.address)
+    }
+  }
+
+  private async checkPeerHealth(peerId: string, peerAddress: string) {
+    if (this.libp2pInstance == null) return
+    if (this.connectionHealthChecksInFlight.has(peerId)) return
+
+    const peerIdObject = peerIdFromString(peerId)
+    const openConnections = this.libp2pInstance.getConnections(peerIdObject).filter(conn => conn.status === 'open')
+    if (openConnections.length === 0) {
+      this.logConnectionHealth('health:skip-no-open-connection', peerId, { peerAddress })
+      return
+    }
+
+    this.connectionHealthChecksInFlight.add(peerId)
+    const startedAtMs = Date.now()
+    const previous = this.connectionHealthDebug.get(peerId)
+    const pingService = this.libp2pInstance.services.ping as
+      | { ping: (peer: ReturnType<typeof peerIdFromString>, options: { signal: AbortSignal }) => Promise<number> }
+      | undefined
+
+    if (pingService == null) {
+      this.logConnectionHealth('health:skip-no-ping-service', peerId, { peerAddress })
+      this.connectionHealthChecksInFlight.delete(peerId)
+      return
+    }
+
+    try {
+      this.logConnectionHealth('health:ping:start', peerId, {
+        peerAddress,
+        openConnectionCount: openConnections.length,
+      })
+      const rtt = await pingService.ping(peerIdObject, {
+        signal: AbortSignal.timeout(this.connectionHealthConfig.timeoutMs),
+      })
+      this.connectionHealthDebug.set(peerId, {
+        peerId,
+        status: 'healthy',
+        failureCount: 0,
+        lastCheckedAtMs: Date.now(),
+        lastSuccessAtMs: Date.now(),
+        lastRttMs: rtt,
+      })
+      this.logConnectionHealth('health:ping:success', peerId, {
+        peerAddress,
+        rttMs: rtt,
+        durationMs: Date.now() - startedAtMs,
+      })
+    } catch (error: any) {
+      if (isPingStreamContentionError(error)) {
+        this.connectionHealthDebug.set(peerId, {
+          peerId,
+          status: previous?.status ?? 'healthy',
+          failureCount: previous?.failureCount ?? 0,
+          lastCheckedAtMs: Date.now(),
+          lastSuccessAtMs: previous?.lastSuccessAtMs,
+          lastFailureAtMs: previous?.lastFailureAtMs,
+          lastRttMs: previous?.lastRttMs,
+          reconnecting: previous?.reconnecting ?? false,
+        })
+        this.logConnectionHealth('health:ping:contention', peerId, {
+          peerAddress,
+          durationMs: Date.now() - startedAtMs,
+          errorName: error?.name,
+          errorCode: error?.code,
+          errorMessage: error?.message,
+          failureCount: previous?.failureCount ?? 0,
+        })
+        return
+      }
+
+      const failureCount = (previous?.failureCount ?? 0) + 1
+      const status = failureCount >= this.connectionHealthConfig.failureThreshold ? 'reconnecting' : 'degraded'
+      this.connectionHealthDebug.set(peerId, {
+        peerId,
+        status,
+        failureCount,
+        lastCheckedAtMs: Date.now(),
+        lastSuccessAtMs: previous?.lastSuccessAtMs,
+        lastFailureAtMs: Date.now(),
+        lastRttMs: previous?.lastRttMs,
+        lastErrorName: error?.name,
+        lastErrorCode: error?.code,
+        lastErrorMessage: error?.message,
+        reconnecting: status === 'reconnecting',
+      })
+      this.logConnectionHealth('health:ping:failure', peerId, {
+        peerAddress,
+        durationMs: Date.now() - startedAtMs,
+        errorName: error?.name,
+        errorCode: error?.code,
+        errorMessage: error?.message,
+        failureCount,
+      })
+
+      if (failureCount >= this.connectionHealthConfig.failureThreshold) {
+        this.markPeerCloseTrigger(peerId, 'health-check-threshold')
+        this.logConnectionHealth('health:redial', peerId, {
+          peerAddress,
+          failureThreshold: this.connectionHealthConfig.failureThreshold,
+        })
+        await this.hangUpPeer(peerAddress, true)
+      }
+    } finally {
+      this.connectionHealthChecksInFlight.delete(peerId)
+    }
+  }
+
   public onModuleDestroy() {
     this.logger.log('Module is being destroyed')
     this.redialQueue.stop(true)
+    this.stopConnectionHealthChecks()
+    this.clearConnectionDebugState()
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)
       this._dialQueueInterval = null
@@ -215,7 +535,19 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug('Local Address', this.localAddress)
     this.logger.debug(peerAddresses.length, dialable.length)
 
-    await Promise.all(dialable.map(addr => this.dialPeer(addr)))
+    let queuedFirstAttempts = 0
+    for (const addr of dialable) {
+      if (this.redialQueue.hasTask(addr)) continue
+      const delayMs = this.dialedPeers.has(addr) ? undefined : queuedFirstAttempts * DIAL_QUEUE_INITIAL_STAGGER_MS
+      if (!this.dialedPeers.has(addr)) {
+        queuedFirstAttempts += 1
+      }
+      await this.redialQueue.enqueue({
+        key: addr,
+        delayMs,
+        task: async () => this.dialPeer(addr, { throwOnError: true, redialOnError: false }),
+      })
+    }
   }
 
   public addPeersToDialQueue = async () => {
@@ -227,13 +559,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       return
     }
 
+    let queuedFirstAttempts = 0
     for (const addr of sortedPeers) {
       const peerId = addr.split('/').pop()
       if (peerId === undefined) continue
       if (addr === this.localAddress) continue
       if (this.redialQueue.hasTask(addr)) continue
       if (this.connectedPeers.has(peerId)) continue
-      const delayMs = this.dialedPeers.has(addr) ? undefined : 0 // dial immediately if this is our first attempt at dialing this address
+      const delayMs = this.dialedPeers.has(addr) ? undefined : queuedFirstAttempts * DIAL_QUEUE_INITIAL_STAGGER_MS
+      if (!this.dialedPeers.has(addr)) {
+        queuedFirstAttempts += 1
+      }
 
       await this.redialQueue.enqueue({
         key: addr,
@@ -386,6 +722,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     try {
       const ma = multiaddr(peerAddress)
       const peerId = peerIdFromString(ma.getPeerId()!)
+      this.markPeerCloseTrigger(peerId.toString(), redial ? 'local-hangup-redial' : 'local-hangup')
 
       this.logger.debug('Disconnecting auth service gracefully')
       this.authService?.closeAuthConnection(peerId)
@@ -463,6 +800,64 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     let libp2p: Libp2p
 
+    const connectionMonitorPingTimeoutMinMs = numberEnv(process.env[CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV])
+    const pingServiceTimeoutMs = numberEnv(process.env[PING_SERVICE_TIMEOUT_MS_ENV])
+    this.connectionHealthConfig = connectionHealthConfigFromEnv()
+    const connectionMonitorEnabled = booleanEnv(
+      process.env[CONNECTION_MONITOR_ENABLED_ENV],
+      !this.connectionHealthConfig.enabled
+    )
+    const connectionMonitorConfig = {
+      abortConnectionOnPingFailure: booleanEnv(process.env[HEARTBEAT_ABORT_ENV], false),
+      pingInterval: 60_000,
+      enabled: connectionMonitorEnabled,
+      ...(connectionMonitorPingTimeoutMinMs == null
+        ? {}
+        : {
+            pingTimeout: {
+              minTimeout: connectionMonitorPingTimeoutMinMs,
+            },
+          }),
+    } satisfies ConnectionMonitorInit
+
+    this.logger.debug(
+      'p2p-heartbeat-monitor-config',
+      JSON.stringify({
+        ...connectionMonitorConfig,
+        enabledEnv: CONNECTION_MONITOR_ENABLED_ENV,
+        enabledEnvValue: process.env[CONNECTION_MONITOR_ENABLED_ENV] ?? null,
+        env: HEARTBEAT_ABORT_ENV,
+        envValue: process.env[HEARTBEAT_ABORT_ENV] ?? null,
+        pingTimeoutMinEnv: CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV,
+        pingTimeoutMinEnvValue: process.env[CONNECTION_MONITOR_PING_TIMEOUT_MIN_MS_ENV] ?? null,
+      })
+    )
+    this.logger.debug(
+      'p2p-ping-service-config',
+      JSON.stringify({
+        timeout: pingServiceTimeoutMs ?? null,
+        env: PING_SERVICE_TIMEOUT_MS_ENV,
+        envValue: process.env[PING_SERVICE_TIMEOUT_MS_ENV] ?? null,
+      })
+    )
+    this.logger.debug(
+      'p2p-connection-health',
+      JSON.stringify({
+        event: 'health:config',
+        config: this.connectionHealthConfig,
+        env: {
+          enabled: CONNECTION_HEALTH_CHECK_ENABLED_ENV,
+          enabledValue: process.env[CONNECTION_HEALTH_CHECK_ENABLED_ENV] ?? null,
+          intervalMs: CONNECTION_HEALTH_CHECK_INTERVAL_MS_ENV,
+          intervalMsValue: process.env[CONNECTION_HEALTH_CHECK_INTERVAL_MS_ENV] ?? null,
+          timeoutMs: CONNECTION_HEALTH_CHECK_TIMEOUT_MS_ENV,
+          timeoutMsValue: process.env[CONNECTION_HEALTH_CHECK_TIMEOUT_MS_ENV] ?? null,
+          failureThreshold: CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD_ENV,
+          failureThresholdValue: process.env[CONNECTION_HEALTH_CHECK_FAILURE_THRESHOLD_ENV] ?? null,
+        },
+      })
+    )
+
     this.logger.debug(`Creating libp2p`)
     try {
       libp2p = await createLibp2p({
@@ -481,11 +876,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         },
         privateKey: params.peerId.privKey,
         addresses: { listen: params.listenAddresses },
-        connectionMonitor: {
-          abortConnectionOnPingFailure: true,
-          pingInterval: 60_000,
-          enabled: true,
-        } satisfies ConnectionMonitorInit,
+        connectionMonitor: connectionMonitorConfig,
         connectionProtector:
           params.useConnectionProtector || params.useConnectionProtector == null
             ? preSharedKey({ psk: params.psk })
@@ -531,7 +922,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         },
         services: {
           auth: libp2pAuth(this.sigchainService, this.qssService, this),
-          ping: ping(),
+          ping: ping(pingServiceTimeoutMs == null ? {} : { timeout: pingServiceTimeoutMs }),
           pubsub: gossipsub({
             // neccessary to run a single peer
             allowPublishToZeroTopicPeers: true,
@@ -582,6 +973,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
 
     this.libp2pInstance.addEventListener('connection:open', openEvent => {
+      this.trackConnectionOpen(openEvent.detail)
       this.logger.debug(
         `Opened connection with ID ${openEvent.detail.id} with peer`,
         openEvent.detail.remotePeer.toString()
@@ -607,6 +999,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     })
 
     this.libp2pInstance.addEventListener('connection:close', event => {
+      this.trackConnectionClose(event.detail)
       this.logger.warn(`Connection with ID ${event.detail.id} closing with peer`, event.detail.remotePeer.toString())
     })
 
@@ -632,6 +1025,18 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
         return
       }
       const localPeerId = peerId.peerId.toString()
+      this.logger.debug(
+        'p2p-peer-lifecycle',
+        JSON.stringify({
+          event: 'peer:connect',
+          peerId: remotePeerId,
+          localPeerId,
+          connectionCount: connection?.length ?? 0,
+          connections: connection?.map(conn =>
+            this.connectionDebugInfo(conn, this.connectionLifecycleDebug.get(String(conn.id ?? 'unknown')))
+          ),
+        })
+      )
       this.logger.debug(`Connection established with ${remotePeerId}`, JSON.stringify(connection))
       this.logger.debug(`${localPeerId} connected to ${remotePeerId}`)
 
@@ -676,6 +1081,17 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.libp2pInstance.addEventListener('peer:disconnect', async event => {
       const remotePeerId = event.detail.toString()
       const localPeerId = peerId.peerId.toString()
+      const connectionDebugInfos = this.connectionDebugInfosForPeer(remotePeerId)
+      this.logger.debug(
+        'p2p-peer-lifecycle',
+        JSON.stringify({
+          event: 'peer:disconnect',
+          peerId: remotePeerId,
+          localPeerId,
+          closeTrigger: this.pendingCloseTriggersByPeer.get(remotePeerId) ?? 'peer-disconnect-after-connection-close',
+          connections: connectionDebugInfos,
+        })
+      )
       this.logger.debug(`Connection closed with ${remotePeerId}`, JSON.stringify(event))
       this.logger.debug(`${localPeerId} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
@@ -693,6 +1109,10 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
+      this.pendingCloseTriggersByPeer.delete(remotePeerId)
+      this.connectionHealthDebug.delete(remotePeerId)
+      this.connectionHealthChecksInFlight.delete(remotePeerId)
+      this.clearClosedConnectionDebugForPeer(remotePeerId)
       this.logger.debug(`${localPeerId} is now connected to ${this.connectedPeers.size} peers`)
       const peerPrevStats = await this.localDbService.getPeerStats(remotePeerId)
 
@@ -725,6 +1145,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.setState(Libp2pState.Starting)
     await this.libp2pInstance.start()
     this.setState(Libp2pState.Started)
+    this.startConnectionHealthChecks()
     this.logger.debug('Queueing peers for initial dialing')
     await this.resumeDialQueueWhenTorReady()
 
@@ -767,6 +1188,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     clearInterval(this._connectedPeersInterval)
 
     this.redialQueue.stop(true)
+    this.stopConnectionHealthChecks()
     await this.hangUpPeers()
     await this.libp2pInstance?.stop()
 
@@ -779,6 +1201,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
+    this.clearConnectionDebugState()
     this.setState(Libp2pState.Stopped)
   }
 
