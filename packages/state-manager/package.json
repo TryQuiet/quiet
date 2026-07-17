@@ -12,7 +12,6 @@
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",
     "lint-staged": "lint-staged --no-stash",
-    "prettier": "prettier",
     "rmDist": "rimraf lib/"
   },
   "files": [

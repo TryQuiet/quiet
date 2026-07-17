@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, SocketActions, SocketEvents, type Community, type Identity } from '@quiet/types'
+import { CommunityOwnership, SocketActions, type Community, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -14,7 +14,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
-import { createLibp2pAddress, validInvitationDatav1 } from '@quiet/common'
+import { createLibp2pAddress, validInvitationDatav4 } from '@quiet/common'
 
 import { createLogger } from '../common/logger'
 import { SigChainService } from '../auth/sigchain.service'
@@ -26,6 +26,7 @@ import { QSSOperationResult, QSSEvents } from '../qss/qss.types'
 import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
+import type { SigChain } from '../auth/sigchain'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -45,18 +46,13 @@ describe('ConnectionsManagerService', () => {
   let qssSyncManager: QSSSyncManager
   let qpsService: QPSService
   let captchaService: CaptchaService
+  let chain: SigChain
 
   beforeEach(async () => {
     jest.clearAllMocks()
     store = prepareStore().store
     factory = await getReduxStoreFactory(store)
     communityRootCa = 'rootCa'
-    community = await factory.create('Community', {
-      rootCa: communityRootCa,
-    })
-    userIdentity = await factory.create('Identity', {
-      communityId: community.id,
-    })
 
     module = await Test.createTestingModule({
       imports: [TestModule, LocalDbModule, StorageModule, ConnectionsManagerModule, SocketModule],
@@ -80,9 +76,17 @@ describe('ConnectionsManagerService', () => {
     })
 
     // initialize sigchain on local db
-    await sigChainService.createChain(community.name!, 'john', false)
-    await sigChainService.saveChain(community.name!)
-    await sigChainService.deleteChain(community.name!, false)
+    chain = await sigChainService.createChain(false)
+    community = await factory.create('Community', {
+      rootCa: communityRootCa,
+      name: 'communityName',
+      teamId: chain.teamId!,
+    })
+    userIdentity = await factory.create('Identity', {
+      communityId: community.id,
+    })
+    await sigChainService.saveChain(chain.teamId!)
+    await sigChainService.deleteChain(chain.teamId!, false)
     quietDir = await module.resolve(QUIET_DIR)
   })
 
@@ -116,6 +120,7 @@ describe('ConnectionsManagerService', () => {
       name: community.name,
       peerList: [remotePeer],
       ownership: CommunityOwnership.Owner,
+      teamId: community.teamId,
     }
     await localDbService.setCommunity(actualCommunity)
     await localDbService.setCurrentCommunityId(community.id)
@@ -177,13 +182,13 @@ describe('ConnectionsManagerService', () => {
     resolveSetCurrentCommunityId()
     await launchCommunityPromise
 
-    expect(loadChainSpy).toHaveBeenCalledWith(community.name, true)
+    expect(loadChainSpy).toHaveBeenCalledWith(community.teamId, true)
     expect(launchSpy).toHaveBeenCalledWith(community)
   })
 
   it('pauses and resumes qss alongside the mobile lifecycle', async () => {
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
-    const openSocketSpy = jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
+    const listenSpy = jest.spyOn(connectionsManagerService['socketService'], 'listen').mockResolvedValue()
     const libp2pPauseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'pause').mockResolvedValue(true)
     const libp2pResumeSpy = jest.spyOn(connectionsManagerService.libp2pService, 'resume').mockResolvedValue(true)
     const qssPauseSpy = jest.spyOn(qssService, 'pause').mockImplementation(() => {})
@@ -195,9 +200,36 @@ describe('ConnectionsManagerService', () => {
     expect(libp2pPauseSpy).toHaveBeenCalledTimes(1)
 
     await connectionsManagerService.resume()
-    expect(openSocketSpy).toHaveBeenCalledTimes(1)
+    expect(listenSpy).toHaveBeenCalledTimes(1)
     expect(libp2pResumeSpy).toHaveBeenCalledTimes(1)
     expect(qssResumeSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses bounded socket readiness and awaits libp2p before resuming qss', async () => {
+    let resolveLibp2pResume!: (value: boolean) => void
+    const libp2pResumePromise = new Promise<boolean>(resolve => {
+      resolveLibp2pResume = resolve
+    })
+    const socketInitSpy = jest.spyOn(connectionsManagerService['socketService'], 'init').mockResolvedValue()
+    const listenSpy = jest.spyOn(connectionsManagerService['socketService'], 'listen').mockResolvedValue()
+    const libp2pResumeSpy = jest
+      .spyOn(connectionsManagerService.libp2pService, 'resume')
+      .mockReturnValue(libp2pResumePromise)
+    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue()
+
+    const resumePromise = connectionsManagerService.resume()
+    await waitForExpect(() => expect(libp2pResumeSpy).toHaveBeenCalledTimes(1))
+
+    expect(socketInitSpy).not.toHaveBeenCalled()
+    expect(listenSpy).toHaveBeenCalledTimes(1)
+    expect(qssResumeSpy).not.toHaveBeenCalled()
+
+    resolveLibp2pResume(true)
+    await resumePromise
+
+    expect(qssResumeSpy).toHaveBeenCalledTimes(1)
+    expect(listenSpy.mock.invocationCallOrder[0]).toBeLessThan(libp2pResumeSpy.mock.invocationCallOrder[0])
+    expect(libp2pResumeSpy.mock.invocationCallOrder[0]).toBeLessThan(qssResumeSpy.mock.invocationCallOrder[0])
   })
 
   it('sets storage team metadata once when QSS and libp2p join events race', async () => {
@@ -381,7 +413,7 @@ describe('ConnectionsManagerService', () => {
       id: community.id,
       name: community.name!,
       username: 'john',
-      inviteData: validInvitationDatav1[0],
+      inviteData: validInvitationDatav4[0],
     })
 
     expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
@@ -405,7 +437,7 @@ describe('ConnectionsManagerService', () => {
     const resetStateSpy = jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     const localDbOpenSpy = jest.spyOn(localDbService, 'open').mockResolvedValue()
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
-    sigChainService.activeChainTeamName = community.name
+    sigChainService.activeChainTeamId = community.teamId
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 
@@ -576,7 +608,7 @@ describe('ConnectionsManagerService', () => {
     jest.spyOn(connectionsManagerService['tor'], 'resetHiddenServices').mockImplementation(() => {})
     jest.spyOn(connectionsManagerService, 'resetState').mockResolvedValue()
     jest.spyOn(localDbService, 'open').mockResolvedValue()
-    sigChainService.activeChainTeamName = community.name
+    sigChainService.activeChainTeamId = community.teamId
 
     await (connectionsManagerService as any).erasePreviousCommunityArtifacts()
 

@@ -11,9 +11,11 @@ export type InvitationPair = {
 }
 
 export enum InvitationDataVersion {
-  v1 = 'v1', // classic non-LFA invites
-  v2 = 'v2', // LFA invites
-  v3 = 'v3', // LFA + QSS invites
+  v1 = 'v1', // DEPRECATED: classic non-LFA invites
+  v2 = 'v2', // DEPRECATED: LFA invites
+  v3 = 'v3', // DEPRECATED: LFA + QSS invites
+  v4 = 'v4', // LFA invites with guaranteed team ID
+  v5 = 'v5', // LFA + QSS invites with guaranteed team ID
 }
 
 export type InvitationDataP2P = {
@@ -33,6 +35,18 @@ export type InvitationAuthData = {
   salt?: string
 }
 
+// P2P auth data v4
+export type InvitationAuthDataV4 = {
+  communityName: string
+  seed: string
+  teamId: string
+}
+
+// QSS auth data v5
+export type InvitationAuthDataV5 = InvitationAuthDataV4 & {
+  salt: string
+}
+
 export type InvitationDataV2 = InvitationDataP2P & {
   version: InvitationDataVersion.v2
   authData: InvitationAuthData
@@ -45,7 +59,21 @@ export type InvitationDataV3 = InvitationDataP2P & {
   qssEndpoint: string
 }
 
-export type InvitationData = InvitationDataV1 | InvitationDataV2 | InvitationDataV3
+// P2P invite data v4
+export type InvitationDataV4 = InvitationDataP2P & {
+  version: InvitationDataVersion.v4
+  authData: InvitationAuthDataV4
+}
+
+// QSS invite data v5
+export type InvitationDataV5 = InvitationDataP2P & {
+  version: InvitationDataVersion.v5
+  authData: InvitationAuthDataV5
+  qssEnabled: boolean
+  qssEndpoint: string
+}
+
+export type InvitationData = InvitationDataV4 | InvitationDataV5
 
 /**
  * Validation types

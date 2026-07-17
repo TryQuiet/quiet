@@ -90,7 +90,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
       logger.info('No team found, cannot flush deferred user profiles')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write to the user profiles store')
       return
     }
@@ -253,17 +253,15 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        if (!(
+          key &&
+          valueUserId &&
+          decUserId &&
+          sigAuthor &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        )) {
           logger.error(
             `Failed to verify user profile entry: ${entry.hash} - key, value.userId, decEntry.userId, and signature.author.name must all match. Got key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )

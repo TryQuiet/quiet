@@ -5,7 +5,7 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore, testReducers } from '../renderer/testUtils/prepareStore'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
@@ -26,13 +26,13 @@ import {
   SocketEvents,
   socketEventData,
   InvitationDataVersion,
-  InvitationAuthData,
   InitCommunityPayload,
   ErrorMessages,
   ResponseJoinCommunityPayload,
   CommunityOwnership,
+  type InvitationAuthDataV4,
 } from '@quiet/types'
-import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav3 } from '@quiet/common'
+import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav5 } from '@quiet/common'
 
 import { createLogger } from './logger'
 import { socketActions } from '../renderer/sagas/socket/socket.slice'
@@ -72,6 +72,7 @@ const makeMockEmitImpl = (socket: MockedSocket, opts?: { qss?: boolean }) => {
           community: {
             id: payload.id,
             name: 'community',
+            teamId: 'abc456',
             ownership: CommunityOwnership.User,
             ...(qss ? { qssEnabled: true } : {}),
           },
@@ -131,7 +132,7 @@ const makeMockEmitImpl = (socket: MockedSocket, opts?: { qss?: boolean }) => {
 describe('User', () => {
   let socket: MockedSocket
   const validData: InvitationData = {
-    version: InvitationDataVersion.v2,
+    version: InvitationDataVersion.v4,
     pairs: [
       {
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
@@ -142,7 +143,8 @@ describe('User', () => {
     authData: {
       communityName: 'testCommunityName',
       seed: '123456789abcdefg',
-    } as InvitationAuthData,
+      teamId: 'abc123',
+    } as InvitationAuthDataV4,
   }
   const validCode = composeInvitationShareUrl(validData)
   // trigger
@@ -389,7 +391,7 @@ describe('join community - qss', () => {
       }
     })
 
-    const { code } = getValidInvitationUrlTestData(validInvitationDatav3[0])
+    const { code } = getValidInvitationUrlTestData(validInvitationDatav5[0])
     const qssCode = code()
     logger.info('Using qss invitation code:', qssCode)
 
@@ -441,7 +443,7 @@ describe('join community - qss', () => {
       }
     })
 
-    const { code } = getValidInvitationUrlTestData(validInvitationDatav3[0])
+    const { code } = getValidInvitationUrlTestData(validInvitationDatav5[0])
     const qssCode = code()
     const joinDictionary = JoinCommunityDictionary()
     await userEvent.type(screen.getByPlaceholderText(joinDictionary.placeholder), qssCode)
@@ -486,7 +488,7 @@ describe('join community - qss', () => {
       }
     })
 
-    const { code } = getValidInvitationUrlTestData(validInvitationDatav3[0])
+    const { code } = getValidInvitationUrlTestData(validInvitationDatav5[0])
     const qss = code()
     const joinDictionary = JoinCommunityDictionary()
     // Confirm proper modal title is displayed

@@ -628,7 +628,9 @@ export class ChannelContextMenu {
     this.driver = driver
   }
 
-  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+  async openMenu(
+    expectChannelTypeIcon = true
+  ): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean | undefined }> {
     let menu: WebElement
     try {
       menu = await this.driver.wait(
@@ -660,30 +662,38 @@ export class ChannelContextMenu {
         iconVisible: false,
       }
     }
-    try {
-      const channelTypeIcon = this.driver.wait(
-        until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
-        15_000,
-        `Channel context menu lock/hash icon couldn't be located within timeout`,
-        500
-      )
-      await this.driver.wait(
-        until.elementIsVisible(channelTypeIcon),
-        15_000,
-        `Channel context menu lock/hash icon was not visibile within timeout`,
-        500
-      )
-      return {
-        menuButton: true,
-        menuOpened: true,
-        iconVisible: true,
+    if (expectChannelTypeIcon) {
+      try {
+        const channelTypeIcon = this.driver.wait(
+          until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
+          15_000,
+          `Channel context menu lock/hash icon couldn't be located within timeout`,
+          500
+        )
+        await this.driver.wait(
+          until.elementIsVisible(channelTypeIcon),
+          15_000,
+          `Channel context menu lock/hash icon was not visibile within timeout`,
+          500
+        )
+        return {
+          menuButton: true,
+          menuOpened: true,
+          iconVisible: true,
+        }
+      } catch (e) {
+        logger.error('Error while checking for channel icon on context menu', e)
+        return {
+          menuButton: true,
+          menuOpened: true,
+          iconVisible: false,
+        }
       }
-    } catch (e) {
-      logger.error('Error while checking for channel icon on context menu', e)
+    } else {
       return {
         menuButton: true,
         menuOpened: true,
-        iconVisible: false,
+        iconVisible: undefined,
       }
     }
   }

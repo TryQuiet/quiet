@@ -84,7 +84,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       logger.info('No team found, cannot flush deferred notification tokens')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write notification tokens')
       return
     }
@@ -219,17 +219,15 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        if (!(
+          key &&
+          valueUserId &&
+          decUserId &&
+          sigAuthor &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        )) {
           logger.error(
             `Failed to verify notification token entry: ${entry.hash} - ID mismatch. key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )

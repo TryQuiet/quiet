@@ -8,7 +8,14 @@ import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicCh
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
-import { InvitationData, InvitationDataVersion, type UserProfile, type NetworkStats, type User } from '@quiet/types'
+import {
+  InvitationData,
+  InvitationDataVersion,
+  type UserProfile,
+  type NetworkStats,
+  type User,
+  type InvitationAuthDataV5,
+} from '@quiet/types'
 import { userProfileSelectors } from '../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('connectionSelectors')
@@ -99,10 +106,9 @@ export const invitationUrl = createSelector(
       authData: {
         communityName: currentCommunity.name,
         seed: longLivedInvite.seed,
-        salt: longLivedInvite.salt,
         teamId,
       },
-      version: InvitationDataVersion.v2,
+      version: InvitationDataVersion.v4,
     }
     const qssEnabled = currentCommunity.qssEnabled
     const qssEndpoint = currentCommunity.qssEndpoint
@@ -116,10 +122,13 @@ export const invitationUrl = createSelector(
 
       inviteData = {
         ...inviteData,
-        version: InvitationDataVersion.v3,
+        authData: {
+          ...inviteData.authData,
+          salt: longLivedInvite.salt,
+        } as InvitationAuthDataV5,
+        version: InvitationDataVersion.v5,
         qssEnabled,
         qssEndpoint,
-        authData: inviteData.authData,
       }
     }
     return composeInvitationShareUrl(inviteData)
