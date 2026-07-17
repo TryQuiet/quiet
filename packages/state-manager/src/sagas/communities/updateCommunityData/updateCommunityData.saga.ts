@@ -1,11 +1,8 @@
-import { apply, select, put, call, take } from 'typed-redux-saga'
+import { apply } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesActions } from '../communities.slice'
 import { SocketActions } from '@quiet/types'
-import { createLogger } from '../../../utils/logger'
-
-const logger = createLogger('updateCommunityDataSaga')
 
 export function* updateCommunityDataSaga(
   socket: Socket,

@@ -16,7 +16,16 @@ export const TermsOfServiceScreen: FC = () => {
 
   const onAgree = () => {
     logger.info('User agreed to Terms of Service')
-    dispatch(communities.actions.setTermsOfServiceAccepted({ accepted: true }))
+    dispatch(
+      communities.actions.setTermsOfServiceAccepted({
+        communityId: currentCommunity?.id,
+        accepted: true,
+      })
+    )
+    if (currentCommunity) {
+      dispatch(navigationActions.pop())
+      return
+    }
     dispatch(
       navigationActions.replaceScreen({
         screen: ScreenNames.ConnectionProcessScreen,

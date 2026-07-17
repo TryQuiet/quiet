@@ -17,19 +17,20 @@ export const ServerAddedModal = () => {
 
   const unacceptedServers = useSelector(communities.selectors.unacceptedServers)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const tosRequested = useSelector(communities.selectors.tosRequested)
 
   useEffect(() => {
-    if (modal.open && unacceptedServers.length === 0) {
-      logger.warn('ServerAddedModal opened but no unacceptedServers found in current community, closing modal')
+    if (modal.open && (unacceptedServers.length === 0 || tosRequested)) {
+      logger.info('Closing ServerAddedModal because no server choice is currently needed')
       modal.handleClose()
       return
     }
-    if (unacceptedServers.length > 0 && !modal.open) {
+    if (unacceptedServers.length > 0 && !modal.open && !tosRequested) {
       logger.warn('Opening ServerAddedModal because unacceptedServers unexpectedly found in current community')
       modal.handleOpen()
       return
     }
-  }, [modal, unacceptedServers])
+  }, [modal, tosRequested, unacceptedServers])
 
   const handleChoose = useCallback(
     async (useServer: boolean) => {
@@ -38,17 +39,7 @@ export const ServerAddedModal = () => {
         return
       }
       if (useServer) {
-        const updateCommunityPayload = {
-          id: currentCommunity.id,
-          updates: {
-            qssEnabled: true,
-            serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
-          },
-        }
-        if (!currentCommunity.tosAccepted) {
-          dispatch(communities.actions.requestTermsOfService())
-        }
-        dispatch(communities.actions.updateCommunityData(updateCommunityPayload))
+        dispatch(communities.actions.acceptServer())
       } else {
         await clearCommunity()
       }

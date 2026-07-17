@@ -3,6 +3,7 @@ import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import {
   CreateCommunityPayload,
+  DebugAddServerPayload,
   InvitationData,
   JoinCommunityPayload,
   LaunchCommunityPayload,
@@ -58,6 +59,8 @@ export const communitiesSlice = createSlice({
     joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     addServer: (state, _action: PayloadAction<ServerAddedPayload>) => state,
+    debugAddServer: (state, _action: PayloadAction<DebugAddServerPayload>) => state,
+    acceptServer: state => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
       state.invitationCodes = action.payload

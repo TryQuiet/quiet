@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, SocketActions, type Community, type Identity } from '@quiet/types'
+import { CommunityOwnership, SocketActions, SocketEvents, type Community, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -629,5 +629,72 @@ describe('ConnectionsManagerService', () => {
 
     expect(leaveCommunitySpy).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(false)
+  })
+
+  it('adds a debug server to the sigchain while marking it as known locally', async () => {
+    const originalIsE2E = process.env.IS_E2E
+    process.env.IS_E2E = 'true'
+    const serverHost = 'unknown-server.example.com'
+
+    try {
+      await localDbService.setCommunity({ ...community, serverHosts: [] })
+      await localDbService.setCurrentCommunityId(community.id)
+      await sigChainService.loadChain(community.teamId, true)
+      connectionsManagerService['attachSocketServiceListeners']()
+      const emitSpy = jest.spyOn(connectionsManagerService.serverIoProvider.io, 'emit')
+
+      connectionsManagerService['socketService'].emit(SocketActions.DEBUG_ADD_SERVER, {
+        serverHosts: [serverHost],
+      })
+
+      await waitForExpect(async () => {
+        expect(sigChainService.activeChain.team?.hasServer(serverHost)).toBe(true)
+        expect(await localDbService.getCommunity(community.id)).toMatchObject({
+          serverHosts: [{ hostUrl: serverHost, accepted: true }],
+        })
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.COMMUNITY_UPDATED, {
+          id: community.id,
+          updates: { serverHosts: [{ hostUrl: serverHost, accepted: true }] },
+        })
+      })
+    } finally {
+      if (originalIsE2E == null) {
+        delete process.env.IS_E2E
+      } else {
+        process.env.IS_E2E = originalIsE2E
+      }
+    }
+  })
+
+  it('persists ToS and starts QSS when an unexpected server is accepted', async () => {
+    const qssEndpoint = 'wss://qss.example.com'
+    await localDbService.setCommunity({
+      ...community,
+      qssEnabled: false,
+      tosAccepted: false,
+      qssEndpoint,
+      serverHosts: [{ hostUrl: 'qss.example.com', accepted: false }],
+    })
+    await localDbService.setCurrentCommunityId(community.id)
+    await connectionsManagerService.init()
+    const connectSpy = jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+
+    connectionsManagerService['socketService'].emit(SocketActions.UPDATE_COMMUNITY, {
+      id: community.id,
+      updates: {
+        qssEnabled: true,
+        tosAccepted: true,
+        serverHosts: [{ hostUrl: 'qss.example.com', accepted: true }],
+      },
+    })
+
+    await waitForExpect(async () => {
+      expect(await localDbService.getCommunity(community.id)).toMatchObject({
+        qssEnabled: true,
+        tosAccepted: true,
+        serverHosts: [{ hostUrl: 'qss.example.com', accepted: true }],
+      })
+      expect(connectSpy).toHaveBeenCalledWith(qssEndpoint)
+    })
   })
 })

@@ -58,6 +58,7 @@ import {
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
   ChannelOperationStatus,
+  DebugAddServerPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -83,6 +84,7 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
+import { createKeyset, redactKeys, type Server } from '@localfirst/auth'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -1088,7 +1090,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.logger.error(`No community found with id ${payload.id}`)
         return
       }
-      await this.localDbService.setCommunity({ ...community, ...payload.updates })
+      const updatedCommunity = { ...community, ...payload.updates }
+      await this.localDbService.setCommunity(updatedCommunity)
+
+      const qssBecameUsable =
+        updatedCommunity.qssEnabled && updatedCommunity.tosAccepted && (!community.qssEnabled || !community.tosAccepted)
+      if (qssBecameUsable) {
+        await this.qssService.connect(updatedCommunity.qssEndpoint)
+      }
+    })
+
+    this.socketService.on(SocketActions.DEBUG_ADD_SERVER, async (payload: DebugAddServerPayload) => {
+      this.logger.info(`socketService - ${SocketActions.DEBUG_ADD_SERVER}`)
+      try {
+        await this.debugAddServer(payload)
+      } catch (e) {
+        this.logger.error('Error while adding a debug server', e)
+      }
     })
 
     // Local First Auth
@@ -1228,6 +1246,53 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(false)
       }
     })
+  }
+
+  private async debugAddServer(payload: DebugAddServerPayload): Promise<void> {
+    if (process.env.NODE_ENV !== 'development' && process.env.IS_E2E !== 'true') {
+      this.logger.warn('Ignoring debug server request outside development and E2E')
+      return
+    }
+
+    const community = await this.localDbService.getCurrentCommunity()
+    if (!community) {
+      this.logger.warn('No active community found for debug server request')
+      return
+    }
+
+    const sigChain = this.sigChainService.getActiveChain(false)
+    if (!sigChain?.team || sigChain.teamId !== community.teamId) {
+      this.logger.warn(`No active sigchain found for community ${community.id}`)
+      return
+    }
+
+    const serverHosts = [...new Set(payload.serverHosts.map(host => host.trim()).filter(Boolean))]
+    if (serverHosts.length === 0) {
+      return
+    }
+
+    const knownHosts = new Map(community.serverHosts?.map(server => [server.hostUrl, server]) ?? [])
+    for (const hostUrl of serverHosts) {
+      knownHosts.set(hostUrl, { hostUrl, accepted: true })
+    }
+    const updatedServerHosts = [...knownHosts.values()]
+
+    await this.localDbService.setCommunity({ ...community, serverHosts: updatedServerHosts })
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_UPDATED, {
+      id: community.id,
+      updates: { serverHosts: updatedServerHosts },
+    })
+
+    for (const host of serverHosts) {
+      if (sigChain.team.hasServer(host)) {
+        continue
+      }
+      const server: Server = {
+        host,
+        keys: redactKeys(createKeyset({ type: 'SERVER', name: host })),
+      }
+      sigChain.server.addServer(server)
+    }
   }
 
   /**

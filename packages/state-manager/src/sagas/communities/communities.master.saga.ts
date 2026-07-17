@@ -8,6 +8,8 @@ import { createLogger } from '../../utils/logger'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import type { Task } from 'redux-saga'
 import { addServerSaga } from './addServer/addServer.saga'
+import { acceptServerSaga } from './acceptServer/acceptServer.saga'
+import { debugAddServerSaga } from './debugAddServer/debugAddServer.saga'
 import { updateCommunityDataSaga } from './updateCommunityData/updateCommunityData.saga'
 
 const logger = createLogger('communitiesMasterSaga')
@@ -19,7 +21,9 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeEvery(connectionActions.setTorInitialized.type, initCommunitySaga),
       fork(handleCommunityOnboarding, socket),
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
-      takeEvery(communitiesActions.addServer.type, addServerSaga, socket),
+      takeEvery(communitiesActions.addServer.type, addServerSaga),
+      takeEvery(communitiesActions.acceptServer.type, acceptServerSaga),
+      takeEvery(communitiesActions.debugAddServer.type, debugAddServerSaga, socket),
       takeEvery(communitiesActions.updateCommunityData.type, updateCommunityDataSaga, socket),
     ])
   } finally {

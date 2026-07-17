@@ -2,22 +2,25 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities } from '@quiet/state-manager'
 import ServerAddedComponent from '../../ServerAdded/ServerAddedComponent'
-import { nativeServicesActions } from 'packages/mobile/src/store/nativeServices/nativeServices.slice'
+import { nativeServicesActions } from '../../../store/nativeServices/nativeServices.slice'
 import { ModalBottomDrawer } from '../ModalBottomDrawer.component'
+import { navigationActions } from '../../../store/navigation/navigation.slice'
+import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 export const ServerAddedDrawer: React.FC = () => {
   const dispatch = useDispatch()
   const [visible, setVisible] = useState(false)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const unacceptedServers = useSelector(communities.selectors.unacceptedServers)
+  const tosRequested = useSelector(communities.selectors.tosRequested)
 
   useEffect(() => {
-    if (unacceptedServers.length > 0 && !visible) {
+    if (unacceptedServers.length > 0 && !visible && !tosRequested) {
       setVisible(true)
-    } else if (visible && unacceptedServers.length === 0) {
+    } else if (visible && (unacceptedServers.length === 0 || tosRequested)) {
       setVisible(false)
     }
-  }, [unacceptedServers, visible])
+  }, [tosRequested, unacceptedServers, visible])
 
   const handleChoose = useCallback(
     async (useServer: boolean) => {
@@ -28,16 +31,9 @@ export const ServerAddedDrawer: React.FC = () => {
         return
       }
       if (useServer) {
-        const updateCommunityPayload = {
-          id: currentCommunity.id,
-          updates: {
-            qssEnabled: true,
-            serverHosts: currentCommunity.serverHosts?.map(sh => ({ ...sh, accepted: true })),
-          },
-        }
-        dispatch(communities.actions.updateCommunityData(updateCommunityPayload))
+        dispatch(communities.actions.acceptServer())
         if (!currentCommunity.tosAccepted) {
-          dispatch(communities.actions.requestTermsOfService())
+          dispatch(navigationActions.navigation({ screen: ScreenNames.TermsOfServiceScreen }))
         }
       } else {
         dispatch(nativeServicesActions.leaveCommunity())

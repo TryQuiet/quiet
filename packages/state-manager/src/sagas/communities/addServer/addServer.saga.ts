@@ -1,15 +1,13 @@
-import { apply, select, put, call, take } from 'typed-redux-saga'
+import { select, put } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesActions } from '../communities.slice'
-import { type Community, type UpdateCommunityPayload } from '@quiet/types'
+import { type UpdateCommunityPayload } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { communitiesSelectors } from '../communities.selectors'
 
 const logger = createLogger('addServerSaga')
 
 export function* addServerSaga(
-  socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.addServer>['payload']>
 ): Generator {
   logger.info('Starting addServerSaga')
