@@ -79,7 +79,7 @@ describe('channels', () => {
       secondSigChain.context.user.userId,
       redactKeys(secondSigChain.context.user.keys)
     )
-    expect(adminSigChain.users.getUserById(secondSigChain.user.userId)).toBeDefined()
+    expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 
     const teamBytes = adminSigChain.save()
     const teamKeyring = adminSigChain.team!.teamKeyring()

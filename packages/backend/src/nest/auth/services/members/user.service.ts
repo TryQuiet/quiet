@@ -80,14 +80,17 @@ class UserService extends ChainServiceBase {
     return this.sigChain.team!.members(memberIds, options)
   }
 
-  public getUserById(memberId: string, options: typeof DEFAULT_SEARCH_OPTIONS): Member
-  public getUserById(memberId: string, options?: MemberSearchOptions): Member
+  public getUserById(memberId: string): Member
+  public getUserById(memberId: string, options: MemberSearchOptions & { throwOnMissing: true }): Member
+  public getUserById(memberId: string, options: MemberSearchOptions & { throwOnMissing: false }): Member | undefined
+  public getUserById(memberId: string, options: MemberSearchOptions): Member | undefined
   public getUserById(memberId: string, options: MemberSearchOptions = DEFAULT_SEARCH_OPTIONS): Member | undefined {
     const users = this.getUsersById([memberId], options)
     if (users.length === 0) {
       if (options.throwOnMissing) {
         throw new Error(`No user found for ID ${memberId}`)
       }
+      return undefined
     }
     if (users.length > 1) {
       throw new Error(`Expected 1 user for ID but found ${users.length} user records`)
@@ -95,8 +98,10 @@ class UserService extends ChainServiceBase {
     return users[0]
   }
 
-  public getMyUser(options: typeof DEFAULT_SEARCH_OPTIONS): Member
-  public getMyUser(options?: MemberSearchOptions): Member
+  public getMyUser(): Member
+  public getMyUser(options: MemberSearchOptions & { includethrowOnMissing: true }): Member
+  public getMyUser(options: MemberSearchOptions & { throwOnMissing: false }): Member | undefined
+  public getMyUser(options: MemberSearchOptions): Member | undefined
   public getMyUser(options: MemberSearchOptions = DEFAULT_SEARCH_OPTIONS): Member | undefined {
     return this.getUserById(this.sigChain.user.userId, options)
   }

@@ -595,7 +595,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       ...userContext,
       team: loadedTeam,
     }
-    const newUser = sigchain.users.getUserById(sigchain.user.userId)
+    const newUser = sigchain.users.getUserById(sigchain.user.userId, { includeRemoved: false, throwOnMissing: false })
     expect(newUser).toBeDefined()
     expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
 
