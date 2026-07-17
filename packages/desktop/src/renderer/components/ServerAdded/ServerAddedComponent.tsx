@@ -138,12 +138,12 @@ export const ServerAddedComponent: React.FC<ServerAddedComponentProps> = ({ open
         </Grid>
         <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
           <Grid item>
-            <Typography variant='h3'>
+            <Typography variant='h3' data-testid='ServerAdded-Title'>
               {isQuietServer ? 'This community is hosted on Quiet’s server' : 'This community is hosted on a server'}
             </Typography>
           </Grid>
           <Grid item>
-            <Typography className={classes.info}>
+            <Typography className={classes.info} data-testid='ServerAdded-Message'>
               This community's admins have added a server (
               {isQuietServer ? serverHosts[0] : serverHosts.length > 1 ? serverHosts.join(', ') : serverHosts[0]})
               {isQuietServer ? ' for more speed and reliability' : ''}. Quiet will connect to the server without Tor, so

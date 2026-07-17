@@ -29,6 +29,7 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   UserProfilesUpdatedPayload,
+  DebugAddServerPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -205,6 +206,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActions.UPDATE_COMMUNITY, async (payload: UpdateCommunityPayload) => {
         this.logger.info(`socketService - ${SocketActions.UPDATE_COMMUNITY}`)
         this.emit(SocketActions.UPDATE_COMMUNITY, payload)
+      })
+
+      socket.on(SocketActions.DEBUG_ADD_SERVER, async (payload: DebugAddServerPayload) => {
+        this.logger.info(`socketService - ${SocketActions.DEBUG_ADD_SERVER}`)
+        this.emit(SocketActions.DEBUG_ADD_SERVER, payload)
       })
 
       // ====== Users ======

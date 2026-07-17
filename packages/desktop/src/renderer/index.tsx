@@ -81,11 +81,7 @@ export const clearCommunity = async () => {
     dispatch: store.dispatch,
     resetAppAction: communities.actions.resetApp('payload'),
     requestBackendLeave: () => ipcRenderer.invoke('clear-community'),
-    remountRoot: () => {
-      root.unmount()
-      root = createRoot(container)
-      root.render(<Root />)
-    },
+    remountRoot: renderApp,
   })
 }
 

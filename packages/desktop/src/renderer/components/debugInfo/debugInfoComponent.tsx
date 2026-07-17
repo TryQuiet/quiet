@@ -206,13 +206,12 @@ export const DebugInfoComponent: React.FC = () => {
   }
 
   const handleAddServer = () => {
-    if (!currentCommunity?.id) return
     const hosts = serverHostsInput
       .split(',')
       .map(h => h.trim())
       .filter(Boolean)
     if (hosts.length > 0) {
-      dispatch(communities.actions.addServer({ id: currentCommunity.id, serverHosts: hosts }))
+      dispatch(communities.actions.debugAddServer({ serverHosts: hosts }))
       setServerHostsInput('')
     }
   }
@@ -498,6 +497,7 @@ export const DebugInfoComponent: React.FC = () => {
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
               <input
                 type='text'
+                data-testid='debug-add-server-input'
                 placeholder='Comma separated server hosts'
                 value={serverHostsInput}
                 onChange={e => setServerHostsInput(e.target.value)}
@@ -505,14 +505,16 @@ export const DebugInfoComponent: React.FC = () => {
               />
               <button
                 onClick={handleAddServer}
+                data-testid='debug-add-server-button'
+                disabled={serverHostsInput.trim().length === 0}
                 style={{
                   padding: '6px 16px',
                   borderRadius: 4,
-                  background: '#1976d2',
+                  background: serverHostsInput.trim().length === 0 ? '#9e9e9e' : '#1976d2',
                   color: '#fff',
                   border: 'none',
                   fontWeight: 600,
-                  cursor: 'pointer',
+                  cursor: serverHostsInput.trim().length === 0 ? 'default' : 'pointer',
                 }}
               >
                 Add Server

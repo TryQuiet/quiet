@@ -6,7 +6,7 @@ import { SocketModule } from './socket.module'
 import { SocketService } from './socket.service'
 import { io, Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
-import { SocketActions } from '@quiet/types'
+import { type DebugAddServerPayload, SocketActions } from '@quiet/types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { TEST_DATA_PORT } from '../const'
 
@@ -36,6 +36,10 @@ describe('SocketService', () => {
     // await module.close()
   })
 
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   it('sets no default cors', async () => {
     expect(socketService.serverIoProvider.io.engine.opts.cors).toStrictEqual({}) // No cors should be set by default
   })
@@ -61,6 +65,19 @@ describe('SocketService', () => {
 
     fragile.forEach(event => {
       expect(suspendableSocketEvents).not.toContain(event)
+    })
+  })
+
+  it('forwards debug server requests to backend listeners', async () => {
+    const spy = jest.spyOn(socketService, 'emit')
+    const payload: DebugAddServerPayload = {
+      serverHosts: ['unknown-server.example.com'],
+    }
+
+    client.emit(SocketActions.DEBUG_ADD_SERVER, payload)
+
+    await waitForExpect(() => {
+      expect(spy).toHaveBeenCalledWith(SocketActions.DEBUG_ADD_SERVER, payload)
     })
   })
 })

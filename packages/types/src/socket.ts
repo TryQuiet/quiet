@@ -35,6 +35,7 @@ import {
   type ResponseCreateCommunityPayload,
   type ResponseJoinCommunityPayload,
   type ResponseLeaveCommunityPayload,
+  DebugAddServerPayload,
   LaunchCommunityPayload,
   RequestInvitePayload,
   ResponseInvitePayload,
@@ -70,6 +71,7 @@ export enum SocketActions {
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
   UPDATE_COMMUNITY = 'updateCommunity',
+  DEBUG_ADD_SERVER = 'debugAddServer',
 
   // ====== Channels ======
 
@@ -194,6 +196,7 @@ export interface SocketActionsMap {
   >
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
   [SocketActions.UPDATE_COMMUNITY]: EmitEvent<UpdateCommunityPayload>
+  [SocketActions.DEBUG_ADD_SERVER]: EmitEvent<DebugAddServerPayload>
 
   // ====== Channels ======
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>

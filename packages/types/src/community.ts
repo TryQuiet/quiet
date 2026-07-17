@@ -115,6 +115,10 @@ export interface ServerAddedPayload {
   serverHosts: string[]
 }
 
+export interface DebugAddServerPayload {
+  serverHosts: string[]
+}
+
 // ----- Invites -----
 export interface RequestInvitePayload {
   id: Base58 | undefined

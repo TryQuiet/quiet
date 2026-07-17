@@ -1315,6 +1315,38 @@ export class ServerOfferModal {
   }
 }
 
+export class ServerAddedModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  async isReady(timeoutMs: number = 120_000): Promise<boolean> {
+    const title = await this.driver.wait(
+      until.elementLocated(By.xpath("//*[@data-testid='ServerAdded-Title']")),
+      timeoutMs,
+      `Server added warning couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(
+      until.elementIsVisible(title),
+      10_000,
+      `Server added warning wasn't visible within timeout`,
+      500
+    )
+    return true
+  }
+
+  async getTitle(): Promise<string> {
+    return await this.driver.findElement(By.xpath("//*[@data-testid='ServerAdded-Title']")).getText()
+  }
+
+  async getMessage(): Promise<string> {
+    return await this.driver.findElement(By.xpath("//*[@data-testid='ServerAdded-Message']")).getText()
+  }
+}
+
 export class TermsOfServiceModal {
   private readonly driver: ThenableWebDriver
 
@@ -2537,6 +2569,28 @@ export class Settings {
 
   async openDebugTab() {
     await this.switchTab(SettingsModalTabName.DEBUG)
+  }
+
+  async addServerToCommunity(serverHost: string): Promise<void> {
+    const input = await this.driver.wait(
+      until.elementLocated(By.xpath("//input[@data-testid='debug-add-server-input']")),
+      10_000,
+      `Debug server input couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(input), 5_000)
+    await input.clear()
+    await input.sendKeys(serverHost)
+
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath("//button[@data-testid='debug-add-server-button']")),
+      10_000,
+      `Debug add server button couldn't be found within timeout`,
+      500
+    )
+    await this.driver.wait(until.elementIsVisible(button), 5_000)
+    await this.driver.wait(until.elementIsEnabled(button), 5_000)
+    await this.driver.executeScript('arguments[0].click()', button)
   }
 
   /**
