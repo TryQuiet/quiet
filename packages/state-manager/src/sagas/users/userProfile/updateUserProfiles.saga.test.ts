@@ -230,4 +230,40 @@ describe('updateUserProfilesSaga', () => {
       })
       .run()
   })
+
+  it('should not write cached profiles to storage when a partial update does not include them', async () => {
+    const existingProfiles = {
+      [userId]: userProfile,
+    }
+    const remoteProfile = await baseTypesFactory.create<UserProfile>('UserProfile')
+
+    await expectSaga(
+      updateUserProfilesSaga,
+      socket as unknown as Socket,
+      usersActions.updateUserProfiles([remoteProfile])
+    )
+      .withReducer(combineReducers(testReducers))
+      .withState(store.getState())
+      .provide([
+        {
+          select: ({ selector }: any, next: any) => {
+            if (selector === userProfileSelectors.userProfiles) {
+              return existingProfiles
+            }
+            return next()
+          },
+        },
+      ])
+      .not.call.like({
+        context: socket,
+        fn: socket.emitWithAck,
+      })
+      .put.like({
+        action: {
+          type: usersActions.setUserProfiles.type,
+          payload: [userProfile, remoteProfile],
+        },
+      })
+      .run()
+  })
 })
