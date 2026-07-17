@@ -92,7 +92,10 @@ export class TorControl {
           resolve({ code: 250, messages: dataArray })
         } else {
           clearTimeout(connectionTimeout)
-          this.logger.error(`TOR CONNECTION ERROR:`, dataArray)
+          this.logger.error('Tor control command failed', {
+            responseCode: dataArray[0].slice(0, 3),
+            messageCount: dataArray.length,
+          })
           reject(`${dataArray[0]}`)
         }
         clearTimeout(connectionTimeout)
@@ -103,7 +106,8 @@ export class TorControl {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
-    this.logger.debug(`Sending tor command: ${command}`)
+    const commandName = command.trim().split(/\s+/, 1)[0]?.toUpperCase() || 'UNKNOWN'
+    this.logger.debug('Sending Tor command', { command: commandName })
     // Only send one command at a time.
     if (this.isSending) {
       this.logger.debug('Tor connection already established, waiting...')
@@ -120,7 +124,11 @@ export class TorControl {
     try {
       await this.connect()
       const res = await this._sendCommand(command)
-      this.logger.debug(`Tor command response: ${res.code} ${res.messages}`)
+      this.logger.debug('Tor command response', {
+        command: commandName,
+        code: res.code,
+        messageCount: res.messages.length,
+      })
       return res
     } finally {
       this.disconnect()
