@@ -147,10 +147,8 @@ export class QSSAuthConnection extends EventEmitter {
   /**
    * Starts this auth sync connection with QSS.  If an existing connection is present we will either bypass this operation
    * if it is active or attempt to restart.
-   *
-   * @param teamName Optional team name to pass in for filtering purposes
    */
-  public async start(teamName?: string): Promise<void> {
+  public async start(): Promise<void> {
     if (this.teamId == null) {
       throw new Error('Must set team ID prior to starting connection!')
     }
@@ -164,12 +162,10 @@ export class QSSAuthConnection extends EventEmitter {
     // get the chain by ID and check for an existing auth connection
     let sigChain: SigChain | undefined = undefined
     try {
-      sigChain = this.sigChainService.getChain({ teamId: this._teamId })
+      sigChain = this.sigChainService.getChain(this.teamId)
     } catch (e) {
-      if (!(e as Error).message.includes('No chain found') || teamName == null) {
-        throw e
-      }
-      sigChain = this.sigChainService.getChain({ teamName })
+      this.logger.error('No chain found', e)
+      throw e
     }
 
     if (this._authConnection != null) {
@@ -234,7 +230,7 @@ export class QSSAuthConnection extends EventEmitter {
     // Handle connected events and update the sigchain/join status
     authConnection.on(LFAEvents.CONNECTED, () => {
       this._connStatus = QSSAuthConnStatus.CONNECTED
-      if (this.sigChainService.activeChainTeamName != null && this._joinStatus !== JoinStatus.JOINED) {
+      if (this.sigChainService.activeChainTeamId != null && this._joinStatus !== JoinStatus.JOINED) {
         this.logger.debug(`Sending sync message because our chain is initialized`)
         const sigChain = this.sigChainService.getActiveChain()
         const team = sigChain.team!
@@ -258,26 +254,26 @@ export class QSSAuthConnection extends EventEmitter {
       const { team, user } = payload
 
       const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(`${sigChain.user.userId}: Joined team ${team.teamName} (userid: ${user.userId})!`)
+      this.logger.info(`${sigChain.user.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
       // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
       // and thus don't have the member role so our joining is still pending
       if (sigChain.team == null) {
         this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.teamName}`
+          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`
         )
         sigChain.context = {
           device: (sigChain.context as InviteeContext).device,
           team,
           user,
         } as MemberContext
-        this.sigChainService.setActiveChain(team.teamName)
+        this.sigChainService.setActiveChain(team.id)
         this._joinStatus = JoinStatus.PENDING_MEMBER
         this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
         this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
       } else {
         this._joinStatus = JoinStatus.JOINED
       }
-      void this.sigChainService.saveChain(team.teamName)
+      void this.sigChainService.saveChain(team.id)
       this.emit(QSSEvents.QSS_AUTH_JOINED, this.teamId) // tell other services that we've joined via QSS
     })
 

@@ -661,7 +661,9 @@ export class ChannelContextMenu {
     )
   }
 
-  async openMenu(): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean }> {
+  async openMenu(
+    expectChannelTypeIcon = true
+  ): Promise<{ menuButton: boolean; menuOpened: boolean; iconVisible: boolean | undefined }> {
     let menu: WebElement
     try {
       menu = await this.driver.wait(
@@ -693,30 +695,38 @@ export class ChannelContextMenu {
         iconVisible: false,
       }
     }
-    try {
-      const channelTypeIcon = this.driver.wait(
-        until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
-        15_000,
-        `Channel context menu lock/hash icon couldn't be located within timeout`,
-        500
-      )
-      await this.driver.wait(
-        until.elementIsVisible(channelTypeIcon),
-        15_000,
-        `Channel context menu lock/hash icon was not visibile within timeout`,
-        500
-      )
-      return {
-        menuButton: true,
-        menuOpened: true,
-        iconVisible: true,
+    if (expectChannelTypeIcon) {
+      try {
+        const channelTypeIcon = this.driver.wait(
+          until.elementLocated(By.xpath(`//*[@data-testid="contextMenu-channel-settings-type-icon"]`)),
+          15_000,
+          `Channel context menu lock/hash icon couldn't be located within timeout`,
+          500
+        )
+        await this.driver.wait(
+          until.elementIsVisible(channelTypeIcon),
+          15_000,
+          `Channel context menu lock/hash icon was not visibile within timeout`,
+          500
+        )
+        return {
+          menuButton: true,
+          menuOpened: true,
+          iconVisible: true,
+        }
+      } catch (e) {
+        logger.error('Error while checking for channel icon on context menu', e)
+        return {
+          menuButton: true,
+          menuOpened: true,
+          iconVisible: false,
+        }
       }
-    } catch (e) {
-      logger.error('Error while checking for channel icon on context menu', e)
+    } else {
       return {
         menuButton: true,
         menuOpened: true,
-        iconVisible: false,
+        iconVisible: undefined,
       }
     }
   }
@@ -2257,10 +2267,18 @@ export class Sidebar {
     )
   }
 
-  async waitForChannels(channelsNames: Array<string>): Promise<void> {
-    await this.waitForChannelsNum(channelsNames.length)
-    const names = await this.getChannelsNames()
-    expect(names).toEqual(expect.arrayContaining(channelsNames))
+  async waitForChannels(channelsNames: Array<string>, timeoutMs: number = 15_000): Promise<string[]> {
+    logger.info(`Waiting for channels: ${channelsNames.join(', ')}`)
+    return (await this.driver.wait(
+      async () => {
+        const names = await this.getChannelsNames()
+        const hasExpectedChannels = channelsNames.every(channelName => names.includes(channelName))
+        return names.length === channelsNames.length && hasExpectedChannels ? names : false
+      },
+      timeoutMs,
+      `Sidebar channels ${channelsNames.join(', ')} couldn't be found within timeout`,
+      500
+    )) as string[]
   }
 
   async openSettings(): Promise<Settings> {

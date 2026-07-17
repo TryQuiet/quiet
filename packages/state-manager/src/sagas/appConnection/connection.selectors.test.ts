@@ -1,12 +1,11 @@
 import { setupCrypto } from '@quiet/identity'
-import { type Store } from '@reduxjs/toolkit'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../utils/tests/factories'
-import { prepareStore, testReducers } from '../../utils/tests/prepareStore'
+import { prepareStore } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
-import { InvitationAuthData, InvitationDataVersion, InvitationPair, UserProfile, type Community } from '@quiet/types'
-import { composeInvitationShareUrl, createLibp2pAddress, p2pAddressesToPairs } from '@quiet/common'
+import { InvitationDataVersion, InvitationPair, UserProfile, type InvitationAuthDataV4 } from '@quiet/types'
+import { composeInvitationShareUrl, createLibp2pAddress } from '@quiet/common'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
@@ -129,11 +128,11 @@ describe('communitiesSelectors', () => {
     expect(invitationUrl).toEqual('')
   })
 
-  it('invitationUrl selector returns proper v2 url when community and long lived invite are defined', async () => {
+  it('invitationUrl selector returns proper v4 url when community and long lived invite are defined', async () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)
 
-    logger.info('invitationUrl selector returns proper v2 url when community and long lived invite are defined')
+    logger.info('invitationUrl selector returns proper v4 url when community and long lived invite are defined')
     const psk = '12345'
     const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
@@ -157,9 +156,8 @@ describe('communitiesSelectors', () => {
     expect(longLivedInvite).toEqual({ seed: '5ah8uYodiwuwVybT', salt: '5ah8uYodiwuwVybT', id: '5ah8uYodiwuwVybT' })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const community = communitiesSelectors.currentCommunity(store.getState())
-    const authData: InvitationAuthData = {
+    const authData: InvitationAuthDataV4 = {
       seed: '5ah8uYodiwuwVybT',
-      salt: '5ah8uYodiwuwVybT',
       communityName: community!.name!,
       teamId: community!.teamId,
     }
@@ -175,13 +173,13 @@ describe('communitiesSelectors', () => {
       pairs,
       psk,
       authData,
-      version: InvitationDataVersion.v2,
+      version: InvitationDataVersion.v4,
     })
     expect(expectedUrl).not.toEqual('')
     expect(selectorInvitationUrl).toEqual(expectedUrl)
   })
 
-  it('invitationUrl selector returns proper v3 url when community and long lived invite are defined and qss is enabled', async () => {
+  it('invitationUrl selector returns proper v5 url when community and long lived invite are defined and qss is enabled', async () => {
     const store = prepareStore().store
     const factory = await getReduxStoreFactory(store)
 
@@ -231,7 +229,7 @@ describe('communitiesSelectors', () => {
       authData,
       qssEnabled: true,
       qssEndpoint,
-      version: InvitationDataVersion.v3,
+      version: InvitationDataVersion.v5,
     })
     expect(expectedUrl).not.toEqual('')
     expect(selectorInvitationUrl).toEqual(expectedUrl)

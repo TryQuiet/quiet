@@ -1,13 +1,11 @@
 import EventEmitter from 'events'
 
-import { ChannelMessage, CompoundError, ConsumedChannelMessage, MessageType } from '@quiet/types'
+import { ChannelMessage, ConsumedChannelMessage } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
-import { EncryptionScopeType } from '../../../auth/services/crypto/types'
 import { SigChainService } from '../../../auth/sigchain.service'
-import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
-import { RoleName } from '../../../auth/services/roles/roles'
-import { isConsumedChannelMessage, isEncryptedMessage, isMessage } from '../../../validation/validators'
+import { EncryptedMessage, SHARED_FIELDS } from './messages.types'
+import { isConsumedChannelMessage } from '../../../validation/validators'
 import { NotImplementedException } from '@nestjs/common'
 
 export class BaseMessagesService extends EventEmitter {
@@ -44,21 +42,38 @@ export class BaseMessagesService extends EventEmitter {
    * and that it matches the encrypted message it was decrypted from.
    * Failing messages should be discarded.
    *
-   * @param message Message to validate
+   * @param decryptedMessage Message to validate
    * @param encryptedMessage Encrypted message to validate against
    * @returns True if the message is valid, false otherwise
    */
-  public validateMessage(message: ConsumedChannelMessage, encryptedMessage: EncryptedMessage): boolean {
-    if (message.id !== encryptedMessage.id) {
-      this.logger.warn(`Cannot validate msg ${message.id}: IDs do not match`)
+  public validateMessage(decryptedMessage: ConsumedChannelMessage, encryptedMessage: EncryptedMessage): boolean {
+    if (decryptedMessage.id !== encryptedMessage.id) {
+      this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: IDs do not match`)
       return false
     }
-    if (!isConsumedChannelMessage(message)) {
-      this.logger.warn(`Cannot validate msg ${message.id}: message shape is not valid`)
+    if (!isConsumedChannelMessage(decryptedMessage)) {
+      this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: message shape is not valid`)
       return false
     }
-    if (!isEncryptedMessage(encryptedMessage)) {
-      this.logger.warn(`Cannot validate msg ${message.id}: encrypted message shape is not valid`)
+    // ensure that the fields we write to the message unencrypted match the ones inside the encrypted blob
+    const mismatchedFields: typeof SHARED_FIELDS = []
+    for (const sharedField of SHARED_FIELDS) {
+      if (decryptedMessage[sharedField] !== encryptedMessage[sharedField]) {
+        mismatchedFields.push(sharedField)
+      }
+    }
+    if (mismatchedFields.length > 0) {
+      this.logger.warn(
+        `Fields on encrypted message and consumed (decrypted) message don't match.  Mismatched fields: `,
+        mismatchedFields
+      )
+      return false
+    }
+    if (
+      encryptedMessage.encSignature.author.name !== decryptedMessage.encSignature?.author.name ||
+      encryptedMessage.encSignature.author.name !== decryptedMessage.userId
+    ) {
+      this.logger.warn(`User ID on the encryption signature didn't match the user ID on the message`)
       return false
     }
     return true

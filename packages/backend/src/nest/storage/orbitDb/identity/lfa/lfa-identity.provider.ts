@@ -112,7 +112,7 @@ class LFAIdentityProvider implements IdentityProvider {
    * @returns User and sigchain
    */
   public getUserAndChain(userId: string, teamId: string, includeRemoved: boolean = false): LFAUserAndChain {
-    const sigchain = this.sigchainService.getChain({ teamId }, true)
+    const sigchain = this.sigchainService.getChain(teamId, true)
     const user = sigchain.users.getUserById(userId, { includeRemoved, throwOnMissing: true })
     return {
       user: user!,

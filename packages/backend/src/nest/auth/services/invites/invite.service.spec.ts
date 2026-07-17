@@ -4,6 +4,9 @@ import { RoleName } from '..//roles/roles'
 import { UserService } from '../members/user.service'
 import { InviteService } from './invite.service'
 import { DeviceService } from '../members/device.service'
+import { base58 } from '@localfirst/crypto'
+import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
+import { RANDOM_USERNAME_LENGTH } from '../members/types'
 
 const logger = createLogger('auth:services:invite.spec')
 
@@ -11,11 +14,14 @@ describe('invites', () => {
   let adminSigChain: SigChain
   let newMemberSigChain: SigChain
   it('should initialize a new sigchain and be admin', () => {
-    adminSigChain = SigChain.create('test', 'user')
+    adminSigChain = SigChain.create()
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.user).toBeDefined()
-    expect(adminSigChain.team!.teamName).toBe('test')
-    expect(adminSigChain.user.userName).toBe('user')
+    expect(adminSigChain.teamName).toBeDefined()
+    expect(base58.detect(adminSigChain.teamName!)).toBeTruthy()
+    expect(adminSigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
+    expect(base58.detect(adminSigChain.user.userName)).toBeTruthy()
+    expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
@@ -28,7 +34,7 @@ describe('invites', () => {
   it('admin should generate an invite seed and create a new user from it', () => {
     const invite = adminSigChain.invites.createUserInvite()
     expect(invite).toBeDefined()
-    const prospectiveMember = UserService.createFromInviteSeed('user2', invite.seed)
+    const prospectiveMember = UserService.createFromInviteSeed({ seed: invite.seed })
     const inviteProof = InviteService.generateProof(invite.seed)
     expect(inviteProof).toBeDefined()
     expect(adminSigChain.invites.validateProof(inviteProof)).toBe(true)
@@ -44,7 +50,8 @@ describe('invites', () => {
     expect(adminSigChain.team).toBeDefined()
     logger.info('newMemberSigChain.team', newMemberSigChain.team)
     expect(newMemberSigChain.team).toBeDefined()
-    expect(newMemberSigChain.user.userName).toBe('user2')
+    expect(base58.detect(newMemberSigChain.user.userName)).toBeTruthy()
+    expect(newMemberSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(newMemberSigChain.user.userId).not.toBe(adminSigChain.user.userId)
     expect(newMemberSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(false)
     expect(newMemberSigChain.roles.amIAdmin()).toBe(false)
@@ -70,7 +77,7 @@ describe('invites', () => {
     const invalidInviteProof = InviteService.generateProof('invalidseed')
     expect(invalidInviteProof).toBeDefined()
     expect(adminSigChain.invites.validateProof(invalidInviteProof)).toBe(false)
-    const prospectiveMember = UserService.createFromInviteSeed('user3', 'invalidseed')
+    const prospectiveMember = UserService.createFromInviteSeed({ seed: 'invalidseed' })
     expect(prospectiveMember).toBeDefined()
     const newSigchain = SigChain.joinForTesting(
       prospectiveMember.context,

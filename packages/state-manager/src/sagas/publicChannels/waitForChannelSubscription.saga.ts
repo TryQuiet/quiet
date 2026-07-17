@@ -6,6 +6,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 const logger = createLogger('waitForChannelSubscriptionSaga')
 
 export function* waitForChannelSubscriptionSaga(channelId: string): Generator {
+  logger.info('Checking channel subscription', channelId)
   const targetChannelSubscribed = publicChannelsSelectors.isChannelSubscribed(channelId)
 
   while (!(yield* select(targetChannelSubscribed))) {

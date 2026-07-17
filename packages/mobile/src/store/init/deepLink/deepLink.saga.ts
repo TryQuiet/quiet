@@ -86,9 +86,8 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   let storedPsk: string | undefined = undefined
   let currentPsk: string | undefined = undefined
   switch (data.version) {
-    case InvitationDataVersion.v1:
-    case InvitationDataVersion.v2: // Question: should we also check if the sig chain team name is different or something?  is the psk enough?
-    case InvitationDataVersion.v3:
+    case InvitationDataVersion.v4:
+    case InvitationDataVersion.v5: // Question: should we also check if the sig chain team name is different or something?  is the psk enough?
       storedPsk = yield* select(communities.selectors.psk)
       currentPsk = data.psk
       isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)

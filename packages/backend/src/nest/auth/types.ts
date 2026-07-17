@@ -13,11 +13,6 @@ export type SerializedSigChain = {
   teamKeyRing: Keyring | undefined
 }
 
-export type GetChainFilter = {
-  teamId?: string
-  teamName?: string
-}
-
 /**
  * Native LFA Events
  */
@@ -43,3 +38,5 @@ export enum StoredKeyType {
   USER_PUBLIC = 'userPublic',
   USER_SIG = 'userSig',
 }
+
+export const RANDOM_TEAM_NAME_LENGTH = 32

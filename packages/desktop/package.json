@@ -106,7 +106,10 @@
     "cypress:open": "cypress open --component",
     "cypress:run": "cypress run --component",
     "cypress:run:ci": "cypress install --force && cypress run --component",
-    "prepare": "npm run build:main",
+    "prepare": "npm run webpack:configtest:dev && npm run webpack:configtest:prod && npm run build:main && npm run build:prepare",
+    "webpack": "webpack",
+    "webpack:configtest:dev": "webpack configtest webpack/webpack.config.renderer.dev.js",
+    "webpack:configtest:prod": "webpack configtest webpack/webpack.config.renderer.prod.js",
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:prod": "concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
     "build:dev": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
@@ -114,6 +117,7 @@
     "build:main": "tsc -p tsconfig.build.json",
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
+    "build:prepare": "tsc -p tsconfig.build.prepare.json",
     "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
     "start": "npm run start:renderer",
@@ -286,6 +290,10 @@
     "testRegex": "src/.*\\.test\\.(t|j)sx?$",
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
+    ],
+    "testPathIgnorePatterns": [
+      "node_modules/",
+      "distPrepare/"
     ]
   },
   "engines": {

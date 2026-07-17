@@ -102,6 +102,14 @@ class RoleService extends ChainServiceBase {
     return this.memberIsAdmin(this.sigChain.user.userId)
   }
 
+  public memberIsMember(memberId: string): boolean {
+    return this.memberHasRole(memberId, RoleName.MEMBER)
+  }
+
+  public amIMember(): boolean {
+    return this.memberIsMember(this.sigChain.user.userId)
+  }
+
   public getMembersForRole(roleName: RoleName | string): Member[] {
     return this.sigChain.team!.membersInRole(roleName)
   }

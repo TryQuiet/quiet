@@ -61,7 +61,7 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      const sigchain = config.sigchainService.getChain({ teamId: config.teamId }, false)
+      const sigchain = config.sigchainService.getChain(config.teamId, false)
       if (sigchain == null) {
         this.logger.warn(`User is not a member of this team or team hasn't been initialized, sigchain was nullish`)
         return false

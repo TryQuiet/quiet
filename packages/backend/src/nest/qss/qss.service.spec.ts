@@ -132,7 +132,7 @@ describe('QSSService', () => {
       nickname: username,
     })
     sigchainService = module.get<SigChainService>(SigChainService)
-    await sigchainService.createChain(community.name!, username, true)
+    await sigchainService.createChain(true)
 
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)

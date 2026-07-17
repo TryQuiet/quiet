@@ -277,8 +277,8 @@ export class LocalDbService extends EventEmitter {
     return await this.get(LocalDBKeys.IDENTITIES)
   }
 
-  public async setSigChain(sigChain: SigChain, teamName: string) {
-    const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
+  public async setSigChain(sigChain: SigChain, teamId: string) {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     let serializedTeam: string | undefined = undefined
     let teamKeyring: Keyring | undefined = undefined
     if (sigChain.team) {
@@ -290,13 +290,13 @@ export class LocalDbService extends EventEmitter {
       localUserContext: { user: sigChain.user, device: sigChain.device },
       teamKeyRing: teamKeyring,
     }
-    this.logger.info('Saving sigchain', teamName)
+    this.logger.info('Saving sigchain', teamId)
     await this.put(key, serializedSigChain)
   }
 
-  public async getSigChain(teamName: string): Promise<SerializedSigChain | undefined> {
-    const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
-    this.logger.info('Getting sigchain', teamName, key)
+  public async getSigChain(teamId: string): Promise<SerializedSigChain | undefined> {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
+    this.logger.info('Getting sigchain', teamId, key)
     const sigChainBlob = await this.get(key)
     if (sigChainBlob == null) {
       this.logger.error(`No sig chain stored in local DB for key`, key)
@@ -324,8 +324,8 @@ export class LocalDbService extends EventEmitter {
     }
   }
 
-  public async deleteSigChain(teamName: string) {
-    const key = `${LocalDBKeys.SIGCHAINS}${teamName}`
+  public async deleteSigChain(teamId: string) {
+    const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     await this.delete(key)
   }
 
