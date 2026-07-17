@@ -145,8 +145,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
 
     const markBootstrappedPromise = (async () => {
-      if (bootstrapGeneration !== this.bootstrapGeneration) return
       await this.spawnHiddenServices(bootstrapGeneration)
+      // The generation can change while hidden-service initialization is in flight,
+      // so revalidate before publishing bootstrapped state for the session.
       if (bootstrapGeneration !== this.bootstrapGeneration) {
         this.logger.warn('Bootstrap generation changed while marking Tor bootstrapped, skipping stale event')
         return
@@ -220,12 +221,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
         if (!this.isCurrentBootstrapWatcher(watcher, bootstrapGeneration)) return
         if (bootstrapStatus.done) {
           await this.markBootstrapped(bootstrapGeneration)
-          if (!this.isCurrentBootstrapWatcher(watcher, bootstrapGeneration)) return
           this.stopBootstrapWatcher(watcher)
           return
         }
         await this.checkBootstrapStall(bootstrapStatus, bootstrapGeneration)
-        if (!this.isCurrentBootstrapWatcher(watcher, bootstrapGeneration)) return
       })()
         .catch(e => {
           if (!this.isCurrentBootstrapWatcher(watcher, bootstrapGeneration)) return
@@ -343,7 +342,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       return
     }
 
-    if (bootstrapGeneration !== this.bootstrapGeneration) return
     await this.restartAfterBootstrapStall(
       status,
       stalledMs,
@@ -370,7 +368,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       return false
     }
 
-    if (bootstrapGeneration !== this.bootstrapGeneration) return false
     await this.restartManagedTor(
       'Managed Tor process disappeared during bootstrap; restarting Tor',
       {
@@ -432,7 +429,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.logger.warn(reason, context)
 
     this.bootstrapRestartPromise = (async () => {
-      if (bootstrapGeneration !== this.bootstrapGeneration) return
       this.initializedHiddenServices = new Map()
       this.bootstrapStallState = undefined
       this.stopBootstrapWatcher()
@@ -664,7 +660,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     if (bootstrapGeneration !== this.bootstrapGeneration) return
     this.logger.info(`Spawning hidden service(s) (count: ${this.hiddenServices.size})`)
     for (const el of Array.from(this.hiddenServices.values())) {
-      if (bootstrapGeneration !== this.bootstrapGeneration) return
       await this.spawnHiddenService(el)
       if (bootstrapGeneration !== this.bootstrapGeneration) return
     }

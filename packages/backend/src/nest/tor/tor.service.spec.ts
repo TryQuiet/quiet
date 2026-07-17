@@ -213,6 +213,19 @@ describe('Tor native session rewiring', () => {
     }
   })
 
+  it('rechecks the bootstrap generation after spawning hidden services', async () => {
+    const { torControl, torService } = createTorService()
+    jest.spyOn(torControl, 'sendCommand').mockResolvedValue({ code: 250, messages: [bootstrapDone, '250 OK'] })
+    jest.spyOn(torService, 'startBootstrapWatcher').mockImplementation(() => {})
+    jest.spyOn(torService, 'spawnHiddenServices').mockImplementation(async () => {
+      torService.rewireNativeTor({ controlPort, httpTunnelPort, authCookie: 'cookie-b' })
+    })
+
+    await expect(torService.isBootstrappingFinished()).resolves.toBe(false)
+
+    expect(torService.bootstrapped).toBe(false)
+  })
+
   it('preserves native Tor state when kill has no managed process to terminate', async () => {
     const { torControl, torService } = createTorService()
     await registerHiddenService(torService, torControl)
