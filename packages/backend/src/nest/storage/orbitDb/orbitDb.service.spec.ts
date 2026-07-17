@@ -253,4 +253,33 @@ describe('OrbitDbService', () => {
     await orbitDbService.create(ipfsService.ipfsInstance!)
     expect(OrbitDbService.events.listeners('update')).toContain(updateListener)
   })
+
+  it('ingests concurrent heads even when their Lamport clock times differ', async () => {
+    const firstHead = {
+      id: 'concurrent-log',
+      hash: 'zdpuAn4pdCWF7HEhYqaW45woXfTqWn4ccG24JBHbf3sDR1XHK',
+      bytes: new Uint8Array([1]),
+      next: [],
+      clock: { time: 1 },
+    } as unknown as LogEntry
+    const ancestor = {
+      id: 'concurrent-log',
+      hash: 'zdpuAkTACgJnmr667GAafc5YQQYkYZHohonEhG2U9N9Q7WzmU',
+      bytes: new Uint8Array([2]),
+      next: [],
+      clock: { time: 2 },
+    } as unknown as LogEntry
+    const secondHead = {
+      id: 'concurrent-log',
+      hash: 'zdpuB3HUfW7TszueRD7X5GsbRDp2Xk8hSfvyn5SoEhB1zNihi',
+      bytes: new Uint8Array([3]),
+      next: [ancestor.hash],
+      clock: { time: 3 },
+    } as unknown as LogEntry
+    const joinHeadsSpy = jest.spyOn(orbitDbService as any, 'joinHeads').mockResolvedValue(undefined)
+
+    await orbitDbService.ingestEntries([firstHead, ancestor, secondHead])
+
+    expect(joinHeadsSpy).toHaveBeenCalledWith('concurrent-log', [firstHead, secondHead])
+  })
 })
