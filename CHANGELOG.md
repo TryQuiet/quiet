@@ -6,6 +6,7 @@
 
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
 * Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
+* Tighten user profile store access control and validations [#3340](https://github.com/TryQuiet/quiet/issues/3340)
 
 ## [8.0.0]
 
