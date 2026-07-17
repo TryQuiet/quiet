@@ -7,7 +7,7 @@ import { ChainServiceBase } from '../chainServiceBase'
 import { Member } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
 import { hash } from '@localfirst/crypto'
-import { NotAdminError, RoleName } from './roles'
+import { PUBLIC_CHANNEL_MODIFICATION_ROLES } from './roles'
 
 const logger = createLogger('auth:channelService')
 
@@ -62,6 +62,67 @@ class ChannelService extends ChainServiceBase {
     logger.info(`Removing role for channel ${channelId}`)
     const roleName = this.generateChannelRoleName(channelId)
     this.sigChain.roles.delete(roleName)
+  }
+
+  public canMemberCreatePublicChannel(memberId: string): boolean {
+    for (const allowedRoleName of PUBLIC_CHANNEL_MODIFICATION_ROLES) {
+      if (this.sigChain.roles.memberHasRole(memberId, allowedRoleName)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  public canICreatePublicChannel(): boolean {
+    return this.canMemberCreatePublicChannel(this.sigChain.user.userId)
+  }
+
+  public canMemberDeletePublicChannel(memberId: string): boolean {
+    for (const allowedRoleName of PUBLIC_CHANNEL_MODIFICATION_ROLES) {
+      if (this.sigChain.roles.memberHasRole(memberId, allowedRoleName)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  public canIDeletePublicChannel(): boolean {
+    return this.canMemberCreatePublicChannel(this.sigChain.user.userId)
+  }
+
+  public canMemberCreatePrivateChannel(memberId: string): boolean {
+    return this.sigChain.roles.canMemberCreateRole(memberId)
+  }
+
+  public canICreatePrivateChannel(): boolean {
+    return this.canMemberCreatePrivateChannel(this.sigChain.user.userId)
+  }
+
+  public canMemberAddMembersToPrivateChannel(memberId: string, channelId: string): boolean {
+    const roleName = this.generateChannelRoleName(channelId)
+    return this.sigChain.roles.canMemberAddMembersRole(memberId, roleName)
+  }
+
+  public canIAddMembersToPrivateChannel(channelId: string): boolean {
+    return this.canMemberAddMembersToPrivateChannel(this.sigChain.user.userId, channelId)
+  }
+
+  public canMemberRemoveMembersFromPrivateChannel(memberId: string, channelId: string): boolean {
+    const roleName = this.generateChannelRoleName(channelId)
+    return this.sigChain.roles.canMemberRemoveMembersFromRole(memberId, roleName)
+  }
+
+  public canIRemoveMembersFromPrivateChannel(channelId: string): boolean {
+    return this.canMemberRemoveMembersFromPrivateChannel(this.sigChain.user.userId, channelId)
+  }
+
+  public canMemberDeletePrivateChannel(memberId: string, channelId: string): boolean {
+    const roleName = this.generateChannelRoleName(channelId)
+    return this.sigChain.roles.canMemberDeleteRole(memberId, roleName)
+  }
+
+  public canIDeletePrivateChannel(channelId: string): boolean {
+    return this.canMemberDeletePrivateChannel(this.sigChain.user.userId, channelId)
   }
 
   public generateChannelRoleName(channelId: string): string {

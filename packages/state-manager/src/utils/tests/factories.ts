@@ -54,6 +54,7 @@ import {
   ChannelOperationStatus,
   type InvitationAuthDataV5,
   type InvitationAuthDataV4,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
@@ -237,6 +238,23 @@ export const getReduxStoreFactory = async (store: Store) => {
         return payload
       },
     }
+  )
+
+  factory.define<ReturnType<typeof publicChannelsActions.setChannelPermissions>['payload']>(
+    'ChannelPermissions',
+    publicChannelsActions.setChannelPermissions,
+    {
+      genericPermissions: {
+        public: {
+          create: true,
+          delete: true,
+        },
+        private: {
+          create: true,
+        },
+      },
+      channelSpecificPermissions: [],
+    } as SetChannelPermissionsPayload
   )
 
   factory.define<ReturnType<typeof identityActions.addNewIdentity>['payload']>(

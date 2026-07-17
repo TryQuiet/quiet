@@ -5,6 +5,7 @@ import {
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter,
+  channelSpecificPermissionsAdapter,
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { userProfiles } from '../users/userProfile/userProfile.selectors'
@@ -339,6 +340,26 @@ export const canCreatePrivateChannel = createSelector(selectState, () => {
   return true
 })
 
+export const genericChannelPermissions = createSelector(selectState, state => {
+  return state.genericChannelPermissions
+})
+
+export const allChannelSpecificPermissions = createSelector(selectState, state => {
+  return channelSpecificPermissionsAdapter.getSelectors().selectEntities(state.channelSpecificPermissions)
+})
+
+export const currentChannelPermissions = createSelector(
+  selectState,
+  currentChannelId,
+  currentChannel,
+  (state, currentChannelId, currentChannel) => {
+    if (currentChannelId == null || currentChannel == null || currentChannel.public) return undefined
+    return channelSpecificPermissionsAdapter
+      .getSelectors()
+      .selectById(state.channelSpecificPermissions, currentChannelId)
+  }
+)
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -366,4 +387,7 @@ export const publicChannelsSelectors = {
   areChannelsLoaded,
   canCreateChannel,
   canCreatePrivateChannel,
+  genericChannelPermissions,
+  allChannelSpecificPermissions,
+  currentChannelPermissions,
 }

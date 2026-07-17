@@ -128,8 +128,8 @@ export class ChannelsService extends EventEmitter {
     if (this.channels == null || this.privateChannels == null) {
       throw new Error('Channels database must be initialized before updating metadata!')
     }
-    OrbitDbService.updateMetadata(this.channels, metadata)
-    OrbitDbService.updateMetadata(this.privateChannels, metadata)
+    OrbitDbService.updateMetadata(this.channels, { ...metadata, isPublic: true })
+    OrbitDbService.updateMetadata(this.privateChannels, { ...metadata, isPublic: false })
     for (const repo of this.channelsRepos.values()) {
       repo.store.updateMetadata(metadata)
     }
@@ -246,15 +246,20 @@ export class ChannelsService extends EventEmitter {
   }
 
   private async openChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
-    return await this.openMetadataDb(PUBLIC_CHANNEL_METADATA_STORE_NAME, this.validatePublicChannelMetadataEntry)
+    return await this.openMetadataDb(PUBLIC_CHANNEL_METADATA_STORE_NAME, true, this.validatePublicChannelMetadataEntry)
   }
 
   private async openPrivateChannelsDb(): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
-    return await this.openMetadataDb(PRIVATE_CHANNEL_METADATA_STORE_NAME, this.validatePrivateChannelMetadataEntry)
+    return await this.openMetadataDb(
+      PRIVATE_CHANNEL_METADATA_STORE_NAME,
+      false,
+      this.validatePrivateChannelMetadataEntry
+    )
   }
 
   private async openMetadataDb(
     dbName: string,
+    isPublic: boolean,
     validateFunc: typeof this.validatePublicChannelMetadataEntry | typeof this.validatePrivateChannelMetadataEntry
   ): Promise<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>> {
     return await this.orbitDbService.open<KeyValueIndexedValidatedType<EncryptedAndSignedPayload>>(dbName, {
@@ -263,6 +268,7 @@ export class ChannelsService extends EventEmitter {
       AccessController: this.channelMetadataAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigchainService,
+        isPublic,
       }),
     })
   }
@@ -382,16 +388,14 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    const writerIsAdmin = await this.writerIsAdmin(writerIdentity.id)
-    if (decEntry.owner !== writerIdentity.id && !writerIsAdmin) {
-      this.logger.error('Failed to validate channel entry: owner must match entry signature author:', entry.hash, {
+    const writerHasPermissions = expectedPublic
+      ? chain.channels.canMemberCreatePublicChannel(writerIdentity.id)
+      : chain.channels.canMemberCreatePrivateChannel(writerIdentity.id)
+    if (!writerHasPermissions) {
+      this.logger.error('Failed to validate channel entry: writer lacks proper permissions', entry.hash, {
         owner: decEntry.owner,
         entrySignatureAuthor: writerIdentity.id,
       })
-      return false
-    }
-
-    if (!writerIsAdmin && !(await this.validateChannelOwnership(entry, decEntry, writerIdentity.id, metadataStore))) {
       return false
     }
 
@@ -613,7 +617,10 @@ export class ChannelsService extends EventEmitter {
     return true
   }
 
-  private async validateChannelDeleteEntry(entry: LogEntry<EncryptedAndSignedPayload>): Promise<boolean> {
+  private async validateChannelDeleteEntry(
+    entry: LogEntry<EncryptedAndSignedPayload>,
+    expectedPublic: boolean
+  ): Promise<boolean> {
     const key = entry.payload.key
     if (!key) {
       this.logger.error('Delete channel entry is missing key:', entry.hash)
@@ -643,10 +650,17 @@ export class ChannelsService extends EventEmitter {
       return false
     }
 
-    if (!chain.roles.memberIsAdmin(writerIdentity.id)) {
-      this.logger.error('Failed to validate delete channel entry: writer must be a sigchain admin:', entry.hash, {
-        writerId: writerIdentity.id,
-      })
+    const writerHasPermissions = expectedPublic
+      ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
+      : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
+    if (!writerHasPermissions) {
+      this.logger.error(
+        'Failed to validate delete channel entry: writer must have channel deletion permissions on chain:',
+        entry.hash,
+        {
+          writerId: writerIdentity.id,
+        }
+      )
       return false
     }
 
@@ -679,7 +693,7 @@ export class ChannelsService extends EventEmitter {
         }
       }
       if (entry.payload.op === 'DEL') {
-        if (!(await this.validateChannelDeleteEntry(entry))) {
+        if (!(await this.validateChannelDeleteEntry(entry, expectedPublic ?? true))) {
           return false
         }
       }
@@ -948,19 +962,27 @@ export class ChannelsService extends EventEmitter {
    */
   public async handleCreateChannel(payload: CreateChannelPayload): Promise<CreateChannelResponse> {
     const id = await this.generateChannelId()
+    const sigChain = this.sigchainService.getActiveChain()
     const channelData: PublicChannel = {
       id: id,
       name: payload.name,
       description: payload.description ?? '',
-      owner: this.sigchainService.getActiveChain().user.userId,
+      owner: sigChain.user.userId,
       timestamp: DateTime.utc().valueOf(),
       public: payload.public ?? true,
       teamId: payload.teamId,
     }
     let roleName: string | undefined = undefined
     if (!(channelData.public ?? true)) {
-      roleName = this.sigchainService.getActiveChain().channels.create(channelData.id)
+      if (!sigChain.channels.canICreatePrivateChannel()) {
+        throw new Error('User is missing permissions to create private channels')
+      }
+      roleName = sigChain.channels.create(channelData.id)
       channelData.roleName = roleName
+    } else {
+      if (!sigChain.channels.canICreatePublicChannel()) {
+        throw new Error('User is missing permissions to create public channels')
+      }
     }
     const store = await this.createChannel(channelData)
     if (!store) {
@@ -1093,14 +1115,16 @@ export class ChannelsService extends EventEmitter {
       this.logger.error(`Channel ${channelId} not found`)
       return { channelId, deleted: true } as DeleteChannelResponse
     }
-    const iAmAdmin = this.sigchainService.roles.amIAdmin()
-    const iOwnThisChannel = channel?.owner === this.sigchainService.getActiveChain().user.userId
+    const iCanDeleteChannel =
+      (channel.public ?? true)
+        ? this.sigchainService.activeChain.channels.canIDeletePublicChannel()
+        : this.sigchainService.activeChain.channels.canIDeletePrivateChannel(channelId)
     // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
     // TODO: invalidate removals from non-owners
-    if (iAmAdmin || iOwnThisChannel) {
+    if (iCanDeleteChannel) {
       await this.deleteChannelMetadata(channelId)
     } else {
-      this.logger.error(`User is not the owner of the channel ${channelId}`)
+      this.logger.error(`User is not allowed to delete channel ${channelId}`)
       return { channelId, deleted: false } as DeleteChannelResponse
     }
 
@@ -1150,6 +1174,12 @@ export class ChannelsService extends EventEmitter {
     if (!isMemberOfChannel) {
       this.logger.error(`You are not a member of private channel ${channelId}, cannot add members!`)
       return { channelId, status: AddMembersChannelStatus.NOT_MEMBER }
+    }
+
+    const canAddMembers = this.sigchainService.activeChain.channels.canIAddMembersToPrivateChannel(channelId)
+    if (!canAddMembers) {
+      this.logger.error(`You don't have permission to add members to private channel ${channelId}!`)
+      return { channelId, status: AddMembersChannelStatus.NOT_PERMITTED }
     }
 
     const repo = this.channelsRepos.get(channelId)

@@ -220,6 +220,14 @@ export class OrbitDbService {
       this.channelMetadataAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigChainService,
+        isPublic: true,
+      }) as any
+    )
+    orbitDbUseAccessController(
+      this.channelMetadataAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+        isPublic: false,
       }) as any
     )
     orbitDbUseAccessController(

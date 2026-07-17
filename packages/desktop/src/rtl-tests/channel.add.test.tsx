@@ -61,6 +61,7 @@ describe('Add new channel', () => {
     await factory.create('Identity', {
       nickname: 'alice',
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(
       <>
@@ -104,6 +105,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
     const mockImpl = async (...input: [string, ...any]) => {
@@ -216,6 +218,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
     const mockImpl = async (...input: [string, ...any]) => {
@@ -327,6 +330,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(
       <>
@@ -389,6 +393,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(
       <>
@@ -460,6 +465,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
@@ -584,6 +590,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     const channels = ['zzz', 'abc', '12a']
     const mockImpl = async (...input: [string, ...any]) => {

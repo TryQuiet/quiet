@@ -56,6 +56,8 @@ import {
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
   ChannelOperationStatus,
+  type PrivateChannelPermissions,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -81,6 +83,7 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
+import { Member } from '@localfirst/auth'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -978,24 +981,52 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } else {
       channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
     }
+
+    const _handleUser = (member: Member, sigChain: SigChain): User => {
+      const privateChannelIds =
+        channelMapping != null
+          ? member.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
+          : []
+      if (member.userId === sigChain.user.userId) {
+        const channelSpecificPermissions: PrivateChannelPermissions[] = []
+        for (const channelId of privateChannelIds) {
+          channelSpecificPermissions.push({
+            channelId,
+            addMembers: sigChain.channels.canMemberAddMembersToPrivateChannel(member.userId, channelId),
+            removeMembers: sigChain.channels.canMemberRemoveMembersFromPrivateChannel(member.userId, channelId),
+            delete: sigChain.channels.canMemberDeletePrivateChannel(member.userId, channelId),
+          })
+        }
+        const payload: SetChannelPermissionsPayload = {
+          genericPermissions: {
+            public: {
+              create: sigChain.channels.canMemberCreatePublicChannel(member.userId),
+              delete: sigChain.channels.canMemberDeletePublicChannel(member.userId),
+            },
+            private: {
+              create: sigChain.channels.canMemberCreatePrivateChannel(member.userId),
+            },
+          },
+          channelSpecificPermissions,
+        }
+        this.serverIoProvider.io.emit(SocketEvents.CHANNEL_PERMISSIONS_UPDATED, payload)
+      }
+      return {
+        userId: member.userId,
+        roles: member.roles,
+        channelIds: privateChannelIds,
+        isRegistered: true,
+        isDuplicated: false,
+      }
+    }
+
     /**
      * TODO: clean this up so we are only updating users that are actually updated
      *
      * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
      */
-    const users = this.sigChainService
-      .getChain(teamId)
-      .team?.members()
-      .map(user => ({
-        userId: user.userId,
-        roles: user.roles,
-        channelIds:
-          channelMapping != null
-            ? user.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
-            : [],
-        isRegistered: true,
-        isDuplicated: false,
-      })) as User[]
+    const sigChain = this.sigChainService.getChain(teamId)
+    const users = sigChain.team?.members().map((member): User => _handleUser(member, sigChain))
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
