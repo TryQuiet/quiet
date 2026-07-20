@@ -6,6 +6,9 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "postinstall": "npm run applyPatches",
+    "applyPatches": "npm run applyPatches:factory-girl",
+    "applyPatches:factory-girl": "patch -f -p0 < ./patch/factory-girl.package.json.patch || true",
     "prepare": "npm run build",
     "test": "cross-env DEBUG=state-manager*:trace TZ=UTC jest",
     "lint:no-fix": "eslint --ext .ts ./src/",
