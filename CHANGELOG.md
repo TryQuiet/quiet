@@ -9,6 +9,10 @@
 * Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
 * Tighten user profile store access control and validations [#3340](https://github.com/TryQuiet/quiet/issues/3340)
 
+### Fixes
+
+* iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
+
 ## [8.0.0]
 
 ### Features

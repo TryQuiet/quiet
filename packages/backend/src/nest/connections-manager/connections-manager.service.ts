@@ -292,8 +292,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async resume() {
     this.logger.info('Resuming!')
-    await this.openSocket()
-    this.libp2pService?.resume()
+    // A lifecycle transition only needs the data server to accept connections.
+    // Waiting for the frontend START event here would prevent a later pause
+    // from running if the app returns to the background before reconnecting.
+    await this.socketService.listen()
+    await this.libp2pService?.resume()
     await this.qssService.resume()
   }
 
@@ -407,7 +410,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
+  // Reopen the socket and wait for the frontend handshake. Workflows such as
+  // leaveCommunity use this stronger readiness guarantee before completing.
   public async openSocket() {
     await this.socketService.init()
   }

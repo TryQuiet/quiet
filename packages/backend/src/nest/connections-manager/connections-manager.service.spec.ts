@@ -188,7 +188,7 @@ describe('ConnectionsManagerService', () => {
 
   it('pauses and resumes qss alongside the mobile lifecycle', async () => {
     const closeSocketSpy = jest.spyOn(connectionsManagerService, 'closeSocket').mockResolvedValue()
-    const openSocketSpy = jest.spyOn(connectionsManagerService, 'openSocket').mockResolvedValue()
+    const listenSpy = jest.spyOn(connectionsManagerService['socketService'], 'listen').mockResolvedValue()
     const libp2pPauseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'pause').mockResolvedValue(true)
     const libp2pResumeSpy = jest.spyOn(connectionsManagerService.libp2pService, 'resume').mockResolvedValue(true)
     const qssPauseSpy = jest.spyOn(qssService, 'pause').mockImplementation(() => {})
@@ -200,9 +200,36 @@ describe('ConnectionsManagerService', () => {
     expect(libp2pPauseSpy).toHaveBeenCalledTimes(1)
 
     await connectionsManagerService.resume()
-    expect(openSocketSpy).toHaveBeenCalledTimes(1)
+    expect(listenSpy).toHaveBeenCalledTimes(1)
     expect(libp2pResumeSpy).toHaveBeenCalledTimes(1)
     expect(qssResumeSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses bounded socket readiness and awaits libp2p before resuming qss', async () => {
+    let resolveLibp2pResume!: (value: boolean) => void
+    const libp2pResumePromise = new Promise<boolean>(resolve => {
+      resolveLibp2pResume = resolve
+    })
+    const socketInitSpy = jest.spyOn(connectionsManagerService['socketService'], 'init').mockResolvedValue()
+    const listenSpy = jest.spyOn(connectionsManagerService['socketService'], 'listen').mockResolvedValue()
+    const libp2pResumeSpy = jest
+      .spyOn(connectionsManagerService.libp2pService, 'resume')
+      .mockReturnValue(libp2pResumePromise)
+    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue()
+
+    const resumePromise = connectionsManagerService.resume()
+    await waitForExpect(() => expect(libp2pResumeSpy).toHaveBeenCalledTimes(1))
+
+    expect(socketInitSpy).not.toHaveBeenCalled()
+    expect(listenSpy).toHaveBeenCalledTimes(1)
+    expect(qssResumeSpy).not.toHaveBeenCalled()
+
+    resolveLibp2pResume(true)
+    await resumePromise
+
+    expect(qssResumeSpy).toHaveBeenCalledTimes(1)
+    expect(listenSpy.mock.invocationCallOrder[0]).toBeLessThan(libp2pResumeSpy.mock.invocationCallOrder[0])
+    expect(libp2pResumeSpy.mock.invocationCallOrder[0]).toBeLessThan(qssResumeSpy.mock.invocationCallOrder[0])
   })
 
   it('sets storage team metadata once when QSS and libp2p join events race', async () => {
