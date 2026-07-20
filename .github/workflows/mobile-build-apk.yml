@@ -14,9 +14,6 @@ jobs:
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/mobile')
 
-    env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
     strategy:
       matrix:
         os: [ubuntu-22.04]
@@ -214,9 +211,6 @@ jobs:
       (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
     runs-on: ubuntu-22.04
 
-    env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
     steps:
       - uses: actions/checkout@v5
         with:
@@ -237,12 +231,6 @@ jobs:
           echo "=== Disk usage after cleanup ==="
           df -h
 
-      - name: "Setup environment"
-        uses: ./.github/actions/setup-env
-        with:
-          # bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
-          cachePrefix: "mobile-debug-apk"
-
       - name: "Set up JDK"
         uses: actions/setup-java@v3
         with:
@@ -255,6 +243,12 @@ jobs:
         with:
           ndk-version: r28c
           add-to-path: false
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,helia,@quiet/node-common"
+          cachePrefix: "mobile-debug-apk"
 
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
