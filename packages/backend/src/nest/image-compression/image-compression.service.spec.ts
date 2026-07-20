@@ -92,7 +92,7 @@ describe('ImageCompressionService Tests', () => {
     console.log(
       `Original file unchanged, compressed copy has size: ${(compressedSize / 1024).toFixed(1)}KB (copied as expected)`
     )
-  })
+  }, 60_000) // this is higher than the normal default (40s) because on CI this is slow for MacOS Intel
 
   // Test to verify the service properly handles errors
   it('should handle file errors gracefully', async () => {
