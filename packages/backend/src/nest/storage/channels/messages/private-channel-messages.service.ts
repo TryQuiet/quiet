@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 
-import { ChannelMessage, CompoundError, ConsumedChannelMessage } from '@quiet/types'
+import { ChannelMessage, CompoundError, ConsumedChannelMessage, type PublicChannel } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
@@ -8,6 +8,7 @@ import { SigChainService } from '../../../auth/sigchain.service'
 import { EncryptableMessageComponents, EncryptedMessage } from './messages.types'
 import { BaseMessagesService } from './base-messages.service'
 import { SigChain } from '../../../auth/sigchain'
+import { RoleName } from '../../../auth/services/roles/roles'
 
 @Injectable()
 export class PrivateChannelMessagesService extends BaseMessagesService {
@@ -20,37 +21,38 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
   /**
    * Handle processing of message to be added to OrbitDB and sent to peers
    *
-   * @param message Message to send
+   * @param rawMessage Message to send
+   * @param channel The metadata for the channel this message is being sent on
    * @returns Processed message
    */
-  public async onSend(message: ChannelMessage): Promise<EncryptedMessage> {
+  public async onSend(rawMessage: ChannelMessage, channel: PublicChannel): Promise<EncryptedMessage> {
     this.logger.debug('Sending private channel message')
-    return this._encryptPrivateChannelMessage(message)
+    return this._encryptPrivateChannelMessage(rawMessage, channel)
   }
 
   /**
    * Handle processing of message consumed from OrbitDB
    *
-   * @param message Message consumed from OrbitDB
+   * @param encryptedMessage Message consumed from OrbitDB
+   * @param channel The metadata for the channel this message is being received on on
    * @returns Processed message if decryptable, undefined if undecryptable and false if intentionally skip decryption
    */
-  public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | false | undefined> {
+  public async onConsume(
+    encryptedMessage: EncryptedMessage,
+    channel: PublicChannel
+  ): Promise<ConsumedChannelMessage | false | undefined> {
     this.logger.debug('Received private channel message')
-    const chain = this.sigChainService.getChain(message.teamId, false)
+    const chain = this.sigChainService.getChain(encryptedMessage.teamId, false)
     if (chain == null) {
       this.logger.warn(
-        `Chain doesn't exist or hasn't been initialized, can't consume messages for ${message.channelId}`
+        `Chain doesn't exist or hasn't been initialized, can't consume messages for ${encryptedMessage.channelId}`
       )
-      return false
-    }
-    if (!chain.channels.amIMemberOfChannel(message.channelId)) {
-      this.logger.warn(`Not a member of channel ${message.channelId} on team ${message.teamId}`)
       return false
     }
 
     try {
-      const decryptedMessage = this._decryptPrivateChannelMessage(message, chain)
-      if (!this.validateMessage(decryptedMessage, message)) {
+      const decryptedMessage = this._decryptPrivateChannelMessage(encryptedMessage, chain, channel)
+      if (!this.validateMessage(decryptedMessage, encryptedMessage, channel)) {
         return
       }
       return decryptedMessage
@@ -60,8 +62,12 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
     }
   }
 
-  private _encryptPrivateChannelMessage(rawMessage: ChannelMessage): EncryptedMessage {
+  private _encryptPrivateChannelMessage(rawMessage: ChannelMessage, channel: PublicChannel): EncryptedMessage {
     try {
+      if (channel.roleName == null) {
+        throw new Error('Private channel role name was nullish')
+      }
+
       const chain = this.sigChainService.getActiveChain()
       const encryptable: EncryptableMessageComponents = {
         id: rawMessage.id,
@@ -73,10 +79,9 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
         teamId: chain.team!.id,
         createdAt: rawMessage.createdAt,
       }
-      const roleName = chain.channels.generateChannelRoleName(rawMessage.channelId)
       const encryptedMessage = chain.crypto.encryptAndSign(encryptable, {
         type: EncryptionScopeType.ROLE,
-        name: roleName,
+        name: channel.roleName,
       })
       return {
         id: rawMessage.id,
@@ -91,8 +96,23 @@ export class PrivateChannelMessagesService extends BaseMessagesService {
     }
   }
 
-  private _decryptPrivateChannelMessage(encryptedMessage: EncryptedMessage, chain: SigChain): ConsumedChannelMessage {
+  private _decryptPrivateChannelMessage(
+    encryptedMessage: EncryptedMessage,
+    chain: SigChain,
+    channel: PublicChannel
+  ): ConsumedChannelMessage {
     try {
+      if (
+        encryptedMessage.contents.scope.name === RoleName.MEMBER ||
+        encryptedMessage.contents.scope.name === RoleName.ADMIN
+      ) {
+        throw new Error('Private channel role name cannot be MEMBER or ADMIN')
+      }
+
+      if (channel.roleName !== encryptedMessage.contents.scope.name) {
+        throw new Error('Private channel metadata role name did not match the role name on the message')
+      }
+
       const decryptedMessage = chain.crypto.decryptAndVerify<EncryptableMessageComponents>(
         encryptedMessage.contents,
         encryptedMessage.encSignature,
