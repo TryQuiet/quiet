@@ -264,6 +264,7 @@ jobs:
 
       - name: "Build debug .apk"
         run: cd ./packages/mobile/android && ENVFILE=../.env.staging ./gradlew assembleStandardDebug
+        
 
       - name: Get branch name
         id: branch
