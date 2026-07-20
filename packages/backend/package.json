@@ -10,8 +10,9 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "webpack": "webpack --env mode=development && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
-    "webpack:prod": "webpack --env mode=production && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
+    "webpack": "webpack --env mode=development && npm run sync-bundle-consumers",
+    "webpack:prod": "webpack --env mode=production && npm run sync-bundle-consumers",
+    "sync-bundle-consumers": "node ./scripts/sync-bundle-consumers.cjs",
     "postinstall": "npm run applyPatches",
     "applyPatches": "npm run applyPatches:it && npm run applyPatches:libp2p",
     "applyPatches:libp2p": "patch -f -p0 < ./patch/libp2p/mplex.patch || true",
