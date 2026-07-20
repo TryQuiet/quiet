@@ -358,7 +358,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define<ReturnType<typeof publicChannelsActions.test_message>>(
+  factory.define(
     'TestMessage',
     publicChannelsActions.test_message,
     {

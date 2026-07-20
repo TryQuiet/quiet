@@ -52,6 +52,7 @@
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@quiet/identity": "^2.0.2-alpha.2",
     "@quiet/node-common": "^4.0.3",
+    "@types/factory-girl": "5.0.12",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
     "@types/redux-saga": "^0.10.5",
