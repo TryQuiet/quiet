@@ -55,6 +55,7 @@ import {
   type InvitationAuthDataV5,
   type InvitationAuthDataV4,
   type SetChannelPermissionsPayload,
+  type TestMessage,
 } from '@quiet/types'
 import { createLogger } from '../logger'
 import { communitiesActions } from '../../sagas/communities/communities.slice'
@@ -357,7 +358,7 @@ export const getReduxStoreFactory = async (store: Store) => {
     }
   )
 
-  factory.define(
+  factory.define<ReturnType<typeof publicChannelsActions.test_message>>(
     'TestMessage',
     publicChannelsActions.test_message,
     {
@@ -372,7 +373,7 @@ export const getReduxStoreFactory = async (store: Store) => {
       verifyAutomatically: true,
     },
     {
-      afterBuild: async action => {
+      afterBuild: async (action: { payload: TestMessage }) => {
         if (action.payload.verifyAutomatically) {
           await factory.create('MessageVerificationStatus', {
             message: action.payload.message,
@@ -381,7 +382,7 @@ export const getReduxStoreFactory = async (store: Store) => {
         }
         return action
       },
-      afterCreate: async payload => {
+      afterCreate: async (payload: TestMessage) => {
         store.dispatch(
           messagesActions.addMessages({
             messages: [payload.message],
