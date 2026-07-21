@@ -55,6 +55,8 @@ export enum ErrorMessages {
 
   // Channels
   CHANNEL_NAME_TAKEN = 'Channel with this name already exists',
+  CHANNEL_PERMISSIONS_NOT_FOUND = `Channel permissions couldn't be determined`,
+  CHANNEL_PERMISSIONS_INVALID = `You don't have permission to perform this channel action`,
 
   // General
   GENERAL = 'Something went wrong',

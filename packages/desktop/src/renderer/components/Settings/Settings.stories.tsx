@@ -14,7 +14,7 @@ import { composeInvitationShareUrl } from '@quiet/common'
 import { InvitationDataVersion } from '@quiet/types'
 
 const invitationLink = composeInvitationShareUrl({
-  version: InvitationDataVersion.v1,
+  version: InvitationDataVersion.v4,
   pairs: [
     {
       peerId: '12D3KooWSZxWV6DmmTNf9sUgcTQqpN3CTuRiJFY4VthXr4yYxXxi',
@@ -26,7 +26,11 @@ const invitationLink = composeInvitationShareUrl({
     },
   ],
   psk: '12345',
-  ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
+  authData: {
+    teamId: 'abc123',
+    communityName: 'foobar',
+    seed: 'def456',
+  },
 })
 
 const Template: ComponentStory<typeof SettingsComponent> = args => {

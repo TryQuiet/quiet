@@ -1,11 +1,11 @@
 import { jest } from '@jest/globals'
 import { SigChain } from '../../sigchain'
-import { SigChainService } from '../../sigchain.service'
 import { createLogger } from '../../../common/logger'
-import { device, InviteResult, LocalUserContext } from '@localfirst/auth'
 import { RoleName } from '..//roles/roles'
 import { UserService } from './user.service'
-import { DeviceService } from '../members/device.service'
+import { base58 } from '@localfirst/crypto'
+import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
+import { RANDOM_USERNAME_LENGTH } from './types'
 
 const logger = createLogger('auth:services:users.spec')
 
@@ -13,11 +13,14 @@ describe('users', () => {
   let adminSigChain: SigChain
 
   it('should initialize a new sigchain and be admin', () => {
-    adminSigChain = SigChain.create('test', 'user')
+    adminSigChain = SigChain.create()
     expect(adminSigChain).toBeDefined()
     expect(adminSigChain.context).toBeDefined()
-    expect(adminSigChain.team!.teamName).toBe('test')
-    expect(adminSigChain.user.userName).toBe('user')
+    expect(adminSigChain.teamName).toBeDefined()
+    expect(base58.detect(adminSigChain.teamName!)).toBeTruthy()
+    expect(adminSigChain.teamName?.length).toBe(RANDOM_TEAM_NAME_LENGTH)
+    expect(base58.detect(adminSigChain.user.userName)).toBeTruthy()
+    expect(adminSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
     expect(adminSigChain.roles.amIAdmin()).toBe(true)
     expect(adminSigChain.roles.amIMemberOfRole(RoleName.MEMBER)).toBe(true)
   })
@@ -34,8 +37,8 @@ describe('users', () => {
     expect(users.map(u => u.userId)).toContain(adminSigChain.user.userId)
   })
   it('get admin member by name', () => {
-    const user = adminSigChain.users.getUserByName(adminSigChain.user.userName)
-    expect(user!.userName).toEqual(adminSigChain.user.userName)
+    const user = adminSigChain.users.getUserById(adminSigChain.user.userId)
+    expect(user.userName).toEqual(adminSigChain.user.userName)
   })
   it('should redact user', () => {
     const redactedUser = UserService.redactUser(adminSigChain.user)

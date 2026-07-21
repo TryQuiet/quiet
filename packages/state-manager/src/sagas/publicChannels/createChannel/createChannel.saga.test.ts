@@ -34,7 +34,15 @@ describe('createChannelSaga', () => {
 
     const createChannelPayload = await socketPayloadFactory.build<CreateChannelPayload>(SocketActions.CREATE_CHANNEL)
     const createChannelResponse: CreateChannelResponse = await socket.buildResponse(SocketActions.CREATE_CHANNEL, {
-      ...createChannelPayload,
+      channel: {
+        id: 'created-channel-id',
+        name: createChannelPayload.name,
+        description: createChannelPayload.description ?? '',
+        owner: 'test-owner',
+        timestamp: Date.now(),
+        public: createChannelPayload.public,
+        teamId: createChannelPayload.teamId,
+      },
     })
     socket.registerExpectedResponse(SocketActions.CREATE_CHANNEL, createChannelResponse)
     await expectSaga(
@@ -45,12 +53,12 @@ describe('createChannelSaga', () => {
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
       .apply(socket, socket.emitWithAck, [SocketActions.CREATE_CHANNEL, createChannelPayload])
-      .put(messagesActions.addPublicChannelsMessagesBase({ channelId: createChannelPayload.id }))
+      .put(messagesActions.addPublicChannelsMessagesBase({ channelId: createChannelResponse.channel!.id }))
       .put(publicChannelsActions.addChannel(createChannelResponse))
       .put(
         publicChannelsActions.sendInitialChannelMessage({
-          channelName: createChannelPayload.name,
-          channelId: createChannelPayload.id,
+          channelName: createChannelResponse.channel!.name,
+          channelId: createChannelResponse.channel!.id,
         })
       )
       .run()
@@ -63,7 +71,15 @@ describe('createChannelSaga', () => {
       public: false,
     })
     const createChannelResponse: CreateChannelResponse = await socket.buildResponse(SocketActions.CREATE_CHANNEL, {
-      ...createChannelPayload,
+      channel: {
+        id: 'created-private-channel-id',
+        name: createChannelPayload.name,
+        description: createChannelPayload.description ?? '',
+        owner: 'test-owner',
+        timestamp: Date.now(),
+        public: createChannelPayload.public,
+        teamId: createChannelPayload.teamId,
+      },
     })
     socket.registerExpectedResponse(SocketActions.CREATE_CHANNEL, createChannelResponse)
     await expectSaga(
@@ -74,12 +90,12 @@ describe('createChannelSaga', () => {
       .withReducer(combineReducers(testReducers))
       .withState(store.getState())
       .apply(socket, socket.emitWithAck, [SocketActions.CREATE_CHANNEL, createChannelPayload])
-      .put(messagesActions.addPublicChannelsMessagesBase({ channelId: createChannelPayload.id }))
+      .put(messagesActions.addPublicChannelsMessagesBase({ channelId: createChannelResponse.channel!.id }))
       .put(publicChannelsActions.addChannel(createChannelResponse))
       .put(
         publicChannelsActions.sendInitialChannelMessage({
-          channelName: createChannelPayload.name,
-          channelId: createChannelPayload.id,
+          channelName: createChannelResponse.channel!.name,
+          channelId: createChannelResponse.channel!.id,
         })
       )
       .run()

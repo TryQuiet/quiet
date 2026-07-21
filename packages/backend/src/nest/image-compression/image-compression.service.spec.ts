@@ -182,7 +182,7 @@ describe('ImageCompressionService Tests', () => {
     const originalRatio = originalWidth / originalHeight
     const newRatio = newWidth / newHeight
     expect(Math.abs(originalRatio - newRatio)).toBeLessThan(0.1)
-  })
+  }, 60_000) // this is higher than the normal default (40s) because on CI this is slow for MacOS Intel
 
   // Test to verify EXIF metadata is removed during compression
   it('should remove EXIF metadata during image compression', async () => {

@@ -31,8 +31,11 @@ jest.setTimeout(20_000)
 describe('Add new channel', () => {
   let socket: MockedSocket
   let socketFactory: FactoryGirl
+  let channelIdCounter = 0
+  const createBackendChannelId = () => `created-channel-id-${++channelIdCounter}`
 
   beforeEach(async () => {
+    channelIdCounter = 0
     socketFactory = await getSocketFactory()
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
@@ -58,6 +61,7 @@ describe('Add new channel', () => {
     await factory.create('Identity', {
       nickname: 'alice',
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(
       <>
@@ -101,15 +105,17 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
     const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
+        const channelId = createBackendChannelId()
         factory.create('PublicChannel', {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: userProfile.nickname,
@@ -119,7 +125,7 @@ describe('Add new channel', () => {
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: userProfile.nickname,
@@ -212,15 +218,17 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
     const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
+        const channelId = createBackendChannelId()
         factory.create('PublicChannel', {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: userProfile.nickname,
@@ -230,7 +238,7 @@ describe('Add new channel', () => {
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: userProfile.nickname,
@@ -322,6 +330,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(
       <>
@@ -384,6 +393,7 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     renderComponent(
       <>
@@ -455,14 +465,16 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
+        const channelId = createBackendChannelId()
         factory.create('PublicChannel', {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: 'alice',
@@ -473,7 +485,7 @@ describe('Add new channel', () => {
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: 'alice',
@@ -578,15 +590,17 @@ describe('Add new channel', () => {
       userId: userProfile.userId,
       communityId: community.id,
     })
+    await factory.create('ChannelPermissions')
 
     const channels = ['zzz', 'abc', '12a']
     const mockImpl = async (...input: [string, ...any]) => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
+        const channelId = createBackendChannelId()
         factory.create('PublicChannel', {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: 'alice',
@@ -597,7 +611,7 @@ describe('Add new channel', () => {
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: 'alice',

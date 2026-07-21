@@ -2,11 +2,10 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { getBaseTypesFactory } from '@quiet/state-manager'
-import { ChannelMessage } from '@quiet/types'
+import { ChannelMessage, type PublicChannel } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { isUint8Array } from 'util/types'
 import { EncryptionScopeType } from '../../../auth/services/crypto/types'
-import { RoleName } from '../../../auth/services/roles/roles'
 import { SigChainService } from '../../../auth/sigchain.service'
 import { createLogger } from '../../../common/logger'
 import { TestModule } from '../../../common/test.module'
@@ -21,11 +20,15 @@ describe('PrivateChannelMessagesService', () => {
   let module: TestingModule
   let messagesService: PrivateChannelMessagesService
   let sigChainService: SigChainService
+  let channelRoleName: string
 
   let factory: FactoryGirl
   let message: ChannelMessage
+  let channel: PublicChannel
 
   let handleChainUpdateSpy: jest.SpiedFunction<any>
+
+  const INVALID_FIELD_VALUE = 'THIS IS INVALID'
 
   beforeAll(async () => {
     factory = await getBaseTypesFactory()
@@ -39,9 +42,14 @@ describe('PrivateChannelMessagesService', () => {
     }).compile()
 
     sigChainService = await module.resolve(SigChainService)
-    await sigChainService.createChain('test-community', 'alice', true)
+    await sigChainService.createChain(true)
     message = await factory.create('ChannelMessage', { userId: sigChainService.getActiveChain().user.userId })
-    sigChainService.activeChain.channels.create(message.channelId)
+    channelRoleName = sigChainService.activeChain.channels.create()
+    channel = await factory.create<PublicChannel>('PublicChannel', {
+      id: message.channelId,
+      public: false,
+      roleName: channelRoleName,
+    })
     messagesService = await module.resolve(PrivateChannelMessagesService)
     handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
       logger.debug('MOCK: handling chain update')
@@ -55,7 +63,7 @@ describe('PrivateChannelMessagesService', () => {
 
   describe('onSend', () => {
     it('encrypts message correctly', async () => {
-      const encryptedMessage = await messagesService.onSend(message)
+      const encryptedMessage = await messagesService.onSend(message, channel)
       expect(isEncryptedMessage(encryptedMessage)).toBeTruthy()
       expect(encryptedMessage).toEqual(
         expect.objectContaining({
@@ -68,7 +76,7 @@ describe('PrivateChannelMessagesService', () => {
             scope: {
               generation: 0,
               type: EncryptionScopeType.ROLE,
-              name: sigChainService.activeChain.channels.generateChannelRoleName(message.channelId),
+              name: expect.any(String),
             },
           }),
           encSignature: expect.objectContaining({
@@ -87,16 +95,57 @@ describe('PrivateChannelMessagesService', () => {
 
   describe('onConsume', () => {
     it('decrypts an encrypted message correctly', async () => {
-      const encryptedMessage = await messagesService.onSend(message)
-      expect(await messagesService.onConsume(encryptedMessage)).toEqual({
+      const encryptedMessage = await messagesService.onSend(message, channel)
+      expect(await messagesService.onConsume(encryptedMessage, channel)).toEqual({
         ...message,
         verified: true,
         encSignature: encryptedMessage.encSignature,
+        teamId: encryptedMessage.teamId,
       })
     })
 
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched createdAt', async () => {
+      const encryptedMessage = await messagesService.onSend(message, channel)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        createdAt: 1234,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage, channel)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched team ID', async () => {
+      const encryptedMessage = await messagesService.onSend(message, channel)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        teamId: INVALID_FIELD_VALUE,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage, channel)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3304
+    it('fails to consume message with mismatched channel ID', async () => {
+      const encryptedMessage = await messagesService.onSend(message, channel)
+      const mismatchedEncryptedMessage: EncryptedMessage = {
+        ...encryptedMessage,
+        channelId: INVALID_FIELD_VALUE,
+      }
+      expect(await messagesService.onConsume(mismatchedEncryptedMessage, channel)).toBeFalsy()
+    })
+
+    // https://github.com/TryQuiet/quiet/issues/3334
+    it('fails to consume message with mismatched user ID', async () => {
+      const messageWithBadUserId: ChannelMessage = {
+        ...message,
+        userId: INVALID_FIELD_VALUE,
+      }
+      const encryptedMessage = await messagesService.onSend(messageWithBadUserId, channel)
+      expect(await messagesService.onConsume(encryptedMessage, channel)).toBeFalsy()
+    })
+
     it('returns undefined when the signature is invalid', async () => {
-      const encryptedMessage = await messagesService.onSend(message)
+      const encryptedMessage = await messagesService.onSend(message, channel)
       const invalidEncryptedMessage: EncryptedMessage = {
         ...encryptedMessage,
         encSignature: {
@@ -109,7 +158,7 @@ describe('PrivateChannelMessagesService', () => {
         },
       }
 
-      expect(await messagesService.onConsume(invalidEncryptedMessage)).toBeUndefined()
+      expect(await messagesService.onConsume(invalidEncryptedMessage, channel)).toBeUndefined()
     })
   })
 })

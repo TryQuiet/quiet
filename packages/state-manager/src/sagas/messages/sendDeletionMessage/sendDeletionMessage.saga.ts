@@ -18,7 +18,9 @@ export function* sendDeletionMessageSaga(
 
   const isOwner = yield* select(communitiesSelectors.isOwner)
 
-  const channelName = channelId.slice(0, channelId.indexOf('_'))
+  const deletedChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
+  const channelName = action.payload.channelName ?? deletedChannel?.name
+  if (!channelName) return
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,

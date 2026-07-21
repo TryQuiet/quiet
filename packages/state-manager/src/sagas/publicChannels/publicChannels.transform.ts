@@ -1,7 +1,11 @@
-import { INITIAL_CURRENT_CHANNEL_ID } from '@quiet/types'
+import { DEFAULT_GENERIC_CHANNEL_PERMISSIONS, INITIAL_CURRENT_CHANNEL_ID } from '@quiet/types'
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
-import { publicChannelsAdapter, publicChannelsSubscriptionsAdapter } from './publicChannels.adapter'
+import {
+  channelSpecificPermissionsAdapter,
+  publicChannelsAdapter,
+  publicChannelsSubscriptionsAdapter,
+} from './publicChannels.adapter'
 import { type PublicChannelsState } from './publicChannels.slice'
 import { createLogger } from '../../utils/logger'
 
@@ -20,6 +24,8 @@ export const PublicChannelsTransform = createTransform(
       ...transformedOutboundState,
       currentChannelId: generalChannelId,
       channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState(),
+      channelSpecificPermissions: channelSpecificPermissionsAdapter.getInitialState(),
+      genericChannelPermissions: DEFAULT_GENERIC_CHANNEL_PERMISSIONS,
     }
   },
   { whitelist: [StoreKeys.PublicChannels] }

@@ -22,7 +22,7 @@ import {
   QSSEvents,
 } from './qss.types'
 import { createLogger } from '../common/logger'
-import { Community, Identity, ChannelMessage, SocketActions, SocketEvents } from '@quiet/types'
+import { Community, Identity, ChannelMessage, SocketActions, SocketEvents, PublicChannel } from '@quiet/types'
 import { getReduxStoreFactory, getBaseTypesFactory, prepareStore, Store } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -132,7 +132,7 @@ describe('QSSService', () => {
       nickname: username,
     })
     sigchainService = module.get<SigChainService>(SigChainService)
-    await sigchainService.createChain(community.name!, username, true)
+    await sigchainService.createChain(true)
 
     orbitDbService = await module.resolve(OrbitDbService)
     await orbitDbService.create(ipfsService.ipfsInstance!)
@@ -1078,8 +1078,9 @@ describe('QSSService', () => {
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
-      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
       expect(entry).toBeDefined()
@@ -1323,8 +1324,9 @@ describe('QSSService', () => {
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
-      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       expect(hash).toBeDefined()
       const entry = await db.log.get(hash)
       expect(entry).toBeDefined()
@@ -1849,8 +1851,9 @@ describe('QSSService', () => {
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
-      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
       expect(entry).toBeDefined()
@@ -1879,8 +1882,9 @@ describe('QSSService', () => {
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
-      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
       expect(entry).toBeDefined()
@@ -1909,8 +1913,9 @@ describe('QSSService', () => {
         AccessController: messagesAccessController.createAccessControllerFunc({ write: ['*'], sigchainService }),
         sync: true,
       })
+      const channel = await baseFactory.create<PublicChannel>('PublicChannel')
       const channelMessage = await baseFactory.create<ChannelMessage>('ChannelMessage')
-      const hash = await db.add(await publicMessagesService.onSend(channelMessage))
+      const hash = await db.add(await publicMessagesService.onSend(channelMessage, channel))
       const entry = await db.log.get(hash)
       expect(hash).toBeDefined()
       expect(entry).toBeDefined()

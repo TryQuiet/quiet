@@ -66,7 +66,13 @@ export function* channelDeletionResponseSaga(
     if (deletedGeneral) {
       yield* put(publicChannelsActions.createGeneralChannel())
     } else if (isDeletedChannelPublic) {
-      yield* put(messagesActions.sendDeletionMessage({ channelId, isPublic: isDeletedChannelPublic }))
+      yield* put(
+        messagesActions.sendDeletionMessage({
+          channelId,
+          channelName: deletedChannel.name,
+          isPublic: isDeletedChannelPublic,
+        })
+      )
     }
   } else {
     const isUserOnGeneral = currentChannelId === generalChannel.id
