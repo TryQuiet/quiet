@@ -462,7 +462,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
     expect(channel).toBeDefined()
     const getChannels = await channelsService.getChannels()
     expect(getChannels.length).toBe(2)
-    expect(getChannels[1].id).toBe(newChannel.id)
+    expect(getChannels.find(channel => channel.id === newChannel.id)).toBeDefined()
 
     // Send a message in the new channel
     const message = await factory.build<ChannelMessage>('ChannelMessage', {
@@ -494,7 +494,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       const channelsService = modules[i].get(ChannelsService)
       const channels = await channelsService.getChannels()
       expect(channels.length).toBe(1) // Only the first channel should be present
-      expect(channels[0].id).toBe(publicChannels[0].id)
+      expect(channels.find(channel => channel.id === publicChannels[0].id)).toBeDefined()
     }
   })
 
@@ -595,7 +595,7 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       ...userContext,
       team: loadedTeam,
     }
-    const newUser = sigchain.users.getUserById(sigchain.user.userId)
+    const newUser = sigchain.users.getUserById(sigchain.user.userId, { includeRemoved: false, throwOnMissing: false })
     expect(newUser).toBeDefined()
     expect(newUser!.keys.encryption).toBe(sigchain.context.user.keys.encryption.publicKey)
 

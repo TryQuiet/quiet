@@ -1,7 +1,6 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { call, select, apply, put, delay, take } from 'typed-redux-saga'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
@@ -9,6 +8,7 @@ import { type ChannelMessage, MessageType, SendingStatus, SocketActions } from '
 import { createLogger } from '../../../utils/logger'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
+import { waitForChannelSubscriptionSaga } from '../../publicChannels/waitForChannelSubscription.saga'
 
 const logger = createLogger('sendMessageSaga')
 
@@ -92,17 +92,7 @@ export function* sendMessageSaga(
   // TODO: I think we probably want to revise how we are sending
   // messages by having the backend handling queueing and retrying
   // (in a durable way).
-  while (true) {
-    const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
-    logger.info('Subscribed channels', subscribedChannels)
-    if (subscribedChannels.includes(channelId)) {
-      logger.info(`Channel ${channelId} subscribed`)
-      break
-    }
-    logger.error(`Waiting to send message ${id} - channel not subscribed`)
-    yield* take(publicChannelsActions.setChannelSubscribed)
-    logger.info('New channel subscribed')
-  }
+  yield* waitForChannelSubscriptionSaga(channelId)
 
   logger.info('Emitting SEND_MESSAGE', message)
   yield* apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, message))

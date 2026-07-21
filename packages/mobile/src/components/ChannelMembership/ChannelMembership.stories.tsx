@@ -14,6 +14,7 @@ storiesOf('ChannelMembership', module).add('Default', () => (
     userProfiles={{}}
     members={undefined}
     memberCount={undefined}
+    canAddMembers={true}
     handleBackButton={() => {
       logger.info('going back')
     }}

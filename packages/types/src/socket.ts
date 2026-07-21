@@ -5,6 +5,8 @@ import {
   UserProfilesUpdatedPayload,
   UsersRemovedEvent,
   UsersUpdatedEvent,
+  CachedUserProfileRequest,
+  CachedUserProfileResponse,
 } from './user'
 import {
   type DeleteChannelPayload,
@@ -17,6 +19,7 @@ import {
   ChannelMessage,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
+  type SetChannelPermissionsPayload,
 } from './channel'
 import {
   DownloadStatus,
@@ -134,6 +137,7 @@ export enum SocketEvents {
   // ====== Channels ======
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',
+  CHANNEL_PERMISSIONS_UPDATED = 'channelPermissionsUpdated',
 
   // ====== Messages ======
   MESSAGE_IDS_STORED = 'messageIdsStored',
@@ -144,6 +148,7 @@ export enum SocketEvents {
   USERS_UPDATED = 'usersUpdated',
   USERS_REMOVED = 'usersRemoved',
   USER_PROFILES_STORED = 'userProfilesStored',
+  CACHED_USER_PROFILE_REQUEST = 'cachedUserProfileRequest',
   KEYS_UPDATED = 'keysUpdated',
   DEVICE_CREDENTIALS_UPDATED = 'deviceCredentialsUpdated',
   USER_PROFILES_UPDATED = 'userProfilesUpdatedFwd',
@@ -258,6 +263,7 @@ export interface SocketEventsMap {
   // ====== Channels ======
   [SocketEvents.CHANNEL_SUBSCRIBED]: EmitEvent<ChannelSubscribedPayload>
   [SocketEvents.CHANNELS_STORED]: EmitEvent<ChannelsReplicatedPayload>
+  [SocketEvents.CHANNEL_PERMISSIONS_UPDATED]: EmitEvent<SetChannelPermissionsPayload>
 
   // ====== Messages ======
   [SocketEvents.MESSAGE_IDS_STORED]: EmitEvent<ChannelMessageIdsResponse>
@@ -268,6 +274,10 @@ export interface SocketEventsMap {
   [SocketEvents.USERS_UPDATED]: EmitEvent<UsersUpdatedEvent>
   [SocketEvents.USERS_REMOVED]: EmitEvent<UsersRemovedEvent>
   [SocketEvents.USER_PROFILES_STORED]: EmitEvent<UserProfilesStoredEvent>
+  [SocketEvents.CACHED_USER_PROFILE_REQUEST]: EmitEvent<
+    CachedUserProfileRequest,
+    (response?: CachedUserProfileResponse) => void
+  >
   [SocketEvents.KEYS_UPDATED]: EmitEvent<KeysUpdatedEvent>
   [SocketEvents.DEVICE_CREDENTIALS_UPDATED]: EmitEvent<DeviceCredentialsUpdatedEvent>
   [SocketEvents.USER_PROFILES_UPDATED]: EmitEvent<UserProfilesUpdatedPayload>

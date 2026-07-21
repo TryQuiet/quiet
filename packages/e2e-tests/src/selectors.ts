@@ -499,36 +499,50 @@ export class JoiningLoadingPanel {
   }
 
   async waitForJoinToComplete(visibleTimeoutMs = 60_000, completionTimeoutMs = 360_000): Promise<void> {
-    // First check if the panel exists at all. In some flows (e.g., Not Now on server offer),
-    // the joining panel may never appear, which is OK.
-    const candidates = await this.driver.findElements(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
-    if (!candidates || candidates.length === 0) {
-      logger.warn('Joining loading panel not present; skipping wait')
-      return
-    }
-
-    const panel = candidates[0]
-    await this.driver.wait(
-      until.elementIsVisible(panel),
-      visibleTimeoutMs,
-      `Loading panel element couldn't be seen within timeout`,
-      500
-    )
-
+    const panelLocator = By.xpath('//div[@data-testid="joiningPanelComponent"]')
+    const visiblePanelTimeoutMs = Math.min(visibleTimeoutMs, 10_000)
     try {
       await this.driver.wait(
-        until.elementIsNotVisible(panel),
-        completionTimeoutMs,
-        `Loading panel element didn't disappear within timeout`,
-        5_000
+        async () => this.hasVisiblePanel(panelLocator),
+        visiblePanelTimeoutMs,
+        `Loading panel element couldn't be seen within timeout`,
+        500
       )
     } catch (e) {
-      if (e.message.includes('stale element reference')) {
-        logger.warn(`Join loading panel disappeared and we couldn't get visibility information. This is fine.`)
-      } else {
+      if (this.isLoadingPanelTimeout(e)) {
+        logger.warn('Joining loading panel not present; skipping wait')
+        return
+      }
+      throw e
+    }
+
+    await this.driver.wait(
+      async () => !(await this.hasVisiblePanel(panelLocator)),
+      completionTimeoutMs,
+      `Loading panel element didn't disappear within timeout`,
+      5_000
+    )
+  }
+
+  private async hasVisiblePanel(panelLocator: By): Promise<boolean> {
+    const panels = await this.driver.findElements(panelLocator)
+    for (const panel of panels) {
+      try {
+        if (await panel.isDisplayed()) return true
+      } catch (e) {
+        if (this.isStaleElementReference(e)) continue
         throw e
       }
     }
+    return false
+  }
+
+  private isLoadingPanelTimeout(e: unknown): boolean {
+    return e instanceof Error && e.message.includes(`Loading panel element couldn't be seen within timeout`)
+  }
+
+  private isStaleElementReference(e: unknown): boolean {
+    return e instanceof Error && e.message.includes('stale element reference')
   }
 }
 
@@ -626,6 +640,25 @@ export class ChannelContextMenu {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
+  }
+
+  private async waitForElementToBeRemovedOrHidden(element: WebElement, reason: string, timeoutMs = 5_000) {
+    await this.driver.wait(
+      async () => {
+        try {
+          return !(await element.isDisplayed())
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e)
+          if (message.includes('stale element reference') || message.includes('no such element')) {
+            return true
+          }
+          throw e
+        }
+      },
+      timeoutMs,
+      reason,
+      500
+    )
   }
 
   async openMenu(
@@ -748,7 +781,6 @@ export class ChannelContextMenu {
     await sleep(5000)
   }
 
-  // TODO: replace sleep
   async addMembersToChannel(channelName: string, memberNames: string[]) {
     const autoCompleteInput = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${channelName}-add-members-autocomplete"]`)),
@@ -787,7 +819,10 @@ export class ChannelContextMenu {
       500
     )
     await button.click()
-    await sleep(5_000)
+    await this.waitForElementToBeRemovedOrHidden(
+      await button,
+      `Channel add members modal for ${channelName} didn't close within timeout`
+    )
   }
 
   async checkForMembersInAddMembersAutocomplete(channelName: string, memberNames: string[]): Promise<string[]> {
@@ -853,7 +888,10 @@ export class ChannelContextMenu {
       500
     )
     await button.click()
-    await sleep(5000)
+    await this.waitForElementToBeRemovedOrHidden(
+      await button,
+      `Channel add members modal for ${channelName} didn't close within timeout`
+    )
     return membersInAutocomplete
   }
 }
@@ -2261,10 +2299,18 @@ export class Sidebar {
     )
   }
 
-  async waitForChannels(channelsNames: Array<string>): Promise<void> {
-    await this.waitForChannelsNum(channelsNames.length)
-    const names = await this.getChannelsNames()
-    expect(names).toEqual(expect.arrayContaining(channelsNames))
+  async waitForChannels(channelsNames: Array<string>, timeoutMs: number = 15_000): Promise<string[]> {
+    logger.info(`Waiting for channels: ${channelsNames.join(', ')}`)
+    return (await this.driver.wait(
+      async () => {
+        const names = await this.getChannelsNames()
+        const hasExpectedChannels = channelsNames.every(channelName => names.includes(channelName))
+        return names.length === channelsNames.length && hasExpectedChannels ? names : false
+      },
+      timeoutMs,
+      `Sidebar channels ${channelsNames.join(', ')} couldn't be found within timeout`,
+      500
+    )) as string[]
   }
 
   async openSettings(): Promise<Settings> {
@@ -2294,9 +2340,7 @@ export class Sidebar {
     return channel
   }
 
-  // NOTE: expectToggle defaults to false because the private channel toggle is currently hidden from
-  // the UI. Creating private channels (isPublic=false) is therefore not possible via the UI.
-  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = false): Promise<Channel> {
+  async addNewChannel(name: string, isPublic: boolean = true, expectToggle: boolean = true): Promise<Channel> {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//button[@data-testid="addChannelButton"]')),
       5_000,

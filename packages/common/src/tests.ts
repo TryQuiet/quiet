@@ -76,6 +76,15 @@ export const validInvitationDatav5: InvitationDataV5[] = [
 
 export const validInvitationCodeTestData: InvitationData[] = [...validInvitationDatav4]
 
+export const generateTestChannelId = (seed: string | number): string => {
+  let hash = 2166136261
+  for (const char of String(seed)) {
+    hash ^= char.charCodeAt(0)
+    hash = Math.imul(hash, 16777619)
+  }
+  return `channel-${(hash >>> 0).toString(16).padStart(8, '0')}`
+}
+
 type TestData<T> = {
   shareUrl: () => string
   deepUrl: () => string

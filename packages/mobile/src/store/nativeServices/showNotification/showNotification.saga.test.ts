@@ -29,7 +29,7 @@ import {
   PublicChannel,
   UserProfile,
 } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
 
 describe('showNotificationSaga', () => {
@@ -86,7 +86,7 @@ describe('showNotificationSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
           public: true,
         },
       })

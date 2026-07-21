@@ -9,7 +9,7 @@ import { type Socket } from '../../../types'
 import { filesActions } from '../../files/files.slice'
 import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { type Community, Identity, MessageType, PublicChannel, SocketActions } from '@quiet/types'
 import { getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -51,7 +51,7 @@ describe('deleteFilesFromChannelSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('id'),
+          id: generateTestChannelId('id'),
         },
       })
     ).channel

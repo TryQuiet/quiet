@@ -13,7 +13,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import {
   type ChannelMessage,
   type Community,
@@ -83,7 +83,7 @@ describe('publicChannelsSelectors', () => {
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId(name),
+          id: generateTestChannelId(name),
         },
       })
       channelIdes = [...channelIdes, channel.channel.id]
@@ -322,7 +322,7 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    const channelId = channelIdes.find(channelId => channelId.includes('allergies'))
+    const channelId = getPublicChannels(store.getState()).find(channel => channel.name === 'allergies')?.id
     if (!channelId) throw new Error('no channel id')
     store.dispatch(
       publicChannelsActions.markUnreadChannel({
@@ -331,6 +331,44 @@ describe('publicChannelsSelectors', () => {
     )
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
     expect(unreadChannels).toEqual([channelId])
+  })
+
+  it('subscription selectors return only subscribed channels and current channel readiness', async () => {
+    const baseState = store.getState()
+    const stateWithSubscriptions = {
+      ...baseState,
+      PublicChannels: {
+        ...baseState.PublicChannels,
+        currentChannelId: 'subscribed-channel-id',
+        channelsSubscriptions: {
+          ids: ['subscribed-channel-id', 'unsubscribed-channel-id'],
+          entities: {
+            'subscribed-channel-id': {
+              id: 'subscribed-channel-id',
+              subscribed: true,
+            },
+            'unsubscribed-channel-id': {
+              id: 'unsubscribed-channel-id',
+              subscribed: false,
+            },
+          },
+        },
+      },
+    }
+
+    expect(publicChannelsSelectors.subscribedChannels(stateWithSubscriptions)).toEqual(['subscribed-channel-id'])
+    expect(publicChannelsSelectors.isChannelSubscribed('subscribed-channel-id')(stateWithSubscriptions)).toBe(true)
+    expect(publicChannelsSelectors.isChannelSubscribed('unsubscribed-channel-id')(stateWithSubscriptions)).toBe(false)
+    expect(publicChannelsSelectors.currentChannelSubscribed(stateWithSubscriptions)).toBe(true)
+    expect(
+      publicChannelsSelectors.currentChannelSubscribed({
+        ...stateWithSubscriptions,
+        PublicChannels: {
+          ...stateWithSubscriptions.PublicChannels,
+          currentChannelId: 'unsubscribed-channel-id',
+        },
+      })
+    ).toBe(false)
   })
 })
 
