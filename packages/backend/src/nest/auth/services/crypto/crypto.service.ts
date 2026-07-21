@@ -131,7 +131,7 @@ class CryptoService extends ChainServiceBase {
   public decryptAndVerify<T>(
     encrypted: EncryptedPayload,
     signature: Signature,
-    failOnInvalid = true
+    throwOnInvalid = true
   ): DecryptedPayload<T> {
     let contents: T
     if (typeof encrypted.contents === 'string') {

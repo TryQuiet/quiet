@@ -435,24 +435,24 @@ describe('Multiple Clients', () => {
         expect(channelNames).not.toContain(newChannelName)
       })
 
-      it('User can create channel with the same name and is fresh channel', async () => {
-        const { channel, errors } = await sidebarUser1.addNewChannel(
+      it('Owner can create channel with the same name and is fresh channel', async () => {
+        const { channel, errors } = await sidebarOwner.addNewChannel(
           newChannelName,
           DEFAULT_ADD_NEW_CHANNEL_NONADMIN_OPTIONS
         )
         expect(channel).toBeDefined()
         expect(errors).toBeUndefined()
-        await sidebarUser1.waitForChannelsNum(2)
-        await sidebarUser1.switchChannel(newChannelName)
-        const messages = await secondChannelUser1.getUserMessages(users.user1.username)
+        await sidebarOwner.waitForChannelsNum(2)
+        await sidebarOwner.switchChannel(newChannelName)
+        const messages = await secondChannelOwner.getUserMessages(users.owner.username)
         expect(messages.length).toEqual(1)
-        expect(await secondChannelUser1.isReady()).toBeTruthy()
+        expect(await secondChannelOwner.isReady()).toBeTruthy()
       })
 
-      it('Owner sees the recreated second channel', async () => {
-        expect(await secondChannelOwner.isReady(30_000)).toBeTruthy()
-        await sidebarOwner.waitForChannelsNum(2)
-        const channelNames = await sidebarOwner.getChannelsNames()
+      it('First user sees the recreated second channel', async () => {
+        expect(await secondChannelUser1.isReady(30_000)).toBeTruthy()
+        await sidebarUser1.waitForChannelsNum(2)
+        const channelNames = await sidebarUser1.getChannelsNames()
         expect(channelNames).toContain(newChannelName)
       })
 
@@ -476,6 +476,7 @@ describe('Multiple Clients', () => {
         // Delete general channel while guest is absent
         it('Owner recreates general channel', async () => {
           logger.info('TEST 3')
+          await sidebarOwner.switchChannel(generalChannelName, true, true)
           expect(await generalChannelOwner.isReady()).toBeTruthy()
           expect(await generalChannelOwner.isOpen()).toBeTruthy()
           expect(await generalChannelOwner.isMessageInputReady()).toBeTruthy()

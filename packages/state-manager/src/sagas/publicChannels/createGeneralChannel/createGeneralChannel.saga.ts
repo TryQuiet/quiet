@@ -1,6 +1,5 @@
-import { put, call, select } from 'typed-redux-saga'
+import { put, select } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { ChannelType, CreateChannelPayload } from '@quiet/types'
 import { communities } from '../../..'
@@ -8,7 +7,6 @@ import { communities } from '../../..'
 const logger = createLogger('createGeneralChannelSaga')
 
 export function* createGeneralChannelSaga(): Generator {
-  const id = yield* call(generateChannelId, 'general')
   const community = yield* select(communities.selectors.currentCommunity)
 
   if (community == null || community.teamId == null) {
@@ -18,18 +16,11 @@ export function* createGeneralChannelSaga(): Generator {
 
   yield* put(
     publicChannelsActions.createChannel({
-      id: id,
       name: 'general',
       description: 'Welcome to #general',
       type: ChannelType.CHANNEL,
       teamId: community.teamId,
       public: true,
     } as CreateChannelPayload)
-  )
-
-  yield* put(
-    publicChannelsActions.setCurrentChannel({
-      channelId: id,
-    })
   )
 }

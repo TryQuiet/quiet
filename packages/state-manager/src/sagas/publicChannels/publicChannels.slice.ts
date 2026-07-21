@@ -5,6 +5,7 @@ import {
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter,
+  channelSpecificPermissionsAdapter,
 } from './publicChannels.adapter'
 
 import {
@@ -30,6 +31,10 @@ import {
   type AddMembersChannelPayload,
   EMPTY_CHANNEL_ID,
   ChannelOperationStatus,
+  type GenericChannelPermissions,
+  DEFAULT_GENERIC_CHANNEL_PERMISSIONS,
+  type SetChannelPermissionsPayload,
+  type PrivateChannelPermissions,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 import { prevChannelId } from './publicChannels.selectors'
@@ -51,6 +56,11 @@ export class PublicChannelsState {
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
+
+  public genericChannelPermissions: GenericChannelPermissions = DEFAULT_GENERIC_CHANNEL_PERMISSIONS
+
+  public channelSpecificPermissions: EntityState<PrivateChannelPermissions> =
+    channelSpecificPermissionsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({
@@ -164,6 +174,11 @@ export const publicChannelsSlice = createSlice({
           newestMessage: message,
         },
       })
+    },
+    setChannelPermissions: (state, action: PayloadAction<SetChannelPermissionsPayload>) => {
+      const { genericPermissions, channelSpecificPermissions } = action.payload
+      state.genericChannelPermissions = genericPermissions
+      channelSpecificPermissionsAdapter.setAll(state.channelSpecificPermissions, channelSpecificPermissions)
     },
     // Utility action for testing purposes
     test_message: (

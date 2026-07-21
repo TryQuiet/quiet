@@ -7,7 +7,7 @@ import { composeInvitationShareUrl } from '@quiet/common'
 import { InvitationDataVersion } from '@quiet/types'
 
 const invitationLink = composeInvitationShareUrl({
-  version: InvitationDataVersion.v1,
+  version: InvitationDataVersion.v4,
   pairs: [
     {
       peerId: '12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa',
@@ -19,7 +19,11 @@ const invitationLink = composeInvitationShareUrl({
     },
   ],
   psk: '12345',
-  ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
+  authData: {
+    teamId: 'abc123',
+    communityName: 'foobar',
+    seed: 'def456',
+  },
 })
 
 const Template: ComponentStory<typeof QRCodeComponent> = args => {

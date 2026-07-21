@@ -22,6 +22,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { ORBIT_DB_DIR } from '../const'
 import { createLogger } from '../common/logger'
 import { UserProfileStore } from './userProfile/userProfile.store'
+import { NotificationTokensStore } from './notifications/notificationTokens.store'
 import { SigChainService } from '../auth/sigchain.service'
 import { SigChainModule } from '../auth/sigchain.service.module'
 import waitForExpect from 'wait-for-expect'
@@ -38,6 +39,7 @@ describe('StorageService', () => {
   let libp2pService: Libp2pService
   let localDbService: LocalDbService
   let userProfileStore: UserProfileStore
+  let notificationTokensStore: NotificationTokensStore
   let sigchainService: SigChainService
 
   let store: Store
@@ -91,9 +93,10 @@ describe('StorageService', () => {
     libp2pService = await module.resolve(Libp2pService)
     ipfsService = await module.resolve(IpfsService)
     userProfileStore = await module.resolve(UserProfileStore)
+    notificationTokensStore = await module.resolve(NotificationTokensStore)
     sigchainService = await module.resolve(SigChainService)
 
-    await sigchainService.createChain('team', 'alice', true)
+    await sigchainService.createChain(true)
 
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
 
@@ -134,6 +137,18 @@ describe('StorageService', () => {
     expect(() => storageService.orbitDbService.orbitDb).toThrow('[get orbitDb]:no orbitDbInstance')
     expect(ipfsService.isStarted()).toBe(false)
     await storageService.init()
+  })
+
+  it('should clean after stop and reinitialize metadata stores', async () => {
+    await storageService.init()
+    await storageService.stop()
+    await storageService.clean()
+    await storageService.init()
+
+    expect(storageService.channelsService.channels).toBeDefined()
+    expect(storageService.channelsService.privateChannels).toBeDefined()
+    expect(userProfileStore.getStore()).toBeDefined()
+    expect(notificationTokensStore.getStore()).toBeDefined()
   })
 
   describe('Storage', () => {
@@ -207,6 +222,68 @@ describe('StorageService', () => {
       const profile = { userId: 'charlie', userData: null } as unknown as UserProfile
       jest.spyOn(userProfileStore, 'setEntry').mockRejectedValueOnce(new Error('deferred'))
       await expect(storageService.addUserProfile(profile)).resolves.not.toThrow()
+    })
+
+    it('should request and store cached self user profile when it is missing', async () => {
+      const userId = sigchainService.user.userId
+      const profile = { userId, nickname: 'Alice' } as UserProfile
+      const emit = jest.fn(
+        (_event: unknown, _payload: unknown, callback: (err: Error | null, responses: unknown[]) => void) =>
+          callback(null, [{ profile }])
+      )
+      const timeoutSpy = jest
+        .spyOn(storageService.socketService.serverIoProvider.io as any, 'timeout')
+        .mockReturnValue({ emit })
+      const addUserProfileSpy = jest.spyOn(storageService, 'addUserProfile').mockResolvedValue({ success: true })
+      jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue([])
+
+      storageService.socketService.serverIoProvider.io.sockets.sockets.set('state-manager', {} as any)
+
+      await (storageService as any).migrateMissingSelfUserProfile()
+
+      expect(timeoutSpy).toHaveBeenCalledWith(5_000)
+      expect(emit).toHaveBeenCalledWith(SocketEvents.CACHED_USER_PROFILE_REQUEST, { userId }, expect.any(Function))
+      expect(addUserProfileSpy).toHaveBeenCalledWith(profile)
+    })
+
+    it('should skip cached self user profile migration when self is already stored', async () => {
+      const userId = sigchainService.user.userId
+      const profile = { userId, nickname: 'Alice' } as UserProfile
+      const timeoutSpy = jest.spyOn(storageService.socketService.serverIoProvider.io as any, 'timeout')
+      jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue([profile])
+
+      storageService.socketService.serverIoProvider.io.sockets.sockets.set('state-manager', {} as any)
+
+      await (storageService as any).migrateMissingSelfUserProfile()
+
+      expect(timeoutSpy).not.toHaveBeenCalled()
+    })
+
+    it('should flush a deferred self profile before requesting a cached migration', async () => {
+      const userId = sigchainService.user.userId
+      const profile = { userId, nickname: 'Alice' } as UserProfile
+      const storedProfiles: UserProfile[] = []
+      const timeoutSpy = jest.spyOn(storageService.socketService.serverIoProvider.io as any, 'timeout')
+      jest.spyOn(userProfileStore, 'flushDeferredEntries').mockImplementation(async () => {
+        storedProfiles.push(profile)
+      })
+      jest.spyOn(userProfileStore, 'getUserProfiles').mockImplementation(async () => storedProfiles)
+
+      storageService.socketService.serverIoProvider.io.sockets.sockets.set('state-manager', {} as any)
+
+      await (storageService as any).migrateMissingSelfUserProfile()
+
+      expect(userProfileStore.flushDeferredEntries).toHaveBeenCalledTimes(1)
+      expect(timeoutSpy).not.toHaveBeenCalled()
+    })
+
+    it('should skip cached self user profile migration when no state-manager client is connected', async () => {
+      const timeoutSpy = jest.spyOn(storageService.socketService.serverIoProvider.io as any, 'timeout')
+      jest.spyOn(userProfileStore, 'getUserProfiles').mockResolvedValue([])
+
+      await (storageService as any).migrateMissingSelfUserProfile()
+
+      expect(timeoutSpy).not.toHaveBeenCalled()
     })
 
     it('should set and get identity via localDbService', async () => {

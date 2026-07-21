@@ -41,10 +41,10 @@ const Channel = () => {
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
-  const generalChannel = useSelector(publicChannels.selectors.generalChannel)
   const prevChannelId = useSelector(publicChannels.selectors.prevChannelId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const isNewMessageOpen = useSelector(publicChannels.selectors.isNewMessageOpen)
+  const currentChannelSubscribed = useSelector(publicChannels.selectors.currentChannelSubscribed)
 
   const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -344,6 +344,7 @@ const Channel = () => {
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,
+    currentChannelSubscribed: currentChannelSubscribed,
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal: uploadedFileModal,
     openContextMenu: openContextMenu,

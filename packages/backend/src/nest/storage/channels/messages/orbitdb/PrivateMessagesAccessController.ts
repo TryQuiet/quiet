@@ -15,6 +15,7 @@ const TYPE = 'privatemessagesaccess'
 export interface PrivateAccessControllerConfig extends AccessControllerConfig {
   channelId: string
   teamId: string
+  roleName: string
 }
 
 @Injectable()
@@ -61,22 +62,24 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         return false
       }
 
-      const sigchain = config.sigchainService.getChain({ teamId: entry.payload.value!.teamId })
-      if (config.roleName == null) {
-        this.logger.error(
-          'Channel is private but no rolename was provided',
-          entry.payload.value!.teamId,
-          entry.payload.value!.channelId
-        )
+      const sigchain = config.sigchainService.getChain(config.teamId, false)
+      if (sigchain == null) {
+        this.logger.warn(`User is not a member of this team or team hasn't been initialized, sigchain was nullish`)
         return false
       }
-      if (!sigchain.roles.memberHasRole(id, config.roleName)) {
+
+      if (!sigchain.channels.memberInChannel(id, config.roleName)) {
         this.logger.warn(
           `User is not a member of the channel, skipping log append`,
           id,
           entry.payload.value!.teamId,
           entry.payload.value!.channelId
         )
+        return false
+      }
+
+      if (config.roleName !== entry.payload.value.contents.scope.name) {
+        this.logger.warn(`Message was encrypted to a different scope than the one configured on the channel`)
         return false
       }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { useContextMenu } from '../../../hooks/useContextMenu'
@@ -18,6 +18,9 @@ const logger = createLogger('Sidebar')
 const Sidebar = () => {
   const dispatch = useDispatch()
 
+  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
+  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
+
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
@@ -32,11 +35,16 @@ const Sidebar = () => {
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
-  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const userId = userProfile?.userId || ''
 
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+
+  useEffect(() => {
+    setCanCreateChannel(channelPermissions.public.create)
+    setCanCreatePrivateChannel(channelPermissions.private.create)
+  }, [channelPermissions])
 
   const setCurrentChannel = (id: string) => {
     dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
@@ -69,7 +77,7 @@ const Sidebar = () => {
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
     isTorInitialized: isTorInitialized,
-    canCreateChannel: canCreateChannel,
+    canCreateChannel: (canCreateChannel || canCreatePrivateChannel) ?? false,
   }
 
   const userProfilePanelProps: UserProfilePanelProps = {

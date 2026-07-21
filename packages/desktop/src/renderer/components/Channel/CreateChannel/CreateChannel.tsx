@@ -5,7 +5,6 @@ import { communities, errors, identity, publicChannels } from '@quiet/state-mana
 import { ChannelType, CreateChannelPayload, ErrorCodes, ErrorMessages, SocketActions } from '@quiet/types'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { generateChannelId } from '@quiet/common'
 import { createLogger } from '../../../logger'
 
 const logger = createLogger('createChannel')
@@ -14,13 +13,14 @@ export const CreateChannel = () => {
   const dispatch = useDispatch()
 
   const [newChannel, setNewChannel] = useState<CreateChannelPayload | null>(null)
+  const [canCreateChannel, setCanCreateChannel] = useState<boolean>(false)
+  const [canCreatePrivateChannel, setCanCreatePrivateChannel] = useState<boolean>(false)
 
   const user = useSelector(identity.selectors.currentIdentity)
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  const canCreateChannel = useSelector(publicChannels.selectors.canCreateChannel)
-  const canCreatePrivateChannel = useSelector(publicChannels.selectors.canCreatePrivateChannel)
+  const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActions.CREATE_CHANNEL]
@@ -29,16 +29,22 @@ export const CreateChannel = () => {
 
   useEffect(() => {
     if (!newChannel) return
-    if (createChannelModal.open && channels.filter(channel => channel.name === newChannel?.name).length > 0) {
+    const createdChannel = channels.find(channel => channel.name === newChannel.name)
+    if (createChannelModal.open && createdChannel != null) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: newChannel.id,
+          channelId: createdChannel.id,
         })
       )
       setNewChannel(null)
       createChannelModal.handleClose()
     }
   }, [channels])
+
+  useEffect(() => {
+    setCanCreateChannel(channelPermissions.public.create)
+    setCanCreatePrivateChannel(channelPermissions.private.create)
+  }, [channelPermissions])
 
   const clearErrors = () => {
     if (error) {
@@ -88,9 +94,32 @@ export const CreateChannel = () => {
       )
       return
     }
-    logger.debug('Creating channel - executing saga')
-    const payload: CreateChannelPayload = {
-      id: generateChannelId(name),
+    const hasPermission = isPublic ? canCreateChannel : canCreatePrivateChannel
+    if (hasPermission == null) {
+      logger.error('Channel permissions are nullish')
+      dispatch(
+        errors.actions.addError({
+          type: SocketActions.CREATE_CHANNEL,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.CHANNEL_PERMISSIONS_NOT_FOUND,
+          community: communityId,
+        })
+      )
+      return
+    }
+    if (!hasPermission) {
+      logger.error('User lacks permissions to perform this action')
+      dispatch(
+        errors.actions.addError({
+          type: SocketActions.CREATE_CHANNEL,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.CHANNEL_PERMISSIONS_INVALID,
+          community: communityId,
+        })
+      )
+      return
+    }
+    const payload = {
       name: name,
       description: `Welcome to #${name}`,
       public: isPublic,
@@ -103,7 +132,7 @@ export const CreateChannel = () => {
   }
   return (
     <>
-      {canCreateChannel && communityId && (
+      {(canCreateChannel || canCreatePrivateChannel) && communityId && (
         <CreateChannelComponent
           {...createChannelModal}
           channelCreationError={error?.message}

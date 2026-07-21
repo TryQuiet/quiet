@@ -12,12 +12,12 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { useDispatch, useSelector } from 'react-redux'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { communities } from '@quiet/state-manager'
+import { publicChannels } from '@quiet/state-manager'
 
 const logger = createLogger('ChannelMembership')
 
-const TITLE = 'Permissions'
-const NON_OWNER_TITLE = 'Members'
+const MODIFIABLE_MEMBERSHIP_TITLE = 'Permissions'
+const NON_MODIFIABLE_MEMBERSHIP_TITLE = 'Members'
 
 export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   channelName,
@@ -25,6 +25,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   community,
   members,
   memberCount,
+  canAddMembers,
   handleBackButton,
 }) => {
   const dispatch = useDispatch()
@@ -32,7 +33,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   const [loading, setLoading] = useState<boolean>(false)
   const [headerTitle, setHeaderTitle] = useState<string>('')
 
-  const isOwner = useSelector(communities.selectors.isOwner)
+  const channel = useSelector(publicChannels.selectors.currentChannel)
 
   const onPress = useCallback(() => {
     setLoading(true)
@@ -61,8 +62,8 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
   }, [channelName])
 
   useEffect(() => {
-    setHeaderTitle(isOwner ? TITLE : NON_OWNER_TITLE)
-  }, [isOwner])
+    setHeaderTitle(canAddMembers ? MODIFIABLE_MEMBERSHIP_TITLE : NON_MODIFIABLE_MEMBERSHIP_TITLE)
+  }, [canAddMembers])
 
   return (
     <View
@@ -95,7 +96,7 @@ export const ChannelMembership: React.FC<ChannelMembershipProps> = ({
             gap: 32,
           }}
         >
-          {isOwner && (
+          {canAddMembers && (
             <View>
               <View
                 style={{

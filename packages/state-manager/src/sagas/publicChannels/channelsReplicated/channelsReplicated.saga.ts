@@ -72,7 +72,10 @@ export function* channelsReplicatedSaga(
 
   const isOwner = yield* select(communitiesSelectors.isOwner)
 
-  if (!isOwner && databaseStoredChannels.find(channel => channel.name === 'general')) {
+  const generalChannel = databaseStoredChannels.find(channel => channel.name === 'general')
+  const locallyStoredGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
+
+  if (!isOwner && (generalChannel || locallyStoredGeneralChannel)) {
     logger.info('Sending introduction message')
     yield* putResolve(publicChannelsActions.sendIntroductionMessage())
   }

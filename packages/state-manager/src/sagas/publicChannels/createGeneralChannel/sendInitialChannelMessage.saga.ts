@@ -6,6 +6,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { ChannelType, MessageType, type WriteMessagePayload } from '@quiet/types'
 import { generalChannelDeletionMessage, createdChannelMessage } from '@quiet/common'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
+import { waitForChannelSubscriptionSaga } from '../waitForChannelSubscription.saga'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>['payload']>
@@ -32,8 +33,10 @@ export function* sendInitialChannelMessageSaga(
   }
 
   if (isGeneral) {
+    yield* put(publicChannelsActions.setCurrentChannel({ channelId }))
     yield* put(publicChannelsActions.finishGeneralRecreation())
   }
 
+  yield* waitForChannelSubscriptionSaga(channelId)
   yield* put(messagesActions.sendMessage(payload))
 }

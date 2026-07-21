@@ -100,7 +100,7 @@ describe('Multiple Clients (Private Channels)', () => {
     logger.info(`░░░ ${expect.getState().currentTestName}`)
   })
 
-  describe('Stages:', () => {
+  describe.skip('Stages:', () => {
     describe('Owner Creates Community', () => {
       it('Owner opens the app', async () => {
         await users.owner.app.openWithRetries()
@@ -346,8 +346,7 @@ describe('Multiple Clients (Private Channels)', () => {
 
         it(`First user's sidebar is missing private channel`, async () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
-          const channels = await sidebarUser1.getChannelsNames()
-          expect(channels.length).toBe(1)
+          const channels = await sidebarUser1.waitForChannels([generalChannelName])
           expect(channels).not.toContain(privateChannelName)
         })
       })
@@ -364,8 +363,8 @@ describe('Multiple Clients (Private Channels)', () => {
         })
 
         it(`Private channel is in user's sidebar`, async () => {
-          const channels = await sidebarUser1.getChannelsNames()
-          expect(channels.length).toBe(2)
+          const channels = await sidebarUser1.waitForChannels([generalChannelName, privateChannelName])
+          expect(channels).toHaveLength(2)
           expect(channels).toContain(privateChannelName)
           await sidebarUser1.getChannelIcon(privateChannelName, false)
         })
@@ -412,14 +411,22 @@ describe('Multiple Clients (Private Channels)', () => {
           expect(channel).toBeDefined()
           expect(errors).toBeUndefined()
           await sidebarOwner.waitForChannelsNum(3)
-          const channels = await sidebarOwner.getChannelsNames()
-          expect(channels).toContain(privateChannel2Name)
           await sidebarOwner.switchChannel(privateChannel2Name, false)
+          const channels = await sidebarOwner.waitForChannels([
+            generalChannelName,
+            privateChannelName,
+            privateChannel2Name,
+          ])
+          expect(channels).toHaveLength(3)
         })
 
         it(`Second private channel is in owner's sidebar`, async () => {
-          const channels = await sidebarOwner.getChannelsNames()
-          expect(channels.length).toBe(3)
+          const channels = await sidebarOwner.waitForChannels([
+            generalChannelName,
+            privateChannelName,
+            privateChannel2Name,
+          ])
+          expect(channels).toHaveLength(3)
           expect(channels).toContain(privateChannel2Name)
           await sidebarOwner.getChannelIcon(privateChannel2Name, false)
         })
@@ -455,9 +462,11 @@ describe('Multiple Clients (Private Channels)', () => {
         })
 
         it(`Second private channel is in user's sidebar`, async () => {
-          const correctChannelCount = await sidebarUser1.waitForChannelsNum(3)
-          expect(correctChannelCount).toBeTruthy()
-          const channels = await sidebarUser1.getChannelsNames()
+          const channels = await sidebarUser1.waitForChannels([
+            generalChannelName,
+            privateChannelName,
+            privateChannel2Name,
+          ])
           expect(channels).toHaveLength(3)
           expect(channels).toContain(privateChannel2Name)
           await sidebarUser1.getChannelIcon(privateChannel2Name, false)

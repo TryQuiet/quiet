@@ -92,8 +92,48 @@ class RoleService extends ChainServiceBase {
     return this.memberIsAdmin(this.sigChain.user.userId)
   }
 
+  public memberIsMember(memberId: string): boolean {
+    return this.memberHasRole(memberId, RoleName.MEMBER)
+  }
+
+  public amIMember(): boolean {
+    return this.memberIsMember(this.sigChain.user.userId)
+  }
+
   public getMembersForRole(roleName: RoleName | string): Member[] {
     return this.sigChain.team!.membersInRole(roleName)
+  }
+
+  public canMemberCreateRole(memberId: string): boolean {
+    return this.sigChain.team!.memberCanCreateRole(memberId)
+  }
+
+  public canICreateRole(): boolean {
+    return this.canMemberCreateRole(this.sigChain.user.userId)
+  }
+
+  public canMemberAddMembersRole(memberId: string, roleName: string): boolean {
+    return this.sigChain.team!.memberCanAddMembersToRole(roleName, memberId)
+  }
+
+  public canIAddMembersToRole(roleName: string): boolean {
+    return this.canMemberAddMembersRole(this.sigChain.user.userId, roleName)
+  }
+
+  public canMemberRemoveMembersFromRole(memberId: string, roleName: string): boolean {
+    return this.sigChain.team!.memberCanRemoveMembersFromRole(roleName, memberId)
+  }
+
+  public canIRemoveMembersFromRole(roleName: string): boolean {
+    return this.canMemberRemoveMembersFromRole(this.sigChain.user.userId, roleName)
+  }
+
+  public canMemberDeleteRole(memberId: string, roleName: string): boolean {
+    return this.sigChain.team!.memberCanDeleteRole(roleName, memberId)
+  }
+
+  public canIDeleteRole(roleName: string): boolean {
+    return this.canMemberDeleteRole(this.sigChain.user.userId, roleName)
   }
 
   private roleToQuietRole(role: Role): QuietRole {

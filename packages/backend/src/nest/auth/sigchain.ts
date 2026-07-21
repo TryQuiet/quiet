@@ -14,9 +14,11 @@ import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
 import { ChannelService } from './services/roles/wrappers/channel.service'
-import { LFAEvents, SigchainEvents } from './types'
-import { defaultGenericPermissions } from './services/roles/permissions'
+import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
+import { randomKey } from '@localfirst/crypto'
+import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
 import { DMService } from './services/roles/wrappers/dm.service'
+import { defaultGenericPermissions } from './services/roles/permissions'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
@@ -69,6 +71,14 @@ class SigChain extends EventEmitter {
     this._context = context
   }
 
+  get teamId(): string | undefined {
+    return this.team?.id
+  }
+
+  get teamName(): string | undefined {
+    return this.team?.teamName
+  }
+
   get user(): auth.UserWithSecrets {
     return this.context.user
   }
@@ -86,16 +96,15 @@ class SigChain extends EventEmitter {
   }
 
   /**
-   * Create a brand new SigChain with a given name and also generate the initial user with a given name
+   * Create a brand new SigChain with a given name and also generate the initial user with an optional name/ID
    *
-   * @param teamName Name of the team we are creating
-   * @param username Username of the initial user we are generating
+   * @param createUserInput Optional input to user creation
    * @returns LoadedSigChain instance with the new SigChain and user context
    */
-  public static create(teamName: string, username: string, userId?: string): SigChain {
-    const localUser = UserService.create(username, userId)
+  public static create(createUserInput: CreateUserInput = {}): SigChain {
+    const localUser = UserService.create(createUserInput)
     const team: auth.Team = auth.createTeam(
-      teamName,
+      SigChain.generateRandomTeamName(),
       localUser,
       undefined,
       { selfAssignableRoles: SELF_ASSIGN_ROLES },
@@ -152,12 +161,12 @@ class SigChain extends EventEmitter {
   /**
    * Create a SigChain from an invite seed
    *
-   * @param username Username of the user to create
-   * @param seed Seed of the invite
+   * @param input Create user input with invite seed
    * @returns LoadedSigChain instance with the given user context
    */
-  public static createFromInvite(username: string, seed: string): SigChain {
-    const prospectiveUser = UserService.createFromInviteSeed(username, seed)
+  public static createFromInvite(input: CreateUserFromInviteSeedInput): SigChain {
+    const { seed } = input
+    const prospectiveUser = UserService.createFromInviteSeed(input)
     const context = {
       user: prospectiveUser.context.user,
       device: prospectiveUser.context.device,
@@ -241,6 +250,10 @@ class SigChain extends EventEmitter {
       team: team,
     } as auth.MemberContext
     return new SigChain(memberContext)
+  }
+
+  public static generateRandomTeamName(): string {
+    return randomKey(RANDOM_TEAM_NAME_LENGTH)
   }
 }
 

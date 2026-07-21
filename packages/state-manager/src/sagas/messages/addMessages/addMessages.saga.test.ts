@@ -20,7 +20,7 @@ import {
   MessageType,
   type PublicChannel,
 } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 
 describe('addMessagesSaga', () => {
   let store: Store
@@ -58,7 +58,7 @@ describe('addMessagesSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).channel
@@ -70,7 +70,7 @@ describe('addMessagesSaga', () => {
           description: 'Welcome to #barbeque',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('barbeque'),
+          id: generateTestChannelId('barbeque'),
         },
       })
     ).channel

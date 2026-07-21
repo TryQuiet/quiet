@@ -84,7 +84,7 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
       logger.info('No team found, cannot flush deferred notification tokens')
       return
     }
-    if (!this.auth.team.memberHasRole(this.auth.user.userId, RoleName.MEMBER)) {
+    if (!this.auth.roles.amIMember()) {
       logger.warn('User does not have permission to write notification tokens')
       return
     }
@@ -148,6 +148,12 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
   }
 
   public async tombstoneUser(userId: string): Promise<string> {
+    const myEntry = await this.getStore().get(userId)
+    if (!myEntry) {
+      logger.info(`No existing notification token entry found for user ${userId}, must skip tombstone`)
+      return ''
+    }
+
     const tombstoneEntry: PushNotificationTokens = { userId, tokens: [] }
 
     try {
@@ -213,17 +219,15 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        const idsMatch =
+          key != null &&
+          valueUserId != null &&
+          decUserId != null &&
+          sigAuthor != null &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        if (!idsMatch) {
           logger.error(
             `Failed to verify notification token entry: ${entry.hash} - ID mismatch. key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )
@@ -254,11 +258,21 @@ export class NotificationTokensStore extends EncryptedKeyValueIndexedValidatedSt
   public async clean(): Promise<void> {
     logger.info('Cleaning notification tokens store')
     this.deferredEntries = []
+    const store = this.store
     try {
-      await this.store?.sync?.stop?.()
-      await this.store?.drop?.()
+      await store?.sync?.stop?.()
     } catch (err) {
-      logger.error('Failed to clean notification tokens store:', err)
+      // If the sync is not started, this will throw an error
+    }
+    try {
+      await store?.drop?.()
+    } catch (err) {
+      logger.error('Failed to drop notification tokens store:', err)
+    }
+    try {
+      await store?.close?.()
+    } catch (err) {
+      logger.error('Failed to close notification tokens store after drop:', err)
     }
     this.store = undefined
   }

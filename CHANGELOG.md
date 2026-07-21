@@ -2,14 +2,44 @@
 
 ## [unreleased]
 
+### Breaking
+
+* Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
+* Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
+* Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
+* Tighten user profile store access control and validations [#3340](https://github.com/TryQuiet/quiet/issues/3340)
+
+### Fixes
+
+* iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
+
+## [8.0.0]
+
 ### Features
 
 * Adds one-on-one and group DMs to desktop [#2571](https://github.com/TryQuiet/quiet/issues/2571)
 * Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
+* Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
 
 ### Fixes
 
 * Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
+* Ensure notification registration waits for auth handshake [#3289](https://github.com/TryQuiet/quiet/issues/3289)
+* Fixed a race condition that can cause stale data to remain after leaving community [#3253](https://github.com/TryQuiet/quiet/issues/3253)
+* Validate user ID on decrypted message matches the signature [#3334](https://github.com/TryQuiet/quiet/issues/3334)
+
+### Chores
+
+* Enable QSS on prod
+* Add script for cleaning compiled/generated code directories
+
+### Breaking
+
+* Include team ID and createdAt in message encryption and validate on consume [#3304](https://github.com/TryQuiet/quiet/issues/3304)
+* Require team ID on invite links, use team ID for all chain operations, and hash team name on sigchains [#3296](https://github.com/TryQuiet/quiet/issues/3296)
+* Use randomly generated Base58 usernames on sigchain [#3321](https://github.com/TryQuiet/quiet/issues/3321)
+* Update install directories for 8.x [#3338](https://github.com/TryQuiet/quiet/issues/3338)
+* Update S3 bucket for 8.x release binaries [#3346](https://github.com/TryQuiet/quiet/issues/3346as)
 
 ## [7.3.0]
 

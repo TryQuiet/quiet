@@ -10,7 +10,7 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { ChannelType, CommunityOwnership, type Community, type Identity, type PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { select } from 'redux-saga-test-plan/matchers'
@@ -52,7 +52,7 @@ describe('channelDeletionResponseSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).channel!
@@ -64,7 +64,7 @@ describe('channelDeletionResponseSaga', () => {
           description: 'Welcome to #private',
           timestamp: DateTime.utc().valueOf(),
           owner: owner.userId,
-          id: generateChannelId('private'),
+          id: generateTestChannelId('private'),
           public: false,
         },
       })
@@ -89,7 +89,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
-        .put(messagesActions.sendDeletionMessage({ channelId, isPublic: true }))
+        .put(messagesActions.sendDeletionMessage({ channelId, channelName: photoChannel.name, isPublic: true }))
         .run()
     })
 

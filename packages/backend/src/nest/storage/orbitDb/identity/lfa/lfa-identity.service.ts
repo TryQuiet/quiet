@@ -66,8 +66,8 @@ class LFAIdentities extends EventEmitter {
     }
 
     const { user, sigchain } = this.provider.getUserAndChain(
-      this.sigchainService.activeChain.context.user.userId,
-      this.sigchainService.activeChain.team!.id
+      this.sigchainService.user.userId,
+      this.sigchainService.activeTeamId!
     )
     const teamId = sigchain.team!.id
     const identityMetadata: LFAIdentityMetadata = {

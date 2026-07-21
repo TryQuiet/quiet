@@ -87,6 +87,8 @@ describe('Channel menu', () => {
       nickname: 'alice',
     })
 
+    await factory.create('ChannelPermissions')
+
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(

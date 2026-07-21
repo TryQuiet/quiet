@@ -1,4 +1,4 @@
-import { SetUserProfileResponse } from '@quiet/types'
+import { SetUserProfileResponse, UserProfile } from '@quiet/types'
 import { createLogger } from '../../common/logger'
 
 const logger = createLogger('UserProfileStoreUtils')
@@ -115,6 +115,24 @@ export const validatePhoto = (photoString: string, pubKey: string): SetUserProfi
     return { success: false, error: 'Internal error: Failed to validate photo' }
   }
 
+  return { success: true }
+}
+
+/**
+ * Validates a user profile, including its photo if present.
+ */
+export const validateUserProfile = async (userProfile: UserProfile): Promise<SetUserProfileResponse> => {
+  try {
+    if (userProfile?.photo) {
+      const photoValidation = validatePhoto(userProfile.photo ?? '', userProfile.userId)
+      if (!photoValidation.success) {
+        return { success: false, error: photoValidation.error }
+      }
+    }
+  } catch (err) {
+    logger.error('Error validating user profile:', userProfile.userId, err)
+    return { success: false, error: 'Internal error: Failed to validate user profile' }
+  }
   return { success: true }
 }
 

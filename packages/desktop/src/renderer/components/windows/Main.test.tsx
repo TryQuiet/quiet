@@ -13,6 +13,7 @@ describe('Main', () => {
     await factory.create('Community', {
       rootCa: 'rootCa',
     })
+    await factory.create('ChannelPermissions')
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>

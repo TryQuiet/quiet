@@ -62,6 +62,7 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
+  currentChannelSubscribed?: boolean
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
@@ -99,6 +100,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   handleFileDrop,
   filesData,
   isCommunityInitialized = true,
+  currentChannelSubscribed = true,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
@@ -278,7 +280,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={
-              isCommunityInitialized && Boolean(messages.count) ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED
+              isCommunityInitialized && currentChannelSubscribed ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED
             }
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}

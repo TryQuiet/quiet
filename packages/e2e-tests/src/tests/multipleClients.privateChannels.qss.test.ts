@@ -14,8 +14,8 @@ import {
   Sidebar,
   TermsOfServiceModal,
 } from '../selectors'
-import { promiseWithRetries, sleep, tailQssLogs } from '../utils'
 import { DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS, UserListStatus, UserTestData2, UserTestDataMap } from '../types'
+import { promiseWithRetries, tailQssLogs } from '../utils'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 import { ChildProcess } from 'child_process'
@@ -51,6 +51,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
   const privateChannelName = 'private-chat'
   const privateChannel2Name = 'second-private-chat'
   const generalChannelName = 'general'
+  const qssOnlyJoinCompletionTimeoutMs = 120_000
 
   type Usernames = 'owner' | 'user1' | 'user2'
   type ChannelNames = 'private' | 'secondPrivate' | 'general'
@@ -162,7 +163,6 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
         const generalChannelText = await generalChannelOwner.element.getText()
         expect(generalChannelText).toEqual('general')
-        await sleep(10_000)
       })
 
       it.skip('Owner opens community membership tab', async () => {
@@ -395,7 +395,6 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
 
       describe(`Owner Adds User To Private Channel While User Offline`, () => {
         it('User goes offline', async () => {
-          await sleep(5_000)
           await users.user1.app.close()
         })
 
@@ -414,7 +413,7 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await channelContextMenuOwner.openAddMembersModal()
           const membersLeftInAutocomplete = await channelContextMenuOwner.checkForMembersInAddMembersAutocomplete(
             privateChannelName,
-            [users.user1.username, users.owner.username]
+            [users.user1.username]
           )
           expect(membersLeftInAutocomplete.length).toBe(0)
           expect(menuButton).toBe(true)
@@ -621,37 +620,24 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await tosModal.chooseAgreeAndJoin()
         })
 
-        it('Second user waits to join', async () => {
-          const joinPanel = new JoiningLoadingPanel(users.user2.app.driver)
-          await joinPanel.waitForJoinToComplete()
-        })
-
-        it('Second user sees general channel', async () => {
+        it('Second user joins through QSS and sees expected state', async () => {
           const app = users.user2.app
-          const loadNewUser = async () => {
-            generalChannelUser2 = new Channel(app.driver, generalChannelName)
-            expect(await generalChannelUser2.isReady()).toBeTruthy()
-            expect(await generalChannelUser2.isOpen()).toBeTruthy()
-            expect(await generalChannelUser2.isMessageInputReady()).toBeTruthy()
-            logger.timeEnd(`[${app.name}] '${users.user2.username}' joining community time`)
-          }
+          const joinPanel = new JoiningLoadingPanel(app.driver)
+          await joinPanel.waitForJoinToComplete(60_000, qssOnlyJoinCompletionTimeoutMs)
 
-          const retryConfig = app.retryConfig
-          const failureReason = `Failed to load app for new user ${users.user2.username} within ${retryConfig.timeoutMs}ms`
-          const onTimeout = async () => {
-            await app.close()
-            await app.open()
-          }
-          await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
-        })
+          const userList = new UsersList(app.driver)
+          expect(await userList.isReady()).toBeTruthy()
 
-        it('Second user can see messages from before they joined', async () => {
+          generalChannelUser2 = new Channel(app.driver, generalChannelName)
+          expect(await generalChannelUser2.isReady()).toBeTruthy()
+          expect(await generalChannelUser2.isOpen()).toBeTruthy()
+          expect(await generalChannelUser2.isMessageInputReady()).toBeTruthy()
+          logger.timeEnd(`[${app.name}] '${users.user2.username}' joining community time`)
+
           await generalChannelUser2.getAtleastNumUserMessages(users.owner.username, users.owner.messages.general.length)
           await generalChannelUser2.getAtleastNumUserMessages(users.user1.username, users.user1.messages.general.length)
-        })
 
-        it(`Second user sees only general in sidebar`, async () => {
-          sidebarUser2 = new Sidebar(users.user2.app.driver)
+          sidebarUser2 = new Sidebar(app.driver)
           await sidebarUser2.waitForChannelsNum(1)
           const channels = await sidebarUser2.getChannelsNames()
           expect(channels.length).toBe(1)

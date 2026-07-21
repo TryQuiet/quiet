@@ -1,6 +1,6 @@
 import { ChannelType, PublicChannelStorage } from '@quiet/types'
-import { generateChannelId } from './channelAddress'
 import { createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from './messages'
+import { generateTestChannelId } from './tests'
 
 describe('messages helper', () => {
   const username = 'johnny'
@@ -11,7 +11,7 @@ describe('messages helper', () => {
     description: 'Welcome to #general',
     timestamp: 1,
     owner: username,
-    id: generateChannelId('general'),
+    id: generateTestChannelId('general'),
     messages: { ids: [], entities: {} },
     public: true,
     type: ChannelType.CHANNEL,
@@ -24,7 +24,7 @@ describe('messages helper', () => {
     description: 'Welcome to #sport',
     timestamp: 1,
     owner: username,
-    id: generateChannelId('sport'),
+    id: generateTestChannelId('sport'),
     messages: { ids: [], entities: {} },
     public: true,
     type: ChannelType.CHANNEL,
