@@ -91,6 +91,7 @@ export interface DeleteChannelEntryPayload {
 
 export interface SendDeletionMessagePayload {
   channelId: string
+  channelName?: string
   isPublic: boolean
 }
 

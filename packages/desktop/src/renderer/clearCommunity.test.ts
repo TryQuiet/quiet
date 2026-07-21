@@ -65,7 +65,7 @@ describe('clearCommunityWithDependencies', () => {
     const newCommunityDatabaseChannels = ['general_new-community']
     for (const channelId of state.channels) {
       if (!newCommunityDatabaseChannels.includes(channelId)) {
-        state.deletionMessages.push(`Deleted #${channelId.slice(0, channelId.indexOf('_'))}`)
+        state.deletionMessages.push(`Deleted #${channelId}`)
       }
     }
 

@@ -38,7 +38,7 @@ describe('users', () => {
   })
   it('get admin member by name', () => {
     const user = adminSigChain.users.getUserById(adminSigChain.user.userId)
-    expect(user!.userName).toEqual(adminSigChain.user.userName)
+    expect(user.userName).toEqual(adminSigChain.user.userName)
   })
   it('should redact user', () => {
     const redactedUser = UserService.redactUser(adminSigChain.user)

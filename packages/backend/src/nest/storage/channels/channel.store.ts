@@ -97,11 +97,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       })
       this._messagesService = this._publicMessagesService
     } else {
+      if (this.channelData.roleName == null) {
+        throw new Error('Invalid role name for private channel!')
+      }
       this._accessController = this._privateMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
         channelId: this.channelData.id,
         teamId: this.channelData.teamId ?? this.auth.team.id,
+        roleName: this.channelData.roleName,
       })
       this._messagesService = this._privateMessagesService
     }
@@ -144,9 +148,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
     this.getStore().events.on('update', async (entry: LogEntry<EncryptedMessage>) => {
       const entryChannelId = entry.payload.value?.channelId
       // TODO: seperate event bus for each channel so we don't have to check this on every update
-      if (entryChannelId != null && entryChannelId !== this.channelData.id) {
+      if (entryChannelId !== this.channelData.id) {
         this.logger.debug(
-          `Ignoring database update for different channel`,
+          `Ignoring database update without matching channel`,
           entry.hash,
           entryChannelId,
           this.channelData.id
@@ -159,7 +163,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (entry.payload.value == null) {
         this.logger.error(`Message entry was nullish!`, entry.hash, this.channelData.id)
       } else {
-        message = await this.messagesService.onConsume(entry.payload.value!)
+        message = await this.messagesService.onConsume(entry.payload.value!, this.channelData)
         if (message == null) {
           this.logger.error(`Message could not be consumed!`, entry.payload.value.id, entry.payload.value.channelId)
         } else if (message == false) {
@@ -302,7 +306,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
   public async addEntry(message: ChannelMessage): Promise<string> {
     this.logger.info('Adding message to database')
     try {
-      const encryptedMessage = await this.messagesService.onSend(message)
+      const encryptedMessage = await this.messagesService.onSend(message, this.channelData)
       return await this.getStore().add(encryptedMessage)
     } catch (e) {
       throw new CompoundError(`Could not append message (entry not allowed to write to the log)`, e)
@@ -328,7 +332,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       }
 
       if (ids == null || ids?.includes(x.value.id)) {
-        const decryptedMessage = await this.messagesService.onConsume(x.value)
+        const decryptedMessage = await this.messagesService.onConsume(x.value, this.channelData)
         if (decryptedMessage == null || decryptedMessage === false) {
           continue
         }
@@ -374,8 +378,20 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async close(): Promise<void> {
     this.logger.info(`Closing channel store`)
+    const store = this.store
+    if (store == null) {
+      this.logger.warn(`Store is already undefined, nothing to close`)
+      return
+    }
+
     await this.stopSync()
-    await this.getStore().close()
+    await store.close()
+    if (this.authListenerAttached) {
+      this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)
+      this.authListenerAttached = false
+    }
+    this.store = undefined
+    this._subscribing = false
   }
 
   /**
@@ -393,6 +409,7 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
    */
   public async clean(): Promise<void> {
     this.logger.info(`Cleaning channel store`, this.channelData.id, this.channelData.name)
+    const store = this.store
     try {
       await this.stopSync()
     } catch (e) {
@@ -402,10 +419,15 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       if (!this.store) {
         this.logger.warn(`Store is already undefined, nothing to drop`)
       } else {
-        await this.getStore().drop()
+        await store!.drop()
       }
     } catch (e) {
       this.logger.error(`Failed to drop store`, e)
+    }
+    try {
+      await store?.close()
+    } catch (e) {
+      this.logger.error(`Failed to close store after drop`, e)
     }
     if (this.authListenerAttached) {
       this.auth.removeListener(SigchainEvents.UPDATED, this.handleAuthUpdated)

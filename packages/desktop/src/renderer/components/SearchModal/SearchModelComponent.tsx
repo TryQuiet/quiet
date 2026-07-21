@@ -156,7 +156,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     mode: 'onChange',
   })
 
-  const unreadChannels = publicChannelsSelector.filter(channel => unreadChannelsSelector.includes(channel.name))
+  const unreadChannels = publicChannelsSelector.filter(channel => unreadChannelsSelector.includes(channel.id))
 
   const unread = unreadChannels.length > 0
 

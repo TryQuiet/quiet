@@ -13,8 +13,14 @@ import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { ChannelOperationStatus, type Community, type Identity, type PublicChannel } from '@quiet/types'
-import { generateChannelId } from '@quiet/common'
+import {
+  ChannelOperationStatus,
+  CommunityOwnership,
+  type Community,
+  type Identity,
+  type PublicChannel,
+} from '@quiet/types'
+import { generateTestChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 
@@ -60,7 +66,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).payload.channel
@@ -73,7 +79,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
         },
       })
     ).payload.channel
@@ -266,6 +272,24 @@ describe('channelsReplicatedSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.putResolve(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
+      .run()
+  })
+
+  test('sends introduction when general already exists locally and replicated channels are empty', async () => {
+    const localStore = prepareStore().store
+    const localFactory = await getReduxStoreFactory(localStore)
+    await localFactory.create('Community', { ownership: CommunityOwnership.User })
+
+    const reducer = combineReducers(testReducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: [],
+      })
+    )
+      .withReducer(reducer)
+      .withState(localStore.getState())
+      .putResolve(publicChannelsActions.sendIntroductionMessage())
       .run()
   })
 })

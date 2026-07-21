@@ -75,9 +75,11 @@ const IPFSBlockStorage = async ({ ipfs, pin, timeout }: IPFSBlockStorageParams =
     } else {
       const abortController = new AbortController()
       const timer = setTimeout(() => abortController.abort(), timeout ?? DefaultTimeout)
-      const block = await ipfs.blockstore.get(cid, abortController)
-      clearTimeout(timer)
-      return block
+      try {
+        return await ipfs.blockstore.get(cid, abortController)
+      } finally {
+        clearTimeout(timer)
+      }
     }
   }
 

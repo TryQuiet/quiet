@@ -11,7 +11,7 @@ import { type identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { type ChannelMessage, type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
 
@@ -55,7 +55,7 @@ describe('markUnreadChannelsSaga', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.userId,
-            id: generateChannelId(name),
+            id: generateTestChannelId(name),
           },
         }
       )
