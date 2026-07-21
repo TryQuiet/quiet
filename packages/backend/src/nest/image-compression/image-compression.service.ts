@@ -116,68 +116,24 @@ export class ImageCompressionService {
           this.logger.info(`No resize needed, using original dimensions ${originalWidth}x${originalHeight}`)
         }
 
-        let bestBuffer: Buffer | null = null
-        let bestSize = 0
-        let bestQuality = 0
-
-        // Start at the predicted quality. If the first encode misses the target, retry once at a
-        // quality adjusted in the direction of the target: lower if the result is too big, higher
-        // if it's over-compressed (too small). The retry quality depends on the first result's
-        // size, so it can't be precomputed.
-        const qualitiesToTry = [quality]
-
-        for (let i = 0; i < qualitiesToTry.length; i++) {
-          const testQuality = qualitiesToTry[i]
-          this.logger.info(`Testing quality setting: ${testQuality} for ${mime}`)
-
-          // Get buffer with this quality setting
-          const testBuffer = await typedImage.getBuffer(mime, {
-            quality: testQuality,
-          })
-
-          const testSize = testBuffer.length
-          this.logger.info(
-            `Quality ${testQuality} resulted in size: ${testSize} bytes (${(testSize / 1024).toFixed(1)}KB)`
-          )
-
-          if (
-            bestBuffer === null ||
-            this.isBetterCompressionCandidate({
-              originalSize,
-              currentSize: bestSize,
-              currentQuality: bestQuality,
-              testSize,
-              testQuality,
-            })
-          ) {
-            bestBuffer = testBuffer
-            bestSize = testSize
-            bestQuality = testQuality
-          }
-
-          if (this.isAcceptableCompressedSize(originalSize, testSize)) {
-            this.logger.info(`Quality ${testQuality} is within target range, stopping early`)
-            break
-          }
-
-          // Queue a single direction-aware retry, only after the first encode.
-          if (i === 0) {
-            const retryQuality = this.getRetryQuality(testQuality, originalSize, testSize)
-            if (retryQuality != null && !qualitiesToTry.includes(retryQuality)) {
-              qualitiesToTry.push(retryQuality)
-            }
-          }
-        }
+        const {
+          buffer: bestBuffer,
+          size: bestSize,
+          quality: bestQuality,
+        } = await this.findBestCompression({
+          originalSize,
+          initialQuality: quality,
+          mime,
+          encode: testQuality =>
+            typedImage.getBuffer(mime, {
+              quality: testQuality,
+            }),
+        })
 
         this.logger.info(`Selected best quality: ${bestQuality} with size: ${(bestSize / 1024).toFixed(1)}KB`)
 
         // Write the buffer to the temp file
-        if (bestBuffer) {
-          fs.writeFileSync(tempOutputPath, bestBuffer)
-        } else {
-          // Should never happen, but just in case
-          throw new Error('Failed to generate valid compressed image')
-        }
+        fs.writeFileSync(tempOutputPath, bestBuffer)
 
         // Check resulting size
         const stats = fs.statSync(tempOutputPath)
@@ -233,18 +189,79 @@ export class ImageCompressionService {
     }
   }
 
-  private getRetryQuality(currentQuality: number, originalSize: number, currentSize: number): number | null {
-    // Result is too large: drop quality to shrink the file (matches the previous fallback steps).
-    if (currentSize > this.TARGET_MAX_SIZE) {
-      const lowered =
-        originalSize > 4 * 1024 * 1024 ? Math.max(currentQuality - 20, 10) : Math.max(currentQuality - 25, 15)
-      return lowered < currentQuality ? lowered : null
+  private async findBestCompression({
+    originalSize,
+    initialQuality,
+    mime,
+    encode,
+  }: {
+    originalSize: number
+    initialQuality: number
+    mime: string
+    encode: (quality: number) => Promise<Buffer>
+  }): Promise<{ buffer: Buffer; size: number; quality: number }> {
+    let bestBuffer: Buffer | null = null
+    let bestSize = 0
+    let bestQuality = 0
+
+    // Search the valid quality interval in the direction indicated by each encoded result. This
+    // takes at most eight attempts for the current 10-92 range and normally exits after the first.
+    let minimumQuality = originalSize > 4 * 1024 * 1024 ? 10 : 15
+    let maximumQuality = this.JPEG_QUALITY_VERY_HIGH
+    const qualitiesToTry = [initialQuality]
+
+    for (let i = 0; i < qualitiesToTry.length; i++) {
+      const testQuality = qualitiesToTry[i]
+      this.logger.info(`Testing quality setting: ${testQuality} for ${mime}`)
+
+      const testBuffer = await encode(testQuality)
+      const testSize = testBuffer.length
+      this.logger.info(`Quality ${testQuality} resulted in size: ${testSize} bytes (${(testSize / 1024).toFixed(1)}KB)`)
+
+      if (
+        bestBuffer === null ||
+        this.isBetterCompressionCandidate({
+          originalSize,
+          currentSize: bestSize,
+          currentQuality: bestQuality,
+          testSize,
+          testQuality,
+        })
+      ) {
+        bestBuffer = testBuffer
+        bestSize = testSize
+        bestQuality = testQuality
+      }
+
+      if (this.isAcceptableCompressedSize(originalSize, testSize)) {
+        this.logger.info(`Quality ${testQuality} is within target range, stopping early`)
+        break
+      }
+
+      if (this.isCompressedImageTooLarge(originalSize, testSize)) {
+        maximumQuality = testQuality - 1
+      } else {
+        minimumQuality = testQuality + 1
+      }
+
+      if (minimumQuality <= maximumQuality) {
+        const retryQuality = Math.round((minimumQuality + maximumQuality) / 2)
+        if (!qualitiesToTry.includes(retryQuality)) {
+          qualitiesToTry.push(retryQuality)
+        }
+      }
     }
 
-    // Result is over-compressed (too small): raise quality to recover detail and climb back toward
-    // the target range. This only happens for large images, where the acceptable band has a floor.
-    const raised = Math.min(currentQuality + 20, this.JPEG_QUALITY_VERY_HIGH)
-    return raised > currentQuality ? raised : null
+    if (bestBuffer === null) {
+      throw new Error('Failed to generate valid compressed image')
+    }
+
+    return { buffer: bestBuffer, size: bestSize, quality: bestQuality }
+  }
+
+  private isCompressedImageTooLarge(originalSize: number, compressedSize: number): boolean {
+    const maximumSize = originalSize > 4 * 1024 * 1024 ? this.TARGET_MAX_SIZE : this.TARGET_MAX_SIZE * 1.5
+    return compressedSize > maximumSize
   }
 
   private isAcceptableCompressedSize(originalSize: number, compressedSize: number): boolean {
