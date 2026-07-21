@@ -322,6 +322,25 @@ describe('QSSService', () => {
       expect(qssService.canConnect).toBeTruthy()
     })
 
+    it('connects with an override before community initialization for hCaptcha verification', async () => {
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      await qssService.connect('ws://localhost:3000', true)
+
+      expect(qssService.connected).toBeTruthy()
+      expect(mockedCreateSocket).toHaveBeenCalledWith('ws://localhost:3000')
+    })
+
+    it(`doesn't bypass unaccepted TOS with an override after community initialization`, async () => {
+      await initCommunity({ tosAccepted: false, qssEnabled: true, qssSetup: false })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      await qssService.connect('ws://localhost:3000', true)
+
+      expect(qssService.connected).toBeFalsy()
+      expect(mockedCreateSocket).not.toHaveBeenCalled()
+    })
+
     it('reconnects when the requested QSS endpoint changes', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)

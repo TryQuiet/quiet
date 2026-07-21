@@ -107,6 +107,10 @@ export class BuildSetup {
     return `${basePath}/Quiet.app/Contents/MacOS/Quiet`
   }
 
+  public getMacAppBundlePath(): string {
+    return path.dirname(path.dirname(path.dirname(this.getMacBinaryDir())))
+  }
+
   public getVersionFromEnv() {
     const envFileName = BuildSetup.getEnvFileName()
     if (!envFileName) {

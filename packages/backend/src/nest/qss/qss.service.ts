@@ -420,22 +420,19 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     const initStatus = await this.getQssInitStatus()
-    if (!initStatus.tosAccepted) {
+    if (!initStatus.communityInitialized && !enabledOverride) {
+      this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
+      return QSSOperationResult.ERROR
+    }
+
+    if (initStatus.communityInitialized && !initStatus.tosAccepted) {
       this.logger.warn(`Can't connect to QSS until TOS is accepted`)
       return QSSOperationResult.ERROR
     }
 
-    if (!enabledOverride) {
-      const initStatus = await this.getQssInitStatus()
-      if (!initStatus.communityInitialized) {
-        this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
-        return QSSOperationResult.ERROR
-      }
-
-      if (!initStatus.qssEnabled) {
-        this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
-        return QSSOperationResult.DISABLED
-      }
+    if (!enabledOverride && !initStatus.qssEnabled) {
+      this.logger.warn(`Can't connect to QSS because QSS is disabled on this community`)
+      return QSSOperationResult.DISABLED
     }
 
     // wait for our socket to finish connecting

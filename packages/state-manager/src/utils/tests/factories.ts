@@ -52,6 +52,7 @@ import {
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
   ChannelOperationStatus,
+  type DebugAddServerPayload,
   type InvitationAuthDataV5,
   type InvitationAuthDataV4,
 } from '@quiet/types'
@@ -500,6 +501,10 @@ export const getSocketFactory = async () => {
 
   factory.define(SocketActions.UPDATE_COMMUNITY, Object, {
     id: 'community-id',
+  })
+
+  factory.define<DebugAddServerPayload>(SocketActions.DEBUG_ADD_SERVER, Object, {
+    serverHosts: ['qss.example.com'],
   })
 
   // Messages events
