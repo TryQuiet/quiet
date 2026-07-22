@@ -80,6 +80,7 @@ import { peerIdFromString } from '@libp2p/peer-id'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
+import { LOCAL_QSS_HOST_PATTERN } from '../qss/qss.const'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSEvents } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
@@ -748,10 +749,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     if (community.qssEnabled && payload.tosAccepted && community.qssEndpoint) {
       if (this.qssEndpoint) {
-        let host = url.parse(this.qssEndpoint).hostname
-        if (host === '127.0.0.1') {
-          host = 'localhost'
-        }
+        const host = this.normalizeQssServerHost(this.qssEndpoint)
         if (host) {
           community.serverHosts = [{ hostUrl: host, accepted: true } as ServerHost]
         }
@@ -777,6 +775,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity: identity,
       profile: userProfile,
     } as ResponseJoinCommunityPayload
+  }
+
+  private normalizeQssServerHost(qssEndpoint: string): string | undefined {
+    const host = url.parse(qssEndpoint).hostname
+    if (!host) {
+      return undefined
+    }
+
+    const normalizedHost = host.toLowerCase().replace(/^\[|\]$/g, '')
+    return LOCAL_QSS_HOST_PATTERN.test(normalizedHost) ? 'localhost' : host
   }
 
   public async launchCommunity(id: string): Promise<void> {
@@ -1286,8 +1294,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   private async debugAddServer(payload: DebugAddServerPayload): Promise<void> {
-    if (process.env.NODE_ENV !== 'development' && process.env.IS_E2E !== 'true') {
-      this.logger.warn('Ignoring debug server request outside development and E2E')
+    if (process.env.NODE_ENV !== 'development') {
+      this.logger.warn('Ignoring debug server request outside development')
       return
     }
 

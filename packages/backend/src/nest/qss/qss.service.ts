@@ -31,7 +31,12 @@ import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
 import { SigChainService } from '../auth/sigchain.service'
 import { RoleName } from '../auth/services/roles/roles'
 import { LocalDbService } from '../local-db/local-db.service'
-import { QSS_RECONNECT_BACKOFF_FACTOR, QSS_RECONNECT_DELAY_MS, QSS_RECONNECT_MAX_DELAY_MS } from './qss.const'
+import {
+  LOCAL_QSS_HOST_PATTERN,
+  QSS_RECONNECT_BACKOFF_FACTOR,
+  QSS_RECONNECT_DELAY_MS,
+  QSS_RECONNECT_MAX_DELAY_MS,
+} from './qss.const'
 import { CompoundError, NseQssUrlUpdatedEvent, SocketActions, SocketEvents, type InvitationDataV5 } from '@quiet/types'
 import { LocalDbEvents } from '../local-db/local-db.types'
 import { SocketService } from '../socket/socket.service'
@@ -41,6 +46,7 @@ import { QSSSyncManager } from './qss-sync-manager.service'
 export class QSSService extends EventEmitter implements OnModuleDestroy {
   private _paused = false
   private _captchaVerificationQueued = false
+  private readonly _environmentQssEndpoint: string | undefined
 
   /**
    * Timer for retrying/reconnecting to QSS
@@ -69,6 +75,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     private readonly socketService: SocketService
   ) {
     super({ captureRejections: true })
+    this._environmentQssEndpoint = this._qssEndpoint
     this._configureEventHandlers()
   }
 
@@ -402,8 +409,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    * @returns True if connection was successful
    */
   private async _connectImpl(qssEndpoint: string | undefined, enabledOverride: boolean): Promise<QSSOperationResult> {
-    const requestedEndpoint = qssEndpoint ?? this._qssEndpoint
-    const endpointChanged = qssEndpoint != null && qssEndpoint !== this._qssEndpoint
+    const requestedEndpoint = this._resolveConnectionEndpoint(qssEndpoint ?? this._qssEndpoint)
+    const endpointChanged = requestedEndpoint != null && requestedEndpoint !== this._qssEndpoint
     this._qssEndpoint = requestedEndpoint
     this.qssSyncManager.setQssAllowed(this.qssAllowed)
     this.qssSyncManager.setQssEndpoint(this._qssEndpoint)
@@ -448,6 +455,36 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     return connStatus
+  }
+
+  private _resolveConnectionEndpoint(qssEndpoint: string): string
+  private _resolveConnectionEndpoint(qssEndpoint: undefined): undefined
+  private _resolveConnectionEndpoint(qssEndpoint: string | undefined): string | undefined {
+    const platform = process.platform as string
+    if (
+      process.env.NODE_ENV !== 'development' ||
+      (platform !== 'ios' && platform !== 'android') ||
+      !qssEndpoint ||
+      !this._environmentQssEndpoint ||
+      !this._isLocalEndpoint(qssEndpoint) ||
+      qssEndpoint === this._environmentQssEndpoint
+    ) {
+      return qssEndpoint
+    }
+
+    this.logger.info(
+      `Using environment QSS endpoint ${this._environmentQssEndpoint} instead of local community endpoint ${qssEndpoint}`
+    )
+    return this._environmentQssEndpoint
+  }
+
+  private _isLocalEndpoint(endpoint: string): boolean {
+    try {
+      const hostname = new URL(endpoint).hostname.toLowerCase().replace(/^\[|\]$/g, '')
+      return LOCAL_QSS_HOST_PATTERN.test(hostname)
+    } catch {
+      return false
+    }
   }
 
   private getNseQssUrl(wsUrl: string | undefined): string | undefined {

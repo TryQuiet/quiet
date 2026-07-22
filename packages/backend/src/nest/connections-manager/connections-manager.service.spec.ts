@@ -421,6 +421,34 @@ describe('ConnectionsManagerService', () => {
     expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(getNetworkInfoSpy.mock.invocationCallOrder[0])
   })
 
+  it('normalizes local QSS endpoint hosts to localhost for serverHosts', () => {
+    for (const endpoint of [
+      'ws://localhost:3003',
+      'ws://qss.localhost:3003',
+      'ws://qss.local:3003',
+      'ws://host.docker.internal:3003',
+      'ws://0.0.0.0:3003',
+      'ws://127.42.0.1:3003',
+      'ws://10.0.0.2:3003',
+      'ws://169.254.1.2:3003',
+      'ws://172.16.0.2:3003',
+      'ws://172.31.0.2:3003',
+      'ws://192.168.1.20:3003',
+      'ws://[::1]:3003',
+      'ws://[fc00::1]:3003',
+      'ws://[fd12::1]:3003',
+      'ws://[fe80::1]:3003',
+    ]) {
+      expect(connectionsManagerService['normalizeQssServerHost'](endpoint)).toBe('localhost')
+    }
+  })
+
+  it('preserves public QSS endpoint hosts for serverHosts', () => {
+    expect(connectionsManagerService['normalizeQssServerHost']('wss://qss.example.com')).toBe('qss.example.com')
+    expect(connectionsManagerService['normalizeQssServerHost']('ws://172.15.0.2:3003')).toBe('172.15.0.2')
+    expect(connectionsManagerService['normalizeQssServerHost']('ws://172.32.0.2:3003')).toBe('172.32.0.2')
+  })
+
   it('pre-community artifact erasure cleans local db, libp2p, storage, tor, and state without closing the socket', async () => {
     const storageCleanSpy = jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
     const libp2pCloseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'close').mockResolvedValue()
