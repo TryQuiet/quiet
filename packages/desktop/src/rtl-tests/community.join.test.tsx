@@ -156,10 +156,6 @@ describe('User', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
-    jest.mock('../renderer', () => ({
-      ...jest.requireActual('../renderer'),
-      clearCommunity: jest.fn(),
-    }))
   })
 
   it('joins community and registers username', async () => {

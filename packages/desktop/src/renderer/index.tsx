@@ -49,19 +49,6 @@ ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
   store.dispatch(socketActions.startConnection({ dataPort: parseInt(dataPort), socketIOSecret }))
 })
 
-let container: HTMLElement | null = null
-let root: ReactDomRoot | null = null
-export function renderApp() {
-  if (!container) {
-    container = document.getElementById('root')
-    if (!container) throw new Error('No root html element!')
-  }
-  if (root) {
-    root.unmount()
-  }
-  root = createRoot(container)
-  root.render(<Root />)
-}
 ipcRenderer.on('hcaptcha:token', (_event, token: string) => {
   store.dispatch(captcha.actions.captchaFormResponse({ token }))
 })
@@ -69,11 +56,10 @@ ipcRenderer.on('hcaptcha:error', (_event, message: string) => {
   store.dispatch(captcha.actions.captchaFormResponse({ error: message }))
 })
 
-logger.info('NODE_ENV', process.env.NODE_ENV)
-// Only call renderApp if not running in a test environment
-if (process.env.NODE_ENV !== 'test') {
-  renderApp()
-}
+const container = document.getElementById('root')
+if (!container) throw new Error('No root html element!')
+let root = createRoot(container)
+root.render(<Root />)
 
 export const clearCommunity = async () => {
   await clearCommunityWithDependencies({
@@ -81,7 +67,11 @@ export const clearCommunity = async () => {
     dispatch: store.dispatch,
     resetAppAction: communities.actions.resetApp('payload'),
     requestBackendLeave: () => ipcRenderer.invoke('clear-community'),
-    remountRoot: renderApp,
+    remountRoot: () => {
+      root.unmount()
+      root = createRoot(container)
+      root.render(<Root />)
+    },
   })
 }
 

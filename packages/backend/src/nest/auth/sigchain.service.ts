@@ -13,7 +13,7 @@ import {
 import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
 import { createLogger } from '../common/logger'
-import { SocketEvents, StorableKey, type User } from '@quiet/types'
+import { SocketEvents, StorableKey } from '@quiet/types'
 import { type RoleService } from './services/roles/role.service'
 import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
@@ -144,17 +144,8 @@ export class SigChainService extends EventEmitter {
   }
 
   private handleChainUpdate = async (teamId: string) => {
-    const chain = this.getChain(teamId, false)
-    if (chain?.team != null) {
-      const users = chain.team.members().map(user => ({
-        userId: user.userId,
-        roles: user.roles,
-        isRegistered: true,
-        isDuplicated: false,
-      })) as User[]
-      this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
-    }
-
+    this.saveChain(teamId)
+    this.logger.info('Chain updated, emitted updated event')
     void this._updateKeysOnChainUpdate(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
@@ -164,6 +155,8 @@ export class SigChainService extends EventEmitter {
     })
     this.emit(SigchainEvents.UPDATED, teamId)
     this.logger.info('Chain updated, emitted updated event')
+
+    const chain = this.getChain(teamId, false)
 
     if (chain?.team != null) {
       const community = await this.localDbService.getCurrentCommunity()
