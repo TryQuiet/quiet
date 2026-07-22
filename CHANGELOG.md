@@ -12,6 +12,7 @@
 ### Fixes
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
+* Added warning popup when a server was unexpectedly added to chain [#2907](https://github.com/TryQuiet/quiet/issues/2907)
 
 ## [8.0.0]
 
@@ -124,7 +125,6 @@
 ### Features
 
 * Adds hcaptcha verification for protected QSS actions [#2908](https://github.com/TryQuiet/quiet/issues/2908)
-* Added warning popup when a server was unexpectedly added to chain [#2907](https://github.com/TryQuiet/quiet/issues/2907)
 * Messages can now be relayed using QSS [#2805](https://github.com/TryQuiet/quiet/issues/2805)
 * Messages can be retrieved from QSS stores [#2806](https://github.com/TryQuiet/quiet/issues/2806)
 * Profile photos are now uploaded via IPFS [#3048](https://github.com/TryQuiet/quiet/issues/3048)
