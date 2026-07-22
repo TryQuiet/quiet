@@ -31,7 +31,6 @@ export enum LFAEvents {
  */
 export enum SigchainEvents {
   UPDATED = 'sigchainUpdated',
-  SERVER_ACCEPTANCE_REQUIRED = 'serverAcceptanceRequired',
 }
 
 export enum StoredKeyType {

@@ -301,7 +301,6 @@ describe('SigChainService - server added detection', () => {
     }
     const localDbService = {
       getCurrentCommunity: jest.fn(async () => community),
-      setCommunity: jest.fn(async () => undefined),
     }
     const sigChainService = new SigChainService({ io: { emit } } as any, qssEndpoint, localDbService as any, {} as any)
     jest.spyOn(sigChainService, 'getChain').mockReturnValue({
@@ -310,7 +309,7 @@ describe('SigChainService - server added detection', () => {
       },
     } as SigChain)
 
-    return { emit, localDbService, sigChainService }
+    return { emit, sigChainService }
   }
 
   it('emits when an accepted sigchain server does not match the configured QSS host', async () => {
@@ -350,25 +349,5 @@ describe('SigChainService - server added detection', () => {
       id: 'community-id',
       serverHosts: ['unknown-server.example.com'],
     })
-  })
-
-  it('persists new servers as pending while preserving accepted local servers', async () => {
-    const { localDbService, sigChainService } = setupService(
-      ['localhost', 'unknown-server.example.com'],
-      ['ws://192.168.1.20:3003'],
-      'ws://127.0.0.1:3003'
-    )
-
-    const acceptanceRequired = await sigChainService['emitServerAddedIfNeeded'](teamId)
-
-    expect(acceptanceRequired).toBe(true)
-    expect(localDbService.setCommunity).toHaveBeenCalledWith(
-      expect.objectContaining({
-        serverHosts: [
-          { hostUrl: 'localhost', accepted: true },
-          { hostUrl: 'unknown-server.example.com', accepted: false },
-        ],
-      })
-    )
   })
 })

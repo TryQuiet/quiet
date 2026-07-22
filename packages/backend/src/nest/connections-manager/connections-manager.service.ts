@@ -1138,22 +1138,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       const updatedCommunity = { ...community, ...payload.updates }
       await this.localDbService.setCommunity(updatedCommunity)
 
-      const hadPendingServerAcceptance = community.serverHosts?.some(server => !server.accepted) ?? false
-      const hasPendingServerAcceptance = updatedCommunity.serverHosts?.some(server => !server.accepted) ?? false
-      const serverAcceptanceResolved = hadPendingServerAcceptance && !hasPendingServerAcceptance
-
-      if (hasPendingServerAcceptance) {
-        this.qssService.pause()
-        await this.libp2pService.pause()
-        return
-      }
-
       const qssBecameUsable =
         updatedCommunity.qssEnabled && updatedCommunity.tosAccepted && (!community.qssEnabled || !community.tosAccepted)
-      if (serverAcceptanceResolved) {
-        await this.libp2pService.resume()
-        await this.qssService.resume(updatedCommunity.qssEndpoint)
-      } else if (qssBecameUsable) {
+      if (qssBecameUsable) {
         await this.qssService.connect(updatedCommunity.qssEndpoint)
       }
     })
@@ -1358,11 +1345,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    */
   private attachSigchainListeners() {
     if (!this.sigChainService) return
-
-    this.sigChainService.on(SigchainEvents.SERVER_ACCEPTANCE_REQUIRED, async () => {
-      this.qssService.pause()
-      await this.libp2pService.pause()
-    })
 
     this.sigChainService.on(SigchainEvents.UPDATED, async (teamId: string) => {
       await this._updateUsersInStateManager(SigchainEvents.UPDATED, teamId)

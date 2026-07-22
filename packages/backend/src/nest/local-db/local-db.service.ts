@@ -239,11 +239,6 @@ export class LocalDbService extends EventEmitter {
     return communities?.[currentCommunityId]
   }
 
-  public async hasPendingServerAcceptance(): Promise<boolean> {
-    const community = await this.getCurrentCommunity()
-    return community?.serverHosts?.some(server => !server.accepted) ?? false
-  }
-
   public async communityExists(communityId: string): Promise<boolean> {
     return communityId in ((await this.getCommunities()) ?? {})
   }

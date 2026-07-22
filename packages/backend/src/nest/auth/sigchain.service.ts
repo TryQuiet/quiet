@@ -147,6 +147,7 @@ export class SigChainService extends EventEmitter {
 
   private handleChainUpdate = async (teamId: string) => {
     this.saveChain(teamId)
+    this.logger.info('Chain updated, emitted updated event')
     void this._updateKeysOnChainUpdate(teamId).catch(err => {
       this.logger.error('Failed to update iOS keychain on chain update', err)
     })
@@ -154,17 +155,13 @@ export class SigChainService extends EventEmitter {
     void this.saveChain(teamId).catch(err => {
       this.logger.error('Failed to save chain after update', err)
     })
-
-    const serverAcceptanceRequired = await this.emitServerAddedIfNeeded(teamId)
-    if (serverAcceptanceRequired) {
-      this.emit(SigchainEvents.SERVER_ACCEPTANCE_REQUIRED, teamId)
-    }
-
     this.emit(SigchainEvents.UPDATED, teamId)
     this.logger.info('Chain updated, emitted updated event')
+
+    await this.emitServerAddedIfNeeded(teamId)
   }
 
-  private async emitServerAddedIfNeeded(teamId: string): Promise<boolean> {
+  private async emitServerAddedIfNeeded(teamId: string): Promise<void> {
     const chain = this.getChain(teamId, false)
 
     if (chain?.team != null) {
@@ -182,22 +179,10 @@ export class SigChainService extends EventEmitter {
         const hasUnrecognizedServer =
           configuredQssHost != null && normalizedTeamServerHosts.some(serverHost => serverHost !== configuredQssHost)
         if ((!setsAreEqual || hasUnrecognizedServer) && teamServerHosts.length > 0) {
-          const communityServersByHost = new Map(
-            community.serverHosts?.map(serverHost => [this.normalizeServerHost(serverHost.hostUrl), serverHost]) || []
-          )
-          const serverHosts = teamServerHosts.map(hostUrl => ({
-            hostUrl,
-            accepted: communityServersByHost.get(this.normalizeServerHost(hostUrl))?.accepted ?? false,
-          }))
-
-          await this.localDbService.setCommunity({ ...community, serverHosts })
           this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
-          return serverHosts.some(serverHost => !serverHost.accepted)
         }
       }
     }
-
-    return false
   }
 
   private getConfiguredQssHost(): string | undefined {

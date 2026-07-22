@@ -28,7 +28,6 @@ describe('Libp2pService', () => {
 
   beforeEach(() => {
     jest.restoreAllMocks()
-    jest.spyOn((libp2pService as any).localDbService, 'hasPendingServerAcceptance').mockResolvedValue(false)
     libp2pService.localAddress = localPeerAddress
     libp2pService.connectedPeers.clear()
     libp2pService.dialedPeers.clear()
@@ -100,35 +99,5 @@ describe('Libp2pService', () => {
     expect(getSortedPeers).not.toHaveBeenCalled()
     expect(hangUpPeers).toHaveBeenCalledWith([connectedRemotePeerAddress])
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
-  })
-
-  it('does not dial a peer while server acceptance is pending', async () => {
-    const originalInstance = libp2pService.libp2pInstance
-    const dial = jest.fn()
-    libp2pService.libp2pInstance = {
-      peerId: { toString: () => 'local-peer' },
-      dial,
-    } as any
-    ;(libp2pService as any).localDbService.hasPendingServerAcceptance.mockResolvedValue(true)
-
-    try {
-      await libp2pService.dialPeer(remotePeerAddress)
-      expect(dial).not.toHaveBeenCalled()
-    } finally {
-      libp2pService.libp2pInstance = originalInstance
-    }
-  })
-
-  it('does not resume peer connections while server acceptance is pending', async () => {
-    const originalInstance = libp2pService.libp2pInstance
-    libp2pService.libp2pInstance = {} as any
-    ;(libp2pService as any).localDbService.hasPendingServerAcceptance.mockResolvedValue(true)
-
-    try {
-      await expect(libp2pService.resume()).resolves.toBe(false)
-      expect(libp2pService.state).toBe('paused')
-    } finally {
-      libp2pService.libp2pInstance = originalInstance
-    }
   })
 })
