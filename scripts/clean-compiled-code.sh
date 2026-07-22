@@ -21,7 +21,7 @@ then
   echo "Skipping directory deletion"
   exit 0
 elif [ $USER_INPUT == 'y' ] || [ $USER_INPUT == 'yes' ]
-then 
+then
   echo ""
   for DIR in ${ARR[@]}; do
     echo "Deleting $DIR"

@@ -58,6 +58,7 @@ import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
 import { ChannelMembershipScreen } from './screens/ChannelMembership/ChannelMembership.screen'
 import { UpdateChannelMembershipScreen } from './screens/ChannelMembership/UpdateChannelMembership/UpdateChannelMembership.screen'
 import { CaptchaModal } from './components/Captcha/CaptchaModal.component'
+import { ServerAddedDrawer } from './components/ModalBottomDrawer/drawers/ServerAdded.drawer'
 
 const logger = createLogger('app')
 
@@ -135,6 +136,7 @@ function App(): JSX.Element {
               <InvitationContextMenu />
               <UnregisteredUsernameContextMenu />
               <CaptchaModal />
+              <ServerAddedDrawer />
               <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>

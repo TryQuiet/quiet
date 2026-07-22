@@ -13,6 +13,22 @@ export interface ClearCommunityDependencies {
   remountRoot: () => void
 }
 
+type ClearCommunityHandler = () => Promise<void>
+
+let clearCommunityHandler: ClearCommunityHandler | undefined
+
+export const configureClearCommunity = (handler: ClearCommunityHandler): void => {
+  clearCommunityHandler = handler
+}
+
+export const clearCommunity = async (): Promise<void> => {
+  if (!clearCommunityHandler) {
+    throw new Error('Clear community has not been configured')
+  }
+
+  await clearCommunityHandler()
+}
+
 export const clearCommunityWithDependencies = async ({
   persistor,
   dispatch,

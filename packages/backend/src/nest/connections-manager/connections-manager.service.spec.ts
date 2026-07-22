@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, SocketActions, type Community, type Identity } from '@quiet/types'
+import { CommunityOwnership, SocketActions, SocketEvents, type Community, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -421,6 +421,34 @@ describe('ConnectionsManagerService', () => {
     expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(getNetworkInfoSpy.mock.invocationCallOrder[0])
   })
 
+  it('normalizes local QSS endpoint hosts to localhost for serverHosts', () => {
+    for (const endpoint of [
+      'ws://localhost:3003',
+      'ws://qss.localhost:3003',
+      'ws://qss.local:3003',
+      'ws://host.docker.internal:3003',
+      'ws://0.0.0.0:3003',
+      'ws://127.42.0.1:3003',
+      'ws://10.0.0.2:3003',
+      'ws://169.254.1.2:3003',
+      'ws://172.16.0.2:3003',
+      'ws://172.31.0.2:3003',
+      'ws://192.168.1.20:3003',
+      'ws://[::1]:3003',
+      'ws://[fc00::1]:3003',
+      'ws://[fd12::1]:3003',
+      'ws://[fe80::1]:3003',
+    ]) {
+      expect(connectionsManagerService['normalizeQssServerHost'](endpoint)).toBe('localhost')
+    }
+  })
+
+  it('preserves public QSS endpoint hosts for serverHosts', () => {
+    expect(connectionsManagerService['normalizeQssServerHost']('wss://qss.example.com')).toBe('qss.example.com')
+    expect(connectionsManagerService['normalizeQssServerHost']('ws://172.15.0.2:3003')).toBe('172.15.0.2')
+    expect(connectionsManagerService['normalizeQssServerHost']('ws://172.32.0.2:3003')).toBe('172.32.0.2')
+  })
+
   it('pre-community artifact erasure cleans local db, libp2p, storage, tor, and state without closing the socket', async () => {
     const storageCleanSpy = jest.spyOn(connectionsManagerService['storageService'], 'clean').mockResolvedValue()
     const libp2pCloseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'close').mockResolvedValue()
@@ -629,5 +657,72 @@ describe('ConnectionsManagerService', () => {
 
     expect(leaveCommunitySpy).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(false)
+  })
+
+  it('adds a debug server to the sigchain while marking it as known locally', async () => {
+    const originalNodeEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'development'
+    const serverHost = 'unknown-server.example.com'
+
+    try {
+      await localDbService.setCommunity({ ...community, serverHosts: [] })
+      await localDbService.setCurrentCommunityId(community.id)
+      await sigChainService.loadChain(community.teamId, true)
+      connectionsManagerService['attachSocketServiceListeners']()
+      const emitSpy = jest.spyOn(connectionsManagerService.serverIoProvider.io, 'emit')
+
+      connectionsManagerService['socketService'].emit(SocketActions.DEBUG_ADD_SERVER, {
+        serverHosts: [serverHost],
+      })
+
+      await waitForExpect(async () => {
+        expect(sigChainService.activeChain.team?.hasServer(serverHost)).toBe(true)
+        expect(await localDbService.getCommunity(community.id)).toMatchObject({
+          serverHosts: [{ hostUrl: serverHost, accepted: true }],
+        })
+        expect(emitSpy).toHaveBeenCalledWith(SocketEvents.COMMUNITY_UPDATED, {
+          id: community.id,
+          updates: { serverHosts: [{ hostUrl: serverHost, accepted: true }] },
+        })
+      })
+    } finally {
+      if (originalNodeEnv == null) {
+        delete process.env.NODE_ENV
+      } else {
+        process.env.NODE_ENV = originalNodeEnv
+      }
+    }
+  })
+
+  it('persists ToS and starts QSS when an unexpected server is accepted', async () => {
+    const qssEndpoint = 'wss://qss.example.com'
+    await localDbService.setCommunity({
+      ...community,
+      qssEnabled: false,
+      tosAccepted: false,
+      qssEndpoint,
+      serverHosts: [{ hostUrl: 'qss.example.com', accepted: false }],
+    })
+    await localDbService.setCurrentCommunityId(community.id)
+    await connectionsManagerService.init()
+    const connectSpy = jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+
+    connectionsManagerService['socketService'].emit(SocketActions.UPDATE_COMMUNITY, {
+      id: community.id,
+      updates: {
+        qssEnabled: true,
+        tosAccepted: true,
+        serverHosts: [{ hostUrl: 'qss.example.com', accepted: true }],
+      },
+    })
+
+    await waitForExpect(async () => {
+      expect(await localDbService.getCommunity(community.id)).toMatchObject({
+        qssEnabled: true,
+        tosAccepted: true,
+        serverHosts: [{ hostUrl: 'qss.example.com', accepted: true }],
+      })
+      expect(connectSpy).toHaveBeenCalledWith(qssEndpoint)
+    })
   })
 })

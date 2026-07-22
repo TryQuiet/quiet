@@ -1,4 +1,3 @@
-import 'typeface-roboto'
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
@@ -35,6 +34,7 @@ import UsernameTakenModalContainer from './components/widgets/usernameTakenModal
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
 import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 import TermsOfService from './components/TermsOfService/TermsOfService'
+import ServerAddedModal from './components/ServerAdded/ServerAddedModal'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -69,6 +69,7 @@ export default () => {
                 <ChannelContextMenu />
                 <UserProfileContextMenu />
                 <DeleteChannel />
+                <ServerAddedModal />
                 <AddMembersChannel />
                 <Routes>
                   <Route index path='/' element={<Index />} />

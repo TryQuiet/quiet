@@ -38,11 +38,12 @@ import {
   type ResponseCreateCommunityPayload,
   type ResponseJoinCommunityPayload,
   type ResponseLeaveCommunityPayload,
+  DebugAddServerPayload,
   LaunchCommunityPayload,
   RequestInvitePayload,
   ResponseInvitePayload,
+  ServerAddedPayload,
   InviteResultWithSalt,
-  JoinCommunityPayload,
   UpdateCommunityPayload,
 } from './community'
 import { ErrorPayload } from './errors'
@@ -72,6 +73,8 @@ export enum SocketActions {
   JOIN_COMMUNITY = 'joinCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  UPDATE_COMMUNITY = 'updateCommunity',
+  DEBUG_ADD_SERVER = 'debugAddServer',
 
   // ====== Channels ======
 
@@ -128,6 +131,7 @@ export enum SocketEvents {
 
   // ====== Community ======
   COMMUNITY_LAUNCHED = 'communityLaunched',
+  SERVER_ADDED = 'serverAdded',
   COMMUNITY_UPDATED = 'communityUpdated',
 
   // ====== Channels ======
@@ -196,6 +200,8 @@ export interface SocketActionsMap {
     (response?: ResponseLaunchCommunityPayload) => void
   >
   [SocketActions.LEAVE_COMMUNITY]: EmitEvent<LeaveCommunityPayload, (response?: ResponseLeaveCommunityPayload) => void>
+  [SocketActions.UPDATE_COMMUNITY]: EmitEvent<UpdateCommunityPayload>
+  [SocketActions.DEBUG_ADD_SERVER]: EmitEvent<DebugAddServerPayload>
 
   // ====== Channels ======
   [SocketActions.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
@@ -251,6 +257,7 @@ export interface SocketEventsMap {
 
   // ====== Community ======
   [SocketEvents.COMMUNITY_LAUNCHED]: EmitEvent<LaunchCommunityPayload>
+  [SocketEvents.SERVER_ADDED]: EmitEvent<ServerAddedPayload>
   [SocketEvents.COMMUNITY_UPDATED]: EmitEvent<UpdateCommunityPayload>
 
   // ====== Channels ======

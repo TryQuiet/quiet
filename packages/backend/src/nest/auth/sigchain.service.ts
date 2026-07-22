@@ -19,13 +19,14 @@ import { type DeviceService } from './services/members/device.service'
 import { type InviteService } from './services/invites/invite.service'
 import { type UserService } from './services/members/user.service'
 import { type CryptoService } from './services/crypto/crypto.service'
-import { SERVER_IO_PROVIDER } from '../const'
+import { QSS_ENDPOINT, SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
 import { SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import { LOCAL_QSS_HOST_PATTERN } from '../qss/qss.const'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -37,6 +38,7 @@ export class SigChainService extends EventEmitter {
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
+    @Inject(QSS_ENDPOINT) private readonly qssEndpoint: string | undefined,
     private readonly localDbService: LocalDbService,
     private readonly moduleRef: ModuleRef
   ) {
@@ -155,6 +157,55 @@ export class SigChainService extends EventEmitter {
     })
     this.emit(SigchainEvents.UPDATED, teamId)
     this.logger.info('Chain updated, emitted updated event')
+
+    await this.emitServerAddedIfNeeded(teamId)
+  }
+
+  private async emitServerAddedIfNeeded(teamId: string): Promise<void> {
+    const chain = this.getChain(teamId, false)
+
+    if (chain?.team != null) {
+      const community = await this.localDbService.getCurrentCommunity()
+      if (community) {
+        const teamServerHosts = chain.team.servers().map(s => s.host)
+        const normalizedTeamServerHosts = teamServerHosts.map(host => this.normalizeServerHost(host))
+        const communityHostsSet = new Set(
+          community.serverHosts?.map(serverHost => this.normalizeServerHost(serverHost.hostUrl)) || []
+        )
+        const teamHostsSet = new Set(normalizedTeamServerHosts)
+        const setsAreEqual =
+          communityHostsSet.size === teamHostsSet.size && [...communityHostsSet].every(h => teamHostsSet.has(h))
+        const configuredQssHost = this.getConfiguredQssHost()
+        const hasUnrecognizedServer =
+          configuredQssHost != null && normalizedTeamServerHosts.some(serverHost => serverHost !== configuredQssHost)
+        if ((!setsAreEqual || hasUnrecognizedServer) && teamServerHosts.length > 0) {
+          this.serverIoProvider.io.emit(SocketEvents.SERVER_ADDED, { id: community.id, serverHosts: teamServerHosts })
+        }
+      }
+    }
+  }
+
+  private getConfiguredQssHost(): string | undefined {
+    if (!this.qssEndpoint) {
+      return undefined
+    }
+
+    try {
+      return this.normalizeServerHost(new URL(this.qssEndpoint).hostname)
+    } catch {
+      this.logger.warn(`Cannot compare server hosts against invalid QSS endpoint: ${this.qssEndpoint}`)
+      return undefined
+    }
+  }
+
+  private normalizeServerHost(serverHost: string): string {
+    try {
+      const endpoint = /^[a-z][a-z\d+.-]*:\/\//i.test(serverHost) ? serverHost : `ws://${serverHost}`
+      const hostname = new URL(endpoint).hostname.toLowerCase().replace(/^\[|\]$/g, '')
+      return LOCAL_QSS_HOST_PATTERN.test(hostname) ? 'localhost' : hostname
+    } catch {
+      return serverHost.toLowerCase()
+    }
   }
 
   /**

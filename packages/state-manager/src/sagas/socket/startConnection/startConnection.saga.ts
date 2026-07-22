@@ -36,6 +36,7 @@ import {
   type UsersUpdatedEvent,
   SocketEvents,
   LaunchCommunityPayload,
+  type ServerAddedPayload,
   HCaptchaChallengeRequest,
   InviteResultWithSalt,
   UpdateCommunityPayload,
@@ -56,49 +57,50 @@ not a huge deal but it may be causing intermittent bugs and at the very least is
 */
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof messagesActions.addMessages>
-    | ReturnType<typeof messagesActions.removePendingMessageStatuses>
-    | ReturnType<typeof messagesActions.checkForMessages>
-    | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
-    | ReturnType<typeof messagesActions.retryVerification>
-    | ReturnType<typeof publicChannelsActions.addChannel>
-    | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
-    | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
-    | ReturnType<typeof publicChannelsActions.channelsReplicated>
-    | ReturnType<typeof publicChannelsActions.createGeneralChannel>
-    | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
-    | ReturnType<typeof publicChannelsActions.setChannelPermissions>
-    | ReturnType<typeof errorsActions.addError>
-    | ReturnType<typeof errorsActions.handleError>
-    | ReturnType<typeof identityActions.updateIdentity>
-    | ReturnType<typeof identityActions.addNewIdentity>
+    | ReturnType<typeof appActions.loadMigrationData>
+    | ReturnType<typeof communitiesActions.addServer>
+    | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
-    | ReturnType<typeof communitiesActions.updateCommunityData>
     | ReturnType<typeof communitiesActions.setCurrentCommunity>
-    | ReturnType<typeof networkActions.addInitializedCommunity>
-    | ReturnType<typeof networkActions.removeConnectedPeer>
-    | ReturnType<typeof connectionActions.setNetworkData>
-    | ReturnType<typeof connectionActions.updateNetworkData>
-    | ReturnType<typeof networkActions.addConnectedPeers>
-    | ReturnType<typeof filesActions.broadcastHostedFile>
-    | ReturnType<typeof filesActions.updateMessageMedia>
-    | ReturnType<typeof filesActions.updateDownloadStatus>
-    | ReturnType<typeof filesActions.removeDownloadStatus>
-    | ReturnType<typeof filesActions.checkForMissingFiles>
-    | ReturnType<typeof connectionActions.onConnectionProcessInfo>
+    | ReturnType<typeof communitiesActions.updateCommunityData>
     | ReturnType<typeof connectionActions.createInvite>
+    | ReturnType<typeof connectionActions.onConnectionProcessInfo>
     | ReturnType<typeof connectionActions.setLongLivedInvite>
-    | ReturnType<typeof communitiesActions.clearInvitationCodes>
+    | ReturnType<typeof connectionActions.setNetworkData>
     | ReturnType<typeof connectionActions.setTorInitialized>
     | ReturnType<typeof connectionActions.setQssConnected>
     | ReturnType<typeof connectionActions.setQssDisconnected>
-    | ReturnType<typeof usersActions.setUsers>
+    | ReturnType<typeof connectionActions.updateNetworkData>
+    | ReturnType<typeof errorsActions.addError>
+    | ReturnType<typeof errorsActions.handleError>
+    | ReturnType<typeof filesActions.broadcastHostedFile>
+    | ReturnType<typeof filesActions.checkForMissingFiles>
+    | ReturnType<typeof filesActions.removeDownloadStatus>
+    | ReturnType<typeof filesActions.updateDownloadStatus>
+    | ReturnType<typeof filesActions.updateMessageMedia>
+    | ReturnType<typeof identityActions.addNewIdentity>
+    | ReturnType<typeof identityActions.updateIdentity>
+    | ReturnType<typeof messagesActions.addMessages>
+    | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
+    | ReturnType<typeof messagesActions.checkForMessages>
+    | ReturnType<typeof messagesActions.removePendingMessageStatuses>
+    | ReturnType<typeof messagesActions.retryVerification>
+    | ReturnType<typeof networkActions.addConnectedPeers>
+    | ReturnType<typeof networkActions.addInitializedCommunity>
+    | ReturnType<typeof networkActions.removeConnectedPeer>
+    | ReturnType<typeof publicChannelsActions.addChannel>
+    | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
+    | ReturnType<typeof publicChannelsActions.channelsReplicated>
+    | ReturnType<typeof publicChannelsActions.createGeneralChannel>
+    | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
+    | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
+    | ReturnType<typeof publicChannelsActions.setChannelPermissions>
+    | ReturnType<typeof usersActions.cachedUserProfileRequested>
     | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
+    | ReturnType<typeof usersActions.setUsers>
     | ReturnType<typeof usersActions.updateUserProfiles>
-    | ReturnType<typeof usersActions.cachedUserProfileRequested>
-    | ReturnType<typeof appActions.loadMigrationData>
     | ReturnType<typeof captchaActions.presentChallenge>
     | ReturnType<typeof captchaActions.setSiteKey>
     | ReturnType<typeof captchaActions.setCaptchaVerified>
@@ -192,6 +194,11 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.setLongLivedInvite(payload))
     })
 
+    socket.on(SocketEvents.SERVER_ADDED, (payload: ServerAddedPayload) => {
+      logger.info(`${SocketEvents.SERVER_ADDED}`, payload)
+      emit(communitiesActions.addServer(payload))
+    })
+
     // Errors
     socket.on(SocketEvents.ERROR, (payload: ErrorPayload) => {
       logger.error(payload, payload.trace)
@@ -251,6 +258,8 @@ export function subscribe(socket: Socket) {
 
     return () => {
       socket.off(SocketEvents.COMMUNITY_LAUNCHED)
+      socket.off(SocketEvents.COMMUNITY_UPDATED)
+      socket.off(SocketEvents.SERVER_ADDED)
       socket.off(SocketEvents.TOR_INITIALIZED)
       socket.off(SocketEvents.QSS_CONNECTED)
       socket.off(SocketEvents.QSS_DISCONNECTED)

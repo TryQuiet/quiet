@@ -7,7 +7,7 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { TestModule } from '../common/test.module'
 import { SigChainModule } from './sigchain.service.module'
 import { SigChain } from './sigchain'
-import { SocketEvents } from '@quiet/types'
+import { CommunityOwnership, SocketEvents, type Community } from '@quiet/types'
 import waitForExpect from 'wait-for-expect'
 import { SigchainEvents } from './types'
 
@@ -280,5 +280,74 @@ describe('SigChainService - listener lifecycle', () => {
         process.env.QPS_ALLOWED = originalQpsAllowed
       }
     }
+  })
+})
+
+describe('SigChainService - server added detection', () => {
+  const teamId = 'team-id'
+
+  const setupService = (
+    teamServerHosts: string[],
+    communityServerHosts: string[],
+    qssEndpoint: string | undefined = 'wss://qss.example.com:443'
+  ) => {
+    const emit = jest.fn()
+    const community: Community = {
+      id: 'community-id',
+      name: 'community',
+      ownership: CommunityOwnership.Owner,
+      teamId,
+      serverHosts: communityServerHosts.map(hostUrl => ({ hostUrl, accepted: true })),
+    }
+    const localDbService = {
+      getCurrentCommunity: jest.fn(async () => community),
+    }
+    const sigChainService = new SigChainService({ io: { emit } } as any, qssEndpoint, localDbService as any, {} as any)
+    jest.spyOn(sigChainService, 'getChain').mockReturnValue({
+      team: {
+        servers: () => teamServerHosts.map(host => ({ host })),
+      },
+    } as SigChain)
+
+    return { emit, sigChainService }
+  }
+
+  it('emits when an accepted sigchain server does not match the configured QSS host', async () => {
+    const teamServerHosts = ['qss.example.com', 'unknown-server.example.com']
+    const { emit, sigChainService } = setupService(teamServerHosts, teamServerHosts)
+
+    await sigChainService['emitServerAddedIfNeeded'](teamId)
+
+    expect(emit).toHaveBeenCalledWith(SocketEvents.SERVER_ADDED, {
+      id: 'community-id',
+      serverHosts: teamServerHosts,
+    })
+  })
+
+  it('does not emit when accepted sigchain servers all match the configured QSS host', async () => {
+    const { emit, sigChainService } = setupService(['qss.example.com'], ['qss.example.com'])
+
+    await sigChainService['emitServerAddedIfNeeded'](teamId)
+
+    expect(emit).not.toHaveBeenCalled()
+  })
+
+  it('does not emit when local server endpoints normalize to localhost', async () => {
+    const { emit, sigChainService } = setupService(['localhost'], ['ws://192.168.1.20:3003'], 'ws://127.0.0.1:3003')
+
+    await sigChainService['emitServerAddedIfNeeded'](teamId)
+
+    expect(emit).not.toHaveBeenCalled()
+  })
+
+  it('preserves host-set mismatch detection when no QSS endpoint is configured', async () => {
+    const { emit, sigChainService } = setupService(['unknown-server.example.com'], [], undefined)
+
+    await sigChainService['emitServerAddedIfNeeded'](teamId)
+
+    expect(emit).toHaveBeenCalledWith(SocketEvents.SERVER_ADDED, {
+      id: 'community-id',
+      serverHosts: ['unknown-server.example.com'],
+    })
   })
 })

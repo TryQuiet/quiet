@@ -12,6 +12,7 @@
 ### Fixes
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
+* Added warning popup when a server was unexpectedly added to chain [#2907](https://github.com/TryQuiet/quiet/issues/2907)
 
 ## [8.0.0]
 

@@ -142,7 +142,11 @@ describe('New user joins using invitation link while having app opened', () => {
       const copiedCode = url.hash.substring(1)
       expect(() => parseInvitationLink(copiedCode)).not.toThrow()
       const data = parseInvitationLink(copiedCode)
-      const commandFull = `${command[process.platform as SupportedPlatformDesktop]} ${process.platform === 'win32' ? '""' : ''} "${composeInvitationDeepUrl(data)}"`
+      const commandPrefix =
+        process.platform === 'darwin'
+          ? `open -a "${guestApp.buildSetup.getMacAppBundlePath()}"`
+          : `${command[process.platform as SupportedPlatformDesktop]} ${process.platform === 'win32' ? '""' : ''}`
+      const commandFull = `${commandPrefix} "${composeInvitationDeepUrl(data)}"`
       logger.info(`Calling ${commandFull}`)
       execSync(commandFull)
       logger.info('Guest opened invitation link')

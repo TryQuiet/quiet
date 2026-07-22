@@ -39,6 +39,7 @@ export class ModalsInitialState {
   [ModalName.possibleImpersonationAttackModal] = { open: false, args: {} };
   [ModalName.breakingChangesWarning] = { open: false, args: {} };
   [ModalName.termsOfServiceModal] = { open: false, args: {} };
+  [ModalName.serverAddedModal] = { open: false, args: {} };
   [ModalName.addMembersChannel] = { open: false, args: {} }
 }
 

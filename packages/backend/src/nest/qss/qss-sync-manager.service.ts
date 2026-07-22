@@ -986,6 +986,7 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
       communityInitialized: false,
       qssEnabled: false,
       qssSetup: false,
+      tosAccepted: false,
       community,
     }
     if (community == null) {
@@ -994,8 +995,9 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
 
     return {
       ...status,
-      qssEnabled: (community as any).qssEnabled ?? false,
-      qssSetup: (community as any).qssSetup ?? false,
+      qssEnabled: community.qssEnabled ?? false,
+      qssSetup: community.qssSetup ?? false,
+      tosAccepted: community.tosAccepted ?? false,
       communityInitialized: true,
     }
   }

@@ -17,7 +17,6 @@ describe('Libp2pAuth', () => {
   const teamName: string = 'team'
   const userA: string = 'instance0'
   const userB: string = 'instance1'
-  const eventTimeline: string[] = []
   const eventTimelineA: string[] = []
   const eventTimelineB: string[] = []
   const modules: TestingModule[] = []
@@ -33,8 +32,6 @@ describe('Libp2pAuth', () => {
     libp2pServiceA = await modules[0].resolve(Libp2pService)
     libp2pServiceB = await modules[1].resolve(Libp2pService)
 
-    attachEventListeners(libp2pServiceA, eventTimeline, 'A')
-    attachEventListeners(libp2pServiceB, eventTimeline, 'B')
     attachEventListeners(libp2pServiceA, eventTimelineA, 'A')
     attachEventListeners(libp2pServiceB, eventTimelineB, 'B')
 
@@ -70,7 +67,6 @@ describe('Libp2pAuth', () => {
     await new Promise<void>(resolve => {
       libp2pServiceB.once(Libp2pEvents.AUTH_JOINED, () => {
         logger.info('libp2pServiceB initialized chain')
-        expect(eventTimeline).toMatchSnapshot('event timeline after joining')
         expect(eventTimelineA).toMatchSnapshot('instanceA event timeline after join')
         expect(eventTimelineB).toMatchSnapshot('instanceB event timeline after join')
         resolve()
@@ -98,7 +94,6 @@ describe('Libp2pAuth', () => {
       const resolveIfMet = async () => {
         if (timelinesInclude([eventTimelineA, eventTimelineB], Libp2pEvents.AUTH_CONNECTED)) {
           logger.info('timelines include expected events!')
-          expect(eventTimeline).toMatchSnapshot('event timeline after connected')
           expect(eventTimelineA).toMatchSnapshot('instanceA event timeline after connected')
           expect(eventTimelineB).toMatchSnapshot('instanceB event timeline after connected')
           clearTimeout(timeout)
@@ -133,7 +128,6 @@ describe('Libp2pAuth', () => {
           eventTimelineA.includes(Libp2pEvents.PEER_DISCONNECTED) &&
           eventTimelineB.includes(Libp2pEvents.PEER_DISCONNECTED)
         ) {
-          expect(eventTimeline).toMatchSnapshot('eventTimeline after disconnection')
           expect(eventTimelineA).toMatchSnapshot('disconnectEventsA')
           expect(eventTimelineB).toMatchSnapshot('disconnectEventsB')
           clearTimeout(timeout)

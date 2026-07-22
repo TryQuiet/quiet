@@ -203,14 +203,16 @@ describe('QSSService', () => {
   })
 
   interface InitCommunitySettings {
-    qssEnabled: boolean
-    qssSetup: boolean
+    qssEnabled?: boolean
+    qssSetup?: boolean
+    tosAccepted?: boolean
   }
-  const initCommunity = async (
-    settings: InitCommunitySettings = { qssEnabled: true, qssSetup: false }
-  ): Promise<Community> => {
+  const initCommunity = async (settings: InitCommunitySettings = {}): Promise<Community> => {
     await localDbService.setCommunity({
       ...community,
+      qssEnabled: true,
+      qssSetup: false,
+      tosAccepted: true,
       ...settings,
     })
     await localDbService.setCurrentCommunityId(community.id)
@@ -310,6 +312,112 @@ describe('QSSService', () => {
       await qssService.connect('')
       expect(qssService.connected).toBeFalsy()
       expect(qssService.canConnect).toBeFalsy()
+    })
+
+    it(`doesn't connect to QSS when enabled but TOS isn't accepted`, async () => {
+      await initCommunity({ tosAccepted: false, qssEnabled: true, qssSetup: false })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+      await qssService.connect('ws://localhost:3000')
+      expect(qssService.connected).toBeFalsy()
+      expect(qssService.canConnect).toBeTruthy()
+    })
+
+    it('connects with an override before community initialization for hCaptcha verification', async () => {
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      await qssService.connect('ws://localhost:3000', true)
+
+      expect(qssService.connected).toBeTruthy()
+      expect(mockedCreateSocket).toHaveBeenCalledWith('ws://localhost:3000')
+    })
+
+    it('uses the environment endpoint for local community endpoints on mobile in development', async () => {
+      const originalNodeEnv = process.env.NODE_ENV
+      const originalPlatform = process.platform
+      const environmentEndpoint = 'ws://192.168.1.175:3003'
+      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process, 'platform', { value: 'ios' })
+      ;(qssService as any)._environmentQssEndpoint = environmentEndpoint
+
+      try {
+        for (const localEndpoint of [
+          'ws://localhost:3003',
+          'ws://127.0.0.1:3003',
+          'ws://10.0.0.2:3003',
+          'ws://172.16.0.2:3003',
+          'ws://192.168.1.20:3003',
+          'ws://[::1]:3003',
+        ]) {
+          expect(qssService['_resolveConnectionEndpoint'](localEndpoint)).toBe(environmentEndpoint)
+        }
+
+        mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+        await qssService.connect('ws://127.0.0.1:3003', true)
+
+        expect(mockedCreateSocket).toHaveBeenCalledWith(environmentEndpoint)
+        expect(qssService.qssEndpoint).toBe(environmentEndpoint)
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        if (originalNodeEnv == null) {
+          delete process.env.NODE_ENV
+        } else {
+          process.env.NODE_ENV = originalNodeEnv
+        }
+      }
+    })
+
+    it('keeps a public community endpoint on mobile in development', () => {
+      const originalNodeEnv = process.env.NODE_ENV
+      const originalPlatform = process.platform
+      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process, 'platform', { value: 'android' })
+      ;(qssService as any)._environmentQssEndpoint = 'ws://192.168.1.175:3003'
+
+      try {
+        expect(qssService['_resolveConnectionEndpoint']('wss://community.example.com')).toBe(
+          'wss://community.example.com'
+        )
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        if (originalNodeEnv == null) {
+          delete process.env.NODE_ENV
+        } else {
+          process.env.NODE_ENV = originalNodeEnv
+        }
+      }
+    })
+
+    it('keeps a local community endpoint outside mobile development', () => {
+      const originalNodeEnv = process.env.NODE_ENV
+      const originalPlatform = process.platform
+      ;(qssService as any)._environmentQssEndpoint = 'ws://192.168.1.175:3003'
+
+      try {
+        process.env.NODE_ENV = 'development'
+        Object.defineProperty(process, 'platform', { value: 'darwin' })
+        expect(qssService['_resolveConnectionEndpoint']('ws://127.0.0.1:3003')).toBe('ws://127.0.0.1:3003')
+
+        process.env.NODE_ENV = 'production'
+        Object.defineProperty(process, 'platform', { value: 'ios' })
+        expect(qssService['_resolveConnectionEndpoint']('ws://127.0.0.1:3003')).toBe('ws://127.0.0.1:3003')
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform })
+        if (originalNodeEnv == null) {
+          delete process.env.NODE_ENV
+        } else {
+          process.env.NODE_ENV = originalNodeEnv
+        }
+      }
+    })
+
+    it(`doesn't bypass unaccepted TOS with an override after community initialization`, async () => {
+      await initCommunity({ tosAccepted: false, qssEnabled: true, qssSetup: false })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      await qssService.connect('ws://localhost:3000', true)
+
+      expect(qssService.connected).toBeFalsy()
+      expect(mockedCreateSocket).not.toHaveBeenCalled()
     })
 
     it('reconnects when the requested QSS endpoint changes', async () => {
@@ -815,6 +923,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -844,6 +953,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -873,6 +983,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -903,6 +1014,7 @@ describe('QSSService', () => {
           ...community,
           teamId: 'team-id',
           qssEnabled: true,
+          tosAccepted: true,
         })
         await localDbService.setCurrentCommunityId(community.id)
         await localDbService.setIdentity(userIdentity)
@@ -1034,7 +1146,7 @@ describe('QSSService', () => {
 
   describe('sendLogEntrySyncMessage', () => {
     it(`sends a successful log sync to QSS`, async () => {
-      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await initCommunity({ qssEnabled: true, qssSetup: true, tosAccepted: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
       const syncSeq = 41
@@ -1283,7 +1395,7 @@ describe('QSSService', () => {
     })
 
     it(`fails to send log sync to QSS and writes pending message to local DB`, async () => {
-      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await initCommunity({ qssEnabled: true, qssSetup: true, tosAccepted: true })
       const initStatusOrig = await qssService.getQssInitStatus()
       expect(initStatusOrig.qssSetup).toBeTruthy()
 

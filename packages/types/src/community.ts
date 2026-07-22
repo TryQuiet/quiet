@@ -24,6 +24,7 @@ export interface Community {
   qssEnabled?: boolean
   qssEndpoint?: string
   tosAccepted?: boolean
+  serverHosts?: ServerHost[]
   qssSetup?: boolean
 }
 
@@ -40,6 +41,11 @@ export interface CommunityMetadata {
 export enum CommunityOwnership {
   Owner = 'owner',
   User = 'user',
+}
+
+export interface ServerHost {
+  hostUrl: string
+  accepted: boolean
 }
 
 // ----- Frontend Payloads -----
@@ -61,7 +67,6 @@ export interface LeaveCommunityPayload {
   id: string
 }
 
-// ----- State-Manager <-> Backend Payloads -----
 export interface InitCommunityPayload {
   id: string
   name: string
@@ -103,6 +108,15 @@ export interface ResponseJoinCommunityPayload {
 
 export interface ResponseLeaveCommunityPayload {
   id: string
+}
+
+export interface ServerAddedPayload {
+  id: string
+  serverHosts: string[]
+}
+
+export interface DebugAddServerPayload {
+  serverHosts: string[]
 }
 
 // ----- Invites -----

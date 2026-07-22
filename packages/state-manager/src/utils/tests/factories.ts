@@ -52,6 +52,7 @@ import {
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
   ChannelOperationStatus,
+  type DebugAddServerPayload,
   type InvitationAuthDataV5,
   type InvitationAuthDataV4,
   type SetChannelPermissionsPayload,
@@ -516,6 +517,14 @@ export const getSocketFactory = async () => {
 
   // LEAVE_COMMUNITY has no payload
   factory.define(SocketActions.LEAVE_COMMUNITY, Object, {})
+
+  factory.define(SocketActions.UPDATE_COMMUNITY, Object, {
+    id: 'community-id',
+  })
+
+  factory.define<DebugAddServerPayload>(SocketActions.DEBUG_ADD_SERVER, Object, {
+    serverHosts: ['qss.example.com'],
+  })
 
   // Messages events
   factory.define<SendMessagePayload>(SocketActions.SEND_MESSAGE, Object, {

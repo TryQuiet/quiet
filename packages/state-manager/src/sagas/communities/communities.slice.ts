@@ -3,9 +3,11 @@ import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import {
   CreateCommunityPayload,
+  DebugAddServerPayload,
   InvitationData,
   JoinCommunityPayload,
   LaunchCommunityPayload,
+  ServerAddedPayload,
   UpdateCommunityPayload,
   type Community,
 } from '@quiet/types'
@@ -47,7 +49,6 @@ export const communitiesSlice = createSlice({
       })
     },
     deleteCommunity: (state, action: PayloadAction<string>) => {
-      logger.info('Deleting community', JSON.stringify(action.payload, null, 2))
       communitiesAdapter.removeOne(state.communities, action.payload)
       if (state.currentCommunity === action.payload) {
         state.currentCommunity = ''
@@ -57,13 +58,14 @@ export const communitiesSlice = createSlice({
     createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => state,
     joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
+    addServer: (state, _action: PayloadAction<ServerAddedPayload>) => state,
+    debugAddServer: (state, _action: PayloadAction<DebugAddServerPayload>) => state,
+    acceptServer: state => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
-      logger.info('Setting invitation codes', action.payload)
       state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {
-      logger.info('Clearing invitation codes')
       state.invitationCodes = null
     },
     requestTermsOfService: state => {

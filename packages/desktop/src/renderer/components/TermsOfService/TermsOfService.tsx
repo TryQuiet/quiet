@@ -6,6 +6,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
 import { shell } from 'electron'
+import { clearCommunity } from '../../clearCommunity'
 
 const logger = createLogger('TermsOfService')
 
@@ -27,22 +28,27 @@ const TermsOfService = () => {
   }, [tosRequested])
 
   const handleChoice = async (accepted: boolean) => {
-    if (accepted) {
-      if (!currentCommunity) {
-        loadingPanelModal.handleOpen()
-      }
-    } else {
-      logger.info('User declined ToS, aborting join process')
-      joinCommunityModal.handleOpen()
-      loadingPanelModal.handleClose()
-    }
-
     dispatch(
       communities.actions.setTermsOfServiceAccepted({
         communityId: currentCommunity?.id,
         accepted,
       })
     )
+
+    if (accepted) {
+      if (!currentCommunity) {
+        loadingPanelModal.handleOpen()
+      }
+    } else {
+      if (!currentCommunity) {
+        logger.info('User declined ToS, aborting join process')
+        joinCommunityModal.handleOpen()
+        loadingPanelModal.handleClose()
+      } else {
+        logger.info('User declined ToS, clearing community data')
+        await clearCommunity()
+      }
+    }
 
     termsOfServiceModal.handleClose()
   }

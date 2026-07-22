@@ -1,9 +1,9 @@
 import React from 'react'
-import { createRoot } from 'react-dom/client'
+import { createRoot, Root as ReactDomRoot } from 'react-dom/client'
 import { ipcRenderer } from 'electron'
 import Root, { persistor } from './Root'
 import store from './store'
-import { clearCommunityWithDependencies } from './clearCommunity'
+import { clearCommunityWithDependencies, configureClearCommunity } from './clearCommunity'
 import updateHandlers from './store/handlers/update'
 import { socketActions } from './sagas/socket/socket.slice'
 import { communities, captcha } from '@quiet/state-manager'
@@ -61,7 +61,7 @@ if (!container) throw new Error('No root html element!')
 let root = createRoot(container)
 root.render(<Root />)
 
-export const clearCommunity = async () => {
+configureClearCommunity(async () => {
   await clearCommunityWithDependencies({
     persistor,
     dispatch: store.dispatch,
@@ -73,7 +73,7 @@ export const clearCommunity = async () => {
       root.render(<Root />)
     },
   })
-}
+})
 
 if (module.hot) {
   module.hot.accept()

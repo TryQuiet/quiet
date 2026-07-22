@@ -32,7 +32,7 @@ describe('sendIntroductionMessageSaga', () => {
   test('sends introduction message', async () => {
     const community = await factory.create('Community', { ownership: CommunityOwnership.User })
 
-    store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: null }))
+    store.dispatch(communitiesActions.updateCommunityData({ id: community.id, updates: { CA: null } }))
 
     const identity = await factory.create('Identity', {
       communityId: community.id,

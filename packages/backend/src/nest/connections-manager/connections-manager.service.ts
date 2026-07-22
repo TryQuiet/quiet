@@ -6,6 +6,7 @@ import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import { CryptoEngine, setEngine } from 'pkijs'
+import * as url from 'node:url'
 import { createPeerId, generateLibp2pPSK } from '../common/utils'
 
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
@@ -49,6 +50,7 @@ import {
   DeleteChannelPayload,
   SetUserProfilePayload,
   SetUserProfileResponse,
+  ServerHost,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   PublicChannel,
@@ -56,6 +58,7 @@ import {
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
   ChannelOperationStatus,
+  DebugAddServerPayload,
   type PrivateChannelPermissions,
   type SetChannelPermissionsPayload,
 } from '@quiet/types'
@@ -77,13 +80,14 @@ import { peerIdFromString } from '@libp2p/peer-id'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
+import { LOCAL_QSS_HOST_PATTERN } from '../qss/qss.const'
 import { RoleName } from '../auth/services/roles/roles'
 import { QSSEvents } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
-import { Member } from '@localfirst/auth'
+import { createKeyset, Member, redactKeys, type Server } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 
 /**
@@ -641,7 +645,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: generateLibp2pPSK().psk,
       ownership: CommunityOwnership.Owner,
       teamId: sigchain.teamId!,
-      qssEnabled: this.qssAllowed && payload.useServer,
+      qssEnabled: this.qssAllowed && payload.useServer && payload.tosAccepted,
       qssEndpoint: this.qssEndpoint,
       tosAccepted: payload.tosAccepted,
     }
@@ -740,6 +744,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ownership: CommunityOwnership.User,
       qssEnabled: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEnabled : undefined,
       qssEndpoint: inviteData.version === InvitationDataVersion.v5 ? inviteData.qssEndpoint : undefined,
+      tosAccepted: payload.tosAccepted,
+    }
+
+    if (community.qssEnabled && payload.tosAccepted && community.qssEndpoint) {
+      if (this.qssEndpoint) {
+        const host = this.normalizeQssServerHost(this.qssEndpoint)
+        if (host) {
+          community.serverHosts = [{ hostUrl: host, accepted: true } as ServerHost]
+        }
+      }
     }
 
     await this.localDbService.setCommunity(community)
@@ -761,6 +775,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       identity: identity,
       profile: userProfile,
     } as ResponseJoinCommunityPayload
+  }
+
+  private normalizeQssServerHost(qssEndpoint: string): string | undefined {
+    const host = url.parse(qssEndpoint).hostname
+    if (!host) {
+      return undefined
+    }
+
+    const normalizedHost = host.toLowerCase().replace(/^\[|\]$/g, '')
+    return LOCAL_QSS_HOST_PATTERN.test(normalizedHost) ? 'localhost' : host
   }
 
   public async launchCommunity(id: string): Promise<void> {
@@ -1104,6 +1128,32 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     })
 
+    this.socketService.on(SocketActions.UPDATE_COMMUNITY, async (payload: UpdateCommunityPayload) => {
+      this.logger.info(`socketService - ${SocketActions.UPDATE_COMMUNITY}`)
+      const community = await this.localDbService.getCommunity(payload.id)
+      if (!community) {
+        this.logger.error(`No community found with id ${payload.id}`)
+        return
+      }
+      const updatedCommunity = { ...community, ...payload.updates }
+      await this.localDbService.setCommunity(updatedCommunity)
+
+      const qssBecameUsable =
+        updatedCommunity.qssEnabled && updatedCommunity.tosAccepted && (!community.qssEnabled || !community.tosAccepted)
+      if (qssBecameUsable) {
+        await this.qssService.connect(updatedCommunity.qssEndpoint)
+      }
+    })
+
+    this.socketService.on(SocketActions.DEBUG_ADD_SERVER, async (payload: DebugAddServerPayload) => {
+      this.logger.info(`socketService - ${SocketActions.DEBUG_ADD_SERVER}`)
+      try {
+        await this.debugAddServer(payload)
+      } catch (e) {
+        this.logger.error('Error while adding a debug server', e)
+      }
+    })
+
     // Local First Auth
 
     this.socketService.on(
@@ -1241,6 +1291,53 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(false)
       }
     })
+  }
+
+  private async debugAddServer(payload: DebugAddServerPayload): Promise<void> {
+    if (process.env.NODE_ENV !== 'development') {
+      this.logger.warn('Ignoring debug server request outside development')
+      return
+    }
+
+    const community = await this.localDbService.getCurrentCommunity()
+    if (!community) {
+      this.logger.warn('No active community found for debug server request')
+      return
+    }
+
+    const sigChain = this.sigChainService.getActiveChain(false)
+    if (!sigChain?.team || sigChain.teamId !== community.teamId) {
+      this.logger.warn(`No active sigchain found for community ${community.id}`)
+      return
+    }
+
+    const serverHosts = [...new Set(payload.serverHosts.map(host => host.trim()).filter(Boolean))]
+    if (serverHosts.length === 0) {
+      return
+    }
+
+    const knownHosts = new Map(community.serverHosts?.map(server => [server.hostUrl, server]) ?? [])
+    for (const hostUrl of serverHosts) {
+      knownHosts.set(hostUrl, { hostUrl, accepted: true })
+    }
+    const updatedServerHosts = [...knownHosts.values()]
+
+    await this.localDbService.setCommunity({ ...community, serverHosts: updatedServerHosts })
+    this.serverIoProvider.io.emit(SocketEvents.COMMUNITY_UPDATED, {
+      id: community.id,
+      updates: { serverHosts: updatedServerHosts },
+    })
+
+    for (const host of serverHosts) {
+      if (sigChain.team.hasServer(host)) {
+        continue
+      }
+      const server: Server = {
+        host,
+        keys: redactKeys(createKeyset({ type: 'SERVER', name: host })),
+      }
+      sigChain.server.addServer(server)
+    }
   }
 
   /**
