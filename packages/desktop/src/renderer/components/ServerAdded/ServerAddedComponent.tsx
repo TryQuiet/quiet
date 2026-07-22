@@ -6,11 +6,9 @@ import Grid from '@mui/material/Grid'
 
 import Modal from '../ui/Modal/Modal'
 import Button from '@mui/material/Button'
-import { createLogger } from '../../logger'
 
 import ServerBoxIcon from '../ui/assets/icons/ServerBoxIcon'
-
-const logger = createLogger('ServerAdded:component')
+import WarningIcon from '../../static/images/exclamationMark.svg'
 
 const PREFIX = 'ServerAddedComponent-'
 const classes = {
@@ -20,6 +18,7 @@ const classes = {
   dividerWrap: `${PREFIX}dividerWrap`,
   info: `${PREFIX}info`,
   icon: `${PREFIX}icon`,
+  warningIcon: `${PREFIX}warningIcon`,
   iconContainer: `${PREFIX}iconContainer`,
   pill: `${PREFIX}pill`,
   mutedAction: `${PREFIX}mutedAction`,
@@ -80,6 +79,10 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     width: 48,
     height: 51,
   },
+  [`& .${classes.warningIcon}`]: {
+    width: 58,
+    height: 51,
+  },
 
   [`& .${classes.pill}`]: {
     ...theme.typography.subtitle2,
@@ -115,6 +118,26 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 }))
 
+const LOCAL_QSS_HOST_PATTERN =
+  /^(?:(?:.+\.)?localhost|(?:.+\.)?local|host\.docker\.internal|0\.0\.0\.0|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|169\.254\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|::1|f[cd][0-9a-f]{2}:.*|fe[89ab][0-9a-f]:.*)$/i
+
+const normalizeServerHost = (serverHost: string | undefined): string | undefined => {
+  if (!serverHost) return undefined
+
+  try {
+    const endpoint = /^[a-z][a-z\d+.-]*:\/\//i.test(serverHost) ? serverHost : `ws://${serverHost}`
+    const hostname = new URL(endpoint).hostname.toLowerCase().replace(/^\[|\]$/g, '')
+    return LOCAL_QSS_HOST_PATTERN.test(hostname) ? 'localhost' : hostname
+  } catch {
+    return serverHost.toLowerCase()
+  }
+}
+
+export const isConfiguredQuietServer = (serverHost: string, qssEndpoint: string | undefined): boolean => {
+  const normalizedQssHost = normalizeServerHost(qssEndpoint)
+  return normalizedQssHost != null && normalizeServerHost(serverHost) === normalizedQssHost
+}
+
 export interface ServerAddedComponentProps {
   open: boolean
   onChoose: (useServer: boolean) => void
@@ -122,7 +145,13 @@ export interface ServerAddedComponentProps {
 }
 
 export const ServerAddedComponent: React.FC<ServerAddedComponentProps> = ({ open, onChoose, serverHosts }) => {
-  const isQuietServer = serverHosts.length === 1 && serverHosts[0] === process.env.QSS_ENDPOINT
+  const isQuietServer = serverHosts.length === 1 && isConfiguredQuietServer(serverHosts[0], process.env.QSS_ENDPOINT)
+  const serverList = serverHosts.join(', ')
+  const serverDescription = isQuietServer
+    ? `This community's admins have added a server (${serverList}) for more speed and reliability`
+    : serverHosts.length > 1
+      ? `This community's admins have added servers (${serverList}). At least one of these servers is not owned or operated by Quiet`
+      : `This community's admins have added a server (${serverList}). This server is not owned or operated by Quiet`
 
   return (
     <Modal
@@ -134,21 +163,29 @@ export const ServerAddedComponent: React.FC<ServerAddedComponentProps> = ({ open
     >
       <StyledGrid container direction='column' alignItems='center' className={classes.contentWrap}>
         <Grid item className={classes.iconContainer}>
-          <ServerBoxIcon className={classes.icon} />
+          {isQuietServer ? (
+            <ServerBoxIcon className={classes.icon} data-testid='ServerAdded-QuietServerIcon' />
+          ) : (
+            <img
+              className={classes.warningIcon}
+              src={WarningIcon}
+              alt='Warning'
+              data-testid='ServerAdded-NonQuietServerWarningIcon'
+            />
+          )}
         </Grid>
         <StyledGrid container direction='column' alignItems='center' className={classes.textWrap}>
           <Grid item>
             <Typography variant='h3' data-testid='ServerAdded-Title'>
-              {isQuietServer ? 'This community is hosted on Quiet’s server' : 'This community is hosted on a server'}
+              {isQuietServer
+                ? 'This community is hosted on Quiet’s server'
+                : 'This community uses a server not owned by Quiet'}
             </Typography>
           </Grid>
           <Grid item>
             <Typography className={classes.info} data-testid='ServerAdded-Message'>
-              This community's admins have added a server (
-              {isQuietServer ? serverHosts[0] : serverHosts.length > 1 ? serverHosts.join(', ') : serverHosts[0]})
-              {isQuietServer ? ' for more speed and reliability' : ''}. Quiet will connect to the server without Tor, so
-              this comes at the cost of Tor's anonymity protection. Would you like to use the server or leave the
-              community?
+              {serverDescription}. Quiet will connect to the server without Tor, so this comes at the cost of Tor's
+              anonymity protection. Would you like to use the server or leave the community?
             </Typography>
           </Grid>
         </StyledGrid>
