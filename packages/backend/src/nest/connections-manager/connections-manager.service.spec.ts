@@ -660,8 +660,8 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('adds a debug server to the sigchain while marking it as known locally', async () => {
-    const originalIsE2E = process.env.IS_E2E
-    process.env.IS_E2E = 'true'
+    const originalNodeEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'development'
     const serverHost = 'unknown-server.example.com'
 
     try {
@@ -686,10 +686,10 @@ describe('ConnectionsManagerService', () => {
         })
       })
     } finally {
-      if (originalIsE2E == null) {
-        delete process.env.IS_E2E
+      if (originalNodeEnv == null) {
+        delete process.env.NODE_ENV
       } else {
-        process.env.IS_E2E = originalIsE2E
+        process.env.NODE_ENV = originalNodeEnv
       }
     }
   })
