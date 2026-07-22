@@ -1,4 +1,4 @@
-import { clearCommunityWithDependencies } from './clearCommunity'
+import { clearCommunity, clearCommunityWithDependencies, configureClearCommunity } from './clearCommunity'
 
 const createDeferred = <T = void>() => {
   let resolve!: (value: T | PromiseLike<T>) => void
@@ -100,5 +100,16 @@ describe('clearCommunityWithDependencies', () => {
     expect(dispatch).not.toHaveBeenCalled()
     expect(remountRoot).not.toHaveBeenCalled()
     expect(persistor.persist).not.toHaveBeenCalled()
+  })
+})
+
+describe('clearCommunity', () => {
+  it('uses the configured runtime handler without importing the renderer entry point', async () => {
+    const handler = jest.fn(async () => undefined)
+    configureClearCommunity(handler)
+
+    await clearCommunity()
+
+    expect(handler).toHaveBeenCalledTimes(1)
   })
 })

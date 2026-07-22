@@ -6,7 +6,7 @@ import { communities } from '@quiet/state-manager'
 
 import { LeaveCommunityComponent, LeaveCommunityProps } from './LeaveCommunityComponent'
 
-import { clearCommunity } from '../../../..'
+import { clearCommunity } from '../../../../clearCommunity'
 
 import { useModal } from '../../../../containers/hooks'
 import { ModalName } from '../../../../sagas/modals/modals.types'

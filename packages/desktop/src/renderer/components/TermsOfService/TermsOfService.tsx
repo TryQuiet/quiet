@@ -6,7 +6,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 import { createLogger } from '../../logger'
 import { shell } from 'electron'
-import { clearCommunity } from '../..'
+import { clearCommunity } from '../../clearCommunity'
 
 const logger = createLogger('TermsOfService')
 

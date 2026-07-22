@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createLogger } from '../../logger'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { clearCommunity } from '../..'
+import { clearCommunity } from '../../clearCommunity'
 import { communities } from '@quiet/state-manager'
 import { ServerAddedComponent } from './ServerAddedComponent'
 
