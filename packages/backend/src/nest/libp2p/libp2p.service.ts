@@ -168,6 +168,11 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     peerAddress: string,
     options: DialPeerOptions = { throwOnError: false, redialOnError: true }
   ) => {
+    if (await this.localDbService.hasPendingServerAcceptance()) {
+      this.logger.warn(`Not dialing peer while server acceptance is pending`)
+      return
+    }
+
     const peerId = peerAddress.split('/').pop()!
     if (this.connectedPeers.has(peerId)) {
       this.logger.trace(`Already connected to peer address: ${peerAddress}`)
@@ -288,15 +293,21 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   private async resumeDialQueueWhenTorReady(onReady?: () => Promise<void>): Promise<boolean> {
     const resumeDialing = async () => {
+      if (await this.localDbService.hasPendingServerAcceptance()) {
+        this.logger.warn(`Not resuming peer dialing while server acceptance is pending`)
+        this.setState(Libp2pState.Paused)
+        this.pauseDialQueue()
+        return false
+      }
       if (onReady) {
         await onReady()
       }
       this.resumeDialQueue()
+      return true
     }
 
     if (this.torBootstrap == null || this.torBootstrap.bootstrapped) {
-      await resumeDialing()
-      return true
+      return await resumeDialing()
     }
 
     if (this.waitingForTorBootstrapToResumeDialQueue) {
@@ -314,8 +325,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
 
       void resumeDialing()
-        .then(() => {
-          if (this.state === Libp2pState.Starting) {
+        .then(resumed => {
+          if (resumed && this.state === Libp2pState.Starting) {
             this.setState(Libp2pState.Started)
           }
         })
@@ -347,6 +358,12 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug('Resuming libp2p')
     if (this.libp2pInstance == null) {
       this.logger.warn('Libp2p not initialized, cannot resume')
+      return false
+    }
+    if (await this.localDbService.hasPendingServerAcceptance()) {
+      this.logger.warn(`Can't resume libp2p while server acceptance is pending`)
+      this.setState(Libp2pState.Paused)
+      this.pauseDialQueue()
       return false
     }
     this.setState(Libp2pState.Starting)
@@ -486,6 +503,12 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           pingInterval: 60_000,
           enabled: true,
         } satisfies ConnectionMonitorInit,
+        connectionGater: {
+          denyDialPeer: () => this.localDbService.hasPendingServerAcceptance(),
+          denyDialMultiaddr: () => this.localDbService.hasPendingServerAcceptance(),
+          denyInboundConnection: () => this.localDbService.hasPendingServerAcceptance(),
+          denyOutboundConnection: () => this.localDbService.hasPendingServerAcceptance(),
+        },
         connectionProtector:
           params.useConnectionProtector || params.useConnectionProtector == null
             ? preSharedKey({ psk: params.psk })
@@ -618,8 +641,9 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       const remotePeerId = event.detail.toString()
       const connection = this.libp2pInstance?.getConnections(event.detail)
       const remoteAddr = connection?.[0]?.remoteAddr?.toString()
-      if (this.state === Libp2pState.Paused) {
-        this.logger.warn(`Received connection from ${remotePeerId} while paused, hanging up`)
+      const serverAcceptancePending = await this.localDbService.hasPendingServerAcceptance()
+      if (this.state === Libp2pState.Paused || serverAcceptancePending) {
+        this.logger.warn(`Received connection from ${remotePeerId} while connections are paused, hanging up`)
         if (remoteAddr) {
           await this.hangUpPeer(remoteAddr)
         } else if (this.libp2pInstance) {
@@ -724,9 +748,15 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.logger.debug(`Starting libp2p`)
     this.setState(Libp2pState.Starting)
     await this.libp2pInstance.start()
-    this.setState(Libp2pState.Started)
-    this.logger.debug('Queueing peers for initial dialing')
-    await this.resumeDialQueueWhenTorReady()
+    if (await this.localDbService.hasPendingServerAcceptance()) {
+      this.logger.warn(`Leaving libp2p paused while server acceptance is pending`)
+      this.setState(Libp2pState.Paused)
+      this.pauseDialQueue()
+    } else {
+      this.setState(Libp2pState.Started)
+      this.logger.debug('Queueing peers for initial dialing')
+      await this.resumeDialQueueWhenTorReady()
+    }
 
     this._connectedPeersInterval = setInterval(async () => {
       const connections: Libp2pConnectedPeer[] = []

@@ -322,6 +322,34 @@ describe('QSSService', () => {
       expect(qssService.canConnect).toBeTruthy()
     })
 
+    it(`doesn't connect to QSS while server acceptance is pending`, async () => {
+      const initializedCommunity = await initCommunity()
+      await localDbService.setCommunity({
+        ...initializedCommunity,
+        serverHosts: [{ hostUrl: 'unknown-server.example.com', accepted: false }],
+      })
+      mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
+
+      const result = await qssService.connect('ws://localhost:3000')
+
+      expect(result).toBe(QSSOperationResult.DISABLED)
+      expect(qssService.connected).toBeFalsy()
+      expect(mockedCreateSocket).not.toHaveBeenCalled()
+    })
+
+    it(`doesn't allow the QSS client to bypass pending server acceptance`, async () => {
+      const initializedCommunity = await initCommunity()
+      await localDbService.setCommunity({
+        ...initializedCommunity,
+        serverHosts: [{ hostUrl: 'unknown-server.example.com', accepted: false }],
+      })
+      mockedCreateSocket.mockRestore()
+
+      await expect(qssClient.createSocketAndConnect('ws://localhost:3000')).rejects.toThrow(
+        'server acceptance is pending'
+      )
+    })
+
     it('connects with an override before community initialization for hCaptcha verification', async () => {
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)
 

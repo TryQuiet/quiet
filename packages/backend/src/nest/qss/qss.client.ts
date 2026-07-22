@@ -28,6 +28,7 @@ import { CaptchaErrorMessages, CompoundError, SocketEvents } from '@quiet/types'
 import EventEmitter from 'node:events'
 import { CaptchaService } from '../captcha/captcha.service'
 import { ServerIoProviderTypes } from '../types'
+import { LocalDbService } from '../local-db/local-db.service'
 
 @Injectable()
 export class QSSClient extends EventEmitter {
@@ -57,7 +58,8 @@ export class QSSClient extends EventEmitter {
     // environment variable that determines what endpoint we connect to QSS on
     @Inject(QSS_ENDPOINT) private qssEndpoint: string,
     @Inject(SERVER_IO_PROVIDER) private readonly serverIoProvider: ServerIoProviderTypes,
-    private readonly captchaService: CaptchaService
+    private readonly captchaService: CaptchaService,
+    private readonly localDbService: LocalDbService
   ) {
     super()
   }
@@ -86,6 +88,10 @@ export class QSSClient extends EventEmitter {
    * @returns Connected socket.io socket instance
    */
   public async createSocketAndConnect(qssEndpoint: string | undefined): Promise<ClientSocket> {
+    if (await this.localDbService.hasPendingServerAcceptance()) {
+      throw new QSSNotInitializedError(`QSS connections are disabled while server acceptance is pending`)
+    }
+
     if (this._connectPromise != null) {
       this.logger.debug('QSS connection already in flight, returning existing connection promise')
       return this._connectPromise

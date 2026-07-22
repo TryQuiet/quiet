@@ -27,6 +27,7 @@ import { QPSService } from '../qps/qps.service'
 import waitForExpect from 'wait-for-expect'
 import { CaptchaService } from '../captcha/captcha.service'
 import type { SigChain } from '../auth/sigchain'
+import { SigchainEvents } from '../auth/types'
 
 const logger = createLogger('connections-manager.service.spec')
 
@@ -694,7 +695,7 @@ describe('ConnectionsManagerService', () => {
     }
   })
 
-  it('persists ToS and starts QSS when an unexpected server is accepted', async () => {
+  it('persists acceptance and resumes connections when an unexpected server is accepted', async () => {
     const qssEndpoint = 'wss://qss.example.com'
     await localDbService.setCommunity({
       ...community,
@@ -705,7 +706,8 @@ describe('ConnectionsManagerService', () => {
     })
     await localDbService.setCurrentCommunityId(community.id)
     await connectionsManagerService.init()
-    const connectSpy = jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    const libp2pResumeSpy = jest.spyOn(connectionsManagerService.libp2pService, 'resume').mockResolvedValue(true)
+    const qssResumeSpy = jest.spyOn(qssService, 'resume').mockResolvedValue()
 
     connectionsManagerService['socketService'].emit(SocketActions.UPDATE_COMMUNITY, {
       id: community.id,
@@ -722,7 +724,21 @@ describe('ConnectionsManagerService', () => {
         tosAccepted: true,
         serverHosts: [{ hostUrl: 'qss.example.com', accepted: true }],
       })
-      expect(connectSpy).toHaveBeenCalledWith(qssEndpoint)
+      expect(libp2pResumeSpy).toHaveBeenCalledTimes(1)
+      expect(qssResumeSpy).toHaveBeenCalledWith(qssEndpoint)
+    })
+  })
+
+  it('pauses QSS and libp2p as soon as server acceptance is required', async () => {
+    await connectionsManagerService.init()
+    const qssPauseSpy = jest.spyOn(qssService, 'pause').mockImplementation(() => {})
+    const libp2pPauseSpy = jest.spyOn(connectionsManagerService.libp2pService, 'pause').mockResolvedValue(true)
+
+    sigChainService.emit(SigchainEvents.SERVER_ACCEPTANCE_REQUIRED, community.teamId)
+
+    await waitForExpect(() => {
+      expect(qssPauseSpy).toHaveBeenCalledTimes(1)
+      expect(libp2pPauseSpy).toHaveBeenCalledTimes(1)
     })
   })
 })

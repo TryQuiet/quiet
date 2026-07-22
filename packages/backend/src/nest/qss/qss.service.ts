@@ -389,9 +389,18 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.qssClient.close()
   }
 
-  public async resume(): Promise<void> {
+  public async resume(qssEndpoint: string | undefined = this.qssEndpoint): Promise<void> {
+    const requestedEndpoint = qssEndpoint ?? this.qssEndpoint
+    if (requestedEndpoint != null) {
+      this._qssEndpoint = this._resolveConnectionEndpoint(requestedEndpoint)
+    }
     if (!this.canConnect) {
       this.logger.trace(`Skipping QSS resume because QSS isn't enabled`)
+      return
+    }
+
+    if (await this.localDbService.hasPendingServerAcceptance()) {
+      this.logger.warn(`Can't resume QSS while server acceptance is pending`)
       return
     }
 
@@ -416,6 +425,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.qssSyncManager.setQssEndpoint(this._qssEndpoint)
     this._enabledOverride = enabledOverride
 
+    const initStatus = await this.getQssInitStatus()
+    if (initStatus.community?.serverHosts?.some(server => !server.accepted)) {
+      this.logger.warn(`Can't connect to QSS while server acceptance is pending`)
+      this.pause()
+      return QSSOperationResult.DISABLED
+    }
+
     // if we are already connected return true and move on
     if (this.connected && !endpointChanged) {
       return QSSOperationResult.SUCCESS
@@ -426,7 +442,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return QSSOperationResult.DISABLED
     }
 
-    const initStatus = await this.getQssInitStatus()
     if (!initStatus.communityInitialized && !enabledOverride) {
       this.logger.warn(`Can't determine if QSS is enabled because the community hasn't been initialized in local DB`)
       return QSSOperationResult.ERROR
