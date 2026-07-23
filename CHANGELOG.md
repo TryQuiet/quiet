@@ -13,6 +13,7 @@
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
 * Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
+* Improve image compression efficiency [#3364](https://github.com/TryQuiet/quiet/issues/3364)
 
 ## [8.0.0]
 
