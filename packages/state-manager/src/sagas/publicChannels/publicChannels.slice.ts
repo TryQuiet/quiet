@@ -213,6 +213,15 @@ export const publicChannelsSlice = createSlice({
         },
       })
     },
+    setMemberIdHash: (state, action: PayloadAction<{ channelId: string; memberIdHash: string }>) => {
+      const { channelId, memberIdHash } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          memberIdHash,
+        },
+      })
+    },
   },
 })
 

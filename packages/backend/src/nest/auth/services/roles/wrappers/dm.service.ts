@@ -18,7 +18,7 @@ class DMService extends ChainServiceBase {
 
   public createWithMembers(memberIds: string[]): string {
     const membersWithMe = [...memberIds, this.sigChain.context.user.userId]
-    const roleName = this.generateDmRoleName(membersWithMe)
+    const roleName = this._generateDmRoleName(membersWithMe)
     logger.info(`Adding new group DM role`)
     this.sigChain.roles.createWithMembers(roleName, memberIds, defaultDmPermissions(memberIds))
     return roleName
@@ -31,11 +31,27 @@ class DMService extends ChainServiceBase {
 
   public delete(memberIds: string[]) {
     logger.info(`Removing role for DM`)
-    const roleName = this.generateDmRoleName(memberIds)
+    const roleName = this._generateDmRoleName(memberIds)
     this.sigChain.roles.delete(roleName)
   }
 
-  public generateDmRoleName(memberIds: string[]): string {
+  public canMemberCreateDm(memberId: string): boolean {
+    return this.sigChain.team!.memberCanCreateStaticRole(memberId)
+  }
+
+  public canICreateDm(): boolean {
+    return this.canMemberCreateDm(this.sigChain.user.userId)
+  }
+
+  public canMemberDeleteDm(memberId: string, dmRoleName: string): boolean {
+    return this.sigChain.team!.memberCanDeleteRole(dmRoleName, memberId)
+  }
+
+  public canIDeleteDm(dmRoleName: string): boolean {
+    return this.canMemberDeleteDm(this.sigChain.user.userId, dmRoleName)
+  }
+
+  private _generateDmRoleName(memberIds: string[]): string {
     return hash(this.sigChain.team!.id, `private_dm_${memberIds.sort()}`)
   }
 }

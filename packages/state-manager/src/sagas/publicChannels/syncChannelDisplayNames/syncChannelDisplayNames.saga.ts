@@ -4,7 +4,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 import { ChannelType } from '@quiet/types'
-import { generateDmChannelName } from '@quiet/common'
+import { generateDmChannelDisplayName, generateDmMemberHash } from '@quiet/common'
 
 const logger = createLogger('syncChannelDisplayNamesSaga')
 
@@ -20,10 +20,17 @@ export function* syncChannelDisplayNamesSaga(): Generator {
     const displayedName =
       channel.type == null || channel.type === ChannelType.CHANNEL
         ? channel.name
-        : generateDmChannelName(channel.memberIds, userProfiles, me)
+        : generateDmChannelDisplayName(channel.memberIds, userProfiles, me)
     if (channel && channel.displayedName !== displayedName) {
       logger.warn('Setting display name')
       yield* putResolve(publicChannelsActions.setDisplayedName({ channelId: channel.id, displayedName }))
+    }
+
+    if (channel.memberIdHash != null) continue
+    const memberIdHash =
+      channel.type === ChannelType.DM && channel.memberIds != null ? generateDmMemberHash(channel.memberIds) : undefined
+    if (channel.memberIdHash !== memberIdHash) {
+      yield* putResolve(publicChannelsActions.setMemberIdHash({ channelId: channel.id, memberIdHash }))
     }
   }
 

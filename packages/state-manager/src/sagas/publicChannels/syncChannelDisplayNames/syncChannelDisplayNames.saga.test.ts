@@ -1,26 +1,14 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
-import { messages, publicChannels } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { messagesActions } from '../../messages/messages.slice'
-import {
-  ChannelsReplicatedPayload,
-  ChannelType,
-  UserProfile,
-  type Community,
-  type Identity,
-  type PublicChannel,
-} from '@quiet/types'
-import { generateChannelId, generateDmChannelId } from '@quiet/common'
+import { ChannelType, UserProfile, type Community, type PublicChannel } from '@quiet/types'
+import { generateTestChannelId } from '@quiet/common'
 import { createLogger } from '../../../utils/logger'
 import { getBaseTypesFactory, getReduxStoreFactory } from '../../../utils/tests/factories'
 import { syncChannelDisplayNamesSaga } from './syncChannelDisplayNames.saga'
@@ -85,7 +73,7 @@ describe('syncChannelDisplayNamesSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
           type: ChannelType.CHANNEL,
         },
         displayedName: 'sailing',
@@ -100,7 +88,7 @@ describe('syncChannelDisplayNamesSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('photo'),
+          id: generateTestChannelId('photo'),
           type: ChannelType.CHANNEL,
         },
       })
@@ -114,7 +102,7 @@ describe('syncChannelDisplayNamesSaga', () => {
           description: '',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateDmChannelId([alice.userId, john.userId]),
+          id: generateTestChannelId([alice.userId, john.userId].toString()),
           type: ChannelType.DM,
           memberIds: [alice.userId, john.userId],
         },
@@ -129,7 +117,7 @@ describe('syncChannelDisplayNamesSaga', () => {
           description: '',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateDmChannelId([alice.userId]),
+          id: generateTestChannelId([alice.userId].toString()),
           type: ChannelType.DM,
           memberIds: [alice.userId],
         },
@@ -144,7 +132,7 @@ describe('syncChannelDisplayNamesSaga', () => {
           description: '',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateDmChannelId([alice.userId, john.userId, sue.userId]),
+          id: generateTestChannelId([alice.userId, john.userId, sue.userId].toString()),
           type: ChannelType.DM,
           memberIds: [alice.userId, john.userId, sue.userId],
         },

@@ -103,7 +103,6 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       this._accessController = this._privateMessagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.auth,
-        roleName: channelData.roleName,
         channelId: this.channelData.id,
         teamId: this.channelData.teamId ?? this.auth.team.id,
         roleName: this.channelData.roleName,

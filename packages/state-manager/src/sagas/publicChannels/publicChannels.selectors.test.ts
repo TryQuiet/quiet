@@ -15,7 +15,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateTestChannelId, generateDmChannelId, generateDmChannelName } from '@quiet/common'
+import { generateTestChannelId, generateDmChannelDisplayName } from '@quiet/common'
 import {
   type ChannelMessage,
   type Community,
@@ -115,7 +115,8 @@ describe('publicChannelsSelectors', () => {
 
     const userProfiles = store.getState().Users.userProfiles
     for (const dmGroup of dmGroups) {
-      const dmChannelId = generateDmChannelId(dmGroup)
+      const displayedName = generateDmChannelDisplayName(dmGroup, userProfiles, alice)
+      const dmChannelId = generateTestChannelId(displayedName)
       const channel = await factory.create('PublicChannel', {
         channel: {
           name: dmChannelId,
@@ -126,7 +127,7 @@ describe('publicChannelsSelectors', () => {
           type: ChannelType.DM,
           memberIds: dmGroup,
         },
-        displayedName: generateDmChannelName(dmGroup, userProfiles, alice),
+        displayedName,
       })
       CHANNEL_NAMES.push(channel.displayedName)
       channelIds.push(channel.channel.id)
@@ -409,7 +410,7 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('unreadDms selector returns only unread DMs (not unread channels)', async () => {
-    const channelId = channelIds.find(channelId => channelId.includes('allergies'))
+    const channelId = getPublicChannels(store.getState()).find(channel => channel.name === 'allergies')?.id
     if (!channelId) throw new Error('no channel id')
     store.dispatch(
       publicChannelsActions.markUnreadChannel({

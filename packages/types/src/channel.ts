@@ -14,6 +14,7 @@ export enum ChannelType {
 
 export const PUBLIC_CHANNEL_METADATA_STORE_NAME = 'public-channels'
 export const PRIVATE_CHANNEL_METADATA_STORE_NAME = 'private-channels'
+export const DMS_METADATA_STORE_NAME = 'direct-messages'
 
 export interface PublicChannel {
   id: string
@@ -27,6 +28,7 @@ export interface PublicChannel {
   type?: ChannelType
   teamId?: string
   memberIds?: string[]
+  memberIdHash?: string
 }
 
 export interface PublicChannelStorage extends PublicChannel {

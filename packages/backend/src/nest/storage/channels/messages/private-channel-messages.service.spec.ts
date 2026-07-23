@@ -56,7 +56,6 @@ describe('PrivateChannelMessagesService', () => {
     handleChainUpdateSpy = jest.spyOn(sigChainService as any, 'handleChainUpdate').mockImplementation(() => {
       logger.debug('MOCK: handling chain update')
     })
-    sigChainService.roles.create(roleName, defaultChannelPermissions())
   })
 
   afterEach(async () => {

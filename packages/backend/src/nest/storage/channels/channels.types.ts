@@ -3,6 +3,7 @@ import type { PublicChannel } from '@quiet/types'
 export interface GetChannelsFilters {
   public: boolean
   private: boolean
+  dms: boolean
 }
 
 export interface PrivateChannelMappings {

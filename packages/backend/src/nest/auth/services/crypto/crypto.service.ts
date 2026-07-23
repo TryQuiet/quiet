@@ -181,7 +181,7 @@ class CryptoService extends ChainServiceBase {
     if (!isValid) {
       const validationError = new Error(`Couldn't verify signature on message`)
       logger.error(`Error while validating message signature`, validationError)
-      if (failOnInvalid) throw validationError
+      if (throwOnInvalid) throw validationError
     }
 
     return {

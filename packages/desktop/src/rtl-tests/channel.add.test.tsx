@@ -31,6 +31,7 @@ import { FieldErrors } from '../renderer/forms/fieldsErrors'
 import { createLogger } from './logger'
 import { FactoryGirl } from 'factory-girl'
 import { act, cleanup } from '@testing-library/react'
+import { generateTestChannelId } from '@quiet/common'
 
 const logger = createLogger('channel:add')
 
@@ -93,7 +94,7 @@ describe('Add new channel', () => {
     expect(privateToggle.className.includes('checked')).toBeTruthy()
   })
 
-  it('Adds new public channel and opens it. Sends initial message', async () => {
+  it.only('Adds new public channel and opens it. Sends initial message', async () => {
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {
@@ -249,7 +250,7 @@ describe('Add new channel', () => {
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: userProfile.nickname,
@@ -328,7 +329,7 @@ describe('Add new channel', () => {
     expect(linkIcon).toBeVisible()
   })
 
-  it.only('Adds new private channel and opens it. Sends initial message', async () => {
+  it('Adds new private channel and opens it. Sends initial message', async () => {
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {
@@ -354,9 +355,10 @@ describe('Add new channel', () => {
       const action = input[0]
       if (action === SocketActions.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
+        const channelId = generateTestChannelId(payload.name)
         factory.create('PublicChannel', {
           channel: {
-            id: payload.id,
+            id: channelId,
             name: payload.name,
             description: payload.description ?? '',
             owner: userProfile.nickname,

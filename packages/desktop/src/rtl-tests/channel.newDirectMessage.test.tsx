@@ -14,7 +14,7 @@ import { publicChannels, getReduxStoreFactory, messages } from '@quiet/state-man
 import { FETCHING_CHANNEL_MESSAGES } from '../renderer/components/widgets/channels/ChannelMessages'
 import { cleanup } from '@testing-library/react'
 import { SEARCH_PLACEHOLDER_TEXT } from '../renderer/components/Channel/NewDirectMessage.component'
-import { generateDmChannelId } from '@quiet/common'
+import { generateDmMemberHash, generateTestChannelId } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
@@ -242,12 +242,15 @@ describe('New Direct Message', () => {
     const alicesUser = await factory.create('User', { userId: alice.userId })
     const publicChannel = await factory.create<PublicChannel>('PublicChannel')
 
+    const dmChannelMemberIds = [alicesUserProfile.userId, suesUserProfile.userId]
+    const dmChannelMemberHash = generateDmMemberHash(dmChannelMemberIds)
     const dmChannel = await factory.create<PublicChannel>('PublicChannel', {
       channel: {
         type: ChannelType.DM,
-        memberIds: [alicesUserProfile.userId, suesUserProfile.userId],
-        id: generateDmChannelId([alicesUserProfile.userId, suesUserProfile.userId]),
-        name: generateDmChannelId([alicesUserProfile.userId, suesUserProfile.userId]),
+        memberIds: dmChannelMemberIds,
+        id: generateTestChannelId(dmChannelMemberHash),
+        name: dmChannelMemberHash,
+        memberIdHash: dmChannelMemberHash,
       },
       displayedName: 'sue',
     })
@@ -326,12 +329,15 @@ describe('New Direct Message', () => {
     })
     const alicesUser = await factory.create('User', { userId: alice.userId })
     const publicChannel = await factory.create<PublicChannel>('PublicChannel')
+    const dmChannelMemberIds = [alicesUserProfile.userId, suesUserProfile.userId]
+    const dmChannelMemberHash = generateDmMemberHash(dmChannelMemberIds)
     const dmChannel = await factory.create<PublicChannel>('PublicChannel', {
       channel: {
         type: ChannelType.DM,
-        memberIds: [alicesUserProfile.userId, suesUserProfile.userId],
-        id: generateDmChannelId([alicesUserProfile.userId, suesUserProfile.userId]),
-        name: generateDmChannelId([alicesUserProfile.userId, suesUserProfile.userId]),
+        memberIds: dmChannelMemberIds,
+        id: generateTestChannelId(dmChannelMemberHash),
+        name: dmChannelMemberHash,
+        memberIdHash: dmChannelMemberHash,
       },
       displayedName: 'sue',
     })

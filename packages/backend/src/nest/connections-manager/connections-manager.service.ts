@@ -51,7 +51,6 @@ import {
   SetUserProfileResponse,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
-  PublicChannel,
   User,
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,

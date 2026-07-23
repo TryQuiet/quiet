@@ -49,7 +49,7 @@ export interface NewDirectMessageComponentProps {
   channelName: string
   handleClose: () => void
   handleInputChange: (selectedUsers: UserProfile[]) => void
-  setOrCreateDmChannel: (memberIds: string[]) => void
+  setOrCreateDmChannel: (memberIds: string[], firstMessage: string) => void
   messages: {
     count: number
     groups: MessagesDailyGroups
@@ -169,7 +169,10 @@ export const NewDirectMessageComponent: React.FC<
       return
     }
     logger.debug('Setting or creating a new DM channel')
-    setOrCreateDmChannel(selectedMembers.map(member => member.userId))
+    setOrCreateDmChannel(
+      selectedMembers.map(member => member.userId),
+      message
+    )
     // Send message and files
     logger.debug('Sending message to DM channel and scrolling to bottom of messages')
     onInputEnter(message)

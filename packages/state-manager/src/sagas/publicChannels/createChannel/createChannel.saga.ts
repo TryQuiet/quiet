@@ -7,7 +7,7 @@ import { type Socket, applyEmitParams } from '../../../types'
 import { ChannelOperationStatus, ChannelType, SocketActions, type CreateChannelResponse } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
-import { generateDmChannelName } from '@quiet/common'
+import { generateDmChannelDisplayName, generateDmMemberHash } from '@quiet/common'
 
 const logger = createLogger('createChannelSaga')
 
@@ -51,7 +51,10 @@ export function* createChannelSaga(
   const displayedName =
     response.channel.type == null || response.channel.type === ChannelType.CHANNEL
       ? response.channel.name
-      : generateDmChannelName(response.channel.memberIds, userProfiles, me)
+      : generateDmChannelDisplayName(response.channel.memberIds, userProfiles, me)
+  if (response.channel.type === ChannelType.DM && response.channel.memberIds != null) {
+    response.channel.memberIdHash = generateDmMemberHash(response.channel.memberIds)
+  }
   yield* put(
     publicChannelsActions.addChannel({
       ...response,

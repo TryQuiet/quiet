@@ -21,7 +21,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/FileAttachmentPreview'
 
-import { generateDmChannelId, getFilesData, isDefined } from '@quiet/common'
+import { generateDmMemberHash, getFilesData, isDefined } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
@@ -30,6 +30,7 @@ import { MenuName } from '../../../const/MenuNames.enum'
 import { createLogger } from '../../logger'
 import _ from 'lodash'
 import NewDirectMessageComponent, { NewDirectMessageComponentProps } from './NewDirectMessage.component'
+import type { NewDmData } from './Channel.types'
 
 const logger = createLogger('Channel')
 
@@ -77,6 +78,7 @@ const Channel = () => {
   const [channelName, setChannelName] = useState<string>()
   const [members, setMembers] = useState<UserProfile[]>([])
   const [me, setMe] = useState<UserProfile | undefined>(myUserProfile)
+  const [newDmData, setNewDmData] = useState<NewDmData | undefined>(undefined)
 
   const filesRef = React.useRef<FilePreviewData>({})
 
@@ -238,10 +240,10 @@ const Channel = () => {
   const generateDmChannelIdFromMemberIds = (
     memberIds: string[],
     me: UserProfile
-  ): { uniqueMemberIds: string[]; channelId: string } => {
+  ): { uniqueMemberIds: string[]; memberIdHash: string } => {
     const uniqueMemberIds = _.uniq([...memberIds, me.userId]).sort()
     return {
-      channelId: generateDmChannelId(uniqueMemberIds),
+      memberIdHash: generateDmMemberHash(uniqueMemberIds),
       uniqueMemberIds,
     }
   }
@@ -253,31 +255,51 @@ const Channel = () => {
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
       return
     }
-    const { channelId: dmChannelId } = generateDmChannelIdFromMemberIds(memberIds, me)
-    if (channels.find(channel => channel.id === dmChannelId)) {
+    const { memberIdHash } = generateDmChannelIdFromMemberIds(memberIds, me)
+    const existingDmChannel = channels.find(channel => channel.memberIdHash === memberIdHash)
+    if (existingDmChannel != null) {
       logger.debug('New message - Found existing DM channel')
-      dispatch(publicChannels.actions.setCurrentChannel({ channelId: dmChannelId }))
+      dispatch(publicChannels.actions.setCurrentChannel({ channelId: existingDmChannel.id }))
     } else {
       dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
     }
   }
 
+  useEffect(() => {
+    if (newDmData != null && !isNewMessageOpen) {
+      setNewDmData(undefined)
+      return
+    }
+    if (newDmData == null || !isNewMessageOpen) return
+    const newDmChannel = channels.find(channel => channel.memberIdHash === newDmData.memberIdHash)
+    if (newDmChannel != null) {
+      dispatch(
+        publicChannels.actions.setCurrentChannel({
+          channelId: newDmChannel.id,
+        })
+      )
+      dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
+      onInputEnter(newDmData.firstMessage)
+      setNewDmData(undefined)
+    }
+  }, [dispatch, channels, isNewMessageOpen, newDmData])
+
   const setOrCreateDmChannel = useCallback(
-    (memberIds: string[]) => {
+    (memberIds: string[], firstMessage: string) => {
       if (me == null || memberIds.length === 0) {
         logger.debug('Setting channel ID to empty - missing own user profile or member IDs was empty')
         dispatch(publicChannels.actions.setCurrentChannel({ channelId: EMPTY_CHANNEL_ID }))
         return
       }
 
-      const { channelId, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
-      const dmChannel = channels.find(channel => channel.id === channelId)
+      const { memberIdHash, uniqueMemberIds } = generateDmChannelIdFromMemberIds(memberIds, me)
+      const dmChannel = channels.find(channel => channel.memberIdHash === memberIdHash)
       if (dmChannel != null) {
         logger.debug('Found existing DM channel')
         dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
         dispatch(
           publicChannels.actions.setCurrentChannel({
-            channelId,
+            channelId: dmChannel.id,
           })
         )
       } else {
@@ -287,23 +309,16 @@ const Channel = () => {
           return
         }
         const payload: CreateChannelPayload = {
-          id: channelId,
-          name: channelId,
+          name: memberIdHash,
           type: ChannelType.DM,
-          description: 'foo',
+          description: 'DM channel',
           public: false,
           memberIds: uniqueMemberIds,
           teamId: community.teamId,
         }
         logger.debug('Running create channel action')
         dispatch(publicChannels.actions.createChannel(payload))
-        logger.debug('Closing new message view and updating current channel', channelId)
-        dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
-        dispatch(
-          publicChannels.actions.setCurrentChannel({
-            channelId,
-          })
-        )
+        setNewDmData({ memberIdHash, firstMessage })
       }
     },
     [dispatch, me, channels]

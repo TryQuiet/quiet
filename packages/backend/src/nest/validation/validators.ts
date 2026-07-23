@@ -1,4 +1,4 @@
-import _ from 'validator'
+import _validator from 'validator'
 import joi from 'joi'
 import { ChannelMessage, ChannelType, PublicChannel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
@@ -108,6 +108,15 @@ const channelSchema = joi.object({
     }),
   memberIds: joi.array().items(joi.string()).optional(),
   teamId: joi.string().optional(),
+  memberIdHash: joi
+    .any()
+    .optional()
+    .custom((value, _helpers) => {
+      if (typeof value !== 'string' || !_validator.isBase64(value)) {
+        throw new Error('value must be a base64 string')
+      }
+      return value
+    }),
 })
 
 // TODO: make this validator more strict
@@ -126,7 +135,7 @@ const metadataSchema = joi.object({
 })
 
 export const isDirectMessage = (msg: string): boolean => {
-  return msg.length >= 364 && _.isBase64(msg)
+  return msg.length >= 364 && _validator.isBase64(msg)
 }
 
 export const isMessage = (msg: ChannelMessage): boolean => {

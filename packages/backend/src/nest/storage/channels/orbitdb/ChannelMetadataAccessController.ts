@@ -23,6 +23,7 @@ import { createLogger } from '../../../common/logger'
 import { QuietLogger } from '@quiet/logger'
 import { posixJoin } from '../../orbitDb/util'
 import type { SigChain } from '../../../auth/sigchain'
+import { ChannelType } from '@quiet/types'
 
 const TYPE = 'channelmetadataaccess'
 const codec = dagCbor
@@ -33,13 +34,15 @@ const AccessControlList = async ({
   storage,
   params,
   isPublic,
+  channelType,
 }: {
   storage: Storage
   params: Record<string, any>
   isPublic: boolean
+  channelType: ChannelType
 }) => {
   const manifest = {
-    type: `${isPublic ? 'public' : 'private'}${TYPE}`,
+    type: `${isPublic ? 'public' : 'private'}_${channelType}_${TYPE}`,
     ...params,
   }
   const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
@@ -60,6 +63,7 @@ interface ChannelMetadataAccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
   isPublic: boolean
+  channelType: ChannelType
 }
 
 interface ChannelMetadataWriterIdentity {
@@ -110,7 +114,12 @@ export class ChannelMetadataAccessController {
         // @ts-ignore
         write = value.write
       } else {
-        address = await AccessControlList({ storage, params: { write }, isPublic: config.isPublic })
+        address = await AccessControlList({
+          storage,
+          params: { write },
+          isPublic: config.isPublic,
+          channelType: config.channelType,
+        })
         address = posixJoin('/', TYPE, address)
       }
 
@@ -175,14 +184,17 @@ export class ChannelMetadataAccessController {
         return false
       }
 
-      const canDelete = config.isPublic
-        ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
-        : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
-      if (entry.payload.op === 'DEL' && !canDelete) {
-        this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
-          writerId: writerIdentity.id,
-        })
-        return false
+      // ISLA: add DMs permissions
+      if (config.channelType === ChannelType.CHANNEL) {
+        const canDelete = config.isPublic
+          ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
+          : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, entry.key)
+        if (entry.payload.op === 'DEL' && !canDelete) {
+          this.logger.warn(`Channel metadata DEL rejected due to missing chain permissions`, {
+            writerId: writerIdentity.id,
+          })
+          return false
+        }
       }
 
       return true
@@ -212,12 +224,15 @@ export class ChannelMetadataAccessController {
       return false
     }
 
-    const canCreateChannel = config.isPublic
-      ? chain.channels.canMemberCreatePublicChannel(writerId)
-      : chain.channels.canMemberCreatePrivateChannel(writerId)
-    if (!canCreateChannel) {
-      this.logger.warn(`Channel metadata PUT rejected due to missing chain permissions`, { entryHash: entry.hash })
-      return false
+    // ISLA: add DMs permissions
+    if (config.channelType === ChannelType.CHANNEL) {
+      const canCreateChannel = config.isPublic
+        ? chain.channels.canMemberCreatePublicChannel(writerId)
+        : chain.channels.canMemberCreatePrivateChannel(writerId)
+      if (!canCreateChannel) {
+        this.logger.warn(`Channel metadata PUT rejected due to missing chain permissions`, { entryHash: entry.hash })
+        return false
+      }
     }
 
     try {
