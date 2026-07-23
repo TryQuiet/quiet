@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import Grid from '@mui/material/Grid'
@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import PlusIconWithBorder from '../Icon/PlusIconWithBorder'
 import Tooltip from '../Tooltip/Tooltip'
+import { Navigate } from 'react-router'
 
 const PREFIX = 'SidebarHeader'
 
@@ -55,8 +56,31 @@ const StyledGrid = styled(Grid)(() => ({
 interface SidebarHeaderProps {
   title: string
   action?: () => void
-  actionTitle?: () => void
+  actionButtonName?: string
+  actionTitle?: string
   tooltipText: string
+}
+
+interface SidebarActionButtonProps {
+  action: () => void
+  actionTitle: string
+}
+
+const SidebarActionButton: FC<SidebarActionButtonProps> = ({ action, actionTitle }) => {
+  return (
+    <IconButton
+      className={classes.iconButton}
+      onClick={event => {
+        event.persist()
+        action()
+      }}
+      edge='end'
+      data-testid={`sidebar-button-${actionTitle}`}
+      size='large'
+    >
+      <PlusIconWithBorder color='white' />
+    </IconButton>
+  )
 }
 
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ title, action, actionTitle, tooltipText }) => {
@@ -70,18 +94,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ title, action, act
       {typeof action === 'function' && (
         <Grid item>
           <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
-            <IconButton
-              className={classes.iconButton}
-              onClick={event => {
-                event.persist()
-                action()
-              }}
-              edge='end'
-              data-testid={'addChannelButton'}
-              size='large'
-            >
-              <PlusIconWithBorder color='white' />
-            </IconButton>
+            <SidebarActionButton action={action} actionTitle={actionTitle ?? 'unknownAction'} />
           </Tooltip>
         </Grid>
       )}

@@ -178,8 +178,10 @@ class CryptoService extends ChainServiceBase {
       contents,
     }
     const isValid = this.validateSignature(fullSig)
-    if (!isValid && throwOnInvalid) {
-      throw new Error(`Couldn't verify signature on message`)
+    if (!isValid) {
+      const validationError = new Error(`Couldn't verify signature on message`)
+      logger.error(`Error while validating message signature`, validationError)
+      if (throwOnInvalid) throw validationError
     }
 
     return {

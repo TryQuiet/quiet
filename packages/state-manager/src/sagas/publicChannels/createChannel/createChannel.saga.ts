@@ -1,11 +1,13 @@
 import { publicChannelsActions } from '../publicChannels.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { apply, put } from 'typed-redux-saga'
+import { apply, put, select } from 'typed-redux-saga'
 
 import { type Socket, applyEmitParams } from '../../../types'
-import { ChannelOperationStatus, SocketActions, type CreateChannelResponse } from '@quiet/types'
+import { ChannelOperationStatus, ChannelType, SocketActions, type CreateChannelResponse } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
+import { generateDmChannelDisplayName, generateDmMemberHash } from '@quiet/common'
 
 const logger = createLogger('createChannelSaga')
 
@@ -14,6 +16,8 @@ export function* createChannelSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
 ): Generator {
   logger.info(`Creating ${action.payload.public === false ? 'private' : 'public'} channel ${action.payload.name}`)
+  const userProfiles = yield* select(userProfileSelectors.userProfiles)
+  const me = yield* select(userProfileSelectors.myUserProfile)
 
   const response: CreateChannelResponse = yield* apply(
     socket,
@@ -44,11 +48,24 @@ export function* createChannelSaga(
       channelId: response.channel.id,
     })
   )
-  yield* put(publicChannelsActions.addChannel(response))
+  const displayedName =
+    response.channel.type == null || response.channel.type === ChannelType.CHANNEL
+      ? response.channel.name
+      : generateDmChannelDisplayName(response.channel.memberIds, userProfiles, me)
+  if (response.channel.type === ChannelType.DM && response.channel.memberIds != null) {
+    response.channel.memberIdHash = generateDmMemberHash(response.channel.memberIds)
+  }
+  yield* put(
+    publicChannelsActions.addChannel({
+      ...response,
+      displayedName,
+    })
+  )
   yield* put(
     publicChannelsActions.sendInitialChannelMessage({
       channelName: response.channel.name,
       channelId: response.channel.id,
+      type: action.payload.type,
     })
   )
 }

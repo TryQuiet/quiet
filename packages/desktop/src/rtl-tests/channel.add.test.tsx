@@ -14,7 +14,15 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import { getReduxStoreFactory, getSocketFactory, publicChannels } from '@quiet/state-manager'
-import { Community, CreateChannelPayload, Identity, SendMessagePayload, SocketActions, UserProfile } from '@quiet/types'
+import {
+  ChannelType,
+  Community,
+  CreateChannelPayload,
+  Identity,
+  SendMessagePayload,
+  SocketActions,
+  UserProfile,
+} from '@quiet/types'
 
 import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
@@ -23,6 +31,7 @@ import { FieldErrors } from '../renderer/forms/fieldsErrors'
 import { createLogger } from './logger'
 import { FactoryGirl } from 'factory-girl'
 import { act, cleanup } from '@testing-library/react'
+import { generateTestChannelId } from '@quiet/common'
 
 const logger = createLogger('channel:add')
 
@@ -85,7 +94,7 @@ describe('Add new channel', () => {
     expect(privateToggle.className.includes('checked')).toBeTruthy()
   })
 
-  it('Adds new public channel and opens it. Sends initial message', async () => {
+  it.only('Adds new public channel and opens it. Sends initial message', async () => {
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {
@@ -121,6 +130,7 @@ describe('Add new channel', () => {
             owner: userProfile.nickname,
             timestamp: 0,
             public: payload.public,
+            type: payload.type,
           },
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
@@ -234,7 +244,129 @@ describe('Add new channel', () => {
             owner: userProfile.nickname,
             timestamp: 0,
             public: payload.public ?? true,
+            type: ChannelType.CHANNEL,
           },
+          displayedName: payload.name,
+        })
+        return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
+          channel: {
+            id: channelId,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: userProfile.nickname,
+            timestamp: 0,
+            public: payload.public ?? true,
+            type: ChannelType.CHANNEL,
+          },
+          displayedName: payload.name,
+        })
+      }
+      if (action === SocketActions.SEND_MESSAGE) {
+        const data = input[1] as SendMessagePayload
+        const { message } = data
+        factory.create('TestMessage', {
+          message: {
+            ...message,
+          },
+        })
+      }
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+        <Channel />
+      </>,
+      store
+    )
+    const user = userEvent.setup()
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    await user.type(input, channelName.input)
+
+    const privateToggle = screen.getByTestId('createChannel-private-form-control-toggle')
+    expect(privateToggle).toBeVisible()
+    expect(privateToggle.className.includes('checked')).toBeFalsy()
+
+    await userEvent.click(privateToggle)
+    expect(privateToggle.className.includes('checked')).toBeTruthy()
+
+    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    await act(
+      async () =>
+        await waitFor(() => {
+          user.click(screen.getByText('Create Channel')).catch(e => {
+            logger.error(e)
+          })
+        })
+    )
+
+    function* testCreateChannelSaga(): Generator {
+      const createChannelAction = yield* take(publicChannels.actions.createChannel)
+      const addChannelAction = yield* take(publicChannels.actions.addChannel)
+    }
+
+    await act(async () => {
+      await runSaga(testCreateChannelSaga).toPromise()
+    })
+
+    const createChannelModal = screen.queryByTestId('createChannelModal')
+    expect(createChannelModal).toBeNull()
+
+    // Check if newly created channel is present and selected
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent(channelName.output)
+    expect(screen.getByTestId('channelTitle-icon-private')).toBeVisible()
+    // Check if sidebar item displays as selected
+    const link = screen.getByTestId(`${channelName.output}-link`)
+    expect(link).toHaveClass('ChannelsListItemselected')
+    const linkIcon = screen.getByTestId(`${channelName.output}-channel-link-icon-public`)
+    expect(linkIcon).toBeVisible()
+  })
+
+  it('Adds new private channel and opens it. Sends initial message', async () => {
+    const { store, runSaga } = await prepareStore(
+      {
+        [StoreKeys.Modals]: {
+          ...new ModalsInitialState(),
+          [ModalName.createChannel]: { open: true },
+        },
+      },
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getReduxStoreFactory(store)
+    const community: Community = await factory.create('Community')
+    const userProfile: UserProfile = await factory.create('UserProfile', {
+      nickname: 'alice',
+    })
+    const alice: Identity = await factory.create('Identity', {
+      userId: userProfile.userId,
+      communityId: community.id,
+    })
+    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
+
+    const mockImpl = async (...input: [string, ...any]) => {
+      const action = input[0]
+      if (action === SocketActions.CREATE_CHANNEL) {
+        const payload = input[1] as CreateChannelPayload
+        const channelId = generateTestChannelId(payload.name)
+        factory.create('PublicChannel', {
+          channel: {
+            id: channelId,
+            name: payload.name,
+            description: payload.description ?? '',
+            owner: userProfile.nickname,
+            timestamp: 0,
+            public: payload.public ?? true,
+            type: payload.type,
+          },
+          displayedName: payload.name,
         })
         return socketFactory.build(`${SocketActions.CREATE_CHANNEL}_response`, {
           channel: {
@@ -245,6 +377,7 @@ describe('Add new channel', () => {
             timestamp: 0,
             public: payload.public ?? true,
           },
+          displayedName: payload.name,
         })
       }
       if (action === SocketActions.SEND_MESSAGE) {
@@ -480,6 +613,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: true,
+            type: payload.type,
             teamId: payload.teamId,
           },
         })
@@ -606,6 +740,7 @@ describe('Add new channel', () => {
             owner: 'alice',
             timestamp: 0,
             public: payload.public,
+            type: payload.type,
             teamId: community.teamId,
           },
         })

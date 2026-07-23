@@ -13,10 +13,12 @@ import { RoleName, SELF_ASSIGN_ROLES } from './services/roles/roles'
 import { createLogger } from '../common/logger'
 import EventEmitter from 'events'
 import { LockboxService } from './services/crypto/lockbox.service'
-import { ChannelService } from './services/roles/channel.service'
+import { ChannelService } from './services/roles/wrappers/channel.service'
 import { LFAEvents, RANDOM_TEAM_NAME_LENGTH, SigchainEvents } from './types'
 import { randomKey } from '@localfirst/crypto'
 import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import { DMService } from './services/roles/wrappers/dm.service'
+import { defaultGenericPermissions } from './services/roles/permissions'
 
 const logger = createLogger('auth:sigchain')
 const lfaLogger = createLogger('localfirst')
@@ -27,6 +29,7 @@ class SigChain extends EventEmitter {
   private _devices: DeviceService | null = null
   private _roles: RoleService | null = null
   private _channels: ChannelService | null = null
+  private _dms: DMService | null = null
   private _invites: InviteService | null = null
   private _crypto: CryptoService | null = null
   private _server: ServerService | null = null
@@ -115,7 +118,7 @@ class SigChain extends EventEmitter {
     const sigChain = new SigChain(adminContext)
 
     // Initialize member role (your own user is added by default to the role)
-    sigChain.roles.create(RoleName.MEMBER)
+    sigChain.roles.create(RoleName.MEMBER, defaultGenericPermissions())
 
     return sigChain
   }
@@ -177,6 +180,7 @@ class SigChain extends EventEmitter {
     this._devices = new DeviceService(this)
     this._roles = new RoleService(this)
     this._channels = new ChannelService(this)
+    this._dms = new DMService(this)
     this._invites = new InviteService(this)
     this._crypto = new CryptoService(this)
     this._server = new ServerService(this)
@@ -200,6 +204,10 @@ class SigChain extends EventEmitter {
 
   get channels(): ChannelService {
     return this._channels!
+  }
+
+  get dms(): DMService {
+    return this._dms!
   }
 
   get devices(): DeviceService {

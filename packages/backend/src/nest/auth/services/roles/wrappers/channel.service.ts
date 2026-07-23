@@ -2,12 +2,13 @@
  * Handles role-related chain operations
  */
 
-import { SigChain } from '../../sigchain'
-import { ChainServiceBase } from '../chainServiceBase'
+import { SigChain } from '../../../sigchain'
+import { ChainServiceBase } from '../../chainServiceBase'
 import { Member } from '@localfirst/auth'
-import { createLogger } from '../../../common/logger'
-import { hash, randomKey } from '@localfirst/crypto'
-import { DEFAULT_CHANNEL_ROLE_NAME_LENGTH, PUBLIC_CHANNEL_MODIFICATION_ROLES } from './roles'
+import { createLogger } from '../../../../common/logger'
+import { randomKey } from '@localfirst/crypto'
+import { DEFAULT_CHANNEL_ROLE_NAME_LENGTH, PUBLIC_CHANNEL_MODIFICATION_ROLES } from '../roles'
+import { defaultChannelPermissions } from '../permissions'
 
 const logger = createLogger('auth:channelService')
 
@@ -19,7 +20,7 @@ class ChannelService extends ChainServiceBase {
   public create(): string {
     const roleName = this.generateChannelRoleName()
     logger.info(`Adding new channel role with name ${roleName}`)
-    this.sigChain.roles.create(roleName)
+    this.sigChain.roles.create(roleName, defaultChannelPermissions())
     return roleName
   }
 
@@ -32,7 +33,7 @@ class ChannelService extends ChainServiceBase {
   }
 
   public addMember(memberId: string, channelRoleName: string) {
-    logger.info(`Adding member with ID ${memberId} to channel ${channelRoleName}`)
+    logger.info(`Adding member to channel with role ${channelRoleName}`)
     this.sigChain.roles!.addMember(memberId, channelRoleName)
   }
 
@@ -49,7 +50,7 @@ class ChannelService extends ChainServiceBase {
   }
 
   public revokeMembership(memberId: string, channelRoleName: string) {
-    logger.info(`Revoking membership of channel for member with ID ${memberId}`)
+    logger.info(`Revoking membership of channel with role ${channelRoleName}`)
     this.sigChain.roles.revokeMembership(memberId, channelRoleName)
   }
 

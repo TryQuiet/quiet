@@ -5,9 +5,16 @@ import { Base58, KeyMetadata } from '@localfirst/crdx'
 export const PROFILE_PHOTO_CHANNEL_ID = '__profile-photo__'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
+export const EMPTY_CHANNEL_ID = '-1'
+
+export enum ChannelType {
+  CHANNEL = 'channel',
+  DM = 'dm',
+}
 
 export const PUBLIC_CHANNEL_METADATA_STORE_NAME = 'public-channels'
 export const PRIVATE_CHANNEL_METADATA_STORE_NAME = 'private-channels'
+export const DMS_METADATA_STORE_NAME = 'direct-messages'
 
 export interface PublicChannel {
   id: string
@@ -17,12 +24,16 @@ export interface PublicChannel {
   timestamp: number
   disabled?: boolean
   public?: boolean
-  teamId?: string
   roleName?: string
+  type?: ChannelType
+  teamId?: string
+  memberIds?: string[]
+  memberIdHash?: string
 }
 
 export interface PublicChannelStorage extends PublicChannel {
   messages: EntityState<ChannelMessage>
+  displayedName: string
 }
 
 export interface PublicChannelStatus {
@@ -30,6 +41,7 @@ export interface PublicChannelStatus {
   unread: boolean
   newestMessage: ChannelMessage | null
   public?: boolean
+  type?: ChannelType
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {
@@ -96,6 +108,8 @@ export interface CreateChannelPayload {
   public: boolean
   teamId: string
   description?: string
+  type: ChannelType
+  memberIds?: string[]
 }
 
 export enum ChannelOperationStatus {
@@ -105,6 +119,7 @@ export enum ChannelOperationStatus {
 
 export interface CreateChannelResponse {
   status: ChannelOperationStatus
+  displayedName?: string
   channel?: PublicChannel
 }
 
@@ -137,6 +152,7 @@ export interface PendingMessage {
 export interface SendInitialChannelMessagePayload {
   channelName: string
   channelId: string
+  type: ChannelType
 }
 
 export interface MessagesLoadedPayload {

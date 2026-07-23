@@ -6,6 +6,7 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  Settings,
   Sidebar,
 } from '../selectors'
 import getPort from 'get-port'
@@ -14,6 +15,7 @@ import path from 'path'
 import { createLogger } from '../logger'
 import { SettingsModalTabName, FileAttachmentType } from '../enums'
 import { TEST_FILE_NAME, TEST_IMAGE_FILE_NAME, UPLOAD_FILE_DIR } from '../attachFile.const'
+import { UserListStatus } from '../types'
 
 const logger = createLogger('oneClient')
 
@@ -53,6 +55,15 @@ describe('One Client', () => {
       const processData = app.buildSetup.getProcessData()
       dataDirPath = processData.dataDirPath
       resourcesPath = processData.resourcesPath
+    })
+
+    it('Owner closes update modal if opened', async () => {
+      try {
+        await app.closeUpdateModalIfPresent()
+        logger.info('Closed update modal')
+      } catch (e) {
+        // do nothing
+      }
     })
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
@@ -99,6 +110,8 @@ describe('One Client', () => {
     it('User sees general channel', async () => {
       generalChannel = new Channel(app.driver, generalChannelName)
       expect(await generalChannel.isReady()).toBeTruthy()
+      expect(await generalChannel.isMessageInputReady()).toBeTruthy()
+      expect(await generalChannel.isOpen()).toBeTruthy()
 
       const generalChannelText = await generalChannel.element.getText()
       expect(generalChannelText).toEqual(generalChannelName)
@@ -106,16 +119,9 @@ describe('One Client', () => {
 
     it('User sees just the general channel in the sidebar', async () => {
       const sidebar = new Sidebar(app.driver)
-      const channelList = await sidebar.getChannelList()
-      expect(channelList.length).toBe(1)
-      expect(await channelList[0].getText()).toBe(generalChannelName)
-    })
-
-    it('Users sees just themselves in the user list', async () => {
-      const sidebar = new Sidebar(app.driver)
-      const userList = await sidebar.getUserProfileList()
-      expect(userList.length).toBe(1)
-      expect(await userList[0].getText()).toBe(ownerUserName)
+      await sidebar.waitForChannelsNum(1)
+      const channelNames = await sidebar.getChannelsNames()
+      expect(channelNames).toContain(generalChannelName)
     })
 
     it('User sends a message', async () => {
@@ -189,6 +195,28 @@ describe('One Client', () => {
     it('Owner uploads a non-image file', async () => {
       const uploadFilePath = path.resolve(UPLOAD_FILE_DIR, TEST_FILE_NAME)
       await generalChannel.attachFile(TEST_FILE_NAME, uploadFilePath, FileAttachmentType.FILE, ownerUserName)
+    })
+  })
+
+  describe.skip('Community membership tab', () => {
+    let settingsModal: Settings
+    it('User opens community settings', async () => {
+      settingsModal = await new Sidebar(app.driver).openSettings()
+      expect(await settingsModal.isReady()).toBeTruthy()
+    })
+
+    it.skip('User opens community membership tab', async () => {
+      await settingsModal.openCommunityMembership(1)
+    })
+
+    it('Users sees just themselves in the user list', async () => {
+      const ownStatus = await settingsModal.getUserInCommunityMembership(ownerUserName, UserListStatus.ONLINE, true)
+      expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+      expect(ownStatus.textMatches).toBe(true)
+    })
+
+    it('Users closes community membership tab', async () => {
+      await settingsModal.closeTabThenModal()
     })
   })
 

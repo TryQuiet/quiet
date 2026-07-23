@@ -47,7 +47,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   return (
     <>
-      <Drawer open={open} onClose={handleClose} anchor='right'>
+      <Drawer open={open && currentTab == ''} onClose={handleClose} anchor='right'>
         <List sx={{ width: '375px', paddingTop: '16px' }}>
           <ListItem sx={{ paddingBottom: '8px' }}>
             <div>
@@ -64,6 +64,16 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           <Divider />
           <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>
             <ListItemText>About</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
+          <ListItemButton
+            data-testid={'community-membership-settings-tab'}
+            onClick={() => handleChange('communityMembership')}
+          >
+            <ListItemText>Community membership</ListItemText>
             <ListItemIcon>
               <ChevronRightIcon />
             </ListItemIcon>
@@ -128,7 +138,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
         </Box>
         <Divider />
         <Box p={2} width={375}>
-          {TabComponent && <TabComponent handleClose={handleCloseTab} />}
+          {TabComponent && <TabComponent handleClose={handleCloseTab} currentTab={currentTab} />}
         </Box>
       </Drawer>
     </>

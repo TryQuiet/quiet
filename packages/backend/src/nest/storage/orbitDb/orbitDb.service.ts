@@ -21,7 +21,6 @@ import {
   Entry,
   DatabaseType,
   LogType,
-  IdentitiesType,
 } from '@orbitdb/core'
 import { HeliaLibp2p } from 'helia'
 import { OrbitDbStorage } from '../../types'
@@ -31,6 +30,7 @@ import { LocalDbService } from '../../local-db/local-db.service'
 import { SigChainService } from '../../auth/sigchain.service'
 import { LogEntrySyncMessage } from '../../qss/qss.types'
 import { LFAIdentities } from './identity/lfa/lfa-identity.service'
+import { ChannelType } from '@quiet/types'
 
 @Injectable()
 export class OrbitDbService {
@@ -210,26 +210,41 @@ export class OrbitDbService {
     }
     this.attachOrbitDbUpdateListener()
 
+    // public channel messages
     orbitDbUseAccessController(
       this.messagesAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigChainService,
       }) as any
     )
+    // public channel metadata
     orbitDbUseAccessController(
       this.channelMetadataAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigChainService,
         isPublic: true,
+        channelType: ChannelType.CHANNEL,
       }) as any
     )
+    // private channel metadata
     orbitDbUseAccessController(
       this.channelMetadataAccessController.createAccessControllerFunc({
         write: ['*'],
         sigchainService: this.sigChainService,
         isPublic: false,
+        channelType: ChannelType.CHANNEL,
       }) as any
     )
+    // dm metadata
+    orbitDbUseAccessController(
+      this.channelMetadataAccessController.createAccessControllerFunc({
+        write: ['*'],
+        sigchainService: this.sigChainService,
+        isPublic: false,
+        channelType: ChannelType.DM,
+      }) as any
+    )
+    // user profile metadata
     orbitDbUseAccessController(
       this.userProfileAccessController.createAccessControllerFunc({
         write: ['*'],

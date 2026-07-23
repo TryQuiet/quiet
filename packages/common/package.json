@@ -22,7 +22,7 @@
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@quiet/node-common": "^4.0.3",
     "@types/jest": "^26.0.23",
-    "@types/node": "^17.0.21",
+    "@types/node": "20.19.43",
     "@types/validator": "^13.11.5",
     "jest": "^26.6.3",
     "lint-staged": "^15.2.2",

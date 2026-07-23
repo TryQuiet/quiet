@@ -17,6 +17,7 @@
 
 ### Features
 
+* Adds one-on-one and group DMs to desktop [#2571](https://github.com/TryQuiet/quiet/issues/2571)
 * Allow all users to create private channels [#3277](https://github.com/TryQuiet/quiet/issues/3277)
 * Allow channel members to add members to private channels [#3300](https://github.com/TryQuiet/quiet/issues/3300)
 
@@ -90,6 +91,7 @@
 
 * Registers APNS token with push notifications service [#3080](https://github.com/TryQuiet/quiet/issues/3080)
 * Adds push notification service [#3086](https://github.com/TryQuiet/quiet/issues/3086)
+* Adds private channels [#3155](https://github.com/TryQuiet/quiet/issues/3155)
 
 ### Fixes
 

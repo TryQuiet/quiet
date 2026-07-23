@@ -4,7 +4,6 @@
 
 import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'
-import { Permissions } from './permissions'
 import { QuietRole, RoleName, SELF_ASSIGN_ROLES } from './roles'
 import { AddRoleInput, Member, PermissionsMap, Role } from '@localfirst/auth'
 import { createLogger } from '../../../common/logger'
@@ -17,12 +16,8 @@ class RoleService extends ChainServiceBase {
   }
 
   // TODO: figure out permissions
-  public create(roleName: RoleName | string, permissions: PermissionsMap = {}, staticMembership: boolean = false) {
+  public create(roleName: RoleName | string, permissions: PermissionsMap) {
     logger.info(`Adding new role with name ${roleName}`)
-    if (!staticMembership) {
-      permissions[Permissions.MODIFIABLE_MEMBERSHIP] = true
-    }
-
     const input: AddRoleInput = {
       roleName,
       permissions,
@@ -32,20 +27,15 @@ class RoleService extends ChainServiceBase {
   }
 
   // TODO: figure out permissions
-  public createWithMembers(
-    roleName: RoleName | string,
-    memberIdsForRole: string[],
-    permissions: PermissionsMap = {},
-    staticMembership: boolean = false
-  ) {
-    this.create(roleName, permissions, staticMembership)
+  public createWithMembers(roleName: RoleName | string, memberIdsForRole: string[], permissions: PermissionsMap) {
+    this.create(roleName, permissions)
     for (const memberId of memberIdsForRole) {
       this.addMember(memberId, roleName)
     }
   }
 
   public addMember(memberId: string, roleName: RoleName | string) {
-    logger.info(`Adding member with ID ${memberId} to role ${roleName}`)
+    logger.info(`Adding member to role ${roleName}`)
     this.sigChain.team!.addMemberRole(memberId, roleName)
   }
 
@@ -59,7 +49,7 @@ class RoleService extends ChainServiceBase {
   }
 
   public revokeMembership(memberId: string, roleName: RoleName | string) {
-    logger.info(`Revoking role ${roleName} for member with ID ${memberId}`)
+    logger.info(`Revoking membership for role ${roleName}`)
     this.sigChain.team!.removeMemberRole(memberId, roleName)
   }
 

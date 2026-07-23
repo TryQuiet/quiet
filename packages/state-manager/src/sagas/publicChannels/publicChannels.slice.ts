@@ -29,6 +29,7 @@ import {
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
   type AddMembersChannelPayload,
+  EMPTY_CHANNEL_ID,
   ChannelOperationStatus,
   type GenericChannelPermissions,
   DEFAULT_GENERIC_CHANNEL_PERMISSIONS,
@@ -36,6 +37,7 @@ import {
   type PrivateChannelPermissions,
 } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
+import { prevChannelId } from './publicChannels.selectors'
 
 const logger = createLogger('publicChannelsSlice')
 
@@ -47,6 +49,10 @@ export class PublicChannelsState {
   public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
 
   public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
+
+  public newMessageOpen = false
+
+  public prevChannelId: string = INITIAL_CURRENT_CHANNEL_ID
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
@@ -99,7 +105,7 @@ export const publicChannelsSlice = createSlice({
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       logger.info('addChannel', action.payload)
-      const { channel, status } = action.payload
+      const { channel, displayedName, status } = action.payload
       if (status === ChannelOperationStatus.FAILED) {
         logger.error('addChannel got a failed status!')
         return
@@ -110,6 +116,7 @@ export const publicChannelsSlice = createSlice({
       }
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
+        displayedName: displayedName ?? channel.name,
         messages: channelMessagesAdapter.getInitialState(),
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
@@ -117,6 +124,7 @@ export const publicChannelsSlice = createSlice({
         unread: false,
         newestMessage: null,
         public: channel.public,
+        type: channel.type,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
@@ -128,6 +136,7 @@ export const publicChannelsSlice = createSlice({
       })
     },
     channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
+    syncChannelDisplayNames: state => state,
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
       const { channelId } = action.payload
       state.currentChannelId = channelId
@@ -183,6 +192,35 @@ export const publicChannelsSlice = createSlice({
       const channel = state.channels.entities[message.channelId]
       if (!channel) return
       channelMessagesAdapter.addOne(channel.messages, message)
+    },
+    setNewMessageOpen: (state, action: PayloadAction<{ isOpen: boolean; prevChannelId?: string }>) => {
+      const { isOpen, prevChannelId } = action.payload
+      if (prevChannelId != null) {
+        state.prevChannelId = prevChannelId
+      }
+
+      if (isOpen) {
+        state.currentChannelId = EMPTY_CHANNEL_ID
+      }
+      state.newMessageOpen = isOpen
+    },
+    setDisplayedName: (state, action: PayloadAction<{ channelId: string; displayedName: string }>) => {
+      const { channelId, displayedName } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          displayedName,
+        },
+      })
+    },
+    setMemberIdHash: (state, action: PayloadAction<{ channelId: string; memberIdHash: string }>) => {
+      const { channelId, memberIdHash } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          memberIdHash,
+        },
+      })
     },
   },
 })

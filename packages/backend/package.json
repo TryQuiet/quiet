@@ -74,7 +74,7 @@
     "@types/jest": "28.1.8",
     "@types/luxon": "^3.4.2",
     "@types/mock-fs": "^4.13.1",
-    "@types/node": "18.11.9",
+    "@types/node": "20.19.43",
     "@types/node-fetch": "^2.5.11",
     "@types/supertest": "^2.0.11",
     "@types/tmp": "^0.2.3",
@@ -108,7 +108,7 @@
     "@helia/unixfs": "4.0.1",
     "@ipld/dag-cbor": "^9.2.1",
     "@ipld/dag-pb": "^4.1.2",
-    "@libp2p/crypto": "^5.0.8",
+    "@libp2p/crypto": "5.0.8",
     "@libp2p/echo": "^1.1.1",
     "@libp2p/identify": "^3.0.14",
     "@libp2p/interface": "^2.3.0",
@@ -202,8 +202,11 @@
   },
   "overrides": {
     "level": "$level",
+    "multiformats": "13.3.1",
+    "@chainsafe/libp2p-noise": {
+      "@libp2p/crypto": "5.0.8"
+    },
     "@orbitdb/core": {
-      "multiformats": "13.3.1",
       "@ipld/dag-cbor": "9.2.1"
     },
     "express": {

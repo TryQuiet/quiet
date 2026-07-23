@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { prepareStore, getReduxStoreFactory, publicChannels, Store } from '@quiet/state-manager'
-import { Community, Identity, NetworkStats, PublicChannel, SocketEvents, UserProfile } from '@quiet/types'
+import { ChannelType, Community, Identity, NetworkStats, PublicChannel, SocketEvents, UserProfile } from '@quiet/types'
 
 import path from 'path'
 import { TestModule } from '../common/test.module'
@@ -70,6 +70,7 @@ describe('StorageService', () => {
       timestamp: channel.timestamp,
       id: channel.id,
       public: true,
+      type: ChannelType.CHANNEL,
       teamId: community.teamId!,
     }
 

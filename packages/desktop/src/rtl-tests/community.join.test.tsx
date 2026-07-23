@@ -30,6 +30,7 @@ import {
   ErrorMessages,
   ResponseJoinCommunityPayload,
   CommunityOwnership,
+  ChannelType,
   type InvitationAuthDataV4,
 } from '@quiet/types'
 import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav5 } from '@quiet/common'
@@ -60,6 +61,7 @@ const makeMockEmitImpl = (socket: MockedSocket, opts?: { qss?: boolean }) => {
               timestamp: 0,
               id: 'general',
               public: true,
+              type: ChannelType.CHANNEL,
               teamId: 'foobar',
             },
           ],
@@ -240,6 +242,7 @@ describe('User', () => {
         "Identity/registerUsername",
         "Identity/setUsername",
         "PublicChannels/channelsReplicated",
+        "PublicChannels/syncChannelDisplayNames",
         "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
@@ -252,16 +255,16 @@ describe('User', () => {
         "Users/setUserProfile",
         "Communities/launchCommunity",
         "Communities/clearInvitationCodes",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/retryVerification",
-        "Messages/verifyMessages",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/retryVerification",
         "Messages/verifyMessages",
         "Communities/setCurrentCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/retryVerification",
+        "Messages/verifyMessages",
       ]
     `)
   })

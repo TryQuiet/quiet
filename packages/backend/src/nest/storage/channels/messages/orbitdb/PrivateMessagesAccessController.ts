@@ -72,8 +72,8 @@ export class PrivateMessagesAccessController extends BaseMessagesAccessControlle
         this.logger.warn(
           `User is not a member of the channel, skipping log append`,
           id,
-          config.teamId,
-          config.channelId
+          entry.payload.value!.teamId,
+          entry.payload.value!.channelId
         )
         return false
       }

@@ -47,6 +47,7 @@ import {
 } from './community'
 import { ErrorPayload } from './errors'
 import { HCaptchaChallengeRequest, HCaptchaFormResponse, HCaptchaRequest } from './captcha'
+import { ClearConnectedPeersPayload } from './connection'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent, NseQssUrlUpdatedEvent, NseSyncSeqUpdatedEvent } from './keys'
 
 // -----------------------------------------------------------------------------
@@ -158,6 +159,7 @@ export enum SocketEvents {
   CREATED_LONG_LIVED_LFA_INVITE = 'createdLongLivedLfaInvite',
 
   // ====== Network ======
+  PEER_CLEAR = 'peerClear',
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   TOR_INITIALIZED = 'torInitialized',
@@ -284,6 +286,7 @@ export interface SocketEventsMap {
   [SocketEvents.CREATED_LONG_LIVED_LFA_INVITE]: EmitEvent<InviteResultWithSalt>
 
   // ====== Network ======
+  [SocketEvents.PEER_CLEAR]: EmitEvent<ClearConnectedPeersPayload>
   [SocketEvents.PEER_CONNECTED]: EmitEvent<any>
   [SocketEvents.PEER_DISCONNECTED]: EmitEvent<any>
   [SocketEvents.TOR_INITIALIZED]: EmitEvent<void>

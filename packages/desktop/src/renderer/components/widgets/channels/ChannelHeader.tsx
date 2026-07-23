@@ -8,6 +8,9 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 
 import { createLogger } from '../../../logger'
 import ChannelTypeIcon from './ChannelTypeIcon'
+import { ChannelType, UserProfile } from '@quiet/types'
+import _ from 'lodash'
+import DMProfilePhoto from './DMProfilePhoto'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -30,6 +33,9 @@ const classes = {
   bold: `${PREFIX}bold`,
   menu: `${PREFIX}menu`,
   lock: `${PREFIX}lock`,
+  headerTitle: `${PREFIX}headerTitle`,
+  headerTitleChannel: `${PREFIX}headerTitleChannel`,
+  headerTitleDm: `${PREFIX}headerTitleDm`,
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -119,22 +125,47 @@ const Root = styled('div')(({ theme }) => ({
     marginRight: -2,
     marginLeft: -2,
   },
+
+  [`& .${classes.headerTitle}`]: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyItems: 'center',
+    display: 'flex',
+    direction: 'row',
+  },
+
+  [`& .${classes.headerTitleChannel}`]: {
+    gap: '2px',
+  },
+
+  [`& .${classes.headerTitleDm}`]: {
+    gap: '4px',
+  },
 }))
 
 export interface ChannelHeaderProps {
   channelName: string
+  me: UserProfile | undefined
+  members: UserProfile[]
+  channelType: ChannelType
   isPublic: boolean
   openContextMenu?: () => void
   enableContextMenu: boolean
+  maxDmNames?: number
 }
 
 const logger = createLogger('channels:ChannelHeader')
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
+  channelType,
+  me,
+  members,
   isPublic,
   openContextMenu,
   enableContextMenu,
+  maxDmNames = 2,
 }) => {
   const theme = useTheme()
   const debounce = (fn: () => void, ms: number) => {
@@ -166,15 +197,33 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
     return window.removeEventListener('resize', handleResize)
   })
 
-  const channelNameTruncated = channelName?.substring(0, 20)
+  let channelNameTruncated: string
+  if (channelType == null || channelType === ChannelType.CHANNEL) {
+    channelNameTruncated = channelName.substring(0, 20)
+  } else {
+    const dmNames = channelName.split(', ')
+    if (dmNames.length > maxDmNames) {
+      const namesToShow = dmNames.slice(0, maxDmNames)
+      channelNameTruncated = `${namesToShow.join(', ')} and ${dmNames.length - namesToShow.length} more`
+    } else {
+      channelNameTruncated = channelName
+    }
+  }
 
   return (
     <Root className={classes.wrapper}>
       <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
         <Grid item>
           <Grid item container alignItems='center'>
-            <Grid item>
-              <Grid container justifyContent='space-between' alignItems='center' direction='row' gap='2px'>
+            <Grid
+              container
+              item
+              className={classNames(classes.headerTitle, {
+                [classes.headerTitleChannel]: channelType == null || channelType === ChannelType.CHANNEL,
+                [classes.headerTitleDm]: channelType === ChannelType.DM,
+              })}
+            >
+              {channelType == null || channelType === ChannelType.CHANNEL ? (
                 <ChannelTypeIcon
                   isPublic={isPublic}
                   fill={'currentColor'}
@@ -186,19 +235,21 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                   })}
                   data-testid={`channelTitle-icon-${isPublic ? 'public' : 'private'}`}
                 />
-                <Typography
-                  noWrap
-                  style={{ maxWidth: wrapperWidth }}
-                  variant='subtitle1'
-                  className={classNames({
-                    [classes.title]: true,
-                    [classes.bold]: true,
-                  })}
-                  data-testid={'channelTitle'}
-                >
-                  {channelNameTruncated}
-                </Typography>
-              </Grid>
+              ) : (
+                <DMProfilePhoto members={members} me={me} />
+              )}
+              <Typography
+                noWrap
+                style={{ maxWidth: wrapperWidth }}
+                variant='subtitle1'
+                className={classNames({
+                  [classes.title]: true,
+                  [classes.bold]: true,
+                })}
+                data-testid={'channelTitle'}
+              >
+                {channelNameTruncated}
+              </Typography>
             </Grid>
           </Grid>
         </Grid>

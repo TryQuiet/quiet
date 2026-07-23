@@ -13,6 +13,7 @@ interface ProfilePhotoProps {
   size?: number
   style?: React.CSSProperties
   alt?: string
+  borderRadius?: string | number
 }
 
 const hasProfilePhoto = (
@@ -34,6 +35,7 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   className,
   size = 96,
   style,
+  borderRadius = 4,
   alt,
 }) => {
   const theme = useTheme()
@@ -42,8 +44,8 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   const defaultStyle = {
     width: `${size}px`,
     height: `${size}px`,
-    borderRadius: '4px',
-    marginBottom: '16px',
+    size,
+    borderRadius,
     ...style,
   }
 
@@ -52,9 +54,13 @@ export const ProfilePhoto: React.FC<ProfilePhotoProps> = ({
   return (
     <>
       {userProfile?.photo ? (
-        <img className={className} src={userProfile.photo} alt={altText} style={defaultStyle} />
+        <div style={defaultStyle}>
+          <img className={className} src={userProfile.photo} alt={altText} style={defaultStyle} />
+        </div>
       ) : profilePhotoPath ? (
-        <img className={className} src={profilePhotoPath} alt={altText} style={defaultStyle} />
+        <div style={defaultStyle}>
+          <img className={className} src={profilePhotoPath} alt={altText} style={defaultStyle} />
+        </div>
       ) : (
         <Jdenticon
           value={userId}

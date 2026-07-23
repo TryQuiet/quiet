@@ -6,6 +6,7 @@ import {
   ChannelMessage,
   ChannelOperationStatus,
   ChannelSubscribedPayload,
+  ChannelType,
   ChannelsReplicatedPayload,
   Community,
   CreateChannelPayload,
@@ -327,6 +328,7 @@ describe('ChannelsService', () => {
         description: 'secret channel description',
         public: true,
         teamId: community.teamId!,
+        type: ChannelType.CHANNEL,
       }
 
       const response = await channelsService.handleCreateChannel(payload)
@@ -351,6 +353,7 @@ describe('ChannelsService', () => {
         description: 'ready channel description',
         public: true,
         teamId: community.teamId!,
+        type: ChannelType.CHANNEL,
       }
       const subscribedChannelIds: string[] = []
       channelsService.on(StorageEvents.CHANNEL_SUBSCRIBED, payload => {
@@ -380,6 +383,7 @@ describe('ChannelsService', () => {
           description: `socket channel ${index}`,
           public: true,
           teamId: community.teamId!,
+          type: ChannelType.CHANNEL,
         }))
 
         const createResponses = await Promise.all(
@@ -586,6 +590,7 @@ describe('ChannelsService', () => {
           description: 'unique channel description',
           public: true,
           teamId: community.teamId!,
+          type: ChannelType.CHANNEL,
         })
 
         expect(response.channel!.id).toBe(expectedId)
@@ -727,6 +732,9 @@ describe('ChannelsService', () => {
 
       await channelsService.subscribeToChannel(channel1)
       await channelsService.subscribeToChannel(channel2)
+
+      expect(await channelsService.getChannel(channel1.id)).toBeDefined()
+      expect(await channelsService.getChannel(channel2.id)).toBeDefined()
 
       // send a message to channel1
       const message1 = await factory.build<ChannelMessage>('ChannelMessage', {

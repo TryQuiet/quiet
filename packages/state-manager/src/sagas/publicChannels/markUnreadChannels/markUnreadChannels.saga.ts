@@ -47,6 +47,7 @@ export function* clearUnreadChannelsSaga(
 
   // Do not proceed with invalid channel
   if (channelId === '') return
+  if (channelId == null) return
 
   const payload: MarkUnreadChannelPayload = {
     channelId,

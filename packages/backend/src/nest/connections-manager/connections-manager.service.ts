@@ -51,7 +51,6 @@ import {
   SetUserProfileResponse,
   AddMembersChannelPayload,
   AddMembersChannelResponse,
-  PublicChannel,
   User,
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
@@ -785,6 +784,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.LAUNCHING
     this.logger.info(`Community state is now ${this.communityState}`)
 
+    // Clear the data about which peers are connected from the state-manager so it accurately reflects real connection
+    // statuses
+    this.logger.debug('Clearing connected peers from frontend')
+    this.serverIoProvider.io.emit(SocketEvents.PEER_CLEAR, { communityId: community.id })
+
     if (community.name) {
       try {
         this.logger.info('Loading sigchain for community', community.name)
@@ -946,6 +950,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
   }
 
+  /**
+   * Add team ID to community in LocalDB and state-manager storage
+   *
+   * @param community Community that is being modified
+   * @param chainOrTeamId Sigchain associated with the community or its team ID
+   */
   private async _updateTeamIdOnStoredCommunity(community: Community, chain: SigChain): Promise<void>
   private async _updateTeamIdOnStoredCommunity(community: Community, teamId: string): Promise<void>
   private async _updateTeamIdOnStoredCommunity(community: Community, chainOrTeamId: SigChain | string): Promise<void> {

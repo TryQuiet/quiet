@@ -70,11 +70,21 @@ jobs:
         run: ENVFILE=.env.e2e.qss npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
+        id: finish-build
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
+      - name: Run one client with QSS test
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: (success() || failure()) && steps.finish-build.outcome == 'success'
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test oneClient.qss.test.ts
+
       - name: Run multiple clients with QSS test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: (success() || failure()) && steps.finish-build.outcome == 'success'
         with:
           timeout_minutes: 25
           max_attempts: 3
@@ -82,17 +92,19 @@ jobs:
 
       - name: Run multiple clients with QSS test (private channels)
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        if: (success() || failure()) && steps.finish-build.outcome == 'success'
         with:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test multipleClients.privateChannels.qss.test.ts
 
-      - name: Run one client with QSS test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test oneClient.qss.test.ts
+      # - name: Run multiple clients with QSS test (DMs)
+      #   uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+      #   if: (success() || failure()) && steps.finish-build.outcome == 'success'
+      #   with:
+      #     timeout_minutes: 25
+      #     max_attempts: 3
+      #     command: cd packages/e2e-tests && npm run test multipleClients.dms.qss.test.ts
 
       - name: Stop QSS docker
         if: always()

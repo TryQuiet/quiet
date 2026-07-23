@@ -1,4 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
+import * as logging from 'selenium-webdriver/lib/logging'
 import { spawn, exec, execSync, type ChildProcessWithoutNullStreams, ChildProcess } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
@@ -38,6 +39,7 @@ export class BuildSetup {
   private defaultDataDir: boolean
   private fileName?: string
   private chromeDriverPath?: string
+  private _seleniumLogger: logging.Logger
 
   constructor({
     port,
@@ -61,6 +63,8 @@ export class BuildSetup {
     }
     this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
     logger.info('Running app from directory', this.dataDirPath)
+    this._seleniumLogger = logging.getLogger()
+    this._configureSeleniumLogging()
   }
 
   async initPorts() {
@@ -146,13 +150,32 @@ export class BuildSetup {
     }
   }
 
+  private _generateDebugSetting(): string {
+    if (process.env.TRACE_APP_LOGS == 'true') {
+      return '*:trace'
+    }
+
+    if (process.env.VERBOSE == 'true') {
+      return '*'
+    }
+
+    return 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*'
+  }
+
+  private _configureSeleniumLogging(): void {
+    if (process.env.VERBOSE == 'true') {
+      this._seleniumLogger.setLevel(logging.Level.FINEST)
+    } else {
+      this._seleniumLogger.setLevel(logging.Level.WARNING)
+    }
+
+    logging.installConsoleHandler()
+  }
+
   public async createChromeDriver(qssEnabled = false) {
     await this.initPorts()
     let env: any = {
-      DEBUG:
-        process.env.TRACE_APP_LOGS === 'true'
-          ? '*:trace'
-          : 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,main,libp2p:*',
+      DEBUG: this._generateDebugSetting(),
       DATA_DIR: this.dataDir,
       STATIC_LOG_ID: this.id,
     }

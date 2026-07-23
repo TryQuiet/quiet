@@ -4,6 +4,7 @@ import { Chat } from '../Chat.component'
 import { Keyboard } from 'react-native'
 import { ChatProps } from '../Chat.types'
 import { FileActionsProps } from '../../FileAttachment/FileAttachment.types'
+import { ChannelType } from '@quiet/types'
 
 jest.useFakeTimers()
 
@@ -35,6 +36,7 @@ describe('Chat component', () => {
       timestamp: 0,
       id: '',
       public: true,
+      type: ChannelType.CHANNEL,
       teamId: 'foobar',
     },
     pendingMessages: {},

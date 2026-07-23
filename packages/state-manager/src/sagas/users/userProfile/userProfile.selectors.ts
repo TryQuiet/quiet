@@ -5,7 +5,10 @@ import { StoreKeys } from '../../store.keys'
 import { Identity, UserProfile } from '@quiet/types'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { usersSelectors } from '../users.selectors'
+import { createLogger } from '../../../utils/logger'
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
+
+const logger = createLogger('UserProfilesSelectors')
 
 // Nullish coalescing operator for backwards compatibility with 2.0.1
 export const userProfiles = createSelector(usersSlice, users => {

@@ -11,7 +11,7 @@ import {
   Settings,
   Sidebar,
 } from '../selectors'
-import { MessageIds } from '../types'
+import { DEFAULT_ADD_NEW_CHANNEL_OPTIONS, MessageIds, TestAddNewChannelButtonId } from '../types'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller, sleep } from '../utils'
 import { createLogger } from '../logger'
 
@@ -148,10 +148,15 @@ describe('Backwards Compatibility', () => {
     describe('Second channel', () => {
       itif(process.platform == 'linux')('Owner creates second channel', async () => {
         sidebar = new Sidebar(ownerAppOldVersion.driver)
-        await sidebar.addNewChannel(newChannelName, true, false)
+        const { channel, errors } = await sidebar.addNewChannel(newChannelName, {
+          isPublic: true,
+          expectToggle: false,
+          buttonId: TestAddNewChannelButtonId.PRE_DMS,
+        })
+        expect(channel).toBeDefined()
+        expect(errors).toBeUndefined()
+        await sidebar.waitForChannelsNum(2)
         await sidebar.switchChannel(newChannelName, true, false)
-        const channels = await sidebar.getChannelList()
-        expect(channels.length).toEqual(2)
       })
 
       itif(process.platform == 'linux')('Owner sends a message in second channel', async () => {
@@ -242,8 +247,7 @@ describe('Backwards Compatibility', () => {
 
       itif(process.platform == 'linux')('Verify number of channels', async () => {
         sidebar = new Sidebar(ownerAppNewVersion.driver)
-        const channels = await sidebar.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebar.waitForChannelsNum(2)
       })
 
       itif(process.platform == 'linux')('Switch to second channel', async () => {

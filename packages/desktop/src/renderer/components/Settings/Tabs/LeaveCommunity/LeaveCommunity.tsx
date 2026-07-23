@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 
 import { communities } from '@quiet/state-manager'
 
-import { LeaveCommunityComponent, LeaveCommunityProps } from './LeaveCommunityComponent'
+import { LeaveCommunityComponent } from './LeaveCommunityComponent'
 
 import { clearCommunity } from '../../../..'
 

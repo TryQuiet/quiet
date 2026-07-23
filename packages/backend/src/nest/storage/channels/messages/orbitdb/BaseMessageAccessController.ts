@@ -56,6 +56,7 @@ const getAccessControllerManifestHash = (address: string): string => {
 export interface AccessControllerConfig {
   write: string[]
   sigchainService: SigChainService
+  roleName?: string
 }
 
 export class BaseMessagesAccessController<T extends AccessControllerConfig> {

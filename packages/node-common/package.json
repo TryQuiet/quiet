@@ -25,7 +25,7 @@
   "devDependencies": {
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@types/jest": "^26.0.23",
-    "@types/node": "^20",
+    "@types/node": "20.19.43",
     "@types/validator": "^13.11.5",
     "@types/winston": "^2.4.4",
     "jest": "^26.6.3",
@@ -40,7 +40,6 @@
     "@formatjs/intl-locale": "^3.4.5",
     "@quiet/logger": "^2.0.2-alpha.0",
     "@quiet/types": "^2.0.2-alpha.1",
-    "@types/node": "^20",
     "base64url": "^3.0.1",
     "cross-env": "^7.0.3",
     "debug": "^4.3.1",

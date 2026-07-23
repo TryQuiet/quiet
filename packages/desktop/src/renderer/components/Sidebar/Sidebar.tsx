@@ -10,6 +10,10 @@ import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { DirectMessagesPanelProps } from './DirectMessagesPanel/DirectMessagesPanel'
+import { createLogger } from '../../logger'
+import _ from 'lodash'
+
+const logger = createLogger('Sidebar')
 
 const Sidebar = () => {
   const dispatch = useDispatch()
@@ -25,6 +29,8 @@ const Sidebar = () => {
   const userProfileSelector = useSelector(users.selectors.userProfiles)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
+  const dmChannels = useSelector(publicChannels.selectors.sortedDmChannels)
+  const unreadDms = useSelector(publicChannels.selectors.unreadDms)
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
@@ -32,8 +38,6 @@ const Sidebar = () => {
   const channelPermissions = useSelector(publicChannels.selectors.genericChannelPermissions)
   const userId = userProfile?.userId || ''
 
-  // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
-  useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
   const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
@@ -43,11 +47,16 @@ const Sidebar = () => {
   }, [channelPermissions])
 
   const setCurrentChannel = (id: string) => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: false }))
     dispatch(
       publicChannels.actions.setCurrentChannel({
         channelId: id,
       })
     )
+  }
+
+  const openNewMessageWindow = () => {
+    dispatch(publicChannels.actions.setNewMessageOpen({ isOpen: true, prevChannelId: currentChannelId }))
   }
 
   if (!currentCommunity || !currentChannelId) {
@@ -62,8 +71,8 @@ const Sidebar = () => {
   const channelsPanelProps: ChannelsPanelProps = {
     channels: publicChannelsSelector,
     userProfiles: userProfileSelector,
-    connectedPeers: connectedPeers,
-    unreadChannels: unreadChannels,
+    connectedPeers,
+    unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannelId: currentChannelId,
     createChannelModal: createChannelModal,
@@ -81,9 +90,13 @@ const Sidebar = () => {
   const directMessagesPanelProps: DirectMessagesPanelProps = {
     myUserProfile: userProfile,
     userProfiles: userProfileSelector,
-    userProfileContextMenu: userProfileContextMenu,
+    dmChannels,
+    unreadDms,
+    currentChannelId,
     connectedPeers: connectedPeers,
     isTorInitialized: isTorInitialized,
+    setCurrentChannel,
+    openNewMessageWindow,
   }
 
   return (

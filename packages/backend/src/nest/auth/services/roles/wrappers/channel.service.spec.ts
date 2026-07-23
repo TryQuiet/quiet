@@ -1,13 +1,12 @@
-import { SigChain } from '../../sigchain'
-import { createLogger } from '../../../common/logger'
-import { DEFAULT_CHANNEL_ROLE_NAME_LENGTH, RoleName } from './roles'
+import { SigChain } from '../../../sigchain'
+import { createLogger } from '../../../../common/logger'
+import { DEFAULT_CHANNEL_ROLE_NAME_LENGTH, RoleName } from '../roles'
 import { base58, hash, randomBytes } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
 import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
-import { InviteLockboxMetadata } from '../crypto/types'
-import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
-import { RANDOM_USERNAME_LENGTH } from '../members/types'
-import { randomUUID } from 'crypto'
+import { InviteLockboxMetadata } from '../../crypto/types'
+import { RANDOM_TEAM_NAME_LENGTH } from '../../../types'
+import { RANDOM_USERNAME_LENGTH } from '../../members/types'
 
 const logger = createLogger('auth:services:channels.spec')
 

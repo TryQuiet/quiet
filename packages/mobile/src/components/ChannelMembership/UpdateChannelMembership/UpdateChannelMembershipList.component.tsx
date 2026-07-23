@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FlatList, ListRenderItemInfo, View } from 'react-native'
 
 import { ProfilePhoto } from '../../ProfilePhoto/ProfilePhoto.component'

@@ -13,6 +13,8 @@ import { StorageModule } from '../../storage.module'
 import { EncryptedMessage } from './messages.types'
 import { isEncryptedMessage } from '../../../validation/validators'
 import { PrivateChannelMessagesService } from './private-channel-messages.service'
+import { role, Role } from '@localfirst/auth'
+import { defaultChannelPermissions } from '../../../auth/services/roles/permissions'
 
 const logger = createLogger('privateChannelMessagesService:test')
 
@@ -152,7 +154,7 @@ describe('PrivateChannelMessagesService', () => {
           ...encryptedMessage.encSignature,
           author: {
             generation: 1,
-            name: 'foobar',
+            name: 'notarole',
             type: '',
           },
         },

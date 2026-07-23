@@ -1,6 +1,6 @@
-import _ from 'validator'
+import _validator from 'validator'
 import joi from 'joi'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { ChannelMessage, ChannelType, PublicChannel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
 import { createLogger } from '../common/logger'
@@ -49,7 +49,7 @@ const EncryptionSignatureSchema = joi.object({
 
 const messageSchema = joi.object({
   id: joi.string().required(),
-  type: joi.number().required().positive().integer(),
+  type: joi.number().required().integer(),
   message: joi.string().required().allow(''),
   createdAt: joi.number().required(),
   channelId: joi.string().required(),
@@ -100,7 +100,23 @@ const channelSchema = joi.object({
   public: joi.boolean().optional(),
   roleName: joi.string().optional(),
   disabled: joi.boolean().optional(),
+  type: joi
+    .string()
+    .optional()
+    .custom((value, _helpers) => {
+      return value === ChannelType.CHANNEL || value === ChannelType.DM
+    }),
+  memberIds: joi.array().items(joi.string()).optional(),
   teamId: joi.string().optional(),
+  memberIdHash: joi
+    .any()
+    .optional()
+    .custom((value, _helpers) => {
+      if (typeof value !== 'string' || !_validator.isBase64(value)) {
+        throw new Error('value must be a base64 string')
+      }
+      return value
+    }),
 })
 
 // TODO: make this validator more strict
@@ -119,7 +135,7 @@ const metadataSchema = joi.object({
 })
 
 export const isDirectMessage = (msg: string): boolean => {
-  return msg.length >= 364 && _.isBase64(msg)
+  return msg.length >= 364 && _validator.isBase64(msg)
 }
 
 export const isMessage = (msg: ChannelMessage): boolean => {
@@ -142,6 +158,7 @@ export const isEncryptedMessage = (msg: EncryptedMessage): boolean => {
 
 export const isChannel = (channel: PublicChannel): boolean => {
   const value = channelSchema.validate(channel)
+  logger.error('Channel validation error', value.error)
   return !value.error
 }
 

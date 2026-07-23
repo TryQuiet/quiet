@@ -1,7 +1,7 @@
 import { put, select } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { createLogger } from '../../../utils/logger'
-import { CreateChannelPayload } from '@quiet/types'
+import { ChannelType, CreateChannelPayload } from '@quiet/types'
 import { communities } from '../../..'
 
 const logger = createLogger('createGeneralChannelSaga')
@@ -18,6 +18,7 @@ export function* createGeneralChannelSaga(): Generator {
     publicChannelsActions.createChannel({
       name: 'general',
       description: 'Welcome to #general',
+      type: ChannelType.CHANNEL,
       teamId: community.teamId,
       public: true,
     } as CreateChannelPayload)

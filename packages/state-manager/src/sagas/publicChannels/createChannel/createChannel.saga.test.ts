@@ -8,7 +8,7 @@ import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore, testReducers } from '../../../utils/tests/prepareStore'
 import { getReduxStoreFactory, getSocketFactory } from '../../../utils/tests/factories'
-import { CreateChannelPayload, CreateChannelResponse, SocketActions } from '@quiet/types'
+import { ChannelType, CreateChannelPayload, CreateChannelResponse, SocketActions } from '@quiet/types'
 import { messagesActions } from '../../messages/messages.slice'
 import { MockedSocket } from '../../../utils/tests/mockedSocket'
 
@@ -59,6 +59,7 @@ describe('createChannelSaga', () => {
         publicChannelsActions.sendInitialChannelMessage({
           channelName: createChannelResponse.channel!.name,
           channelId: createChannelResponse.channel!.id,
+          type: ChannelType.CHANNEL,
         })
       )
       .run()
@@ -96,6 +97,7 @@ describe('createChannelSaga', () => {
         publicChannelsActions.sendInitialChannelMessage({
           channelName: createChannelResponse.channel!.name,
           channelId: createChannelResponse.channel!.id,
+          type: ChannelType.CHANNEL,
         })
       )
       .run()

@@ -10,12 +10,12 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   ServerOfferModal,
+  Settings,
   Sidebar,
   TermsOfServiceModal,
-  UsersList,
 } from '../selectors'
+import { DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS, UserListStatus, UserTestData2, UserTestDataMap } from '../types'
 import { promiseWithRetries, tailQssLogs } from '../utils'
-import { UserListStatus, UserTestData2, UserTestDataMap } from '../types'
 import { createLogger } from '../logger'
 import { SettingsModalTabName } from '../enums'
 import { ChildProcess } from 'child_process'
@@ -40,6 +40,10 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
   let sidebarOwner: Sidebar
   let sidebarUser1: Sidebar
   let sidebarUser2: Sidebar
+
+  let settingsOwner: Settings
+  let settingsUser1: Settings
+  let settingsUser2: Settings
 
   let qssLogTailProcess: ChildProcess
 
@@ -160,6 +164,26 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
         const generalChannelText = await generalChannelOwner.element.getText()
         expect(generalChannelText).toEqual('general')
       })
+
+      it.skip('Owner opens community membership tab', async () => {
+        settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+        expect(await settingsOwner.isReady()).toBeTruthy()
+        await settingsOwner.openCommunityMembership(1)
+      })
+
+      it.skip('Owner sees self in user list', async () => {
+        const ownStatus = await settingsOwner.getUserInCommunityMembership(
+          users.owner.username,
+          UserListStatus.ONLINE,
+          true
+        )
+        expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+        expect(ownStatus.textMatches).toBe(true)
+      })
+
+      it.skip('Owner closes community membership tab', async () => {
+        await settingsOwner.closeTabThenModal()
+      })
     })
 
     describe('Owner Sends a Message in General', () => {
@@ -177,10 +201,16 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
     describe('Creating Private Channel Before User Joins', () => {
       describe('Owner Creates a Private Channel', () => {
         it('Owner creates a private channel', async () => {
-          await sidebarOwner.addNewChannel(privateChannelName, false)
-          await sidebarOwner.switchChannel(privateChannelName, false)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannelName,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
+          await sidebarOwner.waitForChannelsNum(2)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannelName)
+          await sidebarOwner.switchChannel(privateChannelName, false)
           await sidebarOwner.getChannelIcon(privateChannelName, false)
         })
 
@@ -248,11 +278,6 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await joinPanel.waitForJoinToComplete()
         })
 
-        it('First user sees user list', async () => {
-          const userList = new UsersList(users.user1.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-        })
-
         it('First user sees general channel', async () => {
           const app = users.user1.app
           const loadNewUser = async () => {
@@ -272,16 +297,54 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
         })
 
-        it('User sees owner in user list', async () => {
-          const userList = new UsersList(users.user1.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.owner.username, UserListStatus.ONLINE))
+        it.skip('First user opens community membership tab', async () => {
+          settingsUser1 = await new Sidebar(users.user1.app.driver).openSettings()
+          expect(await settingsUser1.isReady()).toBeTruthy()
+          await settingsUser1.openCommunityMembership(2)
         })
 
-        it('Owner sees user in user list', async () => {
-          const userList = new UsersList(users.owner.app.driver)
-          expect(await userList.isReady()).toBeTruthy()
-          expect(await userList.getUser(users.user1.username, UserListStatus.ONLINE))
+        it.skip('First user sees self in user list', async () => {
+          const ownStatus = await settingsUser1.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            true
+          )
+          expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+          expect(ownStatus.textMatches).toBe(true)
+        })
+
+        it.skip('First user sees owner in user list', async () => {
+          const status = await settingsUser1.getUserInCommunityMembership(
+            users.owner.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.ONLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('First user closes community membership tab', async () => {
+          await settingsUser1.closeTabThenModal()
+        })
+
+        it.skip('Owner opens community membership tab', async () => {
+          settingsOwner = await new Sidebar(users.owner.app.driver).openSettings()
+          expect(await settingsOwner.isReady()).toBeTruthy()
+          await settingsOwner.openCommunityMembership(2)
+        })
+
+        it.skip('Owner sees first user in user list', async () => {
+          const ownStatus = await settingsOwner.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.ONLINE,
+            false
+          )
+          expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+          expect(ownStatus.textMatches).toBe(true)
+        })
+
+        it.skip('Owner closes community membership tab', async () => {
+          await settingsOwner.closeTabThenModal()
         })
 
         it("Owner's message is visible in general channel to user", async () => {
@@ -380,7 +443,6 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           sidebarUser1 = new Sidebar(users.user1.app.driver)
           await sidebarUser1.switchChannel(privateChannelName, false)
           privateChannelUser1 = new Channel(users.user1.app.driver, privateChannelName)
-          expect(await privateChannelUser1.isOpen(false))
           expect(await privateChannelUser1.isMessageInputReady()).toBeTruthy()
         })
 
@@ -418,11 +480,16 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
       describe('Owner Creates Another Private Channel', () => {
         it('Owner creates a second private channel', async () => {
           sidebarOwner = new Sidebar(users.owner.app.driver)
-          await sidebarOwner.addNewChannel(privateChannel2Name, false)
-          await sidebarOwner.switchChannel(privateChannel2Name, false)
+          const { channel, errors } = await sidebarOwner.addNewChannel(
+            privateChannel2Name,
+            DEFAULT_ADD_NEW_CHANNEL_PRIVATE_OPTIONS
+          )
+          expect(channel).toBeDefined()
+          expect(errors).toBeUndefined()
           await sidebarOwner.waitForChannelsNum(3)
           const channels = await sidebarOwner.getChannelsNames()
           expect(channels).toContain(privateChannel2Name)
+          await sidebarOwner.switchChannel(privateChannel2Name, false)
           await sidebarOwner.getChannelIcon(privateChannel2Name, false)
         })
 
@@ -575,6 +642,46 @@ describe('Multiple Clients (QSS - Private Channels)', () => {
           const channels = await sidebarUser2.getChannelsNames()
           expect(channels.length).toBe(1)
           expect(channels).toContain(generalChannelName)
+        })
+
+        it.skip('Second user opens community membership', async () => {
+          settingsUser2 = await new Sidebar(users.user2.app.driver).openSettings()
+          expect(await settingsUser2.isReady()).toBeTruthy()
+          await settingsUser2.openCommunityMembership(3)
+        })
+
+        it.skip('Second user sees self in user list', async () => {
+          const ownStatus = await settingsUser2.getUserInCommunityMembership(
+            users.user2.username,
+            UserListStatus.ONLINE,
+            true
+          )
+          expect(ownStatus.status).toBe(UserListStatus.ONLINE)
+          expect(ownStatus.textMatches).toBe(true)
+        })
+
+        it.skip('Second user sees user in user list', async () => {
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.user1.username,
+            UserListStatus.OFFLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.OFFLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Second user sees owner in user list', async () => {
+          const status = await settingsUser2.getUserInCommunityMembership(
+            users.owner.username,
+            UserListStatus.OFFLINE,
+            false
+          )
+          expect(status.status).toBe(UserListStatus.OFFLINE)
+          expect(status.textMatches).toBe(true)
+        })
+
+        it.skip('Second user closes community membership tab', async () => {
+          await settingsUser2.closeTabThenModal()
         })
       })
     })

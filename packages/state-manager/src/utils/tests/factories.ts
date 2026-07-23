@@ -48,6 +48,7 @@ import {
   AddMembersChannelPayload,
   AddMembersChannelResponse,
   AddMembersChannelStatus,
+  ChannelType,
   FileMessage,
   FileEncryptionMetadata,
   UserProfilesUpdatedPayload,
@@ -120,6 +121,7 @@ export const getBaseTypesFactory = async () => {
     public: true,
     owner: factory.assoc('User', 'userId'),
     timestamp: DateTime.utc().toSeconds(),
+    type: ChannelType.CHANNEL,
     teamId: factory.assoc('Community', 'teamId'),
   })
 
@@ -204,6 +206,12 @@ export const getReduxStoreFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
   const baseTypes = await getBaseTypesFactory()
 
+  const _generateDmChannelName = (memberIds: string[], myMemberId: string): string => {
+    if (memberIds.length === 0) return 'NONAME'
+    if (memberIds.length === 1) return memberIds[0]
+    return memberIds.filter(memberId => memberId != myMemberId).join(', ')
+  }
+
   factory.setAdapter(new CustomReduxAdapter(store))
 
   factory.define<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
@@ -233,8 +241,10 @@ export const getReduxStoreFactory = async (store: Store) => {
             owner: 'alice',
             id: generateTestChannelId('general'),
             public: true,
+            type: ChannelType.CHANNEL,
             teamId: payload.teamId,
           },
+          displayedName: 'general',
         })
         return payload
       },
@@ -324,19 +334,38 @@ export const getReduxStoreFactory = async (store: Store) => {
     {
       channel: factory.sequence('PublicChannel.channel', (n: number) => {
         const name = `public-channel-${n}`
-        return {
+        const payload: PublicChannel = {
           name,
           description: 'Description',
           timestamp: DateTime.utc().toSeconds(),
           owner: 'alice', // simpler than nested assoc; tests only need non‑undefined
           id: generateTestChannelId(name),
           public: true,
+          type: ChannelType.CHANNEL,
+          memberIds: undefined,
           teamId: factory.assoc('Community', 'teamId'),
         }
+        return payload
+      }),
+      displayedName: factory.sequence('PublicChannel.displayedName', (n: number) => {
+        return `public-channel-${n}`
       }),
       status: ChannelOperationStatus.SUCCESS,
     },
     {
+      afterBuild: async (model: ReturnType<typeof publicChannelsActions.addChannel>) => {
+        return {
+          ...model,
+          payload: {
+            ...model.payload,
+            displayedName:
+              model.payload.displayedName ??
+              (model.payload.channel!.type === ChannelType.CHANNEL
+                ? model.payload.channel!.name
+                : _generateDmChannelName(model.payload.channel!.memberIds ?? [], model.payload.channel!.owner)),
+          },
+        }
+      },
       afterCreate: async (payload: ReturnType<typeof publicChannelsActions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
           channelId: payload.channel!.id,
@@ -344,6 +373,7 @@ export const getReduxStoreFactory = async (store: Store) => {
         await factory.create('PublicChannelSubscription', {
           channelId: payload.channel!.id,
         })
+
         return payload
       },
     }
@@ -587,6 +617,7 @@ export const getSocketFactory = async () => {
   factory.define<CreateChannelPayload>(SocketActions.CREATE_CHANNEL, Object, {
     name: 'Test Channel',
     description: 'A channel used for tests',
+    type: ChannelType.CHANNEL,
     teamId: 'foobar',
   })
 
@@ -598,8 +629,11 @@ export const getSocketFactory = async () => {
       owner: 'test-owner',
       timestamp: Date.now(),
       public: true,
+      type: ChannelType.CHANNEL,
+      memberIds: undefined,
       teamId: 'foobar',
     },
+    displayedName: 'Test Channel',
     status: ChannelOperationStatus.SUCCESS,
   })
 
