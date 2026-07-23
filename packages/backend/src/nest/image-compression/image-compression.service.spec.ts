@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import { ImageCompressionService } from './image-compression.service'
 import * as fs from 'fs'
@@ -104,6 +105,30 @@ describe('ImageCompressionService Tests', () => {
 
     // Even with errors, the service should return the original path as the fallback
     expect(result).toBe(nonexistentPath)
+  })
+
+  it('should continue lowering quality while compression remains above the maximum size', async () => {
+    const encodedSizes = new Map([
+      [75, 700 * 1024],
+      [45, 350 * 1024],
+      [30, 250 * 1024],
+    ])
+    const encode = jest.fn(async (quality: number) => {
+      const encodedSize = encodedSizes.get(quality)
+      if (encodedSize == null) throw new Error(`Unexpected quality: ${quality}`)
+      return Buffer.alloc(encodedSize)
+    })
+
+    const result = await service['findBestCompression']({
+      originalSize: 2.5 * 1024 * 1024,
+      initialQuality: 75,
+      mime: 'image/jpeg',
+      encode,
+    })
+
+    expect(encode.mock.calls.map(([quality]) => quality)).toEqual([75, 45, 30])
+    expect(result.quality).toBe(30)
+    expect(result.size).toBe(250 * 1024)
   })
 
   // Test with a large image that's larger than the target size
