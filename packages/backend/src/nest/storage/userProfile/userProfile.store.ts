@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common'
-import { type LogEntry, type KeyValueType, IPFSAccessController } from '@orbitdb/core'
+import { type LogEntry } from '@orbitdb/core'
 import { SetUserProfileResponse, UserProfile } from '@quiet/types'
 
 import { createLogger } from '../../common/logger'
 import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndexedValidated, type KeyValueIndexedValidatedType } from '../orbitDb/keyValueIndexedValidated'
-import { validatePhoto } from './userProfile.utils'
+import { validateUserProfile } from './userProfile.utils'
 import { EncryptedKeyValueIndexedValidatedStoreBase } from '../base.store'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { SigChainService } from '../../auth/sigchain.service'
 import { RoleName } from '../../auth/services/roles/roles'
 import { SigchainEvents } from '../../auth/types'
+import { UserProfileAccessController } from './UserProfileAccessController'
 
 const logger = createLogger('UserProfileStore')
 
@@ -25,7 +26,8 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
 
   constructor(
     private readonly orbitDbService: OrbitDbService,
-    private readonly auth: SigChainService
+    private readonly auth: SigChainService,
+    private readonly userProfileAccessController: UserProfileAccessController
   ) {
     super()
     this.auth.on(SigchainEvents.UPDATED, this.handleAuthUpdated)
@@ -39,7 +41,10 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         type: 'KeyValueIndexedValidated',
         sync: false,
         Database: KeyValueIndexedValidated(this.validateEntry.bind(this)),
-        AccessController: IPFSAccessController({ write: ['*'] }),
+        AccessController: this.userProfileAccessController.createAccessControllerFunc({
+          write: ['*'],
+          sigchainService: this.auth,
+        }),
       }
     )
 
@@ -175,7 +180,8 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
   public async setEntry(key: string, userProfile: UserProfile): Promise<EncryptedAndSignedPayload> {
     logger.info('Adding user profile')
     try {
-      if (!UserProfileStore.validateUserProfile(userProfile)) {
+      const validationResponse = await UserProfileStore.validateUserProfile(userProfile)
+      if (!validationResponse.success) {
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
         logger.error('Failed to add user profile, profile is invalid', userProfile.userId)
@@ -223,18 +229,7 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
    * @returns True if valid, false otherwise.
    */
   public static async validateUserProfile(userProfile: UserProfile): Promise<SetUserProfileResponse> {
-    try {
-      if (userProfile?.photo) {
-        const photoValidation = validatePhoto(userProfile.photo ?? '', userProfile.userId)
-        if (!photoValidation.success) {
-          return { success: false, error: photoValidation.error }
-        }
-      }
-    } catch (err) {
-      logger.error('Error validating user profile:', userProfile.userId, err)
-      return { success: false, error: 'Internal error: Failed to validate user profile' }
-    }
-    return { success: true }
+    return validateUserProfile(userProfile)
   }
 
   /**
@@ -253,17 +248,15 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
         const valueUserId = encPayload.userId
         const decUserId = decEntry.userId
         const sigAuthor = encPayload.signature.author.name
-        if (
-          !(
-            key &&
-            valueUserId &&
-            decUserId &&
-            sigAuthor &&
-            key === valueUserId &&
-            key === decUserId &&
-            key === sigAuthor
-          )
-        ) {
+        const idsMatch =
+          key != null &&
+          valueUserId != null &&
+          decUserId != null &&
+          sigAuthor != null &&
+          key === valueUserId &&
+          key === decUserId &&
+          key === sigAuthor
+        if (!idsMatch) {
           logger.error(
             `Failed to verify user profile entry: ${entry.hash} - key, value.userId, decEntry.userId, and signature.author.name must all match. Got key=${key}, valueUserId=${valueUserId}, decUserId=${decUserId}, sigAuthor=${sigAuthor}`
           )
@@ -332,11 +325,21 @@ export class UserProfileStore extends EncryptedKeyValueIndexedValidatedStoreBase
   public async clean(): Promise<void> {
     logger.info('Cleaning user profiles store')
     this.deferredProfiles = []
+    const store = this.store
     try {
-      await this.store?.sync?.stop?.()
-      await this.store?.drop?.()
+      await store?.sync?.stop?.()
     } catch (err) {
-      logger.error('Failed to clean user profiles store:', err)
+      // If the sync is not started, this will throw an error
+    }
+    try {
+      await store?.drop?.()
+    } catch (err) {
+      logger.error('Failed to drop user profiles store:', err)
+    }
+    try {
+      await store?.close?.()
+    } catch (err) {
+      logger.error('Failed to close user profiles store after drop:', err)
     }
     this.store = undefined
   }

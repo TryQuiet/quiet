@@ -56,6 +56,8 @@ import {
   UserProfilesUpdatedPayload,
   UpdateCommunityPayload,
   ChannelOperationStatus,
+  type PrivateChannelPermissions,
+  type SetChannelPermissionsPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -81,6 +83,8 @@ import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
+import { Member } from '@localfirst/auth'
+import type { PrivateChannelMappings } from '../storage/channels/channels.types'
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -288,8 +292,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async resume() {
     this.logger.info('Resuming!')
-    await this.openSocket()
-    this.libp2pService?.resume()
+    // A lifecycle transition only needs the data server to accept connections.
+    // Waiting for the frontend START event here would prevent a later pause
+    // from running if the app returns to the background before reconnecting.
+    await this.socketService.listen()
+    await this.libp2pService?.resume()
     await this.qssService.resume()
   }
 
@@ -403,7 +410,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
+  // Reopen the socket and wait for the frontend handshake. Workflows such as
+  // leaveCommunity use this stronger readiness guarantee before completing.
   public async openSocket() {
     await this.socketService.init()
   }
@@ -972,30 +980,64 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     // handle chain updates
-    let channelMapping: Record<string, PublicChannel> = {}
+    const sigChain = this.sigChainService.getChain(teamId)
+    let channelMapping: PrivateChannelMappings = {
+      roleNameToChannel: {},
+      idToRoleName: {},
+    }
     if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
       this.logger.warn(`StorageService hasn't been initialized, skipping channel mappings...`)
     } else {
       channelMapping = await this.storageService.channels.getPrivateChannelsByRolename()
     }
+
+    const _handleUser = (member: Member, sigChain: SigChain): User => {
+      const privateChannelIds: string[] =
+        channelMapping != null
+          ? member.roles
+              .filter(roleName => roleName in channelMapping.roleNameToChannel)
+              .map(roleName => channelMapping.roleNameToChannel[roleName].id)
+          : []
+      if (member.userId === sigChain.user.userId) {
+        const channelSpecificPermissions: PrivateChannelPermissions[] = []
+        for (const channelId of privateChannelIds) {
+          const roleName = channelMapping.idToRoleName[channelId]
+          channelSpecificPermissions.push({
+            channelId,
+            addMembers: sigChain.channels.canMemberAddMembersToPrivateChannel(member.userId, roleName),
+            removeMembers: sigChain.channels.canMemberRemoveMembersFromPrivateChannel(member.userId, roleName),
+            delete: sigChain.channels.canMemberDeletePrivateChannel(member.userId, roleName),
+          })
+        }
+        const payload: SetChannelPermissionsPayload = {
+          genericPermissions: {
+            public: {
+              create: sigChain.channels.canMemberCreatePublicChannel(member.userId),
+              delete: sigChain.channels.canMemberDeletePublicChannel(member.userId),
+            },
+            private: {
+              create: sigChain.channels.canMemberCreatePrivateChannel(member.userId),
+            },
+          },
+          channelSpecificPermissions,
+        }
+        this.serverIoProvider.io.emit(SocketEvents.CHANNEL_PERMISSIONS_UPDATED, payload)
+      }
+      return {
+        userId: member.userId,
+        roles: member.roles,
+        channelIds: privateChannelIds,
+        isRegistered: true,
+        isDuplicated: false,
+      }
+    }
+
     /**
      * TODO: clean this up so we are only updating users that are actually updated
      *
      * (Can we base these updates on the graph itself vs pulling directly from the Team object?)
      */
-    const users = this.sigChainService
-      .getChain(teamId)
-      .team?.members()
-      .map(user => ({
-        userId: user.userId,
-        roles: user.roles,
-        channelIds:
-          channelMapping != null
-            ? user.roles.filter(roleName => roleName in channelMapping).map(roleName => channelMapping[roleName].id)
-            : [],
-        isRegistered: true,
-        isDuplicated: false,
-      })) as User[]
+    const users = sigChain.team?.members().map((member): User => _handleUser(member, sigChain))
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 

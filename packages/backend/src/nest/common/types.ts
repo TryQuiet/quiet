@@ -4,6 +4,8 @@ import { ChannelStore } from '../storage/channels/channel.store'
 export interface ChannelRepo {
   store: ChannelStore
   eventsAttached: boolean
+  subscribed: boolean
+  subscriptionPromise?: Promise<void>
   public: boolean
 }
 

@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 
-import { ChannelMessage, ConsumedChannelMessage } from '@quiet/types'
+import { ChannelMessage, ConsumedChannelMessage, type PublicChannel } from '@quiet/types'
 
 import { createLogger } from '../../../common/logger'
 import { SigChainService } from '../../../auth/sigchain.service'
@@ -18,20 +18,25 @@ export class BaseMessagesService extends EventEmitter {
   /**
    * Handle processing of message to be added to OrbitDB and sent to peers
    *
-   * @param message Message to send
+   * @param rawMessage Message to send
+   * @param channel The metadata for the channel this message is being sent on
    * @returns Processed message
    */
-  public async onSend(message: ChannelMessage): Promise<EncryptedMessage> {
+  public async onSend(rawMessage: ChannelMessage, channel: PublicChannel): Promise<EncryptedMessage> {
     throw new NotImplementedException('onSend is not implemented')
   }
 
   /**
    * Handle processing of message consumed from OrbitDB
    *
-   * @param message Message consumed from OrbitDB
+   * @param encryptedMessage Message consumed from OrbitDB
+   * @param channel The metadata for the channel this message is being received on
    * @returns Processed message if decryptable, undefined if undecryptable and false if intentionally skip decryption
    */
-  public async onConsume(message: EncryptedMessage): Promise<ConsumedChannelMessage | false | undefined> {
+  public async onConsume(
+    encryptedMessage: EncryptedMessage,
+    channel: PublicChannel
+  ): Promise<ConsumedChannelMessage | false | undefined> {
     throw new NotImplementedException('onSend is not implemented')
   }
 
@@ -44,15 +49,28 @@ export class BaseMessagesService extends EventEmitter {
    *
    * @param decryptedMessage Message to validate
    * @param encryptedMessage Encrypted message to validate against
+   * @param channel The metadata for the channel this message is being sent/received on
    * @returns True if the message is valid, false otherwise
    */
-  public validateMessage(decryptedMessage: ConsumedChannelMessage, encryptedMessage: EncryptedMessage): boolean {
+  public validateMessage(
+    decryptedMessage: ConsumedChannelMessage,
+    encryptedMessage: EncryptedMessage,
+    channel: PublicChannel
+  ): boolean {
     if (decryptedMessage.id !== encryptedMessage.id) {
       this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: IDs do not match`)
       return false
     }
     if (!isConsumedChannelMessage(decryptedMessage)) {
       this.logger.warn(`Cannot validate msg ${decryptedMessage.id}: message shape is not valid`)
+      return false
+    }
+    if (!channel.public && channel.roleName == null) {
+      this.logger.warn(`Channel role name was nullish but channel is private`)
+      return false
+    }
+    if (!channel.public && channel.roleName !== encryptedMessage.contents.scope.name) {
+      this.logger.warn(`Channel role name didn't match the role name that encrypted the message`)
       return false
     }
     // ensure that the fields we write to the message unencrypted match the ones inside the encrypted blob

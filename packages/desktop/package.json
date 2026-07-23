@@ -213,7 +213,7 @@
     "emoji-picker-react": "^4.12.2",
     "enzyme": "^3.8.0",
     "enzyme-to-json": "^3.3.5",
-    "factory-girl": "^5.0.4",
+    "factory-girl": "5.0.4",
     "file-loader": "^6.2.0",
     "history": "^4.10.1",
     "html-webpack-plugin": "^5.5.0",

@@ -12,7 +12,7 @@ import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
 import { type FactoryGirl } from 'factory-girl'
 
-import { generateChannelId } from '@quiet/common'
+import { generateTestChannelId } from '@quiet/common'
 
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
@@ -67,7 +67,7 @@ describe('sendMessageSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.userId,
-          id: generateChannelId('sailing'),
+          id: generateTestChannelId('sailing'),
         },
       })
     ).channel!
@@ -124,6 +124,42 @@ describe('sendMessageSaga', () => {
         [call.fn(generateMessageId), channelMessage.id],
         [call.fn(getCurrentTime), channelMessage.createdAt],
       ])
+      .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, channelMessage))
+      .run()
+  })
+
+  test('waits for the target channel subscription before emitting', async () => {
+    const channelId = sailingChannel.id
+    const channelMessage = await baseTypesFactory.build<ChannelMessage>('ChannelMessage', {
+      userId: alice.userId,
+      channelId,
+    })
+    const reducer = combineReducers(testReducers)
+    const baseState = store.getState()
+    const stateWithNoSubscriptions = {
+      ...baseState,
+      PublicChannels: {
+        ...baseState.PublicChannels,
+        channelsSubscriptions: {
+          ids: [],
+          entities: {},
+        },
+      },
+    }
+
+    await expectSaga(
+      sendMessageSaga,
+      socket as unknown as Socket,
+      messagesActions.sendMessage({ message: channelMessage.message, channelId })
+    )
+      .withReducer(reducer)
+      .withState(stateWithNoSubscriptions)
+      .provide([
+        [call.fn(generateMessageId), channelMessage.id],
+        [call.fn(getCurrentTime), channelMessage.createdAt],
+      ])
+      .dispatch(publicChannelsActions.setChannelSubscribed({ channelId: generateTestChannelId('unrelated') }))
+      .dispatch(publicChannelsActions.setChannelSubscribed({ channelId }))
       .apply(socket, socket.emit, applyEmitParams(SocketActions.SEND_MESSAGE, channelMessage))
       .run()
   })

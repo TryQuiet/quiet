@@ -18,8 +18,8 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const community = useSelector(communities.selectors.currentCommunity)
   const userProfiles = useSelector(users.selectors.userProfiles)
-  const isOwner = useSelector(communities.selectors.isOwner)
   const screen = useSelector(navigationSelectors.currentScreen)
+  const currentChannelPermissions = useSelector(publicChannels.selectors.currentChannelPermissions)
 
   const [members, setMembers] = useState<UserProfile[]>()
   const [memberCount, setMemberCount] = useState<number>()
@@ -57,6 +57,7 @@ export const ChannelMembershipScreen: FC<ChannelMembershipScreenProps> = ({ rout
       members={members}
       memberCount={memberCount}
       handleBackButton={handleBackButton}
+      canAddMembers={currentChannelPermissions?.addMembers ?? false}
     />
   )
 }

@@ -5,6 +5,10 @@ import { OrbitDbService } from './orbitDb.service'
 
 const logger = createLogger('orbitdb:keyValueWithStorage')
 
+type LogAwareAccessController = AccessControllerType & {
+  setLogContext?: (log: LogType) => void
+}
+
 export const KeyValueWithStorage =
   (pinIpfs = true) =>
   async ({
@@ -56,6 +60,8 @@ export const KeyValueWithStorage =
       onUpdate,
       events: OrbitDbService.events,
     })
+
+    ;(access as LogAwareAccessController).setLogContext?.(db.log)
 
     db.events.on('error', error => {
       logger.error(`Error on OrbitDB DB ${db.address}`, error)
