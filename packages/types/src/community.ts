@@ -114,6 +114,14 @@ export interface InviteResultWithSalt extends InviteResult {
   salt: string
 }
 
+export interface DeviceLinkInvite extends InviteResult {
+  expiresAt: number
+  userId: string
+  userName: string
+}
+
+export type RequestDeviceLinkPayload = Record<string, never>
+
 export interface ResponseInvitePayload {
   valid: boolean
   newInvite?: InviteResultWithSalt

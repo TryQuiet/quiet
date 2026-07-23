@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getReduxStoreFactory, prepareStore, type Store } from '@quiet/state-manager'
-import { CommunityOwnership, SocketActions, type Community, type Identity } from '@quiet/types'
+import { CommunityOwnership, SocketActions, type Community, type DeviceLinkInvite, type Identity } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -629,5 +629,29 @@ describe('ConnectionsManagerService', () => {
 
     expect(leaveCommunitySpy).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(false)
+  })
+
+  it('creates and persists a 30-minute device invitation through the socket listener', async () => {
+    await connectionsManagerService.init()
+    const activeChain = await sigChainService.loadChain(chain.teamId!, true)
+    const saveChainSpy = jest.spyOn(sigChainService, 'saveChain')
+    const callback = jest.fn()
+    const beforeCreation = Date.now()
+
+    connectionsManagerService['socketService'].emit(SocketActions.CREATE_DEVICE_LINK, {}, callback)
+    await waitForExpect(() => expect(callback).toHaveBeenCalledTimes(1))
+
+    const deviceInvite = callback.mock.calls[0][0] as DeviceLinkInvite
+    expect(deviceInvite).toMatchObject({
+      userId: activeChain.user.userId,
+      userName: activeChain.user.userName,
+    })
+    expect(deviceInvite.expiresAt).toBeGreaterThanOrEqual(beforeCreation + 30 * 60 * 1000)
+    expect(deviceInvite.expiresAt).toBeLessThanOrEqual(Date.now() + 30 * 60 * 1000)
+    expect(activeChain.invites.getById(deviceInvite.id)).toMatchObject({
+      expiration: deviceInvite.expiresAt,
+      maxUses: 1,
+    })
+    expect(saveChainSpy).toHaveBeenCalledWith(chain.teamId)
   })
 })

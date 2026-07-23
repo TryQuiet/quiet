@@ -4,8 +4,15 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
-import { InvitationDataVersion, InvitationPair, UserProfile, type InvitationAuthDataV4 } from '@quiet/types'
-import { composeInvitationShareUrl, createLibp2pAddress } from '@quiet/common'
+import {
+  InvitationDataVersion,
+  InvitationKind,
+  InvitationPair,
+  UserProfile,
+  isDeviceInvitationData,
+  type InvitationAuthDataV4,
+} from '@quiet/types'
+import { composeInvitationShareUrl, createLibp2pAddress, parseInvitationLink } from '@quiet/common'
 import { Base58 } from '3rd-party/auth/packages/crypto/dist'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { createLogger } from '../../utils/logger'
@@ -126,6 +133,91 @@ describe('communitiesSelectors', () => {
     const { store } = prepareStore()
     const invitationUrl = connectionSelectors.invitationUrl(store.getState())
     expect(invitationUrl).toEqual('')
+  })
+
+  it('deviceLinkUrl selector returns a device invitation for the current user and community', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+    const psk = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      name: 'community-name',
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',
+      psk,
+    })
+    const community = communitiesSelectors.currentCommunity(store.getState())!
+    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      communityId: community.id,
+    })
+    const deviceInvite = {
+      seed: '5ah8uYodiwuwVybT',
+      id: '5ah8uYodiwuwVybT' as Base58,
+      expiresAt: 1_700_001_800_000,
+      userId: 'q5ck86uuhihx5w00zhknit60',
+      userName: 'Alice device owner',
+    }
+    store.dispatch(connectionActions.setDeviceLinkInvite(deviceInvite))
+
+    const link = connectionSelectors.deviceLinkUrl(store.getState())
+    const inviteData = parseInvitationLink(link.split('#')[1])
+
+    expect(isDeviceInvitationData(inviteData)).toBe(true)
+    expect(inviteData).toMatchObject({
+      kind: InvitationKind.Device,
+      version: InvitationDataVersion.v4,
+      psk,
+      pairs: [
+        {
+          peerId: identity.networkInfo.peerId.id,
+          onionAddress: identity.networkInfo.hiddenService.onionAddress.split('.')[0],
+        },
+      ],
+      authData: {
+        communityName: community.name,
+        teamId: community.teamId,
+        seed: deviceInvite.seed,
+        userId: deviceInvite.userId,
+        userName: deviceInvite.userName,
+      },
+    })
+  })
+
+  it('deviceLinkUrl selector uses v5 QSS transport data without a member-invite salt', async () => {
+    const store = prepareStore().store
+    const factory = await getReduxStoreFactory(store)
+    const psk = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='
+    const qssEndpoint = 'wss://example.com'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      name: 'community-name',
+      teamId: '7JLX5PGtsFtGtqfY2co5U8Lq5hTA3',
+      psk,
+      qssEnabled: true,
+      qssEndpoint,
+    })
+    const community = communitiesSelectors.currentCommunity(store.getState())!
+    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      communityId: community.id,
+    })
+    store.dispatch(
+      connectionActions.setDeviceLinkInvite({
+        seed: '5ah8uYodiwuwVybT',
+        id: '5ah8uYodiwuwVybT' as Base58,
+        expiresAt: 1_700_001_800_000,
+        userId: 'q5ck86uuhihx5w00zhknit60',
+        userName: 'Alice device owner',
+      })
+    )
+
+    const link = connectionSelectors.deviceLinkUrl(store.getState())
+    const inviteData = parseInvitationLink(link.split('#')[1])
+
+    expect(isDeviceInvitationData(inviteData)).toBe(true)
+    expect(inviteData).toMatchObject({
+      kind: InvitationKind.Device,
+      version: InvitationDataVersion.v5,
+      qssEnabled: true,
+      qssEndpoint,
+    })
+    expect('salt' in inviteData.authData).toBe(false)
   })
 
   it('invitationUrl selector returns proper v4 url when community and long lived invite are defined', async () => {

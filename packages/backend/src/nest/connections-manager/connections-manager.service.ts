@@ -42,7 +42,9 @@ import {
   ResponseCreateCommunityPayload,
   ResponseJoinCommunityPayload,
   RequestInvitePayload,
+  RequestDeviceLinkPayload,
   ResponseInvitePayload,
+  DeviceLinkInvite,
   LaunchCommunityPayload,
   ChannelMessage,
   DownloadFilePayload,
@@ -1134,6 +1136,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
               : this.logger.error(`Failed to generate a new long lived LFA invite code!`, e)
             callback({ valid: false })
           }
+        }
+      }
+    )
+    this.socketService.on(
+      SocketActions.CREATE_DEVICE_LINK,
+      async (_args: RequestDeviceLinkPayload, callback: (response?: DeviceLinkInvite) => void) => {
+        if (this.sigChainService.activeChainTeamId == null) {
+          this.logger.warn(`No sigchain configured, skipping device link generation!`)
+          callback(undefined)
+          return
+        }
+
+        try {
+          const deviceInvite = this.sigChainService.getActiveChain().invites.createDeviceInvite()
+          await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId)
+          callback(deviceInvite)
+        } catch (e) {
+          this.logger.error(`Failed to generate a device link!`, e)
+          callback(undefined)
         }
       }
     )

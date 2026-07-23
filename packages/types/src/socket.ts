@@ -40,8 +40,10 @@ import {
   type ResponseLeaveCommunityPayload,
   LaunchCommunityPayload,
   RequestInvitePayload,
+  RequestDeviceLinkPayload,
   ResponseInvitePayload,
   InviteResultWithSalt,
+  DeviceLinkInvite,
   JoinCommunityPayload,
   UpdateCommunityPayload,
 } from './community'
@@ -99,6 +101,7 @@ export enum SocketActions {
   // ====== Local First Auth ======
 
   VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE = 'validateOrCreateLongLivedLfaInvite',
+  CREATE_DEVICE_LINK = 'createDeviceLink',
 
   // ====== Captcha ======
   HCAPTCHA_FORM_RESPONSE = 'hcaptchaFormResponse',
@@ -223,6 +226,7 @@ export interface SocketActionsMap {
     RequestInvitePayload,
     (response?: ResponseInvitePayload) => void
   >
+  [SocketActions.CREATE_DEVICE_LINK]: EmitEvent<RequestDeviceLinkPayload, (response?: DeviceLinkInvite) => void>
 
   // ====== Captcha ======
   [SocketActions.HCAPTCHA_FORM_RESPONSE]: EmitEvent<HCaptchaFormResponse>

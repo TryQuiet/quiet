@@ -2,6 +2,7 @@ import {
   InvitationAuthData,
   InvitationData,
   InvitationDataVersion,
+  InvitationKind,
   InvitationLinkUrlNamedParamConfig,
   InvitationLinkUrlNamedParamConfigMap,
   InvitationLinkUrlNamedParamProcessorFun,
@@ -10,6 +11,9 @@ import {
   VersionedInvitationLinkUrlParamConfig,
   type InvitationAuthDataV4,
   type InvitationAuthDataV5,
+  type DeviceInvitationAuthData,
+  type DeviceInvitationDataV4,
+  type DeviceInvitationDataV5,
   type InvitationDataV4,
   type InvitationDataV5,
 } from '@quiet/types'
@@ -18,6 +22,7 @@ import {
   AUTH_DATA_OBJECT_KEY,
   COMMUNITY_NAME_KEY,
   DEEP_URL_SCHEME_WITH_SEPARATOR,
+  INVITATION_KIND_KEY,
   INVITATION_SEED_KEY,
   PEER_ADDRESS_KEY,
   PSK_PARAM_KEY,
@@ -25,6 +30,8 @@ import {
   QSS_ENDPOINT_KEY,
   SALT_KEY,
   TEAM_ID_KEY,
+  USER_ID_KEY,
+  USER_NAME_KEY,
   VERSION_KEY,
 } from './invitationLink.const'
 import { isPSKcodeValid } from '../libp2p'
@@ -42,6 +49,15 @@ const COMMUNITY_NAME_REGEX = /^[-a-zA-Z0-9 ]+$/g
 const AUTH_DATA_REGEX = /^[A-Za-z0-9_-]+$/g
 const SALT_REGEX = /^[a-zA-Z0-9]{16}$/g
 const BASE58_REGEX = /^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$/
+const MAX_USER_ID_LENGTH = 256
+const MAX_USER_NAME_LENGTH = 256
+
+const containsControlCharacter = (value: string): boolean => {
+  return Array.from(value).some(character => {
+    const characterCode = character.charCodeAt(0)
+    return characterCode <= 31 || characterCode === 127
+  })
+}
 
 /**
  * Helper Error class for generating validation errors in a standard format
@@ -79,10 +95,16 @@ export class UrlParamValidatorError extends Error {
  *
  * @returns {string} Base64url-encoded string
  */
-export const encodeAuthData = (authData: InvitationAuthDataV4 | InvitationAuthDataV5): string => {
+export const encodeAuthData = (
+  authData: InvitationAuthDataV4 | InvitationAuthDataV5 | DeviceInvitationAuthData
+): string => {
   let encodedAuthData = `${COMMUNITY_NAME_KEY}=${encodeURIComponent(authData.communityName)}&${INVITATION_SEED_KEY}=${encodeURIComponent(authData.seed)}`
   if (authData.teamId) {
     encodedAuthData = `${encodedAuthData}&${TEAM_ID_KEY}=${authData.teamId}`
+  }
+  if ('userId' in authData) {
+    encodedAuthData = `${encodedAuthData}&${USER_ID_KEY}=${encodeURIComponent(authData.userId)}`
+    encodedAuthData = `${encodedAuthData}&${USER_NAME_KEY}=${encodeURIComponent(authData.userName)}`
   }
   if ((authData as InvitationAuthDataV5).salt) {
     encodedAuthData = `${encodedAuthData}&${SALT_KEY}=${(authData as InvitationAuthDataV5).salt}`
@@ -242,6 +264,19 @@ const validateVersion: InvitationLinkUrlNamedParamValidatorFun<InvitationData> =
   return {
     version,
   }
+}
+
+const validateInvitationKind: InvitationLinkUrlNamedParamValidatorFun<InvitationData> = (
+  value: string
+): Partial<InvitationData> => {
+  if (value !== InvitationKind.Member && value !== InvitationKind.Device) {
+    logger.warn(`Invalid invitation kind provided`, value)
+    throw new UrlParamValidatorError(INVITATION_KIND_KEY, value)
+  }
+
+  return {
+    kind: value,
+  } as Partial<InvitationData>
 }
 
 /**
@@ -527,10 +562,34 @@ const validateSalt: InvitationLinkUrlNamedParamValidatorFun<InvitationAuthData> 
   }
 }
 
+const validateUserId: InvitationLinkUrlNamedParamValidatorFun<DeviceInvitationAuthData> = (
+  value: string
+): Partial<DeviceInvitationAuthData> => {
+  if (value.length === 0 || value.length > MAX_USER_ID_LENGTH || containsControlCharacter(value)) {
+    logger.warn(`User ID ${value} is not valid`)
+    throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${USER_ID_KEY}`, value)
+  }
+  return {
+    userId: value,
+  }
+}
+
+const validateUserName: InvitationLinkUrlNamedParamValidatorFun<DeviceInvitationAuthData> = (
+  value: string
+): Partial<DeviceInvitationAuthData> => {
+  if (value.length === 0 || value.length > MAX_USER_NAME_LENGTH || containsControlCharacter(value)) {
+    logger.warn(`User name ${value} is not valid`)
+    throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${USER_NAME_KEY}`, value)
+  }
+  return {
+    userName: value,
+  }
+}
+
 /**
  * URL param validation config for V4 (LFA) invite links
  */
-export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDataV4> = {
+export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDataV4 | DeviceInvitationDataV4> = {
   version: InvitationDataVersion.v4,
   named: new Map(
     Object.entries({
@@ -545,6 +604,10 @@ export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDa
       [VERSION_KEY]: {
         required: true,
         validator: validateVersion,
+      },
+      [INVITATION_KIND_KEY]: {
+        required: false,
+        validator: validateInvitationKind,
       },
       [AUTH_DATA_KEY]: {
         required: true,
@@ -565,6 +628,14 @@ export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDa
                 required: true,
                 validator: validateTeamId,
               },
+              [USER_ID_KEY]: {
+                required: false,
+                validator: validateUserId,
+              },
+              [USER_NAME_KEY]: {
+                required: false,
+                validator: validateUserName,
+              },
             })
           ),
         },
@@ -576,7 +647,7 @@ export const PARAM_CONFIG_V4: VersionedInvitationLinkUrlParamConfig<InvitationDa
 /**
  * URL param validation config for V5 (LFA + QSS) invite links
  */
-export const PARAM_CONFIG_V5: VersionedInvitationLinkUrlParamConfig<InvitationDataV5> = {
+export const PARAM_CONFIG_V5: VersionedInvitationLinkUrlParamConfig<InvitationDataV5 | DeviceInvitationDataV5> = {
   version: InvitationDataVersion.v5,
   named: new Map(
     Object.entries({
@@ -600,6 +671,10 @@ export const PARAM_CONFIG_V5: VersionedInvitationLinkUrlParamConfig<InvitationDa
         required: true,
         validator: validateVersion,
       },
+      [INVITATION_KIND_KEY]: {
+        required: false,
+        validator: validateInvitationKind,
+      },
       [AUTH_DATA_KEY]: {
         required: true,
         validator: validateAuthData,
@@ -620,8 +695,16 @@ export const PARAM_CONFIG_V5: VersionedInvitationLinkUrlParamConfig<InvitationDa
                 validator: validateTeamId,
               },
               [SALT_KEY]: {
-                required: true,
+                required: false,
                 validator: validateSalt,
+              },
+              [USER_ID_KEY]: {
+                required: false,
+                validator: validateUserId,
+              },
+              [USER_NAME_KEY]: {
+                required: false,
+                validator: validateUserName,
               },
             })
           ),
@@ -737,9 +820,35 @@ export const parseAndValidateUrlParams = <T extends InvitationData>(
     pairs = validatePeerPairsFromUrlParams(url, remainingParams)
   }
 
-  return {
+  const invitationData = {
     ...output,
     pairs,
     version: paramConfigMap.version,
-  } as T
+    kind: output.kind ?? InvitationKind.Member,
+  } as InvitationData
+
+  const authData = invitationData.authData as Partial<InvitationAuthDataV5 & DeviceInvitationAuthData>
+  if (invitationData.kind === InvitationKind.Device) {
+    if (authData.userId == null) {
+      throw new Error(`Missing required key '${AUTH_DATA_KEY}.${USER_ID_KEY}' in invitation link`)
+    }
+    if (authData.userName == null) {
+      throw new Error(`Missing required key '${AUTH_DATA_KEY}.${USER_NAME_KEY}' in invitation link`)
+    }
+    if ('salt' in authData) {
+      throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${SALT_KEY}`, authData.salt)
+    }
+  } else {
+    if (authData.userId != null) {
+      throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${USER_ID_KEY}`, authData.userId)
+    }
+    if (authData.userName != null) {
+      throw new UrlParamValidatorError(`${AUTH_DATA_KEY}.${USER_NAME_KEY}`, authData.userName)
+    }
+    if (invitationData.version === InvitationDataVersion.v5 && authData.salt == null) {
+      throw new Error(`Missing required key '${AUTH_DATA_KEY}.${SALT_KEY}' in invitation link`)
+    }
+  }
+
+  return invitationData as T
 }
