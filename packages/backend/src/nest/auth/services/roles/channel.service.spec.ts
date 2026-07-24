@@ -1,9 +1,17 @@
 import { SigChain } from '../../sigchain'
 import { createLogger } from '../../../common/logger'
 import { DEFAULT_CHANNEL_ROLE_NAME_LENGTH, RoleName } from './roles'
-import { base58, hash, randomBytes } from '@localfirst/crypto'
+import { base58, hash, randomBytes, randomKey } from '@localfirst/crypto'
 import * as uint8arrays from 'uint8arrays'
-import { generateProof, InviteResult, MemberContext, redactKeys, Team } from '@localfirst/auth'
+import {
+  generateProof,
+  InviteResult,
+  MemberContext,
+  type MemberInvitationClaim,
+  redactDevice,
+  redactKeys,
+  Team,
+} from '@localfirst/auth'
 import { InviteLockboxMetadata } from '../crypto/types'
 import { RANDOM_TEAM_NAME_LENGTH } from '../../types'
 import { RANDOM_USERNAME_LENGTH } from '../members/types'
@@ -72,13 +80,20 @@ describe('channels', () => {
     expect(secondSigChain.user.userName.length).toBe(RANDOM_USERNAME_LENGTH)
   })
   it('should add second user to team', () => {
-    const proof = generateProof(invite.seed)
-    adminSigChain.invites.admitMemberFromInvite(
-      proof,
-      secondSigChain.user.userName,
-      secondSigChain.user.userId,
-      redactKeys(secondSigChain.user.keys)
-    )
+    const claim: MemberInvitationClaim = {
+      invitationKind: 'member',
+      userName: secondSigChain.user.userName,
+      userKeys: redactKeys(secondSigChain.user.keys),
+      device: redactDevice(secondSigChain.context.device),
+    }
+    const acceptorNonce = randomKey()
+    const proof = generateProof({
+      seed: invite.seed,
+      claim,
+      acceptorNonce,
+      inviteeNonce: randomKey(),
+    })
+    adminSigChain.invites.admitMemberFromInvite(proof, claim, acceptorNonce)
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 
     const teamBytes = adminSigChain.save()

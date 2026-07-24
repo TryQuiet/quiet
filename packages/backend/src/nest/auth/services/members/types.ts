@@ -1,4 +1,4 @@
-import { Keyset, LocalUserContext, ProofOfInvitation } from '@localfirst/auth'
+import { LocalUserContext } from '@localfirst/auth'
 
 export type MemberSearchOptions = {
   includeRemoved: boolean
@@ -7,8 +7,6 @@ export type MemberSearchOptions = {
 
 export type ProspectiveUser = {
   context: LocalUserContext
-  inviteProof: ProofOfInvitation
-  publicKeys: Keyset
 }
 
 export const DEFAULT_SEARCH_OPTIONS: MemberSearchOptions = { includeRemoved: false, throwOnMissing: true }

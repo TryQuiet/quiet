@@ -51,6 +51,8 @@ import { SigchainEvents } from '../../auth/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
+import { type MemberInvitationClaim, redactDevice } from '@localfirst/auth'
+import { randomKey } from '@localfirst/crypto'
 
 const logger = createLogger('channelsService:test')
 
@@ -135,12 +137,15 @@ describe('ChannelsService', () => {
     adminChain.lockbox.createInviteLockboxes(invite.seed, salt, RoleName.MEMBER)
 
     const invitedChain = SigChain.createFromInvite({ seed: invite.seed })
-    adminChain.invites.admitMemberFromInvite(
-      InviteService.generateProof(invite.seed),
-      invitedChain.user.userName,
-      invitedChain.user.userId,
-      UserService.redactUser(invitedChain.user).keys
-    )
+    const claim: MemberInvitationClaim = {
+      invitationKind: 'member',
+      userName: invitedChain.user.userName,
+      userKeys: UserService.redactUser(invitedChain.user).keys,
+      device: redactDevice(invitedChain.context.device),
+    }
+    const acceptorNonce = randomKey()
+    const proof = InviteService.generateProof(invite.seed, claim, acceptorNonce)
+    adminChain.invites.admitMemberFromInvite(proof, claim, acceptorNonce)
 
     const joinedChain = SigChain.joinForTesting(
       {

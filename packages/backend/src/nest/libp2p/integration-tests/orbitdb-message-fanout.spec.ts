@@ -22,7 +22,15 @@ import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { StorageEvents } from '../../storage/storage.types'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { generateProof, InviteResult, redactKeys, Team } from '@localfirst/auth'
+import {
+  generateProof,
+  InviteResult,
+  type MemberInvitationClaim,
+  redactDevice,
+  redactKeys,
+  Team,
+} from '@localfirst/auth'
+import { randomKey } from '@localfirst/crypto'
 
 const logger = createLogger('libp2p:orbitdb-message-fanout.test')
 
@@ -576,8 +584,26 @@ describe(`OrbitDB Syncing with ${N_PEERS} peers`, () => {
       adminSigchainService.activeTeamId!,
       true
     )
-    const proof = generateProof(inviteResult.seed)
-    adminSigchainService.activeChain.team!.admitMember(proof, redactKeys(sigchain.user.keys), username)
+    const claim: MemberInvitationClaim = {
+      invitationKind: 'member',
+      userName: username,
+      userKeys: redactKeys(sigchain.user.keys),
+      device: redactDevice(sigchain.context.device),
+    }
+    const acceptorNonce = randomKey()
+    const proof = generateProof({
+      seed: inviteResult.seed,
+      claim,
+      acceptorNonce,
+      inviteeNonce: randomKey(),
+    })
+    adminSigchainService.activeChain.team!.admitMember(
+      proof,
+      claim.userKeys,
+      claim.userName,
+      claim.device,
+      acceptorNonce
+    )
     const teamBytes = adminSigchainService.activeChain.save()
     const teamKeyring = adminSigchainService.activeChain.team!.teamKeyring()
     expect(teamKeyring).toBeDefined()
