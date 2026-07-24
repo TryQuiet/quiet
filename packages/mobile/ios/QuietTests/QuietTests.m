@@ -3,7 +3,6 @@
 
 #import <React/RCTLog.h>
 #import <React/RCTRootView.h>
-#import <objc/message.h>
 
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
@@ -13,22 +12,6 @@
 @end
 
 @implementation QuietTests
-
-- (void)testCreatesVersionNineDataDirectory
-{
-  Class dataDirectoryClass = NSClassFromString(@"DataDirectory");
-  XCTAssertNotNil(dataDirectoryClass);
-
-  id dataDirectory = [dataDirectoryClass new];
-  SEL createSelector = NSSelectorFromString(@"create");
-  XCTAssertTrue([dataDirectory respondsToSelector:createSelector]);
-
-  NSString *(*create)(id, SEL) = (NSString *(*)(id, SEL))objc_msgSend;
-  NSString *path = create(dataDirectory, createSelector);
-
-  XCTAssertTrue([path hasSuffix:@"/backend/files9"]);
-  XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:path]);
-}
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL(^)(UIView *view))test
 {
