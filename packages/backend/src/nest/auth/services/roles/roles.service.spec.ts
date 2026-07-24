@@ -66,8 +66,8 @@ describe('roles', () => {
     adminSigChain.invites.admitMemberFromInvite(
       proof,
       secondSigChain.user.userName,
-      secondSigChain.context.user.userId,
-      redactKeys(secondSigChain.context.user.keys)
+      secondSigChain.user.userId,
+      redactKeys(secondSigChain.user.keys)
     )
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 

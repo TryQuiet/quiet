@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 import { SigChain } from './sigchain'
 import { createLogger } from '../common/logger'
-import { LocalUserContext } from '3rd-party/auth/packages/auth/dist'
+import { LocalUserContext, Team, UserWithSecrets } from '3rd-party/auth/packages/auth/dist'
 import { base58 } from '@localfirst/crypto'
 import { RANDOM_TEAM_NAME_LENGTH } from './types'
 import { RANDOM_USERNAME_LENGTH } from './services/members/types'
@@ -37,5 +37,58 @@ describe('SigChain', () => {
     expect(sigChain2.teamName).toBe(sigChain.teamName)
     expect(sigChain2.roles.amIAdmin()).toBe(true)
     expect(sigChain2.roles.amIMember()).toBe(true)
+  })
+
+  describe('device invitation admission', () => {
+    const expectedTeamId = 'expected-team'
+    const expectedUserId = 'expected-user'
+    let pendingChain: SigChain
+
+    beforeEach(() => {
+      pendingChain = SigChain.createFromDeviceInvite({
+        seed: 'invitation-seed',
+        userName: 'alice',
+        deviceName: 'Alice’s phone',
+        expectedTeamId,
+        expectedUserId,
+      })
+    })
+
+    const admittedUser = {
+      userId: expectedUserId,
+      userName: 'alice',
+    } as UserWithSecrets
+
+    const admittedTeam = (deviceId: string, overrides: { id?: string; hasDevice?: boolean } = {}) =>
+      ({
+        id: overrides.id ?? expectedTeamId,
+        hasDevice: jest.fn().mockReturnValue(overrides.hasDevice ?? true),
+        on: jest.fn(),
+        removeListener: jest.fn(),
+      }) as unknown as Team
+
+    it('creates an invitee-device context and completes it only after validation', () => {
+      const pendingDeviceId = pendingChain.device.deviceId
+      expect(pendingChain.isPendingDeviceAdmission).toBe(true)
+      expect(pendingChain.context).not.toHaveProperty('user')
+      expect(pendingChain.device).not.toHaveProperty('userId')
+
+      pendingChain.completeInvitation(admittedTeam(pendingDeviceId), admittedUser)
+
+      expect(pendingChain.isPendingDeviceAdmission).toBe(false)
+      expect(pendingChain.user.userId).toBe(expectedUserId)
+      expect(pendingChain.device).toMatchObject({ userId: expectedUserId })
+      expect(pendingChain.team?.id).toBe(expectedTeamId)
+    })
+
+    it.each([
+      ['team', admittedTeam('device', { id: 'tampered-team' }), admittedUser],
+      ['user', admittedTeam('device'), { ...admittedUser, userId: 'tampered-user' }],
+      ['device', admittedTeam('device', { hasDevice: false }), admittedUser],
+    ])('rejects a mismatched recovered %s', (_field, team, user) => {
+      expect(() => pendingChain.completeInvitation(team, user as UserWithSecrets)).toThrow(/admission|does not contain/)
+      expect(pendingChain.isPendingDeviceAdmission).toBe(true)
+      expect(pendingChain.context).not.toHaveProperty('team')
+    })
   })
 })

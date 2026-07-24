@@ -186,6 +186,10 @@ export class Libp2pAuth {
   async afterStop() {
     this.logger.info('afterStop')
     if (this.sigChainService.activeChainTeamId != null) {
+      if (this.sigChainService.getActiveChain().isPendingDeviceAdmission) {
+        this.logger.info('Skipping persistence for pending device invitation context')
+        return
+      }
       await this.sigChainService.saveChain(this.sigChainService.activeChainTeamId)
     }
   }
@@ -384,24 +388,33 @@ export class Libp2pAuth {
     authConnection.on(LFAEvents.JOINED, payload => {
       const { team, user } = payload
       const sigChain = this.sigChainService.getActiveChain()
-      const teamId = sigChain.teamId!
+      const wasPendingDeviceAdmission = sigChain.isPendingDeviceAdmission
       if (sigChain.team == null) {
-        this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${teamId}`
-        )
-        if (!('team' in sigChain.context)) {
-          sigChain.context = {
-            device: (sigChain.context as Auth.InviteeContext).device,
-            team,
-            user,
-          } as Auth.MemberContext
+        try {
+          sigChain.completeInvitation(team, user)
+        } catch (error) {
+          this.joinStatus = JoinStatus.PENDING
+          this.logger.error('Rejected invited device admission', error)
+          this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })
+          return
         }
-        this.logger.info(`Joined team ${teamId} (userid: ${user.userId})!`)
+
+        this.logger.info(`${user.userId}: Created SigChain for user with name ${user.userName} and team ${team.id}`)
+        this.logger.info(`Joined team ${team.id} (userid: ${user.userId})!`)
         this.sigChainService.setActiveChain(sigChain.teamId!)
       }
       this.joinStatus = JoinStatus.JOINED
-      this.sigChainService.saveChain(sigChain.teamId!)
-      this.emit(Libp2pEvents.AUTH_JOINED)
+      if (!wasPendingDeviceAdmission) {
+        void this.sigChainService.saveChain(sigChain.teamId!).catch(error => {
+          this.logger.error('Failed to save admitted member sigchain', error)
+        })
+      }
+      this.emit(Libp2pEvents.AUTH_JOINED, {
+        teamId: team.id,
+        userId: user.userId,
+        deviceId: sigChain.device.deviceId,
+        deviceAdmission: wasPendingDeviceAdmission,
+      })
       this.unblockConnections(this.bufferedConnections)
     })
 
@@ -440,14 +453,16 @@ export class Libp2pAuth {
       return
     }
 
-    let id: string
-    try {
-      this.sigChainService.getActiveChain()
-      id = this.sigChainService.team.id
-    } catch (e) {
+    const activeChain = this.sigChainService.getActiveChain(false)
+    if (activeChain == null) {
       this.joinStatus = JoinStatus.NOT_STARTED
       return
     }
+    if (activeChain.team == null) {
+      this.joinStatus = JoinStatus.PENDING
+      return
+    }
+    const id = activeChain.team.id
 
     /**
      * We need to manually reset the join status in the case where the status is stuck on an intermediate state like

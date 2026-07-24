@@ -304,9 +304,13 @@ describe('LocalDbService', () => {
 
   describe('sigchain helpers', () => {
     const teamId = 'abc123'
-    const dummySigChain = {
+    const localUserContext = {
       user: { id: 'u' },
       device: { id: 'd' },
+    }
+    const dummySigChain = {
+      ...localUserContext,
+      context: localUserContext,
       save: () => Uint8Array.from([1, 2, 3]),
       team: {
         save: () => Uint8Array.from([4, 5, 6]),
@@ -324,6 +328,20 @@ describe('LocalDbService', () => {
       await service.deleteSigChain(teamId)
       const afterDelete = await service.getSigChain(teamId)
       expect(afterDelete).toBeUndefined()
+    })
+
+    it('refuses to persist a pending device invitation context', async () => {
+      const pendingDeviceChain = SigChain.createFromDeviceInvite({
+        seed: 'device-invite-seed',
+        userName: 'alice',
+        expectedTeamId: teamId,
+        expectedUserId: 'alice-user-id',
+      })
+
+      await expect(service.setSigChain(pendingDeviceChain, teamId)).rejects.toThrow(
+        'Cannot persist pending device invitation context'
+      )
+      expect(await service.getSigChain(teamId)).toBeUndefined()
     })
   })
 

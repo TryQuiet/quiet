@@ -280,6 +280,28 @@ describe('QSSService', () => {
   }
 
   describe('connect', () => {
+    it('does not authenticate a pending invited device', async () => {
+      await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)
+      await sigchainService.createChainFromDeviceInvite(
+        {
+          seed: 'device-invite-seed',
+          userName: 'alice',
+          expectedTeamId: community.teamId,
+          expectedUserId: userIdentity.userId,
+        },
+        community.teamId,
+        true
+      )
+      const createCommunitySpy = jest.spyOn(qssService, 'createCommunity')
+      const signInSpy = jest.spyOn(qssService, 'signInToCommunity')
+
+      await initCommunity({ qssEnabled: true, qssSetup: true })
+      await qssService['_handleQssHandleSignIn']()
+
+      expect(createCommunitySpy).not.toHaveBeenCalled()
+      expect(signInSpy).not.toHaveBeenCalled()
+    })
+
     it('connects to QSS when enabled and an endpoint string is provided', async () => {
       await initCommunity()
       mockedAllowed = jest.spyOn(qssService, 'qssAllowed', 'get').mockReturnValue(true)

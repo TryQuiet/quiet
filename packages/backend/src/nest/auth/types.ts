@@ -1,5 +1,10 @@
 import { Keyring, LocalUserContext, Context } from '@localfirst/auth'
 
+export type PendingDeviceAdmission = {
+  teamId: string
+  userId: string
+}
+
 export type SigChainSaveData = {
   serializedTeam: string | undefined
   localUserContext: LocalUserContext

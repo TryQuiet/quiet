@@ -278,6 +278,9 @@ export class LocalDbService extends EventEmitter {
   }
 
   public async setSigChain(sigChain: SigChain, teamId: string) {
+    if (sigChain.context == null || !('user' in sigChain.context)) {
+      throw new Error(`Cannot persist pending device invitation context for team ${teamId}`)
+    }
     const key = `${LocalDBKeys.SIGCHAINS}${teamId}`
     let serializedTeam: string | undefined = undefined
     let teamKeyring: Keyring | undefined = undefined
@@ -287,7 +290,7 @@ export class LocalDbService extends EventEmitter {
     }
     const serializedSigChain: SigChainSaveData = {
       serializedTeam: serializedTeam,
-      localUserContext: { user: sigChain.user, device: sigChain.device },
+      localUserContext: { user: sigChain.context.user, device: sigChain.context.device },
       teamKeyRing: teamKeyring,
     }
     this.logger.info('Saving sigchain', teamId)

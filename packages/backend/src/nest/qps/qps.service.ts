@@ -110,7 +110,7 @@ export class QPSService implements OnModuleInit {
     try {
       const sigchain = this.sigChainService.getActiveChain()
       teamId = sigchain?.team?.id
-      userId = sigchain.context.user.userId
+      userId = sigchain.user.userId
     } catch (e) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team chain')
       this._pendingDeviceToken = undefined
@@ -118,6 +118,11 @@ export class QPSService implements OnModuleInit {
     }
     if (teamId == null) {
       this.logger.warn('Cannot tombstone notification tokens before leave: no active team id')
+      this._pendingDeviceToken = undefined
+      return false
+    }
+    if (userId == null) {
+      this.logger.warn('Cannot tombstone notification tokens before leave: no active user id')
       this._pendingDeviceToken = undefined
       return false
     }

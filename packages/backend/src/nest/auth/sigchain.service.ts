@@ -3,12 +3,14 @@ import { SigChain } from './sigchain'
 import {
   Connection,
   InviteeMemberContext,
+  InviteeDeviceContext,
   Keyring,
   LocalUserContext,
   MemberContext,
   Team,
   UserWithSecrets,
   DeviceWithSecrets,
+  FirstUseDeviceWithSecrets,
 } from '@localfirst/auth'
 import { KeyMetadata } from '@localfirst/crdx'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -25,7 +27,11 @@ import EventEmitter from 'events'
 import { SigchainEvents, StoredKeyType } from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
-import type { CreateUserFromInviteSeedInput, CreateUserInput } from './services/members/types'
+import type {
+  CreateDeviceFromInviteSeedInput,
+  CreateUserFromInviteSeedInput,
+  CreateUserInput,
+} from './services/members/types'
 
 @Injectable()
 export class SigChainService extends EventEmitter {
@@ -75,7 +81,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().team!
   }
 
-  get context(): MemberContext | InviteeMemberContext {
+  get context(): MemberContext | InviteeMemberContext | InviteeDeviceContext {
     return this.getActiveChain().context
   }
 
@@ -83,7 +89,7 @@ export class SigChainService extends EventEmitter {
     return this.getActiveChain().user
   }
 
-  get device(): DeviceWithSecrets {
+  get device(): DeviceWithSecrets | FirstUseDeviceWithSecrets {
     return this.getActiveChain().device
   }
 
@@ -354,6 +360,17 @@ export class SigChainService extends EventEmitter {
     const sigChain = SigChain.createFromInvite(createFromInviteSeedInput)
     this.addChain(sigChain, setActive, teamId)
     await this.saveChain(teamId)
+    return sigChain
+  }
+
+  async createChainFromDeviceInvite(
+    createFromDeviceInviteSeedInput: CreateDeviceFromInviteSeedInput,
+    teamId: string,
+    setActive: boolean
+  ): Promise<SigChain> {
+    this.logger.info('Creating pending chain from device invite')
+    const sigChain = SigChain.createFromDeviceInvite(createFromDeviceInviteSeedInput)
+    this.addChain(sigChain, setActive, teamId)
     return sigChain
   }
 

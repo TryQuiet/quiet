@@ -1,6 +1,6 @@
 import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
 import { type Identity } from './identity'
-import { InvitationData } from './network'
+import { DeviceInvitationData, InvitationData } from './network'
 import { User, UserProfile } from './user'
 
 // ----- Base Types -----
@@ -53,6 +53,15 @@ export interface JoinCommunityPayload {
   inviteData: InvitationData
 }
 
+export interface LinkDevicePayload {
+  inviteData: DeviceInvitationData
+  deviceName?: string
+}
+
+export interface InitDeviceLinkPayload extends LinkDevicePayload {
+  id: string
+}
+
 export interface LaunchCommunityPayload {
   id: string
 }
@@ -99,6 +108,12 @@ export interface ResponseJoinCommunityPayload {
   community: Community
   identity: Identity
   profile: UserProfile
+}
+
+export interface ResponseLinkDevicePayload {
+  id: string
+  community: Community
+  identity: Identity
 }
 
 export interface ResponseLeaveCommunityPayload {

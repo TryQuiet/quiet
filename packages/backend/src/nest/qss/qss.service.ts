@@ -153,6 +153,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         return
       }
 
+      if (sigChain.isPendingDeviceAdmission) {
+        this.logger.info('Skipping QSS authentication until the invited device is admitted over P2P')
+        return
+      }
+
       if (
         !(initStatus.qssSetup ?? false) &&
         sigChain.team != null &&
@@ -184,7 +189,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
     this.logger.trace(
       `Is user now member through self-assign?`,
-      sigchain.roles.memberHasRole(sigchain.context.user.userId, RoleName.MEMBER)
+      sigchain.roles.memberHasRole(sigchain.user.userId, RoleName.MEMBER)
     )
     this.qssAuthConnManager.markMemberRoleReady(teamId)
     this.qssSyncManager.markMemberRoleReady(teamId)

@@ -37,7 +37,9 @@ import {
   type ResponseLaunchCommunityPayload,
   type ResponseCreateCommunityPayload,
   type ResponseJoinCommunityPayload,
+  type ResponseLinkDevicePayload,
   type ResponseLeaveCommunityPayload,
+  type InitDeviceLinkPayload,
   LaunchCommunityPayload,
   RequestInvitePayload,
   RequestDeviceLinkPayload,
@@ -72,6 +74,7 @@ export enum SocketActions {
 
   CREATE_COMMUNITY = 'createCommunity',
   JOIN_COMMUNITY = 'joinCommunity',
+  LINK_DEVICE = 'linkDevice',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
 
@@ -193,6 +196,7 @@ export interface SocketActionsMap {
 
   // ====== Communities ======
   [SocketActions.JOIN_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseJoinCommunityPayload) => void>
+  [SocketActions.LINK_DEVICE]: EmitEvent<InitDeviceLinkPayload, (response?: ResponseLinkDevicePayload) => void>
   [SocketActions.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response?: ResponseCreateCommunityPayload) => void>
   [SocketActions.LAUNCH_COMMUNITY]: EmitEvent<
     LaunchCommunityPayload,

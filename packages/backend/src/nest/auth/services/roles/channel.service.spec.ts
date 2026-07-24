@@ -76,8 +76,8 @@ describe('channels', () => {
     adminSigChain.invites.admitMemberFromInvite(
       proof,
       secondSigChain.user.userName,
-      secondSigChain.context.user.userId,
-      redactKeys(secondSigChain.context.user.keys)
+      secondSigChain.user.userId,
+      redactKeys(secondSigChain.user.keys)
     )
     expect(() => adminSigChain.users.getUserById(secondSigChain.user.userId)).not.toThrow()
 
@@ -109,20 +109,17 @@ describe('channels', () => {
     expect(failedSelfAssign).toThrow()
   })
   it('should add second user to channel', () => {
-    adminSigChain.channels.addMember(secondSigChain.context.user.userId, channelRoleName)
-    expect(adminSigChain.channels.memberInChannel(secondSigChain.context.user.userId, channelRoleName)).toBe(true)
+    adminSigChain.channels.addMember(secondSigChain.user.userId, channelRoleName)
+    expect(adminSigChain.channels.memberInChannel(secondSigChain.user.userId, channelRoleName)).toBe(true)
     expect(
-      adminSigChain.channels.canMemberAddMembersToPrivateChannel(secondSigChain.context.user.userId, channelRoleName)
+      adminSigChain.channels.canMemberAddMembersToPrivateChannel(secondSigChain.user.userId, channelRoleName)
     ).toBe(false)
     expect(
-      adminSigChain.channels.canMemberRemoveMembersFromPrivateChannel(
-        secondSigChain.context.user.userId,
-        channelRoleName
-      )
+      adminSigChain.channels.canMemberRemoveMembersFromPrivateChannel(secondSigChain.user.userId, channelRoleName)
     ).toBe(false)
-    expect(
-      adminSigChain.channels.canMemberDeletePrivateChannel(secondSigChain.context.user.userId, channelRoleName)
-    ).toBe(false)
+    expect(adminSigChain.channels.canMemberDeletePrivateChannel(secondSigChain.user.userId, channelRoleName)).toBe(
+      false
+    )
   })
   it('should fail to create channel on second user', () => {
     expect(secondSigChain.roles.amIAdmin()).toBe(false)
