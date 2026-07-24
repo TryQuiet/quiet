@@ -128,7 +128,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
                 fontSize={14}
                 style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
               >
-                {"Quiet is in beta and shouldn't be used for acticdvities requiring security."}
+                {"Quiet is in beta and shouldn't be used for activities requiring security."}
               </Typography>
             </View>
           </KeyboardAvoidingView>

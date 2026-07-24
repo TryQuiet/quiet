@@ -16,6 +16,7 @@ describe('AddMembersChannel', () => {
         handleClose={jest.fn()}
       />
     )
+    expect(result.getByTestId('general-add-members-leave-button').textContent).toBe('Nevermind')
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
@@ -261,7 +262,7 @@ describe('AddMembersChannel', () => {
                       tabindex="0"
                       type="button"
                     >
-                      Never mind
+                      Nevermind
                       <span
                         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />

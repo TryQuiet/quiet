@@ -332,7 +332,7 @@ export const AddMembersChannelComponent: React.FC<ReturnType<typeof useModal> & 
             className={classes.secondaryButton}
             data-testid={`${channelName}-add-members-leave-button`}
           >
-            Never mind
+            Nevermind
           </Button>
         </Grid>
       </StyledGrid>
