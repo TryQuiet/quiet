@@ -127,13 +127,13 @@ describe('OrbitDbService', () => {
       expect(update.entry.payload.value).toStrictEqual({ content: 'test content' })
       expect(update.entry.identity).toEqual(orbitDbService.orbitDb.identity.hash)
     })
-    OrbitDbService.events.on('put', putListener)
+    orbitDbService.outboundEvents.on('put', putListener)
 
     try {
       await store.add({ content: 'test content' })
       expect(putListener).toHaveBeenCalled()
     } finally {
-      OrbitDbService.events.off('put', putListener)
+      orbitDbService.outboundEvents.off('put', putListener)
     }
   })
 
@@ -147,7 +147,7 @@ describe('OrbitDbService', () => {
       sync: false,
     })
     const putListener = jest.fn()
-    OrbitDbService.events.on('put', putListener)
+    orbitDbService.outboundEvents.on('put', putListener)
 
     try {
       expect(() => {
@@ -168,7 +168,7 @@ describe('OrbitDbService', () => {
         })
       )
     } finally {
-      OrbitDbService.events.off('put', putListener)
+      orbitDbService.outboundEvents.off('put', putListener)
     }
   })
 
@@ -186,7 +186,7 @@ describe('OrbitDbService', () => {
     )
     OrbitDbService.updateMetadata(store, { teamId })
     const putListener = jest.fn()
-    OrbitDbService.events.on('put', putListener)
+    orbitDbService.outboundEvents.on('put', putListener)
 
     try {
       const hash = await store.put('channel-id', { content: 'metadata content', teamId })
@@ -199,7 +199,7 @@ describe('OrbitDbService', () => {
         })
       )
     } finally {
-      OrbitDbService.events.off('put', putListener)
+      orbitDbService.outboundEvents.off('put', putListener)
     }
   })
 
@@ -224,7 +224,7 @@ describe('OrbitDbService', () => {
       sync: false,
     })
     const putListener = jest.fn()
-    OrbitDbService.events.on('put', putListener)
+    orbitDbService.outboundEvents.on('put', putListener)
 
     try {
       await closedStore.close()
@@ -237,7 +237,7 @@ describe('OrbitDbService', () => {
         })
       )
     } finally {
-      OrbitDbService.events.off('put', putListener)
+      orbitDbService.outboundEvents.off('put', putListener)
     }
   })
 

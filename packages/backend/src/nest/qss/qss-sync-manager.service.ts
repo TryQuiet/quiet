@@ -115,11 +115,11 @@ export class QSSSyncManager implements OnModuleDestroy, OnModuleInit {
   }
 
   public onModuleInit(): void {
-    OrbitDbService.events.on('put', this._handleOrbitDbPut)
+    this.orbitDbService.outboundEvents.on('put', this._handleOrbitDbPut)
   }
 
   public onModuleDestroy(): void {
-    OrbitDbService.events.off('put', this._handleOrbitDbPut)
+    this.orbitDbService.outboundEvents.off('put', this._handleOrbitDbPut)
     this.close()
   }
 

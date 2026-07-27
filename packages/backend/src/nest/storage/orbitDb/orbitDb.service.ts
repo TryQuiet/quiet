@@ -39,6 +39,7 @@ export class OrbitDbService {
   private storeAliases: Record<string, string> = {}
   private orbitDbUpdateListenerAttached = false
   public identities: LFAIdentities | undefined = undefined
+  public readonly outboundEvents = new EventEmitter()
   public static readonly events = new EventEmitter()
 
   private readonly logger = createLogger(OrbitDbService.name)
@@ -59,7 +60,7 @@ export class OrbitDbService {
     }
 
     const storeAddress = this.normalizeStoreIdentifier((store as { address?: unknown }).address) ?? entry.id
-    OrbitDbService.events.emit('put', logEntryToLogUpdate(entry, storeAddress, store.meta?.['teamId']))
+    this.outboundEvents.emit('put', logEntryToLogUpdate(entry, storeAddress, store.meta?.['teamId']))
   }
 
   private normalizeStoreIdentifier(value: unknown): string | undefined {

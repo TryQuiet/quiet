@@ -25,7 +25,6 @@ export enum WebsocketEvents {
   GEN_PUB_KEYS = 'generate-public-keys',
   SIGN_IN_COMMUNITY = 'sign-in-community',
   LOG_ENTRY_SYNC = 'log-entry-sync',
-  LOG_ENTRY_FANOUT = 'log-entry-fanout',
   LOG_ENTRY_PULL = 'log-entry-pull',
   VERIFY_CAPTCHA = 'verify-captcha',
   GET_CAPTCHA_SITE_KEY = 'get-captcha-site-key',
@@ -259,8 +258,10 @@ export interface SendPushMessage extends BaseWebsocketMessage<SendPushPayload> {
 export interface SendPushResponse extends BaseWebsocketMessage<undefined> {}
 
 export interface SendBatchPushPayload {
-  teamId: string
   ucans: string[]
+  title?: string
+  body?: string
+  data?: Record<string, string>
 }
 
 export interface SendBatchPushMessage extends BaseWebsocketMessage<SendBatchPushPayload> {

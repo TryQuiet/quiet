@@ -691,7 +691,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.logger.info(`Signing in to community`, teamId)
     const qssSignInMessage: CommunitySignInMessage = {
       ts: DateTime.utc().toMillis(),
-      status: CommunityOperationStatus.SUCCESS,
+      status: CommunityOperationStatus.SENDING,
       payload: {
         userId: (sigChain.context as MemberContext).user.userId,
         deviceId: (sigChain.context as MemberContext).device.deviceId,

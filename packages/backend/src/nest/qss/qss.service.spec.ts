@@ -795,7 +795,7 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
-            status: CommunityOperationStatus.SUCCESS,
+            status: CommunityOperationStatus.SENDING,
             payload: {
               userId: sigchainService.user.userId,
               deviceId: sigchainService.device.deviceId,
@@ -1016,7 +1016,7 @@ describe('QSSService', () => {
           WebsocketEvents.SIGN_IN_COMMUNITY,
           expect.objectContaining({
             ts: expect.any(Number),
-            status: CommunityOperationStatus.SUCCESS,
+            status: CommunityOperationStatus.SENDING,
             payload: {
               userId: sigchainService.user.userId,
               deviceId: sigchainService.device.deviceId,
