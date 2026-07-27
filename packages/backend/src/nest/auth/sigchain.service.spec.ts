@@ -141,6 +141,15 @@ describe('SigChainService - listener lifecycle', () => {
     expect(chainB.listenerCount(SigchainEvents.UPDATED)).toBe(0)
   })
 
+  it('does not attach another update listener when the active chain is selected again', async () => {
+    const chain = await sigChainService.createChain(true)
+
+    sigChainService.setActiveChain(chain.teamId!)
+    sigChainService.setActiveChain(chain.teamId!)
+
+    expect(chain.listenerCount(SigchainEvents.UPDATED)).toBe(1)
+  })
+
   it('does not emit iOS-native key or device events on non-ios platforms', async () => {
     const emitSpy = jest.spyOn(sigChainService.serverIoProvider.io, 'emit')
 

@@ -139,14 +139,21 @@ export class SigChainService extends EventEmitter {
   }
 
   setActiveChain(teamId: string): void {
-    if (this.activeChainTeamId && this.activeChainTeamId !== teamId) {
-      this.detachSocketListeners(this.getChain(this.activeChainTeamId))
-    }
     if (!this.chains.has(teamId)) {
       throw new Error(`No chain found for team ${teamId}, can't set to active!`)
     }
+    const nextChain = this.getChain(teamId)
+    if (this.activeChainTeamId === teamId) {
+      if (!this._chainListeners.has(nextChain)) {
+        this.attachSocketListeners(nextChain)
+      }
+      return
+    }
+    if (this.activeChainTeamId) {
+      this.detachSocketListeners(this.getChain(this.activeChainTeamId))
+    }
     this.activeChainTeamId = teamId
-    this.attachSocketListeners(this.getChain(teamId))
+    this.attachSocketListeners(nextChain)
   }
 
   private handleChainUpdate = async (teamId: string) => {
@@ -279,6 +286,10 @@ export class SigChainService extends EventEmitter {
   }
 
   private attachSocketListeners(chain: SigChain): void {
+    if (this._chainListeners.has(chain)) {
+      this.logger.debug('Socket listeners already attached to chain', chain.teamId)
+      return
+    }
     this.logger.info('Attaching socket listeners')
     const listener = (): void => {
       this.handleChainUpdate(chain.teamId!)

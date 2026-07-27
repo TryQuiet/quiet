@@ -165,9 +165,11 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     })
     authConnection.teamId = teamId
     authConnection.on(QSSEvents.QSS_AUTH_CONNECTED, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_AUTH_CONNECTED, eventTeamId ?? teamId)
     })
     authConnection.on(QSSEvents.QSS_AUTH_JOINED, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_AUTH_JOINED, eventTeamId ?? teamId)
     })
     authConnection.on(QSSEvents.QSS_AUTH_ERROR, (payload: QSSAuthErrorPayload) => {
@@ -177,10 +179,12 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       } satisfies QSSAuthErrorPayload)
     })
     authConnection.on(QSSEvents.QSS_DISCONNECTED, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
       this.emit(QSSEvents.QSS_DISCONNECTED, eventTeamId ?? teamId)
     })
-    authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (teamId: string) => {
-      this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, teamId)
+    authConnection.on(QSSEvents.QSS_SELF_ASSIGN_MEMBER, (eventTeamId: string) => {
+      if (this.authConnMap.get(teamId) !== authConnection) return
+      this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, eventTeamId ?? teamId)
     })
     this.authConnMap.set(teamId, authConnection)
     await authConnection.start()

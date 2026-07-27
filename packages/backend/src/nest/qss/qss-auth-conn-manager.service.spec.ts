@@ -176,6 +176,19 @@ describe('QSSAuthConnectionManager', () => {
     expect(conn?.active).toBeFalsy()
   })
 
+  it('ignores admission events from a stopped auth connection', async () => {
+    const teamId = sigchainService.activeChain.team!.id
+    const joinedHandler = jest.fn()
+    qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, joinedHandler)
+    await qssAuthConnManager.startNewConnection(teamId)
+    const conn = qssAuthConnManager.getConnection(teamId)
+
+    qssAuthConnManager.stopConnection(teamId, false)
+    conn?.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
+
+    expect(joinedHandler).not.toHaveBeenCalled()
+  })
+
   it('forwards auth protocol errors with their team ID', async () => {
     const teamId = sigchainService.activeChain.team!.id
     const authErrorHandler = jest.fn()
