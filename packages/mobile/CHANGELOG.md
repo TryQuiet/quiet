@@ -12,6 +12,7 @@
 * Don't send deletion message for private channels [#3273](https://github.com/TryQuiet/quiet/issues/3273)
 * Ensure notification registration waits for auth handshake [#3289](https://github.com/TryQuiet/quiet/issues/3289)
 * Fixed a race condition that can cause stale data to remain after leaving community [#3253](https://github.com/TryQuiet/quiet/issues/3253)
+* Fixed "Add Members > Copy Link" not copying the invite link to the clipboard on Android 13+ [#3369](https://github.com/TryQuiet/quiet/issues/3369)
 * Temporarily disable private channels
 * Validate user ID on decrypted message matches the signature [#3334](https://github.com/TryQuiet/quiet/issues/3334)
 
