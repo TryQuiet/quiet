@@ -92,6 +92,16 @@ class SigChain extends EventEmitter {
     return this.context.user
   }
 
+  get userId(): string {
+    if ('user' in this.context) {
+      return this.context.user.userId
+    }
+    if (this._pendingDeviceAdmission == null) {
+      throw new Error('User ID is unavailable until the invited device is admitted')
+    }
+    return this._pendingDeviceAdmission.userId
+  }
+
   get username(): string {
     return 'user' in this.context ? this.context.user.userName : this.context.userName
   }

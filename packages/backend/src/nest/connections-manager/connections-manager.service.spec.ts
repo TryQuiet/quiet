@@ -373,7 +373,7 @@ describe('ConnectionsManagerService', () => {
     expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
   })
 
-  it('delays QSS until an invited device is admitted, validated, persisted, and storage is initialized', async () => {
+  it('admits an invited device via QSS, validates and persists it, then initializes storage', async () => {
     const teamId = deviceInvitationData.authData.teamId
     const userId = deviceInvitationData.authData.userId
     const linkedCommunity: Community = {
@@ -415,7 +415,8 @@ describe('ConnectionsManagerService', () => {
     await waitForExpect(() =>
       expect(connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)).toBe(1)
     )
-    expect(qssConnectSpy).not.toHaveBeenCalled()
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_AUTH_JOINED)).toBe(1))
+    expect(qssConnectSpy).toHaveBeenCalledWith(linkedCommunity.qssEndpoint)
     expect(storageInitSpy).not.toHaveBeenCalled()
     expect(saveChainSpy).not.toHaveBeenCalled()
 
@@ -432,20 +433,14 @@ describe('ConnectionsManagerService', () => {
         userName: deviceInvitationData.authData.userName,
       } as any
     )
-    connectionsManagerService.libp2pService.emit(Libp2pEvents.AUTH_JOINED, {
-      teamId,
-      userId,
-      deviceId: pendingChain.device.deviceId,
-      deviceAdmission: true,
-    })
+    qssService.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
 
     await launchPromise
 
     expect(saveChainSpy).toHaveBeenCalledWith(teamId)
     expect(storageInitSpy).toHaveBeenCalledWith(teamId)
-    expect(qssConnectSpy).toHaveBeenCalledWith(linkedCommunity.qssEndpoint)
+    expect(qssConnectSpy.mock.invocationCallOrder[0]).toBeLessThan(saveChainSpy.mock.invocationCallOrder[0])
     expect(saveChainSpy.mock.invocationCallOrder[0]).toBeLessThan(storageInitSpy.mock.invocationCallOrder[0])
-    expect(storageInitSpy.mock.invocationCallOrder[0]).toBeLessThan(qssConnectSpy.mock.invocationCallOrder[0])
   })
 
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {

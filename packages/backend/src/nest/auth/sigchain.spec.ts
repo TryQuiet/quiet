@@ -71,12 +71,14 @@ describe('SigChain', () => {
       const pendingDeviceId = pendingChain.device.deviceId
       expect(pendingChain.isPendingDeviceAdmission).toBe(true)
       expect(pendingChain.context).not.toHaveProperty('user')
+      expect(pendingChain.userId).toBe(expectedUserId)
       expect(pendingChain.device).not.toHaveProperty('userId')
 
       pendingChain.completeInvitation(admittedTeam(pendingDeviceId), admittedUser)
 
       expect(pendingChain.isPendingDeviceAdmission).toBe(false)
       expect(pendingChain.user.userId).toBe(expectedUserId)
+      expect(pendingChain.userId).toBe(expectedUserId)
       expect(pendingChain.device).toMatchObject({ userId: expectedUserId })
       expect(pendingChain.team?.id).toBe(expectedTeamId)
     })

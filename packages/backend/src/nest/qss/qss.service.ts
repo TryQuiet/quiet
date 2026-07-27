@@ -153,11 +153,6 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
         return
       }
 
-      if (sigChain.isPendingDeviceAdmission) {
-        this.logger.info('Skipping QSS authentication until the invited device is admitted over P2P')
-        return
-      }
-
       if (
         !(initStatus.qssSetup ?? false) &&
         sigChain.team != null &&
@@ -693,8 +688,8 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       ts: DateTime.utc().toMillis(),
       status: CommunityOperationStatus.SENDING,
       payload: {
-        userId: (sigChain.context as MemberContext).user.userId,
-        deviceId: (sigChain.context as MemberContext).device.deviceId,
+        userId: sigChain.userId,
+        deviceId: sigChain.device.deviceId,
         teamId,
       },
     }

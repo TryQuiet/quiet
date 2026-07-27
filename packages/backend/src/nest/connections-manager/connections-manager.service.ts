@@ -1013,12 +1013,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           }
         }
 
-        if (!isPendingDevice) {
-          this.qssService.once(QSSEvents.QSS_FULLY_JOINED, (teamId: string) => {
-            this.logger.info(`Handling ${QSSEvents.QSS_FULLY_JOINED} event`, teamId)
-            void handleStorageReady(teamId)
-          })
-        }
+        const qssJoinEvent = isPendingDevice ? QSSEvents.QSS_AUTH_JOINED : QSSEvents.QSS_FULLY_JOINED
+        this.qssService.once(qssJoinEvent, (teamId: string) => {
+          this.logger.info(`Handling ${qssJoinEvent} event`, teamId)
+          void handleStorageReady(teamId, isPendingDevice)
+        })
         this.libp2pService.once(Libp2pEvents.AUTH_JOINED, payload => {
           this.logger.info(`Handling ${Libp2pEvents.AUTH_JOINED} event`, payload)
           const teamId = this.sigChainService.getActiveChain().team?.id
@@ -1039,9 +1038,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         }
       })
 
-      if (!isPendingDevice) {
-        this.qssService.connect(community.qssEndpoint)
-      }
+      this.qssService.connect(community.qssEndpoint)
 
       if (await this.tor.isBootstrappingFinished()) {
         this.serverIoProvider.io.emit(SocketEvents.TOR_INITIALIZED)
@@ -1049,9 +1046,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketEvents.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
 
       await storageReadyPromise
-      if (isPendingDevice) {
-        this.qssService.connect(community.qssEndpoint)
-      }
     }
 
     if (await this.tor.isBootstrappingFinished()) {

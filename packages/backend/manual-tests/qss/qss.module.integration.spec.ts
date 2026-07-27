@@ -11,6 +11,7 @@ import {
   ConsumedChannelMessage,
   Identity,
   InvitationDataVersion,
+  InvitationKind,
   MessageType,
   PublicChannel,
 } from '@quiet/types'
@@ -21,13 +22,12 @@ import { CaptchaService } from '../../src/nest/captcha/captcha.service'
 import { QSS_ALLOWED, QSS_ENDPOINT } from '../../src/nest/const'
 import { TestModule } from '../../src/nest/common/test.module'
 import { spawnLibp2pInstancesInMemory } from '../../src/nest/common/test-utils'
-import { getInMemoryLibp2pInstanceParams } from '../../src/nest/common/utils'
 import { IpfsFileManagerModule } from '../../src/nest/ipfs-file-manager/ipfs-file-manager.module'
 import { IpfsModule } from '../../src/nest/ipfs/ipfs.module'
 import { IpfsService } from '../../src/nest/ipfs/ipfs.service'
 import { JoinStatus } from '../../src/nest/libp2p/libp2p.auth'
 import { Libp2pService } from '../../src/nest/libp2p/libp2p.service'
-import { Libp2pEvents, type Libp2pNodeParams } from '../../src/nest/libp2p/libp2p.types'
+import { type Libp2pNodeParams } from '../../src/nest/libp2p/libp2p.types'
 import { LocalDbService } from '../../src/nest/local-db/local-db.service'
 import { QSSAuthConnectionManager } from '../../src/nest/qss/qss-auth-conn-manager.service'
 import { QSSAuthConnStatus } from '../../src/nest/qss/qss.const'
@@ -82,7 +82,6 @@ interface OwnerFixture {
   teamName: string
   invite: { seed: string; salt: string }
   psk: string
-  libp2pParams: Libp2pNodeParams
 }
 
 interface OwnerFixtureOptions {
@@ -93,13 +92,6 @@ interface OwnerFixtureOptions {
 interface InviteeFixtureOptions {
   beforeConnect?: (peer: QSSIntegrationPeer) => Promise<void> | void
   beforeStorageReady?: (peer: QSSIntegrationPeer) => Promise<void> | void
-}
-
-interface DeviceAdmissionPayload {
-  teamId: string
-  userId: string
-  deviceId: string
-  deviceAdmission: boolean
 }
 
 const activePeers = new Set<QSSIntegrationPeer>()
@@ -272,9 +264,9 @@ async function createOwnerFixture(prefix: string, options: OwnerFixtureOptions =
     qssSetup: false,
   })
 
-  const libp2pParams = await startPeerLibp2p(owner)
+  await startPeerLibp2p(owner)
   await startPeerDataStorage(owner)
-  const fixture = { owner, teamId, teamName, invite, psk, libp2pParams }
+  const fixture = { owner, teamId, teamName, invite, psk }
   await options.beforeConnect?.(fixture)
 
   if (options.markStorageReadyBeforeConnect ?? true) {
@@ -434,36 +426,6 @@ async function waitForLastSyncSeqAtLeast(
     expect(observedSeq).toBeGreaterThanOrEqual(minimumSeq)
   }, 60_000)
   return observedSeq
-}
-
-async function dialAndWaitForDeviceAdmission(
-  linkedDevice: QSSIntegrationPeer,
-  acceptingPeer: QSSIntegrationPeer
-): Promise<DeviceAdmissionPayload> {
-  let timeout: NodeJS.Timeout | undefined
-  let admissionHandler: ((payload: DeviceAdmissionPayload) => void) | undefined
-  const admission = new Promise<DeviceAdmissionPayload>((resolve, reject) => {
-    admissionHandler = payload => resolve(payload)
-    linkedDevice.libp2pService.once(Libp2pEvents.AUTH_JOINED, admissionHandler)
-    timeout = setTimeout(() => reject(new Error('Device admission over libp2p timed out')), 60_000)
-  })
-
-  try {
-    const dial = linkedDevice.libp2pService.dialPeer(acceptingPeer.libp2pService.localAddress, {
-      throwOnError: true,
-      redialOnError: false,
-    })
-    await Promise.race([dial, admission])
-    await dial
-    return await admission
-  } finally {
-    if (timeout != null) {
-      clearTimeout(timeout)
-    }
-    if (admissionHandler != null) {
-      linkedDevice.libp2pService.off(Libp2pEvents.AUTH_JOINED, admissionHandler)
-    }
-  }
 }
 
 async function cleanupPeer(peer: QSSIntegrationPeer): Promise<void> {
@@ -744,7 +706,7 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     await waitForLastSyncSeqAtLeast(lateInvitee, teamId, expectedSeq)
   })
 
-  it('keeps both linked-device sessions authenticated and syncs history and live writes both ways', async () => {
+  it('links a device through QSS, keeps both sessions authenticated, and syncs history and live writes', async () => {
     let channel!: PublicChannel
     let ownerStore!: QssChannelStore
     const fixture = await createOwnerFixture('qss-linked-device', {
@@ -753,7 +715,7 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
         ownerStore = await openQssBackedChannel(ownerFixture.owner, channel)
       },
     })
-    const { owner, teamId, teamName, psk, libp2pParams } = fixture
+    const { owner, teamId, teamName, psk } = fixture
     const ownerChain = owner.sigChainService.activeChain
     const ownerUserId = ownerChain.user.userId
     const ownerDeviceId = ownerChain.device.deviceId
@@ -787,23 +749,34 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
         qssEnabled: true,
         qssEndpoint: QSS_INTEGRATION_ENDPOINT,
         qssSetup: true,
+        inviteData: {
+          kind: InvitationKind.Device,
+          version: InvitationDataVersion.v5,
+          pairs: [],
+          psk,
+          authData: {
+            communityName: teamName,
+            seed: deviceInvite.seed,
+            teamId,
+            userId: deviceInvite.userId,
+            userName: deviceInvite.userName,
+          },
+          qssEnabled: true,
+          qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+        },
       },
       ownerUserId
     )
 
-    const linkedDeviceParams = await getInMemoryLibp2pInstanceParams()
-    linkedDeviceParams.psk = libp2pParams.psk
-    await startPeerLibp2p(linkedDevice, linkedDeviceParams)
-    const admission = await dialAndWaitForDeviceAdmission(linkedDevice, owner)
+    await startPeerLibp2p(linkedDevice)
+    expect(await linkedDevice.qssService.connect(QSS_INTEGRATION_ENDPOINT)).toBe(QSSOperationResult.SUCCESS)
+    await waitForAuthReady(linkedDevice, teamId)
+    await waitForMemberRole(linkedDevice, teamId)
     const linkedChain = linkedDevice.sigChainService.activeChain
 
-    expect(admission).toMatchObject({
-      teamId,
-      userId: ownerUserId,
-      deviceId: linkedChain.device.deviceId,
-      deviceAdmission: true,
-    })
     expect(linkedChain.isPendingDeviceAdmission).toBe(false)
+    expect(linkedChain.team?.id).toBe(teamId)
+    expect(linkedChain.user.userId).toBe(ownerUserId)
     expect(linkedChain.device.deviceId).not.toBe(ownerDeviceId)
     expect(linkedChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
     expect(linkedChain.team?.members(ownerUserId).devices).toHaveLength(2)
@@ -811,9 +784,8 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
       expect(owner.sigChainService.activeChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
       expect(owner.sigChainService.activeChain.team?.members(ownerUserId).devices).toHaveLength(2)
     }, 20_000)
-    await linkedDevice.sigChainService.saveChain(teamId)
 
-    const historicalText = 'linked device receives history before its QSS sign-in'
+    const historicalText = 'linked device receives history after its fast QSS admission'
     const historicalHash = await addChannelMessage(owner, ownerStore, channel, historicalText)
     await owner.qssSyncManager.waitForLogEntrySyncAck(historicalHash, 60_000)
 
@@ -821,7 +793,6 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     const linkedDeviceStore = await openQssBackedChannel(linkedDevice, channel)
     expect(linkedDeviceStore.address).toBe(ownerStore.address)
     linkedDevice.qssService.markTeamStorageReady(teamId)
-    await connectPeer(linkedDevice, teamId)
     await waitForExactMessages(linkedDevice, linkedDeviceStore, channel, [historicalText])
 
     await waitForAuthReady(owner, teamId)

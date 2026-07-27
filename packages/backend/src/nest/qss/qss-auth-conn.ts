@@ -2,11 +2,7 @@
  * Abstraction of LFA auth sync connection logic for QSS
  */
 import { Connection as AuthConnection } from '../../../../../3rd-party/auth/packages/auth/dist'
-import {
-  ConnectionParams as AuthConnectionParams,
-  InviteeContext,
-  MemberContext,
-} from '../../../../../3rd-party/auth/packages/auth/dist/connection'
+import { ConnectionParams as AuthConnectionParams } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
 import { AuthSyncMessage, CommunityOperationStatus, QSSEvents, WebsocketEvents } from './qss.types'
@@ -203,8 +199,8 @@ export class QSSAuthConnection extends EventEmitter {
             ts: DateTime.utc().toMillis(),
             status: CommunityOperationStatus.SUCCESS,
             payload: {
-              userId: (sigChain!.context as MemberContext).user.userId,
-              deviceId: (sigChain!.context as MemberContext).device.deviceId,
+              userId: sigChain.userId,
+              deviceId: sigChain.device.deviceId,
               teamId: this.teamId!,
               message: uint8arrays.toString(message, 'base64'),
             },
@@ -255,22 +251,30 @@ export class QSSAuthConnection extends EventEmitter {
       const { team, user } = payload
 
       const sigChain = this.sigChainService.getActiveChain()
-      this.logger.info(`${sigChain.user.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
-      // if we didn't have a team on the sigchain previously then it is assumed that we haven't connected to a peer yet
-      // and thus don't have the member role so our joining is still pending
+      const wasPendingDeviceAdmission = sigChain.isPendingDeviceAdmission
+      this.logger.info(`${sigChain.userId}: Joined team ${team.id} (userid: ${user.userId})!`)
+      // Complete invitation contexts from the QSS-delivered team graph. New users still need to self-assign the
+      // member role, while a linked device inherits its existing user's membership immediately.
       if (sigChain.team == null) {
-        this.logger.info(
-          `${user.userId}: Creating SigChain for user with name ${user.userName} and team name ${team.id}`
-        )
-        sigChain.context = {
-          device: (sigChain.context as InviteeContext).device,
-          team,
-          user,
-        } as MemberContext
-        this.sigChainService.setActiveChain(team.id)
-        this._joinStatus = JoinStatus.PENDING_MEMBER
-        this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
-        this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
+        try {
+          sigChain.completeInvitation(team, user)
+        } catch (error) {
+          this._joinStatus = JoinStatus.PENDING
+          this.logger.error('Rejected QSS invitation admission', error)
+          authConnection.emit(LFAEvents.LOCAL_ERROR, error)
+          return
+        }
+
+        this.logger.info(`${user.userId}: Created SigChain for user with name ${user.userName} and team ${team.id}`)
+        this.sigChainService.setActiveChain(sigChain.teamId!)
+
+        if (wasPendingDeviceAdmission) {
+          this._joinStatus = JoinStatus.JOINED
+        } else {
+          this._joinStatus = JoinStatus.PENDING_MEMBER
+          this.logger.debug(`Emitting ${QSSEvents.QSS_SELF_ASSIGN_MEMBER} event`)
+          this.emit(QSSEvents.QSS_SELF_ASSIGN_MEMBER, this.teamId)
+        }
       } else {
         this._joinStatus = JoinStatus.JOINED
       }
