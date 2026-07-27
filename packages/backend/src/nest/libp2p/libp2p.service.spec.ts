@@ -4,7 +4,7 @@ import { TestModule } from '../common/test.module'
 import { generateLibp2pPSK, LIBP2P_PSK_METADATA, libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
 import { Libp2pService } from './libp2p.service'
-import { Libp2pNodeParams } from './libp2p.types'
+import { Libp2pDatastorePrefix, Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
 
@@ -99,5 +99,24 @@ describe('Libp2pService', () => {
     expect(getSortedPeers).not.toHaveBeenCalled()
     expect(hangUpPeers).toHaveBeenCalledWith([connectedRemotePeerAddress])
     expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+  })
+
+  it('pauses libp2p and clears queue/datastore', async () => {
+    jest
+      .spyOn((libp2pService as any).localDbService, 'getSortedPeers')
+      .mockResolvedValue([remotePeerAddress, localPeerAddress])
+    const hangUpPeers = jest.spyOn(libp2pService, 'hangUpPeers')
+    const dialPeers = jest.spyOn(libp2pService, 'dialPeers')
+    await libp2pService.createInstance(params)
+    const deleteDatastoreKeysSpy = jest.spyOn(libp2pService.libp2pDatastore!, 'deleteKeysByPrefix')
+
+    await libp2pService.dialPeers([remotePeerAddress])
+    expect(dialPeers).toHaveBeenCalledWith([remotePeerAddress])
+    expect(libp2pService.dialedPeers.size).toBe(1)
+
+    await libp2pService.pause()
+    expect(hangUpPeers).toHaveBeenCalled()
+    expect(libp2pService.dialedPeers.size).toBe(0)
+    expect(deleteDatastoreKeysSpy).toHaveBeenCalledWith(Libp2pDatastorePrefix.PEERS)
   })
 })
