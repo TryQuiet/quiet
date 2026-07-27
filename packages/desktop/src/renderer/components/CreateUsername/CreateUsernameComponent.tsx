@@ -282,6 +282,20 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                   }),
                 }}
               />
+              <Grid container alignItems='center' direction='row' className={classes.marginMedium}>
+                <Grid item className={classes.iconDiv}>
+                  <WarningIcon className={classes.warrningIcon} />
+                </Grid>
+                <Grid item xs>
+                  <Typography
+                    variant='body2'
+                    className={classes.warrningMessage}
+                    data-testid={'createUsernameBetaWarning'}
+                  >
+                    Quiet is in beta and shouldn't be used for activities requiring security.
+                  </Typography>
+                </Grid>
+              </Grid>
             </Grid>
           </form>
         </>

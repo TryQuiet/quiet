@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, useRef } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View, Image } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
@@ -13,6 +13,7 @@ import { Splash } from '../Splash/Splash.component'
 import { InvitationData } from '@quiet/types'
 
 import { createLogger } from '../../utils/logger'
+import { icons } from '../../assets'
 
 const logger = createLogger('joinCommunity:component')
 
@@ -123,12 +124,29 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
             <View style={{ marginTop: 32 + 12 }}>
               <Button onPress={onPress} title={'Continue'} loading={loading} />
             </View>
-            <View style={{ marginTop: 32 + 12 }}>
+            <View
+              style={{
+                marginTop: 32 + 12,
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                gap: 4,
+              }}
+            >
+              <Image
+                source={icons.icon_warning}
+                resizeMode='cover'
+                resizeMethod='resize'
+                style={{
+                  width: 16,
+                  height: 16,
+                }}
+              />
               <Typography
                 fontSize={14}
                 style={{ color: defaultTheme.palette.typography.grayDark, textAlign: 'center' }}
               >
-                {"Quiet is in beta and shouldn't be used for acticdvities requiring security."}
+                {"Quiet is in beta and shouldn't be used for activities requiring security."}
               </Typography>
             </View>
           </KeyboardAvoidingView>

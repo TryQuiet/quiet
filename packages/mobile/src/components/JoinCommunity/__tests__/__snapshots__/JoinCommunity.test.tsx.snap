@@ -385,10 +385,29 @@ exports[`JoinCommunity component renders component 1`] = `
     <View
       style={
         {
+          "alignItems": "flex-start",
+          "flexDirection": "row",
+          "gap": 4,
+          "justifyContent": "center",
           "marginTop": 44,
         }
       }
     >
+      <Image
+        resizeMethod="resize"
+        resizeMode="cover"
+        source={
+          {
+            "testUri": "../../../src/assets/icons/png/icon_warning.png",
+          }
+        }
+        style={
+          {
+            "height": 16,
+            "width": 16,
+          }
+        }
+      />
       <Text
         color="main"
         fontSize={14}
@@ -410,7 +429,7 @@ exports[`JoinCommunity component renders component 1`] = `
         }
         verticalTextAlign="center"
       >
-        Quiet is in beta and shouldn't be used for acticdvities requiring security.
+        Quiet is in beta and shouldn't be used for activities requiring security.
       </Text>
     </View>
   </View>
