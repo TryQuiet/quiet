@@ -33,6 +33,7 @@
     "test-replication-no-tor": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" ts-node -v && cross-env DEBUG='backend:dbSnap*,backend:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
     "test-replication-tor": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" cross-env DEBUG='backend:dbSnap*,backend:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor",
     "test-it": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\" --",
+    "test:qss-integration": "cross-env QSS_MODULE_INTEGRATION=1 NODE_OPTIONS=\"--experimental-vm-modules\" DEBUG=backend:qss* jest --config ./jest.qss-integration.config.cjs --runInBand --verbose --forceExit --watchman=false",
     "rmDist": "rimraf lib/"
   },
   "repository": {

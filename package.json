@@ -29,6 +29,7 @@
     "bootstrap": "npm run build:submodules && lerna bootstrap",
     "watch": "lerna watch -- lerna run build --since",
     "start:qss": "cd ./3rd-party/qss && pnpm run run:app docker:up:complete && MIKRO_ORM_HOST=0.0.0.0 pnpm run run:app migrate:up:docker",
+    "test:qss-integration": "npm --prefix ./packages/backend run test:qss-integration --",
     "stop:qss": "cd ./3rd-party/qss && pnpm run run:app docker:down:complete"
   },
   "engines": {

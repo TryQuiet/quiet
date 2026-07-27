@@ -5,30 +5,32 @@ import { randomBytes, randomUUID } from 'crypto'
 import waitForExpect from 'wait-for-expect'
 
 import { Community, CommunityOwnership, Identity, InvitationDataVersion } from '@quiet/types'
-import { TestModule } from '../common/test.module'
-import { QSS_ALLOWED, QSS_ENDPOINT } from '../const'
-import { SigChainService } from '../auth/sigchain.service'
-import { SigChainModule } from '../auth/sigchain.service.module'
-import { EncryptedAndSignedPayload, EncryptionScopeType } from '../auth/services/crypto/types'
-import { RoleName } from '../auth/services/roles/roles'
-import { CaptchaService } from '../captcha/captcha.service'
-import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
-import { IpfsModule } from '../ipfs/ipfs.module'
-import { IpfsService } from '../ipfs/ipfs.service'
-import { JoinStatus } from '../libp2p/libp2p.auth'
-import { Libp2pService } from '../libp2p/libp2p.service'
-import { LocalDbService } from '../local-db/local-db.service'
-import { spawnLibp2pInstancesInMemory } from '../common/test-utils'
-import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
-import { OrbitDbModule } from '../storage/orbitDb/orbitdb.module'
-import { EventsWithStorage } from '../storage/orbitDb/eventsWithStorage'
-import { QSSAuthConnectionManager } from './qss-auth-conn-manager.service'
-import { QSSAuthConnStatus } from './qss.const'
-import { QSSClient } from './qss.client'
-import { QSSModule } from './qss.module'
-import { QSSService } from './qss.service'
-import { QSSSyncManager } from './qss-sync-manager.service'
-import { QSSOperationResult } from './qss.types'
+import { TestModule } from '../../src/nest/common/test.module'
+import { QSS_ALLOWED, QSS_ENDPOINT } from '../../src/nest/const'
+import { SigChainService } from '../../src/nest/auth/sigchain.service'
+import { SigChainModule } from '../../src/nest/auth/sigchain.service.module'
+import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../src/nest/auth/services/crypto/types'
+import { RoleName } from '../../src/nest/auth/services/roles/roles'
+import { CaptchaService } from '../../src/nest/captcha/captcha.service'
+import { IpfsFileManagerModule } from '../../src/nest/ipfs-file-manager/ipfs-file-manager.module'
+import { IpfsModule } from '../../src/nest/ipfs/ipfs.module'
+import { IpfsService } from '../../src/nest/ipfs/ipfs.service'
+import { JoinStatus } from '../../src/nest/libp2p/libp2p.auth'
+import { Libp2pService } from '../../src/nest/libp2p/libp2p.service'
+import { Libp2pEvents, type Libp2pNodeParams } from '../../src/nest/libp2p/libp2p.types'
+import { LocalDbService } from '../../src/nest/local-db/local-db.service'
+import { spawnLibp2pInstancesInMemory } from '../../src/nest/common/test-utils'
+import { getInMemoryLibp2pInstanceParams } from '../../src/nest/common/utils'
+import { OrbitDbService } from '../../src/nest/storage/orbitDb/orbitDb.service'
+import { OrbitDbModule } from '../../src/nest/storage/orbitDb/orbitdb.module'
+import { EventsWithStorage } from '../../src/nest/storage/orbitDb/eventsWithStorage'
+import { QSSAuthConnectionManager } from '../../src/nest/qss/qss-auth-conn-manager.service'
+import { QSSAuthConnStatus } from '../../src/nest/qss/qss.const'
+import { QSSClient } from '../../src/nest/qss/qss.client'
+import { QSSModule } from '../../src/nest/qss/qss.module'
+import { QSSService } from '../../src/nest/qss/qss.service'
+import { QSSSyncManager } from '../../src/nest/qss/qss-sync-manager.service'
+import { QSSOperationResult } from '../../src/nest/qss/qss.types'
 
 const RUN_QSS_MODULE_INTEGRATION =
   process.env.QSS_MODULE_INTEGRATION === '1' || process.env.RUN_QSS_INTEGRATION_TESTS === 'true'
@@ -126,16 +128,34 @@ async function createPeer(name: string): Promise<QSSIntegrationPeer> {
 }
 
 async function startPeerStorage(peer: QSSIntegrationPeer): Promise<void> {
-  await spawnLibp2pInstancesInMemory([peer.module])
+  await startPeerLibp2p(peer)
+  await startPeerDataStorage(peer)
+}
+
+async function startPeerLibp2p(peer: QSSIntegrationPeer, params?: Libp2pNodeParams): Promise<Libp2pNodeParams> {
+  if (params != null) {
+    await peer.libp2pService.createInstance(params)
+    return params
+  }
+
+  const [createdParams] = await spawnLibp2pInstancesInMemory([peer.module])
+  return createdParams
+}
+
+async function startPeerDataStorage(peer: QSSIntegrationPeer): Promise<void> {
   await peer.ipfsService.createInstance()
   await peer.ipfsService.start()
   await peer.orbitDbService.create(peer.ipfsService.ipfsInstance!)
 }
 
-async function setCurrentCommunity(peer: QSSIntegrationPeer, community: Community): Promise<void> {
+async function setCurrentCommunity(
+  peer: QSSIntegrationPeer,
+  community: Community,
+  userId = peer.sigChainService.user.userId
+): Promise<void> {
   await peer.localDbService.setCommunity(community)
   await peer.localDbService.setCurrentCommunityId(community.id)
-  await peer.localDbService.setIdentity(testIdentity(community.id, peer.sigChainService.user.userId))
+  await peer.localDbService.setIdentity(testIdentity(community.id, userId))
 }
 
 async function waitForQssSetup(peer: QSSIntegrationPeer): Promise<void> {
@@ -165,6 +185,43 @@ async function waitForDisconnected(peer: QSSIntegrationPeer, teamId: string): Pr
     expect(peer.qssService.connected).toBe(false)
     expect(peer.qssAuthConnManager.getConnection(teamId)).toBeUndefined()
   }, 20_000)
+}
+
+interface DeviceAdmissionPayload {
+  teamId: string
+  userId: string
+  deviceId: string
+  deviceAdmission: boolean
+}
+
+async function dialAndWaitForDeviceAdmission(
+  linkedDevice: QSSIntegrationPeer,
+  acceptingPeer: QSSIntegrationPeer
+): Promise<DeviceAdmissionPayload> {
+  let timeout: NodeJS.Timeout | undefined
+  let admissionHandler: ((payload: DeviceAdmissionPayload) => void) | undefined
+  const admission = new Promise<DeviceAdmissionPayload>((resolve, reject) => {
+    admissionHandler = payload => resolve(payload)
+    linkedDevice.libp2pService.once(Libp2pEvents.AUTH_JOINED, admissionHandler)
+    timeout = setTimeout(() => reject(new Error('Device admission over libp2p timed out')), 60_000)
+  })
+
+  try {
+    const dial = linkedDevice.libp2pService.dialPeer(acceptingPeer.libp2pService.localAddress, {
+      throwOnError: true,
+      redialOnError: false,
+    })
+    await Promise.race([dial, admission])
+    await dial
+    return await admission
+  } finally {
+    if (timeout != null) {
+      clearTimeout(timeout)
+    }
+    if (admissionHandler != null) {
+      linkedDevice.libp2pService.off(Libp2pEvents.AUTH_JOINED, admissionHandler)
+    }
+  }
 }
 
 async function disconnectWithoutAutoReconnect(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
@@ -377,7 +434,7 @@ maybeDescribe('QSSModule create-community owner sync against dockerized QSS', ()
 })
 
 maybeDescribe('QSSModule integration against dockerized QSS', () => {
-  jest.setTimeout(180_000)
+  jest.setTimeout(300_000)
 
   const peers: QSSIntegrationPeer[] = []
   const teamName = `qss-module-${randomUUID()}`
@@ -391,6 +448,7 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
   let teamId!: string
   let ownerStore!: EventsType<EncryptedAndSignedPayload>
   let inviteeStore!: EventsType<EncryptedAndSignedPayload>
+  let ownerLibp2pParams!: Libp2pNodeParams
 
   afterAll(async () => {
     for (const peer of peers.reverse()) {
@@ -421,7 +479,8 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
       qssEndpoint: QSS_INTEGRATION_ENDPOINT,
       qssSetup: false,
     })
-    await startPeerStorage(owner)
+    ownerLibp2pParams = await startPeerLibp2p(owner)
+    await startPeerDataStorage(owner)
 
     owner.captchaService.hcaptchaToken = HCAPTCHA_TEST_TOKEN
     expect(await owner.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)).toBe(QSSOperationResult.SUCCESS)
@@ -573,5 +632,94 @@ maybeDescribe('QSSModule integration against dockerized QSS', () => {
     lateInvitee.qssService.markTeamStorageReady(teamId)
     await waitForStoreMessage(lateInvitee, lateInviteeStore, lateMessage)
     await waitForLastSyncSeqAtLeast(lateInvitee, teamId, expectedLateSeq)
+  })
+
+  it('admits a linked device over P2P, authenticates it to QSS, and syncs logs in both directions', async () => {
+    expect(owner).toBeDefined()
+    expect(ownerStore).toBeDefined()
+    expect(ownerLibp2pParams).toBeDefined()
+
+    const ownerChain = owner.sigChainService.activeChain
+    const ownerUserId = ownerChain.user.userId
+    const ownerDeviceId = ownerChain.device.deviceId
+    const deviceInvite = ownerChain.invites.createDeviceInvite()
+    await owner.sigChainService.saveChain(teamId)
+
+    const linkedDevice = await createPeer(`qss-linked-device-${randomUUID()}`)
+    peers.push(linkedDevice)
+    await linkedDevice.sigChainService.createChainFromDeviceInvite(
+      {
+        seed: deviceInvite.seed,
+        userName: deviceInvite.userName,
+        deviceName: 'QSS integration linked device',
+        expectedTeamId: teamId,
+        expectedUserId: deviceInvite.userId,
+      },
+      teamId,
+      true
+    )
+
+    expect(linkedDevice.sigChainService.activeChain.isPendingDeviceAdmission).toBe(true)
+    expect(linkedDevice.qssService.connected).toBe(false)
+    expect(linkedDevice.qssAuthConnManager.getConnection(teamId)).toBeUndefined()
+
+    await setCurrentCommunity(
+      linkedDevice,
+      {
+        id: randomUUID(),
+        name: teamName,
+        ownership: CommunityOwnership.User,
+        peerList: [owner.libp2pService.localAddress],
+        psk: randomBytes(32).toString('base64'),
+        teamId,
+        qssEnabled: true,
+        qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+        qssSetup: true,
+      },
+      ownerUserId
+    )
+
+    const params = await getInMemoryLibp2pInstanceParams()
+    params.psk = ownerLibp2pParams.psk
+    await startPeerLibp2p(linkedDevice, params)
+
+    const admission = await dialAndWaitForDeviceAdmission(linkedDevice, owner)
+    const linkedChain = linkedDevice.sigChainService.activeChain
+    expect(admission).toMatchObject({
+      teamId,
+      userId: ownerUserId,
+      deviceAdmission: true,
+    })
+    expect(linkedChain.isPendingDeviceAdmission).toBe(false)
+    expect(linkedChain.team?.id).toBe(teamId)
+    expect(linkedChain.user.userId).toBe(ownerUserId)
+    expect(linkedChain.device.deviceId).not.toBe(ownerDeviceId)
+    expect(admission.deviceId).toBe(linkedChain.device.deviceId)
+    expect(linkedChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
+    expect(linkedChain.team?.members(ownerUserId).devices).toHaveLength(2)
+    await waitForExpect(() => {
+      expect(owner.sigChainService.activeChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
+      expect(owner.sigChainService.activeChain.team?.members(ownerUserId).devices).toHaveLength(2)
+    }, 20_000)
+    await linkedDevice.sigChainService.saveChain(teamId)
+
+    const historicalMessage = 'qss integration: linked device historical pull'
+    const historicalHash = await addEncryptedEntry(owner, ownerStore, historicalMessage)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(historicalHash, 60_000)
+
+    await startPeerDataStorage(linkedDevice)
+    expect(await linkedDevice.qssService.connect(QSS_INTEGRATION_ENDPOINT, true)).toBe(QSSOperationResult.SUCCESS)
+    await waitForAuthReady(linkedDevice, teamId)
+    await waitForMemberRole(linkedDevice, teamId)
+
+    const linkedDeviceStore = await openQssBackedEventsStore(linkedDevice, storeName, teamId)
+    expect(linkedDeviceStore.address).toBe(ownerStore.address)
+    linkedDevice.qssService.markTeamStorageReady(teamId)
+    await waitForStoreMessage(linkedDevice, linkedDeviceStore, historicalMessage)
+
+    const linkedDeviceMessage = 'qss integration: linked device outbound fanout'
+    const linkedDeviceHash = await addEncryptedEntry(linkedDevice, linkedDeviceStore, linkedDeviceMessage)
+    await linkedDevice.qssSyncManager.waitForLogEntrySyncAck(linkedDeviceHash, 60_000)
+    await waitForStoreMessage(owner, ownerStore, linkedDeviceMessage)
   })
 })

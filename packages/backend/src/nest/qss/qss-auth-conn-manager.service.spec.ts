@@ -12,8 +12,8 @@ import { SigChainModule } from '../auth/sigchain.service.module'
 import { SigChainService } from '../auth/sigchain.service'
 import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSS_ALLOWED } from '../const'
-import { AuthSyncMessage, CommunityOperationStatus, QSSEvents, WebsocketEvents } from './qss.types'
-import { QSS_AUTH_SYNC_PENDING_FRAME_LIMIT, QSSAuthConnStatus } from './qss.const'
+import { QSSEvents } from './qss.types'
+import { QSSAuthConnStatus } from './qss.const'
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
@@ -40,7 +40,6 @@ describe('QSSAuthConnectionManager', () => {
       start: jest.fn(async (_teamName?: string) => {}),
       stop: jest.fn(),
       isForClientSocket: jest.fn(() => true),
-      deliver: jest.fn(),
     }) as unknown as QSSAuthConnection
 
   const createMockSocket = (id: string): ClientSocket =>
@@ -54,17 +53,6 @@ describe('QSSAuthConnectionManager', () => {
       off: (_event: string, _callback: (...args: any[]) => void) => {},
       emit: (_event: string, _payload: any) => {},
     }) as any as ClientSocket
-
-  const createAuthSyncMessage = (teamId: string, bytes: number[]): AuthSyncMessage => ({
-    ts: Date.now(),
-    status: CommunityOperationStatus.SUCCESS,
-    payload: {
-      userId: 'user-id',
-      deviceId: 'device-id',
-      teamId,
-      message: Buffer.from(bytes).toString('base64'),
-    },
-  })
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -140,63 +128,6 @@ describe('QSSAuthConnectionManager', () => {
     expect(authConnection.start).toHaveBeenCalledTimes(1)
     expect(authConnection.start).toHaveBeenCalledWith()
     expect(qssAuthConnManager.getConnection(teamId)).toBe(authConnection)
-  })
-
-  it('buffers auth sync frames until the team connection is initialized, then drains them in order', async () => {
-    const teamId = 'buffered-team-id'
-    const moduleRef = (qssAuthConnManager as any).moduleRef as ModuleRef
-    const createDeferredConnection = createDeferred<QSSAuthConnection>()
-    const authConnection = createMockAuthConnection('buffered-auth-connection')
-    jest.spyOn(moduleRef, 'create').mockReturnValue(createDeferredConnection.promise as any)
-
-    const startPromise = qssAuthConnManager.startNewConnection(teamId)
-    qssClient.emit(WebsocketEvents.AUTH_SYNC, createAuthSyncMessage(teamId, [1, 2]))
-    qssClient.emit(WebsocketEvents.AUTH_SYNC, createAuthSyncMessage(teamId, [3, 4]))
-
-    expect(authConnection.deliver).not.toHaveBeenCalled()
-
-    createDeferredConnection.resolve(authConnection)
-    await startPromise
-
-    expect(authConnection.deliver).toHaveBeenCalledTimes(2)
-    expect(Array.from((authConnection.deliver as jest.Mock).mock.calls[0][0] as Uint8Array)).toEqual([1, 2])
-    expect(Array.from((authConnection.deliver as jest.Mock).mock.calls[1][0] as Uint8Array)).toEqual([3, 4])
-  })
-
-  it('bounds the pending auth sync frame buffer and drops the oldest frame', async () => {
-    const teamId = 'bounded-buffer-team-id'
-    const moduleRef = (qssAuthConnManager as any).moduleRef as ModuleRef
-    const createDeferredConnection = createDeferred<QSSAuthConnection>()
-    const authConnection = createMockAuthConnection('bounded-buffer-auth-connection')
-    jest.spyOn(moduleRef, 'create').mockReturnValue(createDeferredConnection.promise as any)
-
-    const startPromise = qssAuthConnManager.startNewConnection(teamId)
-    for (let i = 0; i <= QSS_AUTH_SYNC_PENDING_FRAME_LIMIT; i++) {
-      qssClient.emit(WebsocketEvents.AUTH_SYNC, createAuthSyncMessage(teamId, [i]))
-    }
-
-    expect((qssAuthConnManager as any).pendingAuthSyncFrames).toHaveLength(QSS_AUTH_SYNC_PENDING_FRAME_LIMIT)
-
-    createDeferredConnection.resolve(authConnection)
-    await startPromise
-
-    expect(authConnection.deliver).toHaveBeenCalledTimes(QSS_AUTH_SYNC_PENDING_FRAME_LIMIT)
-    expect(Array.from((authConnection.deliver as jest.Mock).mock.calls[0][0] as Uint8Array)).toEqual([1])
-  })
-
-  it('does not drain auth sync frames buffered for a previous QSS client socket', async () => {
-    const teamId = 'stale-socket-team-id'
-    qssClient.emit(WebsocketEvents.AUTH_SYNC, createAuthSyncMessage(teamId, [1, 2, 3]))
-
-    socket = createMockSocket('socket-2')
-    const moduleRef = (qssAuthConnManager as any).moduleRef as ModuleRef
-    const authConnection = createMockAuthConnection('new-socket-auth-connection')
-    jest.spyOn(moduleRef, 'create').mockResolvedValue(authConnection)
-
-    await qssAuthConnManager.startNewConnection(teamId)
-
-    expect(authConnection.deliver).not.toHaveBeenCalled()
-    expect((qssAuthConnManager as any).pendingAuthSyncFrames).toHaveLength(0)
   })
 
   it(`starts a replacement connection when the existing connection was stopped`, async () => {
