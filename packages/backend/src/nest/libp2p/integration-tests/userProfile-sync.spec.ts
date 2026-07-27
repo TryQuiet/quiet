@@ -86,7 +86,7 @@ describe('UserProfileStore OrbitDB Sync', () => {
       if (i === 0) {
         await initOrbitDb(i)
       }
-      libp2pServices[i].pauseDialQueue()
+      await libp2pServices[i].pauseDialQueue()
     }
 
     // Alice sets her profile

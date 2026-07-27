@@ -43,6 +43,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
 import { QSSService } from '../qss/qss.service'
+import { Libp2pConnectionGater } from './libp2p.connection-gater'
 
 const CONNECTION_LIMIT = 20
 
@@ -76,7 +77,8 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     @Inject(LIBP2P_DB_PATH) public readonly datastorePath: string,
     private readonly sigchainService: SigChainService,
     private readonly localDbService: LocalDbService,
-    private readonly qssService: QSSService
+    private readonly qssService: QSSService,
+    private readonly connectionGater: Libp2pConnectionGater
   ) {
     super()
 
@@ -312,9 +314,23 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
-  public pauseDialQueue = () => {
+  public pauseDialQueue = async () => {
+    this.logger.debug('Clearing timeouts/intervals')
     this.clearIntervals()
+    this.logger.debug('Stopping and clearing redial queue')
     this.redialQueue.stop(true)
+    this.logger.debug('Checking libp2p internal dial queue and clearing pending dials')
+    await this.clearLibp2pInternalDialQueue()
+  }
+
+  private clearLibp2pInternalDialQueue = async (): Promise<void> => {
+    this.libp2pInstance?.getDialQueue().forEach(async pendingDial => {
+      this.logger.debug(`Found pending dial for peer ${pendingDial.peerId ?? 'PEER ID UNDEFINED'}`)
+      for (const address of pendingDial.multiaddrs) {
+        this.logger.trace(`Hanging up on ${address.toString()}`)
+        await this.hangUpPeer(address.toString(), false)
+      }
+    })
   }
 
   public resumeDialQueue = () => {
@@ -371,14 +387,28 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       return false
     }
     this.setState(Libp2pState.Paused)
-    this.pauseDialQueue()
+    await this.pauseDialQueue()
     const peerInfo = this.getCurrentPeerInfo()
     await this.hangUpPeers()
     this.dialedPeers.clear()
     this.connectedPeers.clear()
     // remove peers from the datastore to avoid libp2p auto-redialing after the pause
-    await this.libp2pDatastore?.deleteKeysByPrefix(Libp2pDatastorePrefix.PEERS)
+    await this.clearPeerStore()
+    this.connectionGater.pauseAllConnections()
     return true
+  }
+
+  private async clearPeerStore(): Promise<void> {
+    if (this.libp2pInstance == null) return
+
+    const allPeers = await this.libp2pInstance.peerStore.all()
+    allPeers.forEach(async peer => {
+      if (peer.id.equals(this.libp2pInstance!.peerId)) {
+        return
+      }
+      this.logger.debug(`Deleting ${peer.id} from peer store`)
+      await this.libp2pInstance?.peerStore.delete(peer.id)
+    })
   }
 
   public resume = async (peersToDial?: string[]): Promise<boolean> => {
@@ -388,6 +418,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       return false
     }
     this.setState(Libp2pState.Starting)
+    this.connectionGater.allowConnections()
     // await this.libp2pInstance?.start()
     const resumed = await this.resumeDialQueueWhenTorReady(async () => {
       if (peersToDial && peersToDial.length > 0) {
@@ -528,6 +559,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           params.useConnectionProtector || params.useConnectionProtector == null
             ? preSharedKey({ psk: params.psk })
             : undefined,
+        connectionGater: this.connectionGater,
         streamMuxers: [
           yamux({
             maxInboundStreams: 1024,
