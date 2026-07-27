@@ -84,13 +84,15 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { QSSService } from '../qss/qss.service'
 import { RoleName } from '../auth/services/roles/roles'
-import { QSSEvents } from '../qss/qss.types'
+import { QSSAuthErrorPayload, QSSEvents } from '../qss/qss.types'
 import { SigchainEvents } from '../auth/types'
 import { QPSService } from '../qps/qps.service'
 import { CaptchaService } from '../captcha/captcha.service'
 import { SigChain } from '../auth/sigchain'
 import { Member } from '@localfirst/auth'
 import type { PrivateChannelMappings } from '../storage/channels/channels.types'
+
+const DEVICE_ADMISSION_TIMEOUT_MS = 120_000
 
 /**
  * A monolith service that handles lots of events received from the state-manager.
@@ -977,10 +979,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       )
       const storageReadyPromise = new Promise<void>((resolve, reject) => {
         let rejectAdmission: ((payload: { error?: Error }) => void) | undefined
+        let rejectQssAdmission: ((payload: QSSAuthErrorPayload) => void) | undefined
+        let deviceAdmissionTimeout: NodeJS.Timeout | undefined
         const cleanupDeviceAdmissionListeners = () => {
-          if (rejectAdmission == null) return
-          this.libp2pService.off(Libp2pEvents.AUTH_LOCAL_ERROR, rejectAdmission)
-          this.libp2pService.off(Libp2pEvents.AUTH_REMOTE_ERROR, rejectAdmission)
+          if (rejectAdmission != null) {
+            this.libp2pService.off(Libp2pEvents.AUTH_LOCAL_ERROR, rejectAdmission)
+            this.libp2pService.off(Libp2pEvents.AUTH_REMOTE_ERROR, rejectAdmission)
+          }
+          if (rejectQssAdmission != null) {
+            this.qssService.off(QSSEvents.QSS_AUTH_ERROR, rejectQssAdmission)
+          }
+          if (deviceAdmissionTimeout != null) {
+            clearTimeout(deviceAdmissionTimeout)
+          }
         }
         const resolveStorageReady = () => {
           cleanupDeviceAdmissionListeners()
@@ -1033,8 +1044,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           rejectAdmission = (payload: { error?: Error }) => {
             rejectStorageReady(payload.error ?? new Error('Device admission failed'))
           }
+          rejectQssAdmission = (payload: QSSAuthErrorPayload) => {
+            if (payload.teamId !== community.teamId) return
+            rejectStorageReady(payload.error)
+          }
           this.libp2pService.once(Libp2pEvents.AUTH_LOCAL_ERROR, rejectAdmission)
           this.libp2pService.once(Libp2pEvents.AUTH_REMOTE_ERROR, rejectAdmission)
+          this.qssService.on(QSSEvents.QSS_AUTH_ERROR, rejectQssAdmission)
+          deviceAdmissionTimeout = setTimeout(() => {
+            rejectStorageReady(
+              new Error(
+                `Device admission timed out after ${DEVICE_ADMISSION_TIMEOUT_MS}ms for team ${community.teamId}`
+              )
+            )
+          }, DEVICE_ADMISSION_TIMEOUT_MS)
         }
       })
 

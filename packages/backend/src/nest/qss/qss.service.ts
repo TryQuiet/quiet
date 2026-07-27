@@ -17,6 +17,7 @@ import {
   CreateCommunityResponse,
   CreateCommunityStatus,
   GeneratePublicKeysMessage,
+  QSSAuthErrorPayload,
   WebsocketEvents,
   QSSOperationResult,
   QSSEvents,
@@ -91,6 +92,11 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
   private _handleQssAuthJoined = (teamId: string): void => {
     this.logger.debug('Auth connection joined via QSS')
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
+  }
+
+  private _handleQssAuthError = (payload: QSSAuthErrorPayload): void => {
+    this.logger.warn('QSS auth connection failed', payload.teamId, payload.error)
+    this.emit(QSSEvents.QSS_AUTH_ERROR, payload)
   }
 
   private _handleStartAuthConnection = (teamId: string): void => {
@@ -197,6 +203,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
+    this.qssAuthConnManager.on(QSSEvents.QSS_AUTH_ERROR, this._handleQssAuthError)
     this.on(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
     this.socketService.on(SocketActions.HCAPTCHA_REQUEST, this._handleHcaptchaRequest)
     this.qssClient.on(QSSEvents.QSS_CAPTCHA_REQUIRED, this._handleCaptchaRequired)
@@ -214,6 +221,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
 
     this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_JOINED, this._handleQssAuthJoined)
+    this.qssAuthConnManager.off(QSSEvents.QSS_AUTH_ERROR, this._handleQssAuthError)
     this.off(QSSEvents.QSS_START_AUTH_CONN, this._handleStartAuthConnection)
     this.socketService.off(SocketActions.HCAPTCHA_REQUEST, this._handleHcaptchaRequest)
     this.qssClient.off(QSSEvents.QSS_CAPTCHA_REQUIRED, this._handleCaptchaRequired)

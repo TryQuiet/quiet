@@ -443,6 +443,57 @@ describe('ConnectionsManagerService', () => {
     expect(saveChainSpy.mock.invocationCallOrder[0]).toBeLessThan(storageInitSpy.mock.invocationCallOrder[0])
   })
 
+  it('rejects pending device launch when QSS admission fails', async () => {
+    const teamId = deviceInvitationData.authData.teamId
+    const userId = deviceInvitationData.authData.userId
+    const linkedCommunity: Community = {
+      ...community,
+      teamId,
+      inviteData: deviceInvitationData,
+      qssEnabled: true,
+      qssEndpoint: 'https://qss.example.test',
+      qssSetup: true,
+    }
+    await sigChainService.createChainFromDeviceInvite(
+      {
+        seed: deviceInvitationData.authData.seed,
+        userName: deviceInvitationData.authData.userName,
+        expectedTeamId: teamId,
+        expectedUserId: userId,
+      },
+      teamId,
+      true
+    )
+    const linkedIdentity = { ...userIdentity, communityId: linkedCommunity.id, userId }
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(linkedIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+
+    const launchPromise = connectionsManagerService.launch(linkedCommunity)
+    const launchRejection = expect(launchPromise).rejects.toThrow('Invitation was not accepted')
+    await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(1))
+
+    qssService.emit(QSSEvents.QSS_AUTH_ERROR, {
+      teamId,
+      error: new Error('Invitation was not accepted'),
+    })
+
+    await launchRejection
+    expect(qssService.listenerCount(QSSEvents.QSS_AUTH_ERROR)).toBe(0)
+    expect(connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_LOCAL_ERROR)).toBe(0)
+    expect(connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_REMOTE_ERROR)).toBe(0)
+  })
+
   it('attempts notification token tombstoning before closing services and still leaves if it is not acked', async () => {
     const tombstoneSpy = jest.spyOn(qpsService, 'tombstoneCurrentUserNotificationTokens').mockResolvedValue(false)
     const captchaResetSpy = jest.spyOn(captchaService, 'reset')

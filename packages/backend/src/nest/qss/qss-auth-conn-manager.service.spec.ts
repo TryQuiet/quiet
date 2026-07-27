@@ -14,6 +14,7 @@ import { JoinStatus } from '../libp2p/libp2p.auth'
 import { QSS_ALLOWED } from '../const'
 import { QSSEvents } from './qss.types'
 import { QSSAuthConnStatus } from './qss.const'
+import { LFAEvents } from '../auth/types'
 
 describe('QSSAuthConnectionManager', () => {
   let module: TestingModule
@@ -173,6 +174,22 @@ describe('QSSAuthConnectionManager', () => {
 
     expect(qssAuthConnManager.getConnection(sigchainService.activeChain.team!.id)).toBeUndefined()
     expect(conn?.active).toBeFalsy()
+  })
+
+  it('forwards auth protocol errors with their team ID', async () => {
+    const teamId = sigchainService.activeChain.team!.id
+    const authErrorHandler = jest.fn()
+    qssAuthConnManager.on(QSSEvents.QSS_AUTH_ERROR, authErrorHandler)
+    await qssAuthConnManager.startNewConnection(teamId)
+
+    const conn = qssAuthConnManager.getConnection(teamId)
+    const protocolError = { type: 'INVITATION_PROOF_INVALID', message: 'Invitation was not accepted' }
+    ;(conn as any)._authConnection.emit(LFAEvents.REMOTE_ERROR, protocolError)
+
+    expect(authErrorHandler).toHaveBeenCalledWith({
+      teamId,
+      error: expect.objectContaining({ message: protocolError.message }),
+    })
   })
 
   it('marks a pending-member auth connection joined after member role self-assignment', () => {

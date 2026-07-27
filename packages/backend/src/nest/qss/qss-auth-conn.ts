@@ -5,7 +5,7 @@ import { Connection as AuthConnection } from '../../../../../3rd-party/auth/pack
 import { ConnectionParams as AuthConnectionParams } from '../../../../../3rd-party/auth/packages/auth/dist/connection'
 import { SigChainService } from '../auth/sigchain.service'
 import { createLogger } from '../common/logger'
-import { AuthSyncMessage, CommunityOperationStatus, QSSEvents, WebsocketEvents } from './qss.types'
+import { AuthSyncMessage, CommunityOperationStatus, QSSAuthErrorPayload, QSSEvents, WebsocketEvents } from './qss.types'
 
 import { DateTime } from 'luxon'
 import * as uint8arrays from 'uint8arrays'
@@ -67,6 +67,25 @@ export class QSSAuthConnection extends EventEmitter {
   private _onQssDisconnected = (): void => {
     this.logger.warn('QSS disconnected, closing auth connection', this.teamId)
     this.stop(false)
+  }
+
+  private _emitAuthError(error: unknown): void {
+    const normalizedError =
+      error instanceof Error
+        ? error
+        : new Error(
+            typeof error === 'object' &&
+              error != null &&
+              'message' in error &&
+              typeof (error as { message?: unknown }).message === 'string'
+              ? (error as { message: string }).message
+              : 'QSS authentication failed'
+          )
+    const payload: QSSAuthErrorPayload = {
+      teamId: this.teamId!,
+      error: normalizedError,
+    }
+    this.emit(QSSEvents.QSS_AUTH_ERROR, payload)
   }
 
   private _setupEventHandlers(): void {
@@ -293,9 +312,11 @@ export class QSSAuthConnection extends EventEmitter {
     // Handle errors from local or remote sources.
     authConnection.on(LFAEvents.LOCAL_ERROR, error => {
       this.logger.error(`Local LFA error`, error)
+      this._emitAuthError(error)
     })
     authConnection.on(LFAEvents.REMOTE_ERROR, error => {
       this.logger.error(`Remote LFA error`, error)
+      this._emitAuthError(error)
     })
 
     this._authConnection = authConnection
