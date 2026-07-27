@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@9.0.0-alpha.1...@quiet/mobile@9.0.0-alpha.2) (2026-07-27)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -25,6 +12,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Fixes
 
 * iOS tor process lifecycle improvements solving crashes and improving performance [#3349](https://github.com/TryQuiet/quiet/issues/3349)
+* Update LFA to remove flaky timestamp validator [#3365](https://github.com/TryQuiet/quiet/issues/3365)
 
 ## [8.0.0]
 
