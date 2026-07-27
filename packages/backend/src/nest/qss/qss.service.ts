@@ -550,11 +550,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     // Normalize local-ish hostnames (loopback, LAN IPs) to 'localhost' so the
     // client matches the QSS server's default QSS_HOSTNAME in the sigchain.
     let host = url.parse(this._qssEndpoint).hostname!
+    const normalizeLocalHostname =
+      process.env.NODE_ENV !== 'production' || process.env.IS_LOCAL === 'true' || process.env.IS_E2E === 'true'
     if (
       /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|localhost)$/.test(
         host
       ) &&
-      process.env.NODE_ENV !== 'production'
+      normalizeLocalHostname
     ) {
       host = 'localhost'
     }
@@ -607,6 +609,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       ts: DateTime.utc().toMillis(),
       payload: {
         userId: (sigChain.context as MemberContext).user.userId,
+        deviceId: (sigChain.context as MemberContext).device.deviceId,
         community: {
           teamId: sigChain.team.id,
           sigChain: uint8arrays.toString(serializedSigChain, 'hex'),
@@ -691,6 +694,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       status: CommunityOperationStatus.SUCCESS,
       payload: {
         userId: (sigChain.context as MemberContext).user.userId,
+        deviceId: (sigChain.context as MemberContext).device.deviceId,
         teamId,
       },
     }

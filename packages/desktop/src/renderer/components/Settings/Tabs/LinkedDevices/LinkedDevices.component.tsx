@@ -76,23 +76,6 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
   revealLink,
   onToggleLinkVisibility,
 }) => {
-  if (!deviceLink) {
-    return (
-      <StyledGrid container direction='column'>
-        <Grid item>
-          <Typography variant='h5'>{isLoading ? 'Generating device link…' : 'Device link unavailable'}</Typography>
-        </Grid>
-        <Grid item className={classes.description}>
-          <Typography variant='body2'>
-            {isLoading
-              ? 'Quiet is creating a private, one-time link for your other device.'
-              : 'Make sure this device is connected to the community, then close and reopen Linked devices to try again.'}
-          </Typography>
-        </Grid>
-      </StyledGrid>
-    )
-  }
-
   return (
     <StyledGrid container direction='column'>
       <Grid item className={classes.title}>
@@ -100,44 +83,62 @@ export const LinkedDevicesComponent: FC<LinkedDevicesComponentProps> = ({
           Linked devices
         </Typography>
       </Grid>
-      <Grid item>
-        <Typography variant='h5'>Link a new device</Typography>
-        <Typography variant='body2' className={classes.description}>
-          Scan this QR code with Quiet on the device you want to link. Keep both devices online until linking finishes.
-        </Typography>
-      </Grid>
-      <Grid item className={classes.code}>
-        <QR value={deviceLink} size={172} />
-      </Grid>
-      <Grid item className={classes.description}>
-        <Typography variant='body2'>
-          This one-time link expires after 30 minutes. Only share it with a device you control.
-        </Typography>
-      </Grid>
-      <Grid item className={classes.linkContainer}>
-        <Typography variant='body2' className={classes.link} data-testid='device-link'>
-          {revealLink ? deviceLink : HIDDEN_DEVICE_LINK}
-        </Typography>
-        <IconButton
-          data-testid='show-device-link'
-          size='small'
-          onClick={onToggleLinkVisibility}
-          className={classes.linkVisibility}
-        >
-          {revealLink ? (
-            <Visibility color='primary' fontSize='small' />
-          ) : (
-            <VisibilityOff color='primary' fontSize='small' />
-          )}
-        </IconButton>
-      </Grid>
-      <Grid item>
-        <CopyToClipboard text={deviceLink}>
-          <Button data-testid='copy-device-link' className={classes.button}>
-            Copy to clipboard
-          </Button>
-        </CopyToClipboard>
-      </Grid>
+      {!deviceLink ? (
+        <>
+          <Grid item>
+            <Typography variant='h5'>{isLoading ? 'Generating device link…' : 'Device link unavailable'}</Typography>
+          </Grid>
+          <Grid item className={classes.description}>
+            <Typography variant='body2'>
+              {isLoading
+                ? 'Quiet is creating a private, one-time link for your other device.'
+                : 'Make sure this device is connected to the community, then close and reopen Linked devices to try again.'}
+            </Typography>
+          </Grid>
+        </>
+      ) : (
+        <>
+          <Grid item>
+            <Typography variant='h5'>Link a new device</Typography>
+            <Typography variant='body2' className={classes.description}>
+              Scan this QR code with Quiet on the device you want to link. Keep both devices online until linking
+              finishes.
+            </Typography>
+          </Grid>
+          <Grid item className={classes.code}>
+            <QR value={deviceLink} size={172} />
+          </Grid>
+          <Grid item className={classes.description}>
+            <Typography variant='body2'>
+              This one-time link expires after 30 minutes. Only share it with a device you control.
+            </Typography>
+          </Grid>
+          <Grid item className={classes.linkContainer}>
+            <Typography variant='body2' className={classes.link} data-testid='device-link'>
+              {revealLink ? deviceLink : HIDDEN_DEVICE_LINK}
+            </Typography>
+            <IconButton
+              data-testid='show-device-link'
+              size='small'
+              onClick={onToggleLinkVisibility}
+              className={classes.linkVisibility}
+            >
+              {revealLink ? (
+                <Visibility color='primary' fontSize='small' />
+              ) : (
+                <VisibilityOff color='primary' fontSize='small' />
+              )}
+            </IconButton>
+          </Grid>
+          <Grid item>
+            <CopyToClipboard text={deviceLink}>
+              <Button data-testid='copy-device-link' className={classes.button}>
+                Copy to clipboard
+              </Button>
+            </CopyToClipboard>
+          </Grid>
+        </>
+      )}
     </StyledGrid>
   )
 }

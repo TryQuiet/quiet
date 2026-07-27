@@ -38,6 +38,7 @@ describe('LinkedDevicesComponent', () => {
       <LinkedDevicesComponent deviceLink='' isLoading revealLink={false} onToggleLinkVisibility={jest.fn()} />
     )
 
+    expect(result.getByText('Linked devices')).toBeVisible()
     expect(result.getByText('Generating device link…')).toBeVisible()
   })
 })

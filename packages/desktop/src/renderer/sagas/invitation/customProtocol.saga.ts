@@ -1,6 +1,11 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, delay } from 'typed-redux-saga'
-import { InvitationData, InvitationDataVersion, JoinCommunityPayload } from '@quiet/types'
+import {
+  type InvitationData,
+  type JoinCommunityPayload,
+  type LinkDevicePayload,
+  isDeviceInvitationData,
+} from '@quiet/types'
 import { communities, identity } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
 import { ModalName } from '../modals/modals.types'
@@ -82,6 +87,16 @@ export function* customProtocolSaga(
       })
     )
     logger.info('Returning because user already belongs to a community')
+    return
+  }
+
+  if (isDeviceInvitationData(data)) {
+    const payload: LinkDevicePayload = {
+      inviteData: data,
+    }
+    logger.info('Dispatching link device action', payload)
+    yield* put(modalsActions.openModal({ name: ModalName.loadingPanel }))
+    yield* put(communities.actions.linkDevice(payload))
     return
   }
 

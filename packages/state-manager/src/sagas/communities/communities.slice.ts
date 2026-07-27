@@ -5,6 +5,7 @@ import {
   CreateCommunityPayload,
   InvitationData,
   JoinCommunityPayload,
+  LinkDevicePayload,
   LaunchCommunityPayload,
   UpdateCommunityPayload,
   type Community,
@@ -56,6 +57,7 @@ export const communitiesSlice = createSlice({
     resetApp: (state, _action) => state,
     createCommunity: (state, _action: PayloadAction<CreateCommunityPayload>) => state,
     joinCommunity: (state, _action: PayloadAction<JoinCommunityPayload>) => state,
+    linkDevice: (state, _action: PayloadAction<LinkDevicePayload>) => state,
     launchCommunity: (state, _action: PayloadAction<LaunchCommunityPayload>) => state,
     customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationData>) => {

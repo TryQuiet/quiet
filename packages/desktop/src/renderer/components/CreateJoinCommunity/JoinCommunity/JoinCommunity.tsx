@@ -1,5 +1,11 @@
-import { communities, connection, errors, identity } from '@quiet/state-manager'
-import { CommunityOwnership, InvitationData, JoinCommunityPayload } from '@quiet/types'
+import { communities, connection } from '@quiet/state-manager'
+import {
+  CommunityOwnership,
+  type InvitationData,
+  type JoinCommunityPayload,
+  type LinkDevicePayload,
+  isDeviceInvitationData,
+} from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
@@ -21,6 +27,7 @@ const JoinCommunity = () => {
   const createUsernameModal = useModal(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
@@ -41,6 +48,16 @@ const JoinCommunity = () => {
   }, [isConnected, currentCommunity, joinCommunityModal.open])
 
   const handleCommunityAction = (data: InvitationData) => {
+    if (isDeviceInvitationData(data)) {
+      const linkDevicePayload: LinkDevicePayload = {
+        inviteData: data,
+      }
+      loadingPanelModal.handleOpen()
+      dispatch(communities.actions.linkDevice(linkDevicePayload))
+      joinCommunityModal.handleClose()
+      return
+    }
+
     const joinCommunityPayload: JoinCommunityPayload = {
       inviteData: data,
     }
