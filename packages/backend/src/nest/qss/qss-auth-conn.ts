@@ -204,6 +204,7 @@ export class QSSAuthConnection extends EventEmitter {
             status: CommunityOperationStatus.SUCCESS,
             payload: {
               userId: (sigChain!.context as MemberContext).user.userId,
+              deviceId: (sigChain!.context as MemberContext).device.deviceId,
               teamId: this.teamId!,
               message: uint8arrays.toString(message, 'base64'),
             },

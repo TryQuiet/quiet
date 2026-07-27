@@ -80,6 +80,7 @@ export interface CreateCommunityPayload {
   community: QSSCommunity
   teamKeyring: string
   userId: string
+  deviceId: string
   hcaptchaToken?: string
 }
 
@@ -120,6 +121,7 @@ export enum CommunityOperationStatus {
 
 export interface AuthSyncMessagePayload {
   userId: string
+  deviceId: string
   teamId: string
   message: string
 }
@@ -146,6 +148,7 @@ export interface GeneratePublicKeysMessage extends BaseWebsocketMessage<Generate
 export interface CommunitySignInPayload {
   teamId: string
   userId: string
+  deviceId: string
 }
 
 export interface CommunitySignInMessage extends BaseWebsocketMessage<CommunitySignInPayload> {

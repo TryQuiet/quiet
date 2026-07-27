@@ -582,6 +582,7 @@ describe('QSSService', () => {
                 sigChain: uint8arrays.toString(sigchainService.activeChain.save(), 'hex'),
               },
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
             },
           } as CreateCommunity),
@@ -717,6 +718,7 @@ describe('QSSService', () => {
                 sigChain: uint8arrays.toString(sigchainService.activeChain.save(), 'hex'),
               },
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamKeyring: uint8arrays.toString(serializedKeyring, 'base64'),
             },
           } as CreateCommunity),
@@ -796,6 +798,7 @@ describe('QSSService', () => {
             status: CommunityOperationStatus.SUCCESS,
             payload: {
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
@@ -1016,6 +1019,7 @@ describe('QSSService', () => {
             status: CommunityOperationStatus.SUCCESS,
             payload: {
               userId: sigchainService.user.userId,
+              deviceId: sigchainService.device.deviceId,
               teamId: sigchainService.team.id,
             },
           } as CommunitySignInMessage),
