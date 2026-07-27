@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+### Features
+
+* Add beta warning message to desktop when creating/joining a community [#3351](https://github.com/TryQuiet/quiet/issues/3351)
+
 ### Breaking
 
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
