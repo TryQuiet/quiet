@@ -16,6 +16,9 @@ jobs:
       matrix:
         os: [ubuntu-latest-m]
 
+    env:
+      ENVFILE: ${{ github.event.action == 'prereleased' && '../.env.staging' || '../.env.production' }}
+
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
@@ -79,8 +82,6 @@ jobs:
           ANDROID_FIREBASE_KEY: ${{ secrets.ANDROID_FIREBASE_KEY }}
 
       - name: "Build .aab"
-        env:
-          ENVFILE: ../.env.production
         run: cd ./packages/mobile/android && ./gradlew bundleStandardRelease
 
       - name: "Upload .abb to artifacts"
@@ -143,50 +144,6 @@ jobs:
           status: completed
           track: internal
           whatsNewDirectory: distribution/whatsnew
-
-      - name: "Build experimental .aab"
-        if: github.event.release.prerelease
-        env:
-          ENVFILE: ../.env.staging
-        run: cd ./packages/mobile/android && ./gradlew bundleStandardRelease
-
-      - name: "Upload experimental .abb to artifacts"
-        if: github.event.release.prerelease
-        continue-on-error: true
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-        with:
-          name: app-standard-release-experimental.aab
-          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
-          retention-days: 5
-
-      - name: "Build experimental .apks"
-        if: github.event.release.prerelease
-        run: |
-          java -jar /usr/local/bin/bundletool.jar build-apks \
-            --bundle=./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab \
-            --output=./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release-experimental.apks \
-            --ks=./packages/mobile/android/app/quietmobile.keystore \
-            --ks-pass=pass:${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }} \
-            --ks-key-alias=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}
-
-      - name: "Upload experimental .apks to artifacts"
-        if: github.event.release.prerelease
-        continue-on-error: true
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-        with:
-          name: app-standard-release-experimental.apks
-          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release-experimental.apks
-
-      - name: "Upload experimental release assets"
-        if: github.event.release.prerelease
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release-experimental.apks
-          asset_name: app-standard-release-experimental.apks
-          asset_content_type: application/.apks
 
       - name: Send Release Notificaton
         uses: ./.github/actions/release-notifier

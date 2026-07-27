@@ -1,5 +1,5 @@
 name: 'Prepare app build'
-
+description: 'Prepare app build'
 inputs:
   source-path:
     description: 'OS name (linux | darwin | win32)'
