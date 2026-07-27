@@ -5,11 +5,14 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { randomInt } from 'crypto'
 import EventEmitter from 'events'
+import { type Socket as ClientSocket } from 'socket.io-client'
 import * as uint8arrays from 'uint8arrays'
 
 import { createLogger } from '../common/logger'
 import { QSSAuthConnection } from './qss-auth-conn'
+import { type PendingAuthSyncFrame } from './qss-auth-conn-manager.types'
 import { QSSClient } from './qss.client'
+import { QSS_AUTH_SYNC_PENDING_FRAME_LIMIT } from './qss.const'
 import { AuthSyncMessage, QSSEvents, WebsocketEvents } from './qss.types'
 
 @Injectable()
@@ -19,6 +22,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    */
   private readonly authConnMap: Map<string, QSSAuthConnection> = new Map()
   private readonly startConnectionPromises: Map<string, Promise<void>> = new Map()
+  private pendingAuthSyncFrames: PendingAuthSyncFrame[] = []
 
   private readonly logger = createLogger('qss:auth:conn:manager')
 
@@ -36,36 +40,104 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
   public onModuleDestroy() {
     this.close(true)
     this.qssClient.off(QSSEvents.QSS_DISCONNECTED, this._handleQssClientDisconnected)
+    this.qssClient.off(WebsocketEvents.AUTH_SYNC, this._handleAuthSyncMessage)
   }
 
   private _configureEventHandlers(): void {
     this.qssClient.on(QSSEvents.QSS_DISCONNECTED, this._handleQssClientDisconnected)
+    this.qssClient.on(WebsocketEvents.AUTH_SYNC, this._handleAuthSyncMessage)
+  }
 
-    // pass auth sync messages received on the websocket to the auth connection
-    this.qssClient.on(WebsocketEvents.AUTH_SYNC, async (message: AuthSyncMessage): Promise<void> => {
-      try {
-        if (message.payload?.message == null) {
-          throw new Error(`Missing message`)
-        }
-
-        const authConnection = this.getConnection(message.payload.teamId)
-        if (authConnection == null || !authConnection.active) {
-          throw new Error(
-            `Auth connection for team ${message.payload.teamId} wasn't initialized, can't process auth sync message`
-          )
-        }
-        if (!authConnection.isForClientSocket(this.qssClient.getClientSocket())) {
-          this.stopConnection(message.payload.teamId, false)
-          throw new Error(
-            `Auth connection for team ${message.payload.teamId} belongs to a previous QSS client socket, can't process auth sync message`
-          )
-        }
-
-        authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
-      } catch (e) {
-        this.logger.error(`Error handling auth sync message`, e)
+  private readonly _handleAuthSyncMessage = (message: AuthSyncMessage): void => {
+    try {
+      if (message.payload?.message == null) {
+        throw new Error(`Missing message`)
       }
-    })
+
+      const currentClientSocket = this.qssClient.getClientSocket()
+      if (currentClientSocket == null || !currentClientSocket.connected || !currentClientSocket.active) {
+        throw new Error(`Cannot process auth sync message without an active QSS client socket`)
+      }
+
+      const teamId = message.payload.teamId
+      const authConnection = this.getConnection(teamId)
+      if (authConnection == null || !authConnection.active) {
+        this._bufferAuthSyncFrame(message, currentClientSocket)
+        return
+      }
+      if (!authConnection.isForClientSocket(currentClientSocket)) {
+        this.stopConnection(teamId, false)
+        this._bufferAuthSyncFrame(message, currentClientSocket)
+        return
+      }
+
+      this._deliverAuthSyncFrame(authConnection, message)
+    } catch (e) {
+      this.logger.error(`Error handling auth sync message`, e)
+    }
+  }
+
+  private _bufferAuthSyncFrame(message: AuthSyncMessage, clientSocket: ClientSocket): void {
+    const staleFrameCount = this.pendingAuthSyncFrames.filter(frame => frame.clientSocket !== clientSocket).length
+    if (staleFrameCount > 0) {
+      this.logger.debug(`Discarding auth sync frames buffered for a previous QSS client socket`, staleFrameCount)
+      this.pendingAuthSyncFrames = this.pendingAuthSyncFrames.filter(frame => frame.clientSocket === clientSocket)
+    }
+
+    if (this.pendingAuthSyncFrames.length >= QSS_AUTH_SYNC_PENDING_FRAME_LIMIT) {
+      const droppedFrame = this.pendingAuthSyncFrames.shift()
+      this.logger.warn(
+        `Pending QSS auth sync frame buffer is full; dropping oldest frame`,
+        droppedFrame?.message.payload.teamId
+      )
+    }
+
+    this.pendingAuthSyncFrames.push({ clientSocket, message })
+    this.logger.debug(`Buffered auth sync frame until the team connection is initialized`, message.payload.teamId)
+  }
+
+  private _deliverAuthSyncFrame(authConnection: QSSAuthConnection, message: AuthSyncMessage): void {
+    authConnection.deliver(uint8arrays.fromString(message.payload.message, 'base64'))
+  }
+
+  private _drainPendingAuthSyncFrames(teamId: string, authConnection: QSSAuthConnection): void {
+    const currentClientSocket = this.qssClient.getClientSocket()
+    if (currentClientSocket == null || !authConnection.isForClientSocket(currentClientSocket)) {
+      return
+    }
+
+    const pendingFrames: PendingAuthSyncFrame[] = []
+    const framesToDeliver: PendingAuthSyncFrame[] = []
+    for (const frame of this.pendingAuthSyncFrames) {
+      if (frame.clientSocket !== currentClientSocket) {
+        continue
+      }
+      if (frame.message.payload.teamId === teamId) {
+        framesToDeliver.push(frame)
+      } else {
+        pendingFrames.push(frame)
+      }
+    }
+    this.pendingAuthSyncFrames = pendingFrames
+
+    if (framesToDeliver.length > 0) {
+      this.logger.debug(`Draining buffered auth sync frames`, teamId, framesToDeliver.length)
+    }
+    for (const frame of framesToDeliver) {
+      try {
+        this._deliverAuthSyncFrame(authConnection, frame.message)
+      } catch (e) {
+        this.logger.error(`Error handling buffered auth sync message`, e)
+      }
+    }
+  }
+
+  private _clearPendingAuthSyncFrames(teamId?: string): void {
+    if (teamId == null) {
+      this.pendingAuthSyncFrames = []
+      return
+    }
+    this.pendingAuthSyncFrames = this.pendingAuthSyncFrames.filter(frame => frame.message.payload.teamId !== teamId)
   }
 
   private _handleQssClientDisconnected = (): void => {
@@ -135,6 +207,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
           this.stopConnection(teamId, false)
         } else {
           this.logger.warn('Existing active auth connection with QSS found for this team ID', teamId)
+          this._drainPendingAuthSyncFrames(teamId, existingAuthConnection)
           return
         }
       } else if (!existingAuthConnection.isForClientSocket(currentClientSocket)) {
@@ -150,6 +223,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
           teamId
         )
         await existingAuthConnection.start()
+        this._drainPendingAuthSyncFrames(teamId, existingAuthConnection)
         return
       }
     }
@@ -173,6 +247,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
     })
     this.authConnMap.set(teamId, authConnection)
     await authConnection.start()
+    this._drainPendingAuthSyncFrames(teamId, authConnection)
   }
 
   /**
@@ -182,6 +257,7 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
    * @param sendDisconnectToQSS If true send a disconnect message to QSS on closure
    */
   public stopConnection(teamId: string, sendDisconnectToQSS = true): void {
+    this._clearPendingAuthSyncFrames(teamId)
     const existingAuthConnection = this.authConnMap.get(teamId)
     if (existingAuthConnection == null) {
       this.logger.warn('No QSS auth connection found for team ID', teamId)
@@ -203,5 +279,6 @@ export class QSSAuthConnectionManager extends EventEmitter implements OnModuleDe
       this.stopConnection(teamId, sendDisconnectToQSS)
     }
     this.authConnMap.clear()
+    this._clearPendingAuthSyncFrames()
   }
 }

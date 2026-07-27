@@ -529,7 +529,7 @@ describe('ConnectionsManagerService', () => {
     jest.spyOn(connectionsManagerService['storageService'], 'setIdentity').mockResolvedValue()
     jest.spyOn(connectionsManagerService['storageService'], 'addUserProfile').mockResolvedValue({ success: true })
 
-    await connectionsManagerService.joinCommunity({
+    const response = await connectionsManagerService.joinCommunity({
       id: community.id,
       name: community.name!,
       username: 'john',
@@ -538,6 +538,7 @@ describe('ConnectionsManagerService', () => {
 
     expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
     expect(getNetworkInfoSpy).toHaveBeenCalledTimes(1)
+    expect(response?.identity.introMessageSent).toBeUndefined()
     expect(eraseArtifactsSpy.mock.invocationCallOrder[0]).toBeLessThan(getNetworkInfoSpy.mock.invocationCallOrder[0])
   })
 
@@ -558,6 +559,7 @@ describe('ConnectionsManagerService', () => {
 
     expect(eraseArtifactsSpy).toHaveBeenCalledTimes(1)
     expect(response?.identity.userId).toBe(deviceInvitationData.authData.userId)
+    expect(response?.identity.introMessageSent).toBe(true)
     expect(response?.community.teamId).toBe(deviceInvitationData.authData.teamId)
     expect(response?.community.inviteData).toEqual(deviceInvitationData)
     expect(response?.community.qssSetup).toBe(true)

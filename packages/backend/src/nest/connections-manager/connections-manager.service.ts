@@ -639,6 +639,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       userId,
       networkInfo: network,
       joinTimestamp: null,
+      introMessageSent: isDeviceInvitationData(inviteData) ? true : undefined,
     }
     await this.storageService.setIdentity(identity)
 
