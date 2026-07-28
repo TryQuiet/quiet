@@ -23,6 +23,11 @@ public struct NamedKey: Codable {
     let key: String
 }
 
+public struct ChannelMetadata: Codable {
+    let channelName: String
+    let channelId: String
+}
+
 // MARK: - KeychainService
 
 struct KeychainService {
@@ -30,6 +35,7 @@ struct KeychainService {
     private static let devicePrivateKeyPrefix = "quiet.device.privateKey."
     private static let deviceIdKey = "quiet.device.id"
     private static let teamIdKey = "quiet.team.id"
+    private static let channelMetadataKeyPrefix = "quiet.channelMetadata."
 
     private static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.quietmobile",
@@ -195,6 +201,22 @@ struct KeychainService {
             throw KeychainServiceError.unexpectedData(keyName)
         }
         return try writeData(account: keyName, data: keyData, service: lfaKeyService)
+    }
+
+    // MARK: - Domain-specific: Channel Metadata
+
+    static func getChannelName(teamId: String, channelId: String) throws -> String {
+        let keyName = KeychainService.generateChannelMetadataKeyName(teamId: teamId, channelId: channelId)
+        return try readString(account: keyName, service: lfaKeyService)
+    }
+
+    static func addChannelMetadata(teamId: String, channelId: String, channelName: String) throws {
+        let keyName = KeychainService.generateChannelMetadataKeyName(teamId: teamId, channelId: channelId)
+      try upsertString(account: keyName, value: channelName, service: lfaKeyService)
+    }
+
+    static func generateChannelMetadataKeyName(teamId: String, channelId: String) -> String {
+        return channelMetadataKeyPrefix + teamId + "." + channelId
     }
 
     // MARK: - Upsert

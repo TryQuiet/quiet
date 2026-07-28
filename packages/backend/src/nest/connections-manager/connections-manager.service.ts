@@ -58,6 +58,8 @@ import {
   ChannelOperationStatus,
   type PrivateChannelPermissions,
   type SetChannelPermissionsPayload,
+  type MobileChannelMetadata,
+  type MobileChannelMetadataUpdatedPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QSS_ALLOWED, QSS_ENDPOINT, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService, Libp2pState } from '../libp2p/libp2p.service'
@@ -1041,6 +1043,36 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketEvents.USERS_UPDATED, { users })
   }
 
+  private async _updateChannelMetadataInNativeMobile(sourceEvent: string, teamId: string): Promise<void> {
+    const platform = process.platform as string
+    if (platform !== 'android' && platform !== 'ios') {
+      this.logger.debug('Skipping channel metadata mobile update because this is not a mobile client', platform)
+      return
+    }
+    this.logger.debug('Updating mobile channel metadata after source event', sourceEvent, teamId, platform)
+    if (!this.sigChainService) {
+      this.logger.warn(`Skipping mobile channel metadata update, sigchainservice hasn't been initialized`)
+      return
+    }
+
+    // handle chain updates
+    if (!this.storageService || !this.storageService.initialized || !this.storageService.channels.initialized) {
+      this.logger.warn(`StorageService or channels haven't been initialized, skipping channel metadata update...`)
+      return
+    }
+
+    const channels = await this.storageService.channels.getChannels()
+    const channelMetadataForMobile: MobileChannelMetadata[] = channels.map(channel => ({
+      channelName: channel.name,
+      channelId: channel.id,
+    }))
+    const payload: MobileChannelMetadataUpdatedPayload = {
+      teamId,
+      channelMetadata: channelMetadataForMobile,
+    }
+    this.serverIoProvider.io.emit(SocketEvents.MOBILE_CHANNEL_METADATA_UPDATED, payload)
+  }
+
   /**
    * Attaches listeners for events received from the Tor service
    */
@@ -1251,6 +1283,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.sigChainService.on(SigchainEvents.UPDATED, async (teamId: string) => {
       await this._updateUsersInStateManager(SigchainEvents.UPDATED, teamId)
+      await this._updateChannelMetadataInNativeMobile(SigchainEvents.UPDATED, teamId)
     })
   }
 
@@ -1266,6 +1299,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         const activeChain = this.sigChainService.activeChain
         await this._updateUsersInStateManager(StorageEvents.INITIALIZED, activeChain.team!.id)
+        await this._updateChannelMetadataInNativeMobile(StorageEvents.INITIALIZED, activeChain.team!.id)
       } catch (e) {
         this.logger.warn(
           `Couldn't update state manager users based on sigchain after storage init, active sigchain likely not found`,
@@ -1282,6 +1316,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       try {
         const activeChain = this.sigChainService.activeChain
         await this._updateUsersInStateManager(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
+        await this._updateChannelMetadataInNativeMobile(StorageEvents.CHANNELS_STORED, activeChain.team!.id)
       } catch (e) {
         this.logger.warn(
           `Couldn't update state manager users based on sigchain after channels stored, active sigchain likely not found`,

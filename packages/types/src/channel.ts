@@ -244,3 +244,13 @@ export const DEFAULT_GENERIC_CHANNEL_PERMISSIONS: GenericChannelPermissions = {
     create: false,
   },
 }
+
+export interface MobileChannelMetadata {
+  channelId: string
+  channelName: string
+}
+
+export interface MobileChannelMetadataUpdatedPayload {
+  teamId: string
+  channelMetadata: MobileChannelMetadata[]
+}
