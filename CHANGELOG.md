@@ -8,6 +8,7 @@
 
 ### Breaking
 
+* Update data directories for 9.x [#3379](https://github.com/TryQuiet/quiet/issues/3379)
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
 * Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
 * Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
