@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@9.0.0-alpha.3...@quiet/desktop@9.0.0-alpha.4) (2026-07-28)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -21,6 +8,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Breaking
 
+* Update data directories for 9.x [#3379](https://github.com/TryQuiet/quiet/issues/3379)
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
 * Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
 * Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)

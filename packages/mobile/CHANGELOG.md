@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [9.0.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@9.0.0-alpha.3...@quiet/mobile@9.0.0-alpha.4) (2026-07-28)
-
-
-### Bug Fixes
-
-* use version 9 data directories [#3379](https://github.com/TryQuiet/quiet/issues/3379) ([#3381](https://github.com/TryQuiet/quiet/issues/3381)) ([7d751f2](https://github.com/TryQuiet/quiet/commit/7d751f26c08685fd66f67c15fdfa6007e0adc56d))
-
-
-
-
-
 # Changelog
 
 ## [9.0.0]
@@ -24,6 +8,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Breaking
 
+* Update data directories for 9.x [#3379](https://github.com/TryQuiet/quiet/issues/3379)
 * Tighten controls on channel metadata DB operations, move private channels to separate metadata DB [#3329](https://github.com/TryQuiet/quiet/issues/3329)
 * Use chain permission checks to gate channel creation, deletion and membership [#3344](https://github.com/TryQuiet/quiet/issues/3344)
 * Use randomly generated role names for private channels [#3354](https://github.com/TryQuiet/quiet/issues/3354)
