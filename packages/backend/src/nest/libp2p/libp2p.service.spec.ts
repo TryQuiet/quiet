@@ -4,14 +4,12 @@ import { TestModule } from '../common/test.module'
 import { createPeerId, generateLibp2pPSK, LIBP2P_PSK_METADATA, libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
 import { Libp2pService } from './libp2p.service'
-import { Libp2pDatastorePrefix, Libp2pNodeParams } from './libp2p.types'
+import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
 import { Libp2pConnectionGater } from './libp2p.connection-gater'
 import type { Peer, PeerId, PendingDial } from '@libp2p/interface'
 import { multiaddr } from '@multiformats/multiaddr'
-import { createLibp2pAddress } from '@quiet/common'
-import { peerIdFromString } from '@libp2p/peer-id'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -145,7 +143,7 @@ describe('Libp2pService', () => {
           }
         }
       })
-    const pauseConnectionGaterSpy = jest.spyOn(connectionGater, 'pauseAllConnections')
+    const pauseConnectionGaterSpy = jest.spyOn(connectionGater, 'pauseConnections')
     await libp2pService.createInstance(params)
     const allPeersSpy = jest.spyOn(libp2pService.libp2pInstance!.peerStore, 'all').mockImplementationOnce(async () => {
       return [

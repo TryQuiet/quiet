@@ -4,7 +4,7 @@ import type { Multiaddr } from '@multiformats/multiaddr'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()
-export class Libp2pConnectionGater implements ConnectionGater {
+export class Libp2pConnectionGater {
   private _connectionsAllowed: boolean
   private logger = createLogger('libp2p:connection-gater')
 
@@ -16,197 +16,207 @@ export class Libp2pConnectionGater implements ConnectionGater {
     return this._connectionsAllowed
   }
 
-  public pauseAllConnections() {
+  public pauseConnections() {
     this.logger.debug(`Pausing connections - all incoming and outgoing connections will be denied!`)
     this._connectionsAllowed = false
   }
 
-  public allowConnections() {
+  public resumeConnections() {
     this.logger.debug(`Resuming connections`)
     this._connectionsAllowed = true
   }
 
-  /**
-   * denyDialPeer tests whether we're permitted to Dial the
-   * specified peer.
-   *
-   * This is called by the dialer.connectToPeer implementation before
-   * dialling a peer.
-   *
-   * Return true to prevent dialing the passed peer.
-   */
-  public denyDialPeer?(peerId: PeerId): boolean {
-    if (this._areConnectionsPaused()) return true
+  public gaterImpl: ConnectionGater = {
+    /**
+     * denyDialPeer tests whether we're permitted to Dial the
+     * specified peer.
+     *
+     * This is called by the dialer.connectToPeer implementation before
+     * dialling a peer.
+     *
+     * Return true to prevent dialing the passed peer.
+     */
+    denyDialPeer: (peerId: PeerId): boolean => {
+      this.logger.debug('denyDialPeer', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyDialMultiaddr tests whether we're permitted to dial the specified
-   * multiaddr.
-   *
-   * This is called by the connection manager - if the peer id of the remote
-   * node is known it will be present in the multiaddr.
-   *
-   * Return true to prevent dialing the passed peer on the passed multiaddr.
-   */
-  public denyDialMultiaddr?(multiaddr: Multiaddr): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyDialMultiaddr tests whether we're permitted to dial the specified
+     * multiaddr.
+     *
+     * This is called by the connection manager - if the peer id of the remote
+     * node is known it will be present in the multiaddr.
+     *
+     * Return true to prevent dialing the passed peer on the passed multiaddr.
+     */
+    denyDialMultiaddr: (multiaddr: Multiaddr): boolean => {
+      this.logger.debug('denyDialMultiaddr', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyInboundConnection tests whether an incipient inbound connection is allowed.
-   *
-   * This is called by the upgrader, or by the transport directly (e.g. QUIC,
-   * Bluetooth), straight after it has accepted a connection from its socket.
-   *
-   * Return true to deny the incoming passed connection.
-   */
-  public denyInboundConnection?(maConn: MultiaddrConnection): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyInboundConnection tests whether an incipient inbound connection is allowed.
+     *
+     * This is called by the upgrader, or by the transport directly (e.g. QUIC,
+     * Bluetooth), straight after it has accepted a connection from its socket.
+     *
+     * Return true to deny the incoming passed connection.
+     */
+    denyInboundConnection: (maConn: MultiaddrConnection): boolean => {
+      this.logger.debug('denyInboundConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyOutboundConnection tests whether an incipient outbound connection is allowed.
-   *
-   * This is called by the upgrader, or by the transport directly (e.g. QUIC,
-   * Bluetooth), straight after it has created a connection with its socket.
-   *
-   * Return true to deny the incoming passed connection.
-   */
-  public denyOutboundConnection?(peerId: PeerId, maConn: MultiaddrConnection): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyOutboundConnection tests whether an incipient outbound connection is allowed.
+     *
+     * This is called by the upgrader, or by the transport directly (e.g. QUIC,
+     * Bluetooth), straight after it has created a connection with its socket.
+     *
+     * Return true to deny the incoming passed connection.
+     */
+    denyOutboundConnection: (peerId: PeerId, maConn: MultiaddrConnection): boolean => {
+      this.logger.debug('denyOutboundConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyInboundEncryptedConnection tests whether a given connection, now encrypted,
-   * is allowed.
-   *
-   * This is called by the upgrader, after it has performed the security
-   * handshake, and before it negotiates the muxer, or by the directly by the
-   * transport, at the exact same checkpoint.
-   *
-   * Return true to deny the passed secured connection.
-   */
-  public denyInboundEncryptedConnection?(peerId: PeerId, maConn: MultiaddrConnection): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyInboundEncryptedConnection tests whether a given connection, now encrypted,
+     * is allowed.
+     *
+     * This is called by the upgrader, after it has performed the security
+     * handshake, and before it negotiates the muxer, or by the directly by the
+     * transport, at the exact same checkpoint.
+     *
+     * Return true to deny the passed secured connection.
+     */
+    denyInboundEncryptedConnection: (peerId: PeerId, maConn: MultiaddrConnection): boolean => {
+      this.logger.debug('denyInboundEncryptedConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyOutboundEncryptedConnection tests whether a given connection, now encrypted,
-   * is allowed.
-   *
-   * This is called by the upgrader, after it has performed the security
-   * handshake, and before it negotiates the muxer, or by the directly by the
-   * transport, at the exact same checkpoint.
-   *
-   * Return true to deny the passed secured connection.
-   */
-  public denyOutboundEncryptedConnection?(peerId: PeerId, maConn: MultiaddrConnection): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyOutboundEncryptedConnection tests whether a given connection, now encrypted,
+     * is allowed.
+     *
+     * This is called by the upgrader, after it has performed the security
+     * handshake, and before it negotiates the muxer, or by the directly by the
+     * transport, at the exact same checkpoint.
+     *
+     * Return true to deny the passed secured connection.
+     */
+    denyOutboundEncryptedConnection: (peerId: PeerId, maConn: MultiaddrConnection): boolean => {
+      this.logger.debug('denyOutboundEncryptedConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyInboundUpgradedConnection tests whether a fully capable connection is allowed.
-   *
-   * This is called after encryption has been negotiated and the connection has been
-   * multiplexed, if a multiplexer is configured.
-   *
-   * Return true to deny the passed upgraded connection.
-   */
-  public denyInboundUpgradedConnection?(peerId: PeerId, maConn: MultiaddrConnection): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyInboundUpgradedConnection tests whether a fully capable connection is allowed.
+     *
+     * This is called after encryption has been negotiated and the connection has been
+     * multiplexed, if a multiplexer is configured.
+     *
+     * Return true to deny the passed upgraded connection.
+     */
+    denyInboundUpgradedConnection: (peerId: PeerId, maConn: MultiaddrConnection): boolean => {
+      this.logger.debug('denyInboundUpgradedConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyOutboundUpgradedConnection tests whether a fully capable connection is allowed.
-   *
-   * This is called after encryption has been negotiated and the connection has been
-   * multiplexed, if a multiplexer is configured.
-   *
-   * Return true to deny the passed upgraded connection.
-   */
-  public denyOutboundUpgradedConnection?(peerId: PeerId, maConn: MultiaddrConnection): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyOutboundUpgradedConnection tests whether a fully capable connection is allowed.
+     *
+     * This is called after encryption has been negotiated and the connection has been
+     * multiplexed, if a multiplexer is configured.
+     *
+     * Return true to deny the passed upgraded connection.
+     */
+    denyOutboundUpgradedConnection: (peerId: PeerId, maConn: MultiaddrConnection): boolean => {
+      this.logger.debug('denyOutboundUpgradedConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyInboundRelayReservation tests whether a remote peer is allowed make a
-   * relay reservation on this node.
-   *
-   * Return true to deny the relay reservation.
-   */
-  public denyInboundRelayReservation?(source: PeerId): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyInboundRelayReservation tests whether a remote peer is allowed make a
+     * relay reservation on this node.
+     *
+     * Return true to deny the relay reservation.
+     */
+    denyInboundRelayReservation: (source: PeerId): boolean => {
+      this.logger.debug('denyInboundRelayReservation', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyOutboundRelayedConnection tests whether a remote peer is allowed to open a relayed
-   * connection to the destination node.
-   *
-   * This is invoked on the relay server when a source client with a reservation instructs
-   * the server to relay a connection to a destination peer.
-   *
-   * Return true to deny the relayed connection.
-   */
-  public denyOutboundRelayedConnection?(source: PeerId, destination: PeerId): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyOutboundRelayedConnection tests whether a remote peer is allowed to open a relayed
+     * connection to the destination node.
+     *
+     * This is invoked on the relay server when a source client with a reservation instructs
+     * the server to relay a connection to a destination peer.
+     *
+     * Return true to deny the relayed connection.
+     */
+    denyOutboundRelayedConnection: (source: PeerId, destination: PeerId): boolean => {
+      this.logger.debug('denyOutboundRelayedConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * denyInboundRelayedConnection tests whether a remote peer is allowed to open a relayed
-   * connection to this node.
-   *
-   * This is invoked on the relay client when a remote relay has received an instruction to
-   * relay a connection to the client.
-   *
-   * Return true to deny the relayed connection.
-   */
-  public denyInboundRelayedConnection?(relay: PeerId, remotePeer: PeerId): boolean {
-    if (this._areConnectionsPaused()) return true
+    /**
+     * denyInboundRelayedConnection tests whether a remote peer is allowed to open a relayed
+     * connection to this node.
+     *
+     * This is invoked on the relay client when a remote relay has received an instruction to
+     * relay a connection to the client.
+     *
+     * Return true to deny the relayed connection.
+     */
+    denyInboundRelayedConnection: (relay: PeerId, remotePeer: PeerId): boolean => {
+      this.logger.debug('denyInboundRelayedConnection', this._areConnectionsPaused())
+      if (this._areConnectionsPaused()) return true
 
-    // add any specific logic here
-    return false
-  }
+      // add any specific logic here
+      return false
+    },
 
-  /**
-   * Used by the address book to filter passed addresses.
-   *
-   * Return true to allow storing the passed multiaddr for the passed peer.
-   */
-  public filterMultiaddrForPeer?(peer: PeerId, multiaddr: Multiaddr): boolean {
-    if (this._areConnectionsPaused()) return true
-
-    // add any specific logic here
-    return false
+    /**
+     * Used by the address book to filter passed addresses.
+     *
+     * Return true to allow storing the passed multiaddr for the passed peer.
+     */
+    filterMultiaddrForPeer: (peer: PeerId, multiaddr: Multiaddr): boolean => {
+      return true
+    },
   }
 
   /**

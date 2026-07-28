@@ -32,6 +32,7 @@ import type {
   OutboundConnectionUpgradeEvents,
   Metrics,
   CounterGroup,
+  ConnectionGater,
 } from '@libp2p/interface'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { Server } from 'http'
@@ -78,6 +79,7 @@ export interface WebSocketsInit extends AbortOptions, WebSocketOptions {
 export interface WebSocketsComponents {
   logger: ComponentLogger
   events: TypedEventTarget<Libp2pEvents>
+  connectionGater: ConnectionGater
   metrics?: Metrics
 }
 
@@ -91,11 +93,13 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
   private readonly init: WebSocketsInit
   private readonly logger: ComponentLogger
   private readonly metrics?: WebSocketsMetrics
+  private readonly connectionGater: ConnectionGater
   private readonly components: WebSocketsComponents
 
   constructor(components: WebSocketsComponents, init: WebSocketsInit) {
     this.logger = components.logger
     this.components = components
+    this.connectionGater = this.components.connectionGater
     this.init = init
 
     if (components.metrics != null) {
@@ -195,6 +199,7 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
         logger: this.logger,
         events: this.components.events,
         metrics: this.components.metrics,
+        connectionGater: this.components.connectionGater,
       },
       {
         ...this.init,

@@ -19,6 +19,7 @@ import { TorControl } from '../tor/tor-control.service'
 import { TorControlAuthType } from '../tor/tor.types'
 import { createLibp2pAddress } from '@quiet/common'
 import { createLogger } from '../common/logger'
+import { Libp2pConnectionGater } from '../libp2p/libp2p.connection-gater'
 
 const logger = createLogger('websocketOverTor:test')
 
@@ -186,10 +187,12 @@ describe('websocketOverTor', () => {
     const ws1 = webSockets(websocketsOverTorData1)({
       logger: jest.fn() as unknown as ComponentLogger,
       events: new TypedEventEmitter(),
+      connectionGater: new Libp2pConnectionGater().gaterImpl,
     })
     const ws2 = webSockets(websocketsOverTorData2)({
       logger: jest.fn() as unknown as ComponentLogger,
       events: new TypedEventEmitter(),
+      connectionGater: new Libp2pConnectionGater().gaterImpl,
     })
 
     listener = ws1.createListener(prepareListenerArg)
@@ -275,10 +278,12 @@ describe('websocketOverTor', () => {
     const ws1 = webSockets(websocketsOverTorDataServer)({
       logger: jest.fn() as unknown as ComponentLogger,
       events: new TypedEventEmitter(),
+      connectionGater: new Libp2pConnectionGater().gaterImpl,
     })
     const ws2 = webSockets(websocketsOverTorDataClient)({
       logger: jest.fn() as unknown as ComponentLogger,
       events: new TypedEventEmitter(),
+      connectionGater: new Libp2pConnectionGater().gaterImpl,
     })
 
     listener = ws1.createListener(prepareListenerArg)

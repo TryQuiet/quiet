@@ -394,7 +394,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
     this.connectedPeers.clear()
     // remove peers from the datastore to avoid libp2p auto-redialing after the pause
     await this.clearPeerStore()
-    this.connectionGater.pauseAllConnections()
+    this.connectionGater.pauseConnections()
     return true
   }
 
@@ -418,7 +418,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       return false
     }
     this.setState(Libp2pState.Starting)
-    this.connectionGater.allowConnections()
+    this.connectionGater.resumeConnections()
     // await this.libp2pInstance?.start()
     const resumed = await this.resumeDialQueueWhenTorReady(async () => {
       if (peersToDial && peersToDial.length > 0) {
@@ -559,7 +559,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
           params.useConnectionProtector || params.useConnectionProtector == null
             ? preSharedKey({ psk: params.psk })
             : undefined,
-        connectionGater: this.connectionGater,
+        connectionGater: this.connectionGater.gaterImpl,
         streamMuxers: [
           yamux({
             maxInboundStreams: 1024,
@@ -793,6 +793,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
     this.logger.debug(`Starting libp2p`)
     this.setState(Libp2pState.Starting)
+    this.connectionGater.resumeConnections()
     await this.libp2pInstance.start()
     this.setState(Libp2pState.Started)
     this.logger.debug('Queueing peers for initial dialing')
