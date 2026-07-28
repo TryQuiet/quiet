@@ -1,3 +1,6 @@
+/**
+ * Implementation of Libp2p's ConnectionGater for conditionally denying inbound/outbound connections in p2p
+ */
 import type { ConnectionGater, MultiaddrConnection, PeerId } from '@libp2p/interface'
 import { createLogger } from '../common/logger'
 import type { Multiaddr } from '@multiformats/multiaddr'
@@ -5,6 +8,9 @@ import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class Libp2pConnectionGater {
+  /**
+   * True if we allow any connections
+   */
   private _connectionsAllowed: boolean
   private logger = createLogger('libp2p:connection-gater')
 
@@ -12,20 +18,32 @@ export class Libp2pConnectionGater {
     this._connectionsAllowed = false
   }
 
+  /**
+   * Are connections currently allowed?
+   */
   public get connectionsAllowed(): boolean {
     return this._connectionsAllowed
   }
 
+  /**
+   * Deny all inbound and outbound connections
+   */
   public pauseConnections() {
     this.logger.debug(`Pausing connections - all incoming and outgoing connections will be denied!`)
     this._connectionsAllowed = false
   }
 
+  /**
+   * Allow all inbound and outbound connections (subject to any specific rules in `gaterImpl`)
+   */
   public resumeConnections() {
     this.logger.debug(`Resuming connections`)
     this._connectionsAllowed = true
   }
 
+  /**
+   * Implementation of the ConnectionGater instance passed to Libp2p
+   */
   public gaterImpl: ConnectionGater = {
     /**
      * denyDialPeer tests whether we're permitted to Dial the
