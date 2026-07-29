@@ -373,6 +373,149 @@ describe('ConnectionsManagerService', () => {
     expect(markTeamStorageReadySpy).toHaveBeenCalledWith(teamId)
   })
 
+  it.each([
+    { admission: 'ADMIT_MEMBER', isPendingDeviceAdmission: false },
+    { admission: 'ADMIT_DEVICE', isPendingDeviceAdmission: true },
+  ])('delays libp2p until QSS completes $admission', async ({ admission, isPendingDeviceAdmission }) => {
+    const qssEndpoint = 'https://qss.example.test'
+    const baseInviteData = admission === 'ADMIT_MEMBER' ? validInvitationDatav5[0] : deviceInvitationData
+    const teamId = baseInviteData.authData.teamId
+    const inviteData = {
+      ...baseInviteData,
+      qssEnabled: true,
+      qssEndpoint,
+    }
+    const linkedCommunity: Community = {
+      ...community,
+      teamId,
+      inviteData,
+      qssEnabled: true,
+      qssEndpoint,
+    }
+    const pendingChain = {
+      team: null,
+      isPendingDeviceAdmission,
+      roles: { amIMemberOfRole: () => false },
+    }
+    const admittedChain = {
+      team: { id: teamId, hasDevice: () => true },
+      user: { userId: userIdentity.userId },
+      device: { deviceId: 'admitted-device' },
+      isPendingDeviceAdmission: false,
+      roles: { amIMemberOfRole: () => true },
+    }
+    let activeChain: any = pendingChain
+
+    jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(userIdentity)
+    jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
+    const libp2pCreateSpy = jest
+      .spyOn(connectionsManagerService.libp2pService, 'createInstance')
+      .mockResolvedValue(undefined as any)
+    jest.spyOn(connectionsManagerService['storageService'], 'init').mockResolvedValue()
+    jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
+    jest.spyOn(sigChainService, 'getActiveChain').mockImplementation(() => activeChain as any)
+    jest.spyOn(sigChainService, 'saveChain').mockResolvedValue()
+    const qssConnectSpy = jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
+    connectionsManagerService['ports'] = {
+      socksPort: 9001,
+      libp2pHiddenService: 9002,
+      controlPort: 9003,
+      dataServer: 9004,
+      httpTunnelPort: 9005,
+    }
+
+    const launchPromise = connectionsManagerService.launch(linkedCommunity)
+    await waitForExpect(() => expect(qssConnectSpy).toHaveBeenCalledWith(qssEndpoint))
+    expect(libp2pCreateSpy).not.toHaveBeenCalled()
+
+    activeChain = admittedChain
+    qssService.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
+    await launchPromise
+
+    expect(libp2pCreateSpy).toHaveBeenCalledTimes(1)
+    expect(qssConnectSpy.mock.invocationCallOrder[0]).toBeLessThan(libp2pCreateSpy.mock.invocationCallOrder[0])
+  })
+
+  it('starts libp2p after QSS has remained unavailable for one minute', async () => {
+    jest.useFakeTimers()
+    try {
+      const qssEndpoint = 'https://qss.example.test'
+      const linkedCommunity: Community = {
+        ...community,
+        teamId: deviceInvitationData.authData.teamId,
+        inviteData: {
+          ...deviceInvitationData,
+          qssEnabled: true,
+          qssEndpoint,
+        },
+        qssEnabled: true,
+        qssEndpoint,
+      }
+      const pendingChain = {
+        team: null,
+        isPendingDeviceAdmission: false,
+      } as any
+      jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.ERROR)
+      let qssConnected = false
+      jest.spyOn(qssService, 'connected', 'get').mockImplementation(() => qssConnected)
+
+      let released = false
+      const gate = connectionsManagerService['waitForQssAdmissionBeforeLibp2p'](
+        linkedCommunity,
+        pendingChain,
+        userIdentity
+      ).then(() => {
+        released = true
+      })
+      await Promise.resolve()
+
+      await jest.advanceTimersByTimeAsync(59_000)
+      expect(released).toBe(false)
+
+      qssConnected = true
+      await jest.advanceTimersByTimeAsync(1_000)
+      qssConnected = false
+      await jest.advanceTimersByTimeAsync(59_000)
+      expect(released).toBe(false)
+
+      await jest.advanceTimersByTimeAsync(1_000)
+      await gate
+      expect(released).toBe(true)
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it.each([
+    { name: 'QSS is disabled', qssEnabled: false, qssEndpoint: 'https://qss.example.test', hasTeam: false },
+    { name: 'the invite has no QSS endpoint', qssEnabled: true, qssEndpoint: undefined, hasTeam: false },
+    { name: 'admission already occurred', qssEnabled: true, qssEndpoint: 'https://qss.example.test', hasTeam: true },
+  ])('does not delay libp2p when $name', async ({ qssEnabled, qssEndpoint, hasTeam }) => {
+    const linkedCommunity: Community = {
+      ...community,
+      teamId: deviceInvitationData.authData.teamId,
+      inviteData: {
+        ...deviceInvitationData,
+        qssEnabled,
+        qssEndpoint,
+      } as any,
+      qssEnabled,
+      qssEndpoint,
+    }
+    const qssConnectSpy = jest.spyOn(qssService, 'connect')
+
+    await connectionsManagerService['waitForQssAdmissionBeforeLibp2p'](
+      linkedCommunity,
+      {
+        team: hasTeam ? { id: linkedCommunity.teamId } : null,
+        isPendingDeviceAdmission: false,
+      } as any,
+      userIdentity
+    )
+
+    expect(qssConnectSpy).not.toHaveBeenCalled()
+  })
+
   it('admits an invited device via QSS, validates and persists it, then initializes storage', async () => {
     const teamId = deviceInvitationData.authData.teamId
     const userId = deviceInvitationData.authData.userId
@@ -398,7 +541,9 @@ describe('ConnectionsManagerService', () => {
 
     jest.spyOn(connectionsManagerService['storageService'], 'getIdentity').mockResolvedValue(linkedIdentity)
     jest.spyOn(connectionsManagerService, 'spawnTorHiddenService').mockResolvedValue('localhost.onion')
-    jest.spyOn(connectionsManagerService.libp2pService, 'createInstance').mockResolvedValue(undefined as any)
+    const libp2pCreateSpy = jest
+      .spyOn(connectionsManagerService.libp2pService, 'createInstance')
+      .mockResolvedValue(undefined as any)
     jest.spyOn(connectionsManagerService['tor'], 'isBootstrappingFinished').mockResolvedValue(false)
     connectionsManagerService['ports'] = {
       socksPort: 9001,
@@ -412,17 +557,16 @@ describe('ConnectionsManagerService', () => {
     const qssConnectSpy = jest.spyOn(qssService, 'connect').mockResolvedValue(QSSOperationResult.SUCCESS)
 
     const launchPromise = connectionsManagerService.launch(linkedCommunity)
-    await waitForExpect(() =>
-      expect(connectionsManagerService.libp2pService.listenerCount(Libp2pEvents.AUTH_JOINED)).toBe(1)
-    )
     await waitForExpect(() => expect(qssService.listenerCount(QSSEvents.QSS_AUTH_JOINED)).toBe(1))
-    expect(qssConnectSpy).toHaveBeenCalledWith(linkedCommunity.qssEndpoint)
+    expect(qssConnectSpy).toHaveBeenCalledWith(deviceInvitationData.qssEndpoint)
+    expect(libp2pCreateSpy).not.toHaveBeenCalled()
     expect(storageInitSpy).not.toHaveBeenCalled()
     expect(saveChainSpy).not.toHaveBeenCalled()
 
     const admittedTeam = {
       id: teamId,
       hasDevice: jest.fn().mockReturnValue(true),
+      memberHasRole: jest.fn().mockReturnValue(true),
       on: jest.fn(),
       removeListener: jest.fn(),
     }
@@ -437,6 +581,7 @@ describe('ConnectionsManagerService', () => {
 
     await launchPromise
 
+    expect(libp2pCreateSpy).toHaveBeenCalledTimes(1)
     expect(saveChainSpy).toHaveBeenCalledWith(teamId)
     expect(storageInitSpy).toHaveBeenCalledWith(teamId)
     expect(qssConnectSpy.mock.invocationCallOrder[0]).toBeLessThan(saveChainSpy.mock.invocationCallOrder[0])
