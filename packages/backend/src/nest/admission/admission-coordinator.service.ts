@@ -33,16 +33,36 @@ interface AdmissionSession {
   p2pStarted: boolean
 }
 
+/**
+ * Coordinates admission to a community across QSS and peer-to-peer transports.
+ *
+ * The coordinator owns at most one admission session at a time, selects and
+ * falls back between transports, validates the admitted identity and sigchain,
+ * and commits admission persistence only after a candidate passes validation.
+ * Callers provide transport lifecycle operations through {@link AdmissionRuntime}
+ * so this service can remain independent of connection setup details.
+ */
 @Injectable()
 export class AdmissionCoordinator {
   private activeSession?: AdmissionSession
 
+  /**
+   * Creates an admission coordinator backed by the QSS, sigchain, and local
+   * admission-transport persistence services.
+   */
   constructor(
     private readonly qssService: QSSService,
     private readonly sigChainService: SigChainService,
     private readonly localDbService: LocalDbService
   ) {}
 
+  /**
+   * Starts an admission session or returns the in-flight promise for the same
+   * request.
+   *
+   * @throws When a different admission session is already active, admission
+   * times out, no usable transport is available, or admission fails validation.
+   */
   coordinate(request: AdmissionRequest, runtime: AdmissionRuntime): Promise<AdmissionResult> {
     const key = this.sessionKey(request)
     if (this.activeSession != null) {
@@ -76,6 +96,12 @@ export class AdmissionCoordinator {
     return session.promise
   }
 
+  /**
+   * Cancels the active admission session and stops its transports.
+   *
+   * If a candidate is already being finalized, waits for that finalization
+   * instead of interrupting its persistence commit.
+   */
   async cancelActive(reason: Error): Promise<void> {
     const session = this.activeSession
     if (session == null) {
@@ -88,6 +114,10 @@ export class AdmissionCoordinator {
     await this.cancelSession(session, reason)
   }
 
+  /**
+   * Runs a session within a sigchain admission-persistence scope and performs
+   * cleanup when the session succeeds, fails, or is cancelled.
+   */
   private async runSession(session: AdmissionSession): Promise<AdmissionResult> {
     try {
       const result = await this.sigChainService.withAdmissionPersistence(session.request.teamId, async persistence => {
@@ -112,6 +142,10 @@ export class AdmissionCoordinator {
     }
   }
 
+  /**
+   * Selects the transport required by stored ownership or attempts the preferred
+   * transport before falling back to peer-to-peer admission.
+   */
   private async selectTransport(session: AdmissionSession, finalize: AdmissionFinalizer): Promise<AdmissionResult> {
     const { request } = session
 
@@ -136,6 +170,13 @@ export class AdmissionCoordinator {
     return this.startP2pAdmission(session, request.kind === AdmissionKind.MEMBER, finalize)
   }
 
+  /**
+   * Starts QSS admission after the runtime establishes a QSS connection.
+   *
+   * Returns `undefined` when QSS is unavailable and fallback is permitted.
+   * Device admissions also fall back when QSS does not complete within the
+   * session's fallback window.
+   */
   private async startQssAdmission(
     session: AdmissionSession,
     claimTransport: boolean,
@@ -195,6 +236,10 @@ export class AdmissionCoordinator {
     }
   }
 
+  /**
+   * Claims peer-to-peer transport ownership when required and starts admission
+   * through the runtime.
+   */
   private async startP2pAdmission(
     session: AdmissionSession,
     claimTransport: boolean,
@@ -208,11 +253,20 @@ export class AdmissionCoordinator {
     return session.runtime.startP2p(finalize)
   }
 
-  private async finalizeCandidate(
+  /**
+   * Validates and commits the first candidate produced by a transport.
+   *
+   * Concurrent attempts share the same finalization promise so persistence can
+   * be committed at most once.
+   */
+  private finalizeCandidate(
     session: AdmissionSession,
     candidate: AdmissionCandidate,
     persistence: AdmissionPersistenceScope
   ): Promise<AdmissionResult> {
+    if (session.finalizationPromise != null) {
+      return session.finalizationPromise
+    }
     const finalization = (async () => {
       this.clearSessionTimeout(session)
       this.validateCandidate(session.request, candidate)
@@ -230,6 +284,10 @@ export class AdmissionCoordinator {
     return finalization
   }
 
+  /**
+   * Durably claims a community's admission transport, rejecting ownership
+   * conflicts with another transport.
+   */
   private async claimTransport(session: AdmissionSession, transport: AdmissionTransport): Promise<void> {
     const result = await this.localDbService.claimAdmissionTransport(session.request.communityId, transport)
     if (result === 'conflict') {
@@ -239,6 +297,10 @@ export class AdmissionCoordinator {
     }
   }
 
+  /**
+   * Verifies that a candidate and the active sigchain match the requested team,
+   * user, device, admission kind, and required membership role.
+   */
   private validateCandidate(request: AdmissionRequest, candidate: AdmissionCandidate): void {
     if (candidate.teamId !== request.teamId) {
       throw new Error(`Admission team mismatch: ${candidate.teamId} !== ${request.teamId}`)
@@ -268,6 +330,7 @@ export class AdmissionCoordinator {
     }
   }
 
+  /** Aborts a current session and stops every transport it started. */
   private async cancelSession(session: AdmissionSession, reason: Error): Promise<void> {
     if (!this.isCurrent(session)) {
       return
@@ -276,6 +339,7 @@ export class AdmissionCoordinator {
     await this.stopTransports(session)
   }
 
+  /** Stops the session's transports once and shares any in-flight stop operation. */
   private async stopTransports(session: AdmissionSession): Promise<void> {
     if (session.stoppingPromise != null) {
       return session.stoppingPromise
@@ -290,6 +354,7 @@ export class AdmissionCoordinator {
     return session.stoppingPromise
   }
 
+  /** Pauses QSS if this session previously started it. */
   private pauseQss(session: AdmissionSession): void {
     if (!session.qssStarted) {
       return
@@ -298,6 +363,7 @@ export class AdmissionCoordinator {
     session.runtime.pauseQss()
   }
 
+  /** Clears the session deadline timer if it is still scheduled. */
   private clearSessionTimeout(session: AdmissionSession): void {
     if (session.timeout != null) {
       clearTimeout(session.timeout)
@@ -305,6 +371,7 @@ export class AdmissionCoordinator {
     }
   }
 
+  /** Throws the cancellation reason when the session is no longer current. */
   private assertCurrent(session: AdmissionSession): void {
     if (!this.isCurrent(session)) {
       throw session.abortController.signal.reason instanceof Error
@@ -313,16 +380,19 @@ export class AdmissionCoordinator {
     }
   }
 
+  /** Reports whether the session is active and has not been aborted. */
   private isCurrent(session: AdmissionSession): boolean {
     return this.activeSession?.id === session.id && !session.abortController.signal.aborted
   }
 
+  /** Builds the stable identity used to deduplicate equivalent admission requests. */
   private sessionKey(request: AdmissionRequest): string {
     return [request.communityId, request.teamId, request.expectedUserId, request.expectedDeviceId, request.kind].join(
       ':'
     )
   }
 
+  /** Converts an arbitrary rejection value into an Error. */
   private normalizeError(error: unknown): Error {
     return error instanceof Error ? error : new Error(String(error))
   }

@@ -367,6 +367,25 @@ describe('QSSService', () => {
       })
     })
 
+    it('discards prepared admission state when startup fails after installing the finalizer', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
+      jest.spyOn(qssService as any, 'emitNseQssUrl').mockRejectedValue(new Error('NSE setup failed'))
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+
+      await expect(
+        qssService.startPreparedAdmission(prepared, async candidate => ({
+          teamId: candidate.teamId,
+          userId: candidate.userId,
+          deviceId: candidate.deviceId,
+          transport: candidate.transport,
+        }))
+      ).rejects.toThrow('NSE setup failed')
+      expect(qssService['preparedAdmissions'].has(teamId)).toBe(false)
+    })
+
     it('retries a retryable pending-device auth failure without surfacing it as terminal', async () => {
       const teamId = 'pending-device-retry-team'
       await sigchainService.deleteChain(sigchainService.activeChainTeamId!, false)

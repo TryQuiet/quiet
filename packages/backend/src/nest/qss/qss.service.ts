@@ -97,6 +97,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
 
   private readonly logger = createLogger(`qss:service`)
 
+  /** Creates the QSS service and registers its connection and admission event handlers. */
   constructor(
     @Inject(QSS_ALLOWED) private _qssAllowed: boolean,
     @Inject(QSS_ENDPOINT) public _qssEndpoint: string,
@@ -111,10 +112,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._configureEventHandlers()
   }
 
+  /** Closes QSS connections and clears pending work during Nest module teardown. */
   public onModuleDestroy() {
     this.close()
   }
 
+  /** Requests queued captcha verification once the QSS websocket connects. */
   private _requestCaptchaVerificationAfterConnect = (): void => {
     this._captchaVerificationQueued = false
     this.qssClient.requestCaptchaVerification().catch(error => {
@@ -122,12 +125,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     })
   }
 
+  /** Clears device-admission retries and schedules reconnection after QSS disconnects. */
   private _handleQssDisconnected = (): void => {
     this.logger.debug('QSS disconnected, scheduling reconnect if enabled')
     this.clearDeviceAdmissionRetries()
     this._scheduleReconnect(QSSOperationResult.ERROR)
   }
 
+  /** Completes QSS join handling and forwards asynchronous failures as auth errors. */
   private _handleQssAuthJoined = (teamId: string): void => {
     void this.handleQssAuthJoined(teamId).catch(error => {
       this._handleQssAuthError({
@@ -137,6 +142,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     })
   }
 
+  /**
+   * Completes a prepared device admission, then emits that the QSS auth
+   * connection joined.
+   */
   private async handleQssAuthJoined(teamId: string): Promise<void> {
     this.logger.debug('Auth connection joined via QSS')
     this.clearDeviceAdmissionRetry(teamId)
@@ -150,20 +159,24 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
+  /** Rejects prepared admission and emits a QSS authentication error. */
   private _handleQssAuthError = (payload: QSSAuthErrorPayload): void => {
     this.logger.warn('QSS auth connection failed', payload.teamId, payload.error)
     this.rejectPreparedAdmission(payload.teamId, payload.error)
     this.emit(QSSEvents.QSS_AUTH_ERROR, payload)
   }
 
+  /** Starts retry-or-fail processing for an unsuccessful QSS authentication attempt. */
   private _handleQssAuthAttemptFailed = (payload: QSSAuthAttemptFailurePayload): void => {
     void this.processQssAuthAttemptFailure(payload)
   }
 
+  /** Starts an auth connection requested through the service event bus. */
   private _handleStartAuthConnection = (teamId: string): void => {
     void this.startAuthConnection(teamId)
   }
 
+  /** Connects to QSS when necessary and requests hCaptcha verification. */
   private _handleHcaptchaRequest = (): void => {
     this.logger.debug('hCaptcha request received')
     if (!this.connected) {
@@ -182,6 +195,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
+  /** Requests captcha verification when QSS reports that it is required. */
   private _handleCaptchaRequired = (): void => {
     this.logger.debug('Captcha required event received from QSS')
     this.qssClient.requestCaptchaVerification().catch(error => {
@@ -189,16 +203,22 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     })
   }
 
+  /** Requests QSS sign-in processing after the current community is persisted. */
   private _handleCommunityAdded = (): void => {
     this.logger.debug('Community stored, attempting to authenticate with QSS')
     this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
   }
 
+  /** Requests the appropriate authentication operation after QSS connects. */
   private _handleQssConnected = async (): Promise<void> => {
     this.logger.debug('QSS connected, handling appropriate authentication operation')
     this.emit(QSSEvents.QSS_HANDLE_SIGN_IN)
   }
 
+  /**
+   * Creates or signs in the current community after checking local QSS state
+   * and the active sigchain.
+   */
   private _handleQssHandleSignIn = async (): Promise<void> => {
     await this._signInMutex.runExclusive(async () => {
       const initStatus = await this.getQssInitStatus()
@@ -245,6 +265,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     })
   }
 
+  /**
+   * Self-assigns the member role after QSS admission and marks authentication
+   * and log synchronization as ready.
+   */
   private _handleSelfAssignMember = async (teamId: string): Promise<void> => {
     this.logger.debug(`Self-assigning ${RoleName.MEMBER} role on team ${teamId} after joining with QSS`)
     const initStatus = await this.getQssInitStatus()
@@ -272,6 +296,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
+  /**
+   * Builds a QSS admission candidate and resolves the prepared admission after
+   * the coordinator validates and persists it.
+   */
   private async completePreparedAdmission(teamId: string, kind: AdmissionKind): Promise<void> {
     const state = this.preparedAdmissions.get(teamId)
     if (state?.finalize == null) {
@@ -297,6 +325,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
+  /** Rejects and removes a prepared admission for a team, if one exists. */
   private rejectPreparedAdmission(teamId: string, error: Error): void {
     const state = this.preparedAdmissions.get(teamId)
     if (state == null) {
@@ -306,6 +335,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     state.reject?.(error)
   }
 
+  /** Rejects and removes every prepared admission with the supplied error. */
   private abortPreparedAdmissions(error: Error): void {
     for (const state of this.preparedAdmissions.values()) {
       state.reject?.(error)
@@ -313,6 +343,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.preparedAdmissions.clear()
   }
 
+  /** Registers service event handlers once. */
   private _configureEventHandlers(): void {
     if (this._eventHandlersConfigured) {
       return
@@ -331,6 +362,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._eventHandlersConfigured = true
   }
 
+  /** Removes all registered service event handlers once. */
   private _teardownEventHandlers(): void {
     if (!this._eventHandlersConfigured) {
       return
@@ -349,6 +381,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._eventHandlersConfigured = false
   }
 
+  /** Starts a team auth connection, returning whether startup succeeded. */
   private async startAuthConnection(teamId: string): Promise<boolean> {
     try {
       await this.qssAuthConnManager.startNewConnection(teamId)
@@ -359,6 +392,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
+  /** Cancels and removes the pending device-admission retry for a team. */
   private clearDeviceAdmissionRetry(teamId: string): void {
     this.deviceAdmissionRetryGeneration += 1
     const retry = this.deviceAdmissionRetries.get(teamId)
@@ -368,6 +402,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.deviceAdmissionRetries.delete(teamId)
   }
 
+  /** Cancels and removes all pending device-admission retries. */
   private clearDeviceAdmissionRetries(): void {
     this.deviceAdmissionRetryGeneration += 1
     for (const retry of this.deviceAdmissionRetries.values()) {
@@ -378,6 +413,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.deviceAdmissionRetries.clear()
   }
 
+  /** Reports whether an authentication failure can retry device admission. */
   private isRetryableDeviceAdmissionFailure(code: string): boolean {
     return [
       'INVITATION_PROOF_INVALID',
@@ -388,6 +424,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     ].includes(code)
   }
 
+  /**
+   * Retries eligible device-admission failures with bounded exponential
+   * backoff, or emits a terminal authentication error.
+   */
   private async processQssAuthAttemptFailure(payload: QSSAuthAttemptFailurePayload): Promise<void> {
     if (this._paused) return
     const retryGeneration = this.deviceAdmissionRetryGeneration
@@ -433,6 +473,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     )
   }
 
+  /** Restarts QSS authentication for a pending device-admission retry. */
   private async retryDeviceAdmission(teamId: string): Promise<void> {
     const retryState = this.deviceAdmissionRetries.get(teamId)
     if (retryState == null || this._paused || !this.connected) {
@@ -542,6 +583,13 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return authConnection?.joinStatus ?? JoinStatus.NOT_STARTED
   }
 
+  /**
+   * Connects to a QSS endpoint under a mutex and schedules reconnection when
+   * the attempt fails.
+   *
+   * @param qssEndpoint Endpoint to use, or the currently configured endpoint.
+   * @param enabledOverride Whether to connect without requiring community QSS metadata.
+   */
   public async connect(qssEndpoint: string | undefined, enabledOverride: boolean = false): Promise<QSSOperationResult> {
     if (this._paused) {
       this.logger.debug('Skipping QSS connect because service is paused')
@@ -570,6 +618,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     })
   }
 
+  /** Cancels a scheduled reconnect and optionally resets its backoff delay. */
   private _clearReconnectTimer(resetDelay = false): void {
     if (this._reconnectQueueProcessor != null) {
       clearTimeout(this._reconnectQueueProcessor)
@@ -581,6 +630,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
+  /** Schedules a reconnect with exponential backoff after a failed operation. */
   private _scheduleReconnect(connStatus: QSSOperationResult): void {
     if (connStatus === QSSOperationResult.SUCCESS) {
       this._clearReconnectTimer(true)
@@ -607,6 +657,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }, reconnectDelayMs)
   }
 
+  /**
+   * Suspends QSS activity, closes active connections, and rejects prepared
+   * admissions without disabling QSS configuration.
+   */
   public pause(): void {
     if (!this.canConnect) {
       this.logger.trace(`Skipping QSS pause because QSS isn't enabled`)
@@ -625,6 +679,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.qssClient.close()
   }
 
+  /** Restores event handling and reconnects QSS after the service was paused. */
   public async resume(): Promise<void> {
     if (!this.canConnect) {
       this.logger.trace(`Skipping QSS resume because QSS isn't enabled`)
@@ -690,6 +745,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return connStatus
   }
 
+  /** Converts a QSS websocket endpoint to the HTTP endpoint expected by NSE. */
   private getNseQssUrl(wsUrl: string | undefined): string | undefined {
     if (wsUrl == null || wsUrl === '') {
       this.logger.warn('Skipping NSE QSS URL update because wsUrl is empty')
@@ -708,6 +764,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return undefined
   }
 
+  /** Emits the current community's NSE QSS URL on supported mobile platforms. */
   private async emitNseQssUrl(wsUrl: string | undefined): Promise<void> {
     const platform = process.platform as string
     if (platform !== 'ios' && platform !== 'android') {
@@ -878,10 +935,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return true
   }
 
+  /** Starts periodic QSS log pulls for a team. */
   public startLogPullInterval(teamId: string): void {
     this.qssSyncManager.startLogPullInterval(teamId)
   }
 
+  /** Notifies QSS synchronization that local team storage is ready. */
   public markTeamStorageReady(teamId: string): void {
     this.qssSyncManager.markTeamStorageReady(teamId)
   }
@@ -910,6 +969,10 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return result
   }
 
+  /**
+   * Signs in without starting authentication and retains the resulting state
+   * until {@link startPreparedAdmission} supplies a finalizer.
+   */
   public async prepareAdmission(teamId: string, sigChain: SigChain): Promise<PreparedQssAdmission> {
     this.clearDeviceAdmissionRetry(teamId)
     const kind = sigChain.isPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER
@@ -922,6 +985,12 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return prepared
   }
 
+  /**
+   * Starts authentication for a prepared admission and resolves after its
+   * candidate has been finalized.
+   *
+   * @throws When the preparation is stale or the auth connection cannot start.
+   */
   public async startPreparedAdmission(
     prepared: PreparedQssAdmission,
     finalize: AdmissionFinalizer
@@ -939,16 +1008,23 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     state.finalize = finalize
     state.resolve = resolve
     state.reject = reject
-    const started = await this.startAuthConnection(prepared.teamId)
-    if (!started) {
-      this.preparedAdmissions.delete(prepared.teamId)
-      throw new Error(`Failed to start prepared QSS admission for team ${prepared.teamId}`)
+    try {
+      const started = await this.startAuthConnection(prepared.teamId)
+      if (!started) {
+        throw new Error(`Failed to start prepared QSS admission for team ${prepared.teamId}`)
+      }
+      await this.emitNseQssUrl(this._qssEndpoint)
+      this.qssSyncManager.startLogSyncForSignedInTeam(prepared.teamId, state.sigChain)
+    } catch (error) {
+      if (this.preparedAdmissions.get(prepared.teamId) === state) {
+        this.preparedAdmissions.delete(prepared.teamId)
+      }
+      throw error
     }
-    await this.emitNseQssUrl(this._qssEndpoint)
-    this.qssSyncManager.startLogSyncForSignedInTeam(prepared.teamId, state.sigChain)
     return completion
   }
 
+  /** Runs QSS authentication for the currently stored community immediately. */
   public async authenticateCurrentCommunity(): Promise<void> {
     await this._handleQssHandleSignIn()
   }

@@ -157,6 +157,29 @@ describe('AdmissionCoordinator', () => {
     await expect(coordinator.coordinate(request, runtime)).rejects.toThrow('disk full')
   })
 
+  it('finalizes only the first candidate when a transport completes concurrently', async () => {
+    let resolveCommit!: () => void
+    commit.mockImplementationOnce(
+      () =>
+        new Promise<void>(resolve => {
+          resolveCommit = resolve
+        })
+    )
+    jest.mocked(runtime.startP2p).mockImplementationOnce(async (finalize: AdmissionFinalizer) => {
+      const first = finalize(candidate(AdmissionTransport.P2P, request.kind))
+      const second = finalize(candidate(AdmissionTransport.P2P, request.kind))
+      expect(second).toBe(first)
+      resolveCommit()
+      return first
+    })
+    request.preferredTransport = AdmissionTransport.P2P
+
+    await expect(coordinator.coordinate(request, runtime)).resolves.toMatchObject({
+      transport: AdmissionTransport.P2P,
+    })
+    expect(commit).toHaveBeenCalledTimes(1)
+  })
+
   it('cancels the active transport and rejects the operation', async () => {
     let rejectAdmission!: (error: Error) => void
     qssService.startPreparedAdmission.mockImplementationOnce(
