@@ -5,6 +5,7 @@ import { type LogEntry } from '@orbitdb/core'
 import { ChannelMetadataAccessController } from './ChannelMetadataAccessController'
 import { RoleName } from '../../../auth/services/roles/roles'
 import { EncryptedAndSignedPayload } from '../../../auth/services/crypto/types'
+import type { PrivateChannelMappings } from '../channels.types'
 
 const emptyAsyncIterable = async function* () {}
 
@@ -80,7 +81,12 @@ const attachLogContext = (access: any, entries: LogEntry<EncryptedAndSignedPaylo
 
 const createAccess = async (sigchainService: any, isPublic: boolean) => {
   const controller = new ChannelMetadataAccessController(sigchainService)
-  const factory = controller.createAccessControllerFunc({ write: ['*'], sigchainService, isPublic })
+  const factory = controller.createAccessControllerFunc({
+    write: ['*'],
+    sigchainService,
+    isPublic,
+    getPrivateChannelsByRolename: async () => ({ idToRoleName: {}, roleNameToChannel: {} }),
+  })
   return (factory as any)({
     orbitdb: {
       identity: { id: 'local-orbitdb-identity' },
@@ -97,7 +103,12 @@ describe('ChannelMetadataAccessController', () => {
   it('loads the ACL manifest from a persisted typed access-controller address', async () => {
     const sigchainService = createSigchainService({})
     const controller = new ChannelMetadataAccessController(sigchainService)
-    const factory = controller.createAccessControllerFunc({ write: ['writer-id'], sigchainService, isPublic: true })
+    const factory = controller.createAccessControllerFunc({
+      write: ['writer-id'],
+      sigchainService,
+      isPublic: true,
+      getPrivateChannelsByRolename: async () => ({ idToRoleName: {}, roleNameToChannel: {} }),
+    })
     const orbitdb = {
       identity: { id: 'local-orbitdb-identity' },
       ipfs: createInMemoryIpfs(),
