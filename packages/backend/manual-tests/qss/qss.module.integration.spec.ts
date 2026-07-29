@@ -1,38 +1,45 @@
-import { EventsType } from '@orbitdb/core'
 import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
-import { randomBytes, randomUUID } from 'crypto'
+import { randomUUID } from 'crypto'
 import waitForExpect from 'wait-for-expect'
 
+import { p2pAddressesToPairs } from '@quiet/common'
 import {
   ChannelMessage,
+  ChannelOperationStatus,
   Community,
-  CommunityOwnership,
   ConsumedChannelMessage,
-  Identity,
+  type DeviceInvitationDataV5,
+  type DeviceLinkInvite,
+  type InvitationDataV5,
   InvitationDataVersion,
   InvitationKind,
+  type InviteResultWithSalt,
   MessageType,
   PublicChannel,
+  type ResponseInvitePayload,
+  SocketActions,
 } from '@quiet/types'
+import { AdmissionCoordinator } from '../../src/nest/admission/admission-coordinator.service'
+import {
+  AdmissionKind,
+  AdmissionTransport,
+  type CommunityAdmissionMetadata,
+} from '../../src/nest/admission/admission.types'
 import { SigChainService } from '../../src/nest/auth/sigchain.service'
-import { SigChainModule } from '../../src/nest/auth/sigchain.service.module'
 import { RoleName } from '../../src/nest/auth/services/roles/roles'
 import { CaptchaService } from '../../src/nest/captcha/captcha.service'
-import { QSS_ALLOWED, QSS_ENDPOINT } from '../../src/nest/const'
 import { TestModule } from '../../src/nest/common/test.module'
-import { spawnLibp2pInstancesInMemory } from '../../src/nest/common/test-utils'
-import { IpfsFileManagerModule } from '../../src/nest/ipfs-file-manager/ipfs-file-manager.module'
-import { IpfsModule } from '../../src/nest/ipfs/ipfs.module'
-import { IpfsService } from '../../src/nest/ipfs/ipfs.service'
+import { QSS_ALLOWED, QSS_ENDPOINT, TOR_PASSWORD_PROVIDER } from '../../src/nest/const'
+import { ConnectionsManagerModule } from '../../src/nest/connections-manager/connections-manager.module'
+import { ConnectionsManagerService } from '../../src/nest/connections-manager/connections-manager.service'
+import { ServiceState } from '../../src/nest/connections-manager/connections-manager.types'
 import { JoinStatus } from '../../src/nest/libp2p/libp2p.auth'
-import { Libp2pService } from '../../src/nest/libp2p/libp2p.service'
-import { type Libp2pNodeParams } from '../../src/nest/libp2p/libp2p.types'
+import { Libp2pService, Libp2pState } from '../../src/nest/libp2p/libp2p.service'
 import { LocalDbService } from '../../src/nest/local-db/local-db.service'
 import { QSSAuthConnectionManager } from '../../src/nest/qss/qss-auth-conn-manager.service'
 import { QSSAuthConnStatus } from '../../src/nest/qss/qss.const'
 import { QSSClient } from '../../src/nest/qss/qss.client'
-import { QSSModule } from '../../src/nest/qss/qss.module'
 import { QSSService } from '../../src/nest/qss/qss.service'
 import { QSSSyncManager } from '../../src/nest/qss/qss-sync-manager.service'
 import {
@@ -43,12 +50,13 @@ import {
   QSSOperationResult,
   WebsocketEvents,
 } from '../../src/nest/qss/qss.types'
-import { PublicChannelMessagesService } from '../../src/nest/storage/channels/messages/public-channel-messages.service'
-import { EncryptedMessage } from '../../src/nest/storage/channels/messages/messages.types'
-import { MessagesAccessController } from '../../src/nest/storage/channels/messages/orbitdb/MessagesAccessController'
-import { EventsWithStorage } from '../../src/nest/storage/orbitDb/eventsWithStorage'
+import { SocketService } from '../../src/nest/socket/socket.service'
+import { ChannelStore } from '../../src/nest/storage/channels/channel.store'
 import { OrbitDbService } from '../../src/nest/storage/orbitDb/orbitDb.service'
-import { OrbitDbModule } from '../../src/nest/storage/orbitDb/orbitdb.module'
+import { type LogUpdate } from '../../src/nest/storage/orbitDb/orbitdb.types'
+import { StorageService } from '../../src/nest/storage/storage.service'
+import { StorageEvents } from '../../src/nest/storage/storage.types'
+import { Tor } from '../../src/nest/tor/tor.service'
 
 const RUN_QSS_MODULE_INTEGRATION =
   process.env.QSS_MODULE_INTEGRATION === '1' || process.env.RUN_QSS_INTEGRATION_TESTS === 'true'
@@ -56,12 +64,13 @@ const QSS_INTEGRATION_ENDPOINT =
   process.env.QSS_INTEGRATION_ENDPOINT ?? process.env.QSS_ENDPOINT ?? 'http://localhost:3003'
 const HCAPTCHA_TEST_TOKEN = '10000000-aaaa-bbbb-cccc-000000000001'
 const maybeDescribe = RUN_QSS_MODULE_INTEGRATION ? describe : describe.skip
-
-type QssChannelStore = EventsType<EncryptedMessage>
+const ONION_ALPHABET = 'abcdefghijklmnopqrstuvwxyz234567'
 
 interface QSSIntegrationPeer {
   name: string
   module: TestingModule
+  connectionsManager: ConnectionsManagerService
+  admissionCoordinator: AdmissionCoordinator
   qssService: QSSService
   qssClient: QSSClient
   qssAuthConnManager: QSSAuthConnectionManager
@@ -69,32 +78,32 @@ interface QSSIntegrationPeer {
   sigChainService: SigChainService
   localDbService: LocalDbService
   libp2pService: Libp2pService
-  ipfsService: IpfsService
+  storageService: StorageService
   orbitDbService: OrbitDbService
   captchaService: CaptchaService
-  publicChannelMessagesService: PublicChannelMessagesService
-  messagesAccessController: MessagesAccessController
+  socketService: SocketService
+  pendingPeerStoreUpdates: Set<Promise<void>>
 }
 
 interface OwnerFixture {
   owner: QSSIntegrationPeer
   teamId: string
   teamName: string
-  invite: { seed: string; salt: string }
-  psk: string
+  community: Community
+  inviteData: InvitationDataV5
 }
 
 interface OwnerFixtureOptions {
-  markStorageReadyBeforeConnect?: boolean
-  beforeConnect?: (fixture: OwnerFixture) => Promise<void> | void
+  beforeCreate?: (owner: QSSIntegrationPeer) => Promise<void> | void
 }
 
-interface InviteeFixtureOptions {
-  beforeConnect?: (peer: QSSIntegrationPeer) => Promise<void> | void
-  beforeStorageReady?: (peer: QSSIntegrationPeer) => Promise<void> | void
+interface CreatedTestChannel {
+  channel: PublicChannel
+  store: ChannelStore
 }
 
 const activePeers = new Set<QSSIntegrationPeer>()
+let onionAddressSequence = 0
 
 function healthUrl(endpoint: string): string {
   const parsed = new URL(endpoint)
@@ -120,82 +129,93 @@ async function assertQssIsReachable(endpoint: string): Promise<void> {
   }
 }
 
-function testIdentity(communityId: string, userId: string): Identity {
-  return {
-    communityId,
-    userId,
-    networkInfo: {
-      hiddenService: {
-        onionAddress: `${randomUUID().replaceAll('-', '')}.onion`,
-        privateKey: randomBytes(32).toString('base64'),
-      },
-      peerId: {
-        id: randomUUID(),
-        privKey: randomBytes(32).toString('base64'),
-      },
-    },
-    joinTimestamp: null,
-  }
+function nextTestOnionAddress(): string {
+  const sequence = onionAddressSequence++
+  let encoded = ''
+  let remainder = sequence
+  do {
+    encoded = `${ONION_ALPHABET[remainder % ONION_ALPHABET.length]}${encoded}`
+    remainder = Math.floor(remainder / ONION_ALPHABET.length)
+  } while (remainder > 0)
+  return `${'a'.repeat(56 - encoded.length)}${encoded}.onion`
+}
+
+function stubTorProcessBoundary(tor: Tor, peerName: string): void {
+  const onionsByPrivateKey = new Map<string, string>()
+
+  jest.spyOn(tor, 'createNewHiddenService').mockImplementation(async () => {
+    const onionAddress = nextTestOnionAddress()
+    const privateKey = `ED25519-V3:${peerName}:${randomUUID()}`
+    onionsByPrivateKey.set(privateKey, onionAddress)
+    return { onionAddress, privateKey }
+  })
+  jest.spyOn(tor, 'destroyHiddenService').mockResolvedValue(true)
+  jest.spyOn(tor, 'spawnHiddenService').mockImplementation(async ({ privKey }) => {
+    const onionAddress = onionsByPrivateKey.get(privKey)
+    if (onionAddress == null) {
+      throw new Error(`No test Tor hidden service was generated for ${peerName}`)
+    }
+    return onionAddress
+  })
+  jest.spyOn(tor, 'isBootstrappingFinished').mockResolvedValue(true)
+  tor.bootstrapped = true
 }
 
 async function createPeer(name: string): Promise<QSSIntegrationPeer> {
   const module = await Test.createTestingModule({
-    imports: [TestModule, SigChainModule, IpfsFileManagerModule, IpfsModule, OrbitDbModule, QSSModule],
+    imports: [TestModule, ConnectionsManagerModule],
   })
+    .overrideProvider(TOR_PASSWORD_PROVIDER)
+    .useValue({ torPassword: '', torHashedPassword: '' })
     .overrideProvider(QSS_ALLOWED)
     .useValue(true)
     .overrideProvider(QSS_ENDPOINT)
     .useValue(QSS_INTEGRATION_ENDPOINT)
     .compile()
 
+  const tor = module.get(Tor)
+  stubTorProcessBoundary(tor, name)
+
   const peer: QSSIntegrationPeer = {
     name,
     module,
+    connectionsManager: module.get(ConnectionsManagerService),
+    admissionCoordinator: module.get(AdmissionCoordinator),
     qssService: module.get(QSSService),
     qssClient: module.get(QSSClient),
     qssAuthConnManager: module.get(QSSAuthConnectionManager),
     qssSyncManager: module.get(QSSSyncManager),
     sigChainService: module.get(SigChainService),
     localDbService: module.get(LocalDbService),
-    libp2pService: await module.resolve(Libp2pService),
-    ipfsService: await module.resolve(IpfsService),
+    libp2pService: module.get(Libp2pService),
+    storageService: module.get(StorageService),
     orbitDbService: module.get(OrbitDbService),
     captchaService: module.get(CaptchaService),
-    publicChannelMessagesService: module.get(PublicChannelMessagesService),
-    messagesAccessController: module.get(MessagesAccessController),
+    socketService: module.get(SocketService),
+    pendingPeerStoreUpdates: new Set(),
   }
   activePeers.add(peer)
 
+  const updatePeerStore = peer.storageService.updatePeerStore.bind(peer.storageService)
+  jest.spyOn(peer.storageService, 'updatePeerStore').mockImplementation(() => {
+    const update = updatePeerStore()
+    peer.pendingPeerStoreUpdates.add(update)
+    void update.finally(() => peer.pendingPeerStoreUpdates.delete(update)).catch(() => undefined)
+    return update
+  })
+
+  // SocketService.onModuleInit waits for a real frontend START event and Tor.onModuleInit
+  // starts a real process. Initialize the backend services this harness actually drives.
   peer.qssSyncManager.onModuleInit()
-  await peer.localDbService.open()
+  await peer.captchaService.onModuleInit()
+  await peer.connectionsManager.onModuleInit()
 
   return peer
 }
 
-async function startPeerLibp2p(peer: QSSIntegrationPeer, params?: Libp2pNodeParams): Promise<Libp2pNodeParams> {
-  if (params != null) {
-    await peer.libp2pService.createInstance(params)
-    return params
-  }
-
-  const [createdParams] = await spawnLibp2pInstancesInMemory([peer.module])
-  return createdParams
-}
-
-async function startPeerDataStorage(peer: QSSIntegrationPeer): Promise<void> {
-  await peer.ipfsService.createInstance()
-  await peer.ipfsService.start()
-  await peer.orbitDbService.create(peer.ipfsService.ipfsInstance!)
-}
-
-async function setCurrentCommunity(
-  peer: QSSIntegrationPeer,
-  community: Community,
-  userId = peer.sigChainService.user.userId
-): Promise<void> {
-  await peer.localDbService.setCommunity(community)
-  await peer.localDbService.setCurrentCommunityId(community.id)
-  await peer.localDbService.setIdentity(testIdentity(community.id, userId))
+function provideCaptchaToken(peer: QSSIntegrationPeer): void {
+  peer.socketService.emit(SocketActions.HCAPTCHA_FORM_RESPONSE, { token: HCAPTCHA_TEST_TOKEN })
+  expect(peer.captchaService.hcaptchaToken).toBe(HCAPTCHA_TEST_TOKEN)
 }
 
 async function waitForQssSetup(peer: QSSIntegrationPeer): Promise<void> {
@@ -220,6 +240,28 @@ async function waitForMemberRole(peer: QSSIntegrationPeer, teamId: string): Prom
   }, 60_000)
 }
 
+async function waitForBackendLaunch(
+  peer: QSSIntegrationPeer,
+  teamId: string,
+  expectedTransport?: AdmissionTransport
+): Promise<void> {
+  await waitForExpect(() => {
+    expect(peer.connectionsManager.communityState).toBe(ServiceState.LAUNCHED)
+    expect(peer.storageService.initialized).toBe(true)
+    expect(peer.libp2pService.state).toBe(Libp2pState.Started)
+  }, 60_000)
+  await waitForQssSetup(peer)
+  await waitForAuthReady(peer, teamId)
+  await waitForMemberRole(peer, teamId)
+
+  if (expectedTransport != null) {
+    const community = (await peer.localDbService.getCurrentCommunity()) as
+      (Community & CommunityAdmissionMetadata) | undefined
+    expect(community?.admissionTransport).toBe(expectedTransport)
+    expect((await peer.localDbService.getSigChain(teamId))?.serializedTeam).toBeInstanceOf(Uint8Array)
+  }
+}
+
 async function waitForDisconnected(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
   await waitForExpect(() => {
     expect(peer.qssService.connected).toBe(false)
@@ -227,132 +269,173 @@ async function waitForDisconnected(peer: QSSIntegrationPeer, teamId: string): Pr
   }, 20_000)
 }
 
-async function connectPeer(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
-  expect(await peer.qssService.connect(QSS_INTEGRATION_ENDPOINT)).toBe(QSSOperationResult.SUCCESS)
+async function pausePeerQss(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
+  peer.qssService.pause()
+  await waitForDisconnected(peer, teamId)
+}
+
+async function resumePeerQss(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
+  await peer.qssService.resume()
   await waitForAuthReady(peer, teamId)
   await waitForMemberRole(peer, teamId)
 }
 
-async function disconnectForDeterministicOfflineWindow(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
-  peer.qssClient.close()
-  const serviceInternals = peer.qssService as unknown as {
-    _clearReconnectTimer(resetDelay?: boolean): void
-  }
-  serviceInternals._clearReconnectTimer(true)
-  await waitForDisconnected(peer, teamId)
+async function requestMemberInvite(peer: QSSIntegrationPeer): Promise<InviteResultWithSalt> {
+  return await new Promise((resolve, reject) => {
+    peer.socketService.emit(
+      SocketActions.VALIDATE_OR_CREATE_LONG_LIVED_LFA_INVITE,
+      { id: undefined },
+      (response: ResponseInvitePayload) => {
+        if (response.newInvite == null) {
+          reject(new Error('Backend did not create a long-lived member invitation'))
+          return
+        }
+        resolve(response.newInvite)
+      }
+    )
+  })
+}
+
+async function requestDeviceInvite(peer: QSSIntegrationPeer): Promise<DeviceLinkInvite> {
+  return await new Promise((resolve, reject) => {
+    peer.socketService.emit(SocketActions.CREATE_DEVICE_LINK, {}, (response?: DeviceLinkInvite) => {
+      if (response == null) {
+        reject(new Error('Backend did not create a device invitation'))
+        return
+      }
+      resolve(response)
+    })
+  })
 }
 
 async function createOwnerFixture(prefix: string, options: OwnerFixtureOptions = {}): Promise<OwnerFixture> {
   const owner = await createPeer(`${prefix}-${randomUUID()}`)
-  const teamName = `${prefix}-${randomUUID()}`
-  const ownerSigChain = await owner.sigChainService.createChain(true)
-  const teamId = ownerSigChain.team!.id
-  const invite = ownerSigChain.invites.createLongLivedUserInvite() as { seed: string; salt: string }
-  ownerSigChain.lockbox.createInviteLockboxes(invite.seed, invite.salt)
-  await owner.sigChainService.saveChain(teamId)
+  await options.beforeCreate?.(owner)
+  provideCaptchaToken(owner)
 
-  const psk = randomBytes(32).toString('base64')
-  await setCurrentCommunity(owner, {
+  const teamName = `${prefix}-${randomUUID()}`
+  const response = await owner.connectionsManager.createCommunity({
     id: randomUUID(),
     name: teamName,
-    ownership: CommunityOwnership.Owner,
-    peerList: [],
-    psk,
-    teamId,
+    username: 'owner',
+    useServer: true,
+    tosAccepted: true,
+  })
+  if (response == null) {
+    throw new Error('Backend did not create the owner community')
+  }
+
+  const community = (await owner.localDbService.getCommunity(response.id)) ?? response.community
+  await waitForBackendLaunch(owner, community.teamId)
+  const invite = await requestMemberInvite(owner)
+  if (community.psk == null) {
+    throw new Error('Backend-created community is missing its network PSK')
+  }
+
+  const inviteData: InvitationDataV5 = {
+    kind: InvitationKind.Member,
+    version: InvitationDataVersion.v5,
+    pairs: p2pAddressesToPairs(community.peerList ?? []),
+    psk: community.psk,
+    authData: {
+      communityName: community.name,
+      seed: invite.seed,
+      salt: invite.salt,
+      teamId: community.teamId,
+    },
     qssEnabled: true,
     qssEndpoint: QSS_INTEGRATION_ENDPOINT,
-    qssSetup: false,
-  })
-
-  await startPeerLibp2p(owner)
-  await startPeerDataStorage(owner)
-  const fixture = { owner, teamId, teamName, invite, psk }
-  await options.beforeConnect?.(fixture)
-
-  if (options.markStorageReadyBeforeConnect ?? true) {
-    owner.qssService.markTeamStorageReady(teamId)
   }
-  owner.captchaService.hcaptchaToken = HCAPTCHA_TEST_TOKEN
-  expect(await owner.qssService.connect(QSS_INTEGRATION_ENDPOINT)).toBe(QSSOperationResult.SUCCESS)
-  await waitForQssSetup(owner)
-  await waitForAuthReady(owner, teamId)
-  await waitForMemberRole(owner, teamId)
-  return fixture
+
+  return {
+    owner,
+    teamId: community.teamId,
+    teamName,
+    community,
+    inviteData,
+  }
 }
 
-async function createInviteeFixture(
-  ownerFixture: OwnerFixture,
-  prefix: string,
-  options: InviteeFixtureOptions = {}
-): Promise<QSSIntegrationPeer> {
+async function createInviteeFixture(ownerFixture: OwnerFixture, prefix: string): Promise<QSSIntegrationPeer> {
   const invitee = await createPeer(`${prefix}-${randomUUID()}`)
-  const { teamId, teamName, invite, psk } = ownerFixture
-
-  await invitee.sigChainService.createChainFromInvite({ seed: invite.seed }, teamId, true)
-  await setCurrentCommunity(invitee, {
+  const response = await invitee.connectionsManager.joinCommunity({
     id: randomUUID(),
-    name: teamName,
-    ownership: CommunityOwnership.User,
-    peerList: [],
-    psk,
-    teamId,
-    qssEnabled: true,
-    qssEndpoint: QSS_INTEGRATION_ENDPOINT,
-    qssSetup: false,
-    inviteData: {
-      version: InvitationDataVersion.v5,
-      pairs: [],
-      psk,
-      authData: {
-        communityName: teamName,
-        seed: invite.seed,
-        salt: invite.salt,
-        teamId,
-      },
-      qssEnabled: true,
-      qssEndpoint: QSS_INTEGRATION_ENDPOINT,
-    },
+    name: ownerFixture.teamName,
+    username: prefix,
+    inviteData: ownerFixture.inviteData,
   })
+  if (response == null) {
+    throw new Error('Backend did not prepare the invited community')
+  }
 
-  await startPeerLibp2p(invitee)
-  await options.beforeConnect?.(invitee)
-  await connectPeer(invitee, teamId)
-
-  await startPeerDataStorage(invitee)
-  await options.beforeStorageReady?.(invitee)
-  invitee.qssService.markTeamStorageReady(teamId)
+  expect(invitee.sigChainService.activeChain.team).toBeNull()
+  await invitee.connectionsManager.launchCommunity(response.id)
+  await waitForBackendLaunch(invitee, ownerFixture.teamId, AdmissionTransport.QSS)
   return invitee
 }
 
-function createPublicChannel(fixture: OwnerFixture, prefix: string): PublicChannel {
-  return {
-    id: `${prefix}-${randomUUID()}`,
-    name: `${prefix}-${randomUUID()}`,
-    description: 'QSS protocol integration channel',
-    owner: fixture.owner.sigChainService.user.userId,
-    timestamp: Date.now(),
-    public: true,
-    teamId: fixture.teamId,
+async function createPublicChannel(fixture: OwnerFixture, prefix: string): Promise<CreatedTestChannel> {
+  const updates: LogUpdate[] = []
+  const onPut = (update: LogUpdate): void => {
+    updates.push(update)
   }
+  fixture.owner.orbitDbService.outboundEvents.on('put', onPut)
+
+  const response = await (async () => {
+    try {
+      return await fixture.owner.storageService.channels.handleCreateChannel({
+        name: `${prefix}-${randomUUID()}`,
+        description: 'QSS protocol integration channel',
+        public: true,
+        teamId: fixture.teamId,
+      })
+    } finally {
+      fixture.owner.orbitDbService.outboundEvents.off('put', onPut)
+    }
+  })()
+
+  expect(response.status).toBe(ChannelOperationStatus.SUCCESS)
+  if (response.channel == null) {
+    throw new Error('Backend did not return the created channel')
+  }
+
+  const repo = fixture.owner.storageService.channels.channelsRepos.get(response.channel.id)
+  expect(repo?.subscribed).toBe(true)
+  if (repo == null) {
+    throw new Error(`Backend did not create a channel repository for ${response.channel.id}`)
+  }
+
+  const metadataUpdate = updates.find(update => {
+    const payload = update.entry.payload as { key?: string }
+    return payload.key === response.channel!.id
+  })
+  expect(metadataUpdate).toBeDefined()
+  if (metadataUpdate != null) {
+    await fixture.owner.qssSyncManager.waitForLogEntrySyncAck(metadataUpdate.hash, 60_000)
+    await waitForPendingSyncToDrain(fixture.owner, metadataUpdate.addr, metadataUpdate.hash)
+  }
+
+  return { channel: response.channel, store: repo.store }
 }
 
-async function openQssBackedChannel(peer: QSSIntegrationPeer, channel: PublicChannel): Promise<QssChannelStore> {
-  const store = await peer.orbitDbService.open<QssChannelStore>(`channels.${channel.id}`, {
-    type: 'events',
-    Database: EventsWithStorage(),
-    AccessController: peer.messagesAccessController.createAccessControllerFunc({
-      write: ['*'],
-      sigchainService: peer.sigChainService,
-    }),
-    sync: false,
-  })
-  OrbitDbService.updateMetadata(store, { teamId: channel.teamId })
-  return store
+async function waitForReplicatedChannelStore(peer: QSSIntegrationPeer, channel: PublicChannel): Promise<ChannelStore> {
+  let store: ChannelStore | undefined
+
+  await waitForExpect(async () => {
+    const replicatedChannel = await peer.storageService.channels.getChannel(channel.id)
+    expect(replicatedChannel).toMatchObject(channel)
+    const repo = peer.storageService.channels.channelsRepos.get(channel.id)
+    expect(repo?.subscribed).toBe(true)
+    store = repo?.store
+    expect(store).toBeDefined()
+  }, 60_000)
+
+  return store!
 }
 
 async function addChannelMessage(
   peer: QSSIntegrationPeer,
-  store: QssChannelStore,
+  store: ChannelStore,
   channel: PublicChannel,
   text: string
 ): Promise<string> {
@@ -364,48 +447,48 @@ async function addChannelMessage(
     channelId: channel.id,
     userId: peer.sigChainService.user.userId,
   }
-  const encryptedMessage = await peer.publicChannelMessagesService.onSend(message, channel)
-  return await store.add(encryptedMessage)
+
+  let messageUpdate: LogUpdate | undefined
+  const onPut = (update: LogUpdate): void => {
+    const value = (update.entry.payload as { value?: { id?: string } }).value
+    if (update.addr === store.getAddress() && value?.id === message.id) {
+      messageUpdate = update
+    }
+  }
+  peer.orbitDbService.outboundEvents.on('put', onPut)
+  try {
+    expect(await peer.storageService.channels.sendMessage(message)).toBe(true)
+    await waitForExpect(() => expect(messageUpdate).toBeDefined(), 10_000)
+  } finally {
+    peer.orbitDbService.outboundEvents.off('put', onPut)
+  }
+
+  return messageUpdate!.hash
 }
 
 async function readChannelMessages(
   peer: QSSIntegrationPeer,
-  store: QssChannelStore,
   channel: PublicChannel
 ): Promise<ConsumedChannelMessage[]> {
-  const messages: ConsumedChannelMessage[] = []
-  for await (const entry of store.iterator()) {
-    if (entry.value == null) {
-      continue
-    }
-
-    const message = await peer.publicChannelMessagesService.onConsume(entry.value, channel)
-    if (message === false || message == null) {
-      continue
-    }
+  const response = await peer.storageService.channels.getMessages(channel.id)
+  expect(response).toBeDefined()
+  expect(response?.isVerified).toBe(true)
+  const messages = (response?.messages ?? []) as ConsumedChannelMessage[]
+  for (const message of messages) {
     expect(message.verified).toBe(true)
-    messages.push(message)
   }
   return messages
 }
 
 async function waitForExactMessages(
   peer: QSSIntegrationPeer,
-  store: QssChannelStore,
   channel: PublicChannel,
   expected: string[]
 ): Promise<void> {
   await waitForExpect(async () => {
-    const actual = (await readChannelMessages(peer, store, channel)).map(message => message.message).sort()
+    const actual = (await readChannelMessages(peer, channel)).map(message => message.message).sort()
     expect(actual).toEqual([...expected].sort())
   }, 60_000)
-}
-
-async function expectPendingSyncContains(peer: QSSIntegrationPeer, address: string, hash: string): Promise<void> {
-  await waitForExpect(async () => {
-    const pending = await peer.localDbService.getPendingQssLogSyncMessages()
-    expect(pending[address] ?? []).toContain(hash)
-  }, 10_000)
 }
 
 async function waitForPendingSyncToDrain(peer: QSSIntegrationPeer, address: string, hash: string): Promise<void> {
@@ -428,26 +511,84 @@ async function waitForLastSyncSeqAtLeast(
   return observedSeq
 }
 
-async function cleanupPeer(peer: QSSIntegrationPeer): Promise<void> {
-  const cleanupSteps: Array<() => Promise<unknown> | unknown> = [
-    () => peer.qssService.close(),
-    async () => await peer.orbitDbService.stop(),
-    async () => await peer.ipfsService.stop(),
-    async () => await peer.libp2pService.close(false),
-    async () => await new Promise(resolve => setTimeout(resolve, 1_000)),
-    async () => await peer.libp2pService.closeDatastore(),
-    async () => await peer.localDbService.close(),
-    async () => await peer.module.close(),
-  ]
+function cleanupError(peer: QSSIntegrationPeer, step: string, error: unknown): Error {
+  const reason = error instanceof Error ? error.message : String(error)
+  return new Error(`${peer.name}: ${step} failed: ${reason}`)
+}
 
-  for (const cleanup of cleanupSteps) {
+async function settlePendingPeerStoreUpdates(peer: QSSIntegrationPeer): Promise<void> {
+  const deadline = Date.now() + 10_000
+
+  while (peer.pendingPeerStoreUpdates.size > 0) {
+    const remainingMs = deadline - Date.now()
+    if (remainingMs <= 0) {
+      throw new Error(`${peer.pendingPeerStoreUpdates.size} peer-store update(s) did not settle before teardown`)
+    }
+
+    let timeout: NodeJS.Timeout | undefined
     try {
-      await cleanup()
-    } catch {
-      // Keep cleanup best-effort so the original test failure remains visible.
+      await Promise.race([
+        Promise.allSettled([...peer.pendingPeerStoreUpdates]),
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(
+            () => reject(new Error('Timed out waiting for production peer-store updates')),
+            remainingMs
+          )
+        }),
+      ])
+    } finally {
+      if (timeout != null) {
+        clearTimeout(timeout)
+      }
     }
   }
+}
+
+async function cleanupPeer(peer: QSSIntegrationPeer): Promise<Error[]> {
+  const errors: Error[] = []
+  const preStorageCleanupSteps: Array<() => Promise<unknown> | unknown> = [
+    () => peer.qssService.close(),
+    async () => await peer.connectionsManager.closeSocket(),
+  ]
+  for (const [index, cleanup] of preStorageCleanupSteps.entries()) {
+    try {
+      await cleanup()
+    } catch (error) {
+      errors.push(cleanupError(peer, `pre-storage cleanup ${index + 1}`, error))
+    }
+  }
+
+  // Production profile listeners intentionally fire-and-forget peer-store refreshes.
+  // Stop scheduling new refreshes and let the real in-flight calls settle before
+  // closing OrbitDB and LevelDB underneath them.
+  peer.storageService.removeAllListeners(StorageEvents.USER_PROFILES_STORED)
+  try {
+    await settlePendingPeerStoreUpdates(peer)
+  } catch (error) {
+    errors.push(cleanupError(peer, 'peer-store update drain', error))
+  }
+
+  const storageCleanupSteps: Array<() => Promise<unknown> | unknown> = [
+    async () => await peer.storageService.stop(),
+    async () => await peer.libp2pService.close(false),
+    async () => await peer.libp2pService.closeDatastore(),
+    async () => await peer.localDbService.close(),
+  ]
+  for (const [index, cleanup] of storageCleanupSteps.entries()) {
+    try {
+      await cleanup()
+    } catch (error) {
+      errors.push(cleanupError(peer, `storage cleanup ${index + 1}`, error))
+    }
+  }
+
+  try {
+    await peer.module.close()
+  } catch (error) {
+    errors.push(cleanupError(peer, 'Nest module close', error))
+  }
   activePeers.delete(peer)
+  return errors
 }
 
 maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
@@ -458,30 +599,31 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
   })
 
   afterEach(async () => {
+    const cleanupErrors: Error[] = []
     for (const peer of Array.from(activePeers).reverse()) {
-      await cleanupPeer(peer)
+      cleanupErrors.push(...(await cleanupPeer(peer)))
+    }
+    jest.restoreAllMocks()
+    if (cleanupErrors.length > 0) {
+      throw new Error(`QSS integration teardown failed:\n${cleanupErrors.map(error => error.message).join('\n')}`)
     }
   })
 
-  it('bootstraps an owner and preserves idempotency across the complete core websocket flow', async () => {
-    let channel!: PublicChannel
-    let ownerStore!: QssChannelStore
+  it('bootstraps an owner through the backend and preserves idempotency across the core websocket flow', async () => {
     let sendMessageSpy!: jest.SpiedFunction<QSSClient['sendMessage']>
-
     const fixture = await createOwnerFixture('qss-owner-boundary', {
-      beforeConnect: async ownerFixture => {
-        channel = createPublicChannel(ownerFixture, 'owner-boundary')
-        ownerStore = await openQssBackedChannel(ownerFixture.owner, channel)
-        sendMessageSpy = jest.spyOn(ownerFixture.owner.qssClient, 'sendMessage')
+      beforeCreate: owner => {
+        sendMessageSpy = jest.spyOn(owner.qssClient, 'sendMessage')
       },
     })
     const { owner, teamId } = fixture
+    const { channel, store } = await createPublicChannel(fixture, 'owner-boundary')
 
     const text = 'owner sends a real public-channel message'
-    const hash = await addChannelMessage(owner, ownerStore, channel, text)
+    const hash = await addChannelMessage(owner, store, channel, text)
     await owner.qssSyncManager.waitForLogEntrySyncAck(hash, 60_000)
-    await waitForPendingSyncToDrain(owner, ownerStore.address, hash)
-    await waitForExactMessages(owner, ownerStore, channel, [text])
+    await waitForPendingSyncToDrain(owner, store.getAddress(), hash)
+    await waitForExactMessages(owner, channel, [text])
 
     await waitForExpect(() => {
       const events = sendMessageSpy.mock.calls.map((call: unknown[]) => call[0])
@@ -528,61 +670,39 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     expect(hashPull.payload.entries).toHaveLength(1)
   })
 
-  it('keeps offline writes in the DLQ until local storage is ready for replay', async () => {
-    let channel!: PublicChannel
-    let ownerStore!: QssChannelStore
-    const fixture = await createOwnerFixture('qss-storage-gate', {
-      markStorageReadyBeforeConnect: false,
-      beforeConnect: async ownerFixture => {
-        channel = createPublicChannel(ownerFixture, 'storage-gate')
-        ownerStore = await openQssBackedChannel(ownerFixture.owner, channel)
-      },
-    })
+  it('replays real channel writes after the backend reconnects to QSS', async () => {
+    const fixture = await createOwnerFixture('qss-offline-replay')
     const { owner, teamId } = fixture
-    const pullSpy = jest.spyOn(owner.qssSyncManager, 'pullLatestLogEntries')
+    const { channel, store } = await createPublicChannel(fixture, 'offline-replay')
+    const reconnectSpy = jest.spyOn(owner.qssService, 'connect')
+    const queueSpy = jest.spyOn(owner.localDbService, 'addPendingQssLogSyncMessage')
 
-    await disconnectForDeterministicOfflineWindow(owner, teamId)
-    const hash = await addChannelMessage(owner, ownerStore, channel, 'offline write waits for storage')
-    await expectPendingSyncContains(owner, ownerStore.address, hash)
+    owner.qssClient.close()
+    expect(owner.qssService.connected).toBe(false)
+    const hash = await addChannelMessage(owner, store, channel, 'offline write is replayed by the backend')
 
-    await connectPeer(owner, teamId)
-    await owner.qssSyncManager.processDeadLetterQueue(teamId)
-    await expectPendingSyncContains(owner, ownerStore.address, hash)
-    expect(pullSpy).not.toHaveBeenCalled()
-
-    owner.qssService.markTeamStorageReady(teamId)
     await waitForExpect(() => {
-      expect(pullSpy).toHaveBeenCalledWith(teamId)
-    }, 60_000)
-    await waitForPendingSyncToDrain(owner, ownerStore.address, hash)
+      expect(queueSpy).toHaveBeenCalledWith(store.getAddress(), hash)
+    }, 10_000)
+    await waitForAuthReady(owner, teamId)
+    await waitForMemberRole(owner, teamId)
+    expect(reconnectSpy).toHaveBeenCalled()
+    await waitForPendingSyncToDrain(owner, store.getAddress(), hash)
     await owner.qssSyncManager.waitForLogEntrySyncAck(hash, 60_000)
+    await waitForExactMessages(owner, channel, ['offline write is replayed by the backend'])
+    expect(owner.storageService.initialized).toBe(true)
   })
 
-  it('routes bidirectional fanout to the right stores and paginates by sync sequence', async () => {
-    let channelA!: PublicChannel
-    let channelB!: PublicChannel
-    let ownerStoreA!: QssChannelStore
-    let ownerStoreB!: QssChannelStore
-    const fixture = await createOwnerFixture('qss-member-fanout', {
-      beforeConnect: async ownerFixture => {
-        channelA = createPublicChannel(ownerFixture, 'fanout-a')
-        channelB = createPublicChannel(ownerFixture, 'fanout-b')
-        ownerStoreA = await openQssBackedChannel(ownerFixture.owner, channelA)
-        ownerStoreB = await openQssBackedChannel(ownerFixture.owner, channelB)
-      },
-    })
+  it('routes bidirectional fanout to production channel stores and paginates by sync sequence', async () => {
+    const fixture = await createOwnerFixture('qss-member-fanout')
     const { owner, teamId } = fixture
-
-    let inviteeStoreA!: QssChannelStore
-    let inviteeStoreB!: QssChannelStore
-    const invitee = await createInviteeFixture(fixture, 'qss-member', {
-      beforeStorageReady: async peer => {
-        inviteeStoreA = await openQssBackedChannel(peer, channelA)
-        inviteeStoreB = await openQssBackedChannel(peer, channelB)
-        expect(inviteeStoreA.address).toBe(ownerStoreA.address)
-        expect(inviteeStoreB.address).toBe(ownerStoreB.address)
-      },
-    })
+    const channelA = await createPublicChannel(fixture, 'fanout-a')
+    const channelB = await createPublicChannel(fixture, 'fanout-b')
+    const invitee = await createInviteeFixture(fixture, 'qss-member')
+    const inviteeStoreA = await waitForReplicatedChannelStore(invitee, channelA.channel)
+    const inviteeStoreB = await waitForReplicatedChannelStore(invitee, channelB.channel)
+    expect(inviteeStoreA.getAddress()).toBe(channelA.store.getAddress())
+    expect(inviteeStoreB.getAddress()).toBe(channelB.store.getAddress())
 
     const ownerSendSpy = jest.spyOn(owner.qssSyncManager, 'sendLogEntrySyncMessage')
     const inviteeSendSpy = jest.spyOn(invitee.qssSyncManager, 'sendLogEntrySyncMessage')
@@ -592,18 +712,18 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     const ownerText = 'owner message belongs only to channel A'
     const inviteeText = 'invitee message belongs only to channel B'
     const [ownerHash, inviteeHash] = await Promise.all([
-      addChannelMessage(owner, ownerStoreA, channelA, ownerText),
-      addChannelMessage(invitee, inviteeStoreB, channelB, inviteeText),
+      addChannelMessage(owner, channelA.store, channelA.channel, ownerText),
+      addChannelMessage(invitee, inviteeStoreB, channelB.channel, inviteeText),
     ])
 
     await Promise.all([
       owner.qssSyncManager.waitForLogEntrySyncAck(ownerHash, 60_000),
       invitee.qssSyncManager.waitForLogEntrySyncAck(inviteeHash, 60_000),
     ])
-    await waitForExactMessages(invitee, inviteeStoreA, channelA, [ownerText])
-    await waitForExactMessages(owner, ownerStoreB, channelB, [inviteeText])
-    await waitForExactMessages(owner, ownerStoreA, channelA, [ownerText])
-    await waitForExactMessages(invitee, inviteeStoreB, channelB, [inviteeText])
+    await waitForExactMessages(invitee, channelA.channel, [ownerText])
+    await waitForExactMessages(owner, channelB.channel, [inviteeText])
+    await waitForExactMessages(owner, channelA.channel, [ownerText])
+    await waitForExactMessages(invitee, channelB.channel, [inviteeText])
 
     expect(ownerSendSpy).toHaveBeenCalledWith(expect.objectContaining({ hash: ownerHash }))
     expect(ownerSendSpy).not.toHaveBeenCalledWith(expect.objectContaining({ hash: inviteeHash }))
@@ -613,69 +733,74 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
       expect.objectContaining({ payload: expect.objectContaining({ hash: ownerHash }) })
     )
 
-    const pageOne = await owner.qssSyncManager.pullLogEntries({
-      teamId,
-      userId: owner.sigChainService.user.userId,
-      startSeq: 0,
-      startTs: 0,
-      limit: 1,
-    })
-    expect(pageOne).toMatchObject({
-      status: CommunityOperationStatus.SUCCESS,
-      payload: {
-        entries: [expect.anything()],
-        hasNextPage: true,
-        resolvedStartSeq: 0,
-        highestSyncSeq: expect.any(Number),
-      },
-    })
+    const pageSequences: number[] = []
+    let startSeq = 0
+    let reachedTerminalPage = false
+    for (let pageNumber = 0; pageNumber < 100; pageNumber += 1) {
+      const page = await owner.qssSyncManager.pullLogEntries({
+        teamId,
+        userId: owner.sigChainService.user.userId,
+        startSeq,
+        startTs: 0,
+        limit: 1,
+      })
+      expect(page.status).toBe(CommunityOperationStatus.SUCCESS)
+      expect(page.payload.entries.length).toBeLessThanOrEqual(1)
 
-    const pageTwo = await owner.qssSyncManager.pullLogEntries({
-      teamId,
-      userId: owner.sigChainService.user.userId,
-      startSeq: pageOne.payload.highestSyncSeq,
-      startTs: 0,
-      limit: 1,
-    })
-    expect(pageTwo.status).toBe(CommunityOperationStatus.SUCCESS)
-    expect(pageTwo.payload.entries).toHaveLength(1)
-    expect(pageTwo.payload.hasNextPage).toBe(false)
-    expect(pageTwo.payload.highestSyncSeq).toBeGreaterThan(pageOne.payload.highestSyncSeq!)
+      if (page.payload.entries.length === 0) {
+        expect(page.payload.hasNextPage).toBe(false)
+        reachedTerminalPage = true
+        break
+      }
 
-    const finalPage = await owner.qssSyncManager.pullLogEntries({
-      teamId,
-      userId: owner.sigChainService.user.userId,
-      startSeq: pageTwo.payload.highestSyncSeq,
-      startTs: 0,
-      limit: 1,
-    })
-    expect(finalPage.status).toBe(CommunityOperationStatus.SUCCESS)
-    expect(finalPage.payload.entries).toHaveLength(0)
-    expect(finalPage.payload.hasNextPage).toBe(false)
+      const highestSyncSeq = page.payload.highestSyncSeq
+      expect(highestSyncSeq).toEqual(expect.any(Number))
+      expect(highestSyncSeq).toBeGreaterThan(startSeq)
+      pageSequences.push(highestSyncSeq!)
+      startSeq = highestSyncSeq!
+
+      if (!page.payload.hasNextPage) {
+        const terminalPage = await owner.qssSyncManager.pullLogEntries({
+          teamId,
+          userId: owner.sigChainService.user.userId,
+          startSeq,
+          startTs: 0,
+          limit: 1,
+        })
+        expect(terminalPage.status).toBe(CommunityOperationStatus.SUCCESS)
+        expect(terminalPage.payload.entries).toHaveLength(0)
+        expect(terminalPage.payload.hasNextPage).toBe(false)
+        reachedTerminalPage = true
+        break
+      }
+    }
+    expect(reachedTerminalPage).toBe(true)
+    expect(pageSequences.length).toBeGreaterThanOrEqual(2)
+
+    for (const hash of [ownerHash, inviteeHash]) {
+      const hashPull = await owner.qssSyncManager.pullLogEntries({
+        teamId,
+        userId: owner.sigChainService.user.userId,
+        startSeq: 0,
+        startTs: 0,
+        hash,
+      })
+      expect(hashPull.status).toBe(CommunityOperationStatus.SUCCESS)
+      expect(hashPull.payload.entries).toHaveLength(1)
+    }
 
     invitee.qssClient.off(WebsocketEvents.LOG_ENTRY_SYNC, inviteeFanoutSpy)
   })
 
-  it('catches up a reconnecting member and a late-joining member without observer-side uploads', async () => {
-    let channel!: PublicChannel
-    let ownerStore!: QssChannelStore
-    const fixture = await createOwnerFixture('qss-history', {
-      beforeConnect: async ownerFixture => {
-        channel = createPublicChannel(ownerFixture, 'history')
-        ownerStore = await openQssBackedChannel(ownerFixture.owner, channel)
-      },
-    })
+  it('catches up reconnecting and late members through the production launch and storage lifecycle', async () => {
+    const fixture = await createOwnerFixture('qss-history')
     const { owner, teamId } = fixture
-
-    let inviteeStore!: QssChannelStore
-    const invitee = await createInviteeFixture(fixture, 'qss-reconnecting-member', {
-      beforeStorageReady: async peer => {
-        inviteeStore = await openQssBackedChannel(peer, channel)
-      },
-    })
+    const { channel, store: ownerStore } = await createPublicChannel(fixture, 'history')
+    const invitee = await createInviteeFixture(fixture, 'qss-reconnecting-member')
+    await waitForReplicatedChannelStore(invitee, channel)
     const observerSendSpy = jest.spyOn(invitee.qssSyncManager, 'sendLogEntrySyncMessage')
 
-    await disconnectForDeterministicOfflineWindow(invitee, teamId)
+    await pausePeerQss(invitee, teamId)
     const expectedMessages = ['history entry one', 'history entry two']
     const hashes: string[] = []
     for (const text of expectedMessages) {
@@ -690,90 +815,88 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     }
     const observerPending = await invitee.localDbService.getPendingQssLogSyncMessages()
     expect(Object.values(observerPending).flat()).not.toEqual(expect.arrayContaining(hashes))
-    await waitForExactMessages(invitee, inviteeStore, channel, [])
+    await waitForExactMessages(invitee, channel, [])
 
-    await connectPeer(invitee, teamId)
-    await waitForExactMessages(invitee, inviteeStore, channel, expectedMessages)
+    await resumePeerQss(invitee, teamId)
+    await waitForExactMessages(invitee, channel, expectedMessages)
     await waitForLastSyncSeqAtLeast(invitee, teamId, expectedSeq)
 
-    let lateInviteeStore!: QssChannelStore
-    const lateInvitee = await createInviteeFixture(fixture, 'qss-late-member', {
-      beforeStorageReady: async peer => {
-        lateInviteeStore = await openQssBackedChannel(peer, channel)
-      },
-    })
-    await waitForExactMessages(lateInvitee, lateInviteeStore, channel, expectedMessages)
+    const lateInvitee = await createInviteeFixture(fixture, 'qss-late-member')
+    await waitForReplicatedChannelStore(lateInvitee, channel)
+    await waitForExactMessages(lateInvitee, channel, expectedMessages)
     await waitForLastSyncSeqAtLeast(lateInvitee, teamId, expectedSeq)
   })
 
-  it('links a device through QSS, keeps both sessions authenticated, and syncs history and live writes', async () => {
-    let channel!: PublicChannel
-    let ownerStore!: QssChannelStore
-    const fixture = await createOwnerFixture('qss-linked-device', {
-      beforeConnect: async ownerFixture => {
-        channel = createPublicChannel(ownerFixture, 'linked-device')
-        ownerStore = await openQssBackedChannel(ownerFixture.owner, channel)
-      },
-    })
-    const { owner, teamId, teamName, psk } = fixture
+  it('links a device through the production coordinator and syncs history and live writes', async () => {
+    const fixture = await createOwnerFixture('qss-linked-device')
+    const { owner, teamId, teamName, community } = fixture
+    const { channel, store: ownerStore } = await createPublicChannel(fixture, 'linked-device')
     const ownerChain = owner.sigChainService.activeChain
     const ownerUserId = ownerChain.user.userId
     const ownerDeviceId = ownerChain.device.deviceId
-    const deviceInvite = ownerChain.invites.createDeviceInvite()
-    await owner.sigChainService.saveChain(teamId)
+    const deviceInvite = await requestDeviceInvite(owner)
+
+    const historicalText = 'linked device receives history after QSS admission'
+    const historicalHash = await addChannelMessage(owner, ownerStore, channel, historicalText)
+    await owner.qssSyncManager.waitForLogEntrySyncAck(historicalHash, 60_000)
+
+    if (community.psk == null) {
+      throw new Error('Backend-created community is missing its network PSK')
+    }
+    const inviteData: DeviceInvitationDataV5 = {
+      kind: InvitationKind.Device,
+      version: InvitationDataVersion.v5,
+      pairs: p2pAddressesToPairs(community.peerList ?? []),
+      psk: community.psk,
+      authData: {
+        communityName: teamName,
+        seed: deviceInvite.seed,
+        teamId,
+        userId: deviceInvite.userId,
+        userName: deviceInvite.userName,
+      },
+      qssEnabled: true,
+      qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+    }
 
     const linkedDevice = await createPeer(`qss-linked-device-${randomUUID()}`)
-    await linkedDevice.sigChainService.createChainFromDeviceInvite(
-      {
-        seed: deviceInvite.seed,
-        userName: deviceInvite.userName,
-        deviceName: 'QSS integration linked device',
-        expectedTeamId: teamId,
-        expectedUserId: deviceInvite.userId,
-      },
-      teamId,
-      true
-    )
+    const coordinateSpy = jest.spyOn(linkedDevice.admissionCoordinator, 'coordinate')
+    const linkResponse = await linkedDevice.connectionsManager.linkDevice({
+      id: randomUUID(),
+      inviteData,
+      deviceName: 'QSS integration linked device',
+    })
+    if (linkResponse == null) {
+      throw new Error('Backend did not prepare the linked device community')
+    }
+
     expect(linkedDevice.sigChainService.activeChain.isPendingDeviceAdmission).toBe(true)
     expect(linkedDevice.qssService.connected).toBe(false)
+    await linkedDevice.connectionsManager.launchCommunity(linkResponse.id)
+    await waitForBackendLaunch(linkedDevice, teamId)
 
-    await setCurrentCommunity(
-      linkedDevice,
-      {
-        id: randomUUID(),
-        name: teamName,
-        ownership: CommunityOwnership.User,
-        peerList: [owner.libp2pService.localAddress],
-        psk,
+    expect(coordinateSpy).toHaveBeenCalledTimes(1)
+    expect(coordinateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        communityId: linkResponse.id,
         teamId,
-        qssEnabled: true,
-        qssEndpoint: QSS_INTEGRATION_ENDPOINT,
-        qssSetup: true,
-        inviteData: {
-          kind: InvitationKind.Device,
-          version: InvitationDataVersion.v5,
-          pairs: [],
-          psk,
-          authData: {
-            communityName: teamName,
-            seed: deviceInvite.seed,
-            teamId,
-            userId: deviceInvite.userId,
-            userName: deviceInvite.userName,
-          },
-          qssEnabled: true,
-          qssEndpoint: QSS_INTEGRATION_ENDPOINT,
-        },
-      },
-      ownerUserId
+        expectedUserId: ownerUserId,
+        kind: AdmissionKind.DEVICE,
+        preferredTransport: AdmissionTransport.QSS,
+      }),
+      expect.objectContaining({
+        startQss: expect.any(Function),
+        startP2p: expect.any(Function),
+      })
     )
+    await expect(coordinateSpy.mock.results[0].value).resolves.toMatchObject({
+      teamId,
+      userId: ownerUserId,
+      transport: AdmissionTransport.QSS,
+    })
+    expect((await linkedDevice.localDbService.getSigChain(teamId))?.serializedTeam).toBeInstanceOf(Uint8Array)
 
-    await startPeerLibp2p(linkedDevice)
-    expect(await linkedDevice.qssService.connect(QSS_INTEGRATION_ENDPOINT)).toBe(QSSOperationResult.SUCCESS)
-    await waitForAuthReady(linkedDevice, teamId)
-    await waitForMemberRole(linkedDevice, teamId)
     const linkedChain = linkedDevice.sigChainService.activeChain
-
     expect(linkedChain.isPendingDeviceAdmission).toBe(false)
     expect(linkedChain.team?.id).toBe(teamId)
     expect(linkedChain.user.userId).toBe(ownerUserId)
@@ -783,28 +906,21 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     await waitForExpect(() => {
       expect(owner.sigChainService.activeChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
       expect(owner.sigChainService.activeChain.team?.members(ownerUserId).devices).toHaveLength(2)
-    }, 20_000)
+    }, 60_000)
 
-    const historicalText = 'linked device receives history after its fast QSS admission'
-    const historicalHash = await addChannelMessage(owner, ownerStore, channel, historicalText)
-    await owner.qssSyncManager.waitForLogEntrySyncAck(historicalHash, 60_000)
+    const linkedDeviceStore = await waitForReplicatedChannelStore(linkedDevice, channel)
+    expect(linkedDeviceStore.getAddress()).toBe(ownerStore.getAddress())
+    await waitForExactMessages(linkedDevice, channel, [historicalText])
 
-    await startPeerDataStorage(linkedDevice)
-    const linkedDeviceStore = await openQssBackedChannel(linkedDevice, channel)
-    expect(linkedDeviceStore.address).toBe(ownerStore.address)
-    linkedDevice.qssService.markTeamStorageReady(teamId)
-    await waitForExactMessages(linkedDevice, linkedDeviceStore, channel, [historicalText])
-
-    await waitForAuthReady(owner, teamId)
     const ownerLiveText = 'owner remains live after linked device signs in'
     const ownerLiveHash = await addChannelMessage(owner, ownerStore, channel, ownerLiveText)
     await owner.qssSyncManager.waitForLogEntrySyncAck(ownerLiveHash, 60_000)
-    await waitForExactMessages(linkedDevice, linkedDeviceStore, channel, [historicalText, ownerLiveText])
+    await waitForExactMessages(linkedDevice, channel, [historicalText, ownerLiveText])
 
-    const linkedDeviceText = 'linked device sends back to the original device'
+    const linkedDeviceText = 'linked device sends back through its real channel store'
     const linkedDeviceHash = await addChannelMessage(linkedDevice, linkedDeviceStore, channel, linkedDeviceText)
     await linkedDevice.qssSyncManager.waitForLogEntrySyncAck(linkedDeviceHash, 60_000)
-    await waitForExactMessages(owner, ownerStore, channel, [historicalText, ownerLiveText, linkedDeviceText])
+    await waitForExactMessages(owner, channel, [historicalText, ownerLiveText, linkedDeviceText])
     await waitForAuthReady(owner, teamId)
     await waitForAuthReady(linkedDevice, teamId)
   })
