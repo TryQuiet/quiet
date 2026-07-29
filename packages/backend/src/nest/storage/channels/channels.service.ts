@@ -651,17 +651,19 @@ export class ChannelsService extends EventEmitter {
     const publicPrivate = expectedPublic ? 'public' : 'private'
     const channel = await this.getChannel(key)
     if (channel == null) {
-      throw new Error(`Channel with ID ${key} was null and no entry was found in the ${publicPrivate} metadata store`)
+      const message = `Channel with ID ${key} was null and no entry was found in the ${publicPrivate} metadata store`
+      if (!expectedPublic) throw new Error(message)
+      this.logger.warn(message)
     }
 
-    if (!expectedPublic && channel.roleName == null) {
+    if (!expectedPublic && channel!.roleName == null) {
       this.logger.error('Failed to validate delete channel entry: private channel lacked a valid role name', entry.hash)
       return false
     }
 
     const writerHasPermissions = expectedPublic
       ? chain.channels.canMemberDeletePublicChannel(writerIdentity.id)
-      : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channel.roleName!)
+      : chain.channels.canMemberDeletePrivateChannel(writerIdentity.id, channel!.roleName!)
     if (!writerHasPermissions) {
       this.logger.error(
         'Failed to validate delete channel entry: writer must have channel deletion permissions on chain:',
