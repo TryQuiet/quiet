@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals'
+import { memory } from '@libp2p/memory'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomUUID } from 'crypto'
+import getPort from 'get-port'
 import waitForExpect from 'wait-for-expect'
 
 import { p2pAddressesToPairs } from '@quiet/common'
@@ -14,6 +16,7 @@ import {
   type InvitationDataV5,
   InvitationDataVersion,
   InvitationKind,
+  type InvitationPair,
   type InviteResultWithSalt,
   MessageType,
   PublicChannel,
@@ -36,6 +39,7 @@ import { ConnectionsManagerService } from '../../src/nest/connections-manager/co
 import { ServiceState } from '../../src/nest/connections-manager/connections-manager.types'
 import { JoinStatus } from '../../src/nest/libp2p/libp2p.auth'
 import { Libp2pService, Libp2pState } from '../../src/nest/libp2p/libp2p.service'
+import { Libp2pEvents } from '../../src/nest/libp2p/libp2p.types'
 import { LocalDbService } from '../../src/nest/local-db/local-db.service'
 import { QSSAuthConnectionManager } from '../../src/nest/qss/qss-auth-conn-manager.service'
 import { QSSAuthConnStatus } from '../../src/nest/qss/qss.const'
@@ -83,6 +87,11 @@ interface QSSIntegrationPeer {
   captchaService: CaptchaService
   socketService: SocketService
   pendingPeerStoreUpdates: Set<Promise<void>>
+  localP2pAddress?: string
+}
+
+interface CreatePeerOptions {
+  useLocalP2pTransport?: boolean
 }
 
 interface OwnerFixture {
@@ -95,6 +104,7 @@ interface OwnerFixture {
 
 interface OwnerFixtureOptions {
   beforeCreate?: (owner: QSSIntegrationPeer) => Promise<void> | void
+  peerOptions?: CreatePeerOptions
 }
 
 interface CreatedTestChannel {
@@ -161,7 +171,7 @@ function stubTorProcessBoundary(tor: Tor, peerName: string): void {
   tor.bootstrapped = true
 }
 
-async function createPeer(name: string): Promise<QSSIntegrationPeer> {
+async function createPeer(name: string, options: CreatePeerOptions = {}): Promise<QSSIntegrationPeer> {
   const module = await Test.createTestingModule({
     imports: [TestModule, ConnectionsManagerModule],
   })
@@ -195,6 +205,23 @@ async function createPeer(name: string): Promise<QSSIntegrationPeer> {
     pendingPeerStoreUpdates: new Set(),
   }
   activePeers.add(peer)
+
+  if (options.useLocalP2pTransport === true) {
+    const port = await getPort()
+    const createInstance = peer.libp2pService.createInstance.bind(peer.libp2pService)
+    jest.spyOn(peer.libp2pService, 'createInstance').mockImplementation(async params => {
+      const peerId = params.peerId.peerId.toString()
+      const localAddress = `/memory/${port}/p2p/${peerId}`
+      peer.localP2pAddress = localAddress
+      return await createInstance({
+        ...params,
+        listenAddresses: [`/memory/${port}`],
+        localAddress,
+        agent: undefined,
+        transport: [memory()],
+      })
+    })
+  }
 
   const updatePeerStore = peer.storageService.updatePeerStore.bind(peer.storageService)
   jest.spyOn(peer.storageService, 'updatePeerStore').mockImplementation(() => {
@@ -262,6 +289,17 @@ async function waitForBackendLaunch(
   }
 }
 
+async function waitForP2pBackendLaunch(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
+  await waitForExpect(() => {
+    expect(peer.connectionsManager.communityState).toBe(ServiceState.LAUNCHED)
+    expect(peer.storageService.initialized).toBe(true)
+    expect(peer.libp2pService.state).toBe(Libp2pState.Started)
+  }, 60_000)
+  await waitForMemberRole(peer, teamId)
+  expect(peer.qssService.connected).toBe(false)
+  expect((await peer.localDbService.getSigChain(teamId))?.serializedTeam).toBeInstanceOf(Uint8Array)
+}
+
 async function waitForDisconnected(peer: QSSIntegrationPeer, teamId: string): Promise<void> {
   await waitForExpect(() => {
     expect(peer.qssService.connected).toBe(false)
@@ -309,7 +347,7 @@ async function requestDeviceInvite(peer: QSSIntegrationPeer): Promise<DeviceLink
 }
 
 async function createOwnerFixture(prefix: string, options: OwnerFixtureOptions = {}): Promise<OwnerFixture> {
-  const owner = await createPeer(`${prefix}-${randomUUID()}`)
+  const owner = await createPeer(`${prefix}-${randomUUID()}`, options.peerOptions)
   await options.beforeCreate?.(owner)
   provideCaptchaToken(owner)
 
@@ -356,8 +394,12 @@ async function createOwnerFixture(prefix: string, options: OwnerFixtureOptions =
   }
 }
 
-async function createInviteeFixture(ownerFixture: OwnerFixture, prefix: string): Promise<QSSIntegrationPeer> {
-  const invitee = await createPeer(`${prefix}-${randomUUID()}`)
+async function createInviteeFixture(
+  ownerFixture: OwnerFixture,
+  prefix: string,
+  peerOptions: CreatePeerOptions = {}
+): Promise<QSSIntegrationPeer> {
+  const invitee = await createPeer(`${prefix}-${randomUUID()}`, peerOptions)
   const response = await invitee.connectionsManager.joinCommunity({
     id: randomUUID(),
     name: ownerFixture.teamName,
@@ -372,6 +414,36 @@ async function createInviteeFixture(ownerFixture: OwnerFixture, prefix: string):
   await invitee.connectionsManager.launchCommunity(response.id)
   await waitForBackendLaunch(invitee, ownerFixture.teamId, AdmissionTransport.QSS)
   return invitee
+}
+
+async function invitationPairForPeer(peer: QSSIntegrationPeer): Promise<InvitationPair> {
+  const community = await peer.localDbService.getCurrentCommunity()
+  if (community == null) {
+    throw new Error(`${peer.name} does not have a current community`)
+  }
+  const identity = await peer.storageService.getIdentity(community.id)
+  if (identity == null) {
+    throw new Error(`${peer.name} does not have a stored identity`)
+  }
+  return {
+    peerId: identity.networkInfo.peerId.id,
+    onionAddress: identity.networkInfo.hiddenService.onionAddress.replace(/\.onion$/, ''),
+  }
+}
+
+function requireLocalP2pAddress(peer: QSSIntegrationPeer): string {
+  if (peer.localP2pAddress == null) {
+    throw new Error(`${peer.name} was not configured with the local P2P transport`)
+  }
+  return peer.localP2pAddress
+}
+
+function peerKnowsDeviceInvite(peer: QSSIntegrationPeer, inviteId: DeviceLinkInvite['id']): boolean {
+  try {
+    return peer.sigChainService.activeChain.invites.getById(inviteId) != null
+  } catch {
+    return false
+  }
 }
 
 async function createPublicChannel(fixture: OwnerFixture, prefix: string): Promise<CreatedTestChannel> {
@@ -509,6 +581,147 @@ async function waitForLastSyncSeqAtLeast(
     expect(observedSeq).toBeGreaterThanOrEqual(minimumSeq)
   }, 60_000)
   return observedSeq
+}
+
+async function runInviteUnawarePeerRetryScenario(unawarePeerCount: number): Promise<void> {
+  const fixture = await createOwnerFixture(`qss-device-peer-retry-${unawarePeerCount}`, {
+    peerOptions: { useLocalP2pTransport: true },
+  })
+  const { owner, teamId, teamName, community } = fixture
+  owner.libp2pService.pauseDialQueue()
+
+  const unawarePeers: QSSIntegrationPeer[] = []
+  for (let index = 0; index < unawarePeerCount; index += 1) {
+    const peer = await createInviteeFixture(fixture, `invite-unaware-${index}`, {
+      useLocalP2pTransport: true,
+    })
+    peer.libp2pService.pauseDialQueue()
+    await pausePeerQss(peer, teamId)
+    unawarePeers.push(peer)
+  }
+
+  const deviceInvite = await requestDeviceInvite(owner)
+  expect(peerKnowsDeviceInvite(owner, deviceInvite.id)).toBe(true)
+  for (const peer of unawarePeers) {
+    expect(peerKnowsDeviceInvite(peer, deviceInvite.id)).toBe(false)
+  }
+  if (community.psk == null) {
+    throw new Error('Backend-created community is missing its network PSK')
+  }
+
+  const acceptingPeers = [...unawarePeers, owner]
+  const inviteData: DeviceInvitationDataV5 = {
+    kind: InvitationKind.Device,
+    version: InvitationDataVersion.v5,
+    pairs: await Promise.all(acceptingPeers.map(invitationPairForPeer)),
+    psk: community.psk,
+    authData: {
+      communityName: teamName,
+      seed: deviceInvite.seed,
+      teamId,
+      userId: deviceInvite.userId,
+      userName: deviceInvite.userName,
+    },
+    qssEnabled: false,
+    qssEndpoint: QSS_INTEGRATION_ENDPOINT,
+  }
+
+  const linkedDevice = await createPeer(`p2p-retrying-device-${randomUUID()}`, {
+    useLocalP2pTransport: true,
+  })
+  const coordinateSpy = jest.spyOn(linkedDevice.admissionCoordinator, 'coordinate')
+  const linkResponse = await linkedDevice.connectionsManager.linkDevice({
+    id: randomUUID(),
+    inviteData,
+    deviceName: 'Adversarial retry linked device',
+  })
+  if (linkResponse == null) {
+    throw new Error('Backend did not prepare the P2P-linked device community')
+  }
+
+  const rejectedByPeerIds: string[] = []
+  const rejectionListeners = unawarePeers.map(peer => {
+    const peerId = requireLocalP2pAddress(peer).split('/p2p/')[1]
+    const listener = (payload: unknown): void => {
+      const eventType = (payload as { event?: { type?: string } }).event?.type
+      if (['LOCAL_ERROR', 'REMOTE_ERROR', 'ERROR'].includes(eventType ?? '') && !rejectedByPeerIds.includes(peerId)) {
+        rejectedByPeerIds.push(peerId)
+      }
+    }
+    peer.libp2pService.on(Libp2pEvents.AUTH_DISCONNECTED, listener)
+    return { peer, listener }
+  })
+
+  const launch = linkedDevice.connectionsManager.launchCommunity(linkResponse.id)
+  await waitForExpect(() => {
+    expect(linkedDevice.libp2pService.state).toBe(Libp2pState.Started)
+    expect(linkedDevice.localP2pAddress).toBeDefined()
+  }, 30_000)
+  linkedDevice.libp2pService.pauseDialQueue()
+
+  const authService = (
+    linkedDevice.libp2pService as unknown as {
+      authService?: {
+        bufferedConnections: Array<{ peerId: { toString(): string } }>
+        advanceToNextBufferedPeer(): Promise<void>
+      }
+    }
+  ).authService
+  if (authService == null) {
+    throw new Error('Production libp2p auth service was not initialized')
+  }
+  const bufferedPeerIdsAtFailure: string[][] = []
+  const advanceToNextBufferedPeer = authService.advanceToNextBufferedPeer.bind(authService)
+  jest.spyOn(authService, 'advanceToNextBufferedPeer').mockImplementation(async () => {
+    bufferedPeerIdsAtFailure.push(authService.bufferedConnections.map(connection => connection.peerId.toString()))
+    await advanceToNextBufferedPeer()
+  })
+
+  for (const peer of acceptingPeers) {
+    await linkedDevice.libp2pService.dialPeer(requireLocalP2pAddress(peer), {
+      throwOnError: true,
+      redialOnError: false,
+    })
+  }
+
+  await launch
+  await waitForP2pBackendLaunch(linkedDevice, teamId)
+  const unawarePeerIds = unawarePeers.map(peer => requireLocalP2pAddress(peer).split('/p2p/')[1])
+  const ownerPeerId = requireLocalP2pAddress(owner).split('/p2p/')[1]
+
+  expect(rejectedByPeerIds).toEqual(unawarePeerIds)
+  expect(bufferedPeerIdsAtFailure).toHaveLength(unawarePeerCount)
+  for (let index = 0; index < unawarePeerCount; index += 1) {
+    expect(bufferedPeerIdsAtFailure[index]).toEqual(
+      expect.arrayContaining([...unawarePeerIds.slice(index + 1), ownerPeerId])
+    )
+  }
+  expect(linkedDevice.libp2pService.connectedPeers.has(ownerPeerId)).toBe(true)
+  expect(coordinateSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      teamId,
+      kind: AdmissionKind.DEVICE,
+      preferredTransport: AdmissionTransport.P2P,
+    }),
+    expect.any(Object)
+  )
+  await expect(coordinateSpy.mock.results[0].value).resolves.toMatchObject({
+    teamId,
+    userId: deviceInvite.userId,
+    transport: AdmissionTransport.P2P,
+  })
+
+  const linkedChain = linkedDevice.sigChainService.activeChain
+  expect(linkedChain.isPendingDeviceAdmission).toBe(false)
+  expect(linkedChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
+  expect(owner.sigChainService.activeChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(true)
+  for (const peer of unawarePeers) {
+    expect(peer.sigChainService.activeChain.team?.hasDevice(linkedChain.device.deviceId)).toBe(false)
+  }
+
+  for (const { peer, listener } of rejectionListeners) {
+    peer.libp2pService.off(Libp2pEvents.AUTH_DISCONNECTED, listener)
+  }
 }
 
 function cleanupError(peer: QSSIntegrationPeer, step: string, error: unknown): Error {
@@ -825,6 +1038,14 @@ maybeDescribe('QSS client protocol integration against dockerized QSS', () => {
     await waitForReplicatedChannelStore(lateInvitee, channel)
     await waitForExactMessages(lateInvitee, channel, expectedMessages)
     await waitForLastSyncSeqAtLeast(lateInvitee, teamId, expectedSeq)
+  })
+
+  it('retries device admission with the invite creator after an invite-unaware peer rejects it', async () => {
+    await runInviteUnawarePeerRetryScenario(1)
+  })
+
+  it('retries device admission across two invite-unaware peers before reaching the invite creator', async () => {
+    await runInviteUnawarePeerRetryScenario(2)
   })
 
   it('links a device through the production coordinator and syncs history and live writes', async () => {
