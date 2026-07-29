@@ -37,7 +37,6 @@ export enum WebsocketEvents {
  * Event emitter events
  */
 export enum QSSEvents {
-  ADMISSION_CANDIDATE = 'qssAdmissionCandidate',
   QSS_AUTH_JOINED = 'qssAuthJoined',
   QSS_AUTH_ATTEMPT_FAILED = 'qssAuthAttemptFailed',
   QSS_AUTH_ERROR = 'qssAuthError',

@@ -7,6 +7,7 @@ import { Libp2pService } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
+import { AdmissionFinalizer, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -69,6 +70,42 @@ describe('Libp2pService', () => {
     const generatedPskBuffer = Buffer.from(generatedKey.psk, 'base64')
     const expectedFullKeyString = LIBP2P_PSK_METADATA + uint8ArrayToString(generatedPskBuffer, 'base16')
     expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
+  })
+
+  it('resolves the admission promise after candidate finalization', async () => {
+    const candidate = {
+      teamId: 'team',
+      userId: 'user',
+      deviceId: 'device',
+      kind: AdmissionKind.DEVICE,
+      transport: AdmissionTransport.P2P,
+    }
+    const expected = {
+      teamId: candidate.teamId,
+      userId: candidate.userId,
+      deviceId: candidate.deviceId,
+      transport: candidate.transport,
+    }
+    const finalize = jest.fn(async () => expected)
+    const admission = libp2pService.beginAdmission(finalize)
+
+    await expect(libp2pService.completeAdmission(candidate)).resolves.toEqual(expected)
+    await expect(admission).resolves.toEqual(expected)
+    expect(finalize).toHaveBeenCalledWith(candidate)
+  })
+
+  it('rejects the admission promise when admission is cancelled', async () => {
+    const finalize: AdmissionFinalizer = async candidate => ({
+      teamId: candidate.teamId,
+      userId: candidate.userId,
+      deviceId: candidate.deviceId,
+      transport: candidate.transport,
+    })
+    const admission = libp2pService.beginAdmission(finalize)
+
+    libp2pService.cancelAdmission(new Error('cancelled'))
+
+    await expect(admission).rejects.toThrow('cancelled')
   })
 
   it('redials sorted peers even when no peers were previously dialed', async () => {

@@ -13,9 +13,6 @@ export enum QssAdmissionStartResult {
   READY = 'ready',
 }
 
-export type AdmissionPhase =
-  'selecting' | 'qss-admitting' | 'p2p-admitting' | 'validating' | 'persisting' | 'admitted' | 'failed' | 'cancelled'
-
 export interface AdmissionRequest {
   communityId: string
   teamId: string
@@ -30,7 +27,7 @@ export interface AdmissionRequest {
 export interface AdmissionRuntime {
   startQss(): Promise<QssAdmissionStartResult>
   pauseQss(): void
-  startP2p(): Promise<void>
+  startP2p(finalize: AdmissionFinalizer): Promise<AdmissionResult>
   stopP2p(): Promise<void>
   convergeQssAfterP2p(): Promise<void>
 }
@@ -48,13 +45,9 @@ export interface AdmissionCandidate {
   userId: string
   deviceId: string
   kind: AdmissionKind
-  deferUntilPersisted(persistence: Promise<void>): void
 }
 
-export interface DeferredAdmissionCandidate {
-  candidate: AdmissionCandidate
-  waitUntilPersisted(): Promise<void>
-}
+export type AdmissionFinalizer = (candidate: AdmissionCandidate) => Promise<AdmissionResult>
 
 export interface PreparedQssAdmission {
   teamId: string
@@ -63,30 +56,4 @@ export interface PreparedQssAdmission {
 
 export type CommunityAdmissionMetadata = {
   admissionTransport?: AdmissionTransport
-}
-
-export const createDeferredAdmissionCandidate = (
-  candidate: Omit<AdmissionCandidate, 'deferUntilPersisted'>
-): DeferredAdmissionCandidate => {
-  let persistence: Promise<void> | undefined
-  let persistenceAssigned = false
-
-  return {
-    candidate: {
-      ...candidate,
-      deferUntilPersisted(nextPersistence: Promise<void>): void {
-        if (persistenceAssigned) {
-          return
-        }
-        persistenceAssigned = true
-        persistence = nextPersistence
-      },
-    },
-    waitUntilPersisted: async () => {
-      if (!persistenceAssigned || persistence == null) {
-        throw new Error('Admission candidate was not claimed')
-      }
-      await persistence
-    },
-  }
 }

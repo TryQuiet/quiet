@@ -43,6 +43,7 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { TimedQueue } from '../common/timed-queue'
 import { defaultLogger } from './libp2p.logger'
 import { QSSService } from '../qss/qss.service'
+import { AdmissionCandidate, AdmissionFinalizer, AdmissionResult } from '../admission/admission.types'
 
 const CONNECTION_LIMIT = 20
 
@@ -68,6 +69,13 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
   public state: Libp2pState = Libp2pState.Stopped
   private torBootstrap?: TorBootstrapProvider
   private waitingForTorBootstrapToResumeDialQueue = false
+  private admissionAttempt?: {
+    finalize: AdmissionFinalizer
+    promise: Promise<AdmissionResult>
+    resolve: (result: AdmissionResult) => void
+    reject: (error: Error) => void
+  }
+  private admissionFinalizer?: AdmissionFinalizer
 
   private logger = createLogger(Libp2pService.name)
 
@@ -147,6 +155,58 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
       }
     }
     return super.emit(event, ...args)
+  }
+
+  public beginAdmission(finalize: AdmissionFinalizer): Promise<AdmissionResult> {
+    if (this.admissionAttempt != null) {
+      return this.admissionAttempt.promise
+    }
+    let resolve!: (result: AdmissionResult) => void
+    let reject!: (error: Error) => void
+    const promise = new Promise<AdmissionResult>((resolvePromise, rejectPromise) => {
+      resolve = resolvePromise
+      reject = rejectPromise
+    })
+    this.admissionAttempt = { finalize, promise, resolve, reject }
+    return promise
+  }
+
+  public setAdmissionFinalizer(finalize: AdmissionFinalizer): void {
+    this.admissionFinalizer = finalize
+  }
+
+  public async completeAdmission(candidate: AdmissionCandidate): Promise<AdmissionResult> {
+    const attempt = this.admissionAttempt
+    if (attempt == null) {
+      if (this.admissionFinalizer != null) {
+        return this.admissionFinalizer(candidate)
+      }
+      throw new Error('Libp2p admission completed without an active admission attempt')
+    }
+    try {
+      const result = await attempt.finalize(candidate)
+      if (this.admissionAttempt === attempt) {
+        this.admissionAttempt = undefined
+      }
+      attempt.resolve(result)
+      return result
+    } catch (error) {
+      const normalizedError = error instanceof Error ? error : new Error(String(error))
+      if (this.admissionAttempt === attempt) {
+        this.admissionAttempt = undefined
+      }
+      attempt.reject(normalizedError)
+      throw normalizedError
+    }
+  }
+
+  public cancelAdmission(error: Error): void {
+    const attempt = this.admissionAttempt
+    if (attempt == null) {
+      return
+    }
+    this.admissionAttempt = undefined
+    attempt.reject(error)
   }
 
   /**
@@ -759,6 +819,7 @@ export class Libp2pService extends EventEmitter implements OnModuleDestroy {
 
   public async close(closeDatastore = true): Promise<void> {
     this.logger.debug('Closing libp2p service:', this.localAddress)
+    this.cancelAdmission(new Error('Libp2p admission aborted while service closed'))
     this.setState(Libp2pState.Stopping)
     if (this._dialQueueInterval) {
       clearInterval(this._dialQueueInterval)

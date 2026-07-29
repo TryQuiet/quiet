@@ -1025,7 +1025,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
               : QssAdmissionStartResult.UNAVAILABLE
           },
           pauseQss: () => this.qssService.pause(),
-          startP2p: ensureLibp2pStarted,
+          startP2p: async finalize => {
+            const admission = this.libp2pService.beginAdmission(finalize)
+            try {
+              await ensureLibp2pStarted()
+              return await admission
+            } catch (error) {
+              this.libp2pService.cancelAdmission(error instanceof Error ? error : new Error(String(error)))
+              throw error
+            }
+          },
           stopP2p: async () => this.libp2pService.close(false),
           convergeQssAfterP2p: async () => {
             if (qssAdmissionEndpoint == null) {

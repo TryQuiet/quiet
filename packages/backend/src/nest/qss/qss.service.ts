@@ -3,9 +3,11 @@
  */
 import { Mutex } from 'async-mutex'
 import {
+  AdmissionCandidate,
+  AdmissionFinalizer,
   AdmissionKind,
+  AdmissionResult,
   AdmissionTransport,
-  createDeferredAdmissionCandidate,
   PreparedQssAdmission,
 } from '../admission/admission.types'
 import { Server } from '../../../../../3rd-party/auth/packages/auth/dist'
@@ -76,7 +78,16 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
    */
   private _signInMutex: Mutex = new Mutex()
   private _connectMutex: Mutex = new Mutex()
-  private readonly preparedAdmissions = new Map<string, { prepared: PreparedQssAdmission; sigChain: SigChain }>()
+  private readonly preparedAdmissions = new Map<
+    string,
+    {
+      prepared: PreparedQssAdmission
+      sigChain: SigChain
+      finalize?: AdmissionFinalizer
+      resolve?: (result: AdmissionResult) => void
+      reject?: (error: Error) => void
+    }
+  >()
   private readonly deviceAdmissionRetries = new Map<
     string,
     { attempts: number; timer?: NodeJS.Timeout; lastFailure: QSSAuthAttemptFailurePayload }
@@ -134,14 +145,14 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
       return
     }
     if (prepared?.kind === AdmissionKind.DEVICE) {
-      await this.emitAdmissionCandidate(teamId, prepared.kind)
-      this.preparedAdmissions.delete(teamId)
+      await this.completePreparedAdmission(teamId, prepared.kind)
     }
     this.emit(QSSEvents.QSS_AUTH_JOINED, teamId)
   }
 
   private _handleQssAuthError = (payload: QSSAuthErrorPayload): void => {
     this.logger.warn('QSS auth connection failed', payload.teamId, payload.error)
+    this.rejectPreparedAdmission(payload.teamId, payload.error)
     this.emit(QSSEvents.QSS_AUTH_ERROR, payload)
   }
 
@@ -248,8 +259,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     )
     try {
       if (this.preparedAdmissions.get(teamId)?.prepared.kind === AdmissionKind.MEMBER) {
-        await this.emitAdmissionCandidate(teamId, AdmissionKind.MEMBER)
-        this.preparedAdmissions.delete(teamId)
+        await this.completePreparedAdmission(teamId, AdmissionKind.MEMBER)
       }
       this.qssAuthConnManager.markMemberRoleReady(teamId)
       this.qssSyncManager.markMemberRoleReady(teamId)
@@ -262,17 +272,45 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     }
   }
 
-  private async emitAdmissionCandidate(teamId: string, kind: AdmissionKind): Promise<void> {
+  private async completePreparedAdmission(teamId: string, kind: AdmissionKind): Promise<void> {
+    const state = this.preparedAdmissions.get(teamId)
+    if (state?.finalize == null) {
+      throw new Error(`QSS admission finalizer is unavailable for team ${teamId}`)
+    }
     const chain = this.sigChainService.getChain(teamId)
-    const deferred = createDeferredAdmissionCandidate({
+    const candidate: AdmissionCandidate = {
       transport: AdmissionTransport.QSS,
       teamId,
       userId: chain.user.userId,
       deviceId: chain.device.deviceId,
       kind,
-    })
-    this.emit(QSSEvents.ADMISSION_CANDIDATE, deferred.candidate)
-    await deferred.waitUntilPersisted()
+    }
+    try {
+      const result = await state.finalize(candidate)
+      this.preparedAdmissions.delete(teamId)
+      state.resolve?.(result)
+    } catch (error) {
+      const normalizedError = error instanceof Error ? error : new Error(String(error))
+      this.preparedAdmissions.delete(teamId)
+      state.reject?.(normalizedError)
+      throw normalizedError
+    }
+  }
+
+  private rejectPreparedAdmission(teamId: string, error: Error): void {
+    const state = this.preparedAdmissions.get(teamId)
+    if (state == null) {
+      return
+    }
+    this.preparedAdmissions.delete(teamId)
+    state.reject?.(error)
+  }
+
+  private abortPreparedAdmissions(error: Error): void {
+    for (const state of this.preparedAdmissions.values()) {
+      state.reject?.(error)
+    }
+    this.preparedAdmissions.clear()
   }
 
   private _configureEventHandlers(): void {
@@ -581,7 +619,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this.qssSyncManager.pause()
     this._clearReconnectTimer(true)
     this.clearDeviceAdmissionRetries()
-    this.preparedAdmissions.clear()
+    this.abortPreparedAdmissions(new Error('QSS admission aborted while service paused'))
     this._captchaVerificationQueued = false
     this.qssAuthConnManager.close()
     this.qssClient.close()
@@ -884,17 +922,31 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     return prepared
   }
 
-  public async startPreparedAdmission(prepared: PreparedQssAdmission): Promise<void> {
+  public async startPreparedAdmission(
+    prepared: PreparedQssAdmission,
+    finalize: AdmissionFinalizer
+  ): Promise<AdmissionResult> {
     const state = this.preparedAdmissions.get(prepared.teamId)
     if (state == null || state.prepared !== prepared) {
       throw new Error(`QSS admission preparation is stale for team ${prepared.teamId}`)
     }
+    let resolve!: (result: AdmissionResult) => void
+    let reject!: (error: Error) => void
+    const completion = new Promise<AdmissionResult>((resolvePromise, rejectPromise) => {
+      resolve = resolvePromise
+      reject = rejectPromise
+    })
+    state.finalize = finalize
+    state.resolve = resolve
+    state.reject = reject
     const started = await this.startAuthConnection(prepared.teamId)
     if (!started) {
+      this.preparedAdmissions.delete(prepared.teamId)
       throw new Error(`Failed to start prepared QSS admission for team ${prepared.teamId}`)
     }
     await this.emitNseQssUrl(this._qssEndpoint)
     this.qssSyncManager.startLogSyncForSignedInTeam(prepared.teamId, state.sigChain)
+    return completion
   }
 
   public async authenticateCurrentCommunity(): Promise<void> {
@@ -971,7 +1023,7 @@ export class QSSService extends EventEmitter implements OnModuleDestroy {
     this._clearReconnectTimer(true)
     this.clearDeviceAdmissionRetries()
     this.qssSyncManager.close()
-    this.preparedAdmissions.clear()
+    this.abortPreparedAdmissions(new Error('QSS admission aborted while service closed'))
     this._teardownEventHandlers()
     this.qssClient.off(QSSEvents.QSS_CONNECTED, this._requestCaptchaVerificationAfterConnect)
     this._captchaVerificationQueued = false

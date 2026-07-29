@@ -64,7 +64,7 @@ import {
 } from './qss.const'
 import { QSSSyncManager } from './qss-sync-manager.service'
 import { Serializer } from '../common/serializer.service'
-import { AdmissionKind } from '../admission/admission.types'
+import { AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 
 describe('QSSService', () => {
   let store: Store
@@ -327,9 +327,44 @@ describe('QSSService', () => {
       expect(requestSignInSpy).toHaveBeenCalledWith(teamId, pendingChain, false)
       expect(startAuthSpy).not.toHaveBeenCalled()
 
-      await qssService.startPreparedAdmission(prepared)
+      const admission = qssService.startPreparedAdmission(prepared, async candidate => ({
+        teamId: candidate.teamId,
+        userId: candidate.userId,
+        deviceId: candidate.deviceId,
+        transport: candidate.transport,
+      }))
       expect(startAuthSpy).toHaveBeenCalledWith(teamId)
-      expect(startSyncSpy).toHaveBeenCalledWith(teamId, pendingChain)
+      await waitForExpect(() => expect(startSyncSpy).toHaveBeenCalledWith(teamId, pendingChain))
+      jest.spyOn(qssService, 'canConnect', 'get').mockReturnValue(true)
+      qssService.pause()
+      await expect(admission).rejects.toThrow('aborted while service paused')
+    })
+
+    it('resolves prepared admission through the supplied finalizer', async () => {
+      const chain = sigchainService.activeChain
+      const teamId = chain.team!.id
+      jest.spyOn(qssService, '_signInToCommunityImpl').mockResolvedValue(QSSOperationResult.SUCCESS)
+      jest.spyOn(qssService as any, 'startAuthConnection').mockResolvedValue(true)
+      jest.spyOn(qssService as any, 'emitNseQssUrl').mockResolvedValue(undefined)
+      jest.spyOn(qssSyncManager, 'startLogSyncForSignedInTeam').mockImplementation(() => {})
+      const prepared = await qssService.prepareAdmission(teamId, chain)
+      const expected = {
+        teamId,
+        userId: chain.user.userId,
+        deviceId: chain.device.deviceId,
+        transport: AdmissionTransport.QSS,
+      }
+      const finalize = jest.fn(async () => expected)
+      const admission = qssService.startPreparedAdmission(prepared, finalize)
+      await waitForExpect(() => expect(qssService['preparedAdmissions'].get(teamId)?.finalize).toBe(finalize))
+
+      await qssService['completePreparedAdmission'](teamId, prepared.kind)
+
+      await expect(admission).resolves.toEqual(expected)
+      expect(finalize).toHaveBeenCalledWith({
+        ...expected,
+        kind: prepared.kind,
+      })
     })
 
     it('retries a retryable pending-device auth failure without surfacing it as terminal', async () => {

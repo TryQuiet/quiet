@@ -25,7 +25,7 @@ import { QSSService } from '../qss/qss.service'
 import { QSSEvents } from '../qss/qss.types'
 import { Member } from '../../../../../3rd-party/auth/packages/auth/dist'
 import { LFAEvents } from '../auth/types'
-import { AdmissionKind, AdmissionTransport, createDeferredAdmissionCandidate } from '../admission/admission.types'
+import { AdmissionCandidate, AdmissionKind, AdmissionTransport } from '../admission/admission.types'
 
 export interface Libp2pAuthComponents {
   peerId: PeerId
@@ -482,16 +482,15 @@ export class Libp2pAuth {
       this.logger.info(`Joined team ${team.id} (userid: ${user.userId})!`)
       this.sigChainService.setActiveChain(sigChain.teamId!)
     }
-    const deferred = createDeferredAdmissionCandidate({
+    const candidate: AdmissionCandidate = {
       transport: AdmissionTransport.P2P,
       teamId: team.id,
       userId: user.userId,
       deviceId: sigChain.device.deviceId,
       kind: wasPendingDeviceAdmission ? AdmissionKind.DEVICE : AdmissionKind.MEMBER,
-    })
-    this.emit(Libp2pEvents.ADMISSION_CANDIDATE, deferred.candidate)
+    }
     try {
-      await deferred.waitUntilPersisted()
+      await this.libp2pService.completeAdmission(candidate)
     } catch (error) {
       this.joinStatus = JoinStatus.PENDING
       this.emit(Libp2pEvents.AUTH_LOCAL_ERROR, { error, connection })

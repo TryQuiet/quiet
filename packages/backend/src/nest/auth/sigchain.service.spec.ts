@@ -155,19 +155,20 @@ describe('SigChainService - listener lifecycle', () => {
     const teamId = chain.teamId!
     const persistSpy = jest.spyOn(localDbService, 'setSigChainData')
     persistSpy.mockClear()
-    const barrier = sigChainService.beginAdmissionPersistenceBarrier(teamId)
     let blockedSaveResolved = false
 
-    const blockedSave = sigChainService.saveChain(teamId).then(() => {
-      blockedSaveResolved = true
+    await sigChainService.withAdmissionPersistence(teamId, async persistence => {
+      const blockedSave = sigChainService.saveChain(teamId).then(() => {
+        blockedSaveResolved = true
+      })
+      await new Promise<void>(resolve => setImmediate(resolve))
+
+      expect(blockedSaveResolved).toBe(false)
+      expect(persistSpy).not.toHaveBeenCalled()
+
+      await persistence.commit()
+      await blockedSave
     })
-    await new Promise<void>(resolve => setImmediate(resolve))
-
-    expect(blockedSaveResolved).toBe(false)
-    expect(persistSpy).not.toHaveBeenCalled()
-
-    await sigChainService.commitAdmissionPersistence(barrier)
-    await blockedSave
 
     expect(blockedSaveResolved).toBe(true)
     expect(persistSpy).toHaveBeenCalledTimes(1)
@@ -176,7 +177,6 @@ describe('SigChainService - listener lifecycle', () => {
   it('persists a newer snapshot when the chain changes during admission commit', async () => {
     const chain = await sigChainService.createChain(true)
     const teamId = chain.teamId!
-    const barrier = sigChainService.beginAdmissionPersistenceBarrier(teamId)
     let snapshotVersion = 1
     let releaseFirstWrite!: () => void
     const firstWrite = new Promise<void>(resolve => {
@@ -199,16 +199,18 @@ describe('SigChainService - listener lifecycle', () => {
       })
 
     try {
-      const commit = sigChainService.commitAdmissionPersistence(barrier)
-      await waitForExpect(() => expect(snapshots).toHaveLength(1))
+      await sigChainService.withAdmissionPersistence(teamId, async persistence => {
+        const commit = persistence.commit()
+        await waitForExpect(() => expect(snapshots).toHaveLength(1))
 
-      snapshotVersion = 2
-      const blockedSave = sigChainService.saveChain(teamId)
-      await new Promise<void>(resolve => setImmediate(resolve))
-      releaseFirstWrite()
+        snapshotVersion = 2
+        const blockedSave = sigChainService.saveChain(teamId)
+        await new Promise<void>(resolve => setImmediate(resolve))
+        releaseFirstWrite()
 
-      await commit
-      await blockedSave
+        await commit
+        await blockedSave
+      })
       expect(snapshots.map(snapshot => snapshot.serializedTeam)).toEqual(['1', '2'])
     } finally {
       captureSpy.mockRestore()

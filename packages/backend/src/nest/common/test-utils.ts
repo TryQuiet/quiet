@@ -20,8 +20,14 @@ const logger = createLogger('libp2p:test-utils')
 
 const attachDirectAdmissionPersistence = async (module: TestingModule, libp2pService: Libp2pService): Promise<void> => {
   const sigChainService = await module.resolve(SigChainService)
-  libp2pService.on(Libp2pEvents.ADMISSION_CANDIDATE, (candidate: AdmissionCandidate) => {
-    candidate.deferUntilPersisted(sigChainService.saveChain(candidate.teamId))
+  libp2pService.setAdmissionFinalizer(async (candidate: AdmissionCandidate) => {
+    await sigChainService.saveChain(candidate.teamId)
+    return {
+      teamId: candidate.teamId,
+      userId: candidate.userId,
+      deviceId: candidate.deviceId,
+      transport: candidate.transport,
+    }
   })
 }
 

@@ -24,7 +24,13 @@ import { type CryptoService } from './services/crypto/crypto.service'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import EventEmitter from 'events'
-import { AdmissionPersistenceBarrier, SigChainSaveData, SigchainEvents, StoredKeyType } from './types'
+import {
+  AdmissionPersistenceBarrier,
+  AdmissionPersistenceScope,
+  SigChainSaveData,
+  SigchainEvents,
+  StoredKeyType,
+} from './types'
 import { ModuleRef } from '@nestjs/core'
 import { DeviceCredentialsUpdatedEvent, KeysUpdatedEvent } from '@quiet/types'
 import type {
@@ -466,7 +472,27 @@ export class SigChainService extends EventEmitter {
     await this.enqueueSnapshot(teamId, this.captureSnapshot(teamId))
   }
 
-  beginAdmissionPersistenceBarrier(teamId: string): AdmissionPersistenceBarrier {
+  async withAdmissionPersistence<T>(
+    teamId: string,
+    operation: (persistence: AdmissionPersistenceScope) => Promise<T>
+  ): Promise<T> {
+    const barrier = this.beginAdmissionPersistenceBarrier(teamId)
+    let committed = false
+    try {
+      return await operation({
+        commit: async () => {
+          await this.commitAdmissionPersistence(barrier)
+          committed = true
+        },
+      })
+    } finally {
+      if (!committed) {
+        this.cancelAdmissionPersistence(barrier)
+      }
+    }
+  }
+
+  private beginAdmissionPersistenceBarrier(teamId: string): AdmissionPersistenceBarrier {
     if (this.admissionPersistenceBarriers.has(teamId)) {
       throw new Error(`Admission persistence barrier already active for team ${teamId}`)
     }
@@ -475,7 +501,7 @@ export class SigChainService extends EventEmitter {
     return barrier
   }
 
-  async commitAdmissionPersistence(barrier: AdmissionPersistenceBarrier): Promise<void> {
+  private async commitAdmissionPersistence(barrier: AdmissionPersistenceBarrier): Promise<void> {
     const state = this.requireAdmissionBarrier(barrier)
     try {
       await this._ensureDb()
@@ -504,7 +530,7 @@ export class SigChainService extends EventEmitter {
     return this.admissionPersistenceBarriers.has(teamId)
   }
 
-  cancelAdmissionPersistence(barrier: AdmissionPersistenceBarrier): void {
+  private cancelAdmissionPersistence(barrier: AdmissionPersistenceBarrier): void {
     const state = this.admissionPersistenceBarriers.get(barrier.teamId)
     if (state == null || state.barrier.id !== barrier.id) {
       return

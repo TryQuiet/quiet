@@ -56,7 +56,14 @@ describe('Libp2pAuth buffered connections', () => {
     qssService = Object.assign(new EventEmitter(), {
       joinStatus: jest.fn().mockReturnValue(JoinStatus.NOT_STARTED),
     }) as unknown as QSSService
-    libp2pEvents = new EventEmitter()
+    libp2pEvents = Object.assign(new EventEmitter(), {
+      completeAdmission: jest.fn(async (candidate: AdmissionCandidate) => ({
+        teamId: candidate.teamId,
+        userId: candidate.userId,
+        deviceId: candidate.deviceId,
+        transport: candidate.transport,
+      })),
+    })
     const components = {
       registrar: {
         unhandle: jest.fn<() => Promise<void>>().mockResolvedValue(),
@@ -179,8 +186,14 @@ describe('Libp2pAuth buffered connections', () => {
     })
     const joined = jest.fn()
     libp2pEvents.on(Libp2pEvents.AUTH_JOINED, joined)
-    libp2pEvents.on(Libp2pEvents.ADMISSION_CANDIDATE, (candidate: AdmissionCandidate) => {
-      candidate.deferUntilPersisted(persistence)
+    jest.mocked((libp2pEvents as any).completeAdmission).mockImplementation(async (candidate: AdmissionCandidate) => {
+      await persistence
+      return {
+        teamId: candidate.teamId,
+        userId: candidate.userId,
+        deviceId: candidate.deviceId,
+        transport: candidate.transport,
+      }
     })
 
     await auth['onPeerConnected'](admittingPeer, connection(admittingPeer.toString()))

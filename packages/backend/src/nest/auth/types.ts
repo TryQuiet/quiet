@@ -23,6 +23,10 @@ export interface AdmissionPersistenceBarrier {
   readonly id: symbol
 }
 
+export interface AdmissionPersistenceScope {
+  commit(): Promise<void>
+}
+
 /**
  * Native LFA Events
  */
